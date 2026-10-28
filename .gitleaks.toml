@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+# gitleaks configuration, used by the pre-commit hook (lefthook.yml) and by
+# .github/workflows/secret-scan.yml. Extends the default ruleset.
+#
+# No paths are allowlisted: .env.example and docs are scanned too, so a real
+# value pasted there is caught. For a known false positive, add a
+# `gitleaks:allow` comment to that one line and explain it in the commit.
+
+title = "Offgrid gitleaks config"
+
+[extend]
+useDefault = true

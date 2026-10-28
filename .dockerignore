@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+# Keep secrets, local data and build output out of image build contexts.
+.git
+.env
+.env.*
+data/
+*.pem
+*.key
+node_modules
+dist
+coverage
+.turbo
+*.tsbuildinfo
