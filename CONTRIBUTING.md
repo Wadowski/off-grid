@@ -67,6 +67,28 @@ Then run:
 pnpm reuse:lint
 ```
 
+## Secrets and dependencies
+
+Offgrid is a public repository. Never commit real credentials, tokens or keys, including in examples. `.env.example` holds placeholders only.
+
+Secrets are caught in three places:
+
+1. **Pre-commit hook.** `pnpm install` installs the git hooks through [lefthook](lefthook.yml). The hook runs gitleaks on the staged changes. Install the [gitleaks](https://github.com/gitleaks/gitleaks#installing) binary first, or the hook fails with a message that says so.
+2. **CI.** `.github/workflows/secret-scan.yml` runs gitleaks on every pull request and push to `main`.
+3. **History.** `.github/workflows/history-scan.yml` runs trufflehog over the full git history every week.
+
+Rules are in [.gitleaks.toml](.gitleaks.toml). Do not allowlist a path to silence a finding. For a single known false positive, add a `gitleaks:allow` comment to that line and explain it in the commit.
+
+Repository setting (a maintainer enables this once, since it cannot be set from code): **Settings → Code security → Secret protection → Push protection**. This blocks pushes that contain a supported secret type.
+
+Check dependencies for known vulnerabilities with:
+
+```bash
+pnpm audit:deps
+```
+
+Dependency updates come from [Renovate](renovate.json): weekly, minor and patch updates grouped, major updates in their own pull request, and no automerge.
+
 ## Checks before you open a pull request
 
 ```bash
