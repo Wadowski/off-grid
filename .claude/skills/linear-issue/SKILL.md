@@ -1,16 +1,31 @@
 ---
 name: linear-issue
-description: Take a Linear issue link end to end - move it to In Progress, analyze the description and comments, implement it, wait for the user's review, then open a PR linked to the issue, watch CI, and on "merge" merge the PR and move the issue to Done. Use when the user pastes a linear.app issue URL or an issue ID like OG-16 and asks to work on, implement or pick it up.
-argument-hint: <linear issue URL or ID>
+description: Take a Linear issue end to end - move it to In Progress, analyze the description and comments, implement it, wait for the user's review, then open a PR linked to the issue, watch CI, and on "merge" merge the PR and move the issue to Done. Use when the user pastes a linear.app issue URL or an issue ID like OG-16 and asks to work on it, OR says things like "do next issue", "take the next task", "pick up the next ticket", "what's next on the board" without naming an issue (then the first issue on the Linear board is picked automatically).
+argument-hint: [linear issue URL or ID | "next"]
 ---
 
 # linear-issue
 
 Drive one Linear issue from "To do" to "Done". The user is in the loop at two gates: **review** (before any PR exists) and **merge** (after CI is green). Never cross a gate without an explicit user message.
 
-Input: a Linear issue URL (`https://linear.app/<workspace>/issue/OG-16/...`) or a bare ID (`OG-16`). Extract the identifier (`OG-16`).
+Input, one of:
+- A Linear issue URL (`https://linear.app/<workspace>/issue/OG-16/...`) or a bare ID (`OG-16`). Extract the identifier (`OG-16`).
+- **No issue given** (triggers like "do next issue", "next task", "pick up the next ticket", or `/linear-issue` with no argument): select the next issue from the board using "Phase 0".
 
 Linear tools are MCP tools named `mcp__<linear-server>__get_issue`, `list_comments`, `list_issue_statuses`, `save_issue`, `save_comment`, `create_attachment`. They may be deferred: load them with ToolSearch (`select:` with the exact names) before the first call.
+
+## Phase 0 - Select the next issue (only when no issue was given)
+
+The Linear API cannot return the board's manual drag-and-drop order, so "first on the board" is approximated deterministically:
+
+1. Determine the team: from `CLAUDE.md`/repo hints if stated, otherwise `list_teams` (if there is exactly one, use it; if several, ask the user once).
+2. `list_issues` with `team`, `state: "unstarted"` (the Todo column; this includes "Todo"), `limit: 50`, `fields: ["title","priority","status","assignee","parentId","createdAt","url"]`. If the user named a saved view/board ("next issue from <view>"), use `customView` instead.
+3. Keep issues that are unassigned or assigned to me (`assignee: "me"` / unassigned); drop those assigned to others, and drop any that are blocked by an unfinished issue (check relations via `get_issue`).
+4. Sort: priority ascending with Urgent(1) > High(2) > Medium(3) > Low(4) > None(0, last), then oldest `createdAt` first. Take the first.
+5. If the Todo column is empty, fall back to `backlog`; if that is empty too, tell the user there is nothing to pick up and stop.
+6. Announce the choice in one line (`OG-17 "<title>" - priority High`, plus the runner-up if the ordering was a close call) and **continue straight into Phase 1**. The user can interrupt if it is the wrong one; the only change made so far is reversible status.
+
+Then proceed with the picked identifier exactly as if the user had given it.
 
 ## Phase 1 - Pick up the issue
 
