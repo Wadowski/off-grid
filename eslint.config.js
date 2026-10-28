@@ -34,5 +34,12 @@ export default tseslint.config(
       globals: { console: "readonly", process: "readonly", URL: "readonly" },
     },
   },
+  {
+    // CommonJS config files, such as .dependency-cruiser.cjs, export with module.exports.
+    files: ["**/*.cjs"],
+    languageOptions: {
+      globals: { module: "readonly" },
+    },
+  },
   prettier,
 );
