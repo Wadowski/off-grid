@@ -9,6 +9,7 @@ argument-hint: [linear issue URL or ID | "next"]
 Drive one Linear issue from "To do" to "Done". The user is in the loop at two gates: **review** (before any PR exists) and **merge** (after CI is green). Never cross a gate without an explicit user message.
 
 Input, one of:
+
 - A Linear issue URL (`https://linear.app/<workspace>/issue/OG-16/...`) or a bare ID (`OG-16`). Extract the identifier (`OG-16`).
 - **No issue given** (triggers like "do next issue", "next task", "pick up the next ticket", or `/linear-issue` with no argument): select the next issue from the board using "Phase 0".
 
