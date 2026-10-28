@@ -1,0 +1,15 @@
+{
+  "name": "@offgrid/smoke",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Throwaway package proving the toolchain pipeline; removed by the skeleton issue (OG-17).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "lint": "eslint .",
+    "test": "vitest run"
+  }
+}
