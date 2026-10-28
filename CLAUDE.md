@@ -1,11 +1,5 @@
 # CLAUDE.md
 
-## What this is
-
-Offgrid is a privacy-first, family-oriented, self-hosted app suite. The current scope is the **local server only**: no cloud, gateway, billing, tunnel or mobile.
-
-Stack: TypeScript, pnpm + Turborepo monorepo, one modular-monolith server process (Fastify, Prisma), one Postgres with one schema per module, React + Vite web app, Caddy, Docker Compose, Vitest, Playwright-BDD.
-
 ## Repo map
 
 - `apps/main-server/`: the server process that wires modules together
