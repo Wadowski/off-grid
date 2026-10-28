@@ -23,6 +23,7 @@ path = [
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
   "**/.gitkeep",
+  ".dockerignore",
   ".editorconfig",
   ".env.example",
   ".gitignore",

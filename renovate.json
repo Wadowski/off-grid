@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "schedule": ["before 6am on monday"],
+  "timezone": "UTC",
+  "automerge": false,
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "packageRules": [
+    {
+      "description": "Group minor and patch updates into one weekly PR",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "minor and patch dependencies"
+    },
+    {
+      "description": "Major updates get their own PR for review",
+      "matchUpdateTypes": ["major"],
+      "groupName": "major dependencies",
+      "dependencyDashboardApproval": true
+    }
+  ]
+}
