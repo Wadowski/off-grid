@@ -1,0 +1,34 @@
+version = 1
+
+# Source files carry their SPDX header inline (see scripts/spdx-headers.mjs).
+# This file covers the files that cannot hold a comment: JSON, lockfiles,
+# Markdown, dotfiles, and the license texts. Everything in the repository is
+# under FSL-1.1-ALv2.
+
+[[annotations]]
+path = [
+  "LICENSE",
+  "NOTICE",
+  "TRADEMARK.md",
+  "SECURITY.md",
+  "CONTRIBUTING.md",
+  "REUSE.toml",
+  "**/README.md",
+  "**/*.md",
+  "docs/**",
+  ".changeset/**",
+  ".claude/**",
+  ".github/**",
+  "**/*.json",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+  "**/.gitkeep",
+  ".editorconfig",
+  ".env.example",
+  ".gitignore",
+  ".npmrc",
+  ".nvmrc",
+  ".prettierignore",
+]
+SPDX-FileCopyrightText = "2026 Dominik Wadowski"
+SPDX-License-Identifier = "FSL-1.1-ALv2"

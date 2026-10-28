@@ -13,7 +13,12 @@
     "lint": "turbo run lint && eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "turbo run test",
+    "test": "turbo run test && pnpm test:scripts",
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "license:headers": "node scripts/spdx-headers.mjs",
+    "license:headers:check": "node scripts/spdx-headers.mjs --check",
+    "reuse:lint": "reuse lint",
+    "dco:check": "node scripts/check-dco.mjs",
     "e2e": "echo 'e2e: not implemented yet (filled by a later issue)'",
     "check:boundaries": "echo 'check:boundaries: not implemented yet (filled by a later issue)'",
     "changeset": "changeset"

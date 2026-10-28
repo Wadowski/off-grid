@@ -1,0 +1,15 @@
+# The owner reviews every change. Stricter entries below cover files that
+# change how the project is licensed, built, automated or decided.
+#
+# TODO(OG-18): replace @OWNER with the owner's GitHub handle before enabling
+# branch protection. GitHub ignores an owner it cannot resolve.
+
+*                       @OWNER
+/.github/               @OWNER
+/.claude/               @OWNER
+/docs/adr/              @OWNER
+/LICENSE                @OWNER
+/LICENSES/              @OWNER
+/NOTICE                 @OWNER
+/TRADEMARK.md           @OWNER
+/REUSE.toml             @OWNER
