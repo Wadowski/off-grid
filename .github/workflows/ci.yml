@@ -1,0 +1,140 @@
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+# Verifies every pull request and every push to main with the same checks an
+# agent runs locally. docs/ci.md lists each job, the command that reproduces it
+# and the checks to mark as required in branch protection.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/turbo
+          key: turbo-lint-${{ github.sha }}
+          restore-keys: turbo-lint-
+      - run: pnpm lint
+      - run: pnpm format:check
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/turbo
+          key: turbo-typecheck-${{ github.sha }}
+          restore-keys: turbo-typecheck-
+      - run: pnpm typecheck
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/turbo
+          key: turbo-test-${{ github.sha }}
+          restore-keys: turbo-test-
+      - run: pnpm test
+
+  boundaries:
+    name: boundaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:boundaries
+
+  license:
+    name: license
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The DCO check reads origin/main..HEAD, so it needs the full history.
+          fetch-depth: 0
+          # Check the PR head itself. The default merge commit has no sign-off.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm license:headers:check
+      - name: Install REUSE
+        run: pipx install reuse
+      - run: pnpm reuse:lint
+      - run: pnpm dco:check
+
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan full git history with gitleaks
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            -e HOME=/tmp \
+            -v "$GITHUB_WORKSPACE:/repo" \
+            -w /repo \
+            zricethezav/gitleaks:v8.24.3 \
+            git --config .gitleaks.toml --redact --verbose --exit-code 1 .
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit:deps
