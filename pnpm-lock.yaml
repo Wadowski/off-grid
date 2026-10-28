@@ -197,7 +197,45 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2)(yaml@2.9.1))
 
-  packages/_smoke: {}
+  apps/server: {}
+
+  apps/web: {}
+
+  modules/access: {}
+
+  modules/calendar: {}
+
+  modules/export: {}
+
+  modules/family: {}
+
+  modules/files: {}
+
+  modules/food: {}
+
+  modules/identity: {}
+
+  modules/lists: {}
+
+  modules/notes: {}
+
+  modules/notifications: {}
+
+  modules/relations: {}
+
+  packages/access-control: {}
+
+  packages/api-client: {}
+
+  packages/contracts: {}
+
+  packages/db: {}
+
+  packages/event-bus: {}
+
+  packages/observability: {}
+
+  packages/ui: {}
 
 packages:
 

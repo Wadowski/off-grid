@@ -1,0 +1,15 @@
+{
+  "name": "@offgrid/notifications",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}
