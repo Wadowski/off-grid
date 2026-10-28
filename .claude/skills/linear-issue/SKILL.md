@@ -1,16 +1,29 @@
 ---
 name: linear-issue
-description: Take a Linear issue link end to end - move it to In Progress, analyze the description and comments, implement it, wait for the user's review, then open a PR linked to the issue, watch CI, and on "merge" merge the PR and move the issue to Done. Use when the user pastes a linear.app issue URL or an issue ID like OG-16 and asks to work on, implement or pick it up.
-argument-hint: <linear issue URL or ID>
+description: Take a Linear issue end to end - move it to In Progress, analyze the description and comments, implement it, wait for the user's review, then open a PR linked to the issue, watch CI, and on "merge" merge the PR and move the issue to Done. Use when the user pastes a linear.app issue URL or an issue ID like OG-16 and asks to work on it, OR says things like "do next issue", "take the next task", "pick up the next ticket", "what's next on the board" without naming an issue (then the first issue on the Linear board is picked automatically).
+argument-hint: [linear issue URL or ID | "next"]
 ---
 
 # linear-issue
 
 Drive one Linear issue from "To do" to "Done". The user is in the loop at two gates: **review** (before any PR exists) and **merge** (after CI is green). Never cross a gate without an explicit user message.
 
-Input: a Linear issue URL (`https://linear.app/<workspace>/issue/OG-16/...`) or a bare ID (`OG-16`). Extract the identifier (`OG-16`).
+Input, one of:
+- A Linear issue URL (`https://linear.app/<workspace>/issue/OG-16/...`) or a bare ID (`OG-16`). Extract the identifier (`OG-16`).
+- **No issue given** (triggers like "do next issue", "next task", "pick up the next ticket", or `/linear-issue` with no argument): select the next issue from the board using "Phase 0".
 
 Linear tools are MCP tools named `mcp__<linear-server>__get_issue`, `list_comments`, `list_issue_statuses`, `save_issue`, `save_comment`, `create_attachment`. They may be deferred: load them with ToolSearch (`select:` with the exact names) before the first call.
+
+## Phase 0 - Select the next issue (only when no issue was given)
+
+Take the issue at the **top of the Todo column on the Kanban board**. The board order is manual (drag-and-drop), so it is NOT the same as issue number, priority or creation date. Never sort, re-order or "pick the lowest number": the order Linear returns is the board order and must be preserved.
+
+1. `list_issues` with `customView: "Kanban"` (a shared view named Kanban exists; if the user names another view or board, use that; if the view is not found, `list_custom_views` to look, else fall back to `team` + `state: "unstarted"`), `limit: 100`, `fields: ["title","priority","status","assignee","parentId","url"]`. Follow `cursor` while `hasNextPage` is true.
+2. Walk the results **in the returned order** and take the first issue whose status is **Todo** (type `unstarted`) and which is unassigned or assigned to me. Skip, but only skip, issues assigned to someone else or blocked by an unfinished issue (check relations via `get_issue`). Issues in other columns (In Progress, Done, ...) are ignored.
+3. If the Todo column has no eligible issue, take the first **Backlog** issue the same way; if none, tell the user there is nothing to pick up and stop.
+4. Announce the choice in one line (`OG-21 "<title>" - top of Todo`) and **continue straight into Phase 1**. The user can interrupt if it is the wrong one.
+
+Then proceed with the picked identifier exactly as if the user had given it.
 
 ## Phase 1 - Pick up the issue
 
@@ -62,11 +75,15 @@ Never push or open a PR before explicit approval.
 3. Link the PR to the Linear issue: `create_attachment` on the issue with the PR URL and title (skip if the GitHub integration already attached it - check `get_issue`'s attachments). Optionally `save_comment` with the PR link.
 4. Bind the PR to the session: call `mcp__ccd_pr__get_status`; if it does not report this PR, call `mcp__ccd_pr__bind_pr`.
 
-## Phase 5 - Monitor CI
+## Phase 5 - Monitor CI and auto-fix failures
 
 - Use the `ccd_pr` tools (`get_status`, and `set_monitor` / the app's Auto-fix) to follow CI. **Do not** poll with `gh`, loops, cron or wakeups.
-- If CI fails: read the failure logs (`gh run view --log-failed`), fix on the branch, commit, push, and keep monitoring. If the failure is unrelated to the change or needs a decision, report it to the user instead of papering over it.
-- When all required checks are green, tell the user: PR link, CI green, and that replying **"merge"** will merge it and move the issue to Done. Also surface any unresolved review comments on the PR.
+- **If CI fails, fix it automatically without asking the user:**
+  1. Read the failing job logs (`gh run view <run-id> --log-failed`).
+  2. Reproduce locally with the same command (`pnpm typecheck|lint|format:check|test|build`), fix the root cause on the branch (no disabling tests/lint rules, no `--no-verify`, no weakening checks), commit with a message like `Fix <check> failure (OG-21)`, and push.
+  3. Keep monitoring. Repeat up to **3 fix attempts**. Merge conflicts with `main` count too: sync (`mcp__ccd_host__sync_with_base_branch` in a worktree, otherwise merge `main`), resolve, re-run checks, push.
+  4. Stop and report to the user only if: the failure is clearly unrelated to the change (flaky/infra, e.g. runner outage; say so and offer a re-run), a fix would need a product decision or change to CI/branch protection, or 3 attempts did not turn CI green. Include what was tried and the failing log excerpt.
+- When all required checks are green, tell the user: PR link, CI green (mention if fixes were needed and what they were), and that replying **"merge"** will merge it and move the issue to Done. Also surface any unresolved review comments on the PR.
 
 ## Gate 2 - Merge
 
