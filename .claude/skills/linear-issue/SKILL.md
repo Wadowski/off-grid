@@ -16,14 +16,12 @@ Linear tools are MCP tools named `mcp__<linear-server>__get_issue`, `list_commen
 
 ## Phase 0 - Select the next issue (only when no issue was given)
 
-The Linear API cannot return the board's manual drag-and-drop order, so "first on the board" is approximated deterministically:
+Take the issue at the **top of the Todo column on the Kanban board**. The board order is manual (drag-and-drop), so it is NOT the same as issue number, priority or creation date. Never sort, re-order or "pick the lowest number": the order Linear returns is the board order and must be preserved.
 
-1. Determine the team: from `CLAUDE.md`/repo hints if stated, otherwise `list_teams` (if there is exactly one, use it; if several, ask the user once).
-2. `list_issues` with `team`, `state: "unstarted"` (the Todo column; this includes "Todo"), `limit: 50`, `fields: ["title","priority","status","assignee","parentId","createdAt","url"]`. If the user named a saved view/board ("next issue from <view>"), use `customView` instead.
-3. Keep issues that are unassigned or assigned to me (`assignee: "me"` / unassigned); drop those assigned to others, and drop any that are blocked by an unfinished issue (check relations via `get_issue`).
-4. Sort: priority ascending with Urgent(1) > High(2) > Medium(3) > Low(4) > None(0, last), then oldest `createdAt` first. Take the first.
-5. If the Todo column is empty, fall back to `backlog`; if that is empty too, tell the user there is nothing to pick up and stop.
-6. Announce the choice in one line (`OG-17 "<title>" - priority High`, plus the runner-up if the ordering was a close call) and **continue straight into Phase 1**. The user can interrupt if it is the wrong one; the only change made so far is reversible status.
+1. `list_issues` with `customView: "Kanban"` (a shared view named Kanban exists; if the user names another view or board, use that; if the view is not found, `list_custom_views` to look, else fall back to `team` + `state: "unstarted"`), `limit: 100`, `fields: ["title","priority","status","assignee","parentId","url"]`. Follow `cursor` while `hasNextPage` is true.
+2. Walk the results **in the returned order** and take the first issue whose status is **Todo** (type `unstarted`) and which is unassigned or assigned to me. Skip, but only skip, issues assigned to someone else or blocked by an unfinished issue (check relations via `get_issue`). Issues in other columns (In Progress, Done, ...) are ignored.
+3. If the Todo column has no eligible issue, take the first **Backlog** issue the same way; if none, tell the user there is nothing to pick up and stop.
+4. Announce the choice in one line (`OG-21 "<title>" - top of Todo`) and **continue straight into Phase 1**. The user can interrupt if it is the wrong one.
 
 Then proceed with the picked identifier exactly as if the user had given it.
 
@@ -77,11 +75,15 @@ Never push or open a PR before explicit approval.
 3. Link the PR to the Linear issue: `create_attachment` on the issue with the PR URL and title (skip if the GitHub integration already attached it - check `get_issue`'s attachments). Optionally `save_comment` with the PR link.
 4. Bind the PR to the session: call `mcp__ccd_pr__get_status`; if it does not report this PR, call `mcp__ccd_pr__bind_pr`.
 
-## Phase 5 - Monitor CI
+## Phase 5 - Monitor CI and auto-fix failures
 
 - Use the `ccd_pr` tools (`get_status`, and `set_monitor` / the app's Auto-fix) to follow CI. **Do not** poll with `gh`, loops, cron or wakeups.
-- If CI fails: read the failure logs (`gh run view --log-failed`), fix on the branch, commit, push, and keep monitoring. If the failure is unrelated to the change or needs a decision, report it to the user instead of papering over it.
-- When all required checks are green, tell the user: PR link, CI green, and that replying **"merge"** will merge it and move the issue to Done. Also surface any unresolved review comments on the PR.
+- **If CI fails, fix it automatically without asking the user:**
+  1. Read the failing job logs (`gh run view <run-id> --log-failed`).
+  2. Reproduce locally with the same command (`pnpm typecheck|lint|format:check|test|build`), fix the root cause on the branch (no disabling tests/lint rules, no `--no-verify`, no weakening checks), commit with a message like `Fix <check> failure (OG-21)`, and push.
+  3. Keep monitoring. Repeat up to **3 fix attempts**. Merge conflicts with `main` count too: sync (`mcp__ccd_host__sync_with_base_branch` in a worktree, otherwise merge `main`), resolve, re-run checks, push.
+  4. Stop and report to the user only if: the failure is clearly unrelated to the change (flaky/infra, e.g. runner outage; say so and offer a re-run), a fix would need a product decision or change to CI/branch protection, or 3 attempts did not turn CI green. Include what was tried and the failing log excerpt.
+- When all required checks are green, tell the user: PR link, CI green (mention if fixes were needed and what they were), and that replying **"merge"** will merge it and move the issue to Done. Also surface any unresolved review comments on the PR.
 
 ## Gate 2 - Merge
 
