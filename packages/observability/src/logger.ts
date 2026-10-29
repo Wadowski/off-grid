@@ -15,7 +15,7 @@ interface LogBindings {
   readonly family_id?: string;
 }
 
-export interface LoggerOptions extends LogBindings {
+interface LoggerOptions extends LogBindings {
   readonly level?: LogLevel;
   readonly sink?: LogSink;
   readonly redact?: RedactOptions;

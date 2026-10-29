@@ -7,7 +7,7 @@ import { currentTraceId, resolveTraceId, runWithTrace } from "./trace.js";
 describe("resolveTraceId", () => {
   it("generates a new id each time when none is given", () => {
     const first = resolveTraceId(undefined);
-    expect(first).toMatch(/^[A-Za-z0-9-]{1,64}$/);
+    expect(first).toMatch(/^[A-Za-z0-9._-]{1,128}$/);
     expect(resolveTraceId(undefined)).not.toBe(first);
   });
 
@@ -19,7 +19,9 @@ describe("resolveTraceId", () => {
     expect(resolveTraceId("has spaces")).not.toBe("has spaces");
     expect(resolveTraceId("a\nb")).not.toContain("\n");
     expect(resolveTraceId("")).not.toBe("");
-    expect(resolveTraceId("x".repeat(65))).not.toBe("x".repeat(65));
+    expect(resolveTraceId("x".repeat(129))).toMatch(/^[A-Za-z0-9._-]{1,128}$/);
+    expect(resolveTraceId("has spaces")).toMatch(/^[A-Za-z0-9._-]{1,128}$/);
+    expect(resolveTraceId("v1.trace_id-2")).toBe("v1.trace_id-2");
   });
 });
 

@@ -15,6 +15,13 @@ const SENSITIVE_WORDS = [
   "cookie",
   "apikey",
   "privatekey",
+  "auth",
+  "bearer",
+  "session",
+  "refresh",
+  "jwt",
+  "credential",
+  "ssn",
 ];
 
 export interface RedactOptions {

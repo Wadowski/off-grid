@@ -6,12 +6,12 @@ import { currentTraceId } from "./trace.js";
 
 const DEFAULT_CAPACITY = 200;
 
-export interface ErrorRecord {
-  readonly recordedAt: string;
+interface ErrorRecord {
+  readonly recorded_at: string;
   readonly name: string;
-  readonly message: string;
+  readonly code?: string;
   readonly trace_id?: string;
-  readonly context: Record<string, unknown>;
+  readonly context: unknown;
 }
 
 export interface ErrorSink {
@@ -25,10 +25,13 @@ interface MemoryErrorSinkOptions {
 
 const redactContext = createRedactor();
 
-const describeError = (error: unknown): { name: string; message: string } =>
-  error instanceof Error
-    ? { name: error.name, message: error.message }
-    : { name: "NonError", message: String(error) };
+const describeError = (error: unknown): { name: string; code?: string } => {
+  if (!(error instanceof Error)) {
+    return { name: "NonError" };
+  }
+  const code: unknown = Reflect.get(error, "code");
+  return typeof code === "string" ? { name: error.name, code } : { name: error.name };
+};
 
 const traceIdField = (): { trace_id?: string } => {
   const traceId = currentTraceId();
@@ -51,15 +54,15 @@ export function createMemoryErrorSink(
   return {
     record(error, context = {}) {
       records.push({
-        recordedAt: now().toISOString(),
+        recorded_at: now().toISOString(),
         ...describeError(error),
         ...traceIdField(),
-        context: redactContext(context) as Record<string, unknown>,
+        context: redactContext(context),
       });
       dropOldest(records, capacity);
     },
     list() {
-      return [...records];
+      return structuredClone(records);
     },
   };
 }

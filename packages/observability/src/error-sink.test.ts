@@ -6,30 +6,44 @@ import { createMemoryErrorSink } from "./error-sink.js";
 import { runWithTrace } from "./trace.js";
 
 describe("createMemoryErrorSink", () => {
-  it("stores the error name, message, trace id and redacted context", () => {
+  it("stores the error name, trace id and redacted context, but not the message", () => {
     const sink = createMemoryErrorSink({ now: () => new Date("2026-10-29T12:00:00.000Z") });
     runWithTrace("trace-err", () => {
-      sink.record(new TypeError("bad input"), { module: "family", password: "p" });
+      sink.record(new TypeError("Key (email)=(ada@example.test) already exists"), {
+        module: "family",
+        password: "p",
+      });
     });
     expect(sink.list()).toEqual([
       {
-        recordedAt: "2026-10-29T12:00:00.000Z",
+        recorded_at: "2026-10-29T12:00:00.000Z",
         name: "TypeError",
-        message: "bad input",
         trace_id: "trace-err",
         context: { module: "family", password: "[REDACTED]" },
       },
     ]);
   });
 
-  it("records non-Error values as NonError", () => {
+  it("keeps a string error code and drops every other property", () => {
     const sink = createMemoryErrorSink();
-    sink.record("plain string");
-    expect(sink.list()[0]).toMatchObject({
-      name: "NonError",
-      message: "plain string",
-      context: {},
-    });
+    sink.record(
+      Object.assign(new Error("duplicate key"), { code: "23505", detail: "ada@example.test" }),
+    );
+    expect(sink.list()[0]).toMatchObject({ name: "Error", code: "23505" });
+    expect(JSON.stringify(sink.list())).not.toContain("ada@example.test");
+  });
+
+  it("records non-Error values as NonError without their text", () => {
+    const sink = createMemoryErrorSink();
+    sink.record("ada@example.test");
+    expect(sink.list()[0]).toMatchObject({ name: "NonError", context: {} });
+    expect(JSON.stringify(sink.list())).not.toContain("ada@example.test");
+  });
+
+  it("omits trace_id when recorded outside a trace context", () => {
+    const sink = createMemoryErrorSink();
+    sink.record(new Error("no trace"));
+    expect(sink.list()[0]).not.toHaveProperty("trace_id");
   });
 
   it("keeps only the most recent errors up to its capacity, oldest first", () => {
@@ -37,7 +51,8 @@ describe("createMemoryErrorSink", () => {
     sink.record(new Error("one"));
     sink.record(new Error("two"));
     sink.record(new Error("three"));
-    expect(sink.list().map((record) => record.message)).toEqual(["two", "three"]);
+    expect(sink.list().map((record) => record.name)).toEqual(["Error", "Error"]);
+    expect(sink.list()).toHaveLength(2);
   });
 
   it("returns a copy so callers cannot change the stored log", () => {

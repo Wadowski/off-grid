@@ -6,7 +6,7 @@ import { createLogger } from "./logger.js";
 import { currentTraceId, resolveTraceId, runWithTrace } from "./trace.js";
 
 describe("trace propagation", () => {
-  it("shows the same trace id on the request log, the published event and the handler log", async () => {
+  it("keeps the trace id on a handler's log line after the handler awaits", async () => {
     const lines: Record<string, unknown>[] = [];
     const logger = createLogger({
       module: "family",

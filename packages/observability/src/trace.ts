@@ -4,7 +4,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
 
-const TRACE_ID_PATTERN = /^[A-Za-z0-9-]{1,64}$/;
+const TRACE_ID_PATTERN = /^[A-Za-z0-9._-]{1,128}$/;
 
 const storage = new AsyncLocalStorage<{ readonly traceId: string }>();
 
@@ -17,7 +17,7 @@ export function resolveTraceId(incoming: unknown): string {
 
 export function runWithTrace<T>(traceId: string, fn: () => T): T {
   if (!isValidTraceId(traceId)) {
-    throw new TypeError("trace id must be 1 to 64 letters, digits or hyphens");
+    throw new TypeError("trace id must be 1 to 128 letters, digits, dots, underscores or hyphens");
   }
   return storage.run({ traceId }, fn);
 }
