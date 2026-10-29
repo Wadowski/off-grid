@@ -7,9 +7,22 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsc -b",
-    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-    "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "generate": "prisma generate",
+    "build": "pnpm generate && tsc -b",
+    "typecheck": "pnpm generate && tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "lint": "pnpm generate && eslint .",
+    "test": "pnpm generate && vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "pg": "8.23.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "12.2.1",
+    "@types/pg": "^8.23.1",
+    "prisma": "7.10.1",
+    "testcontainers": "12.2.1"
   }
 }

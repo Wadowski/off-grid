@@ -12,3 +12,6 @@ data/
 
 # Local Claude Code overrides, never committed
 .claude/settings.local.json
+
+# Prisma client generated from packages/db/prisma/schema.prisma (regenerate with pnpm generate)
+packages/db/src/generated/
