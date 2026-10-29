@@ -10,6 +10,14 @@
     "build": "tsc -b",
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "gen:openapi": "tsc -b && node dist/cli/gen-openapi.js",
+    "check:contracts": "tsc -b && node dist/cli/check-contracts.js"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
   }
 }

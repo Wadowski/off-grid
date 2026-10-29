@@ -5,3 +5,4 @@ coverage
 data
 pnpm-lock.yaml
 .changeset/*.md
+packages/contracts/openapi.json
