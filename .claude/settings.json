@@ -7,7 +7,7 @@
       "Grep",
       "Edit",
       "Write",
-      "Bash",
+      "Bash"
     ],
     "deny": [
       "Read(./.env*)",
