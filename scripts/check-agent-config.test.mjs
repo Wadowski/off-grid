@@ -33,6 +33,7 @@ function writeValidFixture(root) {
   write(".claude/hooks/guard.mjs", "#!/usr/bin/env node\n");
   chmodSync(join(root, ".claude/hooks/guard.mjs"), 0o755);
   write(".claude/rules/source.md", '---\npaths:\n  - "src/**"\n---\n\n# Rules\n');
+  mkdirSync(join(root, ".claude/agents"), { recursive: true });
   write(
     ".claude/skills/review/SKILL.md",
     "---\nname: review\ndescription: Review a change.\n---\n",
@@ -130,6 +131,42 @@ describe("checkAgentConfig", () => {
       '.claude/skills/review/SKILL.md name must be "review"',
       ".claude/skills/review/SKILL.md needs a description",
     ]);
+  });
+
+  it("reports an agent whose name does not match its file, and a missing description or tools list", async () => {
+    const fixture = mkdtempSync(join(root, "agent-meta-"));
+    writeValidFixture(fixture);
+    writeFileSync(join(fixture, ".claude/agents/reviewer.md"), "---\nname: other\n---\n");
+    const { errors } = await checkAgentConfig(fixture);
+    assert.deepEqual(errors, [
+      ".claude/agents/reviewer.md name must match the file name",
+      ".claude/agents/reviewer.md needs a description",
+      ".claude/agents/reviewer.md needs a tools list",
+    ]);
+  });
+
+  it("reports a review agent that is given write or network tools", async () => {
+    const fixture = mkdtempSync(join(root, "agent-tools-"));
+    writeValidFixture(fixture);
+    writeFileSync(
+      join(fixture, ".claude/agents/reviewer.md"),
+      "---\nname: reviewer\ndescription: Reviews.\ntools: Read, Grep, Edit, WebFetch\n---\n",
+    );
+    const { errors } = await checkAgentConfig(fixture);
+    assert.deepEqual(errors, [
+      ".claude/agents/reviewer.md must not use the Edit tool",
+      ".claude/agents/reviewer.md must not use the WebFetch tool",
+    ]);
+  });
+
+  it("accepts a read-only review agent", async () => {
+    const fixture = mkdtempSync(join(root, "agent-ok-"));
+    writeValidFixture(fixture);
+    writeFileSync(
+      join(fixture, ".claude/agents/reviewer.md"),
+      "---\nname: reviewer\ndescription: Reviews.\ntools: Read, Grep, Glob, Bash\n---\n",
+    );
+    assert.deepEqual(await checkAgentConfig(fixture), { errors: [], warnings: [] });
   });
 
   it("passes on this repository", async () => {
