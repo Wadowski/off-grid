@@ -4,12 +4,8 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { defineEvent } from "./events.js";
-import {
-  canonicalJson,
-  compareReleasedEvents,
-  currentEventSchemas,
-  type EventSchemas,
-} from "./released.js";
+import { canonicalJson, compareReleasedEvents, currentEventSchemas } from "./released.js";
+import type { EventSchemas } from "./types.js";
 
 const familyCreatedV1 = defineEvent({
   name: "family-created-v1",

@@ -5,12 +5,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { eventDefinitions } from "../registry.js";
 import { renderOpenApi } from "../openapi.js";
-import {
-  canonicalJson,
-  compareReleasedEvents,
-  currentEventSchemas,
-  type EventSchemas,
-} from "../released.js";
+import { canonicalJson, compareReleasedEvents, currentEventSchemas } from "../released.js";
+import type { EventSchemas } from "../types.js";
 
 const update = process.argv.includes("--update");
 const snapshotPath = fileURLToPath(new URL("../../released-events.json", import.meta.url));

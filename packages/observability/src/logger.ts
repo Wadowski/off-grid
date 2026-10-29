@@ -1,34 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { createRedactor, type RedactOptions } from "./redact.js";
+import { createRedactor } from "./redact.js";
 import { currentTraceId } from "./trace.js";
-
-type LogLevel = "debug" | "info" | "warn" | "error";
+import type { LogBindings, LogLevel, LogSink, Logger, LoggerOptions } from "./types.js";
 
 const LEVEL_RANK: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 };
-
-type LogSink = (line: string) => void;
-
-interface LogBindings {
-  readonly module?: string;
-  readonly family_id?: string;
-}
-
-interface LoggerOptions extends LogBindings {
-  readonly level?: LogLevel;
-  readonly sink?: LogSink;
-  readonly redact?: RedactOptions;
-  readonly now?: () => Date;
-}
-
-export interface Logger {
-  debug(msg: string, fields?: Record<string, unknown>): void;
-  info(msg: string, fields?: Record<string, unknown>): void;
-  warn(msg: string, fields?: Record<string, unknown>): void;
-  error(msg: string, fields?: Record<string, unknown>): void;
-  child(bindings: LogBindings): Logger;
-}
 
 const writeToStdout: LogSink = (line) => {
   process.stdout.write(`${line}\n`);

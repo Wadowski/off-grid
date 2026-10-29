@@ -6,14 +6,9 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { Client } from "pg";
-import {
-  MIGRATOR_ROLE,
-  appRoleOf,
-  provisionLoginRole,
-  type DatabaseSchema,
-  type DatabaseTarget,
-  type MigrationSource,
-} from "../src/index.js";
+import { MIGRATOR_ROLE, appRoleOf, provisionLoginRole } from "../src/index.js";
+import type { DatabaseSchema, DatabaseTarget, MigrationSource } from "../src/index.js";
+import type { TestDatabase } from "./types.js";
 
 const INIT_SCRIPTS = [
   "../../../infra/init/sql/01-roles-and-schemas.sql",
@@ -26,14 +21,6 @@ export function fixtureSources(): MigrationSource[] {
   return (["food", "family", "access", "lists"] as const satisfies DatabaseSchema[]).map(
     (schema) => ({ schema, directory: `${FIXTURES}/${schema}` }),
   );
-}
-
-export interface TestDatabase {
-  admin: Client;
-  migrator: Client;
-  connect(schema: DatabaseSchema): Promise<Client>;
-  target: DatabaseTarget;
-  stop(): Promise<void>;
 }
 
 function secret(): string {

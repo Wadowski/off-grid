@@ -2,21 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ClientBase } from "pg";
-import type { DatabaseSchema } from "./schemas.js";
-
-export const OWNERSHIP_SCOPES = ["family-or-user", "family", "user", "shared"] as const;
-export type OwnershipScope = (typeof OWNERSHIP_SCOPES)[number];
+import { OWNERSHIP_SCOPES } from "./scope-names.js";
+import type { DatabaseSchema, TableRow } from "./types.js";
 
 const SCOPE_COMMENT = /^offgrid:scope=(.+)$/;
-
-interface TableRow {
-  schema: string;
-  table: string;
-  comment: string | null;
-  rls: boolean;
-  has_family: boolean;
-  has_user: boolean;
-}
 
 export function scopeViolation(row: Omit<TableRow, "schema">): string | null {
   const match = row.comment?.match(SCOPE_COMMENT);

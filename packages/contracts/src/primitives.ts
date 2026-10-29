@@ -6,16 +6,12 @@ import { z } from "zod";
 export const uuidSchema = z.uuid();
 
 export const familyIdSchema = uuidSchema.brand<"FamilyId">();
-export type FamilyId = z.infer<typeof familyIdSchema>;
 
 export const userIdSchema = uuidSchema.brand<"UserId">();
-export type UserId = z.infer<typeof userIdSchema>;
 
 export const accessGroupIdSchema = uuidSchema.brand<"AccessGroupId">();
-export type AccessGroupId = z.infer<typeof accessGroupIdSchema>;
 
 export const timestampSchema = z.iso.datetime();
-export type Timestamp = z.infer<typeof timestampSchema>;
 
 export const errorCodeSchema = z
   .string()
@@ -26,4 +22,3 @@ export const errorResponseSchema = z.object({
   code: errorCodeSchema,
   message: z.string().min(1).max(500),
 });
-export type ErrorResponse = z.infer<typeof errorResponseSchema>;

@@ -2,20 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { z } from "zod";
-import type { AnyEventDefinition } from "./events.js";
-
-export interface ReleasedEvent {
-  version: number;
-  schema: unknown;
-}
-
-export type EventSchemas = Record<string, ReleasedEvent>;
-
-export interface ContractComparison {
-  changed: string[];
-  missing: string[];
-  added: string[];
-}
+import type { AnyEventDefinition, ContractComparison, EventSchemas } from "./types.js";
 
 export function currentEventSchemas(definitions: readonly AnyEventDefinition[]): EventSchemas {
   const schemas: EventSchemas = {};

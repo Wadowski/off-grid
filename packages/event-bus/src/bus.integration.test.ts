@@ -2,30 +2,20 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { defineEvent } from "@offgrid/contracts";
 import { createMemoryErrorSink } from "@offgrid/observability";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { z } from "zod";
 import {
   classifySourceVersion,
   createEventBus,
   publish,
   replayEvents,
   type EventBus,
-  type EventOf,
   type HandlerContext,
 } from "./index.js";
+import { familyCreated } from "../test/events.js";
 import { startTestDatabase } from "../test/postgres.js";
-import type { TestDatabase } from "../test/types.js";
-
-const familyCreated = defineEvent({
-  name: "family-created-v1",
-  version: 1,
-  schema: z.object({ name: z.string().min(1).max(100) }),
-});
-
-type FamilyCreated = EventOf<typeof familyCreated>;
+import type { FamilyCreated, TestDatabase } from "../test/types.js";
 
 const FAMILY_ID = randomUUID();
 

@@ -3,14 +3,8 @@
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../../node_modules/.prisma/offgrid-db/client.js";
-import { type DatabaseSchema, appRoleOf } from "./schemas.js";
-
-export interface DatabaseTarget {
-  host: string;
-  port: number;
-  database: string;
-  password: string;
-}
+import { appRoleOf } from "./schemas.js";
+import type { DatabaseSchema, DatabaseTarget } from "./types.js";
 
 export function moduleConnectionString(target: DatabaseTarget, schema: DatabaseSchema): string {
   const url = new URL(`postgresql://${target.host}:${target.port}/${target.database}`);

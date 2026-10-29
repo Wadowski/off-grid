@@ -5,12 +5,8 @@ import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import {
-  FIXTURES,
-  fixtureSources,
-  startTestDatabase,
-  type TestDatabase,
-} from "../test/postgres.js";
+import { FIXTURES, fixtureSources, startTestDatabase } from "../test/postgres.js";
+import type { TestDatabase } from "../test/types.js";
 import {
   MigrationChecksumError,
   MigrationFailedError,

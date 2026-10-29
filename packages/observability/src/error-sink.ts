@@ -3,25 +3,9 @@
 
 import { createRedactor } from "./redact.js";
 import { currentTraceId } from "./trace.js";
+import type { ErrorRecord, ErrorSink, MemoryErrorSinkOptions } from "./types.js";
 
 const DEFAULT_CAPACITY = 200;
-
-interface ErrorRecord {
-  readonly recorded_at: string;
-  readonly name: string;
-  readonly code?: string;
-  readonly trace_id?: string;
-  readonly context: unknown;
-}
-
-export interface ErrorSink {
-  record(error: unknown, context?: Record<string, unknown>): void;
-}
-
-interface MemoryErrorSinkOptions {
-  readonly capacity?: number;
-  readonly now?: () => Date;
-}
 
 const redactContext = createRedactor();
 
