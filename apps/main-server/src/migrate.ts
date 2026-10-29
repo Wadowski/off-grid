@@ -6,6 +6,8 @@ import { Client } from "pg";
 import { loadConfig } from "./config.js";
 import { MODULES } from "./module-list.js";
 
+const CONNECTION_TIMEOUT_MS = 5000;
+
 const failMigration = (error: unknown): never => {
   process.stderr.write(`${error instanceof Error ? error.message : "migration failed"}\n`);
   process.exit(1);
@@ -19,14 +21,15 @@ async function migrate(): Promise<void> {
     database: database.name,
     user: database.user,
     password: database.password,
+    connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
   });
-  await client.connect();
   try {
+    await client.connect();
     const sources = MODULES.flatMap((module) => module.migrations ?? []);
     const { applied } = await runMigrations(client, sources);
     process.stdout.write(`applied ${applied.length} migration(s)\n`);
   } finally {
-    await client.end();
+    await client.end().catch(() => undefined);
   }
 }
 

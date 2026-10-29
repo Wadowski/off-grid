@@ -4,6 +4,9 @@
 name: offgrid
 
 x-server-image: &server-image offgrid-main-server:${OFFGRID_VERSION:-local}
+x-server-build: &server-build
+  context: ../..
+  dockerfile: apps/main-server/Dockerfile
 
 services:
   secrets-init:
@@ -23,10 +26,12 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
     volumes:
       - offgrid-db:/var/lib/postgresql/data
-      - ../../data/secrets:/run/secrets:ro
+      - ../../data/secrets/postgres-password:/run/secrets/postgres-password:ro
+      - ../../data/secrets/migrator-password:/run/secrets/migrator-password:ro
+      - ../../data/secrets/app-password:/run/secrets/app-password:ro
       - ../init/sql:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d offgrid"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d offgrid"]
       interval: 5s
       retries: 30
     depends_on:
@@ -35,9 +40,7 @@ services:
 
   init:
     image: *server-image
-    build:
-      context: ../..
-      dockerfile: apps/main-server/Dockerfile
+    build: *server-build
     restart: "no"
     command: ["node", "--import", "tsx", "src/migrate.ts"]
     environment:
@@ -46,7 +49,7 @@ services:
       OFFGRID_DATABASE_USER: offgrid_migrator
       OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/migrator-password
     volumes:
-      - ../../data/secrets:/run/secrets:ro
+      - ../../data/secrets/migrator-password:/run/secrets/migrator-password:ro
     depends_on:
       db:
         condition: service_healthy
@@ -55,9 +58,7 @@ services:
 
   server:
     image: *server-image
-    build:
-      context: ../..
-      dockerfile: apps/main-server/Dockerfile
+    build: *server-build
     restart: unless-stopped
     environment:
       OFFGRID_HTTP_HOST: 0.0.0.0
@@ -68,7 +69,7 @@ services:
       OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/app-password
       TZ: ${TZ:-UTC}
     volumes:
-      - ../../data/secrets:/run/secrets:ro
+      - ../../data/secrets/app-password:/run/secrets/app-password:ro
     expose:
       - "3000"
     healthcheck:

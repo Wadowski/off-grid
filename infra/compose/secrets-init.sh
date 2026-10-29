@@ -3,26 +3,23 @@
 
 set -eu
 
-secrets_dir=/data/secrets
+secrets_dir=${SECRETS_DIR:-/data/secrets}
 mkdir -p "$secrets_dir"
+umask 077
 
 random_secret() {
   head -c 32 /dev/urandom | base64 | tr -d '\n'
 }
 
-random_uuid() {
-  cat /proc/sys/kernel/random/uuid
-}
-
-ensure_secret() {
+write_if_missing() {
   file="$secrets_dir/$1"
   if [ ! -s "$file" ]; then
-    "$2" > "$file"
+    printf '%s' "$2" > "$file"
     chmod 0444 "$file"
   fi
 }
 
-ensure_secret postgres-password random_secret
-ensure_secret migrator-password random_secret
-ensure_secret app-password random_secret
-ensure_secret instance-id random_uuid
+write_if_missing postgres-password "$(random_secret)"
+write_if_missing migrator-password "$(random_secret)"
+write_if_missing app-password "$(random_secret)"
+write_if_missing instance-id "$(cat /proc/sys/kernel/random/uuid)"
