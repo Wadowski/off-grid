@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "./generated/client.js";
+// Generated into node_modules by `pnpm generate` (see prisma/schema.prisma).
+import { PrismaClient } from "../../../node_modules/.prisma/offgrid-db/client.js";
 import { type DatabaseSchema, appRoleOf } from "./schemas.js";
 
 export interface DatabaseTarget {

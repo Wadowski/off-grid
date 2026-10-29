@@ -8,7 +8,7 @@ Owner: platform team
 ## Layout
 
 - `prisma/schema.prisma`: one Prisma schema for the whole database. Module models are added here by the owning module.
-- `src/generated/`: generated Prisma client. Not committed; run `pnpm generate` (typecheck, lint and test do it).
+- Generated Prisma client: written to `node_modules/.prisma/offgrid-db`, so it is never committed and the boundary check skips it. Run `pnpm generate` (typecheck, lint, test and build do it).
 - `src/` helpers: `createModuleDb`, `withFamilyContext`, `withUserContext`, `runMigrations`, `assertOwnershipScopes`, `provisionLoginRole`.
 - `test/`: Testcontainers Postgres harness and fixture migrations, used by the integration tests.
 - The init SQL that creates schemas and roles is in [`infra/init/sql/`](../../infra/init/sql/): `01-roles-and-schemas.sql` and `02-scope-helpers.sql` (the `offgrid_declare_scope` function).

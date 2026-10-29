@@ -7,14 +7,7 @@ import prettier from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/dist/**",
-      "**/coverage/**",
-      "**/.turbo/**",
-      "data/**",
-      "**/node_modules/**",
-      "**/generated/**",
-    ],
+    ignores: ["**/dist/**", "**/coverage/**", "**/.turbo/**", "data/**", "**/node_modules/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
