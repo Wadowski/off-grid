@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { RedactOptions } from "./types.js";
+
 const REDACTED = "[REDACTED]";
 const CIRCULAR = "[Circular]";
 const TRUNCATED = "[Truncated]";
@@ -23,11 +25,6 @@ const SENSITIVE_WORDS = [
   "credential",
   "ssn",
 ];
-
-export interface RedactOptions {
-  readonly extraKeys?: readonly string[];
-  readonly maxDepth?: number;
-}
 
 const normalizeKey = (key: string): string => key.toLowerCase().replace(/[^a-z0-9]/g, "");
 

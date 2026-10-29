@@ -4,13 +4,9 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { startTestDatabase, fixtureSources, type TestDatabase } from "../test/postgres.js";
+import { startTestDatabase, fixtureSources } from "../test/postgres.js";
+import type { Context, TestDatabase } from "../test/types.js";
 import { createModuleDb, runMigrations, withFamilyContext, withUserContext } from "./index.js";
-
-interface Context {
-  familyId?: string;
-  userId?: string;
-}
 
 async function queryAs(client: Client, context: Context, sql: string, params: unknown[] = []) {
   await client.query("BEGIN");

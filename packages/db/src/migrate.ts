@@ -5,20 +5,9 @@ import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { ClientBase } from "pg";
-import { type DatabaseSchema, ownerRoleOf } from "./schemas.js";
+import { ownerRoleOf } from "./schemas.js";
+import type { DatabaseSchema, Migration, MigrationSource } from "./types.js";
 import { quoteIdent } from "./sql.js";
-
-export interface MigrationSource {
-  schema: DatabaseSchema;
-  directory: string;
-}
-
-export interface Migration {
-  schema: DatabaseSchema;
-  name: string;
-  sql: string;
-  checksum: string;
-}
 
 export class MigrationChecksumError extends Error {
   constructor(schema: DatabaseSchema, name: string) {

@@ -1,22 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-export const DATABASE_SCHEMAS = [
-  "identity",
-  "family",
-  "access",
-  "calendar",
-  "lists",
-  "notes",
-  "files",
-  "food",
-  "relations",
-  "notifications",
-  "export",
-  "outbox",
-] as const;
-
-export type DatabaseSchema = (typeof DATABASE_SCHEMAS)[number];
+import { DATABASE_SCHEMAS } from "./schema-names.js";
+import type { DatabaseSchema } from "./types.js";
 
 export const MIGRATOR_ROLE = "offgrid_migrator";
 

@@ -271,7 +271,33 @@ importers:
         specifier: 12.2.1
         version: 12.2.1(supports-color@7.2.0)
 
-  packages/event-bus: {}
+  packages/event-bus:
+    dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@offgrid/observability':
+        specifier: workspace:*
+        version: link:../observability
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@testcontainers/postgresql':
+        specifier: 12.2.1
+        version: 12.2.1(supports-color@7.2.0)
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      testcontainers:
+        specifier: 12.2.1
+        version: 12.2.1(supports-color@7.2.0)
 
   packages/observability:
     devDependencies:
