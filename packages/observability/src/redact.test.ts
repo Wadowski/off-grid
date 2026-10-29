@@ -69,6 +69,13 @@ describe("redact", () => {
     });
   });
 
+  it("keeps Date values so they log as ISO strings", () => {
+    const at = new Date("2026-10-29T12:00:00.000Z");
+    expect(JSON.parse(JSON.stringify(redact({ at })))).toEqual({
+      at: "2026-10-29T12:00:00.000Z",
+    });
+  });
+
   it("does not treat a shared, non-circular reference as circular", () => {
     const shared = { x: 1 };
     expect(redact({ first: shared, second: shared })).toEqual({

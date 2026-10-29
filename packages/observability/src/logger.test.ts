@@ -53,6 +53,20 @@ describe("createLogger", () => {
     expect(lines[0]).toMatchObject({ trace_id: "real" });
   });
 
+  it("does not let a caller override level, time or message", () => {
+    const { lines, sink } = capture();
+    createLogger({ sink, now: fixedNow }).info("real message", {
+      level: "debug",
+      time: "1999-01-01T00:00:00.000Z",
+      msg: "spoof",
+    });
+    expect(lines[0]).toMatchObject({
+      level: "info",
+      time: "2026-10-29T12:00:00.000Z",
+      msg: "real message",
+    });
+  });
+
   it("drops records below the configured level", () => {
     const { lines, sink } = capture();
     const logger = createLogger({ sink, now: fixedNow, level: "warn" });

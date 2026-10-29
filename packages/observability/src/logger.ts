@@ -55,13 +55,13 @@ export function createLogger(options: LoggerOptions = {}): Logger {
         return;
       }
       const record = {
+        ...fields,
+        // Set after the caller's fields so a caller cannot replace the envelope or the trace context.
         level,
         time: now().toISOString(),
         msg,
         module: bindings.module,
         family_id: bindings.family_id,
-        ...fields,
-        // Set last so a caller cannot replace the trace context with its own value.
         trace_id: currentTraceId(),
       };
       sink(JSON.stringify(redactValue(record)));

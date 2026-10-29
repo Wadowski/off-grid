@@ -42,6 +42,10 @@ export function createRedactor(options: RedactOptions = {}): (value: unknown) =>
     if (value === null || typeof value !== "object") {
       return value;
     }
+    // A Date has no enumerable keys, so walking it would log `{}`. Its JSON form is the ISO string.
+    if (value instanceof Date) {
+      return value;
+    }
     if (ancestors.has(value)) {
       return "[Circular]";
     }
