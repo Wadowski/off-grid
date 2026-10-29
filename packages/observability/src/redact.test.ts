@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { REDACTED, createRedactor, redact } from "./redact.js";
+import { createRedactor } from "./redact.js";
+
+const REDACTED = "[REDACTED]";
+const redact = createRedactor();
 
 describe("redact", () => {
   it("redacts passwords, tokens and authorization headers at the top level", () => {
@@ -40,8 +43,8 @@ describe("redact", () => {
   });
 
   it("redacts configured personal fields by whole key only", () => {
-    const redactor = createRedactor({ extraKeys: ["name", "birthDate"] });
-    expect(redactor({ name: "Ada", username: "ada", birth_date: "1990-01-01" })).toEqual({
+    const redactPersonal = createRedactor({ extraKeys: ["name", "birthDate"] });
+    expect(redactPersonal({ name: "Ada", username: "ada", birth_date: "1990-01-01" })).toEqual({
       name: REDACTED,
       username: "ada",
       birth_date: REDACTED,

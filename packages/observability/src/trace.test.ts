@@ -2,36 +2,32 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import {
-  currentTraceId,
-  isValidTraceId,
-  newTraceId,
-  resolveTraceId,
-  runWithTrace,
-} from "./trace.js";
+import { currentTraceId, resolveTraceId, runWithTrace } from "./trace.js";
 
-describe("trace ids", () => {
-  it("generates a valid id each time", () => {
-    const first = newTraceId();
-    expect(isValidTraceId(first)).toBe(true);
-    expect(newTraceId()).not.toBe(first);
+describe("resolveTraceId", () => {
+  it("generates a new id each time when none is given", () => {
+    const first = resolveTraceId(undefined);
+    expect(first).toMatch(/^[A-Za-z0-9-]{1,64}$/);
+    expect(resolveTraceId(undefined)).not.toBe(first);
   });
 
-  it("keeps a well-formed incoming id and replaces a malformed one", () => {
+  it("keeps a well-formed incoming id", () => {
     expect(resolveTraceId("abc-123")).toBe("abc-123");
-    expect(resolveTraceId("has spaces")).not.toBe("has spaces");
-    expect(resolveTraceId("x".repeat(65))).not.toBe("x".repeat(65));
-    expect(resolveTraceId(undefined)).toBeTypeOf("string");
   });
 
-  it("rejects ids that could inject into log lines", () => {
-    expect(isValidTraceId("a\nb")).toBe(false);
-    expect(isValidTraceId("")).toBe(false);
-    expect(() => runWithTrace('bad"id', () => undefined)).toThrow(TypeError);
+  it("replaces malformed incoming ids, including ones that could inject into log lines", () => {
+    expect(resolveTraceId("has spaces")).not.toBe("has spaces");
+    expect(resolveTraceId("a\nb")).not.toContain("\n");
+    expect(resolveTraceId("")).not.toBe("");
+    expect(resolveTraceId("x".repeat(65))).not.toBe("x".repeat(65));
   });
 });
 
 describe("runWithTrace", () => {
+  it("rejects ids that could inject into log lines", () => {
+    expect(() => runWithTrace('bad"id', () => undefined)).toThrow(TypeError);
+  });
+
   it("exposes the trace id inside the callback and nothing outside", () => {
     expect(currentTraceId()).toBeUndefined();
     runWithTrace("trace-1", () => {

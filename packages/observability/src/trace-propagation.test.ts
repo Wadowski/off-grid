@@ -5,8 +5,6 @@ import { describe, expect, it } from "vitest";
 import { createLogger } from "./logger.js";
 import { currentTraceId, resolveTraceId, runWithTrace } from "./trace.js";
 
-// Simulates the path a request takes: the HTTP edge logs, an event carries the trace id through
-// the outbox, and a handler running later logs under the restored trace.
 describe("trace propagation", () => {
   it("shows the same trace id on the request log, the published event and the handler log", async () => {
     const lines: Record<string, unknown>[] = [];
