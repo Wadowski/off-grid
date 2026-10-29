@@ -1,6 +1,6 @@
 # 0002. Outbox events and read-only projections
 
-- **Status:** Proposed. To be finalised by the event-bus issue after its spike.
+- **Status:** Superseded by [0010](0010-pluggable-event-transport.md)
 
 ## Context
 
