@@ -1,9 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-# Verifies every pull request and every push to main with the same checks an
-# agent runs locally. docs/ci.md lists each job, the command that reproduces it
-# and the checks to mark as required in branch protection.
 name: CI
 
 on:
@@ -106,9 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # The DCO check reads origin/main..HEAD, so it needs the full history.
           fetch-depth: 0
-          # Check the PR head itself. The default merge commit has no sign-off.
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4

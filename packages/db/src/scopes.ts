@@ -18,7 +18,6 @@ interface TableRow {
   has_user: boolean;
 }
 
-/** Returns a description of each table that breaks its declared ownership scope. */
 export function scopeViolation(row: Omit<TableRow, "schema">): string | null {
   const match = row.comment?.match(SCOPE_COMMENT);
   if (!match) {
@@ -41,11 +40,6 @@ export function scopeViolation(row: Omit<TableRow, "schema">): string | null {
   return null;
 }
 
-/**
- * Checks that every table in the given schemas declares an ownership scope that
- * matches its columns and row-level security (ADR 0009). Throws listing every
- * violation. Run it in CI and in the integration tests after migrations.
- */
 export async function assertOwnershipScopes(
   client: ClientBase,
   schemas: readonly DatabaseSchema[],

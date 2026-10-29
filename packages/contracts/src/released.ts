@@ -9,15 +9,11 @@ export interface ReleasedEvent {
   schema: unknown;
 }
 
-/** Event envelope JSON Schemas keyed by event name. */
 export type EventSchemas = Record<string, ReleasedEvent>;
 
 export interface ContractComparison {
-  /** Released events whose schema differs from the snapshot. Breaking. */
   changed: string[];
-  /** Released events that are no longer defined. Breaking. */
   missing: string[];
-  /** Events defined now but not yet in the snapshot. Allowed. */
   added: string[];
 }
 
@@ -32,7 +28,6 @@ export function currentEventSchemas(definitions: readonly AnyEventDefinition[]):
   return schemas;
 }
 
-/** Serialises a value with object keys sorted, so key order never causes a false change. */
 export function canonicalJson(value: unknown): string {
   return JSON.stringify(value, (_key, nested: unknown) => {
     if (typeof nested !== "object" || nested === null || Array.isArray(nested)) {

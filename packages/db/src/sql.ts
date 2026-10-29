@@ -3,10 +3,6 @@
 
 const IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
 
-/**
- * Quotes a schema, role or table name for SQL. Accepts only lowercase
- * identifiers, so it can never be used to inject SQL.
- */
 export function quoteIdent(name: string): string {
   if (!IDENTIFIER.test(name)) {
     throw new Error(`invalid SQL identifier: ${JSON.stringify(name)}`);

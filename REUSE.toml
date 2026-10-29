@@ -1,10 +1,5 @@
 version = 1
 
-# Source files carry their SPDX header inline (see scripts/spdx-headers.mjs).
-# This file covers the files that cannot hold a comment: JSON, lockfiles,
-# Markdown, dotfiles, and the license texts. Everything in the repository is
-# under FSL-1.1-ALv2.
-
 [[annotations]]
 path = [
   "LICENSE",

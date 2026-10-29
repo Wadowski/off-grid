@@ -68,7 +68,6 @@ describe("runMigrations", () => {
       await cp(`${FIXTURES}/family`, source.directory, { recursive: true });
       await runMigrations(db.migrator, [source]);
 
-      // Changing an applied migration is never allowed; the change must be a new file.
       await writeFile(
         join(source.directory, "0001_family_setting.sql"),
         (await readFile(join(source.directory, "0001_family_setting.sql"), "utf8")) +

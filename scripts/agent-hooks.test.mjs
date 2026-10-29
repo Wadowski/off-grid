@@ -72,7 +72,6 @@ describe("agent hooks", () => {
     mkdirSync(join(project, "docs/adr"), { recursive: true });
     writeFileSync(join(project, "docs/adr/0001-example.md"), ACCEPTED_ADR);
     writeFileSync(join(project, "docs/adr/0002-draft.md"), "- **Status:** Proposed\n\nDraft.\n");
-    // Reuse the repo's formatter, linter and configs without copying them.
     symlinkSync(join(REPO, "node_modules"), join(project, "node_modules"));
     for (const file of ["eslint.config.js", ".prettierrc.json"]) {
       symlinkSync(join(REPO, file), join(project, file));
@@ -87,7 +86,6 @@ describe("agent hooks", () => {
     spawnSync(join(HOOKS, name), {
       input: JSON.stringify(input),
       encoding: "utf8",
-      // Clear the override so the guard tests do not depend on the session's environment.
       env: {
         ...process.env,
         OFFGRID_ALLOW_PROTECTED_EDITS: "",

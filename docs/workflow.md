@@ -34,7 +34,7 @@ Changes with no user-visible behaviour, such as documentation or tooling, may sk
 
 - The title starts with the Linear key, for example `OG-24 Add PR template, issue conventions and agent workflow doc`.
 - The body follows [`.github/pull_request_template.md`](../.github/pull_request_template.md). It links the issue with `Closes OG-NN`, which the Linear GitHub integration uses to attach the pull request.
-- Run every gate in [pre-pr-verify](../.claude/skills/pre-pr-verify/SKILL.md) before marking the pull request ready. The required checks are listed in [docs/ci.md](ci.md).
+- Run every gate in [pre-pr-verify](../.claude/skills/pre-pr-verify/SKILL.md) before creating the pull request, not after. That includes the review agents in [.claude/agents](../.claude/agents/): architecture, privacy, code quality, and Gherkin when the diff has feature files. Each Blocking finding is fixed before the pull request is opened. The required checks are listed in [docs/ci.md](ci.md).
 - The owner reviews every change ([CODEOWNERS](../.github/CODEOWNERS)).
 
 ### Sample pull request description

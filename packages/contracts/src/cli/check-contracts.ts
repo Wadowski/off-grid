@@ -12,8 +12,6 @@ import {
   type EventSchemas,
 } from "../released.js";
 
-// Run with `--update` to record events added since the snapshot was taken.
-// Existing entries are never rewritten.
 const update = process.argv.includes("--update");
 const snapshotPath = fileURLToPath(new URL("../../released-events.json", import.meta.url));
 const openApiPath = fileURLToPath(new URL("../../openapi.json", import.meta.url));

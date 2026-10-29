@@ -1,20 +1,5 @@
 -- SPDX-FileCopyrightText: 2026 Dominik Wadowski
 -- SPDX-License-Identifier: FSL-1.1-ALv2
---
--- Declares the ownership scope of a table (ADR 0009). Migrations call it right
--- after creating a table, as the module owner role:
---
---   SELECT public.offgrid_declare_scope('lists', 'list', 'family-or-user');
---
--- It records the scope as a table comment, adds the owner check, enables row
--- level security with a policy, and grants the app role its privileges.
--- It runs with the caller's privileges (not SECURITY DEFINER), so it can only
--- change tables the caller already owns.
---
--- Policies read two per-transaction settings, set by the database package:
---   app.family_id  the family the request acts for
---   app.user_id    the user the request acts for
--- NULLIF turns an unset setting into NULL, so a missing context matches no rows.
 
 CREATE OR REPLACE FUNCTION public.offgrid_declare_scope(
   p_schema text,

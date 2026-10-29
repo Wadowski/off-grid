@@ -1,9 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-# Weekly scan of the full git history with trufflehog. Secrets removed from
-# the working tree still live in old commits, which the per-PR scan does not
-# revisit. Findings fail the run; rotate the credential, then rewrite history.
 name: History scan
 
 on:

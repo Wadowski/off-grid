@@ -23,7 +23,6 @@ const SETTINGS = {
   },
 };
 
-// Writes a small, valid agent configuration under `root`.
 function writeValidFixture(root) {
   const write = (relPath, content) => {
     mkdirSync(dirname(join(root, relPath)), { recursive: true });

@@ -17,8 +17,6 @@ const familyCreatedV1 = defineEvent({
   schema: z.object({ name: z.string().min(1).max(100) }),
 });
 
-// A fixture holding the schema as it was released. Editing the live event
-// without adding a -v2 must show up as a changed contract.
 const released: EventSchemas = currentEventSchemas([familyCreatedV1]);
 
 describe("canonicalJson", () => {

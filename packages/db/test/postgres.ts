@@ -22,7 +22,6 @@ const INIT_SCRIPTS = [
 
 export const FIXTURES = fileURLToPath(new URL("./fixtures/migrations", import.meta.url));
 
-/** Migrations used by the tests: every fixture module, in dependency order. */
 export function fixtureSources(): MigrationSource[] {
   return (["food", "family", "access", "lists"] as const satisfies DatabaseSchema[]).map(
     (schema) => ({ schema, directory: `${FIXTURES}/${schema}` }),
@@ -32,7 +31,6 @@ export function fixtureSources(): MigrationSource[] {
 export interface TestDatabase {
   admin: Client;
   migrator: Client;
-  /** Connects as the runtime role of `schema` (password is shared across app roles in tests). */
   connect(schema: DatabaseSchema): Promise<Client>;
   target: DatabaseTarget;
   stop(): Promise<void>;
@@ -42,11 +40,6 @@ function secret(): string {
   return randomBytes(24).toString("hex");
 }
 
-/**
- * Starts a real Postgres container, applies the init SQL, provisions login
- * passwords for the migrator and every app role, and returns clients for them.
- * Nothing here is shared between test files.
- */
 export async function startTestDatabase(): Promise<TestDatabase> {
   const container: StartedPostgreSqlContainer = await new PostgreSqlContainer(
     "postgres:16-alpine",

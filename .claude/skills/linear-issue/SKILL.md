@@ -70,12 +70,13 @@ Never push or open a PR before explicit approval.
 
 ## Phase 4 - Pull request
 
-1. Push the branch (`git push -u origin <branch>`).
-2. Create the PR with `gh pr create` against `main`:
+1. Run [pre-pr-verify](../pre-pr-verify/SKILL.md) on the branch before anything is pushed. It runs every gate, including the four review agents in `.claude/agents/` (architecture, privacy, code quality, and Gherkin when the diff has `.feature` files). Fix each Blocking finding, then run the gates again from the top. Fix or justify each Advisory finding. Do not push or open the PR until pre-pr-verify passes.
+2. Push the branch (`git push -u origin <branch>`).
+3. Create the PR with `gh pr create` against `main`:
    - Title: `<issue title> (OG-16)`.
    - Body: summary, notable decisions, how it was tested, and the Linear link. Include the identifier (e.g. `Closes OG-16`) so the Linear GitHub integration associates it. No attribution lines.
-3. Link the PR to the Linear issue: `create_attachment` on the issue with the PR URL and title (skip if the GitHub integration already attached it - check `get_issue`'s attachments). Optionally `save_comment` with the PR link.
-4. Bind the PR to the session: call `mcp__ccd_pr__get_status`; if it does not report this PR, call `mcp__ccd_pr__bind_pr`.
+4. Link the PR to the Linear issue: `create_attachment` on the issue with the PR URL and title (skip if the GitHub integration already attached it - check `get_issue`'s attachments). Optionally `save_comment` with the PR link.
+5. Bind the PR to the session: call `mcp__ccd_pr__get_status`; if it does not report this PR, call `mcp__ccd_pr__bind_pr`.
 
 ## Phase 5 - Monitor CI and auto-fix failures
 

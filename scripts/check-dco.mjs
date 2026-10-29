@@ -1,19 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-// Checks that every commit in a range carries a Developer Certificate of Origin
-// sign-off: a `Signed-off-by:` trailer that names the commit's author.
-//
-//   node scripts/check-dco.mjs                 check origin/main..HEAD
-//   node scripts/check-dco.mjs <rev-range>     check the given range, e.g. main..HEAD
-
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
 const DEFAULT_RANGE = "origin/main..HEAD";
 
-// Returns the commits in `range` that lack a matching sign-off. `git` runs a
-// git command and returns its trimmed stdout; it defaults to the current repo.
 export function findUnsigned(range, git = runGit) {
   const shas = git(["rev-list", "--reverse", range]).split("\n").filter(Boolean);
   return shas.filter((sha) => !isSigned(git, sha));

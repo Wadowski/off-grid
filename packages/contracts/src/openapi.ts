@@ -10,10 +10,6 @@ import {
   userIdSchema,
 } from "./primitives.js";
 
-/**
- * Shared HTTP schemas published as OpenAPI components. Module routes add their
- * own paths and DTOs here as they are built.
- */
 export const openApiComponentSchemas = {
   FamilyId: familyIdSchema,
   UserId: userIdSchema,
@@ -35,7 +31,6 @@ export function buildOpenApiDocument() {
   };
 }
 
-/** The exact text written to `openapi.json`. Identical input always gives identical output. */
 export function renderOpenApi(): string {
   return `${JSON.stringify(buildOpenApiDocument(), null, 2)}\n`;
 }
