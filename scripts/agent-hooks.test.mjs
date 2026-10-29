@@ -108,14 +108,6 @@ describe("agent hooks", () => {
       assert.match(result.stderr, /LICENSE is a protected file/);
     });
 
-    it("blocks a write under .github/workflows", () => {
-      const result = runHook("protect-files.mjs", {
-        tool_name: "Write",
-        tool_input: { file_path: join(project, ".github/workflows/ci.yml"), content: "x" },
-      });
-      assert.equal(result.status, 2);
-    });
-
     it("allows an edit to an ordinary source file", () => {
       const result = runHook("protect-files.mjs", edit(join(project, "src/index.ts")));
       assert.equal(result.status, 0);

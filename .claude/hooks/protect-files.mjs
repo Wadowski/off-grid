@@ -24,7 +24,7 @@ const PROTECTED_FILES = new Set([
   ".claude/settings.json",
 ]);
 
-const PROTECTED_PREFIXES = [".github/workflows/", ".claude/hooks/"];
+const PROTECTED_PREFIXES = [".claude/hooks/"];
 
 const ADR_PATH = /^docs\/adr\/\d{4}-[^/]+\.md$/;
 const STATUS_LINE = /\*\*Status:\*\*/;

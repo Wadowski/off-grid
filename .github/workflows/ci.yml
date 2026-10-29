@@ -74,6 +74,19 @@ jobs:
           restore-keys: turbo-test-
       - run: pnpm test
 
+  contracts:
+    name: contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:contracts
+
   boundaries:
     name: boundaries
     runs-on: ubuntu-latest

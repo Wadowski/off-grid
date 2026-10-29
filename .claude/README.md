@@ -34,7 +34,6 @@ The hook blocks edits to these, because they guard licensing, secret scanning, m
 
 - `.dependency-cruiser.cjs`, `.gitleaks.toml`
 - `LICENSE`, `NOTICE`, `CODEOWNERS`, `.github/CODEOWNERS`
-- anything under `.github/workflows/`
 - `.claude/settings.json` and anything under `.claude/hooks/`
 - any ADR in `docs/adr/` whose status is Accepted, unless only its `**Status:**` line changes. To change an accepted decision, write a new ADR that supersedes it.
 

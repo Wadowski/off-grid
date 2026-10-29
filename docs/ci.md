@@ -12,6 +12,7 @@ branch is cancelled when a new commit lands.
 | `lint`       | ESLint across the workspace, and Prettier formatting         | `pnpm lint && pnpm format:check`                                                                    |
 | `typecheck`  | TypeScript across the workspace                              | `pnpm typecheck`                                                                                    |
 | `test`       | Vitest in every package, and the repo script tests           | `pnpm test`                                                                                         |
+| `contracts`  | Released event schemas and the committed `openapi.json`      | `pnpm check:contracts`                                                                              |
 | `boundaries` | Module boundary rules, see `docs/architecture/boundaries.md` | `pnpm check:boundaries`                                                                             |
 | `license`    | SPDX headers, REUSE compliance and the DCO sign-off          | `pnpm license:headers:check && pnpm reuse:lint && pnpm dco:check`                                   |
 | `secrets`    | gitleaks over the full git history                           | `gitleaks git --config .gitleaks.toml --redact --exit-code 1 .` (or the Docker command in `ci.yml`) |
@@ -33,6 +34,7 @@ job names above exactly as they appear in the check list:
 - `lint`
 - `typecheck`
 - `test`
+- `contracts`
 - `boundaries`
 - `license`
 - `secrets`
