@@ -1,0 +1,17 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+// One schema file for the whole database. Module models are added here by
+// the module that owns the schema (see ADR 0008). Isolation between modules
+// comes from database roles and RLS, not from separate Prisma files.
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["identity", "family", "access", "calendar", "lists", "notes", "files", "food", "relations", "notifications", "export", "outbox"]
+}
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../../../node_modules/.prisma/offgrid-db"
+  importFileExtension = "js"
+}

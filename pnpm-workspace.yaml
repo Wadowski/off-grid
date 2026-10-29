@@ -4,3 +4,8 @@ packages:
   - "packages/*"
 allowBuilds:
   lefthook: true
+  prisma: true
+  "@prisma/engines": true
+  cpu-features: false
+  protobufjs: false
+  ssh2: false
