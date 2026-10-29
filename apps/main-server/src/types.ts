@@ -64,7 +64,7 @@ export interface RequestContext {
   readonly accessGroupIds: readonly z.output<typeof accessGroupIdSchema>[];
 }
 
-export type CheckStatus = "ok" | "unavailable" | "stopped" | "not_checked";
+export type CheckStatus = "ok" | "unavailable" | "stopped" | "pending";
 
 export interface ReadinessChecks {
   readonly database: CheckStatus;

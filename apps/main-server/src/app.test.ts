@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { fileURLToPath } from "node:url";
 import type { FastifyInstance } from "fastify";
-import { currentTraceId } from "@offgrid/observability";
-import { createLogger, createMemoryErrorSink } from "@offgrid/observability";
+import { loadMigrations } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
+import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/observability";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildApp } from "./app.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
@@ -29,16 +30,33 @@ const USER_ID = "11111111-1111-4111-8111-111111111111";
 interface StubOptions {
   readonly queryResult?: "ok" | "fail";
   readonly publisherRunning?: boolean;
+  readonly ledgerRows?: readonly AppliedMigrationRow[];
 }
 
-function stubRuntime({ queryResult = "ok", publisherRunning = true }: StubOptions = {}) {
+interface AppliedMigrationRow {
+  readonly module: string;
+  readonly name: string;
+  readonly checksum: string;
+}
+
+const FAMILY_DIRECTORY = fileURLToPath(
+  new URL("../../../packages/db/test/fixtures/migrations/family", import.meta.url),
+);
+const familySource = { schema: "family" as const, directory: FAMILY_DIRECTORY };
+const familyModule: ModuleDescriptor = { name: "family", migrations: [familySource] };
+
+function stubRuntime({
+  queryResult = "ok",
+  publisherRunning = true,
+  ledgerRows = [],
+}: StubOptions = {}) {
   const errorSink = createMemoryErrorSink();
   const pool = {
-    query: async () => {
+    query: async (text: string) => {
       if (queryResult === "fail") {
         throw new Error("connection refused");
       }
-      return { rows: [] };
+      return { rows: text.includes("schema_migrations") ? ledgerRows : [] };
     },
     end: async () => undefined,
   };
@@ -133,18 +151,39 @@ describe("health endpoints", () => {
     expect(response.json().checks.publisher).toBe("stopped");
   });
 
-  it("cannot report migrations as applied while registered modules still have migrations", async () => {
-    const { runtime } = stubRuntime();
-    const withMigrations: ModuleDescriptor = {
-      name: "probe",
-      migrations: [{ schema: "family", directory: "/nonexistent" }],
-    };
-    const app = await build({}, runtime, [withMigrations]);
+  it("reports migrations pending while the ledger lacks a registered migration", async () => {
+    const { runtime } = stubRuntime({ ledgerRows: [] });
+    const app = await build({}, runtime, [familyModule]);
 
     const response = await app.inject({ method: "GET", url: "/api/health/ready" });
 
     expect(response.statusCode).toBe(503);
-    expect(response.json().checks.migrations).toBe("not_checked");
+    expect(response.json().checks.migrations).toBe("pending");
+  });
+
+  it("reports migrations ok once the ledger records each file with the same checksum", async () => {
+    const [migration] = await loadMigrations(familySource);
+    const { runtime } = stubRuntime({
+      ledgerRows: [{ module: "family", name: migration.name, checksum: migration.checksum }],
+    });
+    const app = await build({}, runtime, [familyModule]);
+
+    const response = await app.inject({ method: "GET", url: "/api/health/ready" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().checks.migrations).toBe("ok");
+  });
+
+  it("reports migrations pending when a recorded checksum differs from the file", async () => {
+    const [migration] = await loadMigrations(familySource);
+    const { runtime } = stubRuntime({
+      ledgerRows: [{ module: "family", name: migration.name, checksum: "changed" }],
+    });
+    const app = await build({}, runtime, [familyModule]);
+
+    const response = await app.inject({ method: "GET", url: "/api/health/ready" });
+
+    expect(response.json().checks.migrations).toBe("pending");
   });
 });
 

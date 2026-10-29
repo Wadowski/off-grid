@@ -39,3 +39,4 @@ CREATE TABLE IF NOT EXISTS public.schema_migrations (
 
 ALTER TABLE public.schema_migrations OWNER TO offgrid_migrator;
 REVOKE ALL ON public.schema_migrations FROM PUBLIC;
+GRANT SELECT ON public.schema_migrations TO outbox_app;

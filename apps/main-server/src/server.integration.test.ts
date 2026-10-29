@@ -1,11 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { startTestDatabase } from "../test/database.js";
 import type { TestDatabase } from "../test/types.js";
 import { startServer } from "./server.js";
-import type { ServerConfig } from "./types.js";
+import type { ModuleDescriptor, ServerConfig } from "./types.js";
+
+const FAMILY_DIRECTORY = fileURLToPath(
+  new URL("../../../packages/db/test/fixtures/migrations/family", import.meta.url),
+);
 
 let database: TestDatabase;
 
@@ -38,6 +43,24 @@ describe("startServer against a clean database", () => {
     });
 
     await running.close();
+    await running.close();
+  });
+
+  it("reads the migration ledger as the server role and reports unrecorded migrations as pending", async () => {
+    const familyModule: ModuleDescriptor = {
+      name: "family",
+      migrations: [{ schema: "family", directory: FAMILY_DIRECTORY }],
+    };
+    const running = await startServer(configFor(database), [familyModule]);
+
+    const response = await fetch(`${running.baseUrl}/api/health/ready`);
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      status: "unavailable",
+      checks: { database: "ok", publisher: "ok", migrations: "pending" },
+    });
+
     await running.close();
   });
 

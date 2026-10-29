@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import rateLimit from "@fastify/rate-limit";
+import { loadMigrations } from "@offgrid/db";
 import { resolveTraceId, runWithTrace } from "@offgrid/observability";
 import Fastify, { type FastifyInstance } from "fastify";
 import { errorBodyFor, notFoundBody, statusOf } from "./errors.js";
@@ -89,7 +90,7 @@ async function readinessChecks(
   return {
     database: await databaseCheck(runtime),
     publisher: runtime.state.publisherRunning && !runtime.state.draining ? "ok" : "stopped",
-    migrations: migrationsCheck(modules),
+    migrations: await migrationsCheck(runtime, modules),
   };
 }
 
@@ -102,7 +103,35 @@ async function databaseCheck(runtime: ServerRuntime): Promise<CheckStatus> {
   }
 }
 
-function migrationsCheck(modules: readonly ModuleDescriptor[]): CheckStatus {
-  const hasMigrations = modules.some((module) => (module.migrations?.length ?? 0) > 0);
-  return hasMigrations ? "not_checked" : "ok";
+interface AppliedMigrationRow {
+  readonly module: string;
+  readonly name: string;
+  readonly checksum: string;
+}
+
+async function migrationsCheck(
+  runtime: ServerRuntime,
+  modules: readonly ModuleDescriptor[],
+): Promise<CheckStatus> {
+  const sources = modules.flatMap((module) => module.migrations ?? []);
+  if (sources.length === 0) {
+    return "ok";
+  }
+  try {
+    const expected = (await Promise.all(sources.map((source) => loadMigrations(source)))).flat();
+    const { rows } = await runtime.pool.query<AppliedMigrationRow>(
+      "SELECT module, name, checksum FROM public.schema_migrations",
+    );
+    const applied = new Set(rows.map((row) => migrationKey(row.module, row.name, row.checksum)));
+    const allApplied = expected.every((migration) =>
+      applied.has(migrationKey(migration.schema, migration.name, migration.checksum)),
+    );
+    return allApplied ? "ok" : "pending";
+  } catch {
+    return "unavailable";
+  }
+}
+
+function migrationKey(module: string, name: string, checksum: string): string {
+  return `${module}/${name}/${checksum}`;
 }
