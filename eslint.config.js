@@ -28,8 +28,8 @@ export default tseslint.config(
     },
   },
   {
-    // Repository scripts run under Node, so the Node globals they use are declared here.
-    files: ["scripts/**/*.mjs"],
+    // Repository scripts and agent hooks run under Node, so the Node globals they use are declared here.
+    files: ["scripts/**/*.mjs", ".claude/hooks/**/*.mjs"],
     languageOptions: {
       globals: { console: "readonly", process: "readonly", URL: "readonly" },
     },
