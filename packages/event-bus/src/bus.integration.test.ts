@@ -16,7 +16,8 @@ import {
   type EventOf,
   type HandlerContext,
 } from "./index.js";
-import { startTestDatabase, type TestDatabase } from "../test/postgres.js";
+import { startTestDatabase } from "../test/postgres.js";
+import type { TestDatabase } from "../test/types.js";
 
 const familyCreated = defineEvent({
   name: "family-created-v1",

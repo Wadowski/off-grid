@@ -2,8 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { parseEvent, type AnyEventDefinition } from "@offgrid/contracts";
-import { type ErrorSink, resolveTraceId, runWithTrace } from "@offgrid/observability";
-import type { Client, ClientBase, Pool } from "pg";
+import { resolveTraceId, runWithTrace } from "@offgrid/observability";
+import type { Client, ClientBase } from "pg";
+import type {
+  DeliverySettings,
+  EventBus,
+  EventBusOptions,
+  StoredEvent,
+  Subscription,
+} from "./types.js";
 import {
   advanceCursor,
   lockCursor,
@@ -13,48 +20,7 @@ import {
   resetRole,
   roleOf,
   setRole,
-  type StoredEvent,
 } from "./store.js";
-
-export type EventOf<D extends AnyEventDefinition> = ReturnType<D["envelope"]["parse"]>;
-
-export interface HandlerContext {
-  readonly tx: ClientBase;
-}
-
-export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition> {
-  readonly name: string;
-  readonly event: D;
-  readonly runAs: string;
-  readonly handler: (event: EventOf<D>, context: HandlerContext) => Promise<void>;
-}
-
-export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinition> {
-  send(event: EventOf<D>): Promise<void>;
-}
-
-export interface EventBusOptions {
-  readonly pool: Pool;
-  readonly errorSink: ErrorSink;
-  readonly listener?: Client;
-  readonly maxAttempts?: number;
-  readonly retryDelayMs?: (attempt: number) => number;
-  readonly batchSize?: number;
-  readonly pollIntervalMs?: number;
-}
-
-export interface EventBus {
-  subscribe<D extends AnyEventDefinition>(subscription: Subscription<D>): void;
-  subscribeTransport<D extends AnyEventDefinition>(options: {
-    readonly name: string;
-    readonly event: D;
-    readonly transport: EventTransport<D>;
-  }): void;
-  deliverPending(): Promise<void>;
-  start(): Promise<void>;
-  stop(): Promise<void>;
-  prune(retentionSeconds: number): Promise<number>;
-}
 
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_BATCH_SIZE = 100;
@@ -62,17 +28,8 @@ const DEFAULT_POLL_INTERVAL_MS = 1000;
 const TRANSPORT_RUN_AS = "outbox";
 const defaultRetryDelayMs = (attempt: number): number => 100 * 2 ** (attempt - 1);
 
-interface Settings {
-  readonly pool: Pool;
-  readonly errorSink: ErrorSink;
-  readonly maxAttempts: number;
-  readonly retryDelayMs: (attempt: number) => number;
-  readonly batchSize: number;
-  readonly pollIntervalMs: number;
-}
-
 export function createEventBus(options: EventBusOptions): EventBus {
-  const settings: Settings = {
+  const settings: DeliverySettings = {
     pool: options.pool,
     errorSink: options.errorSink,
     maxAttempts: options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS,
@@ -121,7 +78,7 @@ export function createEventBus(options: EventBusOptions): EventBus {
 
 async function deliverAll(
   subscriptions: readonly Subscription[],
-  settings: Settings,
+  settings: DeliverySettings,
 ): Promise<void> {
   for (const subscription of subscriptions) {
     let hasMore = true;
@@ -131,7 +88,10 @@ async function deliverAll(
   }
 }
 
-async function deliverBatch(subscription: Subscription, settings: Settings): Promise<boolean> {
+async function deliverBatch(
+  subscription: Subscription,
+  settings: DeliverySettings,
+): Promise<boolean> {
   const client = await settings.pool.connect();
   try {
     await client.query("BEGIN");
@@ -163,7 +123,7 @@ async function deliverOne(
   client: ClientBase,
   subscription: Subscription,
   stored: StoredEvent,
-  settings: Settings,
+  settings: DeliverySettings,
 ): Promise<void> {
   if (stored.type !== subscription.event.name) {
     return;
@@ -196,7 +156,7 @@ async function deadLetter(
   stored: StoredEvent,
   attempts: number,
   error: unknown,
-  settings: Settings,
+  settings: DeliverySettings,
 ): Promise<void> {
   const errorName = error instanceof Error ? error.name : "NonError";
   await recordDeadLetter(client, subscription.name, stored.sequence, attempts, errorName);
@@ -227,7 +187,7 @@ class DeliveryLoop {
   private readonly onNotification = (): void => this.wake?.();
 
   constructor(
-    private readonly settings: Settings,
+    private readonly settings: DeliverySettings,
     private readonly deliver: () => Promise<void>,
     private readonly listener: Client | undefined,
   ) {}

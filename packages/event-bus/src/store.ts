@@ -2,42 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ClientBase } from "pg";
-
-export interface StoredEvent {
-  readonly sequence: number;
-  readonly id: string;
-  readonly type: string;
-  readonly version: number;
-  readonly sourceVersion: number;
-  readonly traceId: string;
-  readonly occurredAt: string;
-  readonly familyId: string | null;
-  readonly payload: unknown;
-}
-
-interface EventRow {
-  readonly sequence: string;
-  readonly id: string;
-  readonly type: string;
-  readonly version: number;
-  readonly source_version: string;
-  readonly trace_id: string;
-  readonly occurred_at: Date;
-  readonly family_id: string | null;
-  readonly payload: unknown;
-}
-
-export interface NewEvent {
-  readonly id: string;
-  readonly type: string;
-  readonly version: number;
-  readonly sourceVersion: number;
-  readonly traceId: string;
-  readonly occurredAt: string;
-  readonly familyId: string | null;
-  readonly userId: string | null;
-  readonly payload: unknown;
-}
+import type { EventRow, NewEvent, StoredEvent } from "./types.js";
 
 export async function appendEvent(client: ClientBase, event: NewEvent): Promise<number> {
   const { rows } = await client.query<{ sequence: string }>(

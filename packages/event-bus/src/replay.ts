@@ -3,15 +3,8 @@
 
 import { parseEvent, type AnyEventDefinition } from "@offgrid/contracts";
 import { resolveTraceId, runWithTrace } from "@offgrid/observability";
-import type { Pool } from "pg";
-import type { EventOf, Subscription } from "./bus.js";
-import { readEventsAfter, resetRole, setRole, type StoredEvent } from "./store.js";
-
-export interface ReplayOptions {
-  readonly pool: Pool;
-  readonly fromSequence?: number;
-  readonly batchSize?: number;
-}
+import { readEventsAfter, resetRole, setRole } from "./store.js";
+import type { EventOf, ReplayOptions, StoredEvent, Subscription } from "./types.js";
 
 const DEFAULT_REPLAY_BATCH_SIZE = 100;
 

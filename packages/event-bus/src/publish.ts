@@ -3,11 +3,8 @@
 
 import { parseEvent, type AnyEventDefinition } from "@offgrid/contracts";
 import type { ClientBase } from "pg";
-import { appendEvent, type NewEvent } from "./store.js";
-
-interface PublishOptions {
-  readonly userId?: string;
-}
+import { appendEvent } from "./store.js";
+import type { NewEvent, PublishOptions } from "./types.js";
 
 export async function publish(
   tx: ClientBase,

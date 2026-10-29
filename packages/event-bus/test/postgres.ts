@@ -6,6 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { Client, Pool } from "pg";
+import type { AppSchema, TestDatabase } from "./types.js";
 
 const INIT_SCRIPTS = [
   "../../../infra/init/sql/01-roles-and-schemas.sql",
@@ -22,15 +23,6 @@ const MIGRATION_DIRECTORIES = [
 ] as const;
 
 const APP_SCHEMAS = ["outbox", "family"] as const;
-
-export type AppSchema = (typeof APP_SCHEMAS)[number];
-
-export interface TestDatabase {
-  readonly admin: Client;
-  connect(schema: AppSchema): Pool;
-  connectClient(schema: AppSchema): Promise<Client>;
-  stop(): Promise<void>;
-}
 
 function secret(): string {
   return randomBytes(24).toString("hex");

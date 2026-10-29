@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-export type SourceVersionDecision = "apply" | "duplicate" | "stale" | "gap";
+import type { SourceVersionDecision } from "./types.js";
 
 export function classifySourceVersion(
   storedVersion: number | null,
