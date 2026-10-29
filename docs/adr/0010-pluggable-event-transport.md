@@ -1,6 +1,6 @@
 # 0010. Postgres outbox as the source of events, with a pluggable transport
 
-- **Status:** Accepted
+- **Status:** Superseded by [0011](0011-restricted-event-access-and-retention.md)
 - **Supersedes:** [0002](0002-outbox-events-and-projections.md)
 
 ## Context
