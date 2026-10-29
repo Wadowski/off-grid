@@ -24,7 +24,7 @@ Note: the stub packages under `modules/` (for example `modules/family`) are the 
 4. **Declare the schema and role.** The module gets its own Postgres schema and owner role. Follow [ADR 0008](../../../docs/adr/0008-prisma-multi-schema.md) and the helpers in `packages/db`. If `packages/db` has no schema or role helper yet, stop and ask the user which tool to use. Do not hand-write a schema in a migration without the helper.
    Verify: `packages/db/src/index.ts` exports what you used, or the question is asked and answered.
 
-5. **Add the first migration.** Use the `new-migration` skill for the schema's first migration, with RLS on every table.
+5. **Add the first migration.** Use the `new-migration` skill for the schema's first migration, with an ownership scope declared for every table.
    Verify: the migration test from `new-migration` passes.
 
 6. **Register in the server.** Add the module to `apps/main-server` wiring, importing only `@offgrid/<name>`. Add the workspace dependency in `apps/main-server/package.json` the same way other modules are listed.

@@ -1,6 +1,6 @@
 ---
 name: privacy-security-reviewer
-description: Reviews git diff main...HEAD for telemetry, outbound network calls, leaked secrets or personal data, missing validation, missing family_id or RLS, weak password handling and gated access control. Read-only; reports Blocking and Advisory findings and never edits.
+description: Reviews git diff main...HEAD for telemetry, outbound network calls, leaked secrets or personal data, missing validation, tables with no ownership scope, missing owner column or RLS, personal data in shared tables, weak password handling and gated access control. Read-only; reports Blocking and Advisory findings and never edits.
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -17,7 +17,7 @@ Check for:
 - **Telemetry and outbound calls.** Analytics or telemetry SDKs, tracking pixels, fetches to external hosts, or update checks in local mode. See [.claude/rules/security-privacy.md](../rules/security-privacy.md).
 - **Secrets and personal data.** Real secrets, tokens, hostnames, or personal data in code, logs, error messages, or fixtures. Placeholders are allowed.
 - **Input validation.** A new boundary (HTTP route, event handler, file parser) that does not validate input with zod.
-- **Tables and RLS.** A new table without a `family_id` column or without a row-level-security policy. See [.claude/rules/migrations.md](../rules/migrations.md).
+- **Tables and ownership.** A new table that does not declare one scope from [ADR 0009](../../docs/adr/0009-table-ownership-scopes.md). A `family` table without a non-null `family_id` and an RLS policy, or a `user` table without a non-null `user_id` and an RLS policy. A `shared` table that holds personal data, has an owner column, or is writable by the app role, or one that is marked `shared` although its rows differ between households. See [.claude/rules/migrations.md](../rules/migrations.md).
 - **Password handling.** Passwords stored or compared in a way other than Argon2id hashing.
 - **Secret loading.** Secrets read from environment defaults, or a missing required secret that does not fail fast.
 - **Gating.** A feature flag or setting that gates access control or data export. These are never feature-gated.
