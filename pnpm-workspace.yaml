@@ -3,6 +3,7 @@ packages:
   - "modules/*"
   - "packages/*"
 allowBuilds:
+  esbuild: true
   lefthook: true
   prisma: true
   "@prisma/engines": true
