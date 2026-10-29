@@ -2,20 +2,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-// Validates the agent configuration under .claude/:
-//   - settings.json parses, and every hook script it names exists and is executable
-//   - every rule in .claude/rules has a non-empty paths list of globs
-//   - every paths glob matches at least one file (unmatched globs are warnings,
-//     because some rules cover areas that do not exist yet)
-//   - every skill in .claude/skills has a SKILL.md whose name matches its folder
-//     and that has a description
-//   - every agent in .claude/agents has a name matching its file, a description,
-//     a tools list, and no tool that writes files or reaches the network
-//
-//   node scripts/check-agent-config.mjs [root]
-//
-// Exit code 1 if any error is found.
-
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { glob } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -23,7 +9,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HOOK_PATH = /\.claude\/hooks\/[\w.-]+/g;
 
-// Review agents only report. They may not write files or reach the network.
 const FORBIDDEN_AGENT_TOOLS = new Set([
   "Edit",
   "Write",
@@ -33,7 +18,6 @@ const FORBIDDEN_AGENT_TOOLS = new Set([
   "Agent",
 ]);
 
-// Minimal frontmatter reader: `key: value` pairs and a `paths:` list of "- item" lines.
 export function parseFrontmatter(text) {
   const match = /^---\n([\s\S]*?)\n---/.exec(text);
   if (!match) return null;

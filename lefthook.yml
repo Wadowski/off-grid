@@ -1,9 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-# Git hooks, installed by `pnpm install` (see the lefthook postinstall).
-# gitleaks must be on PATH: https://github.com/gitleaks/gitleaks#installing
-
 pre-commit:
   parallel: true
   commands:

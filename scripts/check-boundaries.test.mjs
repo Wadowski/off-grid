@@ -6,9 +6,6 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-// Runs `pnpm check:boundaries` (dependency-cruiser) against the real tree, and against
-// tools/boundary-fixtures where each rule has a deliberate violation.
-
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const CRUISER = fileURLToPath(
   new URL("../node_modules/dependency-cruiser/bin/dependency-cruiser.mjs", import.meta.url),

@@ -14,7 +14,6 @@ export default tseslint.config(
   {
     linterOptions: { reportUnusedDisableDirectives: "error" },
     rules: {
-      // `any` needs an explicit, justified disable comment: // eslint-disable-next-line ... -- reason
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/ban-ts-comment": [
         "error",
@@ -28,14 +27,12 @@ export default tseslint.config(
     },
   },
   {
-    // Repository scripts and agent hooks run under Node, so the Node globals they use are declared here.
     files: ["scripts/**/*.mjs", ".claude/hooks/**/*.mjs"],
     languageOptions: {
       globals: { console: "readonly", process: "readonly", URL: "readonly" },
     },
   },
   {
-    // CommonJS config files, such as .dependency-cruiser.cjs, export with module.exports.
     files: ["**/*.cjs"],
     languageOptions: {
       globals: { module: "readonly" },

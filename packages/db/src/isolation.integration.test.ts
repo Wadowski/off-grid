@@ -12,7 +12,6 @@ interface Context {
   userId?: string;
 }
 
-/** Runs one query inside a transaction that sets the request context, as the runtime does. */
 async function queryAs(client: Client, context: Context, sql: string, params: unknown[] = []) {
   await client.query("BEGIN");
   try {
@@ -43,7 +42,6 @@ describe("row level isolation and role boundaries", () => {
     db = await startTestDatabase();
     await runMigrations(db.migrator, fixtureSources());
 
-    // Seeded as the superuser, which bypasses RLS, so the test controls the data.
     await db.admin.query(
       `INSERT INTO family.family_setting (id, family_id, label) VALUES
          ($1, $2, 'A setting'), ($3, $4, 'B setting')`,

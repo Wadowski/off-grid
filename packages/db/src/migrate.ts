@@ -8,7 +8,6 @@ import type { ClientBase } from "pg";
 import { type DatabaseSchema, ownerRoleOf } from "./schemas.js";
 import { quoteIdent } from "./sql.js";
 
-/** The migrations of one module, read from a directory of `NNNN_name.sql` files. */
 export interface MigrationSource {
   schema: DatabaseSchema;
   directory: string;
@@ -54,14 +53,6 @@ export async function loadMigrations(source: MigrationSource): Promise<Migration
   );
 }
 
-/**
- * Applies pending migrations in the order the sources are given (callers pass
- * them in dependency order). Each migration runs as its module's owner role in
- * its own transaction, and its history row is written in the same transaction.
- *
- * `client` must be connected as the migrator role. Applied migrations are
- * skipped; an applied migration whose file changed is refused.
- */
 export async function runMigrations(
   client: ClientBase,
   sources: readonly MigrationSource[],

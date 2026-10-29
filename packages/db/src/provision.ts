@@ -4,11 +4,6 @@
 import type { Client } from "pg";
 import { quoteIdent } from "./sql.js";
 
-/**
- * Gives a NOLOGIN role a login and password. The roles themselves come from
- * `infra/init/sql/01-roles-and-schemas.sql`. The password is read from a secret
- * by the caller and is never logged or stored in the repository.
- */
 export async function provisionLoginRole(
   admin: Client,
   role: string,

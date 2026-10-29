@@ -3,5 +3,4 @@
 
 import { readFileSync } from "node:fs";
 
-// Deliberate violation: domain code performs file I/O.
 export const readClock = (path: string): string => readFileSync(path, "utf8");

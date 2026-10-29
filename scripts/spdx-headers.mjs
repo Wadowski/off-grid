@@ -1,11 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-// Adds or checks the SPDX header on every tracked and not-ignored source file.
-//
-//   node scripts/spdx-headers.mjs          add missing headers in place
-//   node scripts/spdx-headers.mjs --check  list files without a header; exit 1 if any
-
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";

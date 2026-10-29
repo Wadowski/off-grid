@@ -1,16 +1,5 @@
 -- SPDX-FileCopyrightText: 2026 Dominik Wadowski
 -- SPDX-License-Identifier: FSL-1.1-ALv2
---
--- Creates one schema and two roles per module, and the migrator role that runs
--- migrations (see ADR 0009). Run once, as the database superuser. Idempotent.
---
--- Roles are created NOLOGIN. Login and passwords are provisioned from secret
--- files by the database package, never stored in this file.
---
---   <module>_owner  owns the module schema; migrations run as this role.
---   <module>_app    runtime role; DML only, on its own schema.
---   offgrid_migrator  member of every owner role; runs migrations and keeps
---                     the migration history.
 
 DO $$
 DECLARE
@@ -40,7 +29,6 @@ BEGIN
   END LOOP;
 END $$;
 
--- Migration history. Written only by the migrator role.
 CREATE TABLE IF NOT EXISTS public.schema_migrations (
   module      text        NOT NULL,
   name        text        NOT NULL,

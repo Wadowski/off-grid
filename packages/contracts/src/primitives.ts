@@ -17,7 +17,6 @@ export type AccessGroupId = z.infer<typeof accessGroupIdSchema>;
 export const timestampSchema = z.iso.datetime();
 export type Timestamp = z.infer<typeof timestampSchema>;
 
-/** Stable, machine-readable error code, for example `VALIDATION_FAILED`. */
 export const errorCodeSchema = z
   .string()
   .max(64)
