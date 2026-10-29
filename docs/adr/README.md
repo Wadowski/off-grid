@@ -22,5 +22,5 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0005](0005-license.md)                       | License: FSL-1.1-ALv2 with trademark policy             | Accepted           |
 | [0006](0006-modular-monolith.md)              | Modular monolith                                        | Accepted           |
 | [0007](0007-e2e-playwright-bdd.md)            | End-to-end tests with Playwright-BDD                    | Accepted           |
-| [0008](0008-prisma-multi-schema.md)           | Prisma with per-module schemas, roles and RLS           | Proposed           |
+| [0008](0008-prisma-multi-schema.md)           | Prisma with per-module schemas, roles and RLS           | Accepted           |
 | [0009](0009-table-ownership-scopes.md)        | Database per module with an ownership scope per table   | Accepted           |
