@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import { ConfigError, loadConfig } from "./config.js";
 
-const requiredEnv = {
+const requiredEnv: NodeJS.ProcessEnv = {
   OFFGRID_DATABASE_HOST: "db.internal",
   OFFGRID_DATABASE_NAME: "offgrid",
   OFFGRID_DATABASE_PASSWORD_FILE: "/run/secrets/db_password",
@@ -17,7 +17,7 @@ describe("loadConfig", () => {
     const config = loadConfig(requiredEnv, secretFiles("s3cret"));
 
     expect(config).toEqual({
-      http: { host: "0.0.0.0", port: 3000 },
+      http: { host: "127.0.0.1", port: 3000 },
       database: {
         host: "db.internal",
         port: 5432,
@@ -41,7 +41,27 @@ describe("loadConfig", () => {
     ).toThrow(ConfigError);
   });
 
-  it("names the missing secret variable and never reads a secret it cannot find", () => {
+  it("refuses the dev identity stub when the server binds a non-loopback address", () => {
+    expect(() =>
+      loadConfig(
+        { ...requiredEnv, OFFGRID_DEV_IDENTITY: "true", OFFGRID_HTTP_HOST: "0.0.0.0" },
+        secretFiles("x"),
+      ),
+    ).toThrow(
+      "OFFGRID_DEV_IDENTITY=true is only allowed when OFFGRID_HTTP_HOST is a loopback address",
+    );
+  });
+
+  it("allows the dev identity stub on loopback", () => {
+    const config = loadConfig(
+      { ...requiredEnv, OFFGRID_DEV_IDENTITY: "true", OFFGRID_HTTP_HOST: "127.0.0.1" },
+      secretFiles("x"),
+    );
+
+    expect(config.devIdentity).toBe(true);
+  });
+
+  it("names the missing secret variable", () => {
     const withoutSecret: NodeJS.ProcessEnv = {
       ...requiredEnv,
       OFFGRID_DATABASE_PASSWORD_FILE: undefined,
@@ -68,9 +88,17 @@ describe("loadConfig", () => {
     );
   });
 
-  it("rejects an out-of-range port with the variable name in the message", () => {
-    expect(() =>
-      loadConfig({ ...requiredEnv, OFFGRID_HTTP_PORT: "70000" }, secretFiles("x")),
-    ).toThrow(/OFFGRID_HTTP_PORT/);
+  it.each([
+    ["OFFGRID_HTTP_PORT", "70000"],
+    ["OFFGRID_DATABASE_PORT", "0"],
+    ["OFFGRID_DATABASE_POOL_MAX", "0"],
+    ["OFFGRID_DATABASE_POOL_MAX", "101"],
+    ["OFFGRID_DATABASE_USER", "Outbox-App"],
+    ["OFFGRID_RATE_LIMIT_PER_MINUTE", "0"],
+    ["OFFGRID_LOG_LEVEL", "trace"],
+  ])("rejects an invalid %s value and names the variable", (variable, value) => {
+    expect(() => loadConfig({ ...requiredEnv, [variable]: value }, secretFiles("x"))).toThrow(
+      new RegExp(variable),
+    );
   });
 });

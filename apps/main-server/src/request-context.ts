@@ -11,20 +11,22 @@ const USER_HEADER = "x-offgrid-user-id";
 const FAMILY_HEADER = "x-offgrid-family-id";
 const ACCESS_GROUPS_HEADER = "x-offgrid-access-group-ids";
 
-const ANONYMOUS: RequestContext = { userId: null, familyId: null, accessGroupIds: [] };
-
 export function resolveRequestContext(
   headers: IncomingHttpHeaders,
   devIdentity: boolean,
 ): RequestContext {
   if (!devIdentity) {
-    return ANONYMOUS;
+    return anonymousContext();
   }
   return {
     userId: readId(headers, USER_HEADER, userIdSchema),
     familyId: readId(headers, FAMILY_HEADER, familyIdSchema),
     accessGroupIds: readIdList(headers, ACCESS_GROUPS_HEADER),
   };
+}
+
+function anonymousContext(): RequestContext {
+  return { userId: null, familyId: null, accessGroupIds: [] };
 }
 
 function readId<Schema extends z.ZodType<string>>(

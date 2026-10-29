@@ -7,3 +7,9 @@ export interface TestDatabase {
   readonly connection: DatabaseConnection;
   stop(): Promise<void>;
 }
+
+export interface StubOptions {
+  readonly queryResult?: "ok" | "fail";
+  readonly publisherRunning?: boolean;
+  readonly ledgerRows?: readonly { module: string; name: string; checksum: string }[];
+}

@@ -3,7 +3,7 @@
 
 import { readFileSync } from "node:fs";
 import { z } from "zod";
-import type { ServerConfig } from "./types.js";
+import type { ReadSecretFile, ServerConfig } from "./types.js";
 
 export class ConfigError extends Error {
   constructor(message: string) {
@@ -14,8 +14,10 @@ export class ConfigError extends Error {
 
 const portSchema = z.coerce.number().int().min(1).max(65535);
 
+const LOOPBACK_HOSTS: ReadonlySet<string> = new Set(["127.0.0.1", "::1", "localhost"]);
+
 const environmentSchema = z.object({
-  OFFGRID_HTTP_HOST: z.string().min(1).default("0.0.0.0"),
+  OFFGRID_HTTP_HOST: z.string().min(1).default("127.0.0.1"),
   OFFGRID_HTTP_PORT: portSchema.default(3000),
   OFFGRID_DATABASE_HOST: z.string().min(1),
   OFFGRID_DATABASE_PORT: portSchema.default(5432),
@@ -34,8 +36,6 @@ const environmentSchema = z.object({
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
-type ReadSecretFile = (path: string) => string;
-
 const readSecretFileUtf8: ReadSecretFile = (path) => readFileSync(path, "utf8");
 
 export function loadConfig(
@@ -50,6 +50,11 @@ export function loadConfig(
     throw new ConfigError(`invalid configuration: ${problems}`);
   }
   const values = parsed.data;
+  if (values.OFFGRID_DEV_IDENTITY && !LOOPBACK_HOSTS.has(values.OFFGRID_HTTP_HOST)) {
+    throw new ConfigError(
+      "OFFGRID_DEV_IDENTITY=true is only allowed when OFFGRID_HTTP_HOST is a loopback address",
+    );
+  }
 
   return {
     http: { host: values.OFFGRID_HTTP_HOST, port: values.OFFGRID_HTTP_PORT },

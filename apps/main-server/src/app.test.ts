@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { fileURLToPath } from "node:url";
 import type { FastifyInstance } from "fastify";
 import { loadMigrations } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/observability";
 import { afterEach, describe, expect, it } from "vitest";
+import { FAMILY_MIGRATION_DIRECTORY } from "../test/fixtures.js";
+import type { StubOptions } from "../test/types.js";
 import { buildApp } from "./app.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
 
@@ -27,22 +28,7 @@ const baseConfig: ServerConfig = {
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 
-interface StubOptions {
-  readonly queryResult?: "ok" | "fail";
-  readonly publisherRunning?: boolean;
-  readonly ledgerRows?: readonly AppliedMigrationRow[];
-}
-
-interface AppliedMigrationRow {
-  readonly module: string;
-  readonly name: string;
-  readonly checksum: string;
-}
-
-const FAMILY_DIRECTORY = fileURLToPath(
-  new URL("../../../packages/db/test/fixtures/migrations/family", import.meta.url),
-);
-const familySource = { schema: "family" as const, directory: FAMILY_DIRECTORY };
+const familySource = { schema: "family" as const, directory: FAMILY_MIGRATION_DIRECTORY };
 const familyModule: ModuleDescriptor = { name: "family", migrations: [familySource] };
 
 function stubRuntime({
@@ -251,6 +237,24 @@ describe("request pipeline", () => {
     expect(response.json()).toEqual({ code: "INTERNAL_ERROR", message: "Internal server error" });
     expect(response.body).not.toContain("abc123");
     expect(errorSink.list()).toHaveLength(1);
+  });
+
+  it("does not echo the message of a library error that is not an application error", async () => {
+    const { runtime } = stubRuntime();
+    const leakyModule: ModuleDescriptor = {
+      name: "probe",
+      registerRoutes(api) {
+        api.get("/probe/conflict", async () => {
+          throw Object.assign(new Error("row owned by user 9f2c"), { statusCode: 409 });
+        });
+      },
+    };
+    const app = await build({}, runtime, [leakyModule]);
+
+    const response = await app.inject({ method: "GET", url: "/api/probe/conflict" });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toEqual({ code: "REQUEST_REJECTED", message: "Request rejected" });
   });
 
   it("maps a schema violation to a 400 in the contracts error shape", async () => {

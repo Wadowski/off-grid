@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
+import type { z } from "zod";
 import type { MigrationSource } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { ErrorSink, LogLevel, Logger } from "@offgrid/observability";
 import type { Pool } from "pg";
-import type { z } from "zod";
 import type { accessGroupIdSchema, familyIdSchema, userIdSchema } from "@offgrid/contracts";
 
 export interface DatabaseConnection {
@@ -25,6 +25,8 @@ export interface ServerConfig {
   readonly rateLimitPerMinute: number;
   readonly logLevel: LogLevel;
 }
+
+export type ReadSecretFile = (path: string) => string;
 
 export interface ModuleContext {
   readonly eventBus: EventBus;
@@ -45,7 +47,7 @@ export interface ModuleDescriptor {
   workers?(context: ModuleContext): readonly Worker[];
 }
 
-export interface RuntimeState {
+interface RuntimeState {
   publisherRunning: boolean;
   draining: boolean;
 }
@@ -58,10 +60,27 @@ export interface ServerRuntime {
   readonly state: RuntimeState;
 }
 
+export interface AppOptions {
+  readonly config: ServerConfig;
+  readonly runtime: ServerRuntime;
+  readonly modules: readonly ModuleDescriptor[];
+}
+
+export interface AppliedMigrationRow {
+  readonly module: string;
+  readonly name: string;
+  readonly checksum: string;
+}
+
 export interface RequestContext {
   readonly userId: z.output<typeof userIdSchema> | null;
   readonly familyId: z.output<typeof familyIdSchema> | null;
   readonly accessGroupIds: readonly z.output<typeof accessGroupIdSchema>[];
+}
+
+export interface ErrorBody {
+  readonly code: string;
+  readonly message: string;
 }
 
 export type CheckStatus = "ok" | "unavailable" | "stopped" | "pending";

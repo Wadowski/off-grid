@@ -10,7 +10,7 @@ Read from the environment and validated with zod at startup. Missing or invalid 
 
 | Variable                         | Default      | Notes                                                                                                |
 | -------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------- |
-| `OFFGRID_HTTP_HOST`              | `0.0.0.0`    | Internal bind address                                                                                |
+| `OFFGRID_HTTP_HOST`              | `127.0.0.1`  | Bind address. `OFFGRID_DEV_IDENTITY=true` requires a loopback address                                |
 | `OFFGRID_HTTP_PORT`              | `3000`       | Only port the server exposes                                                                         |
 | `OFFGRID_DATABASE_HOST`          | required     | Postgres host                                                                                        |
 | `OFFGRID_DATABASE_PORT`          | `5432`       |                                                                                                      |

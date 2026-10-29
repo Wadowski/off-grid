@@ -1,16 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { startTestDatabase } from "../test/database.js";
+import { FAMILY_MIGRATION_DIRECTORY } from "../test/fixtures.js";
 import type { TestDatabase } from "../test/types.js";
 import { startServer } from "./server.js";
 import type { ModuleDescriptor, ServerConfig } from "./types.js";
-
-const FAMILY_DIRECTORY = fileURLToPath(
-  new URL("../../../packages/db/test/fixtures/migrations/family", import.meta.url),
-);
 
 let database: TestDatabase;
 
@@ -49,7 +45,7 @@ describe("startServer against a clean database", () => {
   it("reads the migration ledger as the server role and reports unrecorded migrations as pending", async () => {
     const familyModule: ModuleDescriptor = {
       name: "family",
-      migrations: [{ schema: "family", directory: FAMILY_DIRECTORY }],
+      migrations: [{ schema: "family", directory: FAMILY_MIGRATION_DIRECTORY }],
     };
     const running = await startServer(configFor(database), [familyModule]);
 
@@ -70,6 +66,6 @@ describe("startServer against a clean database", () => {
       database: { ...database.connection, password: "wrong-password" },
     };
 
-    await expect(startServer(unreachable, [])).rejects.toThrow();
+    await expect(startServer(unreachable, [])).rejects.toThrow(/password authentication failed/);
   });
 });

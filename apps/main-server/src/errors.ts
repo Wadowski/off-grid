@@ -1,8 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { ErrorBody } from "./types.js";
+
 const MAX_MESSAGE_LENGTH = 500;
 const INTERNAL_MESSAGE = "Internal server error";
+const GENERIC_REJECTION_MESSAGE = "Request rejected";
 
 export class ApiError extends Error {
   readonly statusCode: number;
@@ -14,11 +17,6 @@ export class ApiError extends Error {
     this.statusCode = statusCode;
     this.code = code;
   }
-}
-
-export interface ErrorBody {
-  readonly code: string;
-  readonly message: string;
 }
 
 export function statusOf(error: unknown): number {
@@ -57,8 +55,11 @@ function codeFor(error: unknown, status: number): string {
 }
 
 function messageFor(error: unknown): string {
+  if (!(error instanceof ApiError) && !hasValidationDetails(error)) {
+    return GENERIC_REJECTION_MESSAGE;
+  }
   const message = error instanceof Error ? error.message.trim() : "";
-  const safe = message.length > 0 ? message : "Request rejected";
+  const safe = message.length > 0 ? message : GENERIC_REJECTION_MESSAGE;
   return safe.slice(0, MAX_MESSAGE_LENGTH);
 }
 
