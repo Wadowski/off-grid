@@ -1,0 +1,249 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import type { FastifyInstance } from "fastify";
+import { currentTraceId } from "@offgrid/observability";
+import { createLogger, createMemoryErrorSink } from "@offgrid/observability";
+import type { EventBus } from "@offgrid/event-bus";
+import { afterEach, describe, expect, it } from "vitest";
+import { buildApp } from "./app.js";
+import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
+
+const baseConfig: ServerConfig = {
+  http: { host: "127.0.0.1", port: 0 },
+  database: {
+    host: "unused",
+    port: 5432,
+    name: "unused",
+    user: "outbox_app",
+    password: "unused",
+    poolMax: 1,
+  },
+  devIdentity: false,
+  rateLimitPerMinute: 1000,
+  logLevel: "error",
+};
+
+const USER_ID = "11111111-1111-4111-8111-111111111111";
+
+interface StubOptions {
+  readonly queryResult?: "ok" | "fail";
+  readonly publisherRunning?: boolean;
+}
+
+function stubRuntime({ queryResult = "ok", publisherRunning = true }: StubOptions = {}) {
+  const errorSink = createMemoryErrorSink();
+  const pool = {
+    query: async () => {
+      if (queryResult === "fail") {
+        throw new Error("connection refused");
+      }
+      return { rows: [] };
+    },
+    end: async () => undefined,
+  };
+  const runtime: ServerRuntime = {
+    pool,
+    eventBus: {} as EventBus,
+    errorSink,
+    logger: createLogger({ sink: () => undefined }),
+    state: { publisherRunning, draining: false },
+  };
+  return { runtime, errorSink };
+}
+
+const probeModule: ModuleDescriptor = {
+  name: "probe",
+  registerRoutes(api) {
+    api.get("/probe/trace", async () => ({ traceId: currentTraceId() }));
+    api.get("/probe/identity", async (request) => request.requestContext);
+    api.get("/probe/fail", async () => {
+      throw new Error("token=abc123 leaked here");
+    });
+    api.post<{ Body: { name: string } }>(
+      "/probe/validated",
+      {
+        schema: {
+          body: { type: "object", required: ["name"], properties: { name: { type: "string" } } },
+        },
+      },
+      async () => ({ ok: true }),
+    );
+  },
+};
+
+const apps: FastifyInstance[] = [];
+
+async function build(
+  overrides: Partial<ServerConfig>,
+  runtime: ServerRuntime,
+  modules: readonly ModuleDescriptor[] = [probeModule],
+): Promise<FastifyInstance> {
+  const app = await buildApp({ config: { ...baseConfig, ...overrides }, runtime, modules });
+  apps.push(app);
+  return app;
+}
+
+afterEach(async () => {
+  await Promise.all(apps.splice(0).map((app) => app.close()));
+});
+
+describe("health endpoints", () => {
+  it("reports the process as up", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime);
+
+    const response = await app.inject({ method: "GET", url: "/api/health" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ status: "ok" });
+  });
+
+  it("reports ready when the database answers and the publisher runs", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime, []);
+
+    const response = await app.inject({ method: "GET", url: "/api/health/ready" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      status: "ok",
+      checks: { database: "ok", publisher: "ok", migrations: "ok" },
+    });
+  });
+
+  it("reports not ready with 503 when the database is unreachable", async () => {
+    const { runtime } = stubRuntime({ queryResult: "fail" });
+    const app = await build({}, runtime, []);
+
+    const response = await app.inject({ method: "GET", url: "/api/health/ready" });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json().checks.database).toBe("unavailable");
+    expect(response.body).not.toContain("connection refused");
+  });
+
+  it("reports not ready when the publisher is stopped", async () => {
+    const { runtime } = stubRuntime({ publisherRunning: false });
+    const app = await build({}, runtime, []);
+
+    const response = await app.inject({ method: "GET", url: "/api/health/ready" });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json().checks.publisher).toBe("stopped");
+  });
+
+  it("cannot report migrations as applied while registered modules still have migrations", async () => {
+    const { runtime } = stubRuntime();
+    const withMigrations: ModuleDescriptor = {
+      name: "probe",
+      migrations: [{ schema: "family", directory: "/nonexistent" }],
+    };
+    const app = await build({}, runtime, [withMigrations]);
+
+    const response = await app.inject({ method: "GET", url: "/api/health/ready" });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json().checks.migrations).toBe("not_checked");
+  });
+});
+
+describe("request pipeline", () => {
+  it("echoes a valid incoming trace id and runs module code inside it", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/probe/trace",
+      headers: { "x-trace-id": "trace-abc.123" },
+    });
+
+    expect(response.headers["x-trace-id"]).toBe("trace-abc.123");
+    expect(response.json()).toEqual({ traceId: "trace-abc.123" });
+  });
+
+  it("generates a trace id when the incoming one is malformed", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/probe/trace",
+      headers: { "x-trace-id": "bad value with spaces" },
+    });
+
+    expect(response.headers["x-trace-id"]).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it("ignores identity headers when the dev identity stub is off", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ devIdentity: false }, runtime);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/probe/identity",
+      headers: { "x-offgrid-user-id": USER_ID },
+    });
+
+    expect(response.json()).toEqual({ userId: null, familyId: null, accessGroupIds: [] });
+  });
+
+  it("exposes the stubbed identity to routes when the dev identity stub is on", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ devIdentity: true }, runtime);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/probe/identity",
+      headers: { "x-offgrid-user-id": USER_ID },
+    });
+
+    expect(response.json()).toEqual({ userId: USER_ID, familyId: null, accessGroupIds: [] });
+  });
+
+  it("maps a 500 to a generic body and records the real error out of the response", async () => {
+    const { runtime, errorSink } = stubRuntime();
+    const app = await build({}, runtime);
+
+    const response = await app.inject({ method: "GET", url: "/api/probe/fail" });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.json()).toEqual({ code: "INTERNAL_ERROR", message: "Internal server error" });
+    expect(response.body).not.toContain("abc123");
+    expect(errorSink.list()).toHaveLength(1);
+  });
+
+  it("maps a schema violation to a 400 in the contracts error shape", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime);
+
+    const response = await app.inject({ method: "POST", url: "/api/probe/validated", payload: {} });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("VALIDATION_FAILED");
+  });
+
+  it("answers unknown routes with a NOT_FOUND body", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime);
+
+    const response = await app.inject({ method: "GET", url: "/api/nope" });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({ code: "NOT_FOUND", message: "Route not found" });
+  });
+
+  it("rate limits a client that exceeds the per-minute budget", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ rateLimitPerMinute: 2 }, runtime);
+
+    const statuses: number[] = [];
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const response = await app.inject({ method: "GET", url: "/api/health" });
+      statuses.push(response.statusCode);
+    }
+
+    expect(statuses).toEqual([200, 200, 429]);
+  });
+});
