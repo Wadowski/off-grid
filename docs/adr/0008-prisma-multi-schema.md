@@ -4,7 +4,7 @@
 
 ## Context
 
-Data access needs typed queries, migrations and row-level isolation across modules (see [0001](0001-single-database.md)). Hand-written SQL for every module would be slow to build and easy to get wrong.
+Data access needs typed queries, migrations and row-level isolation across modules (see [0009](0009-table-ownership-scopes.md)). Hand-written SQL for every module would be slow to build and easy to get wrong.
 
 ## Decision
 

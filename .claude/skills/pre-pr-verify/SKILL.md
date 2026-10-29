@@ -36,8 +36,8 @@ The Definition of Done is in [CLAUDE.md](../../../CLAUDE.md). This skill runs it
 9. **Sign-off on commits.** Every commit needs a DCO sign-off ([CONTRIBUTING.md](../../../CONTRIBUTING.md)).
    Verify: `pnpm dco:check` exits 0.
 
-10. **Review subagents.** Run the review checks for architecture, privacy and Gherkin quality on the diff. Where the review subagents are not defined yet (OG-28), review the diff yourself against [.claude/rules/](../../rules/) and [docs/adr/](../../../docs/adr/) and say so.
-    Verify: each finding is either fixed or listed in the PR body with a reason.
+10. **Review subagents.** Run the four reviewers in [.claude/agents/](../../agents/) on `git diff main...HEAD`: `architecture-boundary-reviewer`, `privacy-security-reviewer`, `code-quality-reviewer`, and `gherkin-reviewer` (the last only when the diff has `.feature` files). They only report and never edit. Fix each Blocking finding, and list each Advisory finding as fixed or with a reason.
+    Verify: no Blocking finding is left, and each Advisory finding is either fixed or listed in the PR body with a reason.
 
 11. **Fill in the PR template.** Use the repo PR template once OG-24 adds it. Until then, include: summary, decisions, how it was tested, the Linear link (`Closes OG-NN`), and the list of `@wip` scenarios still open.
     Verify: the PR body has every heading above.

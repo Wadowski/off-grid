@@ -70,5 +70,6 @@ Commits must be signed off with `git commit -s` (see [CONTRIBUTING.md](CONTRIBUT
 
 - `.claude/rules/`: path-scoped rules for agents (added by OG-25)
 - `.claude/skills/`: repeatable agent workflows
+- `.claude/agents/`: read-only reviewers (architecture, privacy, code quality, Gherkin) run before a PR
 - `docs/adr/`: architecture decisions
 - `docs/workflow.md`: agent and contributor workflow (added by OG-24)

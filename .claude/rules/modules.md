@@ -14,5 +14,5 @@ paths:
 - DON'T import another module's code, even from its `src/` folder. Cross-module imports fail `module-public-api`.
 - DON'T import from `apps/` into `modules/`. Apps wire modules together.
 - DON'T add a circular import between files. `no-circular` fails the build.
-- DON'T add a SQL join across module schemas ([ADR 0001](../../docs/adr/0001-single-database.md)).
+- DON'T add a SQL join across module schemas ([ADR 0009](../../docs/adr/0009-table-ownership-scopes.md)).
 - DON'T put access-control or export logic behind a feature flag ([CLAUDE.md](../../CLAUDE.md)).

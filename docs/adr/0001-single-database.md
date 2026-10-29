@@ -1,6 +1,6 @@
 # 0001. One Postgres database with a schema and role per module
 
-- **Status:** Accepted
+- **Status:** Superseded by 0009
 
 ## Context
 

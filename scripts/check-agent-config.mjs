@@ -9,6 +9,8 @@
 //     because some rules cover areas that do not exist yet)
 //   - every skill in .claude/skills has a SKILL.md whose name matches its folder
 //     and that has a description
+//   - every agent in .claude/agents has a name matching its file, a description,
+//     a tools list, and no tool that writes files or reaches the network
 //
 //   node scripts/check-agent-config.mjs [root]
 //
@@ -20,6 +22,16 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HOOK_PATH = /\.claude\/hooks\/[\w.-]+/g;
+
+// Review agents only report. They may not write files or reach the network.
+const FORBIDDEN_AGENT_TOOLS = new Set([
+  "Edit",
+  "Write",
+  "NotebookEdit",
+  "WebFetch",
+  "WebSearch",
+  "Agent",
+]);
 
 // Minimal frontmatter reader: `key: value` pairs and a `paths:` list of "- item" lines.
 export function parseFrontmatter(text) {
@@ -130,12 +142,38 @@ function checkSkills(root, errors) {
   }
 }
 
+function checkAgents(root, errors) {
+  const agentsDir = join(root, ".claude/agents");
+  for (const file of listFiles(agentsDir, ".md")) {
+    const label = `.claude/agents/${file}`;
+    const frontmatter = parseFrontmatter(readFileSync(join(agentsDir, file), "utf8"));
+    if (!frontmatter) {
+      errors.push(`${label} has no frontmatter`);
+      continue;
+    }
+    if (frontmatter.name !== file.replace(/\.md$/, "")) {
+      errors.push(`${label} name must match the file name`);
+    }
+    if (!frontmatter.description) {
+      errors.push(`${label} needs a description`);
+    }
+    const tools = (frontmatter.tools ?? "").split(",").map((tool) => tool.trim());
+    if (!frontmatter.tools) {
+      errors.push(`${label} needs a tools list`);
+    }
+    for (const tool of tools.filter((name) => FORBIDDEN_AGENT_TOOLS.has(name))) {
+      errors.push(`${label} must not use the ${tool} tool`);
+    }
+  }
+}
+
 export async function checkAgentConfig(root) {
   const errors = [];
   const warnings = [];
   checkHooks(root, errors);
   await checkRules(root, errors, warnings);
   checkSkills(root, errors);
+  checkAgents(root, errors);
   return { errors, warnings };
 }
 

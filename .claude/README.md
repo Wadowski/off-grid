@@ -2,7 +2,7 @@
 
 This folder configures Claude Code for this repository. The written rules in `rules/` and `skills/` tell the agent what to do. The guardrails here enforce the most important of them mechanically, so a mistake is stopped rather than hoped against.
 
-`pnpm check:agent-config` (also the `agent-config` CI job) validates this folder: `settings.json` parses, every hook script exists and is executable, every rule has a `paths:` list, and every skill has a matching `name` and a `description`.
+`pnpm check:agent-config` (also the `agent-config` CI job) validates this folder: `settings.json` parses, every hook script exists and is executable, every rule has a `paths:` list, every skill has a matching `name` and a `description`, and every agent in `agents/` has a matching `name`, a `description` and a `tools` list with no write or network tool.
 
 ## Permissions (`settings.json`)
 
