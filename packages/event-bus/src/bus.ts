@@ -236,15 +236,18 @@ class DeliveryLoop {
     if (this.running) {
       return;
     }
-    this.running = true;
     if (this.listener !== undefined) {
-      this.listener.on("notification", this.onNotification);
       await this.listener.query("LISTEN outbox_event");
+      this.listener.on("notification", this.onNotification);
     }
+    this.running = true;
     this.loop = this.run();
   }
 
   async stop(): Promise<void> {
+    if (!this.running) {
+      return;
+    }
     this.running = false;
     this.wake?.();
     await this.loop;

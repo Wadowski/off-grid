@@ -354,6 +354,15 @@ describe("delivery", () => {
     expect(names).toEqual(["Live"]);
   });
 
+  it("stays stopped when the notification listener cannot start", async () => {
+    const listener = await db.connectClient("outbox");
+    await listener.end();
+    const loopBus = createEventBus({ pool: outbox, listener, errorSink: errors });
+
+    await expect(loopBus.start()).rejects.toThrow();
+    await expect(loopBus.stop()).resolves.toBeUndefined();
+  });
+
   it("prunes only events that every subscriber has passed", async () => {
     bus.subscribe({
       name: "first",
