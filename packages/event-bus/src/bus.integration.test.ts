@@ -11,10 +11,10 @@ import {
   classifySourceVersion,
   createEventBus,
   publish,
-  type HandlerContext,
   replayEvents,
   type EventBus,
   type EventOf,
+  type HandlerContext,
 } from "./index.js";
 import { startTestDatabase, type TestDatabase } from "../test/postgres.js";
 
@@ -27,6 +27,9 @@ const familyCreated = defineEvent({
 type FamilyCreated = EventOf<typeof familyCreated>;
 
 const FAMILY_ID = randomUUID();
+
+const RESET_TABLES =
+  "TRUNCATE outbox.event, outbox.subscriber_cursor, outbox.dead_letter, family.family_summary RESTART IDENTITY";
 
 function envelope(sourceVersion: number, name: string, familyId: string | null = FAMILY_ID) {
   return {
@@ -94,6 +97,16 @@ async function projectFamily(event: FamilyCreated, { tx }: HandlerContext): Prom
   );
 }
 
+async function waitFor(condition: () => boolean, timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!condition()) {
+    if (Date.now() > deadline) {
+      throw new Error("condition was not met in time");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+}
+
 describe("publish", () => {
   let db: TestDatabase;
   let family: Pool;
@@ -108,9 +121,7 @@ describe("publish", () => {
   });
 
   beforeEach(async () => {
-    await db.admin.query(
-      "TRUNCATE outbox.event, outbox.subscriber_cursor, outbox.dead_letter, family.family_summary RESTART IDENTITY",
-    );
+    await db.admin.query(RESET_TABLES);
   });
 
   it("commits the event together with the change", async () => {
@@ -146,17 +157,25 @@ describe("publish", () => {
       client.release();
     }
   });
+
+  it("does not let a module read the event stream", async () => {
+    await expect(family.query("SELECT * FROM outbox.events_after(0, NULL, 10)")).rejects.toThrow(
+      /permission denied/,
+    );
+  });
 });
 
 describe("delivery", () => {
   let db: TestDatabase;
   let family: Pool;
+  let outbox: Pool;
   let bus: EventBus;
   let errors: ReturnType<typeof createMemoryErrorSink>;
 
   beforeAll(async () => {
     db = await startTestDatabase();
     family = db.connect("family");
+    outbox = db.connect("outbox");
   }, 120_000);
 
   afterAll(async () => {
@@ -164,11 +183,9 @@ describe("delivery", () => {
   });
 
   beforeEach(async () => {
-    await db.admin.query(
-      "TRUNCATE outbox.event, outbox.subscriber_cursor, outbox.dead_letter, family.family_summary RESTART IDENTITY",
-    );
+    await db.admin.query(RESET_TABLES);
     errors = createMemoryErrorSink();
-    bus = createEventBus({ errorSink: errors, retryDelayMs: () => 0 });
+    bus = createEventBus({ pool: outbox, errorSink: errors, retryDelayMs: () => 0 });
   });
 
   it("delivers each event to every subscriber", async () => {
@@ -177,7 +194,7 @@ describe("delivery", () => {
     bus.subscribe({
       name: "first",
       event: familyCreated,
-      pool: family,
+      runAs: "family",
       handler: async (event) => {
         first.push(event.payload.name);
       },
@@ -185,7 +202,7 @@ describe("delivery", () => {
     bus.subscribe({
       name: "second",
       event: familyCreated,
-      pool: family,
+      runAs: "family",
       handler: async (event) => {
         second.push(event.payload.name);
       },
@@ -199,11 +216,29 @@ describe("delivery", () => {
     expect(second).toEqual(["Alpha", "Beta"]);
   });
 
+  it("runs a handler as its module role", async () => {
+    const roles: string[] = [];
+    bus.subscribe({
+      name: "role-check",
+      event: familyCreated,
+      runAs: "family",
+      handler: async (_event, { tx }) => {
+        const { rows } = await tx.query<{ role: string }>("SELECT current_user AS role");
+        roles.push(rows[0]?.role ?? "");
+      },
+    });
+    await publishCommitted(family, envelope(1, "Role"));
+
+    await bus.deliverPending();
+
+    expect(roles).toEqual(["family_app"]);
+  });
+
   it("retries a failing handler three times, then dead-letters the event", async () => {
     const handler = vi.fn(async () => {
       throw new Error("projection unavailable");
     });
-    bus.subscribe({ name: "flaky", event: familyCreated, pool: family, handler });
+    bus.subscribe({ name: "flaky", event: familyCreated, runAs: "family", handler });
     await publishCommitted(family, envelope(1, "Broken"));
 
     await bus.deliverPending();
@@ -221,7 +256,7 @@ describe("delivery", () => {
     bus.subscribe({
       name: "family-summary",
       event: familyCreated,
-      pool: family,
+      runAs: "family",
       handler: projectFamily,
     });
     await publishCommitted(family, envelope(1, "Original"));
@@ -238,7 +273,7 @@ describe("delivery", () => {
     bus.subscribe({
       name: "family-summary",
       event: familyCreated,
-      pool: family,
+      runAs: "family",
       handler: projectFamily,
     });
     await publishCommitted(family, envelope(3, "Too early"));
@@ -254,7 +289,7 @@ describe("delivery", () => {
     const subscription = {
       name: "family-summary",
       event: familyCreated,
-      pool: family,
+      runAs: "family",
       handler: projectFamily,
     };
     bus.subscribe(subscription);
@@ -266,7 +301,7 @@ describe("delivery", () => {
 
     await db.admin.query("TRUNCATE family.family_summary");
     expect(await storedName(family)).toBeUndefined();
-    const replayed = await replayEvents(subscription);
+    const replayed = await replayEvents(subscription, { pool: outbox });
 
     expect(replayed).toBe(2);
     expect(await storedName(family)).toEqual(before);
@@ -277,7 +312,6 @@ describe("delivery", () => {
     bus.subscribeTransport({
       name: "broker-adapter",
       event: familyCreated,
-      pool: family,
       transport: {
         send: async (event) => {
           sent.push(event);
@@ -289,5 +323,54 @@ describe("delivery", () => {
     await bus.deliverPending();
 
     expect(sent.map((event) => event.payload.name)).toEqual(["Forwarded"]);
+  });
+
+  it("delivers in the background until stopped, woken by notifications", async () => {
+    const listener = await db.connectClient("outbox");
+    const loopBus = createEventBus({
+      pool: outbox,
+      listener,
+      errorSink: errors,
+      pollIntervalMs: 50,
+    });
+    const names: string[] = [];
+    loopBus.subscribe({
+      name: "background",
+      event: familyCreated,
+      runAs: "family",
+      handler: async (event) => {
+        names.push(event.payload.name);
+      },
+    });
+    await loopBus.start();
+    try {
+      await publishCommitted(family, envelope(1, "Live"));
+
+      await waitFor(() => names.includes("Live"));
+    } finally {
+      await loopBus.stop();
+    }
+
+    expect(names).toEqual(["Live"]);
+  });
+
+  it("prunes only events that every subscriber has passed", async () => {
+    bus.subscribe({
+      name: "first",
+      event: familyCreated,
+      runAs: "family",
+      handler: async () => undefined,
+    });
+    await publishCommitted(family, envelope(1, "Kept until everyone reads"));
+    await publishCommitted(family, envelope(2, "Also kept"));
+    await outbox.query("SELECT outbox.lock_cursor('lagging')");
+    await bus.deliverPending();
+
+    expect(await bus.prune(0)).toBe(0);
+
+    await db.admin.query("DELETE FROM outbox.subscriber_cursor WHERE subscriber = 'lagging'");
+    expect(await bus.prune(0)).toBe(2);
+    const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM outbox.event");
+    expect(rows[0]).toEqual({ n: 0 });
   });
 });

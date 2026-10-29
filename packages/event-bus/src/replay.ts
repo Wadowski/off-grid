@@ -3,10 +3,12 @@
 
 import { parseEvent, type AnyEventDefinition } from "@offgrid/contracts";
 import { resolveTraceId, runWithTrace } from "@offgrid/observability";
+import type { Pool } from "pg";
 import type { EventOf, Subscription } from "./bus.js";
-import { readEventsAfter, type StoredEvent } from "./store.js";
+import { readEventsAfter, resetRole, setRole, type StoredEvent } from "./store.js";
 
 export interface ReplayOptions {
+  readonly pool: Pool;
   readonly fromSequence?: number;
   readonly batchSize?: number;
 }
@@ -14,23 +16,25 @@ export interface ReplayOptions {
 const DEFAULT_REPLAY_BATCH_SIZE = 100;
 
 export async function replayEvents<D extends AnyEventDefinition>(
-  subscription: Pick<Subscription<D>, "event" | "pool" | "handler">,
-  options: ReplayOptions = {},
+  subscription: Pick<Subscription<D>, "event" | "runAs" | "handler">,
+  options: ReplayOptions,
 ): Promise<number> {
   const batchSize = options.batchSize ?? DEFAULT_REPLAY_BATCH_SIZE;
   let after = (options.fromSequence ?? 1) - 1;
   let delivered = 0;
   let hasMore = true;
   while (hasMore) {
-    const client = await subscription.pool.connect();
+    const client = await options.pool.connect();
     try {
       await client.query("BEGIN");
       const stored = await readEventsAfter(client, after, subscription.event.name, batchSize);
       for (const row of stored) {
         const event = toTypedEvent(subscription.event, row);
+        await setRole(client, subscription.runAs);
         await runWithTrace(resolveTraceId(event.traceId), () =>
           subscription.handler(event, { tx: client }),
         );
+        await resetRole(client);
         delivered += 1;
         after = row.sequence;
       }

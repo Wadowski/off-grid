@@ -10,6 +10,7 @@ import { Client, Pool } from "pg";
 const INIT_SCRIPTS = [
   "../../../infra/init/sql/01-roles-and-schemas.sql",
   "../../../infra/init/sql/02-scope-helpers.sql",
+  "../../../infra/init/sql/03-bus-membership.sql",
 ];
 
 const MIGRATION_DIRECTORIES = [
@@ -22,11 +23,12 @@ const MIGRATION_DIRECTORIES = [
 
 const APP_SCHEMAS = ["outbox", "family"] as const;
 
-type AppSchema = (typeof APP_SCHEMAS)[number];
+export type AppSchema = (typeof APP_SCHEMAS)[number];
 
 export interface TestDatabase {
   readonly admin: Client;
   connect(schema: AppSchema): Pool;
+  connectClient(schema: AppSchema): Promise<Client>;
   stop(): Promise<void>;
 }
 
@@ -67,23 +69,31 @@ export async function startTestDatabase(): Promise<TestDatabase> {
   }
   await applyMigrations(admin);
 
+  const connection = (schema: AppSchema) => ({
+    host: container.getHost(),
+    port: container.getPort(),
+    database: container.getDatabase(),
+    user: `${schema}_app`,
+    password: appPassword,
+  });
   const pools: Pool[] = [];
+  const clients: Client[] = [];
   return {
     admin,
     connect(schema) {
-      const pool = new Pool({
-        host: container.getHost(),
-        port: container.getPort(),
-        database: container.getDatabase(),
-        user: `${schema}_app`,
-        password: appPassword,
-        max: 4,
-      });
+      const pool = new Pool({ ...connection(schema), max: 4 });
       pools.push(pool);
       return pool;
     },
+    async connectClient(schema) {
+      const client = new Client(connection(schema));
+      await client.connect();
+      clients.push(client);
+      return client;
+    },
     async stop() {
       await Promise.all(pools.map((pool) => pool.end()));
+      await Promise.all(clients.map((client) => client.end()));
       await admin.end();
       await container.stop();
     },

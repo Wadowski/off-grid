@@ -3,12 +3,16 @@
 
 import { parseEvent, type AnyEventDefinition } from "@offgrid/contracts";
 import { type ErrorSink, resolveTraceId, runWithTrace } from "@offgrid/observability";
-import type { ClientBase, Pool } from "pg";
+import type { Client, ClientBase, Pool } from "pg";
 import {
   advanceCursor,
   lockCursor,
+  pruneDelivered,
   readEventsAfter,
   recordDeadLetter,
+  resetRole,
+  roleOf,
+  setRole,
   type StoredEvent,
 } from "./store.js";
 
@@ -21,7 +25,7 @@ export interface HandlerContext {
 export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition> {
   readonly name: string;
   readonly event: D;
-  readonly pool: Pool;
+  readonly runAs: string;
   readonly handler: (event: EventOf<D>, context: HandlerContext) => Promise<void>;
 }
 
@@ -30,10 +34,13 @@ export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinitio
 }
 
 export interface EventBusOptions {
+  readonly pool: Pool;
   readonly errorSink: ErrorSink;
+  readonly listener?: Client;
   readonly maxAttempts?: number;
   readonly retryDelayMs?: (attempt: number) => number;
   readonly batchSize?: number;
+  readonly pollIntervalMs?: number;
 }
 
 export interface EventBus {
@@ -41,70 +48,91 @@ export interface EventBus {
   subscribeTransport<D extends AnyEventDefinition>(options: {
     readonly name: string;
     readonly event: D;
-    readonly pool: Pool;
     readonly transport: EventTransport<D>;
   }): void;
   deliverPending(): Promise<void>;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  prune(retentionSeconds: number): Promise<number>;
 }
 
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_BATCH_SIZE = 100;
+const DEFAULT_POLL_INTERVAL_MS = 1000;
+const TRANSPORT_RUN_AS = "outbox";
 const defaultRetryDelayMs = (attempt: number): number => 100 * 2 ** (attempt - 1);
 
+interface Settings {
+  readonly pool: Pool;
+  readonly errorSink: ErrorSink;
+  readonly maxAttempts: number;
+  readonly retryDelayMs: (attempt: number) => number;
+  readonly batchSize: number;
+  readonly pollIntervalMs: number;
+}
+
 export function createEventBus(options: EventBusOptions): EventBus {
-  const settings = {
+  const settings: Settings = {
+    pool: options.pool,
     errorSink: options.errorSink,
     maxAttempts: options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS,
     retryDelayMs: options.retryDelayMs ?? defaultRetryDelayMs,
     batchSize: options.batchSize ?? DEFAULT_BATCH_SIZE,
+    pollIntervalMs: options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS,
   };
   const subscriptions: Subscription[] = [];
+  const loop = new DeliveryLoop(
+    settings,
+    () => deliverAll(subscriptions, settings),
+    options.listener,
+  );
 
   const subscribe = <D extends AnyEventDefinition>(subscription: Subscription<D>): void => {
-    assertNameFree(subscriptions, subscription.name);
+    if (subscriptions.some((existing) => existing.name === subscription.name)) {
+      throw new Error(`subscriber "${subscription.name}" is already registered`);
+    }
+    roleOf(subscription.runAs);
     subscriptions.push(subscription as unknown as Subscription);
   };
 
   return {
     subscribe,
-    subscribeTransport({ name, event, pool, transport }) {
+    subscribeTransport({ name, event, transport }) {
       subscribe({
         name,
         event,
-        pool,
+        runAs: TRANSPORT_RUN_AS,
         handler: (envelope) => transport.send(envelope),
       });
     },
-    async deliverPending() {
-      for (const subscription of subscriptions) {
-        await drainSubscription(subscription, settings);
+    deliverPending: () => deliverAll(subscriptions, settings),
+    start: () => loop.start(),
+    stop: () => loop.stop(),
+    async prune(retentionSeconds) {
+      const client = await settings.pool.connect();
+      try {
+        return await pruneDelivered(client, retentionSeconds);
+      } finally {
+        client.release();
       }
     },
   };
 }
 
-function assertNameFree(subscriptions: readonly Subscription[], name: string): void {
-  if (subscriptions.some((subscription) => subscription.name === name)) {
-    throw new Error(`subscriber "${name}" is already registered`);
-  }
-}
-
-interface Settings {
-  readonly errorSink: ErrorSink;
-  readonly maxAttempts: number;
-  readonly retryDelayMs: (attempt: number) => number;
-  readonly batchSize: number;
-}
-
-async function drainSubscription(subscription: Subscription, settings: Settings): Promise<void> {
-  let hasMore = true;
-  while (hasMore) {
-    hasMore = await deliverBatch(subscription, settings);
+async function deliverAll(
+  subscriptions: readonly Subscription[],
+  settings: Settings,
+): Promise<void> {
+  for (const subscription of subscriptions) {
+    let hasMore = true;
+    while (hasMore) {
+      hasMore = await deliverBatch(subscription, settings);
+    }
   }
 }
 
 async function deliverBatch(subscription: Subscription, settings: Settings): Promise<boolean> {
-  const client = await subscription.pool.connect();
+  const client = await settings.pool.connect();
   try {
     await client.query("BEGIN");
     const position = await lockCursor(client, subscription.name);
@@ -144,10 +172,12 @@ async function deliverOne(
     await client.query("SAVEPOINT delivery");
     try {
       const event = parseEvent(subscription.event, toEnvelope(stored));
+      await setRole(client, subscription.runAs);
       await runWithTrace(resolveTraceId(event.traceId), () =>
         subscription.handler(event, { tx: client }),
       );
       await client.query("RELEASE SAVEPOINT delivery");
+      await resetRole(client);
       return;
     } catch (error) {
       await client.query("ROLLBACK TO SAVEPOINT delivery");
@@ -188,6 +218,68 @@ function toEnvelope(stored: StoredEvent) {
     sourceVersion: stored.sourceVersion,
     payload: stored.payload,
   };
+}
+
+class DeliveryLoop {
+  private running = false;
+  private loop: Promise<void> | undefined;
+  private wake: (() => void) | undefined;
+  private readonly onNotification = (): void => this.wake?.();
+
+  constructor(
+    private readonly settings: Settings,
+    private readonly deliver: () => Promise<void>,
+    private readonly listener: Client | undefined,
+  ) {}
+
+  async start(): Promise<void> {
+    if (this.running) {
+      return;
+    }
+    this.running = true;
+    if (this.listener !== undefined) {
+      this.listener.on("notification", this.onNotification);
+      await this.listener.query("LISTEN outbox_event");
+    }
+    this.loop = this.run();
+  }
+
+  async stop(): Promise<void> {
+    this.running = false;
+    this.wake?.();
+    await this.loop;
+    if (this.listener !== undefined) {
+      this.listener.off("notification", this.onNotification);
+      await this.listener.query("UNLISTEN outbox_event");
+    }
+  }
+
+  private async run(): Promise<void> {
+    while (this.running) {
+      await this.deliverSafely();
+      await this.waitForWake();
+    }
+  }
+
+  private async deliverSafely(): Promise<void> {
+    try {
+      await this.deliver();
+    } catch (error) {
+      this.settings.errorSink.record(error, { component: "delivery-loop" });
+    }
+  }
+
+  private waitForWake(): Promise<void> {
+    return new Promise((resolve) => {
+      const finish = (): void => {
+        clearTimeout(timer);
+        this.wake = undefined;
+        resolve();
+      };
+      const timer = setTimeout(finish, this.settings.pollIntervalMs);
+      this.wake = finish;
+    });
+  }
 }
 
 function sleep(ms: number): Promise<void> {

@@ -103,6 +103,32 @@ export async function recordDeadLetter(
   ]);
 }
 
+export async function pruneDelivered(
+  client: ClientBase,
+  retentionSeconds: number,
+): Promise<number> {
+  const { rows } = await client.query<{ prune_delivered: string }>(
+    "SELECT outbox.prune_delivered($1) AS prune_delivered",
+    [retentionSeconds],
+  );
+  return Number(rows[0]?.prune_delivered);
+}
+
+export async function setRole(client: ClientBase, runAs: string): Promise<void> {
+  await client.query(`SET ROLE ${roleOf(runAs)}`);
+}
+
+export async function resetRole(client: ClientBase): Promise<void> {
+  await client.query("RESET ROLE");
+}
+
+export function roleOf(runAs: string): string {
+  if (!/^[a-z][a-z0-9]*$/.test(runAs)) {
+    throw new Error(`invalid module name for a subscriber: ${JSON.stringify(runAs)}`);
+  }
+  return `${runAs}_app`;
+}
+
 function toStoredEvent(row: EventRow): StoredEvent {
   return {
     sequence: Number(row.sequence),

@@ -127,11 +127,33 @@ AS $fn$
    WHERE sequence = p_sequence;
 $fn$;
 
+CREATE FUNCTION outbox.prune_delivered(p_retention_seconds integer) RETURNS bigint
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = pg_catalog, outbox
+AS $fn$
+  WITH deleted AS (
+    DELETE FROM outbox.event
+     WHERE published_at < now() - make_interval(secs => p_retention_seconds)
+       AND sequence <= (SELECT coalesce(min(last_sequence), 0) FROM outbox.subscriber_cursor)
+    RETURNING 1
+  )
+  SELECT count(*) FROM deleted;
+$fn$;
+
 REVOKE ALL ON FUNCTION outbox.append_event(uuid, text, integer, bigint, text, timestamptz, uuid, uuid, jsonb) FROM PUBLIC;
 REVOKE ALL ON FUNCTION outbox.lock_cursor(text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION outbox.advance_cursor(text, bigint) FROM PUBLIC;
 REVOKE ALL ON FUNCTION outbox.events_after(bigint, text, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION outbox.record_dead_letter(text, bigint, integer, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION outbox.prune_delivered(integer) FROM PUBLIC;
+
+GRANT USAGE ON SCHEMA outbox TO outbox_app;
+GRANT EXECUTE ON FUNCTION outbox.lock_cursor(text) TO outbox_app;
+GRANT EXECUTE ON FUNCTION outbox.advance_cursor(text, bigint) TO outbox_app;
+GRANT EXECUTE ON FUNCTION outbox.events_after(bigint, text, integer) TO outbox_app;
+GRANT EXECUTE ON FUNCTION outbox.record_dead_letter(text, bigint, integer, text) TO outbox_app;
+GRANT EXECUTE ON FUNCTION outbox.prune_delivered(integer) TO outbox_app;
 
 DO $$
 DECLARE
@@ -147,10 +169,5 @@ BEGIN
       'GRANT EXECUTE ON FUNCTION outbox.append_event(uuid, text, integer, bigint, text, timestamptz, uuid, uuid, jsonb) TO %I',
       m || '_app'
     );
-    EXECUTE format('GRANT EXECUTE ON FUNCTION outbox.events_after(bigint, text, integer) TO %I', m || '_app');
-    EXECUTE format('GRANT EXECUTE ON FUNCTION outbox.lock_cursor(text) TO %I', m || '_app');
-    EXECUTE format('GRANT EXECUTE ON FUNCTION outbox.advance_cursor(text, bigint) TO %I', m || '_app');
-    EXECUTE format('GRANT EXECUTE ON FUNCTION outbox.record_dead_letter(text, bigint, integer, text) TO %I', m || '_app');
   END LOOP;
-  GRANT USAGE ON SCHEMA outbox TO outbox_app;
 END $$;
