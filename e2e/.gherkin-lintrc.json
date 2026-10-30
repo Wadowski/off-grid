@@ -17,6 +17,6 @@
   "no-scenario-outlines-without-examples": "on",
   "no-trailing-spaces": "on",
   "no-multiple-empty-lines": "on",
-  "new-line-at-eof": "on",
+  "new-line-at-eof": ["on", "yes"],
   "indentation": "on"
 }

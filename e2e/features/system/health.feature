@@ -4,7 +4,7 @@
 @smoke @infra
 Feature: Server health
 
-  The server reports that it is running, so operators and the end-to-end suite can check it.
+  Operators can confirm that the server is running.
 
   Scenario: Running server reports it is healthy
     When the health of the server is checked
