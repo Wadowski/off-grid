@@ -3,6 +3,8 @@
 
 import type { ModuleDescriptor } from "./types.js";
 import { familyModule } from "@offgrid/family";
+import { OUTBOX_MIGRATIONS_DIRECTORY } from "@offgrid/event-bus";
+import type { MigrationSource } from "@offgrid/db";
 
 export const RATE_WINDOW_MS = 60_000;
 
@@ -15,6 +17,10 @@ export const INTERNAL_MESSAGE = "Internal server error";
 export const GENERIC_REJECTION_MESSAGE = "Request rejected";
 
 export const MODULES: readonly ModuleDescriptor[] = [familyModule];
+
+export const EVENT_BUS_MIGRATIONS: readonly MigrationSource[] = [
+  { schema: "outbox", directory: OUTBOX_MIGRATIONS_DIRECTORY },
+];
 
 export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 

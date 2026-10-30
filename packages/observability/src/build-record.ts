@@ -12,10 +12,9 @@ export const buildRecord = (
   now: () => Date,
 ): Record<string, unknown> => ({
   ...fields,
+  ...bindings,
   level,
   time: now().toISOString(),
   msg,
-  module: bindings.module,
-  family_id: bindings.family_id,
   trace_id: currentTraceId(),
 });

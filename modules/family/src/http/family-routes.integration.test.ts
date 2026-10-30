@@ -3,6 +3,7 @@
 
 import { randomUUID } from "node:crypto";
 import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
+import { familySchema } from "@offgrid/contracts";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
 import type { FamilyTestDatabase } from "../../test/types.js";
@@ -44,7 +45,7 @@ describe("family HTTP routes", () => {
       headers: { [USER_HEADER]: userId },
       payload: { name },
     });
-    return response.json() as { id: string; name: string; createdAt: string };
+    return familySchema.parse(response.json());
   };
 
   it("refuses to create a family without a signed-in user", async () => {

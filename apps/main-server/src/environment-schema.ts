@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { z } from "zod";
+import { isIpOrCidr } from "./is-ip-or-cidr.js";
 import { portSchema } from "./port-schema.js";
 
 export const environmentSchema = z.object({
@@ -24,7 +25,8 @@ export const environmentSchema = z.object({
         .split(",")
         .map((entry) => entry.trim())
         .filter((entry) => entry.length > 0),
-    ),
+    )
+    .pipe(z.array(z.string().refine(isIpOrCidr, "must be an IP address or CIDR range"))),
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

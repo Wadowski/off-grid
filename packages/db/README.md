@@ -37,3 +37,5 @@ Scopes: `family-or-user`, `family`, `user`, `shared` (see ADR 0009). The helper 
 ## Request context
 
 RLS policies read `app.family_id` and `app.user_id`, set per transaction with `withFamilyContext` and `withUserContext`. Unset means no rows (fail closed). These helpers only set the context. Whether the caller may act for that family is checked by `packages/access-control`.
+
+RLS limits what a query can see for the context it was given. It does not stop code that holds a module login from setting another family's id. Deciding whether a caller may act for a family is the application's job, through `packages/access-control`.

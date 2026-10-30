@@ -18,7 +18,7 @@ export const createFamily = async (
     await withFamilyContext(tx, id);
     const family = await insertFamily(tx, { id, name });
     await insertMembership(tx, id, creatorUserId);
-    await publishFamilyCreated(tx, { familyId: id, name, creatorUserId });
+    await publishFamilyCreated(tx, { familyId: id, name });
     return family;
   });
 };

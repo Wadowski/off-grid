@@ -52,7 +52,7 @@ const stubRuntime = ({
   };
   const runtime: ServerRuntime = {
     pool,
-    eventBus: {} as EventBus,
+    eventBus: unusedEventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
     database: { host: "unused", port: 5432, database: "unused", password: "unused" },
@@ -91,6 +91,27 @@ const testIdentity: IdentityResolver = (headers) => {
     familyId: null,
     accessGroupIds: [],
   };
+};
+
+const unusedEventBus: EventBus = {
+  subscribe: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  subscribeTransport: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  deliverPending: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  start: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  stop: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  prune: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
 };
 
 const build = async (

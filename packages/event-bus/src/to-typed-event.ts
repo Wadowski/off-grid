@@ -17,5 +17,5 @@ export const toTypedEvent = <D extends AnyEventDefinition>(
     familyId: row.familyId,
     sourceVersion: row.sourceVersion,
     payload: row.payload,
-  }) as EventOf<D>;
+  });
 };

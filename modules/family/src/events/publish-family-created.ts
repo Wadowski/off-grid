@@ -20,6 +20,6 @@ export const publishFamilyCreated = async (
     traceId: resolveTraceId(currentTraceId()),
     familyId: input.familyId,
     sourceVersion: 1,
-    payload: { name: input.name, creatorUserId: input.creatorUserId },
+    payload: { name: input.name },
   });
 };

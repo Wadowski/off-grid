@@ -5,12 +5,17 @@ export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export type LogSink = (line: string) => void;
 
-export interface LogBindings {
-  readonly module?: string;
-  readonly family_id?: string;
+export type LogBindings = Readonly<Record<string, string | undefined>>;
+
+export interface LogSettings {
+  readonly threshold: number;
+  readonly sink: LogSink;
+  readonly redactRecord: (value: unknown) => unknown;
+  readonly now: () => Date;
 }
 
-export interface LoggerOptions extends LogBindings {
+export interface LoggerOptions {
+  readonly bindings?: LogBindings;
   readonly level?: LogLevel;
   readonly sink?: LogSink;
   readonly redact?: RedactOptions;

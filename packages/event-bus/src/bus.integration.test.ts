@@ -15,6 +15,7 @@ import {
 } from "./index.js";
 import { familyCreated } from "../test/family-created.js";
 import { startTestDatabase } from "../test/start-test-database.js";
+import { waitFor } from "../test/wait-for.js";
 import type { FamilyCreated, TestDatabase } from "../test/types.js";
 
 const FAMILY_ID = randomUUID();
@@ -86,16 +87,6 @@ const projectFamily = async (event: FamilyCreated, { tx }: HandlerContext): Prom
        SET name = EXCLUDED.name, source_version = EXCLUDED.source_version`,
     [event.familyId, event.payload.name, event.sourceVersion],
   );
-};
-
-const waitFor = async (condition: () => boolean, timeoutMs = 5000): Promise<void> => {
-  const deadline = Date.now() + timeoutMs;
-  while (!condition()) {
-    if (Date.now() > deadline) {
-      throw new Error("condition was not met in time");
-    }
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
 };
 
 describe("publish", () => {

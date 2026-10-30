@@ -10,6 +10,6 @@ DECLARE
   ];
 BEGIN
   FOREACH m IN ARRAY modules LOOP
-    EXECUTE format('GRANT %I TO outbox_app', m || '_app');
+    EXECUTE format('GRANT %I TO outbox_app WITH INHERIT FALSE', m || '_app');
   END LOOP;
 END $$;

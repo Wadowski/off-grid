@@ -29,7 +29,6 @@ export interface NewFamily {
 export interface FamilyCreatedInput {
   readonly familyId: string;
   readonly name: string;
-  readonly creatorUserId: string;
 }
 
 export interface FamilyRouteContext {

@@ -10,7 +10,7 @@ export const scopeViolation = (row: Omit<TableRow, "schema">): string | null => 
     return "no ownership scope declared (call public.offgrid_declare_scope)";
   }
   const scope = match[1] ?? "";
-  if (!(OWNERSHIP_SCOPES as readonly string[]).includes(scope)) {
+  if (!OWNERSHIP_SCOPES.some((known) => known === scope)) {
     return `unknown ownership scope "${scope}"`;
   }
   if (scope === "shared") {

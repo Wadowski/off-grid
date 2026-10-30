@@ -43,7 +43,7 @@ describe("createFamily", () => {
       {
         type: "family-created-v1",
         family_id: family.id,
-        payload: { name: "Novak family", creatorUserId: creator },
+        payload: { name: "Novak family" },
       },
     ]);
   });

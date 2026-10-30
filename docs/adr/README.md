@@ -27,3 +27,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0010](0010-pluggable-event-transport.md)             | Postgres outbox as the source of events, pluggable transport                 | Superseded by 0011 |
 | [0011](0011-restricted-event-access-and-retention.md) | Restricted event access, module-scoped delivery and retention                | Accepted           |
 | [0012](0012-event-delivery-and-publish-authority.md)  | Event delivery is not tenant-filtered; publishing is limited to module roles | Accepted           |
+| [0013](0013-projections-for-other-modules-only.md)    | Projections are for another module's data only                               | Accepted           |

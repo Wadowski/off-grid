@@ -72,6 +72,7 @@ export interface AppOptions {
   readonly runtime: ServerRuntime;
   readonly modules: readonly ModuleDescriptor[];
   readonly identity?: IdentityResolver;
+  readonly migrations?: readonly MigrationSource[];
 }
 
 export interface AppliedMigrationRow {

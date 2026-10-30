@@ -35,7 +35,6 @@ describe("family events", () => {
         await publishFamilyCreated(tx, {
           familyId,
           name: "Rolled back",
-          creatorUserId: randomUUID(),
         });
         throw new Error("change failed");
       }),
@@ -54,7 +53,7 @@ describe("family events", () => {
     await db.db.$transaction(async (tx) => {
       await withFamilyContext(tx, familyId);
       await tx.family.create({ data: { familyId, name: "Committed" } });
-      await publishFamilyCreated(tx, { familyId, name: "Committed", creatorUserId: randomUUID() });
+      await publishFamilyCreated(tx, { familyId, name: "Committed" });
     });
 
     const { rows } = await db.admin.query(

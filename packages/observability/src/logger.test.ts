@@ -26,7 +26,7 @@ describe("createLogger", () => {
 
   it("includes the current trace id, module and family id when known", () => {
     const { lines, sink } = capture();
-    const logger = createLogger({ sink, now: fixedNow, module: "family" });
+    const logger = createLogger({ sink, now: fixedNow, bindings: { module: "family" } });
     runWithTrace("trace-7", () => {
       logger.child({ family_id: "fam-1" }).warn("hello", { count: 2 });
     });

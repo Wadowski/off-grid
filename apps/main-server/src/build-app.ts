@@ -17,8 +17,11 @@ export const buildApp = async ({
   runtime,
   modules,
   identity = anonymousContext,
+  migrations,
 }: AppOptions): Promise<FastifyInstance> => {
-  const expectedMigrations = await loadExpectedMigrations(modules);
+  const expectedMigrations = await loadExpectedMigrations(
+    migrations ?? modules.flatMap((module) => module.migrations ?? []),
+  );
   const app = Fastify({
     logger: false,
     trustProxy: config.trustedProxies.length > 0 ? [...config.trustedProxies] : false,

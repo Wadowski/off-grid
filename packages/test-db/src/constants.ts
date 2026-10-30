@@ -8,6 +8,6 @@ export const INIT_SCRIPTS = [
   "../../../infra/init/sql/04-migration-ledger-read.sql",
 ];
 
-export const CONTAINER_IMAGE = "postgres:16-alpine";
+export const CONTAINER_IMAGE = "postgres:17-alpine";
 
 export const POOL_MAX = 4;

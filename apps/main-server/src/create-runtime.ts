@@ -9,7 +9,7 @@ import { createEventBus } from "@offgrid/event-bus";
 
 export const createRuntime = (config: ServerConfig): ServerRuntime => {
   const errorSink = createMemoryErrorSink();
-  const logger = createLogger({ level: config.logLevel, module: "server" });
+  const logger = createLogger({ level: config.logLevel, bindings: { module: "server" } });
   const pool = new Pool({
     host: config.database.host,
     port: config.database.port,

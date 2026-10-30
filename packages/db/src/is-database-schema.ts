@@ -5,5 +5,5 @@ import type { DatabaseSchema } from "./types.js";
 import { DATABASE_SCHEMAS } from "./constants.js";
 
 export const isDatabaseSchema = (value: string): value is DatabaseSchema => {
-  return (DATABASE_SCHEMAS as readonly string[]).includes(value);
+  return DATABASE_SCHEMAS.some((schema) => schema === value);
 };
