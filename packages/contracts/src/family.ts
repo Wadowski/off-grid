@@ -5,7 +5,7 @@ import { z } from "zod";
 import { defineEvent } from "./events.js";
 import { familyIdSchema, timestampSchema, userIdSchema } from "./primitives.js";
 
-export const familyNameSchema = z.string().min(1).max(100);
+export const familyNameSchema = z.string().trim().min(1).max(100);
 
 export const familyCreatedV1 = defineEvent({
   name: "family-created-v1",
@@ -24,6 +24,10 @@ export const familySchema = z.object({
   id: familyIdSchema,
   name: familyNameSchema,
   createdAt: timestampSchema,
+});
+
+export const familyParamsSchema = z.object({
+  id: familyIdSchema,
 });
 
 export const familySummarySchema = z.object({

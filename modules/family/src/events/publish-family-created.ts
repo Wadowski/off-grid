@@ -6,11 +6,12 @@ import { familyCreatedV1 } from "@offgrid/contracts";
 import { publish } from "@offgrid/event-bus";
 import { currentTraceId, resolveTraceId } from "@offgrid/observability";
 import type { ClientBase } from "pg";
+import type { FamilyCreatedInput } from "../types.js";
 
-export async function publishFamilyCreated(
+export const publishFamilyCreated = async (
   client: ClientBase,
-  input: { readonly familyId: string; readonly name: string; readonly creatorUserId: string },
-): Promise<void> {
+  input: FamilyCreatedInput,
+): Promise<void> => {
   await publish(client, familyCreatedV1, {
     id: randomUUID(),
     type: familyCreatedV1.name,
@@ -21,4 +22,4 @@ export async function publishFamilyCreated(
     sourceVersion: 1,
     payload: { name: input.name, creatorUserId: input.creatorUserId },
   });
-}
+};

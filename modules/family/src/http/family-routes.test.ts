@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import { createEventBus, type EventBus } from "@offgrid/event-bus";
 import { createMemoryErrorSink } from "@offgrid/observability";
+import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFamilyTestDatabase, type FamilyTestDatabase } from "../../test/postgres.js";
 import { familyModule } from "../index.js";
@@ -29,7 +29,7 @@ describe("family HTTP routes", () => {
     };
     app = Fastify();
     familyModule.registerSubscribers(context);
-    await familyModule.registerRoutes(app, context);
+    familyModule.registerRoutes(app, context);
     await app.ready();
   }, 120_000);
 
@@ -42,6 +42,16 @@ describe("family HTTP routes", () => {
     await db.reset();
   });
 
+  const createFamily = async (userId: string, name: string) => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/families",
+      headers: { [USER_HEADER]: userId },
+      payload: { name },
+    });
+    return response.json() as { id: string; name: string; createdAt: string };
+  };
+
   it("refuses to create a family without a signed-in user", async () => {
     const response = await app.inject({
       method: "POST",
@@ -53,7 +63,7 @@ describe("family HTTP routes", () => {
     expect(response.json()).toEqual({ code: "UNAUTHENTICATED", message: "Sign in to continue" });
   });
 
-  it("rejects an empty family name", async () => {
+  it("rejects an empty family name with the failing field named", async () => {
     const response = await app.inject({
       method: "POST",
       url: "/families",
@@ -63,6 +73,7 @@ describe("family HTTP routes", () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.json().code).toBe("VALIDATION_FAILED");
+    expect(response.json().message).toContain("name:");
   });
 
   it("rejects a name longer than 100 characters", async () => {
@@ -77,12 +88,10 @@ describe("family HTTP routes", () => {
   });
 
   it("creates a family and returns it", async () => {
-    const creator = randomUUID();
-
     const response = await app.inject({
       method: "POST",
       url: "/families",
-      headers: { [USER_HEADER]: creator },
+      headers: { [USER_HEADER]: randomUUID() },
       payload: { name: "Novak family" },
     });
 
@@ -129,6 +138,7 @@ describe("family HTTP routes", () => {
     });
 
     expect(response.statusCode).toBe(404);
+    expect(response.json().code).toBe("NOT_FOUND");
   });
 
   it("rejects a family id that is not a UUID", async () => {
@@ -156,14 +166,4 @@ describe("family HTTP routes", () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ families: [{ id: created.id, name: "Novak family" }] });
   });
-
-  async function createFamily(userId: string, name: string) {
-    const response = await app.inject({
-      method: "POST",
-      url: "/families",
-      headers: { [USER_HEADER]: userId },
-      payload: { name },
-    });
-    return response.json() as { id: string; name: string; createdAt: string };
-  }
 });

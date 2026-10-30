@@ -1,27 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { familyCreatedV1 } from "@offgrid/contracts";
-import {
-  classifySourceVersion,
-  type EventOf,
-  type HandlerContext,
-  type Subscription,
-} from "@offgrid/event-bus";
-import {
-  readSummaryVersion,
-  setUserContext,
-  upsertSummary,
-} from "../infrastructure/family-store.js";
+import { classifySourceVersion, type HandlerContext } from "@offgrid/event-bus";
+import { readSummaryVersion } from "../infrastructure/read-summary-version.js";
+import { setUserContext } from "../infrastructure/set-user-context.js";
+import { upsertSummary } from "../infrastructure/upsert-summary.js";
+import type { FamilyCreatedEvent } from "../types.js";
 
-export const FAMILY_SUMMARY_SUBSCRIBER = "family-summary";
-
-export type FamilyCreatedEvent = EventOf<typeof familyCreatedV1>;
-
-export async function projectFamilyCreated(
+export const projectFamilyCreated = async (
   event: FamilyCreatedEvent,
   { tx }: HandlerContext,
-): Promise<void> {
+): Promise<void> => {
   if (event.familyId === null) {
     throw new Error("family-created event has no family");
   }
@@ -41,11 +30,4 @@ export async function projectFamilyCreated(
     name: event.payload.name,
     sourceVersion: event.sourceVersion,
   });
-}
-
-export const familySummarySubscription = {
-  name: FAMILY_SUMMARY_SUBSCRIBER,
-  event: familyCreatedV1,
-  runAs: "family",
-  handler: projectFamilyCreated,
-} satisfies Subscription<typeof familyCreatedV1>;
+};

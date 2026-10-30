@@ -7,34 +7,35 @@ import { createEventBus, publish, replayEvents, type EventBus } from "@offgrid/e
 import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFamilyTestDatabase, type FamilyTestDatabase } from "../../test/postgres.js";
-import { createFamilyService, type FamilyService } from "../application/family-service.js";
-import { setFamilyContext } from "../infrastructure/family-store.js";
-import { withFamilyTransaction } from "../infrastructure/transaction.js";
-import { publishFamilyCreated } from "./family-created.js";
-import { familySummarySubscription, projectFamilyCreated } from "./family-summary-projection.js";
+import { createFamily } from "../application/create-family.js";
+import { listMyFamilies } from "../application/list-my-families.js";
+import { setFamilyContext } from "../infrastructure/set-family-context.js";
+import { withFamilyTransaction } from "../infrastructure/with-family-transaction.js";
+import { publishFamilyCreated } from "./publish-family-created.js";
+import { projectFamilyCreated } from "./project-family-created.js";
+import { familySummarySubscription } from "./family-summary-subscription.js";
 
 const DEAD_LETTER_SUBSCRIBER = "family-summary-gap-test";
 
-function familyEnvelope(familyId: string, creatorUserId: string, sourceVersion: number) {
-  return {
-    id: randomUUID(),
-    type: familyCreatedV1.name,
-    version: familyCreatedV1.version,
-    occurredAt: new Date().toISOString(),
-    traceId: "trace-under-test",
-    familyId,
-    sourceVersion,
-    payload: { name: "Novak family", creatorUserId },
-  };
-}
+const familyEnvelope = (familyId: string, creatorUserId: string, sourceVersion: number) => ({
+  id: randomUUID(),
+  type: familyCreatedV1.name,
+  version: familyCreatedV1.version,
+  occurredAt: new Date().toISOString(),
+  traceId: "trace-under-test",
+  familyId,
+  sourceVersion,
+  payload: { name: "Novak family", creatorUserId },
+});
+
+const parsedEvent = (envelope: ReturnType<typeof familyEnvelope>) =>
+  familyCreatedV1.envelope.parse(envelope);
 
 describe("family events", () => {
   let db: FamilyTestDatabase;
-  let service: FamilyService;
 
   beforeAll(async () => {
     db = await startFamilyTestDatabase();
-    service = createFamilyService(db.pool);
   }, 120_000);
 
   afterAll(async () => {
@@ -44,6 +45,14 @@ describe("family events", () => {
   beforeEach(async () => {
     await db.reset();
   });
+
+  const startBus = (): EventBus =>
+    createEventBus({
+      pool: db.pool,
+      errorSink: createMemoryErrorSink(),
+      maxAttempts: 3,
+      retryDelayMs: () => 0,
+    });
 
   describe("atomic write", () => {
     it("drops the outbox event when the change rolls back", async () => {
@@ -78,14 +87,14 @@ describe("family events", () => {
       const bus = startBus();
       bus.subscribe(familySummarySubscription);
       const creator = randomUUID();
-      const family = await service.createFamily(creator, "Novak family");
+      const family = await createFamily(db.pool, creator, "Novak family");
 
       await bus.deliverPending();
 
-      expect(await service.listMyFamilies(creator)).toEqual([
+      expect(await listMyFamilies(db.pool, creator)).toEqual([
         { id: family.id, name: "Novak family" },
       ]);
-      expect(await service.listMyFamilies(randomUUID())).toEqual([]);
+      expect(await listMyFamilies(db.pool, randomUUID())).toEqual([]);
     });
 
     it("applies a repeated event once", async () => {
@@ -129,7 +138,9 @@ describe("family events", () => {
       bus.subscribe({ ...familySummarySubscription, name: DEAD_LETTER_SUBSCRIBER });
       const familyId = randomUUID();
       const creator = randomUUID();
-      await publishCommitted(familyEnvelope(familyId, creator, 2));
+      await withFamilyTransaction(db.pool, (client) =>
+        publish(client, familyCreatedV1, familyEnvelope(familyId, creator, 2)),
+      );
 
       await bus.deliverPending();
 
@@ -148,8 +159,8 @@ describe("family events", () => {
 
     it("rebuilds the projection by replaying the event stream", async () => {
       const creator = randomUUID();
-      const first = await service.createFamily(creator, "Novak family");
-      const second = await service.createFamily(creator, "Office");
+      const first = await createFamily(db.pool, creator, "Novak family");
+      const second = await createFamily(db.pool, creator, "Office");
       await db.admin.query("TRUNCATE family.family_summary");
 
       const replayed = await replayEvents(
@@ -158,29 +169,9 @@ describe("family events", () => {
       );
 
       expect(replayed).toBe(2);
-      expect(await service.listMyFamilies(creator)).toEqual(
-        [
-          { id: first.id, name: "Novak family" },
-          { id: second.id, name: "Office" },
-        ].sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)),
-      );
+      const rebuilt = await listMyFamilies(db.pool, creator);
+      expect(rebuilt).toHaveLength(2);
+      expect(rebuilt.map((family) => family.id).sort()).toEqual([first.id, second.id].sort());
     });
   });
-
-  function startBus(): EventBus {
-    return createEventBus({
-      pool: db.pool,
-      errorSink: createMemoryErrorSink(),
-      maxAttempts: 3,
-      retryDelayMs: () => 0,
-    });
-  }
-
-  async function publishCommitted(envelope: ReturnType<typeof familyEnvelope>): Promise<void> {
-    await withFamilyTransaction(db.pool, (client) => publish(client, familyCreatedV1, envelope));
-  }
 });
-
-function parsedEvent(envelope: ReturnType<typeof familyEnvelope>) {
-  return familyCreatedV1.envelope.parse(envelope);
-}
