@@ -5,14 +5,12 @@ import type { ClientBase } from "pg";
 import type { Subscription, StoredEvent, DeliverySettings } from "./types.js";
 import { parseEvent } from "@offgrid/contracts";
 import { toEnvelope } from "./to-envelope.js";
-import { setRole } from "./set-role.js";
-import { resolveTraceId, runWithTrace } from "@offgrid/observability";
-import { resetRole } from "./reset-role.js";
 import { deadLetter } from "./dead-letter.js";
+import { runHandler } from "./run-handler.js";
 import { sleep } from "./sleep.js";
 
 export const deliverOne = async (
-  client: ClientBase,
+  busClient: ClientBase,
   subscription: Subscription,
   stored: StoredEvent,
   settings: DeliverySettings,
@@ -20,21 +18,15 @@ export const deliverOne = async (
   if (stored.type !== subscription.event.name) {
     return;
   }
+  const handlerPool = settings.handlerPoolFor(subscription.runAs);
   for (let attempt = 1; ; attempt += 1) {
-    await client.query("SAVEPOINT delivery");
     try {
       const event = parseEvent(subscription.event, toEnvelope(stored));
-      await setRole(client, subscription.runAs);
-      await runWithTrace(resolveTraceId(event.traceId), () =>
-        subscription.handler(event, { tx: client }),
-      );
-      await client.query("RELEASE SAVEPOINT delivery");
-      await resetRole(client);
+      await runHandler(handlerPool, subscription, event);
       return;
     } catch (error) {
-      await client.query("ROLLBACK TO SAVEPOINT delivery");
       if (attempt >= settings.maxAttempts) {
-        await deadLetter(client, subscription, stored, attempt, error, settings);
+        await deadLetter(busClient, subscription, stored, attempt, error, settings);
         return;
       }
       await sleep(settings.retryDelayMs(attempt));

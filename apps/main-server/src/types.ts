@@ -59,6 +59,7 @@ export interface ServerRuntime {
   readonly pool: Pick<Pool, "query" | "end" | "connect">;
   readonly database: DatabaseTarget;
   readonly moduleDatabases: Map<string, ModuleDatabase>;
+  readonly modulePools: Map<string, Pool>;
   readonly eventBus: EventBus;
   readonly errorSink: ErrorSink;
   readonly logger: Logger;

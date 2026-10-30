@@ -4,43 +4,28 @@
 import type { AnyEventDefinition } from "@offgrid/contracts";
 import type { Subscription, ReplayOptions } from "./types.js";
 import { DEFAULT_REPLAY_BATCH_SIZE } from "./constants.js";
-import { readEventsAfter } from "./read-events-after.js";
+import { readBatch } from "./read-batch.js";
 import { toTypedEvent } from "./to-typed-event.js";
-import { setRole } from "./set-role.js";
-import { resolveTraceId, runWithTrace } from "@offgrid/observability";
-import { resetRole } from "./reset-role.js";
+import { handlerPoolFor } from "./handler-pool-for.js";
+import { runHandler } from "./run-handler.js";
 
 export const replayEvents = async <D extends AnyEventDefinition>(
   subscription: Pick<Subscription<D>, "event" | "runAs" | "handler">,
   options: ReplayOptions,
 ): Promise<number> => {
   const batchSize = options.batchSize ?? DEFAULT_REPLAY_BATCH_SIZE;
+  const handlerPool = handlerPoolFor(options.pool, options.connectAs, subscription.runAs);
   let after = (options.fromSequence ?? 1) - 1;
   let delivered = 0;
   let hasMore = true;
   while (hasMore) {
-    const client = await options.pool.connect();
-    try {
-      await client.query("BEGIN");
-      const stored = await readEventsAfter(client, after, subscription.event.name, batchSize);
-      for (const row of stored) {
-        const event = toTypedEvent(subscription.event, row);
-        await setRole(client, subscription.runAs);
-        await runWithTrace(resolveTraceId(event.traceId), () =>
-          subscription.handler(event, { tx: client }),
-        );
-        await resetRole(client);
-        delivered += 1;
-        after = row.sequence;
-      }
-      await client.query("COMMIT");
-      hasMore = stored.length === batchSize;
-    } catch (error) {
-      await client.query("ROLLBACK").catch(() => undefined);
-      throw error;
-    } finally {
-      client.release();
+    const stored = await readBatch(options, subscription.event.name, after, batchSize);
+    for (const row of stored) {
+      await runHandler(handlerPool, subscription, toTypedEvent(subscription.event, row));
+      delivered += 1;
+      after = row.sequence;
     }
+    hasMore = stored.length === batchSize;
   }
   return delivered;
 };

@@ -167,7 +167,12 @@ describe("delivery", () => {
   beforeEach(async () => {
     await db.admin.query(RESET_TABLES);
     errors = createMemoryErrorSink();
-    bus = createEventBus({ pool: outbox, errorSink: errors, retryDelayMs: () => 0 });
+    bus = createEventBus({
+      pool: outbox,
+      connectAs: db.connect,
+      errorSink: errors,
+      retryDelayMs: () => 0,
+    });
   });
 
   it("delivers each event to every subscriber", async () => {
@@ -214,6 +219,34 @@ describe("delivery", () => {
     await bus.deliverPending();
 
     expect(roles).toEqual(["family_app"]);
+  });
+
+  it("does not let a handler read the event stream or switch to the bus role", async () => {
+    const refusals: string[] = [];
+    bus.subscribe({
+      name: "escape-check",
+      event: familyCreated,
+      runAs: "family",
+      handler: async (_event, { tx }) => {
+        for (const probe of [
+          "SELECT * FROM outbox.events_after(0, NULL, 10)",
+          "SET ROLE outbox_app",
+        ]) {
+          await tx.query("SAVEPOINT probe");
+          await tx.query(probe).catch(async (error: Error) => {
+            refusals.push(error.message);
+            await tx.query("ROLLBACK TO SAVEPOINT probe");
+          });
+        }
+      },
+    });
+    await publishCommitted(family, envelope(1, "Escape"));
+
+    await bus.deliverPending();
+
+    expect(refusals).toHaveLength(2);
+    expect(refusals[0]).toMatch(/permission denied/);
+    expect(refusals[1]).toMatch(/permission denied/);
   });
 
   it("retries a failing handler three times, then dead-letters the event", async () => {
@@ -283,7 +316,7 @@ describe("delivery", () => {
 
     await db.admin.query("TRUNCATE family.family_summary");
     expect(await storedName(family)).toBeUndefined();
-    const replayed = await replayEvents(subscription, { pool: outbox });
+    const replayed = await replayEvents(subscription, { pool: outbox, connectAs: db.connect });
 
     expect(replayed).toBe(2);
     expect(await storedName(family)).toEqual(before);
@@ -311,6 +344,7 @@ describe("delivery", () => {
     const listener = await db.connectClient("outbox");
     const loopBus = createEventBus({
       pool: outbox,
+      connectAs: db.connect,
       listener,
       errorSink: errors,
       pollIntervalMs: 50,
@@ -339,7 +373,12 @@ describe("delivery", () => {
   it("stays stopped when the notification listener cannot start", async () => {
     const listener = await db.connectClient("outbox");
     await listener.end();
-    const loopBus = createEventBus({ pool: outbox, listener, errorSink: errors });
+    const loopBus = createEventBus({
+      pool: outbox,
+      connectAs: db.connect,
+      listener,
+      errorSink: errors,
+    });
 
     await expect(loopBus.start()).rejects.toThrow();
     await expect(loopBus.stop()).resolves.toBeUndefined();

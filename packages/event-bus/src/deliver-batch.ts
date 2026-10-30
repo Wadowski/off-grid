@@ -23,10 +23,7 @@ export const deliverBatch = async (
     const events = await readEventsAfter(client, position, null, settings.batchSize);
     for (const event of events) {
       await deliverOne(client, subscription, event, settings);
-    }
-    const last = events.at(-1);
-    if (last !== undefined) {
-      await advanceCursor(client, subscription.name, last.sequence);
+      await advanceCursor(client, subscription.name, event.sequence);
     }
     await client.query("COMMIT");
     return events.length === settings.batchSize;

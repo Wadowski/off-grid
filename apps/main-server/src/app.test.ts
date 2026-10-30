@@ -57,6 +57,7 @@ const stubRuntime = ({
     logger: createLogger({ sink: () => undefined }),
     database: { host: "unused", port: 5432, database: "unused", password: "unused" },
     moduleDatabases: new Map(),
+    modulePools: new Map(),
     state: { publisherRunning, draining: false },
   };
   return { runtime, errorSink };

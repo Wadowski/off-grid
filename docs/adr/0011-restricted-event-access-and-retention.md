@@ -1,6 +1,6 @@
 # 0011. Restricted event access, module-scoped delivery and retention
 
-- **Status:** Accepted
+- **Status:** Accepted; handler execution and bus membership are superseded by [0014](0014-subscriber-handlers-on-module-logins.md)
 - **Supersedes:** [0010](0010-pluggable-event-transport.md)
 
 ## Context

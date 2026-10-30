@@ -12,12 +12,14 @@ import { defaultRetryDelayMs } from "./default-retry-delay-ms.js";
 import { createDeliveryLoop } from "./create-delivery-loop.js";
 import { deliverAll } from "./deliver-all.js";
 import type { AnyEventDefinition } from "@offgrid/contracts";
-import { roleOf } from "./role-of.js";
+import { assertModuleName } from "./assert-module-name.js";
+import { handlerPoolFor } from "./handler-pool-for.js";
 import { pruneDelivered } from "./prune-delivered.js";
 
 export const createEventBus = (options: EventBusOptions): EventBus => {
   const settings: DeliverySettings = {
     pool: options.pool,
+    handlerPoolFor: (runAs) => handlerPoolFor(options.pool, options.connectAs, runAs),
     errorSink: options.errorSink,
     maxAttempts: options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS,
     retryDelayMs: options.retryDelayMs ?? defaultRetryDelayMs,
@@ -35,7 +37,7 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
     if (subscriptions.some((existing) => existing.name === subscription.name)) {
       throw new Error(`subscriber "${subscription.name}" is already registered`);
     }
-    roleOf(subscription.runAs);
+    assertModuleName(subscription.runAs);
     subscriptions.push(subscription);
   };
 

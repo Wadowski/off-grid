@@ -24,6 +24,7 @@ export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinitio
 
 export interface EventBusOptions {
   readonly pool: Pool;
+  readonly connectAs: (runAs: string) => Pool;
   readonly errorSink: ErrorSink;
   readonly listener?: Client;
   readonly maxAttempts?: number;
@@ -47,6 +48,7 @@ export interface EventBus {
 
 export interface DeliverySettings {
   readonly pool: Pool;
+  readonly handlerPoolFor: (runAs: string) => Pool;
   readonly errorSink: ErrorSink;
   readonly maxAttempts: number;
   readonly retryDelayMs: (attempt: number) => number;
@@ -56,6 +58,7 @@ export interface DeliverySettings {
 
 export interface ReplayOptions {
   readonly pool: Pool;
+  readonly connectAs: (runAs: string) => Pool;
   readonly fromSequence?: number;
   readonly batchSize?: number;
 }
