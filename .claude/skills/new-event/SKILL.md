@@ -9,7 +9,7 @@ Modules talk only through versioned events ([ADR 0002](../../../docs/adr/0002-ou
 
 Naming: entity lifecycle events use `<entity>-<created|updated|removed>-v1`, for example `family-member-created-v1`. Other events, such as a notification request like `notify-user`, follow their own clear name in the same versioned form (`<name>-v1`). A released version never changes; a change of shape is a new `-v2`.
 
-Note: the outbox and projection runtime are not built yet (ADR 0002 is Proposed, `packages/event-bus` is a stub). If `packages/event-bus` has no outbox or consumer API when you start, stop and ask rather than inventing one.
+Note: the runtime exists in `packages/event-bus`: `publish(tx, definition, input)` writes to the outbox, `createEventBus(...).subscribe(...)` consumes, `replayEvents` rebuilds, and `classifySourceVersion` decides apply/duplicate/stale/gap. Reference: `modules/family/src/events`.
 
 ## Steps
 

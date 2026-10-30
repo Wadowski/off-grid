@@ -35,5 +35,7 @@ export function moduleContextFor(runtime: ServerRuntime, moduleName: string): Mo
   return {
     eventBus: runtime.eventBus,
     logger: runtime.logger.child({ module: moduleName }),
+    pool: runtime.pool,
+    currentUserId: (request) => request.requestContext.userId,
   };
 }

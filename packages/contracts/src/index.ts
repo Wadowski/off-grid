@@ -4,6 +4,7 @@
 export * from "./primitives.js";
 export * from "./envelope.js";
 export * from "./events.js";
+export * from "./family.js";
 export * from "./registry.js";
 export * from "./released.js";
 export * from "./openapi.js";

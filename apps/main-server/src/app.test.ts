@@ -45,6 +45,9 @@ function stubRuntime({
       return { rows: text.includes("schema_migrations") ? ledgerRows : [] };
     },
     end: async () => undefined,
+    connect: async () => {
+      throw new Error("connect is not used by these tests");
+    },
   };
   const runtime: ServerRuntime = {
     pool,

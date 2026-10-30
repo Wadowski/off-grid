@@ -7,7 +7,7 @@ description: Add a database migration for one module's own Postgres schema, with
 
 Migrations change only the module's own schema, run as the module's owner role, and are never edited once applied. Read first: [.claude/rules/migrations.md](../../rules/migrations.md), [ADR 0009](../../../docs/adr/0009-table-ownership-scopes.md), [ADR 0008](../../../docs/adr/0008-prisma-multi-schema.md) and [packages/db/README.md](../../../packages/db/README.md).
 
-Note: `packages/db` is a stub. Before you write a migration, confirm which migration tool and RLS helpers it provides. If there is none, stop and ask; do not hand-roll a migration runner.
+Note: `packages/db` provides `runMigrations` (applies as the owner role, keeps `public.schema_migrations`) and the `offgrid_declare_scope` helper. Reference: `modules/family/src/infrastructure/migrations`.
 
 ## Steps
 

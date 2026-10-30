@@ -224,6 +224,9 @@ importers:
       '@offgrid/event-bus':
         specifier: workspace:*
         version: link:../../packages/event-bus
+      '@offgrid/family':
+        specifier: workspace:*
+        version: link:../../modules/family
       '@offgrid/observability':
         specifier: workspace:*
         version: link:../../packages/observability
@@ -280,7 +283,45 @@ importers:
 
   modules/export: {}
 
-  modules/family: {}
+  modules/family:
+    dependencies:
+      '@offgrid/access-control':
+        specifier: workspace:*
+        version: link:../../packages/access-control
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@offgrid/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@offgrid/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
+      '@offgrid/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
+      fastify:
+        specifier: 5.12.7
+        version: 5.12.7
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@testcontainers/postgresql':
+        specifier: 12.2.1
+        version: 12.2.1(supports-color@10.2.2)
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      testcontainers:
+        specifier: 12.2.1
+        version: 12.2.1(supports-color@10.2.2)
 
   modules/files: {}
 
@@ -3920,6 +3961,12 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
+  '@kwsites/file-exists@1.1.1(supports-color@10.2.2)':
+    dependencies:
+      debug: 4.4.3(supports-color@10.2.2)
+    transitivePeerDependencies:
+      - supports-color
+
   '@kwsites/file-exists@1.1.1(supports-color@7.2.0)':
     dependencies:
       debug: 4.4.3(supports-color@7.2.0)
@@ -4211,6 +4258,15 @@ snapshots:
   '@standard-schema/spec@1.1.0': {}
 
   '@teppeis/multimaps@3.0.0': {}
+
+  '@testcontainers/postgresql@12.2.1(supports-color@10.2.2)':
+    dependencies:
+      testcontainers: 12.2.1(supports-color@10.2.2)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
 
   '@testcontainers/postgresql@12.2.1(supports-color@7.2.0)':
     dependencies:
@@ -4976,12 +5032,32 @@ snapshots:
     dependencies:
       yaml: 2.9.1
 
+  docker-modem@5.0.7(supports-color@10.2.2):
+    dependencies:
+      debug: 4.4.3(supports-color@10.2.2)
+      readable-stream: 3.6.2
+      split-ca: 1.0.1
+      ssh2: 1.17.0
+    transitivePeerDependencies:
+      - supports-color
+
   docker-modem@5.0.7(supports-color@7.2.0):
     dependencies:
       debug: 4.4.3(supports-color@7.2.0)
       readable-stream: 3.6.2
       split-ca: 1.0.1
       ssh2: 1.17.0
+    transitivePeerDependencies:
+      - supports-color
+
+  dockerode@5.0.1(supports-color@10.2.2):
+    dependencies:
+      '@balena/dockerignore': 1.0.2
+      '@grpc/grpc-js': 1.14.6
+      '@grpc/proto-loader': 0.7.15
+      docker-modem: 5.0.7(supports-color@10.2.2)
+      protobufjs: 7.6.6
+      tar-fs: 2.1.5
     transitivePeerDependencies:
       - supports-color
 
@@ -5905,6 +5981,13 @@ snapshots:
       retry: 0.12.0
       signal-exit: 3.0.7
 
+  properties-reader@3.0.1(supports-color@10.2.2):
+    dependencies:
+      '@kwsites/file-exists': 1.1.1(supports-color@10.2.2)
+      mkdirp: 3.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   properties-reader@3.0.1(supports-color@7.2.0):
     dependencies:
       '@kwsites/file-exists': 1.1.1(supports-color@7.2.0)
@@ -6227,6 +6310,29 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
+
+  testcontainers@12.2.1(supports-color@10.2.2):
+    dependencies:
+      '@balena/dockerignore': 1.0.2
+      '@types/dockerode': 4.0.2
+      archiver: 7.0.1
+      async-lock: 1.4.1
+      byline: 5.0.0
+      debug: 4.4.3(supports-color@10.2.2)
+      docker-compose: 1.5.0
+      dockerode: 5.0.1(supports-color@10.2.2)
+      get-port: 5.1.1
+      proper-lockfile: 4.1.2
+      properties-reader: 3.0.1(supports-color@10.2.2)
+      ssh-remote-port-forward: 1.0.4
+      tar-fs: 3.1.3
+      tmp: 0.2.7
+      undici: 8.12.3
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
 
   testcontainers@12.2.1(supports-color@7.2.0):
     dependencies:

@@ -7,7 +7,7 @@ description: Scaffold a new feature module under modules/<name> with the standar
 
 A module is one feature folder in the modular monolith. It runs in the single server process and owns one Postgres schema. Read first: [modules/README.md](../../../modules/README.md), [.claude/rules/modules.md](../../rules/modules.md), [ADR 0006](../../../docs/adr/0006-modular-monolith.md), [ADR 0001](../../../docs/adr/0001-single-database.md) and [ADR 0008](../../../docs/adr/0008-prisma-multi-schema.md).
 
-Note: the stub packages under `modules/` (for example `modules/family`) are the starting point. Reuse their `package.json` and `tsconfig.json` shape; do not invent a new one.
+Note: `modules/family` is the reference module (see its README). Copy its `package.json`, `tsconfig.json` and layout; do not invent a new shape.
 
 ## Steps
 
@@ -21,8 +21,8 @@ Note: the stub packages under `modules/` (for example `modules/family`) are the 
 3. **Write `src/index.ts`.** This is the only public entry point. Export the module's factory and public types, nothing from `src/` internals. Follow the header and style of `modules/family/src/index.ts`.
    Verify: `pnpm typecheck` passes.
 
-4. **Declare the schema and role.** The module gets its own Postgres schema and owner role. Follow [ADR 0008](../../../docs/adr/0008-prisma-multi-schema.md) and the helpers in `packages/db`. If `packages/db` has no schema or role helper yet, stop and ask the user which tool to use. Do not hand-write a schema in a migration without the helper.
-   Verify: `packages/db/src/index.ts` exports what you used, or the question is asked and answered.
+4. **Declare the schema and role.** The module gets its own Postgres schema and owner role. Follow [ADR 0008](../../../docs/adr/0008-prisma-multi-schema.md) and the helpers in `packages/db`. Add the schema name to `DATABASE_SCHEMAS` in `packages/db/src/schema-names.ts` and the init scripts in `infra/init/sql/` if it is new. Use `offgrid_declare_scope` for every table.
+   Verify: `packages/db/src/index.ts` exports what you used.
 
 5. **Add the first migration.** Use the `new-migration` skill for the schema's first migration, with an ownership scope declared for every table.
    Verify: the migration test from `new-migration` passes.

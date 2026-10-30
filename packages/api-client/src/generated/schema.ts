@@ -17,6 +17,28 @@ export interface components {
             code: string;
             message: string;
         };
+        CreateFamilyRequest: {
+            name: string;
+        };
+        Family: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        FamilySummary: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        FamilyList: {
+            families: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            }[];
+        };
     };
     responses: never;
     parameters: never;

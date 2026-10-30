@@ -9,6 +9,12 @@ import {
   timestampSchema,
   userIdSchema,
 } from "./primitives.js";
+import {
+  createFamilyRequestSchema,
+  familyListSchema,
+  familySchema,
+  familySummarySchema,
+} from "./family.js";
 
 export const openApiComponentSchemas = {
   FamilyId: familyIdSchema,
@@ -16,6 +22,10 @@ export const openApiComponentSchemas = {
   AccessGroupId: accessGroupIdSchema,
   Timestamp: timestampSchema,
   ErrorResponse: errorResponseSchema,
+  CreateFamilyRequest: createFamilyRequestSchema,
+  Family: familySchema,
+  FamilySummary: familySummarySchema,
+  FamilyList: familyListSchema,
 } satisfies Record<string, z.ZodType>;
 
 export function buildOpenApiDocument() {

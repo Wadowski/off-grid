@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { z } from "zod";
 import type { MigrationSource } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
@@ -31,6 +31,8 @@ export type ReadSecretFile = (path: string) => string;
 export interface ModuleContext {
   readonly eventBus: EventBus;
   readonly logger: Logger;
+  readonly pool: Pick<Pool, "connect">;
+  readonly currentUserId: (request: FastifyRequest) => string | null;
 }
 
 export interface Worker {
@@ -53,7 +55,7 @@ interface RuntimeState {
 }
 
 export interface ServerRuntime {
-  readonly pool: Pick<Pool, "query" | "end">;
+  readonly pool: Pick<Pool, "query" | "end" | "connect">;
   readonly eventBus: EventBus;
   readonly errorSink: ErrorSink;
   readonly logger: Logger;
