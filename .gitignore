@@ -7,6 +7,7 @@ data/
 .features-gen/
 e2e/test-results/
 e2e/playwright-report/
+e2e/artifacts/
 .env
 .env.*
 !.env.example
