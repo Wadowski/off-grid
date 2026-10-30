@@ -11,7 +11,7 @@
     "e2e:stack:up": "OFFGRID_SERVER_PORT=${E2E_SERVER_PORT:-3000} docker compose -p offgrid-e2e-local -f ../infra/compose/docker-compose.yml up --detach --wait server",
     "e2e:stack:down": "docker compose -p offgrid-e2e-local -f ../infra/compose/docker-compose.yml down --volumes --remove-orphans",
     "lint:features": "gherkin-lint --config .gherkin-lintrc.json \"features/**/*.feature\"",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@offgrid/api-client": "workspace:*"

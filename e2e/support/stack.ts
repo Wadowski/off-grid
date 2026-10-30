@@ -5,6 +5,7 @@ import { execFile } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { eventually } from "./eventually.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -65,23 +66,20 @@ export async function waitForReady(
   }: WaitOptions = {},
 ): Promise<void> {
   const url = new URL(READY_PATH, baseUrl);
-  const deadline = Date.now() + timeoutMs;
-  let lastProblem = "no response";
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetchImpl(url);
-      if (response.ok) {
-        return;
-      }
-      lastProblem = `status ${response.status}`;
-    } catch (error) {
-      lastProblem = error instanceof Error ? error.message : "request failed";
-    }
-    await sleep(intervalMs);
+  try {
+    await eventually(
+      async () => {
+        const response = await fetchImpl(url);
+        if (!response.ok) {
+          throw new Error(`status ${response.status}`);
+        }
+      },
+      { timeout: timeoutMs, interval: intervalMs },
+    );
+  } catch (error) {
+    const last = error instanceof Error ? error.message : "request failed";
+    throw new Error(`Stack not ready at ${url.href} after ${timeoutMs} ms (last: ${last}).`, {
+      cause: error,
+    });
   }
-  throw new Error(`Stack not ready at ${url.href} after ${timeoutMs} ms (last: ${lastProblem}).`);
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

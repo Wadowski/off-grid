@@ -28,6 +28,14 @@ describe("createFamily", () => {
     ]);
   });
 
+  it("rejects a response that is not a family", async () => {
+    const { api } = recordingClient({ name: "Oak" });
+
+    await expect(createFamily(api, { name: "Oak" })).rejects.toThrow(
+      "Response is not a family with a string id and name.",
+    );
+  });
+
   it("gives each family a unique generated name when none is given", async () => {
     const { sent, api } = recordingClient({ id: "f", name: "x" });
 

@@ -17,13 +17,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   outputDir: "artifacts/test-results",
-  reporter: process.env.CI
-    ? [
-        ["list"],
-        ["html", { open: "never", outputFolder: "artifacts/report" }],
-        ["./support/failure-artifacts.ts"],
-      ]
-    : [["list"], ["./support/failure-artifacts.ts"]],
+  reporter: [
+    ["list"],
+    ...(process.env.CI
+      ? [["html", { open: "never", outputFolder: "artifacts/report" }] as const]
+      : []),
+    ["./support/failure-artifacts.ts"],
+  ],
   use: {
     baseURL: targetBaseUrl(),
     trace: "retain-on-failure",

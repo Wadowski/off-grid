@@ -48,12 +48,15 @@ describe("waitForReady", () => {
   });
 
   it("fails with the last problem once the timeout ends", async () => {
+    const alwaysUnavailable = (async () => new Response(null, { status: 503 })) as typeof fetch;
     await expect(
       waitForReady("http://127.0.0.1:3000", {
         timeoutMs: 20,
         intervalMs: 5,
-        fetchImpl: responses(503, 503, 503, 503, 503, 503, 503, 503, 503, 503),
+        fetchImpl: alwaysUnavailable,
       }),
-    ).rejects.toThrow("Stack not ready at http://127.0.0.1:3000/api/health/ready");
+    ).rejects.toThrow(
+      "Stack not ready at http://127.0.0.1:3000/api/health/ready after 20 ms (last: status 503).",
+    );
   });
 });

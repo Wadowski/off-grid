@@ -16,5 +16,19 @@ export async function createFamily(
   api: ApiClient,
   { name = uniqueName("Family") }: CreateFamilyInput = {},
 ): Promise<Family> {
-  return (await api.request("POST", "/api/families", { name })) as Family;
+  return parseFamily(await api.request("POST", "/api/families", { name }));
+}
+
+function parseFamily(value: unknown): Family {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    typeof value.id === "string" &&
+    "name" in value &&
+    typeof value.name === "string"
+  ) {
+    return { id: value.id, name: value.name };
+  }
+  throw new Error("Response is not a family with a string id and name.");
 }
