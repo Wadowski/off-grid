@@ -4,8 +4,7 @@
 import { expect, type APIRequestContext, type APIResponse } from "@playwright/test";
 import { test as base } from "playwright-bdd";
 
-// State shared by the steps of one scenario. Each scenario gets a fresh copy.
-export type ScenarioWorld = {
+type ScenarioWorld = {
   api: APIRequestContext;
   healthResponse?: APIResponse;
 };

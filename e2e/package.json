@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "e2e": "bddgen && playwright test --grep-invert @wip",
-    "e2e:smoke": "bddgen && playwright test --grep @smoke",
+    "e2e:smoke": "bddgen && playwright test --grep @smoke --grep-invert @wip",
     "e2e:wip": "bddgen && playwright test --grep @wip",
     "lint:features": "gherkin-lint --config .gherkin-lintrc.json \"features/**/*.feature\""
   },
