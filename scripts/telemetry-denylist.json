@@ -1,0 +1,39 @@
+{
+  "packages": [
+    "@amplitude/*",
+    "@datadog/*",
+    "@segment/*",
+    "@sentry/*",
+    "@sentry-internal/*",
+    "@vercel/analytics",
+    "@vercel/speed-insights",
+    "amplitude",
+    "analytics-node",
+    "bugsnag",
+    "elastic-apm-node",
+    "esm-analytics",
+    "google-analytics",
+    "mixpanel",
+    "mixpanel-browser",
+    "newrelic",
+    "posthog-js",
+    "posthog-node",
+    "raygun4js",
+    "rollbar",
+    "segment-analytics",
+    "universal-analytics"
+  ],
+  "hosts": [
+    "amplitude.com",
+    "api.segment.io",
+    "api.mixpanel.com",
+    "browser.sentry-cdn.com",
+    "datadoghq.com",
+    "google-analytics.com",
+    "ingest.sentry.io",
+    "posthog.com",
+    "rollbar.com",
+    "sentry.io"
+  ],
+  "exceptions": []
+}

@@ -29,6 +29,7 @@
     "lint:features": "pnpm --filter @offgrid/e2e lint:features",
     "check:boundaries": "depcruise apps modules packages --config .dependency-cruiser.cjs --output-type err-long",
     "check:agent-config": "node scripts/check-agent-config.mjs",
+    "check:no-telemetry": "node scripts/check-no-telemetry.mjs",
     "gen:openapi": "pnpm --filter @offgrid/contracts gen:openapi",
     "gen:api": "pnpm --filter @offgrid/api-client gen:api",
     "check:contracts": "pnpm --filter @offgrid/contracts check:contracts",
