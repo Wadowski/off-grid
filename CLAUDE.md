@@ -44,7 +44,7 @@ Starting the Docker Compose stack: not available yet (`infra/compose/` is still 
 
 - No telemetry, analytics SDKs or outbound network calls in local mode.
 - No secrets, tokens or real hostnames in the repo. Config is validated with zod, and missing secrets fail fast.
-- Modules talk only through versioned events and `packages/contracts`. A module touches only its own Postgres schema. Projections are read-only copies.
+- Modules talk only through versioned events and `packages/contracts`. A module touches only its own Postgres schema. Projections are read-only copies of another module's data; a module reads its own data directly.
 - Never edit an applied migration or a released event version. Add a new one.
 - Access control, data export and (future) remote access are never feature-gated.
 - Never weaken or skip CI checks, boundary rules, hooks or tests to make a change pass.

@@ -22,7 +22,7 @@ Note: the runtime exists in `packages/event-bus`: `publish(tx, definition, input
 3. **Publish via the outbox.** In the producing module, write the event to the outbox in the same transaction as the data change. Never publish for a rolled-back change.
    Verify: a unit test in the module asserts the outbox row exists after commit and is absent when the transaction rolls back.
 
-4. **Add the projection consumer.** In the consuming module, store the source event version on the projection row. Before applying, compare the incoming version with the stored one and skip older versions. The projection is read-only: never write back to the source module.
+4. **Add the projection consumer, only when the data belongs to another module.** In the consuming module, store the source event version on the projection row. Before applying, compare the incoming version with the stored one and skip older versions. The projection is read-only: never write back to the source module.
    Verify: `pnpm --filter <consumer> test` passes, including the stale-version case.
 
 5. **Test replay and idempotency.** Add tests that: applying the same event twice leaves the same state; replaying a stream from the start reproduces the projection; out-of-order delivery does not regress the version. Run them against a real Postgres container, not mocks ([testing rules](../../rules/testing.md)). Poll with a timeout; do not sleep.
@@ -43,3 +43,4 @@ Note: the runtime exists in `packages/event-bus`: `publish(tx, definition, input
 - Add Redis or any external broker ([ADR 0002](../../../docs/adr/0002-outbox-events-and-projections.md)).
 - Make a handler depend on delivery order.
 - Import another module's code to read its data. Use the projection.
+- Build a projection of the consuming module's own data. Read its own tables instead.

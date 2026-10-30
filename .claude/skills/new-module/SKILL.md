@@ -44,4 +44,5 @@ Note: `modules/family` is the reference module (see its README). Copy its `packa
 - Import another module's code, even from its `src/` folder.
 - Put domain logic in `index.ts`. Keep `src/domain/` free of I/O imports.
 - Touch another module's schema, or add a SQL join across schemas.
+- Build a projection of the module's own data. Read its own tables and read policies, as `modules/family` does.
 - Gate access control or export behind a feature flag.
