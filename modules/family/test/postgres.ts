@@ -25,7 +25,7 @@ const MIGRATION_DIRECTORIES = [
 ] as const;
 
 export const RESET_SQL = `TRUNCATE outbox.event, outbox.subscriber_cursor, outbox.dead_letter,
-  family.family_summary, family.family_member, family.family RESTART IDENTITY CASCADE`;
+  family.family_member, family.family RESTART IDENTITY CASCADE`;
 
 export interface FamilyTestDatabase {
   readonly admin: Client;

@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { createEventBus, type EventBus } from "@offgrid/event-bus";
-import { createMemoryErrorSink } from "@offgrid/observability";
 import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFamilyTestDatabase, type FamilyTestDatabase } from "../../test/postgres.js";
@@ -14,21 +12,17 @@ const USER_HEADER = "x-test-user-id";
 describe("family HTTP routes", () => {
   let db: FamilyTestDatabase;
   let app: FastifyInstance;
-  let eventBus: EventBus;
 
   beforeAll(async () => {
     db = await startFamilyTestDatabase();
-    eventBus = createEventBus({ pool: db.pool, errorSink: createMemoryErrorSink() });
     const context = {
       pool: db.pool,
-      eventBus,
       currentUserId: (request: FastifyRequest) => {
         const header = request.headers[USER_HEADER];
         return typeof header === "string" ? header : null;
       },
     };
     app = Fastify();
-    familyModule.registerSubscribers(context);
     familyModule.registerRoutes(app, context);
     await app.ready();
   }, 120_000);
@@ -155,7 +149,6 @@ describe("family HTTP routes", () => {
     const creator = randomUUID();
     const created = await createFamily(creator, "Novak family");
     await createFamily(randomUUID(), "Someone else");
-    await eventBus.deliverPending();
 
     const response = await app.inject({
       method: "GET",

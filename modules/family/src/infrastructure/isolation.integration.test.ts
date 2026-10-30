@@ -8,7 +8,6 @@ import { insertFamily } from "./insert-family.js";
 import { insertMembership } from "./insert-membership.js";
 import { setFamilyContext } from "./set-family-context.js";
 import { setUserContext } from "./set-user-context.js";
-import { upsertSummary } from "./upsert-summary.js";
 import { withFamilyTransaction } from "./with-family-transaction.js";
 
 describe("family schema isolation", () => {
@@ -77,18 +76,28 @@ describe("family schema isolation", () => {
     ).rejects.toThrow(/row-level security/);
   });
 
-  it("refuses a summary row written for another user", async () => {
-    await expect(
-      withFamilyTransaction(db.pool, async (client) => {
-        await setUserContext(client, randomUUID());
-        await upsertSummary(client, {
-          userId: randomUUID(),
-          familyId: randomUUID(),
-          name: "Kitchen",
-          sourceVersion: 1,
-        });
-      }),
-    ).rejects.toThrow(/row-level security/);
+  it("shows a user only the memberships that name them", async () => {
+    const familyId = randomUUID();
+    const owner = randomUUID();
+    await withFamilyTransaction(db.pool, async (client) => {
+      await setFamilyContext(client, familyId);
+      await insertFamily(client, { id: familyId, name: "Kitchen" });
+      await insertMembership(client, familyId, owner);
+    });
+
+    const seenByOther = await withFamilyTransaction(db.pool, async (client) => {
+      await setUserContext(client, randomUUID());
+      const { rows } = await client.query("SELECT user_id FROM family.family_member");
+      return rows;
+    });
+    const seenByOwner = await withFamilyTransaction(db.pool, async (client) => {
+      await setUserContext(client, owner);
+      const { rows } = await client.query("SELECT user_id FROM family.family_member");
+      return rows;
+    });
+
+    expect(seenByOther).toEqual([]);
+    expect(seenByOwner).toEqual([{ user_id: owner }]);
   });
 
   it("refuses the module role access to another module's schema", async () => {
