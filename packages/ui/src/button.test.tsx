@@ -25,7 +25,7 @@ describe("Button", () => {
     const { rerender } = render(<Button>Save</Button>);
     expect(screen.getByRole("button")).toHaveAttribute(
       "style",
-      expect.stringContaining("var(--og-color-primary)"),
+      expect.stringContaining("var(--og-color-accent)"),
     );
 
     rerender(<Button variant="secondary">Save</Button>);

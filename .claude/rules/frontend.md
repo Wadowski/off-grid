@@ -10,6 +10,7 @@ paths:
 - DO meet WCAG 2.2 AA.
 - DO send every user-facing string through the i18n catalogs.
 - DO give interactive elements stable `data-testid` names in kebab-case.
+- DO write React components as arrow functions assigned to a `const`, such as `export const Button = (...) => {...}`. DON'T use `function` declarations for components.
 - DO talk to the server only through `packages/contracts` and `packages/api-client`.
 - DON'T hard-code colours or spacing values.
 - DON'T import from `modules/` or from `packages/` other than `contracts`, `api-client` and `ui`. `web-allowed-imports` enforces this ([boundaries.md](../../docs/architecture/boundaries.md)).

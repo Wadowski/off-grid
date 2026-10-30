@@ -15,7 +15,7 @@ const fieldStyle: CSSProperties = {
   gap: cssVar("space-1"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-md"),
-  color: cssVar("color-text"),
+  color: cssVar("color-fg"),
 };
 
 const labelStyle: CSSProperties = {
@@ -27,8 +27,8 @@ const inputStyle: CSSProperties = {
   borderRadius: cssVar("radius-sm"),
   borderStyle: "solid",
   borderWidth: "1px",
-  background: cssVar("color-background"),
-  color: cssVar("color-text"),
+  background: cssVar("color-bg"),
+  color: cssVar("color-fg"),
   font: "inherit",
 };
 
@@ -38,7 +38,7 @@ const errorStyle: CSSProperties = {
   color: cssVar("color-danger"),
 };
 
-export function TextField({ label, error, id, ...rest }: TextFieldProps) {
+export const TextField = ({ label, error, id, ...rest }: TextFieldProps) => {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
@@ -56,7 +56,7 @@ export function TextField({ label, error, id, ...rest }: TextFieldProps) {
         aria-describedby={hasError ? errorId : undefined}
         style={{
           ...inputStyle,
-          borderColor: hasError ? cssVar("color-danger") : cssVar("color-border"),
+          borderColor: hasError ? cssVar("color-danger") : cssVar("color-muted"),
         }}
         {...rest}
       />
@@ -67,4 +67,4 @@ export function TextField({ label, error, id, ...rest }: TextFieldProps) {
       )}
     </div>
   );
-}
+};

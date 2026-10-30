@@ -19,23 +19,24 @@ function contrastRatio(foreground: string, background: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-const textPairs: Array<
-  [foreground: keyof typeof tokens.color.light, background: keyof typeof tokens.color.light]
-> = [
-  ["text", "background"],
-  ["text", "surface"],
-  ["textMuted", "background"],
-  ["textMuted", "surface"],
-  ["onPrimary", "primary"],
-  ["danger", "background"],
+type ColorName = keyof typeof tokens.color.light;
+
+const textPairs: Array<[foreground: ColorName, background: ColorName]> = [
+  ["fg", "bg"],
+  ["fg", "surface"],
+  ["fg", "surface-2"],
+  ["muted", "bg"],
+  ["muted", "surface"],
+  ["accent-fg", "accent"],
+  ["dark-chip-fg", "dark-chip"],
+  ["good", "bg"],
+  ["warn", "bg"],
+  ["danger", "bg"],
 ];
 
-const nonTextPairs: Array<
-  [foreground: keyof typeof tokens.color.light, background: keyof typeof tokens.color.light]
-> = [
-  ["border", "background"],
-  ["focus", "background"],
-  ["primary", "background"],
+const nonTextPairs: Array<[foreground: ColorName, background: ColorName]> = [
+  ["muted", "bg"],
+  ["accent", "bg"],
 ];
 
 describe("tokens", () => {
@@ -83,7 +84,7 @@ describe("tokens", () => {
   it("gives every focusable element a visible focus ring", () => {
     expect(tokensStylesheet).toContain(".og-focusable:focus-visible");
     expect(tokensStylesheet).toContain(
-      `outline: ${cssVar("focus-ring-width")} solid ${cssVar("color-focus")};`,
+      `outline: ${cssVar("focus-ring-width")} solid ${cssVar("color-accent")};`,
     );
   });
 });

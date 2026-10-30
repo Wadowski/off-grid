@@ -8,10 +8,10 @@ const cardStyle: CSSProperties = {
   padding: cssVar("space-4"),
   borderRadius: cssVar("radius-md"),
   background: cssVar("color-surface"),
-  color: cssVar("color-text"),
+  color: cssVar("color-fg"),
   boxShadow: cssVar("elevation-1"),
 };
 
-export function Card({ children }: { children: ReactNode }) {
+export const Card = ({ children }: { children: ReactNode }) => {
   return <div style={cardStyle}>{children}</div>;
-}
+};

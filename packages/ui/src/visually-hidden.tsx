@@ -15,6 +15,6 @@ const visuallyHiddenStyle: CSSProperties = {
   borderWidth: 0,
 };
 
-export function VisuallyHidden({ children }: { children: ReactNode }) {
+export const VisuallyHidden = ({ children }: { children: ReactNode }) => {
   return <span style={visuallyHiddenStyle}>{children}</span>;
-}
+};

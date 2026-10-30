@@ -24,18 +24,18 @@ const baseStyle: CSSProperties = {
 
 const variantStyles: Record<ButtonVariant, CSSProperties> = {
   primary: {
-    background: cssVar("color-primary"),
-    borderColor: cssVar("color-primary"),
-    color: cssVar("color-on-primary"),
+    background: cssVar("color-accent"),
+    borderColor: cssVar("color-accent"),
+    color: cssVar("color-accent-fg"),
   },
   secondary: {
     background: cssVar("color-surface"),
-    borderColor: cssVar("color-border"),
-    color: cssVar("color-text"),
+    borderColor: cssVar("color-muted"),
+    color: cssVar("color-fg"),
   },
 };
 
-export function Button({ variant = "primary", type = "button", ...rest }: ButtonProps) {
+export const Button = ({ variant = "primary", type = "button", ...rest }: ButtonProps) => {
   return (
     <button
       type={type}
@@ -44,4 +44,4 @@ export function Button({ variant = "primary", type = "button", ...rest }: Button
       {...rest}
     />
   );
-}
+};
