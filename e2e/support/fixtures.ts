@@ -3,15 +3,17 @@
 
 import { expect, type APIRequestContext, type APIResponse } from "@playwright/test";
 import { test as base } from "playwright-bdd";
+import type { Family } from "./factories/family.js";
 
 type ScenarioWorld = {
   api: APIRequestContext;
   healthResponse?: APIResponse;
+  families: Family[];
 };
 
 export const test = base.extend<{ world: ScenarioWorld }>({
   world: async ({ request }, use) => {
-    await use({ api: request });
+    await use({ api: request, families: [] });
   },
 });
 

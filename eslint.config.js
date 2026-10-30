@@ -16,6 +16,7 @@ export default tseslint.config(
       "e2e/.features-gen/**",
       "e2e/test-results/**",
       "e2e/playwright-report/**",
+      "e2e/artifacts/**",
     ],
   },
   js.configs.recommended,

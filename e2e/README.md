@@ -16,14 +16,40 @@ support/                      fixtures shared by the steps (the scenario `world`
 
 ## Running
 
-Start the server first, then run from the repo root:
+Run from the repo root. Each run brings up its own compose stack and tears it down afterwards, including volumes:
 
-- `pnpm e2e` runs every scenario except `@wip`.
+- `pnpm e2e` runs every scenario except `@wip`, against a fresh stack.
 - `pnpm e2e:smoke` runs the `@smoke` scenarios.
 - `pnpm e2e:wip` runs scenarios still being built.
 - `pnpm lint:features` checks the feature files with gherkin-lint.
+- `pnpm --filter @offgrid/e2e test` runs the unit tests of the harness and factories.
 
-`BASE_URL` sets the server address (default `http://127.0.0.1:3000`).
+The stack is `infra/compose/docker-compose.yml`, limited to the `db`, `init` and `server` services. Each run uses a unique compose project name, so runs do not share containers or data.
+
+### Environment
+
+- `E2E_SERVER_PORT` is the host port the stack publishes the server on (default `3000`). Set it when another stack already uses 3000, for example `E2E_SERVER_PORT=3100 pnpm e2e`.
+- `BASE_URL` overrides the URL the tests target (default `http://127.0.0.1:<E2E_SERVER_PORT>`).
+- `E2E_REUSE_STACK=1` skips bring-up and teardown and tests a stack that is already running on the target URL. Use it for a fast local loop, for example `E2E_REUSE_STACK=1 pnpm e2e:smoke`.
+
+To keep a stack running while you iterate, start and stop it by hand:
+
+```bash
+pnpm e2e:stack:up
+E2E_REUSE_STACK=1 pnpm e2e:smoke
+pnpm e2e:stack:down
+```
+
+Manual commands use the project name `offgrid-e2e-local` and the `E2E_SERVER_PORT` port.
+
+## Debugging a failure
+
+A failed run writes its artifacts under `e2e/artifacts/` (gitignored):
+
+- `artifacts/test-results/<scenario>/trace.zip`: the Playwright trace. Open it with `pnpm exec playwright show-trace <path>`.
+- `artifacts/test-results/<scenario>/`: screenshots, videos and the error context of the failing scenario.
+- `artifacts/service-logs.txt`: the server and database logs of the stack, with timestamps, written when the first scenario fails.
+- `artifacts/report/`: the HTML report, when `CI` is set.
 
 ## Conventions
 

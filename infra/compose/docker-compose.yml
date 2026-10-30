@@ -71,7 +71,7 @@ services:
     volumes:
       - ../../data/secrets/app-password:/run/secrets/app-password:ro
     ports:
-      - "3000:3000"
+      - "${OFFGRID_SERVER_PORT:-3000}:3000"
     healthcheck:
       test:
         - CMD

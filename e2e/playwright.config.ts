@@ -3,6 +3,7 @@
 
 import { defineConfig, devices } from "@playwright/test";
 import { defineBddConfig } from "playwright-bdd";
+import { targetBaseUrl } from "./support/stack.js";
 
 const testDir = defineBddConfig({
   featuresRoot: "features",
@@ -12,13 +13,22 @@ const testDir = defineBddConfig({
 
 export default defineConfig({
   testDir,
+  globalSetup: "./support/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
+  outputDir: "artifacts/test-results",
+  reporter: process.env.CI
+    ? [
+        ["list"],
+        ["html", { open: "never", outputFolder: "artifacts/report" }],
+        ["./support/failure-artifacts.ts"],
+      ]
+    : [["list"], ["./support/failure-artifacts.ts"]],
   use: {
-    baseURL: process.env.BASE_URL ?? "http://127.0.0.1:3000",
+    baseURL: targetBaseUrl(),
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
