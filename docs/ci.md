@@ -7,20 +7,22 @@ branch is cancelled when a new commit lands.
 
 ## Jobs
 
-| Job          | What it checks                                               | Local command                                                                                       |
-| ------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `lint`       | ESLint across the workspace, and Prettier formatting         | `pnpm lint && pnpm format:check`                                                                    |
-| `typecheck`  | TypeScript across the workspace                              | `pnpm typecheck`                                                                                    |
-| `test`       | Vitest in every package, and the repo script tests           | `pnpm test`                                                                                         |
-| `contracts`  | Released event schemas and the committed `openapi.json`      | `pnpm check:contracts`                                                                              |
-| `boundaries` | Module boundary rules, see `docs/architecture/boundaries.md` | `pnpm check:boundaries`                                                                             |
-| `license`    | SPDX headers, REUSE compliance and the DCO sign-off          | `pnpm license:headers:check && pnpm reuse:lint && pnpm dco:check`                                   |
-| `secrets`    | gitleaks over the full git history                           | `gitleaks git --config .gitleaks.toml --redact --exit-code 1 .` (or the Docker command in `ci.yml`) |
-| `audit`      | Known vulnerabilities in dependencies, high severity and up  | `pnpm audit:deps`                                                                                   |
+| Job          | What it checks                                                               | Local command                                                                                       |
+| ------------ | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `lint`       | ESLint across the workspace, Prettier formatting, and the telemetry denylist | `pnpm lint && pnpm format:check && pnpm check:no-telemetry`                                         |
+| `typecheck`  | TypeScript across the workspace                                              | `pnpm typecheck`                                                                                    |
+| `test`       | Vitest in every package, and the repo script tests                           | `pnpm test`                                                                                         |
+| `contracts`  | Released event schemas and the committed `openapi.json`                      | `pnpm check:contracts`                                                                              |
+| `boundaries` | Module boundary rules, see `docs/architecture/boundaries.md`                 | `pnpm check:boundaries`                                                                             |
+| `license`    | SPDX headers, REUSE compliance and the DCO sign-off                          | `pnpm license:headers:check && pnpm reuse:lint && pnpm dco:check`                                   |
+| `secrets`    | gitleaks over the full git history                                           | `gitleaks git --config .gitleaks.toml --redact --exit-code 1 .` (or the Docker command in `ci.yml`) |
+| `audit`      | Known vulnerabilities in dependencies, high severity and up                  | `pnpm audit:deps`                                                                                   |
 
 `pnpm test` runs the package tests through Turborepo and then `pnpm test:scripts`.
 `pnpm dco:check` checks `origin/main..HEAD`. Pass another range to check it
 instead, for example `pnpm dco:check main..HEAD`.
+
+The telemetry denylist check is described in `docs/privacy-guards.md`.
 
 Turborepo caches task output between runs in `node_modules/.cache/turbo`. The
 pnpm store is cached by `actions/setup-node`. Remote caching is not enabled.

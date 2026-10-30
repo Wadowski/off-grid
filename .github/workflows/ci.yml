@@ -34,6 +34,7 @@ jobs:
           restore-keys: turbo-lint-
       - run: pnpm lint
       - run: pnpm lint:features
+      - run: pnpm check:no-telemetry
       - run: pnpm format:check
 
   typecheck:
