@@ -2,11 +2,13 @@ packages:
   - "apps/*"
   - "modules/*"
   - "packages/*"
+  - "e2e"
 allowBuilds:
   esbuild: true
   lefthook: true
   prisma: true
   "@prisma/engines": true
+  core-js: false
   cpu-features: false
   protobufjs: false
   ssh2: false

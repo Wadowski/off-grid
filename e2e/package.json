@@ -1,0 +1,18 @@
+{
+  "name": "@offgrid/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "e2e": "bddgen && playwright test --grep-invert @wip",
+    "e2e:smoke": "bddgen && playwright test --grep @smoke",
+    "e2e:wip": "bddgen && playwright test --grep @wip",
+    "lint:features": "gherkin-lint --config .gherkin-lintrc.json \"features/**/*.feature\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "gherkin-lint": "^4.2.4",
+    "playwright-bdd": "^9.2.1"
+  }
+}
