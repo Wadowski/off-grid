@@ -6,6 +6,6 @@ import { isMemberOf } from "./is-member-of.js";
 
 export const grantedAccesses = (subject: Subject, resource: Resource): AccessType[] => {
   return resource.grants
-    .filter((grant) => isMemberOf(subject, grant.group.id))
+    .filter((grant) => isMemberOf(subject, grant.group))
     .map((grant) => grant.access);
 };

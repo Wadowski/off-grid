@@ -6,6 +6,27 @@ datasource db {
   schemas  = ["identity", "family", "access", "calendar", "lists", "notes", "files", "food", "relations", "notifications", "export", "outbox"]
 }
 
+model Family {
+  familyId  String   @id @map("family_id") @db.Uuid
+  name      String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  members   FamilyMember[]
+
+  @@schema("family")
+  @@map("family")
+}
+
+model FamilyMember {
+  familyId String   @map("family_id") @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamptz(6)
+  family   Family   @relation(fields: [familyId], references: [familyId])
+
+  @@id([familyId, userId])
+  @@schema("family")
+  @@map("family_member")
+}
+
 generator client {
   provider            = "prisma-client"
   output              = "../../../node_modules/.prisma/offgrid-db"

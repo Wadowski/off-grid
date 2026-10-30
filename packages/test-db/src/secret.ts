@@ -3,6 +3,4 @@
 
 import { randomBytes } from "node:crypto";
 
-export const secret = (): string => {
-  return randomBytes(24).toString("hex");
-};
+export const secret = (): string => randomBytes(24).toString("hex");

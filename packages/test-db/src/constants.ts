@@ -7,4 +7,6 @@ export const INIT_SCRIPTS = [
   "../../../infra/init/sql/03-bus-membership.sql",
 ];
 
-export const APP_SCHEMAS = ["outbox", "family"] as const;
+export const CONTAINER_IMAGE = "postgres:16-alpine";
+
+export const POOL_MAX = 4;

@@ -17,7 +17,7 @@ describe("family HTTP routes", () => {
   beforeAll(async () => {
     db = await startFamilyTestDatabase();
     const context = {
-      pool: db.pool,
+      db: db.db,
       currentUserId: (request: FastifyRequest) => {
         const header = request.headers[USER_HEADER];
         return typeof header === "string" ? header : null;
@@ -112,7 +112,7 @@ describe("family HTTP routes", () => {
     expect(response.json()).toEqual(created);
   });
 
-  it("denies a family to a user who is not a member", async () => {
+  it("hides a family from a user who is not a member", async () => {
     const created = await createFamily(randomUUID(), "Novak family");
 
     const response = await app.inject({
@@ -121,8 +121,8 @@ describe("family HTTP routes", () => {
       headers: { [USER_HEADER]: randomUUID() },
     });
 
-    expect(response.statusCode).toBe(403);
-    expect(response.json().code).toBe("ACCESS_DENIED");
+    expect(response.statusCode).toBe(404);
+    expect(response.json().code).toBe("NOT_FOUND");
   });
 
   it("reports an unknown family as not found", async () => {

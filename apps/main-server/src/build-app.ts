@@ -10,16 +10,18 @@ import { registerRequestHooks } from "./register-request-hooks.js";
 import { RATE_WINDOW_MS } from "./constants.js";
 import { registerErrorHandling } from "./register-error-handling.js";
 import { registerApiRoutes } from "./register-api-routes.js";
+import { anonymousContext } from "./anonymous-context.js";
 
 export const buildApp = async ({
   config,
   runtime,
   modules,
+  identity = anonymousContext,
 }: AppOptions): Promise<FastifyInstance> => {
   const expectedMigrations = await loadExpectedMigrations(modules);
   const app = Fastify({ logger: false });
 
-  registerRequestHooks(app, config, runtime);
+  registerRequestHooks(app, identity, runtime);
   await app.register(rateLimit, {
     global: true,
     max: config.rateLimitPerMinute,

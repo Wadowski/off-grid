@@ -22,8 +22,11 @@ export type {
   DatabaseTarget,
   Migration,
   MigrationSource,
+  ModuleDatabase,
+  ModuleTransaction,
   OwnershipScope,
   SettingExecutor,
 } from "./types.js";
 export { provisionLoginRole } from "./provision-login-role.js";
 export { quoteIdent } from "./quote-ident.js";
+export { rawSqlExecutor } from "./raw-sql-executor.js";

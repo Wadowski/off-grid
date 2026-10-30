@@ -1,14 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ClientBase } from "pg";
 import { type AnyEventDefinition, parseEvent } from "@offgrid/contracts";
-import type { PublishOptions, NewEvent } from "./types.js";
+import type { NewEvent, PublishOptions, SqlExecutor } from "./types.js";
 import { ownerOf } from "./owner-of.js";
 import { appendEvent } from "./append-event.js";
 
 export const publish = async (
-  tx: ClientBase,
+  tx: SqlExecutor,
   definition: AnyEventDefinition,
   input: unknown,
   options: PublishOptions = {},

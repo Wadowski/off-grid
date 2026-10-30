@@ -3,8 +3,10 @@
 
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
-import type { FamilyTestDatabase } from "../../test/types.js";
+import {
+  startFamilyTestDatabase,
+  type FamilyTestDatabase,
+} from "../../test/start-family-test-database.js";
 import { createFamily } from "./create-family.js";
 import { getFamily } from "./get-family.js";
 
@@ -25,21 +27,18 @@ describe("getFamily", () => {
 
   it("returns the family to a member", async () => {
     const creator = randomUUID();
-    const family = await createFamily(db.pool, creator, "Novak family");
+    const family = await createFamily(db.db, creator, "Novak family");
 
-    expect(await getFamily(db.pool, creator, family.id)).toEqual({
-      outcome: "found",
-      value: family,
-    });
+    expect(await getFamily(db.db, creator, family.id)).toEqual({ outcome: "found", value: family });
   });
 
-  it("forbids a user who is not a member", async () => {
-    const family = await createFamily(db.pool, randomUUID(), "Novak family");
+  it("reports a family to a non-member as not found", async () => {
+    const family = await createFamily(db.db, randomUUID(), "Novak family");
 
-    expect(await getFamily(db.pool, randomUUID(), family.id)).toEqual({ outcome: "forbidden" });
+    expect(await getFamily(db.db, randomUUID(), family.id)).toEqual({ outcome: "not-found" });
   });
 
-  it("reports a family that does not exist", async () => {
-    expect(await getFamily(db.pool, randomUUID(), randomUUID())).toEqual({ outcome: "not-found" });
+  it("reports a family that does not exist as not found", async () => {
+    expect(await getFamily(db.db, randomUUID(), randomUUID())).toEqual({ outcome: "not-found" });
   });
 });

@@ -9,7 +9,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { FAMILY_MIGRATION_DIRECTORY } from "../test/family-migration-directory.js";
 import type { StubOptions } from "../test/types.js";
 import { buildApp } from "./build-app.js";
-import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
+import type { IdentityResolver, ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
+import { userIdSchema } from "@offgrid/contracts";
 
 const baseConfig: ServerConfig = {
   http: { host: "127.0.0.1", port: 0 },
@@ -21,7 +22,6 @@ const baseConfig: ServerConfig = {
     password: "unused",
     poolMax: 1,
   },
-  devIdentity: false,
   rateLimitPerMinute: 1000,
   logLevel: "error",
 };
@@ -54,6 +54,8 @@ const stubRuntime = ({
     eventBus: {} as EventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
+    database: { host: "unused", port: 5432, database: "unused", password: "unused" },
+    moduleDatabases: new Map(),
     state: { publisherRunning, draining: false },
   };
   return { runtime, errorSink };
@@ -81,12 +83,27 @@ const probeModule: ModuleDescriptor = {
 
 const apps: FastifyInstance[] = [];
 
+const testIdentity: IdentityResolver = (headers) => {
+  const userId = headers["x-offgrid-user-id"];
+  return {
+    userId: typeof userId === "string" ? userIdSchema.parse(userId) : null,
+    familyId: null,
+    accessGroupIds: [],
+  };
+};
+
 const build = async (
   overrides: Partial<ServerConfig>,
   runtime: ServerRuntime,
   modules: readonly ModuleDescriptor[] = [probeModule],
+  identity?: IdentityResolver,
 ): Promise<FastifyInstance> => {
-  const app = await buildApp({ config: { ...baseConfig, ...overrides }, runtime, modules });
+  const app = await buildApp({
+    config: { ...baseConfig, ...overrides },
+    runtime,
+    modules,
+    identity,
+  });
   apps.push(app);
   return app;
 };
@@ -204,9 +221,9 @@ describe("request pipeline", () => {
     expect(response.headers["x-trace-id"]).toMatch(/^[0-9a-f-]{36}$/);
   });
 
-  it("ignores identity headers when the dev identity stub is off", async () => {
+  it("ignores identity headers unless a resolver is configured", async () => {
     const { runtime } = stubRuntime();
-    const app = await build({ devIdentity: false }, runtime);
+    const app = await build({}, runtime);
 
     const response = await app.inject({
       method: "GET",
@@ -217,9 +234,9 @@ describe("request pipeline", () => {
     expect(response.json()).toEqual({ userId: null, familyId: null, accessGroupIds: [] });
   });
 
-  it("exposes the stubbed identity to routes when the dev identity stub is on", async () => {
+  it("exposes the identity from the configured resolver to routes", async () => {
     const { runtime } = stubRuntime();
-    const app = await build({ devIdentity: true }, runtime);
+    const app = await build({}, runtime, [probeModule], testIdentity);
 
     const response = await app.inject({
       method: "GET",

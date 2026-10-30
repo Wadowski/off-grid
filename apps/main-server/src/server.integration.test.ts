@@ -13,7 +13,6 @@ let database: TestDatabase;
 const configFor = (db: TestDatabase): ServerConfig => ({
   http: { host: "127.0.0.1", port: 0 },
   database: db.connection,
-  devIdentity: false,
   rateLimitPerMinute: 1000,
   logLevel: "error",
 });

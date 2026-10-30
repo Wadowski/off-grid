@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FamilyRow, Family } from "../types.js";
+import type { Family, FamilyRecord } from "../types.js";
 
-export const toFamily = (row: FamilyRow): Family => ({
-  id: row.family_id,
-  name: row.name,
-  createdAt: row.created_at.toISOString(),
+export const toFamily = (record: FamilyRecord): Family => ({
+  id: record.familyId,
+  name: record.name,
+  createdAt: record.createdAt.toISOString(),
 });

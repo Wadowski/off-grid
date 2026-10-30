@@ -6,5 +6,5 @@ import { isMemberOf } from "./is-member-of.js";
 import { OWNER_ACCESS } from "./constants.js";
 
 export const ownerAccess = (subject: Subject, resource: Resource): AccessType | undefined => {
-  return isMemberOf(subject, resource.owner.id) ? OWNER_ACCESS : undefined;
+  return isMemberOf(subject, resource.owner) ? OWNER_ACCESS : undefined;
 };

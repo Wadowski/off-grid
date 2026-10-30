@@ -60,6 +60,10 @@ export interface ReplayOptions {
   readonly batchSize?: number;
 }
 
+export interface SqlExecutor {
+  query<Row = unknown>(text: string, values?: unknown[]): Promise<{ rows: Row[] }>;
+}
+
 export interface PublishOptions {
   readonly userId?: string;
 }

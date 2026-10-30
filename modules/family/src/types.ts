@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ReadOutcome } from "@offgrid/access-control";
 import type { CurrentUserId } from "@offgrid/http";
-import type { Pool } from "pg";
+import type { ModuleDatabase } from "@offgrid/db";
 
 export interface Family {
   readonly id: string;
@@ -16,10 +15,10 @@ export interface FamilySummary {
   readonly name: string;
 }
 
-export interface FamilyRow {
-  readonly family_id: string;
+export interface FamilyRecord {
+  readonly familyId: string;
   readonly name: string;
-  readonly created_at: Date;
+  readonly createdAt: Date;
 }
 
 export interface NewFamily {
@@ -33,12 +32,8 @@ export interface FamilyCreatedInput {
   readonly creatorUserId: string;
 }
 
-export type FamilyPool = Pick<Pool, "connect">;
-
-export type GetFamilyOutcome = ReadOutcome<Family>;
-
 export interface FamilyRouteContext {
-  readonly pool: FamilyPool;
+  readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
 }
 

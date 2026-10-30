@@ -18,7 +18,7 @@ Owner: platform team
 For each schema `<m>`:
 
 - `<m>_owner` owns the schema and runs the module's migrations. NOLOGIN.
-- `<m>_app` is the runtime role. DML on its own schema only. Login is provisioned from a secret.
+- `<m>_app` is the runtime role. DML on its own schema only. Login is provisioned from a secret. Each module connects with its own login through `createModuleDb`; the event bus connects as `outbox_app`, which can assume the module roles to deliver events.
 - `offgrid_migrator` is a member of every owner role. It runs the migration runner and keeps the history in `public.schema_migrations`.
 
 ## Migrations

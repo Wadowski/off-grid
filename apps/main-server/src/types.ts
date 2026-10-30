@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { IncomingHttpHeaders } from "node:http";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { z } from "zod";
-import type { MigrationSource } from "@offgrid/db";
+import type { DatabaseTarget, MigrationSource, ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { ErrorSink, LogLevel, Logger } from "@offgrid/observability";
 import type { Pool } from "pg";
@@ -21,7 +22,6 @@ export interface DatabaseConnection {
 export interface ServerConfig {
   readonly http: { readonly host: string; readonly port: number };
   readonly database: DatabaseConnection;
-  readonly devIdentity: boolean;
   readonly rateLimitPerMinute: number;
   readonly logLevel: LogLevel;
 }
@@ -31,7 +31,7 @@ export type ReadSecretFile = (path: string) => string;
 export interface ModuleContext {
   readonly eventBus: EventBus;
   readonly logger: Logger;
-  readonly pool: Pick<Pool, "connect">;
+  readonly db: ModuleDatabase;
   readonly currentUserId: (request: FastifyRequest) => string | null;
 }
 
@@ -56,16 +56,21 @@ interface RuntimeState {
 
 export interface ServerRuntime {
   readonly pool: Pick<Pool, "query" | "end" | "connect">;
+  readonly database: DatabaseTarget;
+  readonly moduleDatabases: Map<string, ModuleDatabase>;
   readonly eventBus: EventBus;
   readonly errorSink: ErrorSink;
   readonly logger: Logger;
   readonly state: RuntimeState;
 }
 
+export type IdentityResolver = (headers: IncomingHttpHeaders) => RequestContext;
+
 export interface AppOptions {
   readonly config: ServerConfig;
   readonly runtime: ServerRuntime;
   readonly modules: readonly ModuleDescriptor[];
+  readonly identity?: IdentityResolver;
 }
 
 export interface AppliedMigrationRow {

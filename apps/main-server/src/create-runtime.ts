@@ -26,6 +26,13 @@ export const createRuntime = (config: ServerConfig): ServerRuntime => {
     eventBus: createEventBus({ pool, errorSink }),
     errorSink,
     logger,
+    database: {
+      host: config.database.host,
+      port: config.database.port,
+      database: config.database.name,
+      password: config.database.password,
+    },
+    moduleDatabases: new Map(),
     state: { publisherRunning: false, draining: false },
   };
 };

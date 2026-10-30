@@ -1,3 +1,4 @@
+import { disconnectModuleDatabases } from "./disconnect-module-databases.js";
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
@@ -18,6 +19,7 @@ export const shutDown = async (
       runtime.state.publisherRunning = false;
     },
     () => runtime.pool.end(),
+    () => disconnectModuleDatabases(runtime),
   ];
   const failures: unknown[] = [];
   for (const step of steps) {

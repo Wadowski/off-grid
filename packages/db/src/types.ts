@@ -1,3 +1,4 @@
+import type { Prisma, PrismaClient } from "../../../node_modules/.prisma/offgrid-db/client.js";
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
@@ -7,6 +8,10 @@ import type { OWNERSHIP_SCOPES } from "./constants.js";
 export type DatabaseSchema = (typeof DATABASE_SCHEMAS)[number];
 
 export type OwnershipScope = (typeof OWNERSHIP_SCOPES)[number];
+
+export type ModuleDatabase = PrismaClient;
+
+export type ModuleTransaction = Prisma.TransactionClient;
 
 export interface SettingExecutor {
   $executeRawUnsafe(query: string, ...values: unknown[]): PromiseLike<unknown>;

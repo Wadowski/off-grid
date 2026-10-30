@@ -3,8 +3,10 @@
 
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
-import type { FamilyTestDatabase } from "../../test/types.js";
+import {
+  startFamilyTestDatabase,
+  type FamilyTestDatabase,
+} from "../../test/start-family-test-database.js";
 import { createFamily } from "./create-family.js";
 
 describe("createFamily", () => {
@@ -25,7 +27,7 @@ describe("createFamily", () => {
   it("stores the family with its creator as the first member and an outbox event", async () => {
     const creator = randomUUID();
 
-    const family = await createFamily(db.pool, creator, "Novak family");
+    const family = await createFamily(db.db, creator, "Novak family");
 
     expect(family.name).toBe("Novak family");
     const { rows: members } = await db.admin.query(

@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
-import type { ServerConfig, ServerRuntime } from "./types.js";
+import type { IdentityResolver, ServerRuntime } from "./types.js";
 import { resolveTraceId, runWithTrace } from "@offgrid/observability";
-import { resolveRequestContext } from "./resolve-request-context.js";
 import { routeOf } from "./route-of.js";
 
 export const registerRequestHooks = (
   app: FastifyInstance,
-  config: ServerConfig,
+  identity: IdentityResolver,
   runtime: ServerRuntime,
 ): void => {
   app.addHook("onRequest", (request, reply, done) => {
@@ -18,7 +17,7 @@ export const registerRequestHooks = (
     runWithTrace(traceId, () => done());
   });
   app.addHook("onRequest", async (request) => {
-    request.requestContext = resolveRequestContext(request.headers, config.devIdentity);
+    request.requestContext = identity(request.headers);
   });
   app.addHook("onResponse", async (request, reply) => {
     runtime.logger.info("request completed", {

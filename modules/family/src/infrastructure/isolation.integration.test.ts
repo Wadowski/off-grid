@@ -3,13 +3,11 @@
 
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
-import type { FamilyTestDatabase } from "../../test/types.js";
-import { insertFamily } from "./insert-family.js";
-import { insertMembership } from "./insert-membership.js";
-import { setFamilyContext } from "./set-family-context.js";
-import { setUserContext } from "./set-user-context.js";
-import { withFamilyTransaction } from "./with-family-transaction.js";
+import { withFamilyContext, withUserContext } from "@offgrid/db";
+import {
+  startFamilyTestDatabase,
+  type FamilyTestDatabase,
+} from "../../test/start-family-test-database.js";
 
 describe("family schema isolation", () => {
   let db: FamilyTestDatabase;
@@ -29,20 +27,18 @@ describe("family schema isolation", () => {
   it("shows a family row only inside its own family context", async () => {
     const familyA = randomUUID();
     const familyB = randomUUID();
-    await withFamilyTransaction(db.pool, async (client) => {
-      await setFamilyContext(client, familyA);
-      await insertFamily(client, { id: familyA, name: "A" });
+    await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyA);
+      await tx.family.create({ data: { familyId: familyA, name: "A" } });
     });
 
-    const visibleToB = await withFamilyTransaction(db.pool, async (client) => {
-      await setFamilyContext(client, familyB);
-      const { rows } = await client.query("SELECT family_id FROM family.family");
-      return rows;
+    const visibleToB = await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyB);
+      return tx.family.findMany();
     });
-    const visibleToA = await withFamilyTransaction(db.pool, async (client) => {
-      await setFamilyContext(client, familyA);
-      const { rows } = await client.query("SELECT family_id FROM family.family");
-      return rows;
+    const visibleToA = await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyA);
+      return tx.family.findMany();
     });
 
     expect(visibleToB).toEqual([]);
@@ -51,15 +47,12 @@ describe("family schema isolation", () => {
 
   it("shows no rows when no family context is set", async () => {
     const familyId = randomUUID();
-    await withFamilyTransaction(db.pool, async (client) => {
-      await setFamilyContext(client, familyId);
-      await insertFamily(client, { id: familyId, name: "Kitchen" });
+    await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyId);
+      await tx.family.create({ data: { familyId, name: "Kitchen" } });
     });
 
-    const rows = await withFamilyTransaction(db.pool, async (client) => {
-      const { rows: found } = await client.query("SELECT family_id FROM family.family");
-      return found;
-    });
+    const rows = await db.db.$transaction((tx) => tx.family.findMany());
 
     expect(rows).toEqual([]);
   });
@@ -69,10 +62,10 @@ describe("family schema isolation", () => {
     const otherFamilyId = randomUUID();
 
     await expect(
-      withFamilyTransaction(db.pool, async (client) => {
-        await setFamilyContext(client, familyId);
-        await insertFamily(client, { id: familyId, name: "Kitchen" });
-        await insertMembership(client, otherFamilyId, randomUUID());
+      db.db.$transaction(async (tx) => {
+        await withFamilyContext(tx, familyId);
+        await tx.family.create({ data: { familyId, name: "Kitchen" } });
+        await tx.familyMember.create({ data: { familyId: otherFamilyId, userId: randomUUID() } });
       }),
     ).rejects.toThrow(/row-level security/);
   });
@@ -80,32 +73,28 @@ describe("family schema isolation", () => {
   it("shows a user only the memberships that name them", async () => {
     const familyId = randomUUID();
     const owner = randomUUID();
-    await withFamilyTransaction(db.pool, async (client) => {
-      await setFamilyContext(client, familyId);
-      await insertFamily(client, { id: familyId, name: "Kitchen" });
-      await insertMembership(client, familyId, owner);
+    await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyId);
+      await tx.family.create({ data: { familyId, name: "Kitchen" } });
+      await tx.familyMember.create({ data: { familyId, userId: owner } });
     });
 
-    const seenByOther = await withFamilyTransaction(db.pool, async (client) => {
-      await setUserContext(client, randomUUID());
-      const { rows } = await client.query("SELECT user_id FROM family.family_member");
-      return rows;
+    const seenByOther = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, randomUUID());
+      return tx.familyMember.findMany();
     });
-    const seenByOwner = await withFamilyTransaction(db.pool, async (client) => {
-      await setUserContext(client, owner);
-      const { rows } = await client.query("SELECT user_id FROM family.family_member");
-      return rows;
+    const seenByOwner = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, owner);
+      return tx.familyMember.findMany();
     });
 
     expect(seenByOther).toEqual([]);
-    expect(seenByOwner).toEqual([{ user_id: owner }]);
+    expect(seenByOwner.map((member) => member.userId)).toEqual([owner]);
   });
 
   it("refuses the module role access to another module's schema", async () => {
     await expect(
-      withFamilyTransaction(db.pool, async (client) => {
-        await client.query("SELECT 1 FROM outbox.event");
-      }),
+      db.db.$transaction((tx) => tx.$queryRawUnsafe("SELECT 1 FROM outbox.event")),
     ).rejects.toThrow(/permission denied/);
   });
 });

@@ -7,6 +7,7 @@ Owner: module team (family)
 ## Schema and role
 
 - Schema `family`, owner role `family_owner` (runs the migrations), runtime role `family_app` (DML on its own schema only).
+- Data access uses a Prisma client for this module, created by `createModuleDb` and logged in as `family_app` ([ADR 0008](../../docs/adr/0008-prisma-multi-schema.md)). Each request runs in a Prisma transaction that sets the request context with `withUserContext` or `withFamilyContext`. The outbox write uses `rawSqlExecutor` in the same transaction.
 - `family.family` (scope `family`): one row per family, keyed by `family_id`.
 - `family.family_member` (scope `family`): membership. The creator is the first member; invitations are out of scope.
 - Read policies (migration 0002): a user sees their own `family_member` rows, and the `family` rows of families they belong to. `GET /families` relies on these, so it needs no projection.
@@ -16,7 +17,7 @@ Migrations live in [src/infrastructure/migrations](src/infrastructure/migrations
 ## HTTP (under `/api`)
 
 - `POST /families`: body `{ name }`, trimmed, 1 to 100 characters. Returns 201 with the family.
-- `GET /families/:id`: 200 for a member, 403 `ACCESS_DENIED` for a family the caller cannot view, 404 `NOT_FOUND` when it does not exist.
+- `GET /families/:id`: 200 for a member. Non-members get 404 `NOT_FOUND`, the same as for a family that does not exist, so the response does not reveal which families exist. Membership is checked under the caller's user context before the family context is set.
 - `GET /families`: the caller's families, read through the membership policies (no projection).
 
 Errors use the shared codes from [packages/http](../../packages/http/README.md): `UNAUTHENTICATED`, `VALIDATION_FAILED`, `NOT_FOUND`, `ACCESS_DENIED`.

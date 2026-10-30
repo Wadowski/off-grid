@@ -4,7 +4,6 @@
 import type { ReadSecretFile, ServerConfig } from "./types.js";
 import { readSecretFileUtf8 } from "./read-secret-file-utf8.js";
 import { environmentSchema } from "./environment-schema.js";
-import { LOOPBACK_HOSTS } from "./loopback-hosts.js";
 import { ConfigError } from "./config-error.js";
 import { readRequiredSecret } from "./read-required-secret.js";
 
@@ -20,11 +19,6 @@ export const loadConfig = (
     throw new ConfigError(`invalid configuration: ${problems}`);
   }
   const values = parsed.data;
-  if (values.OFFGRID_DEV_IDENTITY && !LOOPBACK_HOSTS.has(values.OFFGRID_HTTP_HOST)) {
-    throw new ConfigError(
-      "OFFGRID_DEV_IDENTITY=true is only allowed when OFFGRID_HTTP_HOST is a loopback address",
-    );
-  }
 
   return {
     http: { host: values.OFFGRID_HTTP_HOST, port: values.OFFGRID_HTTP_PORT },
@@ -40,7 +34,6 @@ export const loadConfig = (
       ),
       poolMax: values.OFFGRID_DATABASE_POOL_MAX,
     },
-    devIdentity: values.OFFGRID_DEV_IDENTITY,
     rateLimitPerMinute: values.OFFGRID_RATE_LIMIT_PER_MINUTE,
     logLevel: values.OFFGRID_LOG_LEVEL,
   };

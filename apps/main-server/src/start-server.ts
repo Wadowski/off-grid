@@ -7,6 +7,7 @@ import { createRuntime } from "./create-runtime.js";
 import { registerSubscribersAndCollectWorkers } from "./register-subscribers-and-collect-workers.js";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "./build-app.js";
+import { disconnectModuleDatabases } from "./disconnect-module-databases.js";
 import { shutDown } from "./shut-down.js";
 import { startWorkers } from "./start-workers.js";
 import { baseUrlOf } from "./base-url-of.js";
@@ -23,7 +24,7 @@ export const startServer = async (
   try {
     app = await buildApp({ config, runtime, modules });
   } catch (error) {
-    await runtime.pool.end();
+    await Promise.all([runtime.pool.end(), disconnectModuleDatabases(runtime)]);
     throw error;
   }
 
