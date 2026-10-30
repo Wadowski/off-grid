@@ -3,7 +3,8 @@
 
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { startFamilyTestDatabase, type FamilyTestDatabase } from "../../test/postgres.js";
+import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
+import type { FamilyTestDatabase } from "../../test/types.js";
 import { createFamily } from "./create-family.js";
 
 describe("createFamily", () => {

@@ -3,7 +3,8 @@
 
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { startFamilyTestDatabase, type FamilyTestDatabase } from "../../test/postgres.js";
+import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
+import type { FamilyTestDatabase } from "../../test/types.js";
 import { setFamilyContext } from "../infrastructure/set-family-context.js";
 import { withFamilyTransaction } from "../infrastructure/with-family-transaction.js";
 import { publishFamilyCreated } from "./publish-family-created.js";
@@ -29,13 +30,23 @@ describe("family events", () => {
     await expect(
       withFamilyTransaction(db.pool, async (client) => {
         await setFamilyContext(client, familyId);
-        await client.query("INSERT INTO family.family (family_id, name) VALUES ($1, 'Rolled back')", [familyId]);
-        await publishFamilyCreated(client, { familyId, name: "Rolled back", creatorUserId: randomUUID() });
+        await client.query(
+          "INSERT INTO family.family (family_id, name) VALUES ($1, 'Rolled back')",
+          [familyId],
+        );
+        await publishFamilyCreated(client, {
+          familyId,
+          name: "Rolled back",
+          creatorUserId: randomUUID(),
+        });
         throw new Error("change failed");
       }),
     ).rejects.toThrow("change failed");
 
-    const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM outbox.event WHERE family_id = $1", [familyId]);
+    const { rows } = await db.admin.query(
+      "SELECT count(*)::int AS n FROM outbox.event WHERE family_id = $1",
+      [familyId],
+    );
     expect(rows[0]).toEqual({ n: 0 });
   });
 
@@ -44,11 +55,20 @@ describe("family events", () => {
 
     await withFamilyTransaction(db.pool, async (client) => {
       await setFamilyContext(client, familyId);
-      await client.query("INSERT INTO family.family (family_id, name) VALUES ($1, 'Committed')", [familyId]);
-      await publishFamilyCreated(client, { familyId, name: "Committed", creatorUserId: randomUUID() });
+      await client.query("INSERT INTO family.family (family_id, name) VALUES ($1, 'Committed')", [
+        familyId,
+      ]);
+      await publishFamilyCreated(client, {
+        familyId,
+        name: "Committed",
+        creatorUserId: randomUUID(),
+      });
     });
 
-    const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM outbox.event WHERE family_id = $1", [familyId]);
+    const { rows } = await db.admin.query(
+      "SELECT count(*)::int AS n FROM outbox.event WHERE family_id = $1",
+      [familyId],
+    );
     expect(rows[0]).toEqual({ n: 1 });
   });
 });

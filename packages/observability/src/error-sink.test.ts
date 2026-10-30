@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { createMemoryErrorSink } from "./error-sink.js";
-import { runWithTrace } from "./trace.js";
+import { createMemoryErrorSink } from "./create-memory-error-sink.js";
+import { runWithTrace } from "./run-with-trace.js";
 
 describe("createMemoryErrorSink", () => {
   it("stores the error name, trace id and redacted context, but not the message", () => {

@@ -14,5 +14,6 @@ paths:
 - DO write a function's dependencies as leading parameters, not as a closure, so each file stands alone: `export const getFamily = async (pool, viewerUserId, familyId) => ...`.
 - DON'T put a named function in `index.ts`. It only re-exports.
 - Inline callbacks passed as arguments (`rows.map((row) => ...)`) stay inline when they are a single expression.
-- Error subclasses stay classes; they are types, not functions. Put them in their own file.
+- Error subclasses may stay classes. Any other class is rewritten as functions and closures, since its methods are functions.
+- Test files (`*.test.ts`) keep their helper functions beside the tests that use them. Those helpers are still arrow functions.
 - Test files follow [testing.md](testing.md): one `describe` per unit, not one file per test.

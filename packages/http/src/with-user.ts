@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FastifyReply, FastifyRequest } from "fastify";
-import { sendUnauthenticated } from "./send-unauthenticated.js";
 import type { CurrentUserId } from "./types.js";
+import type { FastifyRequest, FastifyReply } from "fastify";
+import { sendUnauthenticated } from "./send-unauthenticated.js";
 
 export const withUser =
   (

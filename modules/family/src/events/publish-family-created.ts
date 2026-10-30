@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { randomUUID } from "node:crypto";
-import { familyCreatedV1 } from "@offgrid/contracts";
-import { publish } from "@offgrid/event-bus";
-import { currentTraceId, resolveTraceId } from "@offgrid/observability";
 import type { ClientBase } from "pg";
 import type { FamilyCreatedInput } from "../types.js";
+import { publish } from "@offgrid/event-bus";
+import { familyCreatedV1 } from "@offgrid/contracts";
+import { randomUUID } from "node:crypto";
+import { currentTraceId, resolveTraceId } from "@offgrid/observability";
 
 export const publishFamilyCreated = async (
   client: ClientBase,

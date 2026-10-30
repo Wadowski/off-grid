@@ -3,7 +3,7 @@
 
 import type { Client, Pool } from "pg";
 import type { EventOf } from "../src/types.js";
-import type { familyCreated } from "./events.js";
+import type { familyCreated } from "./family-created.js";
 
 export type AppSchema = "outbox" | "family";
 

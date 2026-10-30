@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { z } from "zod";
-import type { eventEnvelopeSchema } from "./envelope.js";
-import type {
-  accessGroupIdSchema,
-  errorResponseSchema,
-  familyIdSchema,
-  timestampSchema,
-  userIdSchema,
-} from "./primitives.js";
+import type { eventEnvelopeSchema } from "./event-envelope-schema.js";
+import type { accessGroupIdSchema } from "./access-group-id-schema.js";
+import type { errorResponseSchema } from "./error-response-schema.js";
+import type { familyIdSchema } from "./family-id-schema.js";
+import type { timestampSchema } from "./timestamp-schema.js";
+import type { userIdSchema } from "./user-id-schema.js";
 
 export type FamilyId = z.infer<typeof familyIdSchema>;
 export type UserId = z.infer<typeof userIdSchema>;

@@ -3,7 +3,8 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { buildOpenApiDocument, renderOpenApi } from "./openapi.js";
+import { buildOpenApiDocument } from "./build-open-api-document.js";
+import { renderOpenApi } from "./render-open-api.js";
 
 describe("buildOpenApiDocument", () => {
   it("publishes the shared HTTP schemas as components", () => {

@@ -3,7 +3,7 @@
 
 import { fileURLToPath } from "node:url";
 import type { FastifyInstance } from "fastify";
-import { registerFamilyRoutes } from "./http/family-routes.js";
+import { registerFamilyRoutes } from "./http/register-family-routes.js";
 import type { FamilyModuleContext } from "./types.js";
 
 export const familyModule = {

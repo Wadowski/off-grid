@@ -6,11 +6,11 @@ Owner: platform team
 
 ## Layout
 
-- `src/primitives.ts`: id schemas (`FamilyId`, `UserId`, `AccessGroupId`), timestamps and the error response shape (`code` plus `message`).
-- `src/events.ts`: `defineEvent`, the event envelope and `parseEvent`. Names are kebab-case and end in `-v<version>`, for example `family-created-v1`.
-- `src/registry.ts`: every event defined in this package. Add each new event here.
-- `src/released.ts`: compares the live event schemas with the released snapshot.
-- `src/openapi.ts`: builds the OpenAPI document from the shared schemas.
+- `src/uuid-schema.ts`, `src/family-id-schema.ts` and the other id and timestamp schemas: id schemas (`FamilyId`, `UserId`, `AccessGroupId`), timestamps and the error response shape (`code` plus `message`), in `src/error-response-schema.ts`.
+- `src/define-event.ts`, `src/parse-event.ts` and `src/event-envelope-schema.ts`: `defineEvent`, the event envelope and `parseEvent`. Names are kebab-case and end in `-v<version>`, for example `family-created-v1`.
+- `src/event-definitions.ts`: every event defined in this package. Add each new event here.
+- `src/compare-released-events.ts`: compares the live event schemas with the released snapshot.
+- `src/build-open-api-document.ts`: builds the OpenAPI document from the shared schemas.
 - `released-events.json`: snapshot of released event schemas. Committed; never hand-edit an existing entry.
 - `openapi.json`: generated OpenAPI document. Committed; never hand-edit.
 

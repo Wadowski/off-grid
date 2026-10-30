@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { appRoleOf, quoteIdent } from "@offgrid/db";
-import type { PoolClient } from "pg";
 import type { FamilyPool } from "../types.js";
+import type { PoolClient } from "pg";
+import { appRoleOf, quoteIdent } from "@offgrid/db";
 
 export const withFamilyTransaction = async <T>(
   pool: FamilyPool,

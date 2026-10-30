@@ -101,3 +101,18 @@ export interface NewEvent {
 }
 
 export type SourceVersionDecision = "apply" | "duplicate" | "stale" | "gap";
+
+export type Deliver = () => Promise<void>;
+
+export type OnNotification = () => void;
+
+export interface DeliveryLoopState {
+  running: boolean;
+  loop: Promise<void> | undefined;
+  wake: OnNotification | undefined;
+}
+
+export interface DeliveryLoop {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+}

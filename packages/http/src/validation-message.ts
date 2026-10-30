@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { z } from "zod";
-
-const MAX_MESSAGE_LENGTH = 500;
+import { MAX_MESSAGE_LENGTH } from "./constants.js";
 
 export const validationMessage = (error: z.ZodError): string =>
   error.issues

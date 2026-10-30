@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./testing": "./src/test-builders.ts"
+    "./testing": "./src/testing.ts"
   },
   "scripts": {
     "build": "tsc -b",

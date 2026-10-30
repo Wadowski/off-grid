@@ -31,4 +31,4 @@ All under `/api`:
 
 ## Modules
 
-Modules are listed explicitly in `src/module-list.ts`. A module exports a descriptor with `name`, optional `migrations`, `registerRoutes`, `registerSubscribers` and `workers`. The server validates names and rejects duplicates at startup.
+Modules are listed explicitly in `MODULES` in `src/constants.ts`. A module exports a descriptor with `name`, optional `migrations`, `registerRoutes`, `registerSubscribers` and `workers`. The server validates names and rejects duplicates at startup.

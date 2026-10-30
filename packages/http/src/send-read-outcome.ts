@@ -3,8 +3,8 @@
 
 import type { FastifyReply } from "fastify";
 import type { ReadOutcome } from "@offgrid/access-control";
-import { sendAccessDenied } from "./send-access-denied.js";
 import { sendNotFound } from "./send-not-found.js";
+import { sendAccessDenied } from "./send-access-denied.js";
 
 export const sendReadOutcome = <Value>(reply: FastifyReply, outcome: ReadOutcome<Value>) => {
   if (outcome.outcome === "not-found") {

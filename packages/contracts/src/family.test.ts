@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { createFamilyRequestSchema, familyNameSchema } from "./family.js";
+import { createFamilyRequestSchema } from "./create-family-request-schema.js";
+import { familyNameSchema } from "./family-name-schema.js";
 
 describe("familyNameSchema", () => {
   it("keeps a name of 1 to 100 characters, without surrounding spaces", () => {

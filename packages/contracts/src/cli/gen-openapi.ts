@@ -3,7 +3,7 @@
 
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { renderOpenApi } from "../openapi.js";
+import { renderOpenApi } from "../render-open-api.js";
 
 const target = fileURLToPath(new URL("../../openapi.json", import.meta.url));
 writeFileSync(target, renderOpenApi());

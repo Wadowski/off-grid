@@ -3,9 +3,11 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { eventDefinitions } from "../registry.js";
-import { renderOpenApi } from "../openapi.js";
-import { canonicalJson, compareReleasedEvents, currentEventSchemas } from "../released.js";
+import { eventDefinitions } from "../event-definitions.js";
+import { renderOpenApi } from "../render-open-api.js";
+import { canonicalJson } from "../canonical-json.js";
+import { compareReleasedEvents } from "../compare-released-events.js";
+import { currentEventSchemas } from "../current-event-schemas.js";
 import type { EventSchemas } from "../types.js";
 
 const update = process.argv.includes("--update");

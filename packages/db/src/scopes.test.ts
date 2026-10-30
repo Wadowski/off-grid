@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { scopeViolation } from "./scopes.js";
+import { scopeViolation } from "./scope-violation.js";
 
 const declared = (
   scope: string,

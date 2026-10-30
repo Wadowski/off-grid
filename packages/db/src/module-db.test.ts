@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { moduleConnectionString } from "./module-db.js";
-import { quoteIdent } from "./sql.js";
+import { moduleConnectionString } from "./module-connection-string.js";
+import { quoteIdent } from "./quote-ident.js";
 
 const target = { host: "db.internal", port: 5432, database: "offgrid", password: "p@ss:w/rd#1" };
 

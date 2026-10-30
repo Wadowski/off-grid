@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { can, highestAccess, visibleTo } from "./access.js";
-import { buildFamilyGroup, buildResource, buildSubject, buildUserGroup } from "./test-builders.js";
+import { can } from "./can.js";
+import { highestAccess } from "./highest-access.js";
+import { visibleTo } from "./visible-to.js";
+import { buildFamilyGroup } from "./build-family-group.js";
+import { buildResource } from "./build-resource.js";
+import { buildSubject } from "./build-subject.js";
+import { buildUserGroup } from "./build-user-group.js";
 import type { AccessType, Action } from "./types.js";
 
 const familyA = buildFamilyGroup("family-a");

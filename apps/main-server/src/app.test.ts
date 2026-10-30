@@ -6,9 +6,9 @@ import { loadMigrations } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/observability";
 import { afterEach, describe, expect, it } from "vitest";
-import { FAMILY_MIGRATION_DIRECTORY } from "../test/fixtures.js";
+import { FAMILY_MIGRATION_DIRECTORY } from "../test/family-migration-directory.js";
 import type { StubOptions } from "../test/types.js";
-import { buildApp } from "./app.js";
+import { buildApp } from "./build-app.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
 
 const baseConfig: ServerConfig = {
@@ -31,11 +31,11 @@ const USER_ID = "11111111-1111-4111-8111-111111111111";
 const familySource = { schema: "family" as const, directory: FAMILY_MIGRATION_DIRECTORY };
 const familyModule: ModuleDescriptor = { name: "family", migrations: [familySource] };
 
-function stubRuntime({
+const stubRuntime = ({
   queryResult = "ok",
   publisherRunning = true,
   ledgerRows = [],
-}: StubOptions = {}) {
+}: StubOptions = {}) => {
   const errorSink = createMemoryErrorSink();
   const pool = {
     query: async (text: string) => {
@@ -57,11 +57,11 @@ function stubRuntime({
     state: { publisherRunning, draining: false },
   };
   return { runtime, errorSink };
-}
+};
 
 const probeModule: ModuleDescriptor = {
   name: "probe",
-  registerRoutes(api) {
+  registerRoutes: (api) => {
     api.get("/probe/trace", async () => ({ traceId: currentTraceId() }));
     api.get("/probe/identity", async (request) => request.requestContext);
     api.get("/probe/fail", async () => {
@@ -81,15 +81,15 @@ const probeModule: ModuleDescriptor = {
 
 const apps: FastifyInstance[] = [];
 
-async function build(
+const build = async (
   overrides: Partial<ServerConfig>,
   runtime: ServerRuntime,
   modules: readonly ModuleDescriptor[] = [probeModule],
-): Promise<FastifyInstance> {
+): Promise<FastifyInstance> => {
   const app = await buildApp({ config: { ...baseConfig, ...overrides }, runtime, modules });
   apps.push(app);
   return app;
-}
+};
 
 afterEach(async () => {
   await Promise.all(apps.splice(0).map((app) => app.close()));
@@ -246,7 +246,7 @@ describe("request pipeline", () => {
     const { runtime } = stubRuntime();
     const leakyModule: ModuleDescriptor = {
       name: "probe",
-      registerRoutes(api) {
+      registerRoutes: (api) => {
         api.get("/probe/conflict", async () => {
           throw Object.assign(new Error("row owned by user 9f2c"), { statusCode: 409 });
         });

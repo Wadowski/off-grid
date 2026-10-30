@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { ConfigError, loadConfig } from "./config.js";
+import { ConfigError } from "./config-error.js";
+import { loadConfig } from "./load-config.js";
 
 const requiredEnv: NodeJS.ProcessEnv = {
   OFFGRID_DATABASE_HOST: "db.internal",

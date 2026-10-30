@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ClientBase } from "pg";
-import type { Family, FamilyRow, NewFamily } from "../types.js";
-import { requireRow } from "./require-row.js";
+import type { NewFamily, Family, FamilyRow } from "../types.js";
 import { toFamily } from "./to-family.js";
+import { requireRow } from "./require-row.js";
 
 export const insertFamily = async (client: ClientBase, family: NewFamily): Promise<Family> => {
   const { rows } = await client.query<FamilyRow>(

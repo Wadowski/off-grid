@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { ApiError } from "./errors.js";
-import { resolveRequestContext } from "./request-context.js";
+import { ApiError } from "./api-error.js";
+import { resolveRequestContext } from "./resolve-request-context.js";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 const FAMILY_ID = "22222222-2222-4222-8222-222222222222";
