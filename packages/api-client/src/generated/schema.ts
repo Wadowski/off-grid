@@ -27,11 +27,6 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
-        FamilySummary: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-        };
         FamilyList: {
             families: {
                 /** Format: uuid */
