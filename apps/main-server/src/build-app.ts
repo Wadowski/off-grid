@@ -19,7 +19,10 @@ export const buildApp = async ({
   identity = anonymousContext,
 }: AppOptions): Promise<FastifyInstance> => {
   const expectedMigrations = await loadExpectedMigrations(modules);
-  const app = Fastify({ logger: false });
+  const app = Fastify({
+    logger: false,
+    trustProxy: config.trustedProxies.length > 0 ? [...config.trustedProxies] : false,
+  });
 
   registerRequestHooks(app, identity, runtime);
   await app.register(rateLimit, {

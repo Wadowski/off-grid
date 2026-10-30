@@ -2,23 +2,28 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Client, Pool } from "pg";
-import type { DatabaseSchema, DatabaseTarget, ModuleDatabase } from "@offgrid/db";
 
 export interface MigrationDirectory {
-  readonly schema: DatabaseSchema;
+  readonly schema: string;
   readonly directory: string;
 }
 
 export interface StartOptions {
-  readonly schemas: readonly DatabaseSchema[];
+  readonly schemas: readonly string[];
   readonly migrations: readonly MigrationDirectory[];
+}
+
+export interface DatabaseTarget {
+  readonly host: string;
+  readonly port: number;
+  readonly database: string;
+  readonly password: string;
 }
 
 export interface TestDatabase {
   readonly admin: Client;
   readonly target: DatabaseTarget;
-  connect(schema: DatabaseSchema): Pool;
-  connectClient(schema: DatabaseSchema): Promise<Client>;
-  moduleDb(schema: DatabaseSchema): ModuleDatabase;
+  connect(schema: string): Pool;
+  connectClient(schema: string): Promise<Client>;
   stop(): Promise<void>;
 }

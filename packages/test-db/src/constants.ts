@@ -5,6 +5,7 @@ export const INIT_SCRIPTS = [
   "../../../infra/init/sql/01-roles-and-schemas.sql",
   "../../../infra/init/sql/02-scope-helpers.sql",
   "../../../infra/init/sql/03-bus-membership.sql",
+  "../../../infra/init/sql/04-migration-ledger-read.sql",
 ];
 
 export const CONTAINER_IMAGE = "postgres:16-alpine";

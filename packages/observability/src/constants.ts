@@ -31,6 +31,9 @@ export const SENSITIVE_WORDS = [
   "jwt",
   "credential",
   "ssn",
+  "email",
+  "phone",
+  "birth",
 ];
 
 export const TRACE_ID_PATTERN = /^[A-Za-z0-9._-]{1,128}$/;

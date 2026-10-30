@@ -22,6 +22,7 @@ const baseConfig: ServerConfig = {
     password: "unused",
     poolMax: 1,
   },
+  trustedProxies: [],
   rateLimitPerMinute: 1000,
   logLevel: "error",
 };

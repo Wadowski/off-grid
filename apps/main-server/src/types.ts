@@ -22,6 +22,7 @@ export interface DatabaseConnection {
 export interface ServerConfig {
   readonly http: { readonly host: string; readonly port: number };
   readonly database: DatabaseConnection;
+  readonly trustedProxies: readonly string[];
   readonly rateLimitPerMinute: number;
   readonly logLevel: LogLevel;
 }

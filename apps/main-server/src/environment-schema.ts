@@ -16,6 +16,15 @@ export const environmentSchema = z.object({
     .default("outbox_app"),
   OFFGRID_DATABASE_PASSWORD_FILE: z.string().min(1),
   OFFGRID_DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
+  OFFGRID_TRUSTED_PROXIES: z
+    .string()
+    .default("")
+    .transform((value) =>
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0),
+    ),
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

@@ -34,6 +34,7 @@ export const loadConfig = (
       ),
       poolMax: values.OFFGRID_DATABASE_POOL_MAX,
     },
+    trustedProxies: values.OFFGRID_TRUSTED_PROXIES,
     rateLimitPerMinute: values.OFFGRID_RATE_LIMIT_PER_MINUTE,
     logLevel: values.OFFGRID_LOG_LEVEL,
   };

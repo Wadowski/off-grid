@@ -26,6 +26,7 @@ describe("loadConfig", () => {
         password: "s3cret",
         poolMax: 10,
       },
+      trustedProxies: [],
       rateLimitPerMinute: 300,
       logLevel: "info",
     });

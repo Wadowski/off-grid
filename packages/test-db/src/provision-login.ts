@@ -2,14 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Client } from "pg";
-import { appRoleOf, type DatabaseSchema } from "@offgrid/db";
 
 export const provisionLogin = async (
   admin: Client,
-  schema: DatabaseSchema,
+  role: string,
   password: string,
 ): Promise<void> => {
-  await admin.query(
-    `ALTER ROLE "${appRoleOf(schema)}" LOGIN PASSWORD ${admin.escapeLiteral(password)}`,
-  );
+  await admin.query(`ALTER ROLE "${role}" LOGIN PASSWORD ${admin.escapeLiteral(password)}`);
 };

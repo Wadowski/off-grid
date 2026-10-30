@@ -4,11 +4,10 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { Client } from "pg";
-import { ownerRoleOf, quoteIdent, type DatabaseSchema } from "@offgrid/db";
 
 export const applyMigrations = async (
   admin: Client,
-  schema: DatabaseSchema,
+  schema: string,
   directory: string,
 ): Promise<void> => {
   const names = (await readdir(directory)).filter((name) => name.endsWith(".sql")).sort();
@@ -16,7 +15,7 @@ export const applyMigrations = async (
     const sql = await readFile(join(directory, name), "utf8");
     await admin.query("BEGIN");
     try {
-      await admin.query(`SET LOCAL ROLE ${quoteIdent(ownerRoleOf(schema))}`);
+      await admin.query(`SET LOCAL ROLE "${schema}_owner"`);
       await admin.query(sql);
       await admin.query("COMMIT");
     } catch (error) {

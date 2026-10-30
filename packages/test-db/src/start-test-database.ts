@@ -3,13 +3,12 @@
 
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { Client, Pool } from "pg";
-import { appRoleOf, createModuleDb, type DatabaseSchema, type DatabaseTarget } from "@offgrid/db";
 import { applyMigrations } from "./apply-migrations.js";
 import { CONTAINER_IMAGE, POOL_MAX } from "./constants.js";
 import { provisionLogin } from "./provision-login.js";
 import { runInitScripts } from "./run-init-scripts.js";
 import { secret } from "./secret.js";
-import type { StartOptions, TestDatabase } from "./types.js";
+import type { DatabaseTarget, StartOptions, TestDatabase } from "./types.js";
 
 export const startTestDatabase = async ({
   schemas,
@@ -24,7 +23,7 @@ export const startTestDatabase = async ({
     await admin.connect();
     await runInitScripts(admin);
     for (const schema of schemas) {
-      await provisionLogin(admin, schema, password);
+      await provisionLogin(admin, `${schema}_app`, password);
     }
     for (const migration of migrations) {
       await applyMigrations(admin, migration.schema, migration.directory);
@@ -43,12 +42,11 @@ export const startTestDatabase = async ({
   };
   const pools: Pool[] = [];
   const clients: Client[] = [];
-  const moduleDatabases: ReturnType<typeof createModuleDb>[] = [];
-  const connectionFor = (schema: DatabaseSchema) => ({
+  const connectionFor = (schema: string) => ({
     host: target.host,
     port: target.port,
     database: target.database,
-    user: appRoleOf(schema),
+    user: `${schema}_app`,
     password,
   });
 
@@ -66,16 +64,10 @@ export const startTestDatabase = async ({
       clients.push(client);
       return client;
     },
-    moduleDb: (schema) => {
-      const db = createModuleDb(target, schema);
-      moduleDatabases.push(db);
-      return db;
-    },
     stop: async () => {
       await Promise.all([
         ...pools.map((pool) => pool.end()),
         ...clients.map((client) => client.end()),
-        ...moduleDatabases.map((db) => db.$disconnect()),
       ]);
       await admin.end();
       await container.stop();
