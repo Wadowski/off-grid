@@ -22,16 +22,20 @@ The request context is supplied by the server middleware. This package never rea
 - `can(subject, action, resource)` is true when `highestAccess` meets or exceeds the action. It denies by default: an unknown action or a missing grant returns `false`.
 - `visibleTo(subject)` returns `{ groupIds }`. A repository lists rows where the owner group or a grant group is one of these ids. Any membership gives at least `view`.
 
+## Test builders
+
+`@offgrid/access-control/testing` exports `buildUserGroup`, `buildFamilyGroup`, `buildSubject` and `buildResource` for table-driven tests. Production code never imports it.
+
 ## Example
 
 ```ts
+import { can } from "@offgrid/access-control";
 import {
-  can,
   buildFamilyGroup,
   buildResource,
   buildSubject,
   buildUserGroup,
-} from "@offgrid/access-control";
+} from "@offgrid/access-control/testing";
 
 const family = buildFamilyGroup("family-1");
 const bob = buildSubject({ userId: "bob", groups: [buildUserGroup("bob"), family] });

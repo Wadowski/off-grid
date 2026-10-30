@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export { can, highestAccess, visibleTo } from "./access.js";
-export { buildFamilyGroup, buildResource, buildSubject, buildUserGroup } from "./test-builders.js";
 export type {
   AccessGrant,
   AccessGroup,
