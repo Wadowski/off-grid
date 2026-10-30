@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { errorResponseSchema, familyIdSchema, timestampSchema } from "./primitives.js";
+import { errorResponseSchema } from "./error-response-schema.js";
+import { familyIdSchema } from "./family-id-schema.js";
+import { timestampSchema } from "./timestamp-schema.js";
 
 const uuid = "0b7e6f0e-3c1a-4d2b-9f5e-8a1c2d3e4f50";
 

@@ -13,8 +13,9 @@ import {
   type EventBus,
   type HandlerContext,
 } from "./index.js";
-import { familyCreated } from "../test/events.js";
-import { startTestDatabase } from "../test/postgres.js";
+import { familyCreated } from "../test/family-created.js";
+import { startTestDatabase } from "../test/start-test-database.js";
+import { waitFor } from "../test/wait-for.js";
 import type { FamilyCreated, TestDatabase } from "../test/types.js";
 
 const FAMILY_ID = randomUUID();
@@ -22,7 +23,7 @@ const FAMILY_ID = randomUUID();
 const RESET_TABLES =
   "TRUNCATE outbox.event, outbox.subscriber_cursor, outbox.dead_letter, family.family_summary RESTART IDENTITY";
 
-function envelope(sourceVersion: number, name: string, familyId: string | null = FAMILY_ID) {
+const envelope = (sourceVersion: number, name: string, familyId: string | null = FAMILY_ID) => {
   return {
     id: randomUUID(),
     type: familyCreated.name,
@@ -33,9 +34,9 @@ function envelope(sourceVersion: number, name: string, familyId: string | null =
     sourceVersion,
     payload: { name },
   };
-}
+};
 
-async function publishCommitted(pool: Pool, input: ReturnType<typeof envelope>): Promise<void> {
+const publishCommitted = async (pool: Pool, input: ReturnType<typeof envelope>): Promise<void> => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -44,11 +45,11 @@ async function publishCommitted(pool: Pool, input: ReturnType<typeof envelope>):
   } finally {
     client.release();
   }
-}
+};
 
-async function storedName(
+const storedName = async (
   pool: Pool,
-): Promise<{ name: string; source_version: string } | undefined> {
+): Promise<{ name: string; source_version: string } | undefined> => {
   const client = await pool.connect();
   try {
     await client.query("SELECT set_config('app.family_id', $1, false)", [FAMILY_ID]);
@@ -60,9 +61,9 @@ async function storedName(
   } finally {
     client.release();
   }
-}
+};
 
-async function projectFamily(event: FamilyCreated, { tx }: HandlerContext): Promise<void> {
+const projectFamily = async (event: FamilyCreated, { tx }: HandlerContext): Promise<void> => {
   if (event.familyId === null) {
     throw new Error("family projection needs a family");
   }
@@ -86,17 +87,7 @@ async function projectFamily(event: FamilyCreated, { tx }: HandlerContext): Prom
        SET name = EXCLUDED.name, source_version = EXCLUDED.source_version`,
     [event.familyId, event.payload.name, event.sourceVersion],
   );
-}
-
-async function waitFor(condition: () => boolean, timeoutMs = 5000): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  while (!condition()) {
-    if (Date.now() > deadline) {
-      throw new Error("condition was not met in time");
-    }
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-}
+};
 
 describe("publish", () => {
   let db: TestDatabase;
@@ -176,7 +167,12 @@ describe("delivery", () => {
   beforeEach(async () => {
     await db.admin.query(RESET_TABLES);
     errors = createMemoryErrorSink();
-    bus = createEventBus({ pool: outbox, errorSink: errors, retryDelayMs: () => 0 });
+    bus = createEventBus({
+      pool: outbox,
+      poolForRole: db.connect,
+      errorSink: errors,
+      retryDelayMs: () => 0,
+    });
   });
 
   it("delivers each event to every subscriber", async () => {
@@ -225,6 +221,51 @@ describe("delivery", () => {
     expect(roles).toEqual(["family_app"]);
   });
 
+  it("does not let a handler read the event stream or switch to the bus role", async () => {
+    const refusals: string[] = [];
+    bus.subscribe({
+      name: "escape-check",
+      event: familyCreated,
+      runAs: "family",
+      handler: async (_event, { tx }) => {
+        for (const probe of [
+          "SELECT * FROM outbox.events_after(0, NULL, 10)",
+          "SET ROLE outbox_app",
+        ]) {
+          await tx.query("SAVEPOINT probe");
+          await tx.query(probe).catch(async (error: Error) => {
+            refusals.push(error.message);
+            await tx.query("ROLLBACK TO SAVEPOINT probe");
+          });
+        }
+      },
+    });
+    await publishCommitted(family, envelope(1, "Escape"));
+
+    await bus.deliverPending();
+
+    expect(refusals).toEqual([
+      expect.stringMatching(/permission denied/),
+      expect.stringMatching(/permission denied/),
+    ]);
+  });
+
+  it("refuses to subscribe or replay a handler as the bus role", async () => {
+    const handler = async () => undefined;
+    expect(() =>
+      bus.subscribe({ name: "as-bus", event: familyCreated, runAs: "outbox", handler }),
+    ).toThrow(/invalid module name/);
+    await expect(
+      replayEvents(
+        { event: familyCreated, runAs: "outbox", handler },
+        {
+          pool: outbox,
+          poolForRole: db.connect,
+        },
+      ),
+    ).rejects.toThrow(/invalid module name/);
+  });
+
   it("retries a failing handler three times, then dead-letters the event", async () => {
     const handler = vi.fn(async () => {
       throw new Error("projection unavailable");
@@ -232,7 +273,6 @@ describe("delivery", () => {
     bus.subscribe({ name: "flaky", event: familyCreated, runAs: "family", handler });
     await publishCommitted(family, envelope(1, "Broken"));
 
-    await bus.deliverPending();
     await bus.deliverPending();
 
     expect(handler).toHaveBeenCalledTimes(3);
@@ -292,7 +332,7 @@ describe("delivery", () => {
 
     await db.admin.query("TRUNCATE family.family_summary");
     expect(await storedName(family)).toBeUndefined();
-    const replayed = await replayEvents(subscription, { pool: outbox });
+    const replayed = await replayEvents(subscription, { pool: outbox, poolForRole: db.connect });
 
     expect(replayed).toBe(2);
     expect(await storedName(family)).toEqual(before);
@@ -320,6 +360,7 @@ describe("delivery", () => {
     const listener = await db.connectClient("outbox");
     const loopBus = createEventBus({
       pool: outbox,
+      poolForRole: db.connect,
       listener,
       errorSink: errors,
       pollIntervalMs: 50,
@@ -348,7 +389,12 @@ describe("delivery", () => {
   it("stays stopped when the notification listener cannot start", async () => {
     const listener = await db.connectClient("outbox");
     await listener.end();
-    const loopBus = createEventBus({ pool: outbox, listener, errorSink: errors });
+    const loopBus = createEventBus({
+      pool: outbox,
+      poolForRole: db.connect,
+      listener,
+      errorSink: errors,
+    });
 
     await expect(loopBus.start()).rejects.toThrow();
     await expect(loopBus.stop()).resolves.toBeUndefined();

@@ -2,22 +2,24 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { cssVar, tokens, tokensStylesheet } from "./tokens.js";
+import { cssVar } from "./css-var.js";
+import { tokens } from "./tokens.js";
+import { tokensStylesheet } from "./tokens-stylesheet.js";
 
-function relativeLuminance(hex: string): number {
+const relativeLuminance = (hex: string): number => {
   const [red, green, blue] = [1, 3, 5].map((offset) => {
     const channel = Number.parseInt(hex.slice(offset, offset + 2), 16) / 255;
     return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * (red ?? 0) + 0.7152 * (green ?? 0) + 0.0722 * (blue ?? 0);
-}
+};
 
-function contrastRatio(foreground: string, background: string): number {
+const contrastRatio = (foreground: string, background: string): number => {
   const [lighter, darker] = [relativeLuminance(foreground), relativeLuminance(background)].sort(
     (first, second) => second - first,
   );
   return (lighter + 0.05) / (darker + 0.05);
-}
+};
 
 type ColorName = keyof typeof tokens.color.light;
 

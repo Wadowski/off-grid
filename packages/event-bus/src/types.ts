@@ -15,7 +15,7 @@ export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition>
   readonly name: string;
   readonly event: D;
   readonly runAs: string;
-  readonly handler: (event: EventOf<D>, context: HandlerContext) => Promise<void>;
+  handler(event: EventOf<D>, context: HandlerContext): Promise<void>;
 }
 
 export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinition> {
@@ -24,6 +24,7 @@ export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinitio
 
 export interface EventBusOptions {
   readonly pool: Pool;
+  readonly poolForRole: (runAs: string) => Pool;
   readonly errorSink: ErrorSink;
   readonly listener?: Client;
   readonly maxAttempts?: number;
@@ -47,6 +48,7 @@ export interface EventBus {
 
 export interface DeliverySettings {
   readonly pool: Pool;
+  readonly handlerPoolFor: (runAs: string) => Pool;
   readonly errorSink: ErrorSink;
   readonly maxAttempts: number;
   readonly retryDelayMs: (attempt: number) => number;
@@ -54,10 +56,13 @@ export interface DeliverySettings {
   readonly pollIntervalMs: number;
 }
 
-export interface ReplayOptions {
-  readonly pool: Pool;
+export interface ReplayOptions extends Pick<EventBusOptions, "pool" | "poolForRole"> {
   readonly fromSequence?: number;
   readonly batchSize?: number;
+}
+
+export interface SqlExecutor {
+  query<Row = unknown>(text: string, values?: unknown[]): Promise<{ rows: Row[] }>;
 }
 
 export interface PublishOptions {
@@ -101,3 +106,18 @@ export interface NewEvent {
 }
 
 export type SourceVersionDecision = "apply" | "duplicate" | "stale" | "gap";
+
+export type Deliver = () => Promise<void>;
+
+export type OnNotification = () => void;
+
+export interface DeliveryLoopState {
+  running: boolean;
+  loop: Promise<void> | undefined;
+  wake: OnNotification | undefined;
+}
+
+export interface DeliveryLoop {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+}

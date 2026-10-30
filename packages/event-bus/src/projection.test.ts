@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { classifySourceVersion } from "./projection.js";
+import { classifySourceVersion } from "./classify-source-version.js";
 
 describe("classifySourceVersion", () => {
   it("applies the first event of a stream at version 1", () => {

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { createRedactor } from "./redact.js";
+import { createRedactor } from "./create-redactor.js";
 
 const REDACTED = "[REDACTED]";
 const redact = createRedactor();

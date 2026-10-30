@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { createLogger } from "./logger.js";
-import { runWithTrace } from "./trace.js";
+import { createLogger } from "./create-logger.js";
+import { runWithTrace } from "./run-with-trace.js";
 
 const fixedNow = () => new Date("2026-10-29T12:00:00.000Z");
 
-function capture() {
+const capture = () => {
   const lines: Record<string, unknown>[] = [];
   return {
     lines,
@@ -15,7 +15,7 @@ function capture() {
       lines.push(JSON.parse(line) as Record<string, unknown>);
     },
   };
-}
+};
 
 describe("createLogger", () => {
   it("writes one JSON object per record with level, time and message", () => {
@@ -26,7 +26,7 @@ describe("createLogger", () => {
 
   it("includes the current trace id, module and family id when known", () => {
     const { lines, sink } = capture();
-    const logger = createLogger({ sink, now: fixedNow, module: "family" });
+    const logger = createLogger({ sink, now: fixedNow, bindings: { module: "family" } });
     runWithTrace("trace-7", () => {
       logger.child({ family_id: "fam-1" }).warn("hello", { count: 2 });
     });

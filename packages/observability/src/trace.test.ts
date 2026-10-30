@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { currentTraceId, resolveTraceId, runWithTrace } from "./trace.js";
+import { currentTraceId } from "./current-trace-id.js";
+import { resolveTraceId } from "./resolve-trace-id.js";
+import { runWithTrace } from "./run-with-trace.js";
 
 describe("resolveTraceId", () => {
   it("generates a new id each time when none is given", () => {

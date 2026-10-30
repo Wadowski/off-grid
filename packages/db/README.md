@@ -18,7 +18,7 @@ Owner: platform team
 For each schema `<m>`:
 
 - `<m>_owner` owns the schema and runs the module's migrations. NOLOGIN.
-- `<m>_app` is the runtime role. DML on its own schema only. Login is provisioned from a secret.
+- `<m>_app` is the runtime role. DML on its own schema only. Login is provisioned from a secret. Each module connects with its own login through `createModuleDb`; the event bus connects as `outbox_app`, which reads the event stream and advances cursors through definer functions. Each subscriber's handler runs on its own module login, so the bus holds no module privileges ([ADR 0014](../../docs/adr/0014-subscriber-handlers-on-module-logins.md)).
 - `offgrid_migrator` is a member of every owner role. It runs the migration runner and keeps the history in `public.schema_migrations`.
 
 ## Migrations
@@ -37,3 +37,5 @@ Scopes: `family-or-user`, `family`, `user`, `shared` (see ADR 0009). The helper 
 ## Request context
 
 RLS policies read `app.family_id` and `app.user_id`, set per transaction with `withFamilyContext` and `withUserContext`. Unset means no rows (fail closed). These helpers only set the context. Whether the caller may act for that family is checked by `packages/access-control`.
+
+RLS limits what a query can see for the context it was given. It does not stop code that holds a module login from setting another family's id. Deciding whether a caller may act for a family is the application's job, through `packages/access-control`.

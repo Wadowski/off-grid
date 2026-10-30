@@ -3,16 +3,21 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { eventDefinitions } from "../registry.js";
-import { renderOpenApi } from "../openapi.js";
-import { canonicalJson, compareReleasedEvents, currentEventSchemas } from "../released.js";
+import { eventDefinitions } from "../event-definitions.js";
+import { renderOpenApi } from "../render-open-api.js";
+import { canonicalJson } from "../canonical-json.js";
+import { compareReleasedEvents } from "../compare-released-events.js";
+import { currentEventSchemas } from "../current-event-schemas.js";
+import { releasedSnapshotSchema } from "../released-snapshot-schema.js";
 import type { EventSchemas } from "../types.js";
 
 const update = process.argv.includes("--update");
 const snapshotPath = fileURLToPath(new URL("../../released-events.json", import.meta.url));
 const openApiPath = fileURLToPath(new URL("../../openapi.json", import.meta.url));
 
-const released = JSON.parse(readFileSync(snapshotPath, "utf8")) as EventSchemas;
+const released: EventSchemas = releasedSnapshotSchema.parse(
+  JSON.parse(readFileSync(snapshotPath, "utf8")),
+);
 const current = currentEventSchemas(eventDefinitions);
 const { changed, missing, added } = compareReleasedEvents(released, current);
 
@@ -35,7 +40,13 @@ if (failures.length > 0) {
 
 if (update && added.length > 0) {
   const next: EventSchemas = { ...released };
-  for (const name of added) next[name] = current[name]!;
+  for (const name of added) {
+    const definition = current[name];
+    if (definition === undefined) {
+      throw new Error(`event ${name} is missing from the live schemas`);
+    }
+    next[name] = definition;
+  }
   const ordered = Object.fromEntries(Object.entries(next).sort(([a], [b]) => (a < b ? -1 : 1)));
   writeFileSync(snapshotPath, `${canonicalJson(ordered)}\n`);
   console.log(`Recorded ${added.length} new event(s) in released-events.json.`);

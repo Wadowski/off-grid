@@ -6,10 +6,11 @@ import { loadMigrations } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/observability";
 import { afterEach, describe, expect, it } from "vitest";
-import { FAMILY_MIGRATION_DIRECTORY } from "../test/fixtures.js";
+import { FAMILY_MIGRATION_DIRECTORY } from "../test/family-migration-directory.js";
 import type { StubOptions } from "../test/types.js";
-import { buildApp } from "./app.js";
-import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
+import { buildApp } from "./build-app.js";
+import type { IdentityResolver, ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
+import { userIdSchema } from "@offgrid/contracts";
 
 const baseConfig: ServerConfig = {
   http: { host: "127.0.0.1", port: 0 },
@@ -21,7 +22,7 @@ const baseConfig: ServerConfig = {
     password: "unused",
     poolMax: 1,
   },
-  devIdentity: false,
+  trustedProxies: [],
   rateLimitPerMinute: 1000,
   logLevel: "error",
 };
@@ -31,11 +32,11 @@ const USER_ID = "11111111-1111-4111-8111-111111111111";
 const familySource = { schema: "family" as const, directory: FAMILY_MIGRATION_DIRECTORY };
 const familyModule: ModuleDescriptor = { name: "family", migrations: [familySource] };
 
-function stubRuntime({
+const stubRuntime = ({
   queryResult = "ok",
   publisherRunning = true,
   ledgerRows = [],
-}: StubOptions = {}) {
+}: StubOptions = {}) => {
   const errorSink = createMemoryErrorSink();
   const pool = {
     query: async (text: string) => {
@@ -45,20 +46,28 @@ function stubRuntime({
       return { rows: text.includes("schema_migrations") ? ledgerRows : [] };
     },
     end: async () => undefined,
+    connect: async () => {
+      throw new Error("connect is not used by these tests");
+    },
   };
   const runtime: ServerRuntime = {
     pool,
-    eventBus: {} as EventBus,
+    eventBus: unusedEventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
+    moduleDatabases: new Map(),
+    modulePools: new Map(),
+    poolForRole: () => {
+      throw new Error("module pools are not used by these tests");
+    },
     state: { publisherRunning, draining: false },
   };
   return { runtime, errorSink };
-}
+};
 
 const probeModule: ModuleDescriptor = {
   name: "probe",
-  registerRoutes(api) {
+  registerRoutes: (api) => {
     api.get("/probe/trace", async () => ({ traceId: currentTraceId() }));
     api.get("/probe/identity", async (request) => request.requestContext);
     api.get("/probe/fail", async () => {
@@ -78,15 +87,51 @@ const probeModule: ModuleDescriptor = {
 
 const apps: FastifyInstance[] = [];
 
-async function build(
+const testIdentity: IdentityResolver = (headers) => {
+  const userId = headers["x-offgrid-user-id"];
+  return {
+    userId: typeof userId === "string" ? userIdSchema.parse(userId) : null,
+    familyId: null,
+    accessGroupIds: [],
+  };
+};
+
+const unusedEventBus: EventBus = {
+  subscribe: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  subscribeTransport: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  deliverPending: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  start: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  stop: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+  prune: () => {
+    throw new Error("the event bus is not used by these tests");
+  },
+};
+
+const build = async (
   overrides: Partial<ServerConfig>,
   runtime: ServerRuntime,
   modules: readonly ModuleDescriptor[] = [probeModule],
-): Promise<FastifyInstance> {
-  const app = await buildApp({ config: { ...baseConfig, ...overrides }, runtime, modules });
+  identity?: IdentityResolver,
+): Promise<FastifyInstance> => {
+  const app = await buildApp({
+    config: { ...baseConfig, ...overrides },
+    runtime,
+    modules,
+    identity,
+  });
   apps.push(app);
   return app;
-}
+};
 
 afterEach(async () => {
   await Promise.all(apps.splice(0).map((app) => app.close()));
@@ -201,9 +246,9 @@ describe("request pipeline", () => {
     expect(response.headers["x-trace-id"]).toMatch(/^[0-9a-f-]{36}$/);
   });
 
-  it("ignores identity headers when the dev identity stub is off", async () => {
+  it("ignores identity headers unless a resolver is configured", async () => {
     const { runtime } = stubRuntime();
-    const app = await build({ devIdentity: false }, runtime);
+    const app = await build({}, runtime);
 
     const response = await app.inject({
       method: "GET",
@@ -214,9 +259,9 @@ describe("request pipeline", () => {
     expect(response.json()).toEqual({ userId: null, familyId: null, accessGroupIds: [] });
   });
 
-  it("exposes the stubbed identity to routes when the dev identity stub is on", async () => {
+  it("exposes the identity from the configured resolver to routes", async () => {
     const { runtime } = stubRuntime();
-    const app = await build({ devIdentity: true }, runtime);
+    const app = await build({}, runtime, [probeModule], testIdentity);
 
     const response = await app.inject({
       method: "GET",
@@ -243,7 +288,7 @@ describe("request pipeline", () => {
     const { runtime } = stubRuntime();
     const leakyModule: ModuleDescriptor = {
       name: "probe",
-      registerRoutes(api) {
+      registerRoutes: (api) => {
         api.get("/probe/conflict", async () => {
           throw Object.assign(new Error("row owned by user 9f2c"), { statusCode: 409 });
         });

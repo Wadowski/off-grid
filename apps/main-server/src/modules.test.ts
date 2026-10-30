@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { assertValidModules } from "./modules.js";
+import { assertValidModules } from "./assert-valid-modules.js";
 
 describe("assertValidModules", () => {
   it("accepts an empty registry and distinct lowercase names", () => {

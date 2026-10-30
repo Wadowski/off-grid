@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { ConfigError, loadConfig } from "./config.js";
+import { loadConfig } from "./load-config.js";
 
 const requiredEnv: NodeJS.ProcessEnv = {
   OFFGRID_DATABASE_HOST: "db.internal",
@@ -26,39 +26,10 @@ describe("loadConfig", () => {
         password: "s3cret",
         poolMax: 10,
       },
-      devIdentity: false,
+      trustedProxies: [],
       rateLimitPerMinute: 300,
       logLevel: "info",
     });
-  });
-
-  it("turns the dev identity flag on only for the exact value true", () => {
-    expect(
-      loadConfig({ ...requiredEnv, OFFGRID_DEV_IDENTITY: "true" }, secretFiles("x")).devIdentity,
-    ).toBe(true);
-    expect(() =>
-      loadConfig({ ...requiredEnv, OFFGRID_DEV_IDENTITY: "yes" }, secretFiles("x")),
-    ).toThrow(ConfigError);
-  });
-
-  it("refuses the dev identity stub when the server binds a non-loopback address", () => {
-    expect(() =>
-      loadConfig(
-        { ...requiredEnv, OFFGRID_DEV_IDENTITY: "true", OFFGRID_HTTP_HOST: "0.0.0.0" },
-        secretFiles("x"),
-      ),
-    ).toThrow(
-      "OFFGRID_DEV_IDENTITY=true is only allowed when OFFGRID_HTTP_HOST is a loopback address",
-    );
-  });
-
-  it("allows the dev identity stub on loopback", () => {
-    const config = loadConfig(
-      { ...requiredEnv, OFFGRID_DEV_IDENTITY: "true", OFFGRID_HTTP_HOST: "127.0.0.1" },
-      secretFiles("x"),
-    );
-
-    expect(config.devIdentity).toBe(true);
   });
 
   it("names the missing secret variable", () => {

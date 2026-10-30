@@ -1,0 +1,15 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { withUserContext, type ModuleDatabase } from "@offgrid/db";
+import { listFamiliesForUser } from "../infrastructure/list-families-for-user.js";
+import type { FamilySummary } from "../types.js";
+
+export const listMyFamilies = async (
+  db: ModuleDatabase,
+  viewerUserId: string,
+): Promise<FamilySummary[]> =>
+  db.$transaction(async (tx) => {
+    await withUserContext(tx, viewerUserId);
+    return listFamiliesForUser(tx, viewerUserId);
+  });

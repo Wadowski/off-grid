@@ -30,3 +30,14 @@ export type Resource = {
 export type VisibilityFilter = {
   groupIds: readonly string[];
 };
+
+export type ReadOutcome<Value> =
+  | { readonly outcome: "found"; readonly value: Value }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "forbidden" };
+
+export type ReadOutcomeInput<Value> = {
+  readonly value: Value | null;
+  readonly subject: Subject;
+  readonly resource: Resource;
+};

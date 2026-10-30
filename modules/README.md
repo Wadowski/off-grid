@@ -2,7 +2,7 @@
 
 Each folder here is one module of the modular monolith (`@offgrid/<name>`), running in the single server process and owning one Postgres schema.
 
-Standard layout (created by the example-module issue; the other modules stay stubs until then):
+Standard layout (reference implementation: `modules/family`; the other modules stay stubs until they are built):
 
 ```
 modules/<name>/src/

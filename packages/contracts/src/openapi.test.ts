@@ -3,7 +3,8 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { buildOpenApiDocument, renderOpenApi } from "./openapi.js";
+import { buildOpenApiDocument } from "./build-open-api-document.js";
+import { renderOpenApi } from "./render-open-api.js";
 
 describe("buildOpenApiDocument", () => {
   it("publishes the shared HTTP schemas as components", () => {
@@ -12,8 +13,12 @@ describe("buildOpenApiDocument", () => {
     expect(document.openapi).toBe("3.1.0");
     expect(Object.keys(document.components.schemas).sort()).toEqual([
       "AccessGroupId",
+      "CreateFamilyRequest",
       "ErrorResponse",
+      "Family",
       "FamilyId",
+      "FamilyList",
+      "FamilySummary",
       "Timestamp",
       "UserId",
     ]);

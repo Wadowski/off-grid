@@ -3,7 +3,8 @@
 
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { defineEvent, parseEvent } from "./events.js";
+import { defineEvent } from "./define-event.js";
+import { parseEvent } from "./parse-event.js";
 
 const familyCreatedV1 = defineEvent({
   name: "family-created-v1",

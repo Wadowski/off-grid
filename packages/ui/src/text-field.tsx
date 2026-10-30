@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { useId, type CSSProperties, type InputHTMLAttributes } from "react";
-import { cssVar } from "./tokens.js";
+import { cssVar } from "./css-var.js";
 
 type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "style" | "className"> & {
   label: string;

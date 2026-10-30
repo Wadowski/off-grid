@@ -4,18 +4,18 @@
 import { describe, expect, it, vi } from "vitest";
 import { ApiError, createApiClient } from "./index.js";
 
-function jsonResponse(body: unknown, status = 200): Response {
+const jsonResponse = (body: unknown, status = 200): Response => {
   return new Response(JSON.stringify(body), {
     status,
     headers: { "content-type": "application/json" },
   });
-}
+};
 
-function clientWith(response: Response) {
+const clientWith = (response: Response) => {
   const transport = vi.fn<typeof fetch>().mockResolvedValue(response);
   const client = createApiClient({ baseUrl: "http://localhost:3000/api", fetch: transport });
   return { client, transport };
-}
+};
 
 describe("createApiClient", () => {
   it("returns the parsed JSON body of a successful response", async () => {

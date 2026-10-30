@@ -4,11 +4,12 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { startTestDatabase, fixtureSources } from "../test/postgres.js";
+import { startTestDatabase } from "../test/start-test-database.js";
+import { fixtureSources } from "../test/fixture-sources.js";
 import type { Context, TestDatabase } from "../test/types.js";
 import { createModuleDb, runMigrations, withFamilyContext, withUserContext } from "./index.js";
 
-async function queryAs(client: Client, context: Context, sql: string, params: unknown[] = []) {
+const queryAs = async (client: Client, context: Context, sql: string, params: unknown[] = []) => {
   await client.query("BEGIN");
   try {
     if (context.familyId) {
@@ -24,7 +25,7 @@ async function queryAs(client: Client, context: Context, sql: string, params: un
     await client.query("ROLLBACK");
     throw error;
   }
-}
+};
 
 describe("row level isolation and role boundaries", () => {
   let db: TestDatabase;
@@ -178,7 +179,7 @@ describe("row level isolation and role boundaries", () => {
 
   describe("Prisma client with the request context helpers", () => {
     it("reads only the context family through the module client", async () => {
-      const prisma = createModuleDb(db.target, "family");
+      const prisma = createModuleDb(db.connectPool("family"));
       try {
         const labels = await prisma.$transaction(async (tx) => {
           await withFamilyContext(tx, familyB);
@@ -191,7 +192,7 @@ describe("row level isolation and role boundaries", () => {
     });
 
     it("sets the user context for the transaction only", async () => {
-      const prisma = createModuleDb(db.target, "lists");
+      const prisma = createModuleDb(db.connectPool("lists"));
       try {
         const inside = await prisma.$transaction(async (tx) => {
           await withUserContext(tx, userTwo);

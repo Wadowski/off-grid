@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { startTestDatabase } from "../test/database.js";
-import { FAMILY_MIGRATION_DIRECTORY } from "../test/fixtures.js";
+import { startTestDatabase } from "../test/start-test-database.js";
+import { FAMILY_MIGRATION_DIRECTORY } from "../test/family-migration-directory.js";
 import type { TestDatabase } from "../test/types.js";
-import { startServer } from "./server.js";
+import { startServer } from "./start-server.js";
 import type { ModuleDescriptor, ServerConfig } from "./types.js";
 
 let database: TestDatabase;
@@ -13,7 +13,7 @@ let database: TestDatabase;
 const configFor = (db: TestDatabase): ServerConfig => ({
   http: { host: "127.0.0.1", port: 0 },
   database: db.connection,
-  devIdentity: false,
+  trustedProxies: [],
   rateLimitPerMinute: 1000,
   logLevel: "error",
 });

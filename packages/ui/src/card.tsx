@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { CSSProperties, ReactNode } from "react";
-import { cssVar } from "./tokens.js";
+import { cssVar } from "./css-var.js";
 
 const cardStyle: CSSProperties = {
   padding: cssVar("space-4"),

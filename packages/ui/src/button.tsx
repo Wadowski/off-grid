@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ButtonHTMLAttributes, CSSProperties } from "react";
-import { cssVar } from "./tokens.js";
+import { cssVar } from "./css-var.js";
 
 type ButtonVariant = "primary" | "secondary";
 

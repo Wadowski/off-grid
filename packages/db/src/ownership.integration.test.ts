@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { startTestDatabase, fixtureSources } from "../test/postgres.js";
+import { startTestDatabase } from "../test/start-test-database.js";
+import { fixtureSources } from "../test/fixture-sources.js";
 import type { TestDatabase } from "../test/types.js";
 import { assertOwnershipScopes, runMigrations } from "./index.js";
 

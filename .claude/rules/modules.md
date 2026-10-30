@@ -9,7 +9,8 @@ paths:
 - DO make `src/index.ts` the only public entry point. Other code imports `@offgrid/<name>`, never `src/` internals.
 - DO keep `src/domain/` pure: no Prisma, Fastify, `pg`, `fs`, `http` or other I/O imports. Enforced by `pnpm check:boundaries` ([boundaries.md](../../docs/architecture/boundaries.md)).
 - DO keep domain code free of imports from `infrastructure/`, `http/`, `events/` and `workers/`. Adapters depend on the domain, never the reverse.
-- DO touch only this module's own Postgres schema. Reads of other data use a read-only projection ([ADR 0002](../../docs/adr/0002-outbox-events-and-projections.md)).
+- DO touch only this module's own Postgres schema. A module reads its own data directly, through its own tables and read policies. It reads another module's data only through a read-only projection fed by events ([ADR 0002](../../docs/adr/0002-outbox-events-and-projections.md)).
+- DON'T build a projection of the module's own data. The family module lists families from its own `family_member` and `family` tables.
 - DO communicate with other modules through versioned events and `packages/contracts` ([ADR 0006](../../docs/adr/0006-modular-monolith.md)).
 - DON'T import another module's code, even from its `src/` folder. Cross-module imports fail `module-public-api`.
 - DON'T import from `apps/` into `modules/`. Apps wire modules together.
