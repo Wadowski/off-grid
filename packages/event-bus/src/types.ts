@@ -15,7 +15,7 @@ export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition>
   readonly name: string;
   readonly event: D;
   readonly runAs: string;
-  readonly handler: (event: EventOf<D>, context: HandlerContext) => Promise<void>;
+  handler(event: EventOf<D>, context: HandlerContext): Promise<void>;
 }
 
 export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinition> {

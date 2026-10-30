@@ -10,6 +10,7 @@ export const withFamilyTransaction = async <T>(
   work: (client: PoolClient) => Promise<T>,
 ): Promise<T> => {
   const client = await pool.connect();
+  let releaseError: Error | undefined;
   try {
     await client.query("BEGIN");
     await client.query(`SET LOCAL ROLE ${quoteIdent(appRoleOf("family"))}`);
@@ -17,9 +18,11 @@ export const withFamilyTransaction = async <T>(
     await client.query("COMMIT");
     return result;
   } catch (error) {
-    await client.query("ROLLBACK").catch(() => undefined);
+    await client.query("ROLLBACK").catch((rollbackError: Error) => {
+      releaseError = rollbackError;
+    });
     throw error;
   } finally {
-    client.release();
+    client.release(releaseError);
   }
 };

@@ -12,6 +12,7 @@ export const deliverBatch = async (
   settings: DeliverySettings,
 ): Promise<boolean> => {
   const client = await settings.pool.connect();
+  let releaseError: Error | undefined;
   try {
     await client.query("BEGIN");
     const position = await lockCursor(client, subscription.name);
@@ -30,10 +31,12 @@ export const deliverBatch = async (
     await client.query("COMMIT");
     return events.length === settings.batchSize;
   } catch (error) {
-    await client.query("ROLLBACK").catch(() => undefined);
+    await client.query("ROLLBACK").catch((rollbackError: Error) => {
+      releaseError = rollbackError;
+    });
     settings.errorSink.record(error, { subscriber: subscription.name });
     return false;
   } finally {
-    client.release();
+    client.release(releaseError);
   }
 };

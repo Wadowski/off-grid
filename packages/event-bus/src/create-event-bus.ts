@@ -36,7 +36,7 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
       throw new Error(`subscriber "${subscription.name}" is already registered`);
     }
     roleOf(subscription.runAs);
-    subscriptions.push(subscription as unknown as Subscription);
+    subscriptions.push(subscription);
   };
 
   return {
