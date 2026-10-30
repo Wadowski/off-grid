@@ -24,6 +24,7 @@ export const startTestDatabase = async (): Promise<TestDatabase> => {
     migrator,
     target: shared.target,
     connect: (schema) => shared.connectClient(schema),
+    connectPool: (schema) => shared.connect(schema),
     stop: async () => {
       await migrator.end();
       await shared.stop();

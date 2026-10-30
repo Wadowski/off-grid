@@ -55,9 +55,11 @@ const stubRuntime = ({
     eventBus: unusedEventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
-    database: { host: "unused", port: 5432, database: "unused", password: "unused" },
     moduleDatabases: new Map(),
     modulePools: new Map(),
+    poolForRole: () => {
+      throw new Error("module pools are not used by these tests");
+    },
     state: { publisherRunning, draining: false },
   };
   return { runtime, errorSink };

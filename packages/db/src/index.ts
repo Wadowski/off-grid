@@ -9,7 +9,6 @@ export { DATABASE_SCHEMAS } from "./constants.js";
 export { withFamilyContext } from "./with-family-context.js";
 export { withUserContext } from "./with-user-context.js";
 export { createModuleDb } from "./create-module-db.js";
-export { moduleConnectionString } from "./module-connection-string.js";
 export { MigrationChecksumError } from "./migration-checksum-error.js";
 export { MigrationFailedError } from "./migration-failed-error.js";
 export { loadMigrations } from "./load-migrations.js";

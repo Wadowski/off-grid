@@ -22,7 +22,7 @@ export const startFamilyTestDatabase = async (): Promise<FamilyTestDatabase> => 
       { schema: "family", directory: FAMILY_MIGRATIONS },
     ],
   });
-  const db = createModuleDb(database.target, "family");
+  const db = createModuleDb(database.connect("family"));
   return {
     admin: database.admin,
     pool: database.connect("outbox"),

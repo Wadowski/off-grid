@@ -14,6 +14,7 @@ Membership let a handler run `RESET ROLE` and act with any module's privileges, 
 - We will remove the bus role's membership in module roles. `infra/init/sql/03-bus-membership.sql` is deleted. The bus role still reads and advances cursors through definer functions, and it reads the stream only from its own connection.
 - We will run each handler attempt in its own transaction on the module connection. The bus advances a subscriber's cursor on its own connection after that transaction commits, one event at a time. Dead-letter records go on the bus connection too.
 - Delivery is therefore at least once. A crash between a handler's commit and the cursor advance runs the handler again. Handlers must be idempotent, and projections use the source version to ignore repeats, as [0013](0013-projections-for-other-modules-only.md) and the event rules require.
+- The server keeps one pool per database login, not one per module client. A module's Prisma client and its subscriber handlers share that login's pool, and the bus keeps its own pool for `outbox_app`. The connection budget is `OFFGRID_DATABASE_POOL_MAX` for each login.
 - A transport subscription has no module privileges. It runs on the bus connection, as 0011 says.
 - Replay uses the same module connections, one transaction per event.
 

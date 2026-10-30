@@ -4,7 +4,7 @@
 import type { IncomingHttpHeaders } from "node:http";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { z } from "zod";
-import type { DatabaseTarget, MigrationSource, ModuleDatabase } from "@offgrid/db";
+import type { MigrationSource, ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { ErrorSink, LogLevel, Logger } from "@offgrid/observability";
 import type { Pool } from "pg";
@@ -57,9 +57,9 @@ interface RuntimeState {
 
 export interface ServerRuntime {
   readonly pool: Pick<Pool, "query" | "end" | "connect">;
-  readonly database: DatabaseTarget;
   readonly moduleDatabases: Map<string, ModuleDatabase>;
   readonly modulePools: Map<string, Pool>;
+  readonly poolForRole: (moduleName: string) => Pool;
   readonly eventBus: EventBus;
   readonly errorSink: ErrorSink;
   readonly logger: Logger;

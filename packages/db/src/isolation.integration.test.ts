@@ -179,7 +179,7 @@ describe("row level isolation and role boundaries", () => {
 
   describe("Prisma client with the request context helpers", () => {
     it("reads only the context family through the module client", async () => {
-      const prisma = createModuleDb(db.target, "family");
+      const prisma = createModuleDb(db.connectPool("family"));
       try {
         const labels = await prisma.$transaction(async (tx) => {
           await withFamilyContext(tx, familyB);
@@ -192,7 +192,7 @@ describe("row level isolation and role boundaries", () => {
     });
 
     it("sets the user context for the transaction only", async () => {
-      const prisma = createModuleDb(db.target, "lists");
+      const prisma = createModuleDb(db.connectPool("lists"));
       try {
         const inside = await prisma.$transaction(async (tx) => {
           await withUserContext(tx, userTwo);

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { createModuleDb, isDatabaseSchema, type ModuleDatabase } from "@offgrid/db";
+import { createModuleDb, type ModuleDatabase } from "@offgrid/db";
 import type { ServerRuntime } from "./types.js";
 
 export const moduleDatabaseFor = (runtime: ServerRuntime, moduleName: string): ModuleDatabase => {
@@ -9,10 +9,7 @@ export const moduleDatabaseFor = (runtime: ServerRuntime, moduleName: string): M
   if (existing !== undefined) {
     return existing;
   }
-  if (!isDatabaseSchema(moduleName)) {
-    throw new Error(`module ${moduleName} has no database schema`);
-  }
-  const db = createModuleDb(runtime.database, moduleName);
+  const db = createModuleDb(runtime.poolForRole(moduleName));
   runtime.moduleDatabases.set(moduleName, db);
   return db;
 };
