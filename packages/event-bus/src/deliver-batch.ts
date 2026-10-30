@@ -2,38 +2,19 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Subscription, DeliverySettings } from "./types.js";
-import { lockCursor } from "./lock-cursor.js";
-import { readEventsAfter } from "./read-events-after.js";
-import { deliverOne } from "./deliver-one.js";
-import { advanceCursor } from "./advance-cursor.js";
+import { deliverLockedBatch } from "./deliver-locked-batch.js";
+import { withTransaction } from "./with-transaction.js";
 
 export const deliverBatch = async (
   subscription: Subscription,
   settings: DeliverySettings,
 ): Promise<boolean> => {
-  const client = await settings.pool.connect();
-  let releaseError: Error | undefined;
   try {
-    await client.query("BEGIN");
-    const position = await lockCursor(client, subscription.name);
-    if (position === null) {
-      await client.query("ROLLBACK");
-      return false;
-    }
-    const events = await readEventsAfter(client, position, null, settings.batchSize);
-    for (const event of events) {
-      await deliverOne(client, subscription, event, settings);
-      await advanceCursor(client, subscription.name, event.sequence);
-    }
-    await client.query("COMMIT");
-    return events.length === settings.batchSize;
+    return await withTransaction(settings.pool, (client) =>
+      deliverLockedBatch(client, subscription, settings),
+    );
   } catch (error) {
-    await client.query("ROLLBACK").catch((rollbackError: Error) => {
-      releaseError = rollbackError;
-    });
     settings.errorSink.record(error, { subscriber: subscription.name });
     return false;
-  } finally {
-    client.release(releaseError);
   }
 };

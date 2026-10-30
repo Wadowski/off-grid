@@ -28,4 +28,21 @@ describe("append_event publish authority", () => {
       ]),
     ).rejects.toThrow("only a module role may publish an event");
   });
+
+  it("refuses the bus login, which has no execute grant on append_event", async () => {
+    const bus = await db.connectClient("outbox");
+    try {
+      await expect(
+        bus.query("SELECT outbox.append_event($1, $2, 1, 1, $3, now(), $4, NULL, $5)", [
+          randomUUID(),
+          "family-created-v1",
+          "trace-under-test",
+          randomUUID(),
+          "{}",
+        ]),
+      ).rejects.toThrow(/permission denied/);
+    } finally {
+      await bus.end();
+    }
+  });
 });

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { AnyEventDefinition } from "@offgrid/contracts";
 import type { EventBusOptions, EventBus, DeliverySettings, Subscription } from "./types.js";
 import {
   DEFAULT_BATCH_SIZE,
@@ -8,18 +9,17 @@ import {
   DEFAULT_POLL_INTERVAL_MS,
   TRANSPORT_RUN_AS,
 } from "./constants.js";
+import { assertModuleName } from "./assert-module-name.js";
 import { defaultRetryDelayMs } from "./default-retry-delay-ms.js";
 import { createDeliveryLoop } from "./create-delivery-loop.js";
 import { deliverAll } from "./deliver-all.js";
-import type { AnyEventDefinition } from "@offgrid/contracts";
-import { assertModuleName } from "./assert-module-name.js";
-import { handlerPoolFor } from "./handler-pool-for.js";
+import { poolForHandler } from "./pool-for-handler.js";
 import { pruneDelivered } from "./prune-delivered.js";
 
 export const createEventBus = (options: EventBusOptions): EventBus => {
   const settings: DeliverySettings = {
     pool: options.pool,
-    handlerPoolFor: (runAs) => handlerPoolFor(options.pool, options.connectAs, runAs),
+    handlerPoolFor: (runAs) => poolForHandler(options.pool, options.poolForRole, runAs),
     errorSink: options.errorSink,
     maxAttempts: options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS,
     retryDelayMs: options.retryDelayMs ?? defaultRetryDelayMs,
@@ -33,18 +33,20 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
     options.listener,
   );
 
-  const subscribe = <D extends AnyEventDefinition>(subscription: Subscription<D>): void => {
+  const register = <D extends AnyEventDefinition>(subscription: Subscription<D>): void => {
     if (subscriptions.some((existing) => existing.name === subscription.name)) {
       throw new Error(`subscriber "${subscription.name}" is already registered`);
     }
-    assertModuleName(subscription.runAs);
     subscriptions.push(subscription);
   };
 
   return {
-    subscribe,
+    subscribe: (subscription) => {
+      assertModuleName(subscription.runAs);
+      register(subscription);
+    },
     subscribeTransport: ({ name, event, transport }) => {
-      subscribe({
+      register({
         name,
         event,
         runAs: TRANSPORT_RUN_AS,

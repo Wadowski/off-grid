@@ -169,7 +169,7 @@ describe("delivery", () => {
     errors = createMemoryErrorSink();
     bus = createEventBus({
       pool: outbox,
-      connectAs: db.connect,
+      poolForRole: db.connect,
       errorSink: errors,
       retryDelayMs: () => 0,
     });
@@ -244,9 +244,26 @@ describe("delivery", () => {
 
     await bus.deliverPending();
 
-    expect(refusals).toHaveLength(2);
-    expect(refusals[0]).toMatch(/permission denied/);
-    expect(refusals[1]).toMatch(/permission denied/);
+    expect(refusals).toEqual([
+      expect.stringMatching(/permission denied/),
+      expect.stringMatching(/permission denied/),
+    ]);
+  });
+
+  it("refuses to subscribe or replay a handler as the bus role", async () => {
+    const handler = async () => undefined;
+    expect(() =>
+      bus.subscribe({ name: "as-bus", event: familyCreated, runAs: "outbox", handler }),
+    ).toThrow(/invalid module name/);
+    await expect(
+      replayEvents(
+        { event: familyCreated, runAs: "outbox", handler },
+        {
+          pool: outbox,
+          poolForRole: db.connect,
+        },
+      ),
+    ).rejects.toThrow(/invalid module name/);
   });
 
   it("retries a failing handler three times, then dead-letters the event", async () => {
@@ -256,7 +273,6 @@ describe("delivery", () => {
     bus.subscribe({ name: "flaky", event: familyCreated, runAs: "family", handler });
     await publishCommitted(family, envelope(1, "Broken"));
 
-    await bus.deliverPending();
     await bus.deliverPending();
 
     expect(handler).toHaveBeenCalledTimes(3);
@@ -316,7 +332,7 @@ describe("delivery", () => {
 
     await db.admin.query("TRUNCATE family.family_summary");
     expect(await storedName(family)).toBeUndefined();
-    const replayed = await replayEvents(subscription, { pool: outbox, connectAs: db.connect });
+    const replayed = await replayEvents(subscription, { pool: outbox, poolForRole: db.connect });
 
     expect(replayed).toBe(2);
     expect(await storedName(family)).toEqual(before);
@@ -344,7 +360,7 @@ describe("delivery", () => {
     const listener = await db.connectClient("outbox");
     const loopBus = createEventBus({
       pool: outbox,
-      connectAs: db.connect,
+      poolForRole: db.connect,
       listener,
       errorSink: errors,
       pollIntervalMs: 50,
@@ -375,7 +391,7 @@ describe("delivery", () => {
     await listener.end();
     const loopBus = createEventBus({
       pool: outbox,
-      connectAs: db.connect,
+      poolForRole: db.connect,
       listener,
       errorSink: errors,
     });

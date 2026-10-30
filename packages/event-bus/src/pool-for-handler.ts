@@ -4,8 +4,8 @@
 import type { Pool } from "pg";
 import { TRANSPORT_RUN_AS } from "./constants.js";
 
-export const handlerPoolFor = (
+export const poolForHandler = (
   busPool: Pool,
-  connectAs: (runAs: string) => Pool,
+  poolForRole: (runAs: string) => Pool,
   runAs: string,
-): Pool => (runAs === TRANSPORT_RUN_AS ? busPool : connectAs(runAs));
+): Pool => (runAs === TRANSPORT_RUN_AS ? busPool : poolForRole(runAs));

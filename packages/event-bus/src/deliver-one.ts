@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ClientBase } from "pg";
-import type { Subscription, StoredEvent, DeliverySettings } from "./types.js";
 import { parseEvent } from "@offgrid/contracts";
+import type { Subscription, StoredEvent, DeliverySettings, EventOf } from "./types.js";
 import { toEnvelope } from "./to-envelope.js";
 import { deadLetter } from "./dead-letter.js";
 import { runHandler } from "./run-handler.js";
@@ -19,9 +19,15 @@ export const deliverOne = async (
     return;
   }
   const handlerPool = settings.handlerPoolFor(subscription.runAs);
+  let event: EventOf<typeof subscription.event>;
+  try {
+    event = parseEvent(subscription.event, toEnvelope(stored));
+  } catch (error) {
+    await deadLetter(busClient, subscription, stored, 1, error, settings);
+    return;
+  }
   for (let attempt = 1; ; attempt += 1) {
     try {
-      const event = parseEvent(subscription.event, toEnvelope(stored));
       await runHandler(handlerPool, subscription, event);
       return;
     } catch (error) {

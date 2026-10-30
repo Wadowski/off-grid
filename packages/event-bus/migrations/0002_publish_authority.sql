@@ -20,7 +20,7 @@ AS $fn$
 DECLARE
   seq bigint;
 BEGIN
-  IF session_user !~ '_app$' THEN
+  IF session_user !~ '_app$' OR session_user = 'outbox_app' THEN
     RAISE EXCEPTION 'only a module role may publish an event';
   END IF;
   INSERT INTO outbox.event (

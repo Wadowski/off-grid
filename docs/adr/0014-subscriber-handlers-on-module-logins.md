@@ -23,3 +23,4 @@ Membership let a handler run `RESET ROLE` and act with any module's privileges, 
 - A handler cannot use the bus role's privileges or another module's, which closes the escalation path that 0011 left open.
 - Each subscribing module needs its own pool. The server holds one pool per registered module login, with the same app password, as the rest of the server does.
 - Module logins must exist in the database before a subscriber runs. The init scripts create one login per module schema.
+- Database volumes created before this change still hold the bus memberships from the old `03-bus-membership.sql`. Init scripts run only on an empty volume, so such a volume must be recreated (`docker compose down -v`) before the bus role's memberships are gone.

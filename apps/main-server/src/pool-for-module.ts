@@ -3,6 +3,7 @@
 
 import { Pool } from "pg";
 import type { ErrorSink } from "@offgrid/observability";
+import { isDatabaseSchema } from "@offgrid/db";
 import { CONNECTION_TIMEOUT_MS } from "./constants.js";
 import type { DatabaseConnection } from "./types.js";
 
@@ -15,6 +16,9 @@ export const poolForModule = (
   const existing = pools.get(moduleName);
   if (existing !== undefined) {
     return existing;
+  }
+  if (!isDatabaseSchema(moduleName)) {
+    throw new Error(`module ${moduleName} has no database schema`);
   }
   const pool = new Pool({
     host: database.host,

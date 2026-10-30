@@ -22,12 +22,12 @@ export const createRuntime = (config: ServerConfig): ServerRuntime => {
   });
   pool.on("error", (error) => errorSink.record(error, { source: "database-pool" }));
   const modulePools = new Map<string, Pool>();
-  const connectAs = (moduleName: string): Pool =>
+  const poolForRole = (moduleName: string): Pool =>
     poolForModule(config.database, modulePools, errorSink, moduleName);
 
   return {
     pool,
-    eventBus: createEventBus({ pool, connectAs, errorSink }),
+    eventBus: createEventBus({ pool, poolForRole, errorSink }),
     errorSink,
     logger,
     database: {
