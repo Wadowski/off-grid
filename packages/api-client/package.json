@@ -10,6 +10,14 @@
     "build": "tsc -b",
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests && node scripts/generate-schema.ts --check",
+    "gen:api": "node scripts/generate-schema.ts"
+  },
+  "dependencies": {
+    "@offgrid/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "openapi-typescript": "^7.13.0"
   }
 }

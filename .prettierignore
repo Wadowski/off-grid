@@ -6,3 +6,4 @@ data
 pnpm-lock.yaml
 .changeset/*.md
 packages/contracts/openapi.json
+packages/api-client/src/generated/*

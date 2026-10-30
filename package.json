@@ -28,6 +28,7 @@
     "check:boundaries": "depcruise apps modules packages --config .dependency-cruiser.cjs --output-type err-long",
     "check:agent-config": "node scripts/check-agent-config.mjs",
     "gen:openapi": "pnpm --filter @offgrid/contracts gen:openapi",
+    "gen:api": "pnpm --filter @offgrid/api-client gen:api",
     "check:contracts": "pnpm --filter @offgrid/contracts check:contracts",
     "changeset": "changeset"
   },
