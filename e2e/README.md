@@ -8,6 +8,12 @@ steps/*.steps.ts              step definitions, grouped by domain
 support/                      fixtures shared by the steps (the scenario `world`)
 ```
 
+## Grouping
+
+- Feature files go in `features/<module>/`, one folder per module. Cross-cutting checks that belong to no product module go in `features/system/`, for example `health.feature`.
+- Step definitions go in `steps/`, grouped by domain. A steps file covers one domain and can serve several features, so there is no one-to-one match between a feature file and a steps file.
+- Shared code goes in `support/`: the scenario `world` fixture, and later the API factories and page objects. Steps import from `support/`; `support/` never imports from `steps/`.
+
 ## Running
 
 Start the server first, then run from the repo root:
