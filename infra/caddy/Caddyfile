@@ -5,7 +5,7 @@
 	redir https://{host}:{$HTTPS_PORT:443}{uri} permanent
 }
 
-:443 {
+{$OFFGRID_HOSTNAME:localhost}:443 {
 	tls internal
 
 	handle /api/* {
