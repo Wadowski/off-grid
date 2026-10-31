@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import { App } from "./app.js";
 import "./i18n/i18n.js";
-import { ErrorFallback } from "./shell/error-fallback.js";
+import { ErrorFallback } from "./errors/error-fallback/error-fallback.js";
 
 const tokenStyle = document.createElement("style");
 tokenStyle.textContent = tokensStylesheet;

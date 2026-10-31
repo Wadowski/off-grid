@@ -9,3 +9,5 @@ export type FamilySummary = {
 export type ListStatus = "loading" | "ready" | "failed";
 
 export type CreateFamilyStatus = "idle" | "submitting" | "waiting-for-list" | "done" | "failed";
+
+export type FamilyNameErrorTextId = "families.nameRequired" | "families.nameTooLong";

@@ -3,13 +3,12 @@
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { App } from "../app.js";
-import { DEFAULT_DEV_USER_ID, DEV_IDENTITY_USER_HEADER } from "../constants.js";
+import { App } from "../../app.js";
+import { DEFAULT_DEV_USER_ID, DEV_IDENTITY_USER_HEADER } from "../../constants.js";
+import type { FakeResponse } from "./types.js";
 
 const FAMILY_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 const CREATED_AT = "2026-10-31T10:00:00.000Z";
-
-type FakeResponse = { readonly status: number; readonly body: unknown };
 
 const jsonResponse = ({ status, body }: FakeResponse): Response =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -37,7 +36,7 @@ const submitForm = () => {
   fireEvent.click(screen.getByTestId("create-family-submit"));
 };
 
-describe("Families screen", () => {
+describe("Families page", () => {
   beforeEach(() => {
     window.history.pushState({}, "", "/");
   });

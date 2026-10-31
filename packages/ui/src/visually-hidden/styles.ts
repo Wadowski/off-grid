@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 
-const visuallyHiddenStyle: CSSProperties = {
+export const visuallyHiddenStyle: CSSProperties = {
   position: "absolute",
   width: "1px",
   height: "1px",
@@ -13,8 +13,4 @@ const visuallyHiddenStyle: CSSProperties = {
   clipPath: "inset(50%)",
   whiteSpace: "nowrap",
   borderWidth: 0,
-};
-
-export const VisuallyHidden = ({ children }: { children: ReactNode }) => {
-  return <span style={visuallyHiddenStyle}>{children}</span>;
 };

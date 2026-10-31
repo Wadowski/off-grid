@@ -3,7 +3,8 @@
 
 export { tokens } from "./tokens.js";
 export { tokensStylesheet } from "./tokens-stylesheet.js";
-export { Button } from "./button.js";
-export { TextField } from "./text-field.js";
-export { Card } from "./card.js";
-export { VisuallyHidden } from "./visually-hidden.js";
+export { Button } from "./button/button.js";
+export { TextField } from "./text-field/text-field.js";
+export { Card } from "./card/card.js";
+export { Text } from "./text/text.js";
+export { VisuallyHidden } from "./visually-hidden/visually-hidden.js";

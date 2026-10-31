@@ -4,7 +4,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import axe from "axe-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { App } from "../app.js";
+import { App } from "../../app.js";
 
 describe("app shell", () => {
   afterEach(() => {

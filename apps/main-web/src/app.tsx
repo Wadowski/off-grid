@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { FamiliesPage } from "./families/families-page.js";
-import { AppShell } from "./shell/app-shell.js";
+import { FamiliesPage } from "./pages/families-page/families-page.js";
+import { AppShell } from "./layouts/app-shell/app-shell.js";
 
 export const App = () => (
   <BrowserRouter>
