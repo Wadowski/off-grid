@@ -27,10 +27,13 @@ Add an entry with a reason to the `exceptions` list in `scripts/telemetry-denyli
 
 The name is the package name or the host. The check refuses an exception with an empty reason. The reason is part of the review: say what the code sends, where, and whether it can be turned off in local mode. A pull request that adds an exception needs a privacy review.
 
-## Planned checks
+## Egress-blocked stack: `pnpm check:stack-egress`
 
-This check is part of OG-39 and is not in place yet.
+`scripts/check-stack-egress.mjs` starts the compose stack with `infra/compose/docker-compose.egress-blocked.yml` on its own project name. The override puts every service on an `internal: true` network and publishes no ports, so the stack cannot reach the internet and does not collide with a running stack. The check asserts two things from inside the `server` container:
 
-- **Egress-blocked stack** (`pnpm check:stack-egress`): starts the compose stack with `infra/compose/docker-compose.egress-blocked.yml`, which puts `server`, `db` and `web` on an `internal: true` network, and asserts that the stack still reaches `/api/health/ready`.
+1. `/api/health/ready` answers.
+2. An outbound request to an external address fails.
 
-The check runs in a `stack-guard` CI job on changes to `infra/**`, `apps/**` and `Dockerfile*`.
+It always tears the stack down. It needs Docker.
+
+The `stack-guard` CI job runs this check on changes to `infra/**`, `apps/**` and `Dockerfile*`. On other changes the job reports success without starting the stack.

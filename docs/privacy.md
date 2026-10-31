@@ -41,5 +41,4 @@ Local access uses plain HTTP, so traffic on your local network is not encrypted.
 ## What is not yet in place
 
 - Sign-in and per-user access on real requests (see above).
-- The egress-blocked stack check (`pnpm check:stack-egress`) that proves the stack works with no outbound network is planned. See [privacy-guards.md](privacy-guards.md).
 - Encryption of the data at rest and of local traffic is not in place yet.

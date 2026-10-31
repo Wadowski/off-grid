@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+name: offgrid
+
+networks:
+  internal:
+    internal: true
+
+services:
+  secrets-init:
+    networks: [internal]
+
+  db:
+    networks: [internal]
+
+  init:
+    networks: [internal]
+
+  server:
+    networks: [internal]
+    ports: !reset []
+
+  web:
+    networks: [internal]
+    ports: !reset []
