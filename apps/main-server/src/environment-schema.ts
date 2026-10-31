@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { z } from "zod";
+import { isHttpOrigin } from "./is-http-origin.js";
 import { isIpOrCidr } from "./is-ip-or-cidr.js";
+import { parseCommaSeparated } from "./parse-comma-separated.js";
 import { portSchema } from "./port-schema.js";
 
 export const environmentSchema = z.object({
@@ -20,13 +22,13 @@ export const environmentSchema = z.object({
   OFFGRID_TRUSTED_PROXIES: z
     .string()
     .default("")
-    .transform((value) =>
-      value
-        .split(",")
-        .map((entry) => entry.trim())
-        .filter((entry) => entry.length > 0),
-    )
+    .transform(parseCommaSeparated)
     .pipe(z.array(z.string().refine(isIpOrCidr, "must be an IP address or CIDR range"))),
+  OFFGRID_CORS_ORIGINS: z
+    .string()
+    .default("")
+    .transform(parseCommaSeparated)
+    .pipe(z.array(z.string().refine(isHttpOrigin, "must be an http or https origin with no path"))),
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

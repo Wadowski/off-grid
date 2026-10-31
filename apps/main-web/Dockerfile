@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
 FROM node:24.22.1-alpine AS build
+ARG VITE_API_ORIGIN=""
+ENV VITE_API_ORIGIN=${VITE_API_ORIGIN}
 RUN corepack enable
 WORKDIR /repo
 COPY . .
