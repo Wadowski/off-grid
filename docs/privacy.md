@@ -18,7 +18,7 @@ This page says, in plain language, what the local Offgrid server does with your 
 
 Everything stays on the machine that runs the stack. The `data/` folder and `infra/compose/.env` are git-ignored, so they are not committed to the repository.
 
-The server is built not to write personal data or secrets to its logs. Logs go to the container output.
+Project rules forbid logging personal data or secrets, including in error messages ([security and privacy rules](../.claude/rules/security-privacy.md)). Logs go to the container output. No automated check enforces the logging rule yet; it is checked in review.
 
 ## Who can reach it
 

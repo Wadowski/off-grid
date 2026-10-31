@@ -28,7 +28,7 @@ flowchart LR
 
 ## Module layout
 
-Each folder in `modules/` is one feature module (`@offgrid/<name>`). The standard layout is in [modules/README.md](../../modules/README.md), and `modules/family` is the reference implementation:
+Each folder in `modules/` is one feature module (`@offgrid/<name>`). The standard layout is in [modules/README.md](../../modules/README.md), and `modules/family` is the reference implementation. The code lives under `modules/<name>/src/`:
 
 - `domain/`: pure business logic, with no I/O.
 - `application/`: commands and queries (use cases).
@@ -38,7 +38,7 @@ Each folder in `modules/` is one feature module (`@offgrid/<name>`). The standar
 - `workers/`: background jobs.
 - `index.ts`: the only public entry point.
 
-`apps/main-server` wires the modules together. `packages/` holds code that every module can use: contracts, the event bus, database helpers, access control, observability, the HTTP error model, the UI kit and the API client. Packages never import from apps or modules.
+`apps/main-server` wires the modules together. `packages/` holds code that every module can use: contracts, the event bus, database helpers, access control, observability, the HTTP error model, the UI kit and the API client. Packages never import from apps or modules (rule `packages-not-import-apps-or-modules`).
 
 The rules are enforced by `pnpm check:boundaries`. See [boundaries.md](boundaries.md).
 
