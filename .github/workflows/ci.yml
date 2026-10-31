@@ -7,6 +7,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -148,3 +151,146 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit:deps
+
+  wip-tags:
+    name: wip-tags
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Check @wip scenarios named in the pull request
+        run: node scripts/check-wip-tags.mjs
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+
+  e2e-smoke:
+    name: e2e-smoke
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      E2E_COMPOSE_PROJECT: offgrid-e2e-local
+      E2E_REUSE_STACK: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build server image
+        run: docker compose -p offgrid-e2e-local -f infra/compose/docker-compose.yml build server
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @offgrid/e2e exec playwright install --with-deps chromium
+      - name: Install Chromium system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @offgrid/e2e exec playwright install-deps chromium
+      - name: Bring up the compose stack
+        run: pnpm --filter @offgrid/e2e e2e:stack:up
+      - name: Run smoke scenarios
+        run: pnpm e2e:smoke
+      - name: Tear down the compose stack
+        if: always()
+        run: pnpm --filter @offgrid/e2e e2e:stack:down
+      - name: Add service logs to the job summary
+        if: failure()
+        run: |
+          {
+            echo "### Service logs (last 200 lines)"
+            echo '```'
+            tail -n 200 e2e/artifacts/service-logs.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload traces and service logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-smoke-failure
+          path: |
+            e2e/artifacts/service-logs.txt
+            e2e/artifacts/test-results/**/trace.zip
+          retention-days: 7
+          if-no-files-found: warn
+
+  e2e-full:
+    name: e2e-full
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1]
+        total: [1]
+    env:
+      E2E_COMPOSE_PROJECT: offgrid-e2e-local
+      E2E_REUSE_STACK: "1"
+      OFFGRID_MEMORY_BUDGET_MB: ${{ vars.OFFGRID_MEMORY_BUDGET_MB }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build server image
+        run: docker compose -p offgrid-e2e-local -f infra/compose/docker-compose.yml build server
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @offgrid/e2e exec playwright install --with-deps chromium
+      - name: Install Chromium system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @offgrid/e2e exec playwright install-deps chromium
+      - name: Bring up the compose stack
+        run: pnpm --filter @offgrid/e2e e2e:stack:up
+      - name: Start suite timer
+        run: echo "SUITE_STARTED_AT=$(date +%s)" >> "$GITHUB_ENV"
+      - name: Run full suite
+        run: pnpm --filter @offgrid/e2e e2e -- --shard=${{ matrix.shard }}/${{ matrix.total }}
+      - name: Report suite run time
+        if: always()
+        run: |
+          elapsed=$(( $(date +%s) - SUITE_STARTED_AT ))
+          echo "Full suite run time: ${elapsed} s (shard ${{ matrix.shard }}/${{ matrix.total }})" >> "$GITHUB_STEP_SUMMARY"
+      - name: Report stack memory
+        if: always()
+        run: docker stats --no-stream --format '{{.Name}}|{{.MemUsage}}' | node scripts/stack-memory.mjs >> "$GITHUB_STEP_SUMMARY"
+      - name: Tear down the compose stack
+        if: always()
+        run: pnpm --filter @offgrid/e2e e2e:stack:down
+      - name: Add service logs to the job summary
+        if: failure()
+        run: |
+          {
+            echo "### Service logs (last 200 lines)"
+            echo '```'
+            tail -n 200 e2e/artifacts/service-logs.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload traces and service logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-full-failure-shard-${{ matrix.shard }}
+          path: |
+            e2e/artifacts/service-logs.txt
+            e2e/artifacts/test-results/**/trace.zip
+          retention-days: 7
+          if-no-files-found: warn
