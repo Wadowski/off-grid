@@ -1,92 +1,71 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { spawnSync } from "node:child_process";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-import {
-  isOverBudget,
-  parseBudgetMiB,
-  parseMemUsageMiB,
-  parseStatsLines,
-  renderMemoryReport,
-} from "./stack-memory.mjs";
+const SCRIPT = resolve(dirname(fileURLToPath(import.meta.url)), "stack-memory.mjs");
 
-describe("parseMemUsageMiB", () => {
-  it("reads binary units", () => {
-    assert.equal(parseMemUsageMiB("45.5MiB / 7.7GiB"), 45.5);
-    assert.equal(parseMemUsageMiB("2GiB / 7.7GiB"), 2048);
-    assert.equal(parseMemUsageMiB("512KiB / 7.7GiB"), 0.5);
+function runReport(input, budget = "") {
+  return spawnSync(process.execPath, [SCRIPT], {
+    input,
+    env: { ...process.env, OFFGRID_MEMORY_BUDGET_MB: budget },
+    encoding: "utf8",
+  });
+}
+
+const STATS = "offgrid-e2e-local-server-1|120MiB / 7.7GiB\noffgrid-e2e-local-db-1|80MiB / 7.7GiB\n";
+
+describe("stack-memory", () => {
+  it("lists each service and the total, and passes with no budget", () => {
+    const result = runReport(STATS);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /\| offgrid-e2e-local-server-1 \| 120\.0 \|/);
+    assert.match(result.stdout, /\| \*\*total\*\* \| \*\*200\.0\*\* \|/);
+    assert.match(result.stdout, /Budget: not set \(report only\)\./);
   });
 
   it("converts decimal units to MiB", () => {
-    assert.equal(parseMemUsageMiB("1000MB / 7.7GB"), (1000 * 1000 * 1000) / 1024 / 1024);
+    const result = runReport("svc|1000MB / 7.7GB\n");
+    assert.match(result.stdout, /\| svc \| 953\.7 \|/);
   });
 
-  it("rejects an unknown unit", () => {
-    assert.throws(() => parseMemUsageMiB("3 pages / 7.7GiB"), /unrecognised memory usage/);
-  });
-});
-
-describe("parseStatsLines", () => {
-  it("reads one service per line and skips blank lines", () => {
-    const text =
-      "offgrid-e2e-local-server-1|120MiB / 7.7GiB\n\noffgrid-e2e-local-db-1|80MiB / 7.7GiB\n";
-    assert.deepEqual(parseStatsLines(text), [
-      { name: "offgrid-e2e-local-server-1", mib: 120 },
-      { name: "offgrid-e2e-local-db-1", mib: 80 },
-    ]);
-  });
-});
-
-describe("parseBudgetMiB", () => {
-  it("is unset for an empty or missing value", () => {
-    assert.equal(parseBudgetMiB(""), undefined);
-    assert.equal(parseBudgetMiB("   "), undefined);
-    assert.equal(parseBudgetMiB(undefined), undefined);
+  it("passes when the total is within the budget", () => {
+    const result = runReport(STATS, "1000");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /within budget/);
   });
 
-  it("reads a positive number", () => {
-    assert.equal(parseBudgetMiB("1024"), 1024);
+  it("fails when the total is over the budget", () => {
+    const result = runReport(STATS, "199");
+    assert.equal(result.status, 1);
+    assert.match(result.stdout, /over budget/);
   });
 
-  it("rejects a value that is not a positive number", () => {
-    assert.throws(() => parseBudgetMiB("lots"), /positive number/);
-    assert.throws(() => parseBudgetMiB("0"), /positive number/);
-  });
-});
-
-describe("isOverBudget", () => {
-  const services = [
-    { name: "server", mib: 300 },
-    { name: "db", mib: 200 },
-  ];
-
-  it("never fails when no budget is set", () => {
-    assert.equal(isOverBudget(services, undefined), false);
+  it("rejects a budget that is not a positive number", () => {
+    const result = runReport(STATS, "lots");
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /positive number/);
   });
 
-  it("fails only when the total exceeds the budget", () => {
-    assert.equal(isOverBudget(services, 500), false);
-    assert.equal(isOverBudget(services, 499), true);
-  });
-});
-
-describe("renderMemoryReport", () => {
-  const services = [
-    { name: "server", mib: 300 },
-    { name: "db", mib: 200 },
-  ];
-
-  it("lists each service and the total", () => {
-    const report = renderMemoryReport(services, undefined);
-    assert.match(report, /\| server \| 300\.0 \|/);
-    assert.match(report, /\| \*\*total\*\* \| \*\*500\.0\*\* \|/);
-    assert.match(report, /Budget: not set \(report only\)\./);
+  it("rejects input with no containers", () => {
+    const result = runReport("");
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /no running containers/);
   });
 
-  it("says whether the total is within the budget", () => {
-    assert.match(renderMemoryReport(services, 1000), /within budget/);
-    assert.match(renderMemoryReport(services, 400), /over budget/);
+  it("names the line that is not in name|memory form", () => {
+    const result = runReport("server 120MiB\n");
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /expected "name\|memory" but got "server 120MiB"/);
+  });
+
+  it("rejects an unknown memory unit", () => {
+    const result = runReport("svc|3 pages / 7.7GiB\n");
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /unrecognised memory usage/);
   });
 });

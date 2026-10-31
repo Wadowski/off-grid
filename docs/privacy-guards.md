@@ -32,8 +32,10 @@ The name is the package name or the host. The check refuses an exception with an
 `scripts/check-stack-egress.mjs` starts the compose stack with `infra/compose/docker-compose.egress-blocked.yml` on its own project name. The override puts every service on an `internal: true` network and publishes no ports, so the stack cannot reach the internet and does not collide with a running stack. The check asserts two things from inside the `server` container:
 
 1. `/api/health/ready` answers.
-2. An outbound request to an external address fails.
+2. An outbound request to `http://1.1.1.1/` fails with `ENETUNREACH` or `EHOSTUNREACH`. Any other failure, or a reachable address, fails the check and says which one it was.
 
-It always tears the stack down. It needs Docker.
+This is the one outbound request in the repository. The probe sends a plain GET with no body, headers or app data, runs only in CI, and only inside the egress-blocked stack. It is a test of the network, not a feature.
 
-The `stack-guard` CI job runs this check on changes to `infra/**`, `apps/**` and `Dockerfile*`. On other changes the job reports success without starting the stack.
+It always tears the stack down, and it needs Docker and Docker Compose 2.24.4 or newer, which the `!reset` tag in the override requires.
+
+The `stack-guard` CI job runs this check on changes to `infra/`, `apps/`, `modules/`, `packages/`, `pnpm-lock.yaml` and `Dockerfile*`. On other changes it reports success without starting the stack. On a nightly or manual run, where there is no base commit to diff, it always runs.

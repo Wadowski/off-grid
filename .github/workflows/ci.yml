@@ -160,11 +160,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
       - name: Check @wip scenarios named in the pull request
-        run: node scripts/check-wip-tags.mjs
+        run: pnpm check:wip-tags
         env:
           BASE_REF: origin/${{ github.base_ref }}
           PR_BODY: ${{ github.event.pull_request.body }}
@@ -269,7 +270,7 @@ jobs:
         run: |
           elapsed=$(( $(date +%s) - SUITE_STARTED_AT ))
           echo "Full suite run time: ${elapsed} s (shard ${{ matrix.shard }}/${{ matrix.total }})" >> "$GITHUB_STEP_SUMMARY"
-      - name: Report stack memory
+      - name: Report stack memory against budget
         if: always()
         run: docker stats --no-stream --format '{{.Name}}|{{.MemUsage}}' | node scripts/stack-memory.mjs >> "$GITHUB_STEP_SUMMARY"
       - name: Tear down the compose stack
@@ -307,16 +308,21 @@ jobs:
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
         run: |
-          changed=$(git diff --name-only "$BASE_SHA...HEAD" 2>/dev/null) || changed=UNKNOWN
-          if [ "$changed" = UNKNOWN ] || echo "$changed" | grep -Eq '^(infra/|apps/)|(^|/)Dockerfile[^/]*$'; then
+          changed=UNKNOWN
+          if [ -n "$BASE_SHA" ]; then
+            changed=$(git diff --name-only "$BASE_SHA...HEAD" 2>/dev/null) || changed=UNKNOWN
+          fi
+          if [ "$changed" = UNKNOWN ] || echo "$changed" | grep -Eq '^(infra|apps|modules|packages)/|^pnpm-lock\.yaml$|(^|/)Dockerfile[^/]*$'; then
             echo "relevant=true" >> "$GITHUB_OUTPUT"
           else
             echo "relevant=false" >> "$GITHUB_OUTPUT"
           fi
+      - uses: pnpm/action-setup@v4
+        if: steps.scope.outputs.relevant == 'true'
       - uses: actions/setup-node@v4
         if: steps.scope.outputs.relevant == 'true'
         with:
           node-version-file: .nvmrc
       - name: Start the egress-blocked stack and check it
         if: steps.scope.outputs.relevant == 'true'
-        run: node scripts/check-stack-egress.mjs
+        run: pnpm check:stack-egress

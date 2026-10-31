@@ -23,7 +23,8 @@ branch is cancelled when a new commit lands.
 | `e2e-full`    | Builds the stack, runs every non-`@wip` scenario, reports stack memory       | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm --filter @offgrid/e2e e2e`                         |
 | `stack-guard` | Stack with no outbound network still answers `/api/health/ready`             | `pnpm check:stack-egress` (needs Docker)                                                            |
 
-`stack-guard` runs on changes to `infra/`, `apps/` or a `Dockerfile`. On other
+`stack-guard` runs on changes to `infra/`, `apps/`, `modules/`, `packages/`,
+`pnpm-lock.yaml` or a `Dockerfile`, and always on nightly and manual runs. On other
 changes it reports success without starting the stack, so the required check
 is never left pending.
 
