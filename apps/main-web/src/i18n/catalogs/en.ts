@@ -3,6 +3,7 @@
 
 export const en = {
   appName: "Offgrid",
+  navLabel: "Main navigation",
   navPlaceholder: "Modules will appear here.",
   families: {
     heading: "Families",

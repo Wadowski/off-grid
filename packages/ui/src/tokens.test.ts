@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { cssVar } from "./css-var.js";
 import { tokens } from "./tokens.js";
 import { tokensStylesheet } from "./tokens-stylesheet.js";
+import type { ColorPair } from "../test/types.js";
 
 const relativeLuminance = (hex: string): number => {
   const [red, green, blue] = [1, 3, 5].map((offset) => {
@@ -21,9 +22,7 @@ const contrastRatio = (foreground: string, background: string): number => {
   return (lighter + 0.05) / (darker + 0.05);
 };
 
-type ColorName = keyof typeof tokens.color.light;
-
-const textPairs: Array<[foreground: ColorName, background: ColorName]> = [
+const textPairs: ColorPair[] = [
   ["fg", "bg"],
   ["fg", "surface"],
   ["fg", "surface-2"],
@@ -36,7 +35,7 @@ const textPairs: Array<[foreground: ColorName, background: ColorName]> = [
   ["danger", "bg"],
 ];
 
-const nonTextPairs: Array<[foreground: ColorName, background: ColorName]> = [
+const nonTextPairs: ColorPair[] = [
   ["muted", "bg"],
   ["accent", "bg"],
 ];

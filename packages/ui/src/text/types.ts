@@ -7,7 +7,7 @@ import type { HTMLAttributes } from "react";
 export type TextVariant =
   "brand" | "heading" | "subheading" | "body" | "label" | "action" | "status" | "error";
 
-export type TextId = ParseKeys;
+type TextId = ParseKeys;
 
 type StaticTextContent = {
   readonly textId: TextId;

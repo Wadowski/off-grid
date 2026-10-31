@@ -56,6 +56,16 @@ describe("Families page", () => {
     );
   });
 
+  it("shows an alert when the family list cannot be loaded", async () => {
+    stubApi([{ status: 500, body: { code: "INTERNAL", message: "Internal server error" } }]);
+
+    render(<App />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Your families could not be loaded.",
+    );
+  });
+
   it("shows an inline error and sends nothing when the name is blank", async () => {
     const fetchMock = stubApi([{ status: 200, body: { families: [] } }]);
     render(<App />);

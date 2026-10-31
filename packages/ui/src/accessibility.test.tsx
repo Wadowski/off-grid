@@ -4,7 +4,8 @@
 import { render } from "@testing-library/react";
 import axe from "axe-core";
 import { describe, expect, it } from "vitest";
-import { Button, Card, TextField, VisuallyHidden } from "./index.js";
+import { Button, Card, TextField } from "./index.js";
+import { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 
 describe("accessibility", () => {
   it("has no axe violations for the shared components", async () => {

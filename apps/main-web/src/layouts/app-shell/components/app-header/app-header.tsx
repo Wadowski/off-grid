@@ -11,7 +11,7 @@ export const AppHeader = () => {
   return (
     <header style={appHeaderStyle}>
       <Text variant="brand" textId="appName" />
-      <nav aria-label={t("appName")} data-testid="app-nav">
+      <nav aria-label={t("navLabel")} data-testid="app-nav">
         <Text variant="status" textId="navPlaceholder" />
       </nav>
     </header>

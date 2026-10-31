@@ -13,7 +13,12 @@ const tokenStyle = document.createElement("style");
 tokenStyle.textContent = tokensStylesheet;
 document.head.append(tokenStyle);
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+if (rootElement === null) {
+  throw new Error("The #root element is missing from index.html");
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <App />

@@ -81,6 +81,10 @@ describe("loadConfig", () => {
     ["OFFGRID_RATE_LIMIT_PER_MINUTE", "0"],
     ["OFFGRID_LOG_LEVEL", "trace"],
     ["OFFGRID_CORS_ORIGINS", "not a url"],
+    ["OFFGRID_CORS_ORIGINS", "*"],
+    ["OFFGRID_CORS_ORIGINS", "http://localhost:8080/app"],
+    ["OFFGRID_CORS_ORIGINS", "http://localhost:8080/"],
+    ["OFFGRID_CORS_ORIGINS", "javascript:alert(1)"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
     expect(() => loadConfig({ ...requiredEnv, [variable]: value }, secretFiles("x"))).toThrow(
       new RegExp(variable),

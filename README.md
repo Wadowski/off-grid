@@ -27,7 +27,9 @@ To open the web app from another device, set `OFFGRID_CORS_ORIGINS` to the origi
 
 - `data/secrets/` (in the repository root, git-ignored): the database passwords and the instance id. Files are created once and never regenerated. Keep this folder safe: losing it means losing access to the database. The files are readable by any user on this machine, so keep the host account itself locked down.
 - The `offgrid-db` Docker volume: the PostgreSQL data.
-  Optional settings (`OFFGRID_WEB_PORT`, `OFFGRID_SERVER_PORT`, `OFFGRID_CORS_ORIGINS`, `OFFGRID_API_ORIGIN`, `TZ`, `OFFGRID_VERSION`) can be set in `infra/compose/.env`. The defaults work unchanged. To start from the placeholders, copy the repository-root `.env.example` to `infra/compose/.env`.
+  Upgrading from a stack that used Caddy: the `caddy-data` and `caddy-config` volumes are no longer used. Remove them with `docker volume rm` once the new stack runs.
+
+Optional settings (`OFFGRID_WEB_PORT`, `OFFGRID_SERVER_PORT`, `OFFGRID_CORS_ORIGINS`, `OFFGRID_API_ORIGIN`, `TZ`, `OFFGRID_VERSION`) can be set in `infra/compose/.env`. The defaults work unchanged. To start from the placeholders, copy the repository-root `.env.example` to `infra/compose/.env`.
 
 The published ports listen on all network interfaces, so other devices on your network can reach the instance.
 
