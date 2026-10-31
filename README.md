@@ -1,6 +1,10 @@
 # Offgrid
 
-A privacy-first, family-oriented, self-hosted app suite. The current scope is the local server only.
+A privacy-first, family-oriented, self-hosted app suite. The current scope is the local server only: one server process and one database, running on your own machine. Nothing is sent to a cloud service, and there is no telemetry.
+
+## Status
+
+Early development. The stack starts, the database and module schemas are set up, and the first reference module (`family`) can create families and list them. The other feature modules in [modules/](modules/README.md) are still stubs. Cloud, gateway, billing and tunnel features are future work and do not exist yet.
 
 ## Install
 
@@ -51,3 +55,28 @@ docker compose -f infra/compose/docker-compose.yml down
 ```
 
 This stops the containers and keeps the volumes and `data/`. Add `-v` only if you want to delete the database as well.
+
+## Develop
+
+Requirements: Node.js 24.22.1 or newer and pnpm. This repository uses `pnpm` only; do not use npm or yarn.
+
+```bash
+pnpm install
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm test
+```
+
+`pnpm test` runs the unit and integration tests of every package and the repository scripts. The integration tests start their own throwaway Postgres in a container, so Docker must be running. The end-to-end suite runs with `pnpm e2e` (smoke tests: `pnpm e2e:smoke`). Its global setup starts the compose stack for the run.
+
+To run the full set of checks that CI runs, see [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/ci.md](docs/ci.md).
+
+## Documentation
+
+- [Architecture overview](docs/architecture/overview.md): how the server, modules, database and web app fit together.
+- [Module boundaries](docs/architecture/boundaries.md): the rules that `pnpm check:boundaries` enforces.
+- [Glossary](docs/glossary.md): the terms used in the code and in these docs.
+- [Privacy statement](docs/privacy.md): what the local server stores, where, and what it never sends out.
+- [Architecture decision records](docs/adr/README.md): why things are the way they are.
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to contribute, including the DCO sign-off.
