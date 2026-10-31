@@ -1,10 +1,10 @@
 # Offgrid
 
-A privacy-first, family-oriented, self-hosted app suite. The current scope is the local server only: one server process and one database, running on your own machine. Nothing is sent to a cloud service, and there is no telemetry.
+A privacy-first, family-oriented, self-hosted app suite. The current scope is the local server only: one server process and one database, running on your own machine. At runtime nothing is sent to a cloud service, and there is no telemetry.
 
 ## Status
 
-Early development. The stack starts, the database and module schemas are set up, and the first reference module (`family`) can create families and list them. The other feature modules in [modules/](modules/README.md) are still stubs. Cloud, gateway, billing and tunnel features are future work and do not exist yet.
+Early development. The stack starts, the database and module schemas are set up, and the `family` reference module has create and list routes. The shipped server has no sign-in yet: the identity module is an empty stub, so every request is anonymous and user-scoped routes return `UNAUTHENTICATED`. The family routes are exercised in tests with an injected identity. The other feature modules in [modules/](modules/README.md) are still stubs. Cloud, gateway, billing and tunnel features are future work and do not exist yet.
 
 ## Install
 
@@ -23,15 +23,18 @@ docker compose -f infra/compose/docker-compose.yml up -d --wait
 
 The first run builds the images, generates the secrets, creates the database and runs the migration job. Later runs keep your data and secrets. The migration job applies migrations for the modules the server registers; none are registered yet, so it currently applies nothing.
 
+The first build needs internet access: it pulls base images and installs npm packages. After the stack is running, it makes no outbound calls.
+
 Open the web app at `http://localhost:8080`. The API listens on port 3000 of the same host. Both ports listen on all network interfaces.
 
-To open the web app from another device, set `OFFGRID_CORS_ORIGINS` to the origin that device uses, for example `http://192.168.1.20:8080`, in `infra/compose/.env` and restart the stack. The server accepts browser requests only from the origins listed there.
+To open the web app from another device, set `OFFGRID_CORS_ORIGINS` to the origin that device uses, for example `http://192.168.1.20:8080`, in `infra/compose/.env` and restart the stack. The server accepts browser requests only from the origins listed there. This is a browser rule, not an access control: it does not stop other clients.
 
 ### Where data and secrets live
 
 - `data/secrets/` (in the repository root, git-ignored): the database passwords and the instance id. Files are created once and never regenerated. Keep this folder safe: losing it means losing access to the database. The files are readable by any user on this machine, so keep the host account itself locked down.
 - The `offgrid-db` Docker volume: the PostgreSQL data.
-  Upgrading from a stack that used Caddy: the `caddy-data` and `caddy-config` volumes are no longer used. Remove them with `docker volume rm` once the new stack runs.
+
+If you ran an earlier stack that used Caddy, its `caddy-data` and `caddy-config` volumes are no longer used. Remove them with `docker volume rm` once the new stack runs.
 
 Optional settings (`OFFGRID_WEB_PORT`, `OFFGRID_SERVER_PORT`, `OFFGRID_CORS_ORIGINS`, `OFFGRID_API_ORIGIN`, `TZ`, `OFFGRID_VERSION`) can be set in `infra/compose/.env`. The defaults work unchanged. To start from the placeholders, copy the repository-root `.env.example` to `infra/compose/.env`.
 
