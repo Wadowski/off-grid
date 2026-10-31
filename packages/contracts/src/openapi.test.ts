@@ -18,7 +18,6 @@ describe("buildOpenApiDocument", () => {
       "Family",
       "FamilyId",
       "FamilyList",
-      "FamilySummary",
       "Timestamp",
       "UserId",
     ]);

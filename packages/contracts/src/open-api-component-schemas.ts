@@ -8,7 +8,6 @@ import { errorResponseSchema } from "./error-response-schema.js";
 import { familyIdSchema } from "./family-id-schema.js";
 import { familyListSchema } from "./family-list-schema.js";
 import { familySchema } from "./family-schema.js";
-import { familySummarySchema } from "./family-summary-schema.js";
 import { timestampSchema } from "./timestamp-schema.js";
 import { userIdSchema } from "./user-id-schema.js";
 
@@ -20,6 +19,5 @@ export const openApiComponentSchemas = {
   ErrorResponse: errorResponseSchema,
   CreateFamilyRequest: createFamilyRequestSchema,
   Family: familySchema,
-  FamilySummary: familySummarySchema,
   FamilyList: familyListSchema,
 } satisfies Record<string, z.ZodType>;
