@@ -294,3 +294,29 @@ jobs:
             e2e/artifacts/test-results/**/trace.zip
           retention-days: 7
           if-no-files-found: warn
+
+  stack-guard:
+    name: stack-guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Decide whether the stack changed
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA...HEAD" 2>/dev/null) || changed=UNKNOWN
+          if [ "$changed" = UNKNOWN ] || echo "$changed" | grep -Eq '^(infra/|apps/)|(^|/)Dockerfile[^/]*$'; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "relevant=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.scope.outputs.relevant == 'true'
+        with:
+          node-version-file: .nvmrc
+      - name: Start the egress-blocked stack and check it
+        if: steps.scope.outputs.relevant == 'true'
+        run: node scripts/check-stack-egress.mjs
