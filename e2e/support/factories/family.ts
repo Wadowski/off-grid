@@ -19,6 +19,19 @@ export async function createFamily(
   return parseFamily(await api.request("POST", "/api/families", { name }));
 }
 
+export async function listFamilies(api: ApiClient): Promise<Family[]> {
+  const body: unknown = await api.request("GET", "/families");
+  if (
+    typeof body === "object" &&
+    body !== null &&
+    "families" in body &&
+    Array.isArray(body.families)
+  ) {
+    return body.families.map(parseFamily);
+  }
+  throw new Error("Response is not a list of families.");
+}
+
 function parseFamily(value: unknown): Family {
   if (
     typeof value === "object" &&

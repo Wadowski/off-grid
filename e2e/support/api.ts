@@ -5,6 +5,18 @@ import { createApiClient } from "@offgrid/api-client";
 
 export type ApiClient = ReturnType<typeof createApiClient>;
 
-export function apiClientFor(baseUrl: string): ApiClient {
-  return createApiClient({ baseUrl });
+const USER_ID_HEADER = "x-offgrid-dev-user-id";
+
+export function apiClientFor(baseUrl: string, userId?: string): ApiClient {
+  if (userId === undefined) {
+    return createApiClient({ baseUrl });
+  }
+  return createApiClient({
+    baseUrl,
+    fetch: (input, init) => {
+      const headers = new Headers(init?.headers);
+      headers.set(USER_ID_HEADER, userId);
+      return fetch(input, { ...init, headers });
+    },
+  });
 }
