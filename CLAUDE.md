@@ -73,3 +73,6 @@ Commits must be signed off with `git commit -s` (see [CONTRIBUTING.md](CONTRIBUT
 - `.claude/agents/`: read-only reviewers (architecture, privacy, code quality, Gherkin) run before a PR
 - `docs/adr/`: architecture decisions
 - `docs/workflow.md`: agent and contributor workflow (added by OG-24)
+- `docs/architecture/overview.md`: how the server, modules, database and web app fit together; `docs/architecture/boundaries.md` for the enforced module rules
+- `docs/glossary.md`: terms used in the code and docs
+- `docs/privacy.md`: plain-language privacy statement for the local server
