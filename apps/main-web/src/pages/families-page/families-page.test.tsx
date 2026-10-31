@@ -68,11 +68,10 @@ describe("Families page", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("creates a family and shows it in the list once the projection catches up", async () => {
+  it("creates a family and shows it in the list from one refetch", async () => {
     const fetchMock = stubApi([
       { status: 200, body: { families: [] } },
       { status: 201, body: { id: FAMILY_ID, name: "Lakeside", createdAt: CREATED_AT } },
-      { status: 200, body: { families: [] } },
       { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside" }] } },
     ]);
     render(<App />);
@@ -81,9 +80,8 @@ describe("Families page", () => {
     fillName("Lakeside");
     submitForm();
 
-    expect(await screen.findByTestId("family-list-item", {}, { timeout: 4000 })).toHaveTextContent(
-      "Lakeside",
-    );
+    expect(await screen.findByTestId("family-list-item")).toHaveTextContent("Lakeside");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     const [, postCall] = fetchMock.mock.calls;
     expect(new URL(String(postCall?.[0])).pathname).toBe("/api/families");
     expect(postCall?.[1]).toMatchObject({

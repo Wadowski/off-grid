@@ -5,12 +5,9 @@ import type { CreateFamilyStatus } from "../../../../types.js";
 
 export const createFamilyStatusTextId = (
   status: CreateFamilyStatus,
-): "families.createFailed" | "families.waitingForList" | undefined => {
+): "families.createFailed" | undefined => {
   if (status === "failed") {
     return "families.createFailed";
-  }
-  if (status === "waiting-for-list") {
-    return "families.waitingForList";
   }
   return undefined;
 };

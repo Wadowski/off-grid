@@ -14,7 +14,6 @@ export const en = {
     createFailed: "The family could not be created. Try again.",
     listHeading: "Your families",
     loading: "Loading families…",
-    waitingForList: "Saving… the family will appear shortly.",
     listFailed: "Your families could not be loaded.",
     empty: "You are not in any family yet.",
   },
