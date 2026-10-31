@@ -13,7 +13,7 @@
 - `packages/access-control/`: family and access-group checks
 - `packages/observability/`: trace ids, structured logs and error log
 - `e2e/`: Gherkin features, steps and support code (Playwright-BDD)
-- `infra/`: Caddy, Compose and init scripts
+- `infra/`: Compose and init scripts
 - `docs/adr/`: architecture decision records
 - `scripts/`: repo tooling (DCO, SPDX headers) with `node --test` tests
 - `.claude/`: agent rules, skills and guardrails

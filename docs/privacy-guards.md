@@ -1,6 +1,6 @@
 # Privacy guards
 
-Offgrid promises no telemetry, no data sent to third parties, and no open ports except the reverse proxy. The guards in this document check that promise on every pull request, so it does not rest on trust alone.
+Offgrid promises no telemetry, no data sent to third parties, and no open ports except the web app and the API. The guards in this document check that promise on every pull request, so it does not rest on trust alone.
 
 ## Telemetry denylist: `pnpm check:no-telemetry`
 
@@ -32,6 +32,6 @@ The name is the package name or the host. The check refuses an exception with an
 These checks are part of OG-39 and are not in place yet.
 
 - **Egress-blocked stack** (`pnpm check:stack-egress`): starts the compose stack with `infra/compose/docker-compose.egress-blocked.yml`, which puts `server`, `db` and `web` on an `internal: true` network, and asserts that the stack still reaches `/api/health/ready`.
-- **Published ports** (`pnpm check:stack-ports`): asserts that only the `caddy` service publishes host ports.
+- **Published ports** (`pnpm check:stack-ports`): asserts that only the `web` and `server` services publish host ports.
 
 Both run in a `stack-guard` CI job on changes to `infra/**`, `apps/**` and `Dockerfile*`.

@@ -3,9 +3,10 @@
 
 import { createApiClient } from "@offgrid/api-client";
 import { API_PATH } from "../constants.js";
+import { serverOrigin } from "./server-origin.js";
 import { withDevIdentity } from "./with-dev-identity.js";
 
 export const webApiClient = createApiClient({
-  baseUrl: API_PATH,
+  baseUrl: `${serverOrigin()}${API_PATH}`,
   fetch: (input, init) => fetch(input, { ...init, headers: withDevIdentity(init?.headers) }),
 });

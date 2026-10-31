@@ -3,7 +3,7 @@
 
 export const API_PATH = "/api";
 
-export const API_PROXY_TARGET = "http://127.0.0.1:3000";
+export const API_PORT = 3000;
 
 export const DEV_IDENTITY_USER_HEADER = "x-offgrid-dev-user-id";
 

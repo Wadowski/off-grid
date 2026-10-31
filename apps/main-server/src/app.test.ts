@@ -23,6 +23,7 @@ const baseConfig: ServerConfig = {
     poolMax: 1,
   },
   trustedProxies: [],
+  corsOrigins: [],
   rateLimitPerMinute: 1000,
   logLevel: "error",
 };
@@ -135,6 +136,55 @@ const build = async (
 
 afterEach(async () => {
   await Promise.all(apps.splice(0).map((app) => app.close()));
+});
+
+describe("CORS", () => {
+  const WEB_ORIGIN = "http://localhost:8080";
+  const OTHER_ORIGIN = "https://attacker.example";
+
+  it("answers a preflight from an allowed origin, including the dev identity header", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
+
+    const response = await app.inject({
+      method: "OPTIONS",
+      url: "/api/families",
+      headers: {
+        origin: WEB_ORIGIN,
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type,x-offgrid-dev-user-id",
+      },
+    });
+
+    expect(response.headers["access-control-allow-origin"]).toBe(WEB_ORIGIN);
+    expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-dev-user-id");
+  });
+
+  it("sends no allow-origin header to an origin that is not configured", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/health",
+      headers: { origin: OTHER_ORIGIN },
+    });
+
+    expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
+  it("allows no cross-origin request when no origins are configured", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({}, runtime, []);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/health",
+      headers: { origin: WEB_ORIGIN },
+    });
+
+    expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+  });
 });
 
 describe("health endpoints", () => {

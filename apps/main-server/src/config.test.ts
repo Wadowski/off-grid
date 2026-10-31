@@ -27,9 +27,22 @@ describe("loadConfig", () => {
         poolMax: 10,
       },
       trustedProxies: [],
+      corsOrigins: [],
       rateLimitPerMinute: 300,
       logLevel: "info",
     });
+  });
+
+  it("splits the allowed CORS origins and trims each entry", () => {
+    const config = loadConfig(
+      {
+        ...requiredEnv,
+        OFFGRID_CORS_ORIGINS: " http://localhost:8080 , http://192.168.1.20:8080 ",
+      },
+      secretFiles("x"),
+    );
+
+    expect(config.corsOrigins).toEqual(["http://localhost:8080", "http://192.168.1.20:8080"]);
   });
 
   it("names the missing secret variable", () => {
@@ -67,6 +80,7 @@ describe("loadConfig", () => {
     ["OFFGRID_DATABASE_USER", "Outbox-App"],
     ["OFFGRID_RATE_LIMIT_PER_MINUTE", "0"],
     ["OFFGRID_LOG_LEVEL", "trace"],
+    ["OFFGRID_CORS_ORIGINS", "not a url"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
     expect(() => loadConfig({ ...requiredEnv, [variable]: value }, secretFiles("x"))).toThrow(
       new RegExp(variable),

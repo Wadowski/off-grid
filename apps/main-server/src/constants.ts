@@ -8,6 +8,17 @@ import type { MigrationSource } from "@offgrid/db";
 
 export const RATE_WINDOW_MS = 60_000;
 
+export const CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"];
+
+export const CORS_ALLOWED_HEADERS = [
+  "accept",
+  "content-type",
+  "x-offgrid-dev-user-id",
+  "x-trace-id",
+];
+
+export const CORS_EXPOSED_HEADERS = ["x-trace-id"];
+
 export const UNMATCHED_ROUTE = "unmatched";
 
 export const MAX_MESSAGE_LENGTH = 500;

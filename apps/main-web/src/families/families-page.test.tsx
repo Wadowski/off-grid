@@ -86,7 +86,7 @@ describe("Families screen", () => {
       "Lakeside",
     );
     const [, postCall] = fetchMock.mock.calls;
-    expect(postCall?.[0]).toBe("/api/families");
+    expect(new URL(String(postCall?.[0])).pathname).toBe("/api/families");
     expect(postCall?.[1]).toMatchObject({
       method: "POST",
       body: JSON.stringify({ name: "Lakeside" }),

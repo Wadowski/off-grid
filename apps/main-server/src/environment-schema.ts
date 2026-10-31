@@ -27,6 +27,16 @@ export const environmentSchema = z.object({
         .filter((entry) => entry.length > 0),
     )
     .pipe(z.array(z.string().refine(isIpOrCidr, "must be an IP address or CIDR range"))),
+  OFFGRID_CORS_ORIGINS: z
+    .string()
+    .default("")
+    .transform((value) =>
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0),
+    )
+    .pipe(z.array(z.url())),
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
