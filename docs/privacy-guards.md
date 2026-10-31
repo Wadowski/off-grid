@@ -29,9 +29,8 @@ The name is the package name or the host. The check refuses an exception with an
 
 ## Planned checks
 
-These checks are part of OG-39 and are not in place yet.
+This check is part of OG-39 and is not in place yet.
 
 - **Egress-blocked stack** (`pnpm check:stack-egress`): starts the compose stack with `infra/compose/docker-compose.egress-blocked.yml`, which puts `server`, `db` and `web` on an `internal: true` network, and asserts that the stack still reaches `/api/health/ready`.
-- **Published ports** (`pnpm check:stack-ports`): asserts that only the `web` and `server` services publish host ports.
 
-Both run in a `stack-guard` CI job on changes to `infra/**`, `apps/**` and `Dockerfile*`.
+The check runs in a `stack-guard` CI job on changes to `infra/**`, `apps/**` and `Dockerfile*`.
