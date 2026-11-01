@@ -384,7 +384,33 @@ importers:
 
   modules/food: {}
 
-  modules/identity: {}
+  modules/identity:
+    dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@offgrid/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@offgrid/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
+      '@offgrid/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@offgrid/test-db':
+        specifier: workspace:*
+        version: link:../../packages/test-db
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
 
   modules/lists: {}
 
