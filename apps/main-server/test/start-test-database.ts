@@ -1,23 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { runMigrations } from "@offgrid/db";
 import { startTestDatabase as startSharedTestDatabase } from "@offgrid/test-db";
-import { EVENT_BUS_MIGRATIONS } from "../src/constants.js";
 import type { TestDatabase } from "./types.js";
 
 export const startTestDatabase = async (): Promise<TestDatabase> => {
-  const database = await startSharedTestDatabase({ schemas: ["outbox", "family"], migrations: [] });
-  await runMigrations(database.admin, EVENT_BUS_MIGRATIONS);
+  const shared = await startSharedTestDatabase();
   return {
     connection: {
-      host: database.target.host,
-      port: database.target.port,
-      name: database.target.database,
-      user: "outbox_app",
-      password: database.target.password,
+      host: shared.target.host,
+      port: shared.target.port,
+      name: shared.target.database,
+      user: shared.target.user,
+      password: shared.target.password,
       poolMax: 5,
     },
-    stop: database.stop,
+    migratorTarget: shared.migratorTarget,
+    stop: shared.stop,
   };
 };

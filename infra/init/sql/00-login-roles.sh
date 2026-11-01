@@ -15,8 +15,6 @@ done
 \set app_password `cat /run/secrets/app-password`
 \set migrator_password `cat /run/secrets/migrator-password`
 CREATE ROLE offgrid_migrator LOGIN PASSWORD :'migrator_password';
+CREATE ROLE offgrid_app LOGIN PASSWORD :'app_password';
 SQL
-  for schema in identity family access calendar lists notes files food relations notifications export outbox; do
-    printf 'CREATE ROLE %s_app LOGIN PASSWORD :'"'"'app_password'"'"';\n' "$schema"
-  done
 } | psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"

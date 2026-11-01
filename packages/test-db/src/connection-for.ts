@@ -3,10 +3,10 @@
 
 import type { DatabaseTarget } from "./types.js";
 
-export const connectionFor = (target: DatabaseTarget, schema: string) => ({
+export const connectionFor = (target: DatabaseTarget) => ({
   host: target.host,
   port: target.port,
   database: target.database,
-  user: `${schema}_app`,
+  user: target.user,
   password: target.password,
 });

@@ -10,13 +10,13 @@ LANGUAGE plpgsql
 AS $fn$
 DECLARE
   rel text := format('%I.%I', p_schema, p_table);
-  app_role text := p_schema || '_app';
+  app_role text := 'offgrid_app';
   has_family boolean;
   has_user boolean;
   family_required boolean;
   user_required boolean;
 BEGIN
-  IF p_scope NOT IN ('family-or-user', 'family', 'user', 'shared') THEN
+  IF p_scope NOT IN ('family-or-user', 'family', 'user', 'shared', 'instance') THEN
     RAISE EXCEPTION 'unknown ownership scope %', p_scope;
   END IF;
 
@@ -32,6 +32,14 @@ BEGIN
   INTO has_family, has_user;
 
   EXECUTE format('COMMENT ON TABLE %s IS %L', rel, 'offgrid:scope=' || p_scope);
+
+  IF p_scope = 'instance' THEN
+    IF has_family OR has_user THEN
+      RAISE EXCEPTION 'instance table % must not have an owner column', rel;
+    END IF;
+    EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %s TO %I', rel, app_role);
+    RETURN;
+  END IF;
 
   IF p_scope = 'shared' THEN
     IF has_family OR has_user THEN

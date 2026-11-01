@@ -9,7 +9,7 @@ export const moduleDatabaseFor = (runtime: ServerRuntime, moduleName: string): M
   if (existing !== undefined) {
     return existing;
   }
-  const db = createModuleDb(runtime.poolForRole(moduleName));
+  const db = createModuleDb(runtime.pool);
   runtime.moduleDatabases.set(moduleName, db);
   return db;
 };

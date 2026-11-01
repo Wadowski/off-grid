@@ -4,12 +4,14 @@
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import type { DatabaseTarget } from "./types.js";
 
-export const buildTarget = (
+export const targetOf = (
   container: StartedPostgreSqlContainer,
+  user: string,
   password: string,
 ): DatabaseTarget => ({
   host: container.getHost(),
   port: container.getPort(),
   database: container.getDatabase(),
+  user,
   password,
 });

@@ -1,6 +1,6 @@
 # 0008. Prisma with per-module schemas, roles and RLS
 
-- **Status:** Accepted
+- **Status:** Partly superseded by 0017
 
 ## Context
 

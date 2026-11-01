@@ -4,9 +4,12 @@
 export const INIT_SCRIPTS = [
   "../../../infra/init/sql/01-roles-and-schemas.sql",
   "../../../infra/init/sql/02-scope-helpers.sql",
-  "../../../infra/init/sql/03-migration-ledger-read.sql",
 ];
 
 export const CONTAINER_IMAGE = "postgres:17-alpine";
 
 export const POOL_MAX = 4;
+
+export const MIGRATOR_ROLE_NAME = "offgrid_migrator";
+
+export const APP_ROLE_NAME = "offgrid_app";

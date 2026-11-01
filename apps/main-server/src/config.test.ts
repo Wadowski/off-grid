@@ -22,7 +22,7 @@ describe("loadConfig", () => {
         host: "db.internal",
         port: 5432,
         name: "offgrid",
-        user: "outbox_app",
+        user: "offgrid_app",
         password: "s3cret",
         poolMax: 10,
       },

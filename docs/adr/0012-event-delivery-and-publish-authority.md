@@ -1,6 +1,6 @@
 # 0012. Event delivery is not tenant-filtered; publishing is limited to module roles
 
-- **Status:** Accepted
+- **Status:** Partly superseded by 0017
 
 ## Context
 

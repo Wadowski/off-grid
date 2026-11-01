@@ -21,7 +21,7 @@ Note: `modules/family` is the reference module (see its README). Copy its `packa
 3. **Write `src/index.ts`.** This is the only public entry point. Export the module's factory and public types, nothing from `src/` internals. Follow the header and style of `modules/family/src/index.ts`.
    Verify: `pnpm typecheck` passes.
 
-4. **Declare the schema and role.** The module gets its own Postgres schema and owner role. Follow [ADR 0008](../../../docs/adr/0008-prisma-multi-schema.md) and the helpers in `packages/db`. Add the schema name to `DATABASE_SCHEMAS` in `packages/db/src/schema-names.ts` and the init scripts in `infra/init/sql/` if it is new. Use `offgrid_declare_scope` for every table.
+4. **Declare the schema.** The module gets its own Postgres schema, owned by `offgrid_migrator` and used through the shared runtime role `offgrid_app` ([ADR 0017](../../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). Add the schema name to `DATABASE_SCHEMAS` in `packages/db/src/constants.ts` and to the schema list in `infra/init/sql/01-roles-and-schemas.sql`. Put the module's migration in `packages/db/prisma/migrations`. Use `offgrid_declare_scope` for every table.
    Verify: `packages/db/src/index.ts` exports what you used.
 
 5. **Add the first migration.** Use the `new-migration` skill for the schema's first migration, with an ownership scope declared for every table.

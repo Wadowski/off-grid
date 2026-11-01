@@ -3,7 +3,6 @@
 
 import type { ServerRuntime, CheckStatus, AppliedMigrationRow } from "./types.js";
 import type { Migration } from "@offgrid/db";
-import { migrationKey } from "./migration-key.js";
 import { logCheckFailure } from "./log-check-failure.js";
 
 export const migrationsCheck = async (
@@ -15,11 +14,11 @@ export const migrationsCheck = async (
   }
   try {
     const { rows } = await runtime.pool.query<AppliedMigrationRow>(
-      "SELECT module, name, checksum FROM public.schema_migrations",
+      "SELECT migration_name, checksum FROM public._prisma_migrations WHERE finished_at IS NOT NULL",
     );
-    const applied = new Set(rows.map((row) => migrationKey(row.module, row.name, row.checksum)));
-    const allApplied = expectedMigrations.every((migration) =>
-      applied.has(migrationKey(migration.schema, migration.name, migration.checksum)),
+    const applied = new Map(rows.map((row) => [row.migration_name, row.checksum]));
+    const allApplied = expectedMigrations.every(
+      (migration) => applied.get(migration.name) === migration.checksum,
     );
     return allApplied ? "ok" : "pending";
   } catch (error) {

@@ -95,7 +95,7 @@ describe("publish", () => {
 
   beforeAll(async () => {
     db = await startTestDatabase();
-    family = db.connect("family");
+    family = db.connect();
   }, 120_000);
 
   afterAll(async () => {
@@ -140,10 +140,8 @@ describe("publish", () => {
     }
   });
 
-  it("does not let a module read the event stream", async () => {
-    await expect(family.query("SELECT * FROM outbox.events_after(0, NULL, 10)")).rejects.toThrow(
-      /permission denied/,
-    );
+  it("does not let a module read the event table directly", async () => {
+    await expect(family.query("SELECT * FROM outbox.event")).rejects.toThrow(/permission denied/);
   });
 });
 
@@ -156,8 +154,8 @@ describe("delivery", () => {
 
   beforeAll(async () => {
     db = await startTestDatabase();
-    family = db.connect("family");
-    outbox = db.connect("outbox");
+    family = db.connect();
+    outbox = db.connect();
   }, 120_000);
 
   afterAll(async () => {
@@ -169,7 +167,6 @@ describe("delivery", () => {
     errors = createMemoryErrorSink();
     bus = createEventBus({
       pool: outbox,
-      poolForRole: db.connect,
       errorSink: errors,
       retryDelayMs: () => 0,
     });
@@ -218,20 +215,17 @@ describe("delivery", () => {
 
     await bus.deliverPending();
 
-    expect(roles).toEqual(["family_app"]);
+    expect(roles).toEqual(["offgrid_app"]);
   });
 
-  it("does not let a handler read the event stream or switch to the bus role", async () => {
+  it("does not let a handler read the event table or switch to the migrator role", async () => {
     const refusals: string[] = [];
     bus.subscribe({
       name: "escape-check",
       event: familyCreated,
       runAs: "family",
       handler: async (_event, { tx }) => {
-        for (const probe of [
-          "SELECT * FROM outbox.events_after(0, NULL, 10)",
-          "SET ROLE outbox_app",
-        ]) {
+        for (const probe of ["SELECT * FROM outbox.event", "SET ROLE offgrid_migrator"]) {
           await tx.query("SAVEPOINT probe");
           await tx.query(probe).catch(async (error: Error) => {
             refusals.push(error.message);
@@ -260,7 +254,6 @@ describe("delivery", () => {
         { event: familyCreated, runAs: "outbox", handler },
         {
           pool: outbox,
-          poolForRole: db.connect,
         },
       ),
     ).rejects.toThrow(/invalid module name/);
@@ -332,7 +325,7 @@ describe("delivery", () => {
 
     await db.admin.query("TRUNCATE family.family_summary");
     expect(await storedName(family)).toBeUndefined();
-    const replayed = await replayEvents(subscription, { pool: outbox, poolForRole: db.connect });
+    const replayed = await replayEvents(subscription, { pool: outbox });
 
     expect(replayed).toBe(2);
     expect(await storedName(family)).toEqual(before);
@@ -357,10 +350,9 @@ describe("delivery", () => {
   });
 
   it("delivers in the background until stopped, woken by notifications", async () => {
-    const listener = await db.connectClient("outbox");
+    const listener = await db.connectClient();
     const loopBus = createEventBus({
       pool: outbox,
-      poolForRole: db.connect,
       listener,
       errorSink: errors,
       pollIntervalMs: 50,
@@ -387,11 +379,10 @@ describe("delivery", () => {
   });
 
   it("stays stopped when the notification listener cannot start", async () => {
-    const listener = await db.connectClient("outbox");
+    const listener = await db.connectClient();
     await listener.end();
     const loopBus = createEventBus({
       pool: outbox,
-      poolForRole: db.connect,
       listener,
       errorSink: errors,
     });

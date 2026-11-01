@@ -16,6 +16,9 @@ export const scopeViolation = (row: Omit<TableRow, "schema">): string | null => 
   if (scope === "shared") {
     return row.has_family || row.has_user ? "shared table has an owner column" : null;
   }
+  if (scope === "instance") {
+    return row.has_family || row.has_user ? "instance table has an owner column" : null;
+  }
   if (!row.rls) {
     return `scope ${scope} requires row level security`;
   }

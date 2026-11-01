@@ -54,6 +54,9 @@ AS $fn$
 DECLARE
   seq bigint;
 BEGIN
+  IF session_user <> 'offgrid_app' THEN
+    RAISE EXCEPTION 'only the runtime role may publish an event';
+  END IF;
   INSERT INTO outbox.event (
     id, type, version, source_version, trace_id, occurred_at, family_id, user_id, payload
   ) VALUES (
@@ -148,26 +151,14 @@ REVOKE ALL ON FUNCTION outbox.events_after(bigint, text, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION outbox.record_dead_letter(text, bigint, integer, text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION outbox.prune_delivered(integer) FROM PUBLIC;
 
-GRANT USAGE ON SCHEMA outbox TO outbox_app;
-GRANT EXECUTE ON FUNCTION outbox.lock_cursor(text) TO outbox_app;
-GRANT EXECUTE ON FUNCTION outbox.advance_cursor(text, bigint) TO outbox_app;
-GRANT EXECUTE ON FUNCTION outbox.events_after(bigint, text, integer) TO outbox_app;
-GRANT EXECUTE ON FUNCTION outbox.record_dead_letter(text, bigint, integer, text) TO outbox_app;
-GRANT EXECUTE ON FUNCTION outbox.prune_delivered(integer) TO outbox_app;
+GRANT USAGE ON SCHEMA outbox TO offgrid_app;
+GRANT EXECUTE ON FUNCTION outbox.append_event(uuid, text, integer, bigint, text, timestamptz, uuid, uuid, jsonb) TO offgrid_app;
+GRANT EXECUTE ON FUNCTION outbox.lock_cursor(text) TO offgrid_app;
+GRANT EXECUTE ON FUNCTION outbox.advance_cursor(text, bigint) TO offgrid_app;
+GRANT EXECUTE ON FUNCTION outbox.events_after(bigint, text, integer) TO offgrid_app;
+GRANT EXECUTE ON FUNCTION outbox.record_dead_letter(text, bigint, integer, text) TO offgrid_app;
+GRANT EXECUTE ON FUNCTION outbox.prune_delivered(integer) TO offgrid_app;
 
-DO $$
-DECLARE
-  m text;
-  modules text[] := ARRAY[
-    'identity', 'family', 'access', 'calendar', 'lists', 'notes',
-    'files', 'food', 'relations', 'notifications', 'export'
-  ];
-BEGIN
-  FOREACH m IN ARRAY modules LOOP
-    EXECUTE format('GRANT USAGE ON SCHEMA outbox TO %I', m || '_app');
-    EXECUTE format(
-      'GRANT EXECUTE ON FUNCTION outbox.append_event(uuid, text, integer, bigint, text, timestamptz, uuid, uuid, jsonb) TO %I',
-      m || '_app'
-    );
-  END LOOP;
-END $$;
+REVOKE SELECT, INSERT, UPDATE, DELETE ON outbox.event, outbox.dead_letter FROM offgrid_app;
+
+GRANT SELECT ON public._prisma_migrations TO offgrid_app;

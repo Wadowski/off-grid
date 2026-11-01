@@ -5,9 +5,8 @@ import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { startTestDatabase } from "../test/start-test-database.js";
-import { fixtureSources } from "../test/fixture-sources.js";
 import type { Context, TestDatabase } from "../test/types.js";
-import { createModuleDb, runMigrations, withFamilyContext, withUserContext } from "./index.js";
+import { createModuleDb, withFamilyContext, withUserContext } from "./index.js";
 
 const queryAs = async (client: Client, context: Context, sql: string, params: unknown[] = []) => {
   await client.query("BEGIN");
@@ -27,7 +26,7 @@ const queryAs = async (client: Client, context: Context, sql: string, params: un
   }
 };
 
-describe("row level isolation and role boundaries", () => {
+describe("row level isolation and the shared runtime role", () => {
   let db: TestDatabase;
 
   const familyA = randomUUID();
@@ -37,24 +36,14 @@ describe("row level isolation and role boundaries", () => {
 
   beforeAll(async () => {
     db = await startTestDatabase();
-    await runMigrations(db.migrator, fixtureSources());
-
     await db.admin.query(
-      `INSERT INTO family.family_setting (id, family_id, label) VALUES
-         ($1, $2, 'A setting'), ($3, $4, 'B setting')`,
-      [randomUUID(), familyA, randomUUID(), familyB],
+      "INSERT INTO family.family (family_id, name) VALUES ($1, 'A'), ($2, 'B')",
+      [familyA, familyB],
     );
     await db.admin.query(
-      `INSERT INTO lists.list (id, family_id, user_id, title) VALUES
-         ($1, $2, NULL, 'A shared list'),
-         ($3, NULL, $4, 'U1 private list'),
-         ($5, NULL, $6, 'U2 private list'),
-         ($7, $8, NULL, 'B shared list')`,
-      [randomUUID(), familyA, randomUUID(), userOne, randomUUID(), userTwo, randomUUID(), familyB],
+      "INSERT INTO family.family_member (family_id, user_id) VALUES ($1, $2), ($3, $4)",
+      [familyA, userOne, familyB, userTwo],
     );
-    await db.admin.query("INSERT INTO food.ingredient (id, name) VALUES ($1, 'flour')", [
-      randomUUID(),
-    ]);
   }, 120_000);
 
   afterAll(async () => {
@@ -62,39 +51,35 @@ describe("row level isolation and role boundaries", () => {
   });
 
   describe("family scope", () => {
-    it("shows only the rows of the family in context", async () => {
-      const client = await db.connect("family");
+    it("shows only the family rows in context", async () => {
+      const client = await db.connectClient();
       try {
-        const rows = await queryAs(
-          client,
-          { familyId: familyA },
-          "SELECT label FROM family.family_setting",
-        );
-        expect(rows).toEqual([{ label: "A setting" }]);
+        const rows = await queryAs(client, { familyId: familyA }, "SELECT name FROM family.family");
+        expect(rows).toEqual([{ name: "A" }]);
       } finally {
         await client.end();
       }
     });
 
     it("shows nothing when no family is in context", async () => {
-      const client = await db.connect("family");
+      const client = await db.connectClient();
       try {
-        const rows = await queryAs(client, {}, "SELECT label FROM family.family_setting");
+        const rows = await queryAs(client, {}, "SELECT name FROM family.family");
         expect(rows).toEqual([]);
       } finally {
         await client.end();
       }
     });
 
-    it("refuses to insert a row for another family", async () => {
-      const client = await db.connect("family");
+    it("refuses to insert a membership row for another family", async () => {
+      const client = await db.connectClient();
       try {
         await expect(
           queryAs(
             client,
             { familyId: familyA },
-            "INSERT INTO family.family_setting (id, family_id, label) VALUES ($1, $2, 'intruder')",
-            [randomUUID(), familyB],
+            "INSERT INTO family.family_member (family_id, user_id) VALUES ($1, $2)",
+            [familyB, randomUUID()],
           ),
         ).rejects.toThrow(/row-level security/);
       } finally {
@@ -103,74 +88,54 @@ describe("row level isolation and role boundaries", () => {
     });
   });
 
-  describe("family-or-user scope", () => {
-    it("shows the family's shared rows and the user's own private rows only", async () => {
-      const client = await db.connect("lists");
+  describe("user memberships", () => {
+    it("shows a user only the memberships that name them", async () => {
+      const client = await db.connectClient();
       try {
         const rows = await queryAs(
           client,
-          { familyId: familyA, userId: userOne },
-          "SELECT title FROM lists.list ORDER BY title",
+          { userId: userOne },
+          "SELECT family_id FROM family.family_member",
         );
-        expect(rows).toEqual([{ title: "A shared list" }, { title: "U1 private list" }]);
+        expect(rows).toEqual([{ family_id: familyA }]);
       } finally {
         await client.end();
       }
     });
 
-    it("hides another member's private rows even inside the same family", async () => {
-      const client = await db.connect("lists");
+    it("shows a user the families they belong to and no others", async () => {
+      const client = await db.connectClient();
       try {
-        const rows = await queryAs(
-          client,
-          { familyId: familyA, userId: userTwo },
-          "SELECT title FROM lists.list WHERE title LIKE 'U1%'",
-        );
-        expect(rows).toEqual([]);
-      } finally {
-        await client.end();
-      }
-    });
-
-    it("rejects a row with both an owner family and an owner user", async () => {
-      const client = await db.connect("lists");
-      try {
-        await expect(
-          queryAs(
-            client,
-            { familyId: familyA, userId: userOne },
-            "INSERT INTO lists.list (id, family_id, user_id, title) VALUES ($1, $2, $3, 'both')",
-            [randomUUID(), familyA, userOne],
-          ),
-        ).rejects.toThrow(/lists_one_owner|check constraint/);
+        const rows = await queryAs(client, { userId: userTwo }, "SELECT name FROM family.family");
+        expect(rows).toEqual([{ name: "B" }]);
       } finally {
         await client.end();
       }
     });
   });
 
-  describe("module role boundaries", () => {
-    it("refuses the family runtime role any access to the access schema", async () => {
-      const client = await db.connect("family");
+  describe("shared runtime role", () => {
+    it("refuses direct writes to a shared table", async () => {
+      const client = await db.connectClient();
       try {
         await expect(
-          queryAs(client, { familyId: familyA }, "SELECT id FROM access.access_grant"),
-        ).rejects.toThrow(/permission denied for schema access/);
+          queryAs(
+            client,
+            {},
+            "INSERT INTO outbox.subscriber_cursor (subscriber, last_sequence) VALUES ('x', 1)",
+          ),
+        ).rejects.toThrow(/permission denied/);
       } finally {
         await client.end();
       }
     });
 
-    it("gives shared reference data read-only access to the app role", async () => {
-      const client = await db.connect("food");
+    it("refuses direct reads of the event log, which the bus reads through functions", async () => {
+      const client = await db.connectClient();
       try {
-        const rows = await queryAs(client, {}, "SELECT name FROM food.ingredient");
-        expect(rows).toEqual([{ name: "flour" }]);
-        await expect(
-          queryAs(client, {}, "INSERT INTO food.ingredient (id, name) VALUES ($1, 'sugar')", [
-            randomUUID(),
-          ]),
-        ).rejects.toThrow(/permission denied/);
+        await expect(queryAs(client, {}, "SELECT id FROM outbox.event")).rejects.toThrow(
+          /permission denied/,
+        );
       } finally {
         await client.end();
       }
@@ -179,32 +144,30 @@ describe("row level isolation and role boundaries", () => {
 
   describe("Prisma client with the request context helpers", () => {
     it("reads only the context family through the module client", async () => {
-      const prisma = createModuleDb(db.connectPool("family"));
+      const prisma = createModuleDb(db.connectPool());
       try {
-        const labels = await prisma.$transaction(async (tx) => {
+        const names = await prisma.$transaction(async (tx) => {
           await withFamilyContext(tx, familyB);
-          return tx.$queryRawUnsafe<{ label: string }[]>("SELECT label FROM family.family_setting");
+          return tx.$queryRawUnsafe<{ name: string }[]>("SELECT name FROM family.family");
         });
-        expect(labels).toEqual([{ label: "B setting" }]);
+        expect(names).toEqual([{ name: "B" }]);
       } finally {
         await prisma.$disconnect();
       }
     });
 
     it("sets the user context for the transaction only", async () => {
-      const prisma = createModuleDb(db.connectPool("lists"));
+      const prisma = createModuleDb(db.connectPool());
       try {
         const inside = await prisma.$transaction(async (tx) => {
-          await withUserContext(tx, userTwo);
-          return tx.$queryRawUnsafe<{ title: string }[]>(
-            "SELECT title FROM lists.list WHERE title LIKE 'U2%'",
+          await withUserContext(tx, userOne);
+          return tx.$queryRawUnsafe<{ family_id: string }[]>(
+            "SELECT family_id FROM family.family_member",
           );
         });
-        expect(inside).toEqual([{ title: "U2 private list" }]);
+        expect(inside).toEqual([{ family_id: familyA }]);
 
-        const outside = await prisma.$queryRawUnsafe<{ title: string }[]>(
-          "SELECT title FROM lists.list WHERE title LIKE 'U2%'",
-        );
+        const outside = await prisma.$queryRawUnsafe("SELECT family_id FROM family.family_member");
         expect(outside).toEqual([]);
       } finally {
         await prisma.$disconnect();

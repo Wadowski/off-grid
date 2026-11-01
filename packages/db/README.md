@@ -1,29 +1,29 @@
 # @offgrid/db
 
-Purpose: database access for the `offgrid` Postgres database. Prisma client per module, the migration runner, ownership scopes and row-level security helpers. Decided in [ADR 0008](../../docs/adr/0008-prisma-multi-schema.md) and [ADR 0009](../../docs/adr/0009-table-ownership-scopes.md).
-
+Purpose: database access for the `offgrid` Postgres database. The Prisma client, the migration runner, ownership scopes and row-level security helpers. Decided in [ADR 0008](../../docs/adr/0008-prisma-multi-schema.md), [ADR 0009](../../docs/adr/0009-table-ownership-scopes.md) and [ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md).
 Public API: only what `src/index.ts` exports; never import from `src/` internals.
 Owner: platform team
 
 ## Layout
 
 - `prisma/schema.prisma`: one Prisma schema for the whole database. Module models are added here by the owning module.
-- Generated Prisma client: written to `node_modules/.prisma/offgrid-db`, so it is never committed and the boundary check skips it. Run `pnpm generate` (typecheck, lint, test and build do it).
-- `src/` helpers: `createModuleDb`, `withFamilyContext`, `withUserContext`, `runMigrations`, `assertOwnershipScopes`, `provisionLoginRole`.
-- `test/`: Testcontainers Postgres harness and fixture migrations, used by the integration tests.
-- The init SQL that creates schemas and roles is in [`infra/init/sql/`](../../infra/init/sql/): `01-roles-and-schemas.sql` and `02-scope-helpers.sql` (the `offgrid_declare_scope` function).
+- `prisma/migrations/`: every migration, one folder per migration named `<timestamp>_<module>_<name>`, each with a `migration.sql`. Prisma Migrate applies them in folder-name order.
+- `prisma.config.ts`: reads the migration connection from `DATABASE_URL`.
+- Generated Prisma client: written to `node_modules/.prisma/offgrid-db`, so it is never committed. Run `pnpm generate` (typecheck, lint, test and build do it).
+- `src/`: `createModuleDb`, `migrateDeploy`, `loadMigrations`, `assertOwnershipScopes`, `withFamilyContext`, `withUserContext`.
+- `test/`: Testcontainers harness on top of `@offgrid/test-db`.
+- The init SQL that creates the roles and schemas is in [`infra/init/sql/`](../../infra/init/sql/): `00-login-roles.sh` (logins from secrets), `01-roles-and-schemas.sql` and `02-scope-helpers.sql` (the `offgrid_declare_scope` function).
 
 ## Roles
 
-For each schema `<m>`:
+- `offgrid_migrator` owns every module schema and table. It runs migrations and is never used by the server at runtime.
+- `offgrid_app` is the runtime role for every module, the event bus and subscriber handlers. It has DML grants on the tables and owns nothing, so row-level security applies to it.
 
-- `<m>_owner` owns the schema and runs the module's migrations. NOLOGIN.
-- `<m>_app` is the runtime role. DML on its own schema only. Login is provisioned from a secret. Each module connects with its own login through `createModuleDb`; the event bus connects as `outbox_app`, which reads the event stream and advances cursors through definer functions. Each subscriber's handler runs on its own module login, so the bus holds no module privileges ([ADR 0014](../../docs/adr/0014-subscriber-handlers-on-module-logins.md)).
-- `offgrid_migrator` is a member of every owner role. It runs the migration runner and keeps the history in `public.schema_migrations`.
+The two roles are separate because a table owner bypasses row-level security unless the table forces it.
 
 ## Migrations
 
-Migrations are raw SQL files named `NNNN_name.sql`, one folder per module. `runMigrations` applies them in the order the caller gives, each as its module's owner role, in a transaction with its history row. An applied migration whose file changes is refused; add a new file instead.
+Run `migrateDeploy` (or `prisma migrate deploy` in `packages/db`) as `offgrid_migrator`. Prisma records each migration in `public._prisma_migrations`. An applied migration whose file changes is refused, so add a new folder instead of editing one.
 
 Declare the ownership scope of every table in the migration, right after creating it:
 
@@ -32,10 +32,10 @@ CREATE TABLE lists.list (id uuid PRIMARY KEY, family_id uuid, user_id uuid, titl
 SELECT public.offgrid_declare_scope('lists', 'list', 'family-or-user');
 ```
 
-Scopes: `family-or-user`, `family`, `user`, `shared` (see ADR 0009). The helper adds the owner check, enables RLS with its policy and grants the app role its privileges. `assertOwnershipScopes` checks every table against its declared scope.
+Scopes: `family-or-user`, `family`, `user`, `shared` and `instance` (see ADR 0009 and ADR 0017). The helper adds the owner check, enables RLS with its policy and grants the runtime role its privileges. `assertOwnershipScopes` checks every table against its declared scope.
 
 ## Request context
 
 RLS policies read `app.family_id` and `app.user_id`, set per transaction with `withFamilyContext` and `withUserContext`. Unset means no rows (fail closed). These helpers only set the context. Whether the caller may act for that family is checked by `packages/access-control`.
 
-RLS limits what a query can see for the context it was given. It does not stop code that holds a module login from setting another family's id. Deciding whether a caller may act for a family is the application's job, through `packages/access-control`.
+RLS limits what a query can see for the context it was given. Module boundaries are enforced by code rules and CI checks, not by separate database roles (ADR 0017).

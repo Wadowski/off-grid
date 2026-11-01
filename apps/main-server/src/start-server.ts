@@ -7,7 +7,6 @@ import { createRuntime } from "./create-runtime.js";
 import { registerSubscribersAndCollectWorkers } from "./register-subscribers-and-collect-workers.js";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "./build-app.js";
-import { allMigrationSources } from "./all-migration-sources.js";
 import { disconnectModuleDatabases } from "./disconnect-module-databases.js";
 import { shutDown } from "./shut-down.js";
 import { startWorkers } from "./start-workers.js";
@@ -23,7 +22,7 @@ export const startServer = async (
 
   let app: FastifyInstance;
   try {
-    app = await buildApp({ config, runtime, modules, migrations: allMigrationSources(modules) });
+    app = await buildApp({ config, runtime, modules });
   } catch (error) {
     await Promise.all([runtime.pool.end(), disconnectModuleDatabases(runtime)]);
     throw error;
