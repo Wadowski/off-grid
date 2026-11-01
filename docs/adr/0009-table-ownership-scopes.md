@@ -1,6 +1,6 @@
 # 0009. One Postgres database with a schema and role per module, and an ownership scope per table
 
-- **Status:** Accepted
+- **Status:** Partly superseded by 0017
 
 ## Context
 

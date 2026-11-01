@@ -1,6 +1,6 @@
 # 0014. Subscriber handlers run on their module login, with at-least-once delivery
 
-- **Status:** Accepted
+- **Status:** Partly superseded by 0017
 
 ## Context
 
