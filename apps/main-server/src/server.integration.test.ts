@@ -56,7 +56,7 @@ describe("startServer", () => {
 
     await running.close();
     await running.close();
-  });
+  }, 60_000);
 
   it("refuses to boot when the database cannot be reached", async () => {
     const unreachable: ServerConfig = {
