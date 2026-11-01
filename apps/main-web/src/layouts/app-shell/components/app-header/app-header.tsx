@@ -2,18 +2,20 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Text } from "@offgrid/ui";
-import { useTranslation } from "react-i18next";
+import type { CurrentUser } from "../../../../types.js";
+import { AppNav } from "../app-nav/app-nav.js";
+import { UserMenu } from "../user-menu/user-menu.js";
 import { appHeaderStyle } from "./styles.js";
 
-export const AppHeader = () => {
-  const { t } = useTranslation();
-
-  return (
-    <header style={appHeaderStyle}>
-      <Text variant="brand" textId="appName" />
-      <nav aria-label={t("navLabel")} data-testid="app-nav">
-        <Text variant="status" textId="navPlaceholder" />
-      </nav>
-    </header>
-  );
+type AppHeaderProps = {
+  readonly user: CurrentUser;
+  readonly onSignOut: () => void;
 };
+
+export const AppHeader = ({ user, onSignOut }: AppHeaderProps) => (
+  <header style={appHeaderStyle}>
+    <Text variant="brand" textId="appName" />
+    <AppNav />
+    <UserMenu user={user} onSignOut={onSignOut} />
+  </header>
+);

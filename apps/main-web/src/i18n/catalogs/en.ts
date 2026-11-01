@@ -4,7 +4,19 @@
 export const en = {
   appName: "Offgrid",
   navLabel: "Main navigation",
-  navPlaceholder: "Modules will appear here.",
+  nav: {
+    family: "Family",
+    settings: "Settings",
+  },
+  userMenu: {
+    trigger: "Account menu",
+    label: "Account",
+    roleAdmin: "Admin",
+    roleMember: "Member",
+    accountAndSecurity: "Account and security",
+    adminSettings: "Admin settings",
+    signOut: "Sign out",
+  },
   families: {
     heading: "Families",
     createHeading: "Create family",
