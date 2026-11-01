@@ -27,6 +27,66 @@ model FamilyMember {
   @@map("family_member")
 }
 
+model UserAccount {
+  userId       String        @id @map("user_id") @db.Uuid
+  email        String        @db.VarChar(254)
+  displayName  String        @map("display_name") @db.VarChar(100)
+  instanceRole String        @map("instance_role")
+  status       String        @default("active")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  credential   Credential?
+  sessions     Session[]
+  recoveryCodes RecoveryCode[]
+
+  @@schema("identity")
+  @@map("user_account")
+}
+
+model Credential {
+  userId       String      @id @map("user_id") @db.Uuid
+  passwordHash String      @map("password_hash")
+  changedAt    DateTime    @default(now()) @map("changed_at") @db.Timestamptz(6)
+  user         UserAccount @relation(fields: [userId], references: [userId])
+
+  @@schema("identity")
+  @@map("credential")
+}
+
+model Session {
+  sessionId   String      @id @map("session_id") @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  deviceLabel String?     @map("device_label") @db.VarChar(100)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastUsedAt  DateTime    @default(now()) @map("last_used_at") @db.Timestamptz(6)
+  expiresAt   DateTime    @map("expires_at") @db.Timestamptz(6)
+  revoked     Boolean     @default(false)
+  user        UserAccount @relation(fields: [userId], references: [userId])
+
+  @@schema("identity")
+  @@map("session")
+}
+
+model RecoveryCode {
+  recoveryCodeId String      @id @map("recovery_code_id") @db.Uuid
+  userId         String      @map("user_id") @db.Uuid
+  codeHash       String      @map("code_hash")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  usedAt         DateTime?   @map("used_at") @db.Timestamptz(6)
+  retiredAt      DateTime?   @map("retired_at") @db.Timestamptz(6)
+  user           UserAccount @relation(fields: [userId], references: [userId])
+
+  @@schema("identity")
+  @@map("recovery_code")
+}
+
+model InstanceSettings {
+  settingKey       String  @id @map("setting_key")
+  registrationOpen Boolean @map("registration_open")
+
+  @@schema("identity")
+  @@map("instance_settings")
+}
+
 generator client {
   provider            = "prisma-client"
   output              = "../../../node_modules/.prisma/offgrid-db"
