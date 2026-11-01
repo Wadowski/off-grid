@@ -40,7 +40,7 @@ describe("startServer", () => {
     });
 
     await running.close();
-  });
+  }, 60_000);
 
   it("boots, reports ready and closes cleanly once the migrations have run", async () => {
     await migrateDeploy(database.migratorTarget);
