@@ -11,3 +11,11 @@ export type ListStatus = "loading" | "ready" | "failed";
 export type CreateFamilyStatus = "idle" | "submitting" | "failed";
 
 export type FamilyNameErrorTextId = "families.nameRequired" | "families.nameTooLong";
+
+export type CurrentUserRole = "admin" | "member";
+
+export type CurrentUser = {
+  readonly name: string;
+  readonly email: string;
+  readonly role: CurrentUserRole;
+};

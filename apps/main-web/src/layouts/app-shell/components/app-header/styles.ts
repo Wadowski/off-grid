@@ -7,6 +7,7 @@ import type { CSSProperties } from "react";
 export const appHeaderStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "space-between",
   gap: tokens.space[4],
   padding: tokens.space[4],
   background: "var(--og-color-surface)",
