@@ -6,7 +6,6 @@ import { test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
 
-// The e2e stack runs only the API today; the web app is not wired in yet.
 const notServed = (_world: ScenarioWorld, ...details: unknown[]): never => {
   throw new Error(
     `The e2e stack does not serve the web app yet, so the app shell step cannot run: ${details.join(", ")}.`,
