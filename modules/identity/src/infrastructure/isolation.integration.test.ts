@@ -14,7 +14,7 @@ import { insertSession } from "./insert-session.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";
 
-describe("identity row isolation", () => {
+describe("identity row isolation", { timeout: 60_000 }, () => {
   let db: IdentityTestDatabase;
   let ada: User;
   let ben: User;

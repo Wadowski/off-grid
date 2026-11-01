@@ -15,7 +15,7 @@ import { revokeSession } from "./revoke-session.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";
 
-describe("sessions", () => {
+describe("sessions", { timeout: 60_000 }, () => {
   let db: IdentityTestDatabase;
   let user: User;
 

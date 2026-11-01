@@ -18,7 +18,9 @@ Owner: module team (identity)
 - `identity.recovery_code` (scope `user`): hashed single-use codes. Each user has at most one active code, enforced by a partial unique index. Rotation retires the old code.
 - `identity.instance_settings` (scope `instance`): one row, seeded with registration open. It has no owner column and any role can read it.
 
-`identity.user_count()` is a `SECURITY DEFINER` function, so the first-user check can count every account, though a user only sees their own row.
+`identity.first_admin_claim` (scope `instance`): one row keyed by a constant. Creating the first account inserts it in the same transaction, so two simultaneous first sign-ups cannot both become admin; the second waits on the row and fails.
+
+`identity.user_count()` is a `SECURITY DEFINER` function that returns only the number of accounts. It is the one deliberate read across rows: RLS hides other users' rows, so the first-user check needs the count. It is granted to the shared runtime role, so it must not be exposed on unauthenticated responses, where it would reveal the instance size.
 
 ## Domain rules
 
@@ -28,6 +30,7 @@ Pure code in `src/domain/`, with no I/O:
 - A display name of 1 to 100 characters, shared with the contract in `packages/contracts`.
 - The first account on an instance is an admin; every later account is a regular user (`initialInstanceRole`).
 - An instance always keeps one active admin: `canDisableAccount` refuses to disable the last one.
+- While registration is closed, a later account is refused with `RegistrationClosedError`. The first account is always allowed.
 
 ## Published events
 
@@ -51,5 +54,6 @@ test/                        Testcontainers Postgres helper, with the shared mig
 ## Not in this record
 
 - Argon2id hashing and the recovery-code hash function. The application takes already-hashed values.
-- The first-admin race. Two sign-ups at the same moment could both count zero users. ADR 0016 requires an atomic claim, which belongs to the registration issue (OG-47).
+- Switching registration open or closed has no admin check yet. `setRegistrationOpen` is an infrastructure function with no caller; the admin check belongs in the application layer when the admin endpoints land.
+- Session refresh-token hashes, password hashing parameters and recovery-code digest formats. These belong to the sign-in, hashing and recovery issues.
 - Per-module database roles. ADR 0017 removed them, so the OG-46 criterion that a module role reaches only its own schema no longer applies.

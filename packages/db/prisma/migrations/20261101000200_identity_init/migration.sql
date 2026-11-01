@@ -15,10 +15,16 @@ CREATE UNIQUE INDEX user_account_email_key ON identity.user_account (lower(email
 
 CREATE TABLE identity.credential (
   user_id       uuid        PRIMARY KEY REFERENCES identity.user_account (user_id),
-  password_hash text        NOT NULL CHECK (password_hash LIKE '$argon2id$%'),
+  password_hash text        NOT NULL CHECK (password_hash LIKE '$argon2id$v=19$m=%'),
   changed_at    timestamptz NOT NULL DEFAULT now()
 );
 SELECT public.offgrid_declare_scope('identity', 'credential', 'user');
+
+CREATE TABLE identity.first_admin_claim (
+  claim_key  text        PRIMARY KEY CHECK (claim_key = 'instance'),
+  claimed_at timestamptz NOT NULL DEFAULT now()
+);
+SELECT public.offgrid_declare_scope('identity', 'first_admin_claim', 'instance');
 
 CREATE TABLE identity.session (
   session_id    uuid        PRIMARY KEY,
@@ -31,6 +37,8 @@ CREATE TABLE identity.session (
 );
 SELECT public.offgrid_declare_scope('identity', 'session', 'user');
 
+CREATE INDEX session_user_id_key ON identity.session (user_id);
+
 CREATE TABLE identity.recovery_code (
   recovery_code_id uuid        PRIMARY KEY,
   user_id          uuid        NOT NULL REFERENCES identity.user_account (user_id),
@@ -40,6 +48,8 @@ CREATE TABLE identity.recovery_code (
   retired_at       timestamptz
 );
 SELECT public.offgrid_declare_scope('identity', 'recovery_code', 'user');
+
+CREATE INDEX recovery_code_user_id_key ON identity.recovery_code (user_id);
 
 CREATE UNIQUE INDEX recovery_code_one_active_key ON identity.recovery_code (user_id)
   WHERE used_at IS NULL AND retired_at IS NULL;

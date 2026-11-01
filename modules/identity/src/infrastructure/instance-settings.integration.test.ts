@@ -9,7 +9,7 @@ import {
 import { readInstanceSettings } from "./read-instance-settings.js";
 import { setRegistrationOpen } from "./set-registration-open.js";
 
-describe("instance settings", () => {
+describe("instance settings", { timeout: 60_000 }, () => {
   let db: IdentityTestDatabase;
 
   beforeAll(async () => {

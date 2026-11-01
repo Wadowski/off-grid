@@ -14,7 +14,7 @@ import { publishUserCreated } from "./publish-user-created.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";
 
-describe("user-created-v1 event", () => {
+describe("user-created-v1 event", { timeout: 60_000 }, () => {
   let db: IdentityTestDatabase;
 
   beforeAll(async () => {

@@ -7,13 +7,13 @@ datasource db {
 }
 
 model Family {
-  familyId  String   @id @map("family_id") @db.Uuid
-  name      String   @db.VarChar(100)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  familyId  String         @id @map("family_id") @db.Uuid
+  name      String         @db.VarChar(100)
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   members   FamilyMember[]
 
-  @@schema("family")
   @@map("family")
+  @@schema("family")
 }
 
 model FamilyMember {
@@ -23,23 +23,23 @@ model FamilyMember {
   family   Family   @relation(fields: [familyId], references: [familyId])
 
   @@id([familyId, userId])
-  @@schema("family")
   @@map("family_member")
+  @@schema("family")
 }
 
 model UserAccount {
-  userId       String        @id @map("user_id") @db.Uuid
-  email        String        @db.VarChar(254)
-  displayName  String        @map("display_name") @db.VarChar(100)
-  instanceRole String        @map("instance_role")
-  status       String        @default("active")
-  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  credential   Credential?
-  sessions     Session[]
+  userId        String         @id @map("user_id") @db.Uuid
+  email         String         @db.VarChar(254)
+  displayName   String         @map("display_name") @db.VarChar(100)
+  instanceRole  String         @map("instance_role")
+  status        String         @default("active")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  credential    Credential?
+  sessions      Session[]
   recoveryCodes RecoveryCode[]
 
-  @@schema("identity")
   @@map("user_account")
+  @@schema("identity")
 }
 
 model Credential {
@@ -48,8 +48,8 @@ model Credential {
   changedAt    DateTime    @default(now()) @map("changed_at") @db.Timestamptz(6)
   user         UserAccount @relation(fields: [userId], references: [userId])
 
-  @@schema("identity")
   @@map("credential")
+  @@schema("identity")
 }
 
 model Session {
@@ -62,8 +62,8 @@ model Session {
   revoked     Boolean     @default(false)
   user        UserAccount @relation(fields: [userId], references: [userId])
 
-  @@schema("identity")
   @@map("session")
+  @@schema("identity")
 }
 
 model RecoveryCode {
@@ -75,16 +75,24 @@ model RecoveryCode {
   retiredAt      DateTime?   @map("retired_at") @db.Timestamptz(6)
   user           UserAccount @relation(fields: [userId], references: [userId])
 
-  @@schema("identity")
   @@map("recovery_code")
+  @@schema("identity")
+}
+
+model FirstAdminClaim {
+  claimKey  String   @id @map("claim_key")
+  claimedAt DateTime @default(now()) @map("claimed_at") @db.Timestamptz(6)
+
+  @@map("first_admin_claim")
+  @@schema("identity")
 }
 
 model InstanceSettings {
   settingKey       String  @id @map("setting_key")
   registrationOpen Boolean @map("registration_open")
 
-  @@schema("identity")
   @@map("instance_settings")
+  @@schema("identity")
 }
 
 generator client {

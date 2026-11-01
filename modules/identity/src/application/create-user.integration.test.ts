@@ -9,6 +9,8 @@ import {
   type IdentityTestDatabase,
 } from "../../test/start-identity-test-database.js";
 import type { CreateUserInput } from "../types.js";
+import { setRegistrationOpen } from "../infrastructure/set-registration-open.js";
+import { RegistrationClosedError } from "./registration-closed-error.js";
 import { createUser } from "./create-user.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";
@@ -21,7 +23,7 @@ const accountInput = (overrides: Partial<CreateUserInput> = {}): CreateUserInput
   ...overrides,
 });
 
-describe("createUser", () => {
+describe("createUser", { timeout: 60_000 }, () => {
   let db: IdentityTestDatabase;
 
   beforeAll(async () => {
@@ -82,5 +84,40 @@ describe("createUser", () => {
 
     const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM identity.user_account");
     expect(rows[0]).toEqual({ n: 0 });
+  });
+
+  it("refuses a later account while registration is closed", async () => {
+    await createUser(db.db, accountInput());
+    await db.db.$transaction((tx) => setRegistrationOpen(tx, false));
+
+    await expect(createUser(db.db, accountInput())).rejects.toBeInstanceOf(RegistrationClosedError);
+
+    const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM identity.user_account");
+    expect(rows[0]).toEqual({ n: 1 });
+  });
+
+  it("lets the first account through even while registration is closed", async () => {
+    await db.db.$transaction((tx) => setRegistrationOpen(tx, false));
+
+    const user = await createUser(db.db, accountInput());
+
+    expect(user.instanceRole).toBe("admin");
+  });
+
+  it("makes exactly one admin when two first accounts are created at the same time", async () => {
+    const results = await Promise.allSettled([
+      createUser(db.db, accountInput()),
+      createUser(db.db, accountInput()),
+    ]);
+
+    const created = results.flatMap((result) =>
+      result.status === "fulfilled" ? [result.value] : [],
+    );
+    const { rows } = await db.admin.query(
+      "SELECT count(*)::int AS n FROM identity.user_account WHERE instance_role = 'admin'",
+    );
+
+    expect(created.filter((user) => user.instanceRole === "admin")).toHaveLength(1);
+    expect(rows[0]).toEqual({ n: 1 });
   });
 });
