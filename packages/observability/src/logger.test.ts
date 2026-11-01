@@ -91,4 +91,28 @@ describe("createLogger", () => {
     });
     expect(JSON.stringify(lines[0])).not.toContain("hunter2");
   });
+
+  it("never writes secret values passed to the logger", () => {
+    const { lines, sink } = capture();
+    const secrets = [
+      "hunter2-password",
+      "session-token-value",
+      "Bearer bearer-value",
+      "recovery-code-value",
+      "$argon2id$v=19$m=19456,t=2,p=1$secret-hash",
+    ];
+    createLogger({ sink, now: fixedNow }).error("auth failed", {
+      password: secrets[0],
+      sessionToken: secrets[1],
+      headers: { authorization: secrets[2] },
+      recoveryCode: secrets[3],
+      passwordHash: secrets[4],
+      user: { name: "Ada", recoveryCodeHash: secrets[4] },
+    });
+    const output = JSON.stringify(lines);
+    for (const secret of secrets) {
+      expect(output).not.toContain(secret);
+    }
+    expect(output).toContain("Ada");
+  });
 });

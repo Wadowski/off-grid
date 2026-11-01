@@ -30,6 +30,8 @@ export const SENSITIVE_WORDS = [
   "refresh",
   "jwt",
   "credential",
+  "recovery",
+  "hash",
   "ssn",
   "email",
   "phone",
