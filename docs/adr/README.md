@@ -30,3 +30,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0013](0013-projections-for-other-modules-only.md)    | Projections are for another module's data only                               | Accepted                  |
 | [0014](0014-subscriber-handlers-on-module-logins.md)  | Subscriber handlers run on their module login, with at-least-once delivery   | Accepted                  |
 | [0015](0015-no-reverse-proxy-cors-on-the-server.md)   | No reverse proxy; the server allows its web origins with CORS                | Accepted                  |
+| [0016](0016-local-authentication-model.md)            | Local authentication model: passwords, sessions, registration and recovery   | Proposed                  |
