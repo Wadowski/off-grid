@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
-import { loadMigrations } from "@offgrid/db";
+import type { Pool } from "pg";
+import { loadMigrations, PRISMA_MIGRATIONS_DIRECTORY } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/observability";
 import { afterEach, describe, expect, it } from "vitest";
-import { FAMILY_MIGRATION_DIRECTORY } from "../test/family-migration-directory.js";
 import type { StubOptions } from "../test/types.js";
 import { buildApp } from "./build-app.js";
 import type { IdentityResolver, ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
@@ -18,7 +18,7 @@ const baseConfig: ServerConfig = {
     host: "unused",
     port: 5432,
     name: "unused",
-    user: "outbox_app",
+    user: "offgrid_app",
     password: "unused",
     poolMax: 1,
   },
@@ -30,8 +30,7 @@ const baseConfig: ServerConfig = {
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 
-const familySource = { schema: "family" as const, directory: FAMILY_MIGRATION_DIRECTORY };
-const familyModule: ModuleDescriptor = { name: "family", migrations: [familySource] };
+const familyModule: ModuleDescriptor = { name: "family" };
 
 const stubRuntime = ({
   queryResult = "ok",
@@ -44,7 +43,7 @@ const stubRuntime = ({
       if (queryResult === "fail") {
         throw new Error("connection refused");
       }
-      return { rows: text.includes("schema_migrations") ? ledgerRows : [] };
+      return { rows: text.includes("_prisma_migrations") ? ledgerRows : [] };
     },
     end: async () => undefined,
     connect: async () => {
@@ -52,15 +51,11 @@ const stubRuntime = ({
     },
   };
   const runtime: ServerRuntime = {
-    pool,
+    pool: pool as unknown as Pool,
     eventBus: unusedEventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
     moduleDatabases: new Map(),
-    modulePools: new Map(),
-    poolForRole: () => {
-      throw new Error("module pools are not used by these tests");
-    },
     state: { publisherRunning, draining: false },
   };
   return { runtime, errorSink };
@@ -199,7 +194,13 @@ describe("health endpoints", () => {
   });
 
   it("reports ready when the database answers and the publisher runs", async () => {
-    const { runtime } = stubRuntime();
+    const expected = await loadMigrations(PRISMA_MIGRATIONS_DIRECTORY);
+    const { runtime } = stubRuntime({
+      ledgerRows: expected.map((migration) => ({
+        migration_name: migration.name,
+        checksum: migration.checksum,
+      })),
+    });
     const app = await build({}, runtime, []);
 
     const response = await app.inject({ method: "GET", url: "/api/health/ready" });
@@ -243,9 +244,12 @@ describe("health endpoints", () => {
   });
 
   it("reports migrations ok once the ledger records each file with the same checksum", async () => {
-    const [migration] = await loadMigrations(familySource);
+    const expected = await loadMigrations(PRISMA_MIGRATIONS_DIRECTORY);
     const { runtime } = stubRuntime({
-      ledgerRows: [{ module: "family", name: migration.name, checksum: migration.checksum }],
+      ledgerRows: expected.map((migration) => ({
+        migration_name: migration.name,
+        checksum: migration.checksum,
+      })),
     });
     const app = await build({}, runtime, [familyModule]);
 
@@ -256,9 +260,9 @@ describe("health endpoints", () => {
   });
 
   it("reports migrations pending when a recorded checksum differs from the file", async () => {
-    const [migration] = await loadMigrations(familySource);
+    const [migration] = await loadMigrations(PRISMA_MIGRATIONS_DIRECTORY);
     const { runtime } = stubRuntime({
-      ledgerRows: [{ module: "family", name: migration.name, checksum: "changed" }],
+      ledgerRows: [{ migration_name: migration!.name, checksum: "changed" }],
     });
     const app = await build({}, runtime, [familyModule]);
 

@@ -5,12 +5,8 @@ import { Client } from "pg";
 import { connectionFor } from "./connection-for.js";
 import type { DatabaseTarget } from "./types.js";
 
-export const connectClient = async (
-  target: DatabaseTarget,
-  clients: Client[],
-  schema: string,
-): Promise<Client> => {
-  const client = new Client(connectionFor(target, schema));
+export const connectClient = async (target: DatabaseTarget, clients: Client[]): Promise<Client> => {
+  const client = new Client(connectionFor(target));
   await client.connect();
   clients.push(client);
   return client;

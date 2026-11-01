@@ -1,9 +1,8 @@
-import type { Prisma, PrismaClient } from "../../../node_modules/.prisma/offgrid-db/client.js";
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { DATABASE_SCHEMAS } from "./constants.js";
-import type { OWNERSHIP_SCOPES } from "./constants.js";
+import type { Prisma, PrismaClient } from "../../../node_modules/.prisma/offgrid-db/client.js";
+import type { DATABASE_SCHEMAS, OWNERSHIP_SCOPES } from "./constants.js";
 
 export type DatabaseSchema = (typeof DATABASE_SCHEMAS)[number];
 
@@ -21,16 +20,11 @@ export interface DatabaseTarget {
   host: string;
   port: number;
   database: string;
+  user: string;
   password: string;
 }
 
-export interface MigrationSource {
-  schema: DatabaseSchema;
-  directory: string;
-}
-
 export interface Migration {
-  schema: DatabaseSchema;
   name: string;
   sql: string;
   checksum: string;

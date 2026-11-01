@@ -31,6 +31,16 @@ describe("scopeViolation", () => {
     expect(scopeViolation(declared("shared", { rls: false }))).toBeNull();
   });
 
+  it("accepts an instance table with no owner column", () => {
+    expect(scopeViolation(declared("instance", { rls: false }))).toBeNull();
+  });
+
+  it("reports an instance table with an owner column", () => {
+    expect(scopeViolation(declared("instance", { user: true, rls: false }))).toMatch(
+      /instance table has an owner column/,
+    );
+  });
+
   it("reports a table with no declared scope", () => {
     expect(
       scopeViolation({ comment: null, rls: false, has_family: true, has_user: false }),

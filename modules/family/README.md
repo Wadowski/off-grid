@@ -6,13 +6,13 @@ Owner: module team (family)
 
 ## Schema and role
 
-- Schema `family`, owner role `family_owner` (runs the migrations), runtime role `family_app` (DML on its own schema only).
-- Data access uses a Prisma client for this module, created by `createModuleDb` and logged in as `family_app` ([ADR 0008](../../docs/adr/0008-prisma-multi-schema.md)). Each request runs in a Prisma transaction that sets the request context with `withUserContext` or `withFamilyContext`. The outbox write uses `rawSqlExecutor` in the same transaction.
+- Schema `family`, owned by the migration role `offgrid_migrator`. The runtime role `offgrid_app` has DML on its tables (ADR 0017).
+- Data access uses a Prisma client for this module, created by `createModuleDb` and logged in as `offgrid_app` ([ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). Each request runs in a Prisma transaction that sets the request context with `withUserContext` or `withFamilyContext`. The outbox write uses `rawSqlExecutor` in the same transaction.
 - `family.family` (scope `family`): one row per family, keyed by `family_id`.
 - `family.family_member` (scope `family`): membership. The creator is the first member; invitations are out of scope.
-- Read policies (migration 0002): a user sees their own `family_member` rows, and the `family` rows of families they belong to. `GET /families` relies on these, so it needs no projection.
+- Read policies (in the `family_init` migration): a user sees their own `family_member` rows, and the `family` rows of families they belong to. `GET /families` relies on these, so it needs no projection.
 
-Migrations live in [src/infrastructure/migrations](src/infrastructure/migrations).
+Migrations for every module live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations): the `family` folder is `*_family_init`.
 
 ## HTTP (under `/api`)
 
@@ -36,11 +36,11 @@ src/family-module.ts               the module descriptor
 src/index.ts                       re-exports only
 src/domain/                        placeholder; the family has no domain rule yet
 src/application/                   create-family, get-family, list-my-families
-src/infrastructure/                one file per SQL query, transaction helper, migrations
+src/infrastructure/                one file per SQL query and transaction helper
 src/events/                        publish-family-created
 src/http/                          one register-* file per route; register-family-routes wires them
 src/workers/                       placeholder; background jobs go here
-test/start-family-test-database.ts Testcontainers Postgres with the init scripts, outbox and family migrations
+test/start-family-test-database.ts Testcontainers Postgres with the init scripts and the shared migrations
 ```
 
 Name validation lives in `packages/contracts` (`familyNameSchema`), so the route and the event payload share one rule.
@@ -48,7 +48,7 @@ Name validation lives in `packages/contracts` (`familyNameSchema`), so the route
 ## Copying this for a new module
 
 1. Copy `modules/family` to `modules/<name>` and rename the package in `package.json`.
-2. Replace the schema name in the migrations, the `"family"` strings in `with-family-transaction.ts`, `set-*-context.ts` and `family-module.ts`.
+2. Write the module's migrations as a new folder in `packages/db/prisma/migrations` and replace the schema name in them, the `"family"` strings in `with-family-transaction.ts`, `set-*-context.ts` and `family-module.ts`.
 3. Declare each table's ownership scope with `offgrid_declare_scope` ([packages/db README](../../packages/db/README.md)).
 4. Add the module to `MODULES` in `apps/main-server/src/constants.ts` and the workspace dependency in `apps/main-server/package.json`.
 5. Keep the tests: real Postgres for the store, isolation, events and routes.

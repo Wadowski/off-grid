@@ -17,7 +17,7 @@ describe("append_event publish authority", () => {
     await db.stop();
   });
 
-  it("refuses a caller whose session role is not a module role", async () => {
+  it("refuses a caller that is not the runtime role", async () => {
     await expect(
       db.admin.query("SELECT outbox.append_event($1, $2, 1, 1, $3, now(), $4, NULL, $5)", [
         randomUUID(),
@@ -26,23 +26,23 @@ describe("append_event publish authority", () => {
         randomUUID(),
         "{}",
       ]),
-    ).rejects.toThrow("only a module role may publish an event");
+    ).rejects.toThrow("only the runtime role may publish an event");
   });
 
-  it("refuses the bus login, which has no execute grant on append_event", async () => {
-    const bus = await db.connectClient("outbox");
+  it("accepts the runtime role", async () => {
+    const runtime = await db.connectClient();
     try {
       await expect(
-        bus.query("SELECT outbox.append_event($1, $2, 1, 1, $3, now(), $4, NULL, $5)", [
+        runtime.query("SELECT outbox.append_event($1, $2, 1, 1, $3, now(), $4, NULL, $5)", [
           randomUUID(),
           "family-created-v1",
           "trace-under-test",
           randomUUID(),
           "{}",
         ]),
-      ).rejects.toThrow(/permission denied/);
+      ).resolves.toBeDefined();
     } finally {
-      await bus.end();
+      await runtime.end();
     }
   });
 });

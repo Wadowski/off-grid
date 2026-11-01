@@ -18,7 +18,6 @@ export const deliverOne = async (
   if (stored.type !== subscription.event.name) {
     return;
   }
-  const handlerPool = settings.handlerPoolFor(subscription.runAs);
   let event: EventOf<typeof subscription.event>;
   try {
     event = parseEvent(subscription.event, toEnvelope(stored));
@@ -28,7 +27,7 @@ export const deliverOne = async (
   }
   for (let attempt = 1; ; attempt += 1) {
     try {
-      await runHandler(handlerPool, subscription, event);
+      await runHandler(settings.pool, subscription, event);
       return;
     } catch (error) {
       if (attempt >= settings.maxAttempts) {

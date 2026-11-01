@@ -13,13 +13,11 @@ import { assertModuleName } from "./assert-module-name.js";
 import { defaultRetryDelayMs } from "./default-retry-delay-ms.js";
 import { createDeliveryLoop } from "./create-delivery-loop.js";
 import { deliverAll } from "./deliver-all.js";
-import { poolForHandler } from "./pool-for-handler.js";
 import { pruneDelivered } from "./prune-delivered.js";
 
 export const createEventBus = (options: EventBusOptions): EventBus => {
   const settings: DeliverySettings = {
     pool: options.pool,
-    handlerPoolFor: (runAs) => poolForHandler(options.pool, options.poolForRole, runAs),
     errorSink: options.errorSink,
     maxAttempts: options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS,
     retryDelayMs: options.retryDelayMs ?? defaultRetryDelayMs,

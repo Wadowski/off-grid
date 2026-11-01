@@ -6,7 +6,6 @@ import { createLogger, createMemoryErrorSink } from "@offgrid/observability";
 import { Pool } from "pg";
 import { CONNECTION_TIMEOUT_MS } from "./constants.js";
 import { createEventBus } from "@offgrid/event-bus";
-import { poolForModule } from "./pool-for-module.js";
 
 export const createRuntime = (config: ServerConfig): ServerRuntime => {
   const errorSink = createMemoryErrorSink();
@@ -21,18 +20,13 @@ export const createRuntime = (config: ServerConfig): ServerRuntime => {
     connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
   });
   pool.on("error", (error) => errorSink.record(error, { source: "database-pool" }));
-  const modulePools = new Map<string, Pool>();
-  const poolForRole = (moduleName: string): Pool =>
-    poolForModule(config.database, modulePools, errorSink, moduleName);
 
   return {
     pool,
-    eventBus: createEventBus({ pool, poolForRole, errorSink }),
+    eventBus: createEventBus({ pool, errorSink }),
     errorSink,
     logger,
     moduleDatabases: new Map(),
-    modulePools,
-    poolForRole,
     state: { publisherRunning: false, draining: false },
   };
 };

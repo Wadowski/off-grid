@@ -3,6 +3,6 @@
 
 import { fileURLToPath } from "node:url";
 
-export const OUTBOX_MIGRATIONS = fileURLToPath(
-  new URL("../../../packages/event-bus/migrations", import.meta.url),
+export const PRISMA_MIGRATIONS_DIRECTORY = fileURLToPath(
+  new URL("../prisma/migrations", import.meta.url),
 );
