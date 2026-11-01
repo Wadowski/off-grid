@@ -11,5 +11,17 @@
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@offgrid/contracts": "workspace:*",
+    "@offgrid/db": "workspace:*",
+    "@offgrid/event-bus": "workspace:*",
+    "@offgrid/observability": "workspace:*",
+    "pg": "8.23.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@offgrid/test-db": "workspace:*",
+    "@types/node": "^24.19.2"
   }
 }
