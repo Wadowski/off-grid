@@ -11,7 +11,7 @@ The design atlas and architecture handoff linked from OG-45 describe a zero-know
 Constraints that shape the choice:
 
 - The server runs on small hardware, such as a Raspberry Pi, so password hashing must be tunable and sessions cheap to check.
-- Nothing leaves the local network, except outgoing mail to an operator-configured relay on the LAN (see Decision). Breach-password lookups over the internet are not allowed, so the list of common passwords is local.
+- Nothing leaves the local network, except outgoing mail: to an operator-configured relay on the LAN in local mode, and through AWS SES in cloud deployments (see Decision). Breach-password lookups over the internet are not allowed, so the list of common passwords is local.
 - Access control is never feature-gated (see [CLAUDE.md](../../CLAUDE.md)), so auth cannot depend on optional settings.
 - Sign-in must still work when outgoing mail is not configured, so no step may depend on mail.
 - The server validates all input with zod, and it never logs passwords, codes or tokens (see [.claude/rules/security-privacy.md](../../.claude/rules/security-privacy.md)).
@@ -30,7 +30,8 @@ We will use local accounts with passwords, opaque sessions stored on the server,
 
 **Outgoing mail (an exception to the no-outbound-calls rule)**
 
-- The server sends mail only through an SMTP relay that the owner configures. The relay address must be on the local network: a private address (RFC 1918 or the IPv6 unique-local range), or a name that resolves to one. The server validates this with zod and refuses to start mail with any other address.
+- Mail goes through one transport interface, and the deployment picks the adapter by config. In local mode the adapter is an SMTP relay that the owner configures. The relay address must be on the local network: a private address (RFC 1918 or the IPv6 unique-local range), or a name that resolves to one. The server validates this with zod and refuses to start local mail with any other address.
+- In cloud deployments the adapter is AWS SES. The cloud is not local mode, so this adapter is the one outbound call allowed beyond the LAN relay. Its credentials are secrets, loaded from Docker secrets or files, never from environment defaults (see [.claude/rules/security-privacy.md](../../.claude/rules/security-privacy.md)). The cloud adapter is outside the MVP scope of this record. Its interface must not need changes when it ships.
 - Mail is off by default. With mail off, the emailed recovery path and the mail setup screens are hidden, not shown as broken.
 - Mail carries only the emailed reset code and the admin's test message. It is never sent to an address that is not registered on the instance.
 - This exception narrows the MVP statement in [ADR 0003](0003-built-in-tunnel-deferred.md) ("no outbound network calls") for mail only. ADR 0003 is Accepted and cannot be edited, so the narrowing is recorded here. The no-outbound-calls rule in CLAUDE.md, the security rule and the privacy statement are amended in the same change.
