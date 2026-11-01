@@ -68,7 +68,7 @@ Commits must be signed off with `git commit -s` (see [CONTRIBUTING.md](CONTRIBUT
 
 ## Where detail lives
 
-- `.claude/rules/`: path-scoped rules for agents (added by OG-25)
+- `.claude/rules/`: path-scoped rules for agents (added by OG-25); `.claude/rules/auth-sensitive.md` for passwords, tokens, recovery codes and logging, with the auth review checklist in `.github/pull_request_template.md`
 - `.claude/skills/`: repeatable agent workflows
 - `.claude/agents/`: read-only reviewers (architecture, privacy, code quality, Gherkin) run before a PR
 - `docs/adr/`: architecture decisions

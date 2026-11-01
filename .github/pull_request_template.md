@@ -26,6 +26,15 @@ Closes OG-NN
 - [ ] Docs updated
 - [ ] Every commit is signed off (`git commit -s`), checked with `pnpm dco:check`
 
+## Auth-sensitive review (delete this section if the change does not touch identity, sessions, passwords, tokens, recovery codes or logging)
+
+- [ ] No password, token, recovery code, hash or session value is logged or returned in a response, event or projection
+- [ ] Only `modules/identity` reads or writes credential, session or recovery-code data, and other code imports `modules/identity/src/index.ts` only
+- [ ] Secrets are hashed with the shared Argon2id helper and compared in constant time
+- [ ] The current user and family come from the request context, never from the body, query or path
+- [ ] A test covers the new secret-handling path (logger output or response shape)
+- [ ] Rules in [.claude/rules/auth-sensitive.md](../.claude/rules/auth-sensitive.md) were followed
+
 ## Open `@wip` scenarios
 
 <!-- Scenarios that are still unfinished, with the reason. Write "None" if there are none. -->
