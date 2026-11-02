@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { createAccountRequestSchema } from "@offgrid/contracts";
+import { authRoutes, createAccountRequestSchema } from "@offgrid/contracts";
 import { sendValidationFailed } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
 import { registerAccount } from "../application/register-account.js";
@@ -15,7 +15,7 @@ export const registerCreateAccount = (
   context: IdentityRouteContext,
 ): void => {
   api.post(
-    "/auth/register",
+    authRoutes.register,
     {
       config: {
         rateLimit: { max: SIGN_UP_RATE_LIMIT_PER_MINUTE, timeWindow: SIGN_UP_RATE_WINDOW_MS },

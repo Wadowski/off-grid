@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export * from "./access-group-id-schema.js";
+export * from "./auth-routes.js";
 export * from "./build-open-api-document.js";
 export * from "./canonical-json.js";
 export * from "./compare-released-events.js";
