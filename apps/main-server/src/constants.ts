@@ -7,7 +7,7 @@ import { identityModule } from "@offgrid/identity";
 
 export const RATE_WINDOW_MS = 60_000;
 
-export const CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"];
+export const CORS_ALLOWED_METHODS = ["GET", "POST", "PATCH", "OPTIONS"];
 
 export const FAMILY_HEADER = "x-offgrid-family-id";
 
@@ -40,3 +40,9 @@ export const BEARER_PATTERN = /^Bearer (.+)$/;
 export const FORBIDDEN_FAMILY_MESSAGE = "You are not a member of this family";
 
 export const INVALID_FAMILY_MESSAGE = "The family header must be a family id";
+
+export const RECOVERY_USAGE = [
+  "Usage:",
+  "  recover-admin reset-password --email <email>",
+  "  recover-admin create-admin --email <email> --name <display name>",
+].join("\n");

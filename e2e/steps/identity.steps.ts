@@ -3,6 +3,7 @@
 
 import { randomUUID } from "node:crypto";
 import { createBdd } from "playwright-bdd";
+import { ensureRunAdmin, setRegistrationOpen } from "../support/factories/instance-admin.js";
 import {
   registerAccount,
   registrationStatus,
@@ -40,12 +41,15 @@ Given("a fresh Offgrid server with no accounts", async ({ world }) => {
   expect(status.freshServer, "the server already has accounts").toBe(true);
 });
 
-Given("an admin account exists and registration is open", async () => {
-  throw new Error("Needs the admin API (OG-50) to confirm that an admin exists.");
+Given("an admin account exists and registration is open", async ({ world }) => {
+  await ensureRunAdmin(world.api);
 });
 
-Given("an admin account exists and registration is closed", async () => {
-  throw new Error("Needs the admin API (OG-50) to close registration.");
+Given("an admin account exists and registration is closed", async ({ world }) => {
+  const admin = await ensureRunAdmin(world.api);
+  world.registrationTouched = true;
+  const response = await setRegistrationOpen(world.api, admin, false);
+  expect(response.status()).toBe(200);
 });
 
 Given("an account with email {string} exists", async ({ world }, email: string) => {

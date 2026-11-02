@@ -6,6 +6,7 @@ import { ApiError } from "@offgrid/api-client";
 import { test as base } from "playwright-bdd";
 import type { Family } from "./factories/family.js";
 import type { RegistrationResult } from "./factories/identity.js";
+import type { JsonResponse, Member, Session } from "./factories/instance-admin.js";
 
 export type ScenarioWorld = {
   api: APIRequestContext;
@@ -16,6 +17,12 @@ export type ScenarioWorld = {
   registration?: RegistrationResult;
   registrationStatus?: unknown;
   emailTag?: string;
+  admin?: Session;
+  memberAccessToken?: string;
+  member?: Member;
+  response?: JsonResponse;
+  issuedCode?: string;
+  registrationTouched?: boolean;
 };
 
 export const test = base.extend<{ world: ScenarioWorld }>({

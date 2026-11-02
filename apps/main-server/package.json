@@ -10,7 +10,8 @@
     "build": "tsc -b",
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "recover-admin": "tsx src/recover-admin.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.3.1",
