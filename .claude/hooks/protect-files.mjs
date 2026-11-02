@@ -15,7 +15,6 @@ import { isAbsolute, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const PROTECTED_FILES = new Set([
-  ".dependency-cruiser.cjs",
   ".gitleaks.toml",
   "LICENSE",
   "NOTICE",
