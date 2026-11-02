@@ -7,4 +7,13 @@ export const authRoutes = {
   signIn: "/auth/sign-in",
   refresh: "/auth/refresh",
   signOut: "/auth/sign-out",
+  passwordReset: "/auth/password-reset",
+} as const;
+
+export const adminRoutes = {
+  users: "/admin/users",
+  disableUser: "/admin/users/:userId/disable",
+  enableUser: "/admin/users/:userId/enable",
+  resetPassword: "/admin/users/:userId/password-reset",
+  instanceSettings: "/admin/instance-settings",
 } as const;

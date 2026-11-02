@@ -37,6 +37,7 @@ model UserAccount {
   credential    Credential?
   sessions      Session[]
   recoveryCodes RecoveryCode[]
+  passwordResets PasswordReset[]
 
   @@map("user_account")
   @@schema("identity")
@@ -81,6 +82,20 @@ model RecoveryCode {
   user           UserAccount @relation(fields: [userId], references: [userId])
 
   @@map("recovery_code")
+  @@schema("identity")
+}
+
+model PasswordReset {
+  passwordResetId String      @id @map("password_reset_id") @db.Uuid
+  userId          String      @map("user_id") @db.Uuid
+  codeHash        String      @unique @map("code_hash")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt       DateTime    @map("expires_at") @db.Timestamptz(6)
+  usedAt          DateTime?   @map("used_at") @db.Timestamptz(6)
+  retiredAt       DateTime?   @map("retired_at") @db.Timestamptz(6)
+  user            UserAccount @relation(fields: [userId], references: [userId])
+
+  @@map("password_reset")
   @@schema("identity")
 }
 

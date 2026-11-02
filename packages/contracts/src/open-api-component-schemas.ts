@@ -3,13 +3,19 @@
 
 import { z } from "zod";
 import { accountCreatedSchema } from "./account-created-schema.js";
+import { adminUserListSchema } from "./admin-user-list-schema.js";
+import { adminUserSchema } from "./admin-user-schema.js";
 import { createAccountRequestSchema } from "./create-account-request-schema.js";
 import { accessGroupIdSchema } from "./access-group-id-schema.js";
 import { createFamilyRequestSchema } from "./create-family-request-schema.js";
 import { errorResponseSchema } from "./error-response-schema.js";
 import { familyIdSchema } from "./family-id-schema.js";
 import { familyListSchema } from "./family-list-schema.js";
+import { instanceSettingsSchema } from "./instance-settings-schema.js";
+import { instanceSettingsUpdateSchema } from "./instance-settings-update-schema.js";
 import { familySchema } from "./family-schema.js";
+import { passwordResetIssuedSchema } from "./password-reset-issued-schema.js";
+import { passwordResetRequestSchema } from "./password-reset-request-schema.js";
 import { registrationStatusSchema } from "./registration-status-schema.js";
 import { sessionAccessSchema } from "./session-access-schema.js";
 import { signInRequestSchema } from "./sign-in-request-schema.js";
@@ -32,4 +38,10 @@ export const openApiComponentSchemas = {
   SignInRequest: signInRequestSchema,
   SignedIn: signedInSchema,
   SessionAccess: sessionAccessSchema,
+  AdminUser: adminUserSchema,
+  AdminUserList: adminUserListSchema,
+  PasswordResetRequest: passwordResetRequestSchema,
+  PasswordResetIssued: passwordResetIssuedSchema,
+  InstanceSettings: instanceSettingsSchema,
+  InstanceSettingsUpdate: instanceSettingsUpdateSchema,
 } satisfies Record<string, z.ZodType>;

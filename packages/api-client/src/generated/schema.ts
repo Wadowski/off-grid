@@ -80,6 +80,49 @@ export interface components {
             /** Format: date-time */
             accessExpiresAt: string;
         };
+        AdminUser: {
+            /** Format: uuid */
+            id: string;
+            email: string;
+            displayName: string;
+            /** @enum {string} */
+            instanceRole: "admin" | "user";
+            /** @enum {string} */
+            status: "active" | "disabled";
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminUserList: {
+            users: {
+                /** Format: uuid */
+                id: string;
+                email: string;
+                displayName: string;
+                /** @enum {string} */
+                instanceRole: "admin" | "user";
+                /** @enum {string} */
+                status: "active" | "disabled";
+                /** Format: date-time */
+                createdAt: string;
+            }[];
+        };
+        PasswordResetRequest: {
+            code: string;
+            password: string;
+        };
+        PasswordResetIssued: {
+            /** Format: uuid */
+            userId: string;
+            code: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        InstanceSettings: {
+            registrationOpen: boolean;
+        };
+        InstanceSettingsUpdate: {
+            registrationOpen: boolean;
+        };
     };
     responses: never;
     parameters: never;
