@@ -11,7 +11,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "build": "pnpm generate && tsc -b",
     "typecheck": "pnpm generate && tsc -p tsconfig.json --noEmit --composite false --incremental false",
-    "lint": "pnpm generate && eslint .",
+    "lint": "eslint .",
     "test": "pnpm generate && vitest run --passWithNoTests"
   },
   "dependencies": {

@@ -10,10 +10,14 @@
       "dependsOn": ["^build"]
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "^generate", "generate"]
     },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "generate": {
+      "cache": false,
+      "outputs": []
     }
   }
 }

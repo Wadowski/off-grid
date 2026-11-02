@@ -3,6 +3,7 @@
 
 import type { ModuleDescriptor } from "./types.js";
 import { familyModule } from "@offgrid/family";
+import { identityModule } from "@offgrid/identity";
 
 export const RATE_WINDOW_MS = 60_000;
 
@@ -25,7 +26,7 @@ export const INTERNAL_MESSAGE = "Internal server error";
 
 export const GENERIC_REJECTION_MESSAGE = "Request rejected";
 
-export const MODULES: readonly ModuleDescriptor[] = [familyModule];
+export const MODULES: readonly ModuleDescriptor[] = [familyModule, identityModule];
 
 export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 

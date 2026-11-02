@@ -34,6 +34,27 @@ export interface components {
                 name: string;
             }[];
         };
+        CreateAccountRequest: {
+            displayName: string;
+            /** Format: email */
+            email: string;
+            password: string;
+        };
+        AccountCreated: {
+            user: {
+                /** Format: uuid */
+                id: string;
+                email: string;
+                displayName: string;
+                /** @enum {string} */
+                instanceRole: "admin" | "user";
+            };
+            recoveryCode: string;
+        };
+        RegistrationStatus: {
+            freshServer: boolean;
+            registrationOpen: boolean;
+        };
     };
     responses: never;
     parameters: never;

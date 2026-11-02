@@ -48,6 +48,7 @@ describe("identity row isolation", { timeout: 60_000 }, () => {
         userId: ben.id,
         deviceLabel: "phone",
         expiresAt: new Date(Date.now() + 3_600_000),
+        refreshTokenHash: "b".repeat(64),
       });
     });
   });

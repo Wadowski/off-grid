@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export { sendAccessDenied } from "./send-access-denied.js";
+export { sendError } from "./send-error.js";
 export { sendNotFound } from "./send-not-found.js";
 export { sendReadOutcome } from "./send-read-outcome.js";
 export { sendUnauthenticated } from "./send-unauthenticated.js";

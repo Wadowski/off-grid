@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export * from "./access-group-id-schema.js";
+export * from "./auth-routes.js";
 export * from "./build-open-api-document.js";
 export * from "./canonical-json.js";
 export * from "./compare-released-events.js";
 export * from "./constants.js";
+export * from "./account-created-schema.js";
+export * from "./create-account-request-schema.js";
 export * from "./create-family-request-schema.js";
 export * from "./current-event-schemas.js";
 export * from "./define-event.js";
@@ -25,6 +28,7 @@ export * from "./family-summary-schema.js";
 export * from "./open-api-component-schemas.js";
 export * from "./parse-event.js";
 export * from "./render-open-api.js";
+export * from "./registration-status-schema.js";
 export * from "./released-snapshot-schema.js";
 export * from "./timestamp-schema.js";
 export * from "./types.js";
