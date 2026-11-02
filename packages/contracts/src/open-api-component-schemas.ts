@@ -11,6 +11,9 @@ import { familyIdSchema } from "./family-id-schema.js";
 import { familyListSchema } from "./family-list-schema.js";
 import { familySchema } from "./family-schema.js";
 import { registrationStatusSchema } from "./registration-status-schema.js";
+import { sessionAccessSchema } from "./session-access-schema.js";
+import { signInRequestSchema } from "./sign-in-request-schema.js";
+import { signedInSchema } from "./signed-in-schema.js";
 import { timestampSchema } from "./timestamp-schema.js";
 import { userIdSchema } from "./user-id-schema.js";
 
@@ -26,4 +29,7 @@ export const openApiComponentSchemas = {
   CreateAccountRequest: createAccountRequestSchema,
   AccountCreated: accountCreatedSchema,
   RegistrationStatus: registrationStatusSchema,
+  SignInRequest: signInRequestSchema,
+  SignedIn: signedInSchema,
+  SessionAccess: sessionAccessSchema,
 } satisfies Record<string, z.ZodType>;
