@@ -12,12 +12,7 @@ import {
 import { digestToken } from "../infrastructure/digest-token.js";
 import { generateSecretToken } from "../infrastructure/generate-secret-token.js";
 import { insertSession } from "../infrastructure/insert-session.js";
-import type { IssuedSession } from "../types.js";
-
-interface IssueSessionOptions {
-  readonly deviceLabel?: string | null;
-  readonly lifetimeMs?: number;
-}
+import type { IssueSessionOptions, IssuedSession } from "../types.js";
 
 export const issueSession = async (
   db: ModuleDatabase,

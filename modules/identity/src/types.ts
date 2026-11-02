@@ -94,6 +94,16 @@ export interface IssuedSession {
   readonly accessExpiresAt: Date;
 }
 
+export interface IssueSessionOptions {
+  readonly deviceLabel?: string | null;
+  readonly lifetimeMs?: number;
+}
+
+export interface SignInAttemptState {
+  failures: number;
+  lockedUntil: number;
+}
+
 export interface SignInInput {
   readonly email: string;
   readonly password: string;
@@ -138,7 +148,6 @@ export interface SignedInUser {
 export interface RenewedSession {
   readonly accessToken: string;
   readonly accessExpiresAt: Date;
-  /** Null when the request used the previous token inside the reuse grace window. */
   readonly refreshToken: string | null;
   readonly sessionExpiresAt: Date;
 }

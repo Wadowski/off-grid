@@ -61,7 +61,6 @@ export const renewSession = async (
     accessExpiresAt,
   });
   if (!rotated) {
-    // Another request rotated this token first. Look again, which now finds it in the grace window.
     return renewSession(db, refreshToken, now);
   }
   return {

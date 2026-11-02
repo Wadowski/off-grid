@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleDatabase } from "@offgrid/db";
+import { z } from "zod";
+import { ACCOUNT_STATUSES } from "../constants.js";
 import type { SessionLookup, SessionLookupRow } from "../types.js";
 
 export const findSessionByRefreshToken = async (
@@ -23,6 +25,6 @@ export const findSessionByRefreshToken = async (
     revoked: row.revoked,
     rotatedAt: row.rotated_at,
     matchedCurrent: row.matched_current,
-    accountStatus: row.account_status as SessionLookup["accountStatus"],
+    accountStatus: z.enum(ACCOUNT_STATUSES).parse(row.account_status),
   };
 };

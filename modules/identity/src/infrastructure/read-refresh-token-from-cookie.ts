@@ -9,8 +9,9 @@ export const readRefreshTokenFromCookie = (cookieHeader: string | undefined): st
   }
   for (const part of cookieHeader.split(";")) {
     const [name, ...value] = part.trim().split("=");
-    if (name === REFRESH_COOKIE_NAME && value.length > 0) {
-      return value.join("=");
+    const token = value.join("=");
+    if (name === REFRESH_COOKIE_NAME && token !== "") {
+      return token;
     }
   }
   return null;

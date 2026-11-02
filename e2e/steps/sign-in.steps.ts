@@ -4,17 +4,13 @@
 import { createBdd } from "playwright-bdd";
 import { test } from "../support/fixtures.js";
 
-// playwright-bdd requires the fixtures pattern as the first parameter, even when a stub ignores it.
-/* eslint-disable no-empty-pattern */
 const { Given, When, Then } = createBdd(test);
 
-// The sign-in scenarios stay @wip until the e2e stack runs (infra/compose is still empty).
-// Each step fails loudly so an accidental run cannot pass.
 const notImplemented = (step: string): never => {
   throw new Error(`Step not implemented yet (OG-48 follow-up): ${step}`);
 };
 
-Given("an account for {string}", ({}, email: string) => notImplemented(`an account for ${email}`));
+Given('an account for "anna@example.com"', () => notImplemented("an account for anna"));
 When("Anna signs in with the right password", () =>
   notImplemented("Anna signs in with the right password"),
 );
@@ -24,8 +20,8 @@ Then("she receives a session and can call protected endpoints", () =>
 When("Anna signs in with a wrong password", () =>
   notImplemented("Anna signs in with a wrong password"),
 );
-Then("sign-in fails with a generic {string} message", ({}, message: string) =>
-  notImplemented(`sign-in fails with a generic "${message}" message`),
+Then('sign-in fails with a generic "email or password is incorrect" message', () =>
+  notImplemented("sign-in fails with a generic message"),
 );
 When("someone signs in with an email that has no account", () =>
   notImplemented("someone signs in with an email that has no account"),
@@ -42,9 +38,7 @@ Then("further attempts are refused for a short time", () =>
 Then("after that time she can try again", () =>
   notImplemented("after that time she can try again"),
 );
-When("Anna signs in with {string}", ({}, option: string) =>
-  notImplemented(`Anna signs in with "${option}"`),
-);
+When('Anna signs in with "remember me"', () => notImplemented('Anna signs in with "remember me"'));
 Then("her session stays valid for 30 days instead of the default", () =>
   notImplemented("her session stays valid for 30 days"),
 );
