@@ -22,6 +22,8 @@ Owner: module team (identity)
 
 `identity.user_count()` is a `SECURITY DEFINER` function that returns only the number of accounts. It is the one deliberate read across rows: RLS hides other users' rows, so the first-user check needs the count. It is granted to the shared runtime role, so it must not be exposed on unauthenticated responses, where it would reveal the instance size.
 
+Sign-in and refresh look up one row before anyone is signed in. They do this with read-only RLS policies (`user_account_sign_in_lookup`, `credential_sign_in_lookup`, `session_refresh_lookup`). Each policy matches a value the transaction sets with `set_config` (`app.sign_in_email`, `app.refresh_token_hash`), so the lookups are ordinary Prisma queries and no other row becomes visible.
+
 ## Domain rules
 
 Pure code in `src/domain/`, with no I/O:

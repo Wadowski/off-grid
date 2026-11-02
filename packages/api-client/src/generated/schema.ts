@@ -55,6 +55,31 @@ export interface components {
             freshServer: boolean;
             registrationOpen: boolean;
         };
+        SignInRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+            rememberMe?: boolean;
+            deviceLabel?: string;
+        };
+        SignedIn: {
+            accessToken: string;
+            /** Format: date-time */
+            accessExpiresAt: string;
+            user: {
+                /** Format: uuid */
+                id: string;
+                email: string;
+                displayName: string;
+                /** @enum {string} */
+                instanceRole: "admin" | "user";
+            };
+        };
+        SessionAccess: {
+            accessToken: string;
+            /** Format: date-time */
+            accessExpiresAt: string;
+        };
     };
     responses: never;
     parameters: never;

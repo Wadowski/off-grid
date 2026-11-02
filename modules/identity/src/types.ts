@@ -63,6 +63,16 @@ export interface NewSession {
   readonly deviceLabel: string | null;
   readonly expiresAt: Date;
   readonly refreshTokenHash: string;
+  readonly accessTokenHash: string;
+  readonly accessExpiresAt: Date;
+}
+
+export interface SessionTokenUpdate {
+  readonly refreshTokenHash?: string;
+  readonly previousRefreshTokenHash?: string;
+  readonly rotatedAt?: Date;
+  readonly accessTokenHash: string;
+  readonly accessExpiresAt: Date;
 }
 
 export type PasswordProblem =
@@ -80,6 +90,66 @@ export interface RegisterAccountInput {
 export interface IssuedSession {
   readonly refreshToken: string;
   readonly expiresAt: Date;
+  readonly accessToken: string;
+  readonly accessExpiresAt: Date;
+}
+
+export interface IssueSessionOptions {
+  readonly deviceLabel?: string | null;
+  readonly lifetimeMs?: number;
+}
+
+export interface SignInAttemptState {
+  failures: number;
+  lockedUntil: number;
+}
+
+export interface SignInInput {
+  readonly email: string;
+  readonly password: string;
+  readonly rememberMe?: boolean;
+  readonly deviceLabel?: string;
+}
+
+export interface AccountForSignIn {
+  readonly userId: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly instanceRole: InstanceRole;
+  readonly status: AccountStatus;
+  readonly passwordHash: string;
+}
+
+export interface SessionLookup {
+  readonly sessionId: string;
+  readonly userId: string;
+  readonly expiresAt: Date;
+  readonly revoked: boolean;
+  readonly rotatedAt: Date | null;
+  readonly matchedCurrent: boolean;
+  readonly accountStatus: AccountStatus;
+}
+
+export interface SignedInSession {
+  readonly user: SignedInUser;
+  readonly accessToken: string;
+  readonly accessExpiresAt: Date;
+  readonly refreshToken: string;
+  readonly sessionExpiresAt: Date;
+}
+
+export interface SignedInUser {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly instanceRole: InstanceRole;
+}
+
+export interface RenewedSession {
+  readonly accessToken: string;
+  readonly accessExpiresAt: Date;
+  readonly refreshToken: string | null;
+  readonly sessionExpiresAt: Date;
 }
 
 export interface RegisteredAccount {

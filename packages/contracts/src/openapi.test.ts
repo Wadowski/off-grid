@@ -21,6 +21,9 @@ describe("buildOpenApiDocument", () => {
       "FamilyId",
       "FamilyList",
       "RegistrationStatus",
+      "SessionAccess",
+      "SignInRequest",
+      "SignedIn",
       "Timestamp",
       "UserId",
     ]);

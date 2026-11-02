@@ -11,6 +11,8 @@ import {
 import { createUser } from "../application/create-user.js";
 import type { User } from "../types.js";
 import { insertSession } from "./insert-session.js";
+import { setRefreshTokenHash } from "./set-refresh-token-hash.js";
+import { setSignInEmail } from "./set-sign-in-email.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";
 
@@ -89,5 +91,37 @@ describe("identity row isolation", { timeout: 60_000 }, () => {
 
     expect(credentials).toEqual([{ userId: ada.id }]);
     expect(codes).toEqual([{ userId: ada.id }]);
+  });
+
+  it("shows only the account whose email a sign-in lookup names", async () => {
+    const visible = await db.db.$transaction(async (tx) => {
+      await setSignInEmail(tx, "ben@example.com");
+      return tx.userAccount.findMany({ select: { userId: true } });
+    });
+
+    expect(visible).toEqual([{ userId: ben.id }]);
+  });
+
+  it("shows no account to a sign-in lookup for an unknown email", async () => {
+    const visible = await db.db.$transaction(async (tx) => {
+      await setSignInEmail(tx, "nobody@example.com");
+      return tx.userAccount.findMany({ select: { userId: true } });
+    });
+
+    expect(visible).toEqual([]);
+  });
+
+  it("shows a session only to the refresh lookup for its token digest", async () => {
+    const visible = await db.db.$transaction(async (tx) => {
+      await setRefreshTokenHash(tx, "b".repeat(64));
+      return tx.session.findMany({ select: { userId: true } });
+    });
+    const unrelated = await db.db.$transaction(async (tx) => {
+      await setRefreshTokenHash(tx, "c".repeat(64));
+      return tx.session.findMany({ select: { userId: true } });
+    });
+
+    expect(visible).toEqual([{ userId: ben.id }]);
+    expect(unrelated).toEqual([]);
   });
 });

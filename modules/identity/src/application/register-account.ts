@@ -6,6 +6,7 @@ import type { ModuleDatabase } from "@offgrid/db";
 import { RECOVERY_CODE_BYTES } from "../constants.js";
 import { emailSchema } from "../domain/email-schema.js";
 import { findPasswordProblems } from "../domain/find-password-problems.js";
+import { normalizeEmail } from "../domain/normalize-email.js";
 import { normalizePassword } from "../domain/normalize-password.js";
 import { personalPasswordFragments } from "../domain/personal-password-fragments.js";
 import { digestToken } from "../infrastructure/digest-token.js";
@@ -20,7 +21,7 @@ export const registerAccount = async (
   db: ModuleDatabase,
   input: RegisterAccountInput,
 ): Promise<RegisteredAccount> => {
-  const email = emailSchema.parse(input.email);
+  const email = normalizeEmail(emailSchema.parse(input.email));
   const displayName = displayNameSchema.parse(input.displayName);
   const password = normalizePassword(input.password);
   const problems = findPasswordProblems(password, personalPasswordFragments(email, displayName));
