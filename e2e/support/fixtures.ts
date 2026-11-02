@@ -5,6 +5,7 @@ import { expect, type APIRequestContext, type APIResponse } from "@playwright/te
 import { ApiError } from "@offgrid/api-client";
 import { test as base } from "playwright-bdd";
 import type { Family } from "./factories/family.js";
+import type { RegistrationResult } from "./factories/identity.js";
 
 export type ScenarioWorld = {
   api: APIRequestContext;
@@ -12,6 +13,8 @@ export type ScenarioWorld = {
   families: Family[];
   userId?: string;
   lastError?: ApiError;
+  registration?: RegistrationResult;
+  registrationStatus?: unknown;
 };
 
 export const test = base.extend<{ world: ScenarioWorld }>({

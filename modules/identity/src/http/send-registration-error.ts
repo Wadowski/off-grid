@@ -29,7 +29,7 @@ export const sendRegistrationError = (reply: FastifyReply, error: unknown): Fast
     return sendError(reply, 409, "REGISTRATION_CONFLICT", "Please try again");
   }
   if (error instanceof RegistrationClosedError) {
-    return sendError(reply, 403, "REGISTRATION_CLOSED", "Registration is closed on this instance");
+    return sendError(reply, 403, "REGISTRATION_CLOSED", "Registration closed on this instance");
   }
   throw error;
 };
