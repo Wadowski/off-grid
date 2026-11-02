@@ -92,6 +92,26 @@ describe("createLogger", () => {
     expect(JSON.stringify(lines[0])).not.toContain("hunter2");
   });
 
+  it("redacts one-time codes and backup codes by key", () => {
+    const { lines, sink } = capture();
+    createLogger({ sink, now: fixedNow }).info("mfa", {
+      otpCode: "otp-value-123",
+      totpSecret: "totp-value-456",
+      backupCodes: "backup-value-789",
+      accessKey: "access-value-000",
+      username: "ada",
+    });
+    expect(lines[0]).toEqual(
+      expect.objectContaining({
+        otpCode: "[REDACTED]",
+        totpSecret: "[REDACTED]",
+        backupCodes: "[REDACTED]",
+        accessKey: "[REDACTED]",
+        username: "ada",
+      }),
+    );
+  });
+
   it("redacts secret-named fields by key and keeps other fields", () => {
     const { lines, sink } = capture();
     createLogger({ sink, now: fixedNow }).error("auth failed", {

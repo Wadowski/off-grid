@@ -32,7 +32,7 @@ A hook that blocks exits with code 2 and writes the reason to stderr, which the 
 
 The hook blocks edits to these, because they guard licensing, secret scanning, module boundaries, CI and the agent setup itself:
 
-- `.dependency-cruiser.cjs`, `.gitleaks.toml`
+- `.gitleaks.toml`
 - `LICENSE`, `NOTICE`, `CODEOWNERS`, `.github/CODEOWNERS`
 - `.claude/settings.json` and anything under `.claude/hooks/`
 - any ADR in `docs/adr/` whose status is Accepted, unless only its `**Status:**` line changes. To change an accepted decision, write a new ADR that supersedes it.

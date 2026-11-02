@@ -46,5 +46,4 @@ Note: `modules/family` is the reference module (see its README). Copy its `packa
 - Touch another module's schema, or add a SQL join across schemas.
 - Build a projection of the module's own data. Read its own tables and read policies, as `modules/family` does.
 - Gate access control or export behind a feature flag.
-- Take the user or family id from a request body, query or path. Read them from the request context only ([auth-sensitive rules](../../rules/auth-sensitive.md)).
-- Log, return or publish a password, token, recovery code or hash.
+- Handle secrets, sessions or the current user without following the [auth-sensitive rules](../../rules/auth-sensitive.md), including reading the user and family from the request context only.

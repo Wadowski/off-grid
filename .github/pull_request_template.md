@@ -30,10 +30,10 @@ Closes OG-NN
 
 - [ ] No password, token, recovery code, hash or session value is logged or returned in a response, event or projection
 - [ ] Only `modules/identity` reads or writes credential, session or recovery-code data, and other code imports `modules/identity/src/index.ts` only
-- [ ] Secrets are hashed with the shared Argon2id helper and compared in constant time
+- [ ] Secrets are hashed with Argon2id and compared in constant time. If the shared helpers do not exist yet, the change adds no second path and says so below
 - [ ] The current user and family come from the request context, never from the body, query or path
 - [ ] A test covers the new secret-handling path (logger output or response shape)
-- [ ] Rules in [.claude/rules/auth-sensitive.md](../.claude/rules/auth-sensitive.md) were followed
+- [ ] Every rule in [.claude/rules/auth-sensitive.md](../.claude/rules/auth-sensitive.md) was followed, including its known redaction limits
 
 ## Open `@wip` scenarios
 
