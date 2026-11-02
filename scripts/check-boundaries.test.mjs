@@ -17,6 +17,7 @@ const ADR = "docs/adr/0006-modular-monolith.md";
 
 const RULES = [
   "module-public-api",
+  "identity-internals-private",
   "modules-not-import-apps",
   "packages-not-import-apps-or-modules",
   "web-allowed-imports",

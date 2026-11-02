@@ -30,6 +30,16 @@ module.exports = {
       },
     },
     {
+      name: "identity-internals-private",
+      severity: "error",
+      comment: `Only the identity module reads or writes credentials, sessions and recovery codes. Other code uses src/index.ts. ${ADR}`,
+      from: { pathNot: "(^|/)modules/identity/" },
+      to: {
+        path: "(^|/)modules/identity/",
+        pathNot: "(^|/)modules/identity/src/index\\.ts$",
+      },
+    },
+    {
       name: "modules-not-import-apps",
       severity: "error",
       comment: `Modules never import from apps/. ${ADR}`,
