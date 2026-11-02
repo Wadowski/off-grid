@@ -57,11 +57,11 @@ describe("identity row isolation", { timeout: 60_000 }, () => {
 
   it("shows a user only their own account row", async () => {
     const visible = await db.db.$transaction(async (tx) => {
-      await withUserContext(tx, ada.id);
+      await withUserContext(tx, ben.id);
       return tx.userAccount.findMany({ select: { userId: true } });
     });
 
-    expect(visible).toEqual([{ userId: ada.id }]);
+    expect(visible).toEqual([{ userId: ben.id }]);
   });
 
   it("shows no account rows when no user context is set", async () => {
@@ -71,8 +71,14 @@ describe("identity row isolation", { timeout: 60_000 }, () => {
   });
 
   it("hides another user's sessions", async () => {
+    const cara = await createUser(db.db, {
+      email: "cara@example.com",
+      displayName: "Cara",
+      passwordHash: HASH,
+      recoveryCodeHash: "cara-code",
+    });
     const visible = await db.db.$transaction(async (tx) => {
-      await withUserContext(tx, ada.id);
+      await withUserContext(tx, cara.id);
       return tx.session.findMany();
     });
 

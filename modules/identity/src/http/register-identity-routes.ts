@@ -3,6 +3,8 @@
 
 import type { FastifyInstance } from "fastify";
 import type { IdentityRouteContext } from "../types.js";
+import { registerAdminRoutes } from "./register-admin-routes.js";
+import { registerPasswordReset } from "./register-password-reset.js";
 import { registerCreateAccount } from "./register-create-account.js";
 import { registerRefreshSession } from "./register-refresh-session.js";
 import { registerRegistrationStatus } from "./register-registration-status.js";
@@ -18,4 +20,6 @@ export const registerIdentityRoutes = (
   registerSignIn(api, context);
   registerRefreshSession(api, context);
   registerSignOut(api, context);
+  registerPasswordReset(api, context);
+  registerAdminRoutes(api, context);
 };
