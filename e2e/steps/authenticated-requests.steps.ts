@@ -36,8 +36,11 @@ When("she opens {string} data while acting in that family", ({ world }, name: st
 Then("the request succeeds with that family's context", ({ world }) =>
   notImplemented("the request succeeds with that family's context", world),
 );
-When("Anna sends a request acting in a family she is not a member of", ({ world }) =>
-  notImplemented("Anna sends a request acting in a family she is not a member of", world),
+Given("Anna has created the family {string}", ({ world }, name: string) =>
+  notImplemented(`Anna has created the family "${name}"`, world),
+);
+When("Anna sends a request acting in {string}", ({ world }, name: string) =>
+  notImplemented(`Anna sends a request acting in "${name}"`, world),
 );
 Given("Anna was removed from {string}", ({ world }, name: string) =>
   notImplemented(`Anna was removed from "${name}"`, world),

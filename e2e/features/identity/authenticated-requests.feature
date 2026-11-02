@@ -27,10 +27,14 @@ Feature: Authenticated requests
     Then the request succeeds with that family's context
 
   Scenario: Acting in a family you do not belong to
-    When Anna sends a request acting in a family she is not a member of
+    Given Anna is signed in
+    And another user has a family named "Cabin Circle"
+    When Anna sends a request acting in "Cabin Circle"
     Then it is refused with "forbidden"
 
   Scenario: Removed member loses access immediately
-    Given Anna was removed from "Kowalski"
+    Given Anna is signed in
+    And Anna has created the family "Kowalski"
+    And Anna was removed from "Kowalski"
     When she sends a request acting in "Kowalski"
     Then it is refused even though her session is still valid
