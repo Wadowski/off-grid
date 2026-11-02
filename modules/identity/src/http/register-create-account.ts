@@ -36,6 +36,7 @@ export const registerCreateAccount = (
             request.protocol === "https",
           ),
         );
+        reply.header("cache-control", "no-store");
         return reply.code(201).send({
           user: {
             id: account.user.id,

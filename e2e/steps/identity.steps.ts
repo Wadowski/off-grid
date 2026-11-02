@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { randomUUID } from "node:crypto";
 import { createBdd } from "playwright-bdd";
 import {
   registerAccount,
@@ -18,6 +19,11 @@ function registrationOf(world: ScenarioWorld): RegistrationResult {
     throw new Error("No registration was attempted in this scenario.");
   }
   return world.registration;
+}
+
+function addressFor(world: ScenarioWorld, literal: string): string {
+  world.emailTag ??= randomUUID().slice(0, 8);
+  return literal.replace("@", `+${world.emailTag}@`);
 }
 
 function bodyOf(registration: RegistrationResult): Record<string, unknown> {
@@ -43,8 +49,8 @@ Given("an admin account exists and registration is closed", async () => {
 });
 
 Given("an account with email {string} exists", async ({ world }, email: string) => {
-  const registration = await registerAccount(world.api, { email });
-  expect([201, 409]).toContain(registration.status);
+  const registration = await registerAccount(world.api, { email: addressFor(world, email) });
+  expect(registration.status, JSON.stringify(registration.body)).toBe(201);
 });
 
 When("someone registers with a valid name, email and password", async ({ world }) => {
@@ -67,7 +73,10 @@ When("someone registers with a password shorter than 12 characters", async ({ wo
 });
 
 When("someone registers with {string}", async ({ world }, email: string) => {
-  world.registration = await registerAccount(world.api, { email, password: STRONG_PASSWORD });
+  world.registration = await registerAccount(world.api, {
+    email: addressFor(world, email),
+    password: STRONG_PASSWORD,
+  });
 });
 
 When("the web app asks for the registration status", async ({ world }) => {

@@ -1,20 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, VERY_COMMON_PASSWORDS } from "../constants.js";
 import type { PasswordProblem } from "../types.js";
-
-const isTooShort = (password: string): boolean => [...password].length < PASSWORD_MIN_LENGTH;
-
-const isTooLong = (password: string): boolean => [...password].length > PASSWORD_MAX_LENGTH;
-
-const isVeryCommon = (password: string): boolean =>
-  VERY_COMMON_PASSWORDS.has(password.toLowerCase());
-
-const containsPersonalData = (password: string, fragments: readonly string[]): boolean => {
-  const lowered = password.toLowerCase();
-  return fragments.some((fragment) => lowered.includes(fragment));
-};
+import { containsPersonalData } from "./contains-personal-data.js";
+import { isTooLong } from "./is-too-long.js";
+import { isTooShort } from "./is-too-short.js";
+import { isVeryCommon } from "./is-very-common.js";
 
 export const findPasswordProblems = (
   password: string,

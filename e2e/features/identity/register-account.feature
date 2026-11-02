@@ -27,10 +27,11 @@ Feature: Account registration
     Then registration is refused with a "registration closed" message
 
   Scenario: Weak password
+    Given Offgrid is running
     When someone registers with a password shorter than 12 characters
     Then the account is not created and the reason is explained
 
-  Scenario: Email already used
+  Scenario: Email already used in a different letter case
     Given an account with email "anna@example.com" exists
     When someone registers with "Anna@Example.com"
     Then the account is not created

@@ -20,7 +20,7 @@ export const PASSWORD_MAX_LENGTH = 128;
 export const VERY_COMMON_PASSWORDS: ReadonlySet<string> = new Set([
   "password1234",
   "password12345",
-  "password123456", // gitleaks:allow dictionary word in the common-password list, not a credential
+  "password123456", // gitleaks:allow
   "qwertyuiop12",
   "qwerty123456",
   "iloveyou1234",
@@ -61,3 +61,9 @@ export const REFRESH_COOKIE_PATH = "/api/auth";
 export const SIGN_UP_RATE_LIMIT_PER_MINUTE = 5;
 
 export const SIGN_UP_RATE_WINDOW_MS = 60_000;
+
+export const USER_ACCOUNT_MODEL = "UserAccount";
+
+export const FIRST_ADMIN_CLAIM_MODEL = "FirstAdminClaim";
+
+export const UNIQUE_VIOLATION_CODE = "P2002";

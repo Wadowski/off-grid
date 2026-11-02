@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-const UNIQUE_VIOLATION_CODE = "P2002";
+import { UNIQUE_VIOLATION_CODE } from "../constants.js";
 
 export const uniqueViolationModel = (error: unknown): string | null => {
   if (typeof error !== "object" || error === null) {

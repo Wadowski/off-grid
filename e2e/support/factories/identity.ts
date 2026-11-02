@@ -16,7 +16,24 @@ export function uniqueEmail(prefix = "person"): string {
   return `${prefix}-${randomUUID().slice(0, 8)}@example.com`;
 }
 
+const MAX_REGISTRATION_ATTEMPTS = 3;
+
 export async function registerAccount(
+  api: APIRequestContext,
+  input: { email: string; displayName?: string; password?: string },
+): Promise<RegistrationResult> {
+  let registration = await postRegistration(api, input);
+  for (
+    let attempt = 1;
+    attempt < MAX_REGISTRATION_ATTEMPTS && isFirstAdminRace(registration);
+    attempt++
+  ) {
+    registration = await postRegistration(api, input);
+  }
+  return registration;
+}
+
+async function postRegistration(
   api: APIRequestContext,
   input: { email: string; displayName?: string; password?: string },
 ): Promise<RegistrationResult> {
@@ -33,6 +50,13 @@ export async function registerAccount(
     body: await response.json(),
     setCookie: response.headers()["set-cookie"],
   };
+}
+
+function isFirstAdminRace(registration: RegistrationResult): boolean {
+  return (
+    registration.status === 409 &&
+    (registration.body as { code?: unknown }).code === "REGISTRATION_CONFLICT"
+  );
 }
 
 export async function registrationStatus(api: APIRequestContext): Promise<unknown> {

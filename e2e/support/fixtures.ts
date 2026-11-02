@@ -15,6 +15,7 @@ export type ScenarioWorld = {
   lastError?: ApiError;
   registration?: RegistrationResult;
   registrationStatus?: unknown;
+  emailTag?: string;
 };
 
 export const test = base.extend<{ world: ScenarioWorld }>({
