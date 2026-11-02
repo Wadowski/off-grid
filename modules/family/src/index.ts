@@ -3,3 +3,4 @@
 
 export { familyModule } from "./family-module.js";
 export type { FamilyModuleContext } from "./types.js";
+export { listMyFamilies } from "./application/list-my-families.js";

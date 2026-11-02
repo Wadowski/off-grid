@@ -3,6 +3,6 @@
 
 import type { RequestContext } from "./types.js";
 
-export const anonymousContext = (): RequestContext => {
+export const anonymousContext = async (): Promise<RequestContext> => {
   return { userId: null, familyId: null, accessGroupIds: [] };
 };

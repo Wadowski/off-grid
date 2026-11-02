@@ -17,7 +17,7 @@ export const registerRequestHooks = (
     runWithTrace(traceId, () => done());
   });
   app.addHook("onRequest", async (request) => {
-    request.requestContext = identity(request.headers);
+    request.requestContext = await identity(request);
   });
   app.addHook("onResponse", async (request, reply) => {
     runtime.logger.info("request completed", {

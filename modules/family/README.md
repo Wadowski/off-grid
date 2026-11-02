@@ -1,7 +1,7 @@
 # @offgrid/family
 
 Purpose: the reference module. It creates families and lists the families a user belongs to. Every later module copies this layout.
-Public API: only what `src/index.ts` exports (`familyModule`, `FamilyModuleContext`); never import from `src/` internals.
+Public API: only what `src/index.ts` exports (`familyModule`, `FamilyModuleContext`, `listMyFamilies`); never import from `src/` internals. `listMyFamilies` is read by the server middleware to check a caller's current families on each request ([request context](../../.claude/rules/modules.md)).
 Owner: module team (family)
 
 ## Schema and role

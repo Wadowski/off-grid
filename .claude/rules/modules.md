@@ -19,4 +19,8 @@ paths:
 - DON'T import from `apps/` into `modules/`. Apps wire modules together.
 - DON'T add a circular import between files. `no-circular` fails the build.
 - DON'T add a SQL join across module schemas ([ADR 0009](../../docs/adr/0009-table-ownership-scopes.md)).
+- DO read the caller from `request.requestContext` (through `currentUserId` in the module context). The server middleware sets it from the bearer access token; a module never parses the `Authorization` header itself.
+- DO treat the request context as the only source of identity. Its shape is `RequestContext` in [apps/main-server/src/types.ts](../../apps/main-server/src/types.ts): `userId`, `familyId` and `accessGroupIds`.
+- DO read `familyId` only from the context. The client names the family it acts in with the `x-offgrid-family-id` header, and the middleware accepts it only when the caller is a current member. Without that header, `familyId` is `null` and the request has user-level context only. A route that needs a family refuses when `familyId` is `null`.
+- DON'T accept a family id from a path, body or query as the acting family without a membership check. The middleware does the check for the header only.
 - DON'T put access-control or export logic behind a feature flag ([CLAUDE.md](../../CLAUDE.md)).

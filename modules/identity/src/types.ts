@@ -173,3 +173,8 @@ export interface IdentityRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
 }
+
+export interface VerifiedAccessToken {
+  readonly userId: string;
+  readonly sessionId: string;
+}

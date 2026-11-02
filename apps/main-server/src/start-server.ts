@@ -4,6 +4,7 @@
 import type { ServerConfig, ModuleDescriptor, RunningServer } from "./types.js";
 import { assertValidModules } from "./assert-valid-modules.js";
 import { createRuntime } from "./create-runtime.js";
+import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { registerSubscribersAndCollectWorkers } from "./register-subscribers-and-collect-workers.js";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "./build-app.js";
@@ -22,7 +23,12 @@ export const startServer = async (
 
   let app: FastifyInstance;
   try {
-    app = await buildApp({ config, runtime, modules });
+    app = await buildApp({
+      config,
+      runtime,
+      modules,
+      identity: (request) => resolveRequestIdentity(runtime, request),
+    });
   } catch (error) {
     await Promise.all([runtime.pool.end(), disconnectModuleDatabases(runtime)]);
     throw error;

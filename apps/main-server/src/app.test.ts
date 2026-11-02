@@ -83,8 +83,8 @@ const probeModule: ModuleDescriptor = {
 
 const apps: FastifyInstance[] = [];
 
-const testIdentity: IdentityResolver = (headers) => {
-  const userId = headers["x-offgrid-user-id"];
+const testIdentity: IdentityResolver = async (request) => {
+  const userId = request.headers["x-offgrid-user-id"];
   return {
     userId: typeof userId === "string" ? userIdSchema.parse(userId) : null,
     familyId: null,
