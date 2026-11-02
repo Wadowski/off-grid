@@ -67,3 +67,29 @@ export const USER_ACCOUNT_MODEL = "UserAccount";
 export const FIRST_ADMIN_CLAIM_MODEL = "FirstAdminClaim";
 
 export const UNIQUE_VIOLATION_CODE = "P2002";
+
+export const ACCESS_TOKEN_BYTES = 32;
+
+export const ACCESS_TOKEN_LIFETIME_MS = 15 * 60 * 1000;
+
+export const REMEMBER_ME_SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+
+export const REFRESH_REUSE_GRACE_MS = 30 * 1000;
+
+export const SIGN_IN_FAILURE_LIMIT = 5;
+
+export const SIGN_IN_LOCKOUT_MS = 15 * 60 * 1000;
+
+export const SIGN_IN_RATE_LIMIT_PER_MINUTE = 10;
+
+export const REFRESH_RATE_LIMIT_PER_MINUTE = 30;
+
+export const SIGN_OUT_RATE_LIMIT_PER_MINUTE = 30;
+
+export const RATE_WINDOW_MS = 60_000;
+
+export const CLIENT_REQUEST_HEADER = "x-offgrid-request";
+
+export const CLIENT_REQUEST_HEADER_VALUE = "1";
+
+export const DUMMY_PASSWORD = "offgrid-timing-placeholder-not-a-password";

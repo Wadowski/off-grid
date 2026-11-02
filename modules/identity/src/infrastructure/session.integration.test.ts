@@ -47,6 +47,8 @@ describe("sessions", { timeout: 60_000 }, () => {
         deviceLabel: "laptop",
         expiresAt: new Date(Date.now() + 3_600_000),
         refreshTokenHash: "a".repeat(64),
+        accessTokenHash: "b".repeat(64),
+        accessExpiresAt: new Date(Date.now() + 900_000),
       });
     });
 

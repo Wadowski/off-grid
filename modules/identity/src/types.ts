@@ -63,6 +63,16 @@ export interface NewSession {
   readonly deviceLabel: string | null;
   readonly expiresAt: Date;
   readonly refreshTokenHash: string;
+  readonly accessTokenHash: string;
+  readonly accessExpiresAt: Date;
+}
+
+export interface SessionTokenUpdate {
+  readonly refreshTokenHash?: string;
+  readonly previousRefreshTokenHash?: string;
+  readonly rotatedAt?: Date;
+  readonly accessTokenHash: string;
+  readonly accessExpiresAt: Date;
 }
 
 export type PasswordProblem =
@@ -80,6 +90,57 @@ export interface RegisterAccountInput {
 export interface IssuedSession {
   readonly refreshToken: string;
   readonly expiresAt: Date;
+  readonly accessToken: string;
+  readonly accessExpiresAt: Date;
+}
+
+export interface SignInInput {
+  readonly email: string;
+  readonly password: string;
+  readonly rememberMe?: boolean;
+  readonly deviceLabel?: string;
+}
+
+export interface AccountForSignIn {
+  readonly userId: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly instanceRole: InstanceRole;
+  readonly status: AccountStatus;
+  readonly passwordHash: string;
+}
+
+export interface SessionLookup {
+  readonly sessionId: string;
+  readonly userId: string;
+  readonly expiresAt: Date;
+  readonly revoked: boolean;
+  readonly rotatedAt: Date | null;
+  readonly matchedCurrent: boolean;
+  readonly accountStatus: AccountStatus;
+}
+
+export interface SignedInSession {
+  readonly user: SignedInUser;
+  readonly accessToken: string;
+  readonly accessExpiresAt: Date;
+  readonly refreshToken: string;
+  readonly sessionExpiresAt: Date;
+}
+
+export interface SignedInUser {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly instanceRole: InstanceRole;
+}
+
+export interface RenewedSession {
+  readonly accessToken: string;
+  readonly accessExpiresAt: Date;
+  /** Null when the request used the previous token inside the reuse grace window. */
+  readonly refreshToken: string | null;
+  readonly sessionExpiresAt: Date;
 }
 
 export interface RegisteredAccount {
@@ -102,4 +163,23 @@ export interface UserCreatedInput {
 export interface IdentityRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+}
+
+export interface AccountRow {
+  readonly user_id: string;
+  readonly email: string;
+  readonly display_name: string;
+  readonly instance_role: string;
+  readonly status: string;
+  readonly password_hash: string;
+}
+
+export interface SessionLookupRow {
+  readonly session_id: string;
+  readonly user_id: string;
+  readonly expires_at: Date;
+  readonly revoked: boolean;
+  readonly rotated_at: Date | null;
+  readonly matched_current: boolean;
+  readonly account_status: string;
 }
