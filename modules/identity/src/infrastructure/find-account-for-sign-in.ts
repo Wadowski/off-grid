@@ -4,26 +4,28 @@
 import type { ModuleDatabase } from "@offgrid/db";
 import { z } from "zod";
 import { ACCOUNT_STATUSES, INSTANCE_ROLES } from "../constants.js";
-import type { AccountForSignIn, AccountRow } from "../types.js";
+import type { AccountForSignIn } from "../types.js";
+import { setSignInEmail } from "./set-sign-in-email.js";
 
-export const findAccountForSignIn = async (
+export const findAccountForSignIn = (
   db: ModuleDatabase,
   email: string,
-): Promise<AccountForSignIn | null> => {
-  const rows = await db.$queryRaw<AccountRow[]>`
-    SELECT user_id, email, display_name, instance_role, status, password_hash
-    FROM identity.find_account_for_sign_in(${email})
-  `;
-  const [row] = rows;
-  if (row === undefined) {
-    return null;
-  }
-  return {
-    userId: row.user_id,
-    email: row.email,
-    displayName: row.display_name,
-    instanceRole: z.enum(INSTANCE_ROLES).parse(row.instance_role),
-    status: z.enum(ACCOUNT_STATUSES).parse(row.status),
-    passwordHash: row.password_hash,
-  };
-};
+): Promise<AccountForSignIn | null> =>
+  db.$transaction(async (tx) => {
+    await setSignInEmail(tx, email);
+    const account = await tx.userAccount.findFirst({
+      where: { email },
+      include: { credential: { select: { passwordHash: true } } },
+    });
+    if (account === null || account.credential === null) {
+      return null;
+    }
+    return {
+      userId: account.userId,
+      email: account.email,
+      displayName: account.displayName,
+      instanceRole: z.enum(INSTANCE_ROLES).parse(account.instanceRole),
+      status: z.enum(ACCOUNT_STATUSES).parse(account.status),
+      passwordHash: account.credential.passwordHash,
+    };
+  });

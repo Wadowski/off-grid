@@ -173,22 +173,3 @@ export interface IdentityRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
 }
-
-export interface AccountRow {
-  readonly user_id: string;
-  readonly email: string;
-  readonly display_name: string;
-  readonly instance_role: string;
-  readonly status: string;
-  readonly password_hash: string;
-}
-
-export interface SessionLookupRow {
-  readonly session_id: string;
-  readonly user_id: string;
-  readonly expires_at: Date;
-  readonly revoked: boolean;
-  readonly rotated_at: Date | null;
-  readonly matched_current: boolean;
-  readonly account_status: string;
-}

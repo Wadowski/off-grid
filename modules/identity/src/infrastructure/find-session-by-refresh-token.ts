@@ -1,30 +1,41 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ModuleDatabase } from "@offgrid/db";
+import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { z } from "zod";
 import { ACCOUNT_STATUSES } from "../constants.js";
-import type { SessionLookup, SessionLookupRow } from "../types.js";
+import type { SessionLookup } from "../types.js";
+import { setRefreshTokenHash } from "./set-refresh-token-hash.js";
 
-export const findSessionByRefreshToken = async (
+export const findSessionByRefreshToken = (
   db: ModuleDatabase,
   refreshTokenHash: string,
-): Promise<SessionLookup | null> => {
-  const rows = await db.$queryRaw<SessionLookupRow[]>`
-    SELECT session_id, user_id, expires_at, revoked, rotated_at, matched_current, account_status
-    FROM identity.find_session_by_refresh_token(${refreshTokenHash})
-  `;
-  const [row] = rows;
-  if (row === undefined) {
-    return null;
-  }
-  return {
-    sessionId: row.session_id,
-    userId: row.user_id,
-    expiresAt: row.expires_at,
-    revoked: row.revoked,
-    rotatedAt: row.rotated_at,
-    matchedCurrent: row.matched_current,
-    accountStatus: z.enum(ACCOUNT_STATUSES).parse(row.account_status),
-  };
-};
+): Promise<SessionLookup | null> =>
+  db.$transaction(async (tx) => {
+    await setRefreshTokenHash(tx, refreshTokenHash);
+    const session = await tx.session.findFirst({
+      where: {
+        OR: [{ refreshTokenHash }, { previousRefreshTokenHash: refreshTokenHash }],
+      },
+    });
+    if (session === null) {
+      return null;
+    }
+    await withUserContext(tx, session.userId);
+    const account = await tx.userAccount.findUnique({
+      where: { userId: session.userId },
+      select: { status: true },
+    });
+    if (account === null) {
+      return null;
+    }
+    return {
+      sessionId: session.sessionId,
+      userId: session.userId,
+      expiresAt: session.expiresAt,
+      revoked: session.revoked,
+      rotatedAt: session.rotatedAt,
+      matchedCurrent: session.refreshTokenHash === refreshTokenHash,
+      accountStatus: z.enum(ACCOUNT_STATUSES).parse(account.status),
+    };
+  });
