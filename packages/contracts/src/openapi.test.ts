@@ -13,11 +13,14 @@ describe("buildOpenApiDocument", () => {
     expect(document.openapi).toBe("3.1.0");
     expect(Object.keys(document.components.schemas).sort()).toEqual([
       "AccessGroupId",
+      "AccountCreated",
+      "CreateAccountRequest",
       "CreateFamilyRequest",
       "ErrorResponse",
       "Family",
       "FamilyId",
       "FamilyList",
+      "RegistrationStatus",
       "Timestamp",
       "UserId",
     ]);
