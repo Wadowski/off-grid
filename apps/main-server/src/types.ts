@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { IncomingHttpHeaders } from "node:http";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { z } from "zod";
 import type { Migration, ModuleDatabase } from "@offgrid/db";
@@ -64,7 +63,12 @@ export interface ServerRuntime {
   readonly state: RuntimeState;
 }
 
-export type IdentityResolver = (headers: IncomingHttpHeaders) => RequestContext;
+export type IdentityResolver = (request: FastifyRequest) => Promise<RequestContext>;
+
+export type FamilyMembershipLister = (
+  db: ModuleDatabase,
+  userId: string,
+) => Promise<readonly { readonly id: string }[]>;
 
 export interface AppOptions {
   readonly config: ServerConfig;

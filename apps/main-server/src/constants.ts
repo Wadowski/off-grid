@@ -13,6 +13,7 @@ export const CORS_ALLOWED_HEADERS = [
   "accept",
   "content-type",
   "x-offgrid-dev-user-id",
+  "x-offgrid-family-id",
   "x-trace-id",
 ];
 
@@ -31,3 +32,11 @@ export const MODULES: readonly ModuleDescriptor[] = [familyModule, identityModul
 export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 
 export const CONNECTION_TIMEOUT_MS = 5000;
+
+export const FAMILY_HEADER = "x-offgrid-family-id";
+
+export const BEARER_PATTERN = /^Bearer (.+)$/;
+
+export const FORBIDDEN_FAMILY_MESSAGE = "You are not a member of this family";
+
+export const INVALID_FAMILY_MESSAGE = "The family header must be a family id";
