@@ -2,3 +2,4 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export { identityModule } from "./identity-module.js";
+export { verifyAccessToken } from "./application/verify-access-token.js";
