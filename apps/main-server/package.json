@@ -19,6 +19,7 @@
     "@offgrid/db": "workspace:*",
     "@offgrid/event-bus": "workspace:*",
     "@offgrid/family": "workspace:*",
+    "@offgrid/identity": "workspace:*",
     "@offgrid/observability": "workspace:*",
     "fastify": "5.12.7",
     "pg": "8.23.1",

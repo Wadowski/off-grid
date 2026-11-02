@@ -14,7 +14,7 @@ Owner: module team (identity)
 
 - `identity.user_account` (scope `user`, keyed by `user_id`): email, display name, instance role (`admin` or `user`) and status (`active` or `disabled`). Email is unique ignoring case. A user sees only their own row.
 - `identity.credential` (scope `user`): one password hash per user. The database refuses anything that is not an argon2id hash, so a plain-text password cannot be stored.
-- `identity.session` (scope `user`): device label, created, last used, expiry and a revoked flag.
+- `identity.session` (scope `user`): device label, created, last used, expiry, a revoked flag and the SHA-256 digest of the refresh token (`refresh_token_hash`, unique). Added by migration `20261102000000_identity_session_refresh_token`.
 - `identity.recovery_code` (scope `user`): hashed single-use codes. Each user has at most one active code, enforced by a partial unique index. Rotation retires the old code.
 - `identity.instance_settings` (scope `instance`): one row, seeded with registration open. It has no owner column and any role can read it.
 
@@ -28,9 +28,23 @@ Pure code in `src/domain/`, with no I/O:
 
 - A valid email address, at most 254 characters (`emailSchema`).
 - A display name of 1 to 100 characters, shared with the contract in `packages/contracts`.
+- Password rules (`findPasswordProblems`): 12 to 128 characters after Unicode NFKC normalisation, not on the bundled list of very common passwords, and not containing the email local part or display name (fragments under 3 characters are ignored). Each failed rule is a `PASSWORD_*` code.
 - The first account on an instance is an admin; every later account is a regular user (`initialInstanceRole`).
 - An instance always keeps one active admin: `canDisableAccount` refuses to disable the last one.
 - While registration is closed, a later account is refused with `RegistrationClosedError`. The first account is always allowed.
+
+## Registration
+
+`POST /api/auth/register` creates an account (OG-47). It runs the password rules, hashes the password with Argon2id (`@node-rs/argon2`, OWASP minimum parameters), creates the user through `createUser` and then issues a session:
+
+- The recovery code is 128 random bits, returned once in the `201` body. Only its SHA-256 digest is stored.
+- The refresh token is 256 random bits, sent in the `offgrid_refresh` cookie (`HttpOnly`, `SameSite=Strict`, path `/api/auth`, `Secure` over HTTPS). Only its digest is stored. The session lasts 12 hours.
+- Sign-up is limited to 5 requests per minute per client address on the route.
+- Errors: `VALIDATION_FAILED` (400), the first failing `PASSWORD_*` code (400), `EMAIL_TAKEN` (409, email unique ignoring case), `REGISTRATION_CONFLICT` (409, two first sign-ups raced), `REGISTRATION_CLOSED` (403).
+
+`GET /api/auth/registration-status` returns `{ freshServer, registrationOpen }` without authentication. It reveals only whether the instance has any account.
+
+The two concurrent first sign-ups are covered by `register-account.integration.test.ts`. The second one can either become a regular user (when it starts after the first commits) or fail with `REGISTRATION_CONFLICT` (when it reaches the claim while the first is open). Exactly one account is admin in both cases.
 
 ## Published events
 
@@ -43,17 +57,18 @@ Each file holds one function, named after it in kebab-case ([function rules](../
 ```
 src/types.ts                 all types of the module
 src/constants.ts             module constants
-src/domain/                  pure rules: email, display name, first admin, last admin
-src/application/             create-user, rotate-recovery-code
-src/infrastructure/          one file per table operation, plus to-user
+src/domain/                  pure rules: email, display name, password, first admin, last admin
+src/application/             create-user, register-account, issue-session, rotate-recovery-code
+src/infrastructure/          one file per table operation, plus hashing and tokens
+src/http/                    registration routes and the refresh cookie
 src/events/                  publish-user-created
-src/index.ts                 public entry point (nothing exported yet)
+src/index.ts                 public entry point (exports identityModule)
 test/                        Testcontainers Postgres helper, with the shared migrations
 ```
 
 ## Not in this record
 
-- Argon2id hashing and the recovery-code hash function. The application takes already-hashed values.
 - Switching registration open or closed has no admin check yet. `setRegistrationOpen` is an infrastructure function with no caller; the admin check belongs in the application layer when the admin endpoints land.
-- Session refresh-token hashes, password hashing parameters and recovery-code digest formats. These belong to the sign-in, hashing and recovery issues.
+- Access tokens and the refresh endpoint. Sign-in, refresh and sign-out belong to the sign-in issue, which reads `refresh_token_hash`.
+- Sign-in-side rate limits and per-account lockout (ADR 0016).
 - Per-module database roles. ADR 0017 removed them, so the OG-46 criterion that a module role reaches only its own schema no longer applies.

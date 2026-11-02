@@ -11,6 +11,7 @@ export const insertSession = async (tx: ModuleTransaction, session: NewSession):
       userId: session.userId,
       deviceLabel: session.deviceLabel,
       expiresAt: session.expiresAt,
+      refreshTokenHash: session.refreshTokenHash,
     },
   });
 };
