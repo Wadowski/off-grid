@@ -5,13 +5,15 @@ import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { migrateDeploy } from "@offgrid/db";
 import { familyListSchema, familySchema } from "@offgrid/contracts";
+import type { LightMyRequestResponse } from "fastify";
+import { z } from "zod";
 import { Pool } from "pg";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startTestDatabase } from "../test/start-test-database.js";
 import { RESET_SQL } from "../test/constants.js";
 import type { TestDatabase } from "../test/types.js";
 import { buildApp } from "./build-app.js";
-import { createRequestIdentity } from "./create-request-identity.js";
+import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { createRuntime } from "./create-runtime.js";
 import { FAMILY_HEADER, MODULES } from "./constants.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "./types.js";
@@ -65,7 +67,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       config,
       runtime,
       modules: [...MODULES, probeModule],
-      identity: createRequestIdentity(runtime),
+      identity: (request) => resolveRequestIdentity(runtime, request),
     });
     const registered = await app.inject({
       method: "POST",
@@ -91,15 +93,18 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     if (response.statusCode !== 200) {
       throw new Error(`sign-in failed: ${response.statusCode} ${response.body}`);
     }
-    return response.json().accessToken as string;
+    return z.object({ accessToken: z.string() }).parse(response.json()).accessToken;
   };
 
-  const bearer = (token: string, familyId?: string) => ({
+  const bearer = (token: string, familyId?: string): Record<string, string> => ({
     authorization: `Bearer ${token}`,
     ...(familyId === undefined ? {} : { [FAMILY_HEADER]: familyId }),
   });
 
-  const createFamily = async (token: string, name: string) => {
+  const createFamily = async (
+    token: string,
+    name: string,
+  ): Promise<z.infer<typeof familySchema>> => {
     const response = await app.inject({
       method: "POST",
       url: "/api/families",
@@ -122,7 +127,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     return familyId;
   };
 
-  const probeContext = (headers: Record<string, string>) =>
+  const probeContext = (headers: Record<string, string>): Promise<LightMyRequestResponse> =>
     app.inject({ method: "GET", url: "/api/probe/context", headers });
 
   it("refuses a protected request without a session", async () => {
@@ -286,6 +291,20 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     const response = await probeContext({ [FAMILY_HEADER]: randomUUID() });
 
     expect(response.json()).toEqual({ userId: null, familyId: null, accessGroupIds: [] });
+  });
+
+  it("rejects a family name longer than 100 characters", async () => {
+    const token = await signInToken();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/families",
+      headers: bearer(token),
+      payload: { name: "a".repeat(101) },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("VALIDATION_FAILED");
   });
 
   it("rejects an empty family name with the failing field named", async () => {

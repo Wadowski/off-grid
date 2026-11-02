@@ -9,11 +9,13 @@ export const RATE_WINDOW_MS = 60_000;
 
 export const CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"];
 
+export const FAMILY_HEADER = "x-offgrid-family-id";
+
 export const CORS_ALLOWED_HEADERS = [
   "accept",
   "content-type",
   "x-offgrid-dev-user-id",
-  "x-offgrid-family-id",
+  FAMILY_HEADER,
   "x-trace-id",
 ];
 
@@ -32,8 +34,6 @@ export const MODULES: readonly ModuleDescriptor[] = [familyModule, identityModul
 export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 
 export const CONNECTION_TIMEOUT_MS = 5000;
-
-export const FAMILY_HEADER = "x-offgrid-family-id";
 
 export const BEARER_PATTERN = /^Bearer (.+)$/;
 
