@@ -51,12 +51,12 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       rateLimitPerMinute: 1000,
       logLevel: "error",
     };
-  });
+  }, 120_000);
 
   afterAll(async () => {
     await admin?.end();
     await database?.stop();
-  });
+  }, 120_000);
 
   beforeEach(async () => {
     await admin.query(RESET_SQL);
