@@ -8,6 +8,9 @@ let dummyHash: Promise<string> | undefined;
 
 // Sign-in verifies a password even for an unknown email, so both paths take the same time.
 export const dummyPasswordHash = (): Promise<string> => {
-  dummyHash ??= hashPassword(DUMMY_PASSWORD);
+  dummyHash ??= hashPassword(DUMMY_PASSWORD).catch((error: unknown) => {
+    dummyHash = undefined;
+    throw error;
+  });
   return dummyHash;
 };
