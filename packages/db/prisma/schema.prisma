@@ -61,6 +61,10 @@ model Session {
   expiresAt   DateTime    @map("expires_at") @db.Timestamptz(6)
   revoked     Boolean     @default(false)
   refreshTokenHash String?   @unique @map("refresh_token_hash") @db.Text
+  previousRefreshTokenHash String? @map("previous_refresh_token_hash") @db.Text
+  rotatedAt   DateTime?   @map("rotated_at") @db.Timestamptz(6)
+  accessTokenHash  String?   @unique @map("access_token_hash") @db.Text
+  accessExpiresAt  DateTime? @map("access_expires_at") @db.Timestamptz(6)
   user        UserAccount @relation(fields: [userId], references: [userId])
 
   @@map("session")
