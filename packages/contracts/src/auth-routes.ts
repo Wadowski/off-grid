@@ -4,4 +4,7 @@
 export const authRoutes = {
   register: "/auth/register",
   registrationStatus: "/auth/registration-status",
+  signIn: "/auth/sign-in",
+  refresh: "/auth/refresh",
+  signOut: "/auth/sign-out",
 } as const;
