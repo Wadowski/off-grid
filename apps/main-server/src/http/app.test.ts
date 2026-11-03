@@ -156,6 +156,25 @@ describe("CORS", () => {
     expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-dev-user-id");
   });
 
+  it("lets an allowed origin send credentials, the bearer token and the client request header", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
+
+    const response = await app.inject({
+      method: "OPTIONS",
+      url: "/api/auth/refresh",
+      headers: {
+        origin: WEB_ORIGIN,
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "authorization,x-offgrid-request",
+      },
+    });
+
+    expect(response.headers["access-control-allow-credentials"]).toBe("true");
+    expect(response.headers["access-control-allow-headers"]).toContain("authorization");
+    expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-request");
+  });
+
   it("sends no allow-origin header to an origin that is not configured", async () => {
     const { runtime } = stubRuntime();
     const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);

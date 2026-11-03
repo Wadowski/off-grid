@@ -39,6 +39,7 @@ export const buildApp = async ({
   });
   await app.register(cors, {
     origin: [...config.corsOrigins],
+    credentials: true,
     methods: CORS_ALLOWED_METHODS,
     allowedHeaders: CORS_ALLOWED_HEADERS,
     exposedHeaders: CORS_EXPOSED_HEADERS,
