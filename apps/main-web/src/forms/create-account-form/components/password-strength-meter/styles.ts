@@ -11,7 +11,7 @@ export const meterStyle: CSSProperties = {
 };
 
 export const meterTrackStyle: CSSProperties = {
-  height: "0.375rem",
+  height: tokens.space[1],
   borderRadius: tokens.radius.sm,
   background: "var(--og-color-line)",
   overflow: "hidden",

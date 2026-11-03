@@ -13,6 +13,8 @@ export const downloadRecoveryCodeFile = (
   const link = document.createElement("a");
   link.href = url;
   link.download = RECOVERY_CODE_FILE_NAME;
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 };
