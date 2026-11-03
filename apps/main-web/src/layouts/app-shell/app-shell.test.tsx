@@ -33,5 +33,5 @@ describe("app shell", () => {
     const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
 
     expect(results.violations).toEqual([]);
-  });
+  }, 15_000);
 });

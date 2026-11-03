@@ -3,6 +3,7 @@
 
 import { createBdd } from "playwright-bdd";
 import { test } from "../support/fixtures.js";
+import { signedInPerson } from "../support/factories/notifications.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -42,7 +43,10 @@ When('Anna signs in with "remember me"', () => notImplemented('Anna signs in wit
 Then("her session stays valid for 30 days instead of the default", () =>
   notImplemented("her session stays valid for 30 days"),
 );
-Given("Anna is signed in", () => notImplemented("Anna is signed in"));
+Given("Anna is signed in", async ({ world }) => {
+  world.people ??= {};
+  world.people.anna = await signedInPerson(world.api, "Anna");
+});
 When("the app renews her session", () => notImplemented("the app renews her session"));
 Then("Anna gets new credentials and the old renewal credential no longer works", () =>
   notImplemented("Anna gets new credentials and the old renewal credential no longer works"),

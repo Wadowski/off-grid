@@ -8,4 +8,6 @@ export const accountRoutes = {
   sessions: "/me/sessions",
   session: "/me/sessions/:sessionId",
   otherSessions: "/me/sessions/sign-out-others",
+  notifications: "/me/notifications",
+  notificationRead: "/me/notifications/:notificationId/read",
 } as const;
