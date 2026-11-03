@@ -161,6 +161,21 @@ export interface components {
                 current: boolean;
             }[];
         };
+        NotificationList: {
+            notifications: {
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                type: "password-changed" | "recovery-code-regenerated";
+                data: {
+                    [key: string]: string;
+                };
+                /** Format: date-time */
+                createdAt: string;
+                readAt: string | null;
+            }[];
+            unreadCount: number;
+        };
     };
     responses: never;
     parameters: never;
