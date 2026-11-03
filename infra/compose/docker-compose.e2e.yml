@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+# Test-only override for the e2e stack. The scenarios share one server, so each one
+# sends its own X-Forwarded-For address; this trusts that header from the stack's
+# network. Never use this file for a real install.
+name: offgrid
+
+services:
+  server:
+    environment:
+      OFFGRID_TRUSTED_PROXIES: "0.0.0.0/1,128.0.0.0/1"

@@ -35,7 +35,7 @@ Every admin endpoint is under `/api/admin` and needs a signed-in active admin. A
 
 - `GET /api/admin/users`: every account with its role, status and creation time.
 - `POST /api/admin/users/:userId/disable` and `.../enable`: disabling ends the account's sessions at once and refuses its sign-in. The last active admin cannot be disabled (`409 LAST_ADMIN`). Changes take a lock on the instance settings row, so two admins cannot disable each other at the same time.
-- `POST /api/admin/users/:userId/password-reset`: issues a one-time code (`201`, `{ userId, code, expiresAt }`). The code is returned once and never logged. The admin hands it to the person in person.
+- `POST /api/admin/users/:userId/password-reset`: issues a temporary password, which is the one-time reset code (`201`, `{ userId, code, expiresAt }`). The code is returned once and never logged. The admin hands it to the person in person. Issuing it ends all of the person's sessions at once, as ADR 0016 requires; the old password still works until the reset is completed.
 - `GET` and `PATCH /api/admin/instance-settings`: read and change `registrationOpen`. Closing registration refuses new sign-ups with `REGISTRATION_CLOSED`.
 - `POST /api/auth/password-reset` (public, rate limited): `{ code, password }` sets the new password with the code. The code works once. The password must pass the same rules as registration, and a rejected password keeps the code usable. Success revokes every session of the account and returns `204`. An unknown, used, retired, expired or disabled code gets `400 INVALID_RESET_CODE`.
 

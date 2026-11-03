@@ -197,6 +197,23 @@ describe("instance administration", { timeout: 60_000 }, () => {
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
     });
 
+    it("ends the person's sessions as soon as the reset is issued", async () => {
+      const adminId = await registerAdmin();
+      const memberId = await registerMember();
+      const memberSession = await signIn(db.db, {
+        email: "tom@example.com",
+        password: STRONG_PASSWORD,
+      });
+
+      await startPasswordReset(db.db, adminId, memberId);
+
+      expect(await verifyAccessToken(db.db, memberSession.accessToken)).toBeNull();
+      expect(await sessionsRevokedFor(memberId)).toEqual(expect.arrayContaining([true]));
+      await expect(
+        signIn(db.db, { email: "tom@example.com", password: STRONG_PASSWORD }),
+      ).resolves.toBeDefined();
+    });
+
     it("accepts the code without its dashes and in lower case", async () => {
       const adminId = await registerAdmin();
       const memberId = await registerMember();

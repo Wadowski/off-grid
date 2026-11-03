@@ -9,6 +9,7 @@ import { digestToken } from "../infrastructure/digest-token.js";
 import { generateResetCode } from "../infrastructure/generate-reset-code.js";
 import { insertPasswordReset } from "../infrastructure/insert-password-reset.js";
 import { retireActivePasswordResets } from "../infrastructure/retire-active-password-resets.js";
+import { revokeAllSessions } from "../infrastructure/revoke-all-sessions.js";
 import type { IssuedPasswordReset } from "../types.js";
 
 export const issuePasswordReset = async (
@@ -18,6 +19,7 @@ export const issuePasswordReset = async (
 ): Promise<IssuedPasswordReset> => {
   await withUserContext(tx, userId);
   await retireActivePasswordResets(tx, userId);
+  await revokeAllSessions(tx, userId);
   const code = generateResetCode();
   const expiresAt = new Date(now.getTime() + RESET_CODE_LIFETIME_MS);
   await insertPasswordReset(tx, {

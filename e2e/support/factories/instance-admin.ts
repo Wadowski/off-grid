@@ -3,6 +3,7 @@
 
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "./identity.js";
+import { compose } from "../stack.js";
 
 export const RUN_ADMIN_EMAIL = "run-admin@example.com";
 export const RUN_ADMIN_NAME = "Run Admin";
@@ -31,6 +32,45 @@ export async function signInWith(
       ? { userId: body.user.id, accessToken: body.accessToken }
       : undefined;
   return { status: response.status(), body, session };
+}
+
+export async function provisionRunAdmin(api: APIRequestContext): Promise<void> {
+  const registration = await registerAccount(api, {
+    email: RUN_ADMIN_EMAIL,
+    displayName: RUN_ADMIN_NAME,
+  });
+  if (registration.status !== 201) {
+    throw new Error(`Could not provision the run admin: ${JSON.stringify(registration.body)}`);
+  }
+}
+
+export function forgetRunAdminSession(): void {
+  runAdminSession = undefined;
+}
+
+export async function runRecoveryCommand(args: readonly string[]): Promise<string> {
+  const project = process.env.E2E_COMPOSE_PROJECT;
+  if (project === undefined) {
+    throw new Error("The recovery command needs the compose stack that this run started.");
+  }
+  return compose(project, [
+    "exec",
+    "-T",
+    "server",
+    "node",
+    "--import",
+    "tsx",
+    "src/recover-admin.ts",
+    ...args,
+  ]);
+}
+
+export function issuedCodeFrom(recoveryOutput: string): string {
+  const match = /One-time reset code for the admin: (\S+)/.exec(recoveryOutput);
+  if (match?.[1] === undefined) {
+    throw new Error(`The recovery command printed no reset code: ${recoveryOutput}`);
+  }
+  return match[1];
 }
 
 export async function ensureRunAdmin(api: APIRequestContext): Promise<Session> {

@@ -1,15 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { randomUUID } from "node:crypto";
 import { createBdd } from "playwright-bdd";
 import {
   accessWithToken,
   completePasswordReset,
   createMember,
   ensureRunAdmin,
+  forgetRunAdminSession,
+  issuedCodeFrom,
   listUsers,
   NEW_PASSWORD,
   RUN_ADMIN_EMAIL,
+  runRecoveryCommand,
   setRegistrationOpen,
   setUserDisabled,
   signInWith,
@@ -18,7 +22,7 @@ import {
   type Member,
   type Session,
 } from "../support/factories/instance-admin.js";
-import { registerAccount, uniqueEmail } from "../support/factories/identity.js";
+import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "../support/factories/identity.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then, After } = createBdd(test);
@@ -173,16 +177,28 @@ Then("new sign-ups are refused", async ({ world }) => {
   expect((registration.body as { code: string }).code).toBe("REGISTRATION_CLOSED");
 });
 
-Given("no admin can sign in", async () => {
-  throw new Error(
-    "Needs an isolated stack: locking out the shared run admin would break the other admin scenarios.",
+Given("no admin can sign in", async ({ world }) => {
+  const issued = issuedCodeFrom(
+    await runRecoveryCommand(["reset-password", "--email", RUN_ADMIN_EMAIL]),
+  );
+  const forgottenPassword = randomUUID();
+  const reset = await completePasswordReset(world.api, issued, forgottenPassword);
+  expect(reset.status()).toBe(204);
+  const signIn = await signInWith(world.api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
+  expect(signIn.status).toBe(401);
+  forgetRunAdminSession();
+});
+
+When("the server owner runs the recovery command on the server", async ({ world }) => {
+  world.issuedCode = issuedCodeFrom(
+    await runRecoveryCommand(["reset-password", "--email", RUN_ADMIN_EMAIL]),
   );
 });
 
-When("the server owner runs the recovery command on the server", async () => {
-  throw new Error("Needs an isolated stack; see the locked-out admin note above.");
-});
-
-Then("the admin password is reset", async () => {
-  throw new Error("Needs an isolated stack; see the locked-out admin note above.");
+Then("the admin password is reset", async ({ world }) => {
+  const reset = await completePasswordReset(world.api, world.issuedCode ?? "", STRONG_PASSWORD);
+  expect(reset.status()).toBe(204);
+  const signIn = await signInWith(world.api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
+  expect(signIn.status).toBe(200);
+  forgetRunAdminSession();
 });
