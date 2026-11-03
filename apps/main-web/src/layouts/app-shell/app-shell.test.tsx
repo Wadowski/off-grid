@@ -4,13 +4,15 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import axe from "axe-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { App } from "../../app.js";
-import { resetSessionForTests } from "../../session/session-actions.js";
-import { signedInStartup } from "../../test-support/session-responses.js";
+import { signedInStartup } from "../../test-support/signed-in-startup.js";
+import { stubApi } from "../../test-support/stub-api.js";
+
+let App: typeof import("../../app.js").App;
 
 describe("app shell", () => {
-  beforeEach(() => {
-    resetSessionForTests();
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ App } = await import("../../app.js"));
     window.history.pushState({}, "", "/");
   });
 
@@ -20,17 +22,7 @@ describe("app shell", () => {
   });
 
   it("renders landmarks and has no axe violations", async () => {
-    const responses = [...signedInStartup(), { status: 200, body: { families: [] } }];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        const next = responses.shift();
-        if (next === undefined) {
-          throw new Error("Unexpected request");
-        }
-        return new Response(JSON.stringify(next.body), { status: next.status });
-      }),
-    );
+    stubApi([...signedInStartup(), { status: 200, body: { families: [] } }]);
     const { container } = render(<App />);
     await screen.findByTestId("family-list-empty");
 

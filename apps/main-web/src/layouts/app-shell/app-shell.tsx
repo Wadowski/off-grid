@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Outlet } from "react-router-dom";
-import { signOut } from "../../session/session-actions.js";
-import { useSession } from "../../session/session-store.js";
+import { signOut } from "../../session/sign-out.js";
+import { useSession } from "../../session/use-session.js";
 import type { CurrentUser } from "../../types.js";
 import { AppHeader } from "./components/app-header/app-header.js";
 import { appShellCss, appShellMainStyle, appShellStyle } from "./styles.js";

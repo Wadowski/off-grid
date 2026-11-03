@@ -3,35 +3,10 @@
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { App } from "../app.js";
-import type { FakeResponse } from "../pages/families-page/types.js";
-import {
-  freshServerResponse,
-  sessionEndedResponse,
-  signedInStartup,
-} from "../test-support/session-responses.js";
-import { resetSessionForTests } from "./session-actions.js";
-
-const jsonResponse = ({ status, body }: FakeResponse): Response =>
-  new Response(body === undefined ? null : JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
-
-const stubApi = (responses: readonly FakeResponse[]) => {
-  const queue = [...responses];
-  const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
-    async () => {
-      const next = queue.shift();
-      if (next === undefined) {
-        throw new Error("Unexpected request");
-      }
-      return jsonResponse(next);
-    },
-  );
-  vi.stubGlobal("fetch", fetchMock);
-  return fetchMock;
-};
+import { freshServerResponse } from "../test-support/fresh-server-response.js";
+import { sessionEndedResponse } from "../test-support/session-ended-response.js";
+import { signedInStartup } from "../test-support/signed-in-startup.js";
+import { stubApi } from "../test-support/stub-api.js";
 
 const openAt = (path: string) => {
   window.history.pushState({}, "", path);
@@ -39,9 +14,12 @@ const openAt = (path: string) => {
 
 const RENEWED_TOKEN = "renewed-access-token";
 
-describe("web session guards", () => {
-  beforeEach(() => {
-    resetSessionForTests();
+let App: typeof import("../app.js").App;
+
+describe("web session routes", () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ App } = await import("../app.js"));
   });
 
   afterEach(() => {

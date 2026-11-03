@@ -10,8 +10,6 @@ import {
   authLayoutStyle,
 } from "./styles.js";
 
-// The logged-out frame shared by every sign-in and account screen: the logo, a
-// centred card for the form, and a footer.
 export const AuthLayout = () => (
   <div style={authLayoutStyle}>
     <main style={authLayoutMainStyle}>

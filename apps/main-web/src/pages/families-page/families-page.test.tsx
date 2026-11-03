@@ -3,31 +3,11 @@
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { App } from "../../app.js";
-import { resetSessionForTests } from "../../session/session-actions.js";
-import { signedInStartup } from "../../test-support/session-responses.js";
-import type { FakeResponse } from "./types.js";
+import { signedInStartup } from "../../test-support/signed-in-startup.js";
+import { stubApi } from "../../test-support/stub-api.js";
 
 const FAMILY_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 const CREATED_AT = "2026-10-31T10:00:00.000Z";
-
-const jsonResponse = ({ status, body }: FakeResponse): Response =>
-  new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
-
-const stubApi = (responses: readonly FakeResponse[]) => {
-  const queue = [...responses];
-  const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
-    async () => {
-      const next = queue.shift();
-      if (next === undefined) {
-        throw new Error("Unexpected request");
-      }
-      return jsonResponse(next);
-    },
-  );
-  vi.stubGlobal("fetch", fetchMock);
-  return fetchMock;
-};
 
 const fillName = (value: string) => {
   fireEvent.change(screen.getByLabelText("Family name"), { target: { value } });
@@ -37,9 +17,12 @@ const submitForm = () => {
   fireEvent.click(screen.getByTestId("create-family-submit"));
 };
 
+let App: typeof import("../../app.js").App;
+
 describe("Families page", () => {
-  beforeEach(() => {
-    resetSessionForTests();
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ App } = await import("../../app.js"));
     window.history.pushState({}, "", "/");
   });
 
@@ -80,7 +63,6 @@ describe("Families page", () => {
     submitForm();
 
     expect(await screen.findByText("Enter a family name.")).toBeInTheDocument();
-    // Session start (renewal and profile), then the family list. Nothing more.
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 

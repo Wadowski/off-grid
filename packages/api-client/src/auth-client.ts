@@ -10,26 +10,8 @@ import {
   sessionAccessSchema,
   signedInSchema,
 } from "@offgrid/contracts";
-import type { ApiClient } from "./create-api-client.js";
-
-// The server refuses refresh and sign-out unless this header is sent, because a
-// cross-site form cannot set it. See ADR 0016, "Sessions".
-export const CLIENT_REQUEST_HEADERS: Readonly<Record<string, string>> = {
-  "x-offgrid-request": "1",
-};
-
-export type SignInInput = {
-  readonly email: string;
-  readonly password: string;
-  readonly rememberMe?: boolean;
-  readonly deviceLabel?: string;
-};
-
-export type RegisterInput = {
-  readonly displayName: string;
-  readonly email: string;
-  readonly password: string;
-};
+import { CLIENT_REQUEST_HEADERS } from "./constants.js";
+import type { ApiClient, RegisterInput, SignInInput } from "./types.js";
 
 export const createAuthClient = (client: ApiClient) => ({
   registrationStatus: async () =>
@@ -52,5 +34,3 @@ export const createAuthClient = (client: ApiClient) => ({
 
   profile: async () => accountProfileSchema.parse(await client.request("GET", accountRoutes.me)),
 });
-
-export type AuthClient = ReturnType<typeof createAuthClient>;

@@ -3,12 +3,13 @@
 
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { FamiliesPage } from "./pages/families-page/families-page.js";
 import { AuthPlaceholderPage } from "./pages/auth-placeholder-page/auth-placeholder-page.js";
+import { FamiliesPage } from "./pages/families-page/families-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
-import { startSession } from "./session/session-actions.js";
-import { RedirectIfSignedIn, RequireSignedIn } from "./session/route-guards.js";
+import { RedirectIfSignedIn } from "./session/guards/redirect-if-signed-in/redirect-if-signed-in.js";
+import { RequireSignedIn } from "./session/guards/require-signed-in/require-signed-in.js";
+import { startSession } from "./session/start-session.js";
 
 export const App = () => {
   useEffect(() => {
