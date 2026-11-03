@@ -9,15 +9,10 @@ import { insertRecoveryCode } from "../../infrastructure/recovery-codes/insert-r
 import { retireActiveRecoveryCodes } from "../../infrastructure/recovery-codes/retire-active-recovery-codes.js";
 import { digestToken } from "../../infrastructure/tokens/digest-token.js";
 import { generateSecretToken } from "../../infrastructure/tokens/generate-secret-token.js";
-import type { NewNotification } from "../../types.js";
+import type { RegeneratedRecoveryCode } from "../../types.js";
 import { raiseNotification } from "../notifications/raise-notification.js";
 import { PasswordIncorrectError } from "../errors/password-incorrect-error.js";
 import { passwordMatches } from "./password-matches.js";
-
-export interface RegeneratedRecoveryCode {
-  readonly recoveryCode: string;
-  readonly notification: NewNotification;
-}
 
 export const regenerateOwnRecoveryCode = async (
   db: ModuleDatabase,

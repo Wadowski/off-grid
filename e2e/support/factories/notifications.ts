@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { APIRequestContext, APIResponse } from "@playwright/test";
-import { NEW_PASSWORD } from "./instance-admin.js";
+import { NEW_PASSWORD, signInWith, type Session } from "./instance-admin.js";
 import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "./identity.js";
-import { signInWith, type Session } from "./instance-admin.js";
 
 export type Person = {
   userId: string;

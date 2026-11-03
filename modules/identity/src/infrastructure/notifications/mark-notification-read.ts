@@ -3,8 +3,6 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 
-// Returns false when the item is not the user's. An item that is already read keeps
-// its first read time.
 export const markNotificationRead = async (
   tx: ModuleTransaction,
   userId: string,

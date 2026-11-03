@@ -33,7 +33,9 @@ Given("Tom has an unread inbox item", async ({ world }) => {
   const response = await regenerateOwnRecoveryCode(world.api, tom);
   expect(response.status()).toBe(201);
   const { body } = await listOwnNotifications(world.api, tom.session);
+  expect(body.notifications).toHaveLength(1);
   world.notificationId = body.notifications[0]?.id;
+  expect(world.notificationId).toBeDefined();
 });
 
 Given("she has an unread inbox item", async ({ world }) => {

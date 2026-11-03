@@ -3,10 +3,10 @@
 
 import type { CurrentUserId } from "@offgrid/http";
 import type { FastifyRequest } from "fastify";
+import type { NOTIFICATION_TYPES } from "@offgrid/contracts";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { Logger } from "@offgrid/observability";
 import type { ACCOUNT_STATUSES, INSTANCE_ROLES } from "./constants.js";
-import type { NOTIFICATION_TYPES } from "@offgrid/contracts";
 
 export type InstanceRole = (typeof INSTANCE_ROLES)[number];
 
@@ -247,7 +247,6 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 export interface NotificationInput {
   readonly userId: string;
   readonly type: NotificationType;
-  readonly data?: Record<string, string>;
 }
 
 export interface NewNotification {
@@ -276,4 +275,14 @@ export interface ListedNotification {
 export interface NotificationList {
   readonly notifications: ListedNotification[];
   readonly unreadCount: number;
+}
+
+export interface NotificationChannel {
+  readonly name: string;
+  deliver(notification: NewNotification): Promise<void>;
+}
+
+export interface RegeneratedRecoveryCode {
+  readonly recoveryCode: string;
+  readonly notification: NewNotification;
 }

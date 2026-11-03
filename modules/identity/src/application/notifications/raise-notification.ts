@@ -7,8 +7,6 @@ import { insertNotification } from "../../infrastructure/notifications/insert-no
 import { publishUserNotified } from "../../events/publish-user-notified.js";
 import type { NewNotification, NotificationInput } from "../../types.js";
 
-// The inbox item and user-notified-v1 are written in the caller's transaction, so they
-// commit or roll back together with the change that caused them.
 export const raiseNotification = async (
   tx: ModuleTransaction,
   input: NotificationInput,
@@ -18,7 +16,7 @@ export const raiseNotification = async (
     id: randomUUID(),
     userId: input.userId,
     type: input.type,
-    data: input.data ?? {},
+    data: {},
   };
   await insertNotification(tx, notification, now);
   await publishUserNotified(tx, notification, now);

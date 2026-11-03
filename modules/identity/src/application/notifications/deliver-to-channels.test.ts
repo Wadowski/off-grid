@@ -3,9 +3,8 @@
 
 import { describe, expect, it, vi } from "vitest";
 import type { Logger } from "@offgrid/observability";
-import type { NewNotification } from "../../types.js";
+import type { NewNotification, NotificationChannel } from "../../types.js";
 import { deliverToChannels } from "./deliver-to-channels.js";
-import type { NotificationChannel } from "./notification-channel.js";
 
 const notification: NewNotification = {
   id: "7b1c2d3e-0000-4000-8000-000000000001",
@@ -56,6 +55,28 @@ describe("deliverToChannels", () => {
     expect(reached).toHaveBeenCalledOnce();
     expect(logger.warn).toHaveBeenCalledWith("notification channel failed", {
       channel: "broken",
+      error: "TypeError",
+    });
+  });
+
+  it("keeps delivering when a channel throws synchronously instead of returning a promise", async () => {
+    const reached = vi.fn();
+    const throwing: NotificationChannel = {
+      name: "sync-broken",
+      deliver: () => {
+        throw new TypeError("boom");
+      },
+    };
+    const working: NotificationChannel = { name: "working", deliver: async () => reached() };
+    const logger = fakeLogger();
+
+    await expect(
+      deliverToChannels([throwing, working], notification, logger),
+    ).resolves.toBeUndefined();
+
+    expect(reached).toHaveBeenCalledOnce();
+    expect(logger.warn).toHaveBeenCalledWith("notification channel failed", {
+      channel: "sync-broken",
       error: "TypeError",
     });
   });
