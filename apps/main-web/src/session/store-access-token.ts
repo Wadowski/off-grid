@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { RENEW_BEFORE_EXPIRY_MS } from "../constants.js";
-import { accessTokenState } from "./access-token-state.js";
+import { sessionRuntime } from "./session-runtime.js";
 
 export const storeAccessToken = (
   token: string,
   expiresAt: string,
   onRenewalDue: () => void,
 ): void => {
-  accessTokenState.token = token;
-  clearTimeout(accessTokenState.renewalTimer);
+  sessionRuntime.accessToken = token;
+  clearTimeout(sessionRuntime.renewalTimer);
   const delay = Math.max(0, Date.parse(expiresAt) - Date.now() - RENEW_BEFORE_EXPIRY_MS);
-  accessTokenState.renewalTimer = setTimeout(onRenewalDue, delay);
+  sessionRuntime.renewalTimer = setTimeout(onRenewalDue, delay);
 };

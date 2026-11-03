@@ -21,18 +21,12 @@ export type SessionState =
 
 export type SessionMessage = { readonly type: "signed-in" } | { readonly type: "signed-out" };
 
-export type AccessTokenState = {
-  token: string | null;
-  renewalTimer: ReturnType<typeof setTimeout> | undefined;
-};
-
-export type SessionStore = {
+export type SessionRuntime = {
   current: SessionState;
   readonly listeners: Set<() => void>;
+  accessToken: string | null;
+  renewalTimer: ReturnType<typeof setTimeout> | undefined;
+  channel: BroadcastChannel | null;
+  renewInFlight: Promise<void> | null;
+  started: Promise<void> | null;
 };
-
-export type SessionChannelState = { channel: BroadcastChannel | null };
-
-export type RenewState = { inFlight: Promise<void> | null };
-
-export type StartState = { started: Promise<void> | null };

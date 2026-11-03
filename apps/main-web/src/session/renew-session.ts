@@ -3,11 +3,11 @@
 
 import { anonymousAuthClient } from "../api/anonymous-api-client.js";
 import { endSessionIfRefused } from "./end-session-if-refused.js";
-import { renewState } from "./renew-state.js";
+import { sessionRuntime } from "./session-runtime.js";
 import { storeAccessToken } from "./store-access-token.js";
 
 export const renewSession = (): Promise<void> => {
-  renewState.inFlight ??= anonymousAuthClient
+  sessionRuntime.renewInFlight ??= anonymousAuthClient
     .refresh()
     .then((grant) =>
       storeAccessToken(grant.accessToken, grant.accessExpiresAt, () => {
@@ -15,7 +15,7 @@ export const renewSession = (): Promise<void> => {
       }),
     )
     .finally(() => {
-      renewState.inFlight = null;
+      sessionRuntime.renewInFlight = null;
     });
-  return renewState.inFlight;
+  return sessionRuntime.renewInFlight;
 };

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { accessTokenState } from "./access-token-state.js";
+import { sessionRuntime } from "./session-runtime.js";
 
-export const getAccessToken = (): string | null => accessTokenState.token;
+export const getAccessToken = (): string | null => sessionRuntime.accessToken;

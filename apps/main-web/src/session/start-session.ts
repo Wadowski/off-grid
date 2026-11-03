@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { establishSession } from "./establish-session.js";
-import { startState } from "./start-state.js";
+import { sessionRuntime } from "./session-runtime.js";
 
 export const startSession = (): Promise<void> => {
-  startState.started ??= establishSession();
-  return startState.started;
+  sessionRuntime.started ??= establishSession();
+  return sessionRuntime.started;
 };
