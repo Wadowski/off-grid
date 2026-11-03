@@ -4,6 +4,25 @@ Purpose: composition root: wires modules into the single Fastify server process.
 Public API: only what `src/index.ts` exports (`startServer`, `loadConfig`); never import from `src/` internals.
 Owner: platform team
 
+## Source layout
+
+`src/` keeps only the entry points (`main.ts`, `migrate.ts`, `recover-admin.ts`, `index.ts`) and the single `types.ts` and `constants.ts`. Everything else is grouped into feature folders, with a kind-based subfolder (`errors/`, `headers/`) inside a large feature. Tests sit beside the file they test.
+
+| Folder              | Holds                                                                    |
+| ------------------- | ------------------------------------------------------------------------ |
+| `config/`           | Reading and validating environment configuration and secrets.            |
+| `lifecycle/`        | Creating the runtime, starting the server, shutting down, fatal startup. |
+| `module-wiring/`    | Validating module descriptors, per-module context and database, workers. |
+| `http/`             | Building the Fastify app: routes, hooks, error handling.                 |
+| `http/errors/`      | `ApiError` and the helpers that turn an error into a status and a body.  |
+| `http/headers/`     | Header parsing helpers.                                                  |
+| `request-identity/` | Turning a bearer token and family header into the request context.       |
+| `readiness/`        | The `/api/health/ready` checks.                                          |
+| `migrations/`       | Loading expected migrations and running the migrate command.             |
+| `recovery/`         | The `recover-admin` command.                                             |
+
+Startup order: `config/` loads the configuration, `lifecycle/` creates the runtime, `module-wiring/` validates and registers modules, `http/` builds the app, and `lifecycle/` starts listening and workers.
+
 ## Configuration
 
 Read from the environment and validated with zod at startup. Missing or invalid values fail fast and name the variable.
