@@ -7,3 +7,25 @@ export type ApiClientOptions = {
   baseUrl: string;
   fetch?: typeof fetch;
 };
+
+export type ApiClient = {
+  readonly request: (
+    method: HttpMethod,
+    path: string,
+    body?: unknown,
+    headers?: Readonly<Record<string, string>>,
+  ) => Promise<unknown>;
+};
+
+export type SignInInput = {
+  readonly email: string;
+  readonly password: string;
+  readonly rememberMe?: boolean;
+  readonly deviceLabel?: string;
+};
+
+export type RegisterInput = {
+  readonly displayName: string;
+  readonly email: string;
+  readonly password: string;
+};

@@ -3,20 +3,26 @@
 
 import { cleanup, render, screen } from "@testing-library/react";
 import axe from "axe-core";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { App } from "../../app.js";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { signedInStartup } from "../../test-support/signed-in-startup.js";
+import { stubApi } from "../../test-support/stub-api.js";
+
+let App: typeof import("../../app.js").App;
 
 describe("app shell", () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ App } = await import("../../app.js"));
+    window.history.pushState({}, "", "/");
+  });
+
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
   });
 
   it("renders landmarks and has no axe violations", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => new Response(JSON.stringify({ families: [] }), { status: 200 })),
-    );
+    stubApi([...signedInStartup(), { status: 200, body: { families: [] } }]);
     const { container } = render(<App />);
     await screen.findByTestId("family-list-empty");
 

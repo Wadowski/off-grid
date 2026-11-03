@@ -5,8 +5,10 @@ export const API_PATH = "/api";
 
 export const API_PORT = 3000;
 
-export const DEV_IDENTITY_USER_HEADER = "x-offgrid-dev-user-id";
+export const FAMILY_HEADER = "x-offgrid-family-id";
 
-export const DEFAULT_DEV_USER_ID = "00000000-0000-4000-8000-000000000001";
+export const SESSION_CHANNEL_NAME = "offgrid-session";
+
+export const RENEW_BEFORE_EXPIRY_MS = 60_000;
 
 export const FAMILY_NAME_INPUT_MAX_LENGTH = 200;

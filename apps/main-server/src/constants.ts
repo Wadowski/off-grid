@@ -14,8 +14,10 @@ export const FAMILY_HEADER = "x-offgrid-family-id";
 
 export const CORS_ALLOWED_HEADERS = [
   "accept",
+  "authorization",
   "content-type",
   "x-offgrid-dev-user-id",
+  "x-offgrid-request",
   FAMILY_HEADER,
   "x-trace-id",
 ];
