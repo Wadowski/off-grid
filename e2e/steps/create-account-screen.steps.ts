@@ -4,7 +4,7 @@
 import { createBdd } from "playwright-bdd";
 import { test, type ScenarioWorld } from "../support/fixtures.js";
 
-const { Given, When, Then } = createBdd(test);
+const { When, Then } = createBdd(test);
 
 const notServed = (_world: ScenarioWorld, ...details: unknown[]): never => {
   throw new Error(
