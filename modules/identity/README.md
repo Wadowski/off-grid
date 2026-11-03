@@ -17,6 +17,7 @@ Owner: module team (identity)
 - `identity.session` (scope `user`): device label, created, last used, expiry, a revoked flag and the SHA-256 digest of the refresh token (`refresh_token_hash`, unique). Added by migration `20261102000000_identity_session_refresh_token`.
 - `identity.recovery_code` (scope `user`): hashed single-use codes. Each user has at most one active code, enforced by a partial unique index. Rotation retires the old code.
 - `identity.password_reset` (scope `user`): hashed one-time reset codes issued by an admin or the host command. A code expires after 24 hours, is used once, and starting a new reset retires the previous one.
+- `identity.notification` (scope `user`): the in-app inbox. One row per notice: its type, its `data` (a JSON object of strings), the created time and the read time. Added by migration `20261103000100_identity_notification`.
 - `identity.instance_settings` (scope `instance`): one row, seeded with registration open. It has no owner column and any role can read it.
 
 `identity.first_admin_claim` (scope `instance`): one row keyed by a constant. Creating the first account inserts it in the same transaction, so two simultaneous first sign-ups cannot both become admin; the second waits on the row and fails.
@@ -58,7 +59,21 @@ A signed-in person manages their own account. Every route acts on the caller fro
 
 The current session comes from `request.requestContext.sessionId`, which the server sets from the verified bearer token.
 
-Changing the password and regenerating the recovery code do not yet write a security notification. The notifications module is still a stub.
+## Notifications
+
+A notice to a person is an inbox item plus a `user-notified-v1` event, written in the same transaction as the change that caused it. `raiseNotification` does both, so a rolled-back change leaves neither. Raised today:
+
+- `password-changed`, from `POST /api/me/password`.
+- `recovery-code-regenerated`, from `POST /api/me/recovery-code`.
+
+Not raised yet: the design also lists "new sign-in on a new device" and "recovery code used". Neither has a flow to hook into: sessions have no device identity, and no flow consumes a recovery code.
+
+Notification text is not stored. A row holds only the type and its data, and the client translates the text for display.
+
+- `GET /api/me/notifications`: the caller's items, newest first, as `{ notifications: [{ id, type, data, createdAt, readAt }], unreadCount }`.
+- `POST /api/me/notifications/:notificationId/read`: marks one item read and returns `204`. Re-marking keeps the first read time. An item that is not the caller's gets `404 NOT_FOUND`.
+
+Channels: `NotificationChannel` (`application/notifications/notification-channel.ts`) is the interface for ways to reach a person besides the inbox. The inbox is written inside the transaction, so it always works. Other channels run after the transaction commits, through `deliverToChannels`. That function never throws. A channel that fails is logged by its name and error type only, and the other channels still run, so a failing channel cannot block or undo the change. The channels list is `externalNotificationChannels` and is empty until email (OG-53) registers one.
 
 ## Domain rules
 
@@ -87,6 +102,7 @@ The two concurrent first sign-ups are covered by `register-account.integration.t
 ## Published events
 
 - `user-created-v1` (version 1): `{ userId, displayName }`, owned by the new user. Defined in [packages/contracts/src/user-created-v1.ts](../../packages/contracts/src/user-created-v1.ts). Written to the outbox in the same transaction as the account. The email address is never in the payload.
+- `user-notified-v1` (version 1): `{ notificationId, userId, type, data }`, owned by the notified user. Defined in [packages/contracts/src/user-notified-v1.ts](../../packages/contracts/src/user-notified-v1.ts). Written in the same transaction as the inbox item.
 
 ## Layout
 
@@ -96,17 +112,18 @@ Each file holds one function, named after it in kebab-case ([function rules](../
 src/types.ts                 all types of the module
 src/constants.ts             module constants
 src/domain/                  pure rules: email, display name, password, first admin, last admin
-src/application/             create-user, register-account, issue-session, rotate-recovery-code
+src/application/             create-user, register-account, issue-session, rotate-recovery-code, notifications
 src/infrastructure/          one file per table operation, plus hashing and tokens
 src/http/                    registration routes and the refresh cookie
-src/events/                  publish-user-created
+src/events/                  publish-user-created, publish-user-notified
 src/index.ts                 public entry point (exports identityModule)
 test/                        Testcontainers Postgres helper, with the shared migrations
 ```
 
 ## Not in this record
 
-- Security notifications for password and recovery-code changes (waits for the notifications module).
+- Notifications for a sign-in on a new device and for a used recovery code (see Notifications above).
+- Inbox screen, push and SMS, and per-person notification preferences (out of scope for OG-52). Email delivery is OG-53.
 - Access tokens and the refresh endpoint. Sign-in, refresh and sign-out belong to the sign-in issue, which reads `refresh_token_hash`.
 - Sign-in-side rate limits and per-account lockout (ADR 0016).
 - Per-module database roles. ADR 0017 removed them, so the OG-46 criterion that a module role reaches only its own schema no longer applies.

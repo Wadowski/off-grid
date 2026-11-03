@@ -6,6 +6,7 @@ import type { FastifyRequest } from "fastify";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { Logger } from "@offgrid/observability";
 import type { ACCOUNT_STATUSES, INSTANCE_ROLES } from "./constants.js";
+import type { NOTIFICATION_TYPES } from "@offgrid/contracts";
 
 export type InstanceRole = (typeof INSTANCE_ROLES)[number];
 
@@ -239,4 +240,40 @@ export interface ListedSession {
 export interface ChangePasswordInput {
   readonly currentPassword: string;
   readonly newPassword: string;
+}
+
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+export interface NotificationInput {
+  readonly userId: string;
+  readonly type: NotificationType;
+  readonly data?: Record<string, string>;
+}
+
+export interface NewNotification {
+  readonly id: string;
+  readonly userId: string;
+  readonly type: NotificationType;
+  readonly data: Record<string, string>;
+}
+
+export interface NotificationRecord {
+  readonly notificationId: string;
+  readonly type: string;
+  readonly data: Record<string, string>;
+  readonly createdAt: Date;
+  readonly readAt: Date | null;
+}
+
+export interface ListedNotification {
+  readonly id: string;
+  readonly type: string;
+  readonly data: Record<string, string>;
+  readonly createdAt: string;
+  readonly readAt: string | null;
+}
+
+export interface NotificationList {
+  readonly notifications: ListedNotification[];
+  readonly unreadCount: number;
 }

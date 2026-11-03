@@ -9,6 +9,7 @@ import { scenarioClientAddress } from "./scenario-client-address.js";
 import type { Family } from "./factories/family.js";
 import type { RegistrationResult } from "./factories/identity.js";
 import type { JsonResponse, Member, Session } from "./factories/instance-admin.js";
+import type { SignedInPerson } from "./factories/notifications.js";
 
 export type ScenarioWorld = {
   api: APIRequestContext;
@@ -26,6 +27,8 @@ export type ScenarioWorld = {
   issuedCode?: string;
   registrationTouched?: boolean;
   adminPasswordChanged?: boolean;
+  people?: Record<string, SignedInPerson>;
+  notificationId?: string;
 };
 
 export const test = base.extend<{ world: ScenarioWorld }>({
