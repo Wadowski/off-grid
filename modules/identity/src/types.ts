@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { CurrentUserId } from "@offgrid/http";
+import type { FastifyRequest } from "fastify";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { Logger } from "@offgrid/observability";
 import type { ACCOUNT_STATUSES, INSTANCE_ROLES } from "./constants.js";
@@ -173,6 +174,7 @@ export interface UserCreatedInput {
 export interface IdentityRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly currentSessionId: (request: FastifyRequest) => string | null;
   readonly logger: Logger;
 }
 
@@ -210,4 +212,31 @@ export interface CompletePasswordResetInput {
 export interface CreateRecoveryAdminInput {
   readonly email: string;
   readonly displayName: string;
+}
+
+export interface OwnProfile {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly instanceRole: InstanceRole;
+}
+
+export interface LiveSessionRecord {
+  readonly sessionId: string;
+  readonly deviceLabel: string | null;
+  readonly createdAt: Date;
+  readonly lastUsedAt: Date;
+}
+
+export interface ListedSession {
+  readonly id: string;
+  readonly deviceLabel: string | null;
+  readonly createdAt: string;
+  readonly lastUsedAt: string;
+  readonly current: boolean;
+}
+
+export interface ChangePasswordInput {
+  readonly currentPassword: string;
+  readonly newPassword: string;
 }

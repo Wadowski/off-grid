@@ -234,6 +234,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
 
     expect(response.json()).toEqual({
       userId: expect.any(String),
+      sessionId: expect.any(String),
       familyId: cabin.id,
       accessGroupIds: [cabin.id],
     });
@@ -247,6 +248,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
 
     expect(response.json()).toEqual({
       userId: expect.any(String),
+      sessionId: expect.any(String),
       familyId: null,
       accessGroupIds: [],
     });
@@ -290,7 +292,12 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
   it("ignores the family header when no session is sent", async () => {
     const response = await probeContext({ [FAMILY_HEADER]: randomUUID() });
 
-    expect(response.json()).toEqual({ userId: null, familyId: null, accessGroupIds: [] });
+    expect(response.json()).toEqual({
+      userId: null,
+      sessionId: null,
+      familyId: null,
+      accessGroupIds: [],
+    });
   });
 
   it("rejects a family name longer than 100 characters", async () => {

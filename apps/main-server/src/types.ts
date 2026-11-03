@@ -34,6 +34,7 @@ export interface ModuleContext {
   readonly logger: Logger;
   readonly db: ModuleDatabase;
   readonly currentUserId: (request: FastifyRequest) => string | null;
+  readonly currentSessionId: (request: FastifyRequest) => string | null;
 }
 
 export interface Worker {
@@ -85,6 +86,7 @@ export interface AppliedMigrationRow {
 
 export interface RequestContext {
   readonly userId: z.output<typeof userIdSchema> | null;
+  readonly sessionId: string | null;
   readonly familyId: z.output<typeof familyIdSchema> | null;
   readonly accessGroupIds: readonly z.output<typeof accessGroupIdSchema>[];
 }

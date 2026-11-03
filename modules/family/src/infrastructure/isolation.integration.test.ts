@@ -9,7 +9,7 @@ import {
   type FamilyTestDatabase,
 } from "../../test/start-family-test-database.js";
 
-describe("family schema isolation", () => {
+describe("family schema isolation", { timeout: 60_000 }, () => {
   let db: FamilyTestDatabase;
 
   beforeAll(async () => {
@@ -18,7 +18,7 @@ describe("family schema isolation", () => {
 
   afterAll(async () => {
     await db.stop();
-  });
+  }, 120_000);
 
   beforeEach(async () => {
     await db.reset();

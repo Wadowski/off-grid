@@ -10,11 +10,10 @@ import type { ServerRuntime } from "../types.js";
 export const requestIdentityFromBearer = async (
   request: FastifyRequest,
   runtime: ServerRuntime,
-): Promise<string | null> => {
+): Promise<{ readonly userId: string; readonly sessionId: string } | null> => {
   const match = BEARER_PATTERN.exec(request.headers.authorization ?? "");
   if (match?.[1] === undefined) {
     return null;
   }
-  const verified = await verifyAccessToken(moduleDatabaseFor(runtime, "identity"), match[1]);
-  return verified?.userId ?? null;
+  return verifyAccessToken(moduleDatabaseFor(runtime, "identity"), match[1]);
 };

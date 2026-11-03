@@ -6,6 +6,7 @@ import type { ServerRuntime, ModuleDescriptor } from "../types.js";
 import type { Migration } from "@offgrid/db";
 import { readinessChecks } from "../readiness/readiness-checks.js";
 import { moduleContextFor } from "../module-wiring/module-context-for.js";
+import { registerMeRoute } from "./register-me-route.js";
 
 export const registerApiRoutes = async (
   api: FastifyInstance,
@@ -20,6 +21,7 @@ export const registerApiRoutes = async (
     reply.code(ready ? 200 : 503);
     return { status: ready ? "ok" : "unavailable", checks };
   });
+  registerMeRoute(api, runtime);
   for (const module of modules) {
     await module.registerRoutes?.(api, moduleContextFor(runtime, module.name));
   }

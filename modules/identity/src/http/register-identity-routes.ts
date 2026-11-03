@@ -4,6 +4,10 @@
 import type { FastifyInstance } from "fastify";
 import type { IdentityRouteContext } from "../types.js";
 import { registerAdminRoutes } from "./admin/register-admin-routes.js";
+import { registerChangePassword } from "./account/register-change-password.js";
+import { registerRecoveryCode } from "./account/register-recovery-code.js";
+import { registerSessions } from "./account/register-sessions.js";
+import { registerUpdateProfile } from "./account/register-update-profile.js";
 import { registerPasswordReset } from "./auth/register-password-reset.js";
 import { registerCreateAccount } from "./auth/register-create-account.js";
 import { registerRefreshSession } from "./auth/register-refresh-session.js";
@@ -21,5 +25,9 @@ export const registerIdentityRoutes = (
   registerRefreshSession(api, context);
   registerSignOut(api, context);
   registerPasswordReset(api, context);
+  registerUpdateProfile(api, context);
+  registerChangePassword(api, context);
+  registerRecoveryCode(api, context);
+  registerSessions(api, context);
   registerAdminRoutes(api, context);
 };

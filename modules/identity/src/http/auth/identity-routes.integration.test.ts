@@ -12,6 +12,7 @@ import { registerIdentityRoutes } from "../register-identity-routes.js";
 const STRONG_PASSWORD = "correct horse battery staple";
 
 const anonymousUserId = () => null;
+const anonymousSessionId = () => null;
 
 describe("identity registration routes", { timeout: 60_000 }, () => {
   let db: IdentityTestDatabase;
@@ -30,7 +31,12 @@ describe("identity registration routes", { timeout: 60_000 }, () => {
     await db.admin.query("UPDATE identity.instance_settings SET registration_open = true");
     app = Fastify();
     await app.register(
-      async (api) => registerIdentityRoutes(api, { db: db.db, currentUserId: anonymousUserId }),
+      async (api) =>
+        registerIdentityRoutes(api, {
+          db: db.db,
+          currentUserId: anonymousUserId,
+          currentSessionId: anonymousSessionId,
+        }),
       { prefix: "/api" },
     );
   });

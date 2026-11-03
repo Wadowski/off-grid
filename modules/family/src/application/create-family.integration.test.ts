@@ -9,7 +9,7 @@ import {
 } from "../../test/start-family-test-database.js";
 import { createFamily } from "./create-family.js";
 
-describe("createFamily", () => {
+describe("createFamily", { timeout: 60_000 }, () => {
   let db: FamilyTestDatabase;
 
   beforeAll(async () => {
@@ -18,7 +18,7 @@ describe("createFamily", () => {
 
   afterAll(async () => {
     await db.stop();
-  });
+  }, 120_000);
 
   beforeEach(async () => {
     await db.reset();

@@ -14,8 +14,10 @@ describe("buildOpenApiDocument", () => {
     expect(Object.keys(document.components.schemas).sort()).toEqual([
       "AccessGroupId",
       "AccountCreated",
+      "AccountProfile",
       "AdminUser",
       "AdminUserList",
+      "ChangePasswordRequest",
       "CreateAccountRequest",
       "CreateFamilyRequest",
       "ErrorResponse",
@@ -24,13 +26,17 @@ describe("buildOpenApiDocument", () => {
       "FamilyList",
       "InstanceSettings",
       "InstanceSettingsUpdate",
+      "PasswordConfirmationRequest",
       "PasswordResetIssued",
       "PasswordResetRequest",
+      "RecoveryCodeIssued",
       "RegistrationStatus",
       "SessionAccess",
+      "SessionList",
       "SignInRequest",
       "SignedIn",
       "Timestamp",
+      "UpdateProfileRequest",
       "UserId",
     ]);
   });

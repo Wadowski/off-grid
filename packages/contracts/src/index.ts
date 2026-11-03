@@ -2,6 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export * from "./access-group-id-schema.js";
+export * from "./account-profile-schema.js";
+export * from "./account-routes.js";
+export * from "./change-password-request-schema.js";
+export * from "./password-confirmation-request-schema.js";
+export * from "./recovery-code-issued-schema.js";
+export * from "./session-list-schema.js";
+export * from "./update-profile-request-schema.js";
 export * from "./admin-user-list-schema.js";
 export * from "./admin-user-schema.js";
 export * from "./auth-routes.js";

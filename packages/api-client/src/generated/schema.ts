@@ -123,6 +123,44 @@ export interface components {
         InstanceSettingsUpdate: {
             registrationOpen: boolean;
         };
+        AccountProfile: {
+            /** Format: uuid */
+            id: string;
+            email: string;
+            displayName: string;
+            /** @enum {string} */
+            instanceRole: "admin" | "user";
+            families: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            }[];
+        };
+        UpdateProfileRequest: {
+            displayName: string;
+        };
+        ChangePasswordRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        PasswordConfirmationRequest: {
+            password: string;
+        };
+        RecoveryCodeIssued: {
+            recoveryCode: string;
+        };
+        SessionList: {
+            sessions: {
+                /** Format: uuid */
+                id: string;
+                deviceLabel: string | null;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                lastUsedAt: string;
+                current: boolean;
+            }[];
+        };
     };
     responses: never;
     parameters: never;
