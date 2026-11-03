@@ -6,6 +6,8 @@ paths:
 # Module rules
 
 - DO use the standard layout: `src/domain/`, `src/application/`, `src/infrastructure/`, `src/http/`, `src/events/`, `src/workers/`, `src/index.ts`. See [modules/README.md](../../modules/README.md).
+- DO group files inside a layer into feature subfolders once the layer folder passes about 8 files, for example `application/sessions/`, `infrastructure/credentials/`, `http/admin/`. Group by feature, not by kind. DO put all error classes in `application/errors/`, each `send-*-error` mapper in its feature's `http/` folder, shared low-level primitives in a folder named for them (`infrastructure/tokens/`), and HTTP-only helpers (cookies, headers) in `http/`, never `infrastructure/`. Keep tests beside the file they test. See "Folders inside a layer" in [modules/README.md](../../modules/README.md); `modules/identity` is the reference.
+- DON'T flatten a feature folder back into the layer root, and DON'T create a new top-level layer folder.
 - DO make `src/index.ts` the only public entry point. Other code imports `@offgrid/<name>`, never `src/` internals.
 - DO keep `src/domain/` pure: no Prisma, Fastify, `pg`, `fs`, `http` or other I/O imports. Enforced by `pnpm check:boundaries` ([boundaries.md](../../docs/architecture/boundaries.md)).
 - DO keep domain code free of imports from `infrastructure/`, `http/`, `events/` and `workers/`. Adapters depend on the domain, never the reverse.

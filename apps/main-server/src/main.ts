@@ -3,8 +3,8 @@
 
 import { startServer } from "./index.js";
 import { MODULES } from "./constants.js";
-import { failStartup } from "./fail-startup.js";
-import { loadConfigOrExit } from "./load-config-or-exit.js";
+import { failStartup } from "./lifecycle/fail-startup.js";
+import { loadConfigOrExit } from "./config/load-config-or-exit.js";
 
 const running = await startServer(loadConfigOrExit(), MODULES).catch(failStartup);
 

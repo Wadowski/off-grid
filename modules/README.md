@@ -15,4 +15,17 @@ modules/<name>/src/
   index.ts         the only public entry point
 ```
 
+### Folders inside a layer
+
+A layer folder stays flat while it holds up to about 8 files. Past that, group the files into subfolders **by feature** (`application/sessions/`, `infrastructure/credentials/`, `http/admin/`), never by kind of file. The one exception is errors:
+
+- `application/errors/`: all error classes of the module, one per file.
+- `http/<feature>/`: each `send-*-error` mapper sits beside the routes that use it.
+- `infrastructure/tokens/`, `infrastructure/database/` and similar: low-level primitives shared by several features, named for what they are.
+- `http/cookies/` and similar: HTTP-only helpers belong in `http/`, never in `infrastructure/`.
+- A test file lives beside the file it tests. A cross-cutting integration test goes in the folder of the feature it mostly exercises, or stays at the layer root.
+- `index.ts`, `<name>-module.ts`, `types.ts` and `constants.ts` stay at `src/`. Route wiring (`register-<name>-routes.ts`) stays at the `http/` root.
+
+`modules/identity` is the reference for this grouping.
+
 Rules: other packages import only from `@offgrid/<name>` (never from `src/` internals), and modules never read another module's schema.

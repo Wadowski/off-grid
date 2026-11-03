@@ -3,13 +3,13 @@
 
 import type { FastifyInstance } from "fastify";
 import type { IdentityRouteContext } from "../types.js";
-import { registerAdminRoutes } from "./register-admin-routes.js";
-import { registerPasswordReset } from "./register-password-reset.js";
-import { registerCreateAccount } from "./register-create-account.js";
-import { registerRefreshSession } from "./register-refresh-session.js";
-import { registerRegistrationStatus } from "./register-registration-status.js";
-import { registerSignIn } from "./register-sign-in.js";
-import { registerSignOut } from "./register-sign-out.js";
+import { registerAdminRoutes } from "./admin/register-admin-routes.js";
+import { registerPasswordReset } from "./auth/register-password-reset.js";
+import { registerCreateAccount } from "./auth/register-create-account.js";
+import { registerRefreshSession } from "./auth/register-refresh-session.js";
+import { registerRegistrationStatus } from "./auth/register-registration-status.js";
+import { registerSignIn } from "./auth/register-sign-in.js";
+import { registerSignOut } from "./auth/register-sign-out.js";
 
 export const registerIdentityRoutes = (
   api: FastifyInstance,

@@ -8,11 +8,11 @@ import {
   startIdentityTestDatabase,
   type IdentityTestDatabase,
 } from "../../test/start-identity-test-database.js";
-import { createUser } from "../application/create-user.js";
+import { createUser } from "../application/registration/create-user.js";
 import type { User } from "../types.js";
-import { insertSession } from "./insert-session.js";
-import { setRefreshTokenHash } from "./set-refresh-token-hash.js";
-import { setSignInEmail } from "./set-sign-in-email.js";
+import { insertSession } from "./sessions/insert-session.js";
+import { setRefreshTokenHash } from "./sessions/set-refresh-token-hash.js";
+import { setSignInEmail } from "./accounts/set-sign-in-email.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";
 

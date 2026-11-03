@@ -45,6 +45,7 @@ Starting the Docker Compose stack: not available yet (`infra/compose/` is still 
 - No telemetry, analytics SDKs or outbound network calls in local mode. The one exception is outgoing mail to an SMTP relay on the local network that the owner configures, off by default (see [ADR 0016](docs/adr/0016-local-authentication-model.md)).
 - No secrets, tokens or real hostnames in the repo. Config is validated with zod, and missing secrets fail fast.
 - Modules talk only through versioned events and `packages/contracts`. A module touches only its own Postgres schema. Projections are read-only copies of another module's data; a module reads its own data directly.
+- Inside a module layer, group files into feature subfolders and keep errors in `application/errors/` (see `modules/README.md`, reference: `modules/identity`). `apps/main-server/src/` follows `.claude/rules/main-server.md`.
 - Never edit an applied migration or a released event version. Add a new one.
 - Access control, data export and (future) remote access are never feature-gated.
 - Never weaken or skip CI checks, boundary rules, hooks or tests to make a change pass.

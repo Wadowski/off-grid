@@ -5,8 +5,8 @@ import { parseArgs } from "node:util";
 import { createModuleDb } from "@offgrid/db";
 import { Pool } from "pg";
 import { CONNECTION_TIMEOUT_MS } from "./constants.js";
-import { loadConfigOrExit } from "./load-config-or-exit.js";
-import { runRecoveryCommand } from "./run-recovery-command.js";
+import { loadConfigOrExit } from "./config/load-config-or-exit.js";
+import { runRecoveryCommand } from "./recovery/run-recovery-command.js";
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
