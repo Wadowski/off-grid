@@ -4,6 +4,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthPlaceholderPage } from "./pages/auth-placeholder-page/auth-placeholder-page.js";
+import { CreateAccountPage } from "./pages/create-account-page/create-account-page.js";
 import { FamiliesPage } from "./pages/families-page/families-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
@@ -25,10 +26,7 @@ export const App = () => {
               path="/sign-in"
               element={<AuthPlaceholderPage headingTextId="signIn.heading" />}
             />
-            <Route
-              path="/create-account"
-              element={<AuthPlaceholderPage headingTextId="createAccount.heading" />}
-            />
+            <Route path="/create-account" element={<CreateAccountPage />} />
           </Route>
         </Route>
         <Route element={<RequireSignedIn />}>
