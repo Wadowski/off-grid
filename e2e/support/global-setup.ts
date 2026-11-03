@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { request } from "@playwright/test";
+import { provisionRunAdmin } from "./factories/instance-admin.js";
 import {
   bringUpStack,
   newComposeProjectName,
@@ -20,6 +22,9 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   try {
     await bringUpStack(project);
     await waitForReady(targetBaseUrl());
+    const api = await request.newContext({ baseURL: targetBaseUrl() });
+    await provisionRunAdmin(api);
+    await api.dispose();
   } catch (error) {
     await tearDownStack(project);
     throw error;

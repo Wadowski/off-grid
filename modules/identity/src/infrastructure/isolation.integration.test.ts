@@ -57,11 +57,26 @@ describe("identity row isolation", { timeout: 60_000 }, () => {
 
   it("shows a user only their own account row", async () => {
     const visible = await db.db.$transaction(async (tx) => {
-      await withUserContext(tx, ada.id);
+      await withUserContext(tx, ben.id);
       return tx.userAccount.findMany({ select: { userId: true } });
     });
 
-    expect(visible).toEqual([{ userId: ada.id }]);
+    expect(visible).toEqual([{ userId: ben.id }]);
+  });
+
+  it("refuses a user's attempt to change their own instance role", async () => {
+    await expect(
+      db.db.$transaction(async (tx) => {
+        await withUserContext(tx, ben.id);
+        await tx.userAccount.update({ where: { userId: ben.id }, data: { instanceRole: "admin" } });
+      }),
+    ).rejects.toThrow();
+
+    const { rows } = await db.admin.query<{ instance_role: string }>(
+      "SELECT instance_role FROM identity.user_account WHERE user_id = $1",
+      [ben.id],
+    );
+    expect(rows[0]?.instance_role).toBe("user");
   });
 
   it("shows no account rows when no user context is set", async () => {
@@ -71,8 +86,14 @@ describe("identity row isolation", { timeout: 60_000 }, () => {
   });
 
   it("hides another user's sessions", async () => {
+    const cara = await createUser(db.db, {
+      email: "cara@example.com",
+      displayName: "Cara",
+      passwordHash: HASH,
+      recoveryCodeHash: "cara-code",
+    });
     const visible = await db.db.$transaction(async (tx) => {
-      await withUserContext(tx, ada.id);
+      await withUserContext(tx, cara.id);
       return tx.session.findMany();
     });
 

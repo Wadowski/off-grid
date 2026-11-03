@@ -15,6 +15,7 @@ export default defineConfig({
   testDir,
   globalSetup: "./support/global-setup.ts",
   fullyParallel: true,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   outputDir: "artifacts/test-results",
   reporter: [

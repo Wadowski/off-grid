@@ -3,3 +3,6 @@
 
 export { identityModule } from "./identity-module.js";
 export { verifyAccessToken } from "./application/verify-access-token.js";
+export { createRecoveryAdmin } from "./application/create-recovery-admin.js";
+export { resetAdminPasswordByEmail } from "./application/reset-admin-password-by-email.js";
+export type { IssuedPasswordReset } from "./types.js";

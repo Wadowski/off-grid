@@ -93,3 +93,13 @@ export const CLIENT_REQUEST_HEADER = "x-offgrid-request";
 export const CLIENT_REQUEST_HEADER_VALUE = "1";
 
 export const DUMMY_PASSWORD = "offgrid-timing-placeholder-not-a-password";
+
+export const RESET_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+export const RESET_CODE_LENGTH = 12;
+
+export const RESET_CODE_GROUP_SIZE = 4;
+
+export const RESET_CODE_LIFETIME_MS = 24 * 60 * 60 * 1000;
+
+export const PASSWORD_RESET_RATE_LIMIT_PER_MINUTE = 10;

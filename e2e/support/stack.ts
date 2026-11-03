@@ -9,6 +9,9 @@ import { eventually } from "./eventually.js";
 
 const execFileAsync = promisify(execFile);
 
+const COMPOSE_E2E_OVERRIDE_FILE = fileURLToPath(
+  new URL("../../infra/compose/docker-compose.e2e.yml", import.meta.url),
+);
 const COMPOSE_FILE = fileURLToPath(
   new URL("../../infra/compose/docker-compose.yml", import.meta.url),
 );
@@ -24,7 +27,7 @@ export function newComposeProjectName(): string {
 }
 
 function composeArgs(project: string, args: readonly string[]): string[] {
-  return ["compose", "-p", project, "-f", COMPOSE_FILE, ...args];
+  return ["compose", "-p", project, "-f", COMPOSE_FILE, "-f", COMPOSE_E2E_OVERRIDE_FILE, ...args];
 }
 
 export function serverPort(): string {
@@ -44,7 +47,7 @@ export async function compose(project: string, args: readonly string[]): Promise
 }
 
 export async function bringUpStack(project: string): Promise<void> {
-  await compose(project, ["up", "--detach", "--wait", ...STACK_SERVICES]);
+  await compose(project, ["up", "--detach", "--build", "--wait", ...STACK_SERVICES]);
 }
 
 export async function tearDownStack(project: string): Promise<void> {

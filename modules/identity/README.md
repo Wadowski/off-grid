@@ -16,6 +16,7 @@ Owner: module team (identity)
 - `identity.credential` (scope `user`): one password hash per user. The database refuses anything that is not an argon2id hash, so a plain-text password cannot be stored.
 - `identity.session` (scope `user`): device label, created, last used, expiry, a revoked flag and the SHA-256 digest of the refresh token (`refresh_token_hash`, unique). Added by migration `20261102000000_identity_session_refresh_token`.
 - `identity.recovery_code` (scope `user`): hashed single-use codes. Each user has at most one active code, enforced by a partial unique index. Rotation retires the old code.
+- `identity.password_reset` (scope `user`): hashed one-time reset codes issued by an admin or the host command. A code expires after 24 hours, is used once, and starting a new reset retires the previous one.
 - `identity.instance_settings` (scope `instance`): one row, seeded with registration open. It has no owner column and any role can read it.
 
 `identity.first_admin_claim` (scope `instance`): one row keyed by a constant. Creating the first account inserts it in the same transaction, so two simultaneous first sign-ups cannot both become admin; the second waits on the row and fails.
@@ -25,6 +26,24 @@ Owner: module team (identity)
 Sign-in and refresh look up one row before anyone is signed in. They do this with read-only RLS policies (`user_account_sign_in_lookup`, `credential_sign_in_lookup`, `session_refresh_lookup`). Each policy matches a value the transaction sets with `set_config` (`app.sign_in_email`, `app.refresh_token_hash`), so the lookups are ordinary Prisma queries and no other row becomes visible.
 
 The server middleware checks a bearer access token with `verifyAccessToken`. It uses the read-only policy `session_access_lookup` (migration `20261102000200_identity_access_token_lookup`), keyed on `app.access_token_hash`. The session must not be revoked or expired, and the account must be active. The function returns the user id and session id, or `null`.
+
+Admin access uses `identity.is_active_admin()`, a `SECURITY DEFINER` function that returns true only when the request's user is an active admin. Admin policies on `user_account`, `session` and `password_reset` build on it (migration `20261102000300_identity_admin`). `identity.active_admin_count()` returns only a number, for the host recovery command.
+
+## Administration
+
+Every admin endpoint is under `/api/admin` and needs a signed-in active admin. A regular user gets `403 ACCESS_DENIED`, and an unauthenticated request gets `401`.
+
+- `GET /api/admin/users`: every account with its role, status and creation time.
+- `POST /api/admin/users/:userId/disable` and `.../enable`: disabling ends the account's sessions at once and refuses its sign-in. The last active admin cannot be disabled (`409 LAST_ADMIN`). Changes take a lock on the instance settings row, so two admins cannot disable each other at the same time.
+- `POST /api/admin/users/:userId/password-reset`: issues a temporary password, which is the one-time reset code (`201`, `{ userId, code, expiresAt }`). The code is returned once and never logged. The admin hands it to the person in person. Issuing it ends all of the person's sessions at once, as ADR 0016 requires; the old password still works until the reset is completed.
+- `GET` and `PATCH /api/admin/instance-settings`: read and change `registrationOpen`. Closing registration refuses new sign-ups with `REGISTRATION_CLOSED`.
+- `POST /api/auth/password-reset` (public, rate limited): `{ code, password }` sets the new password with the code. The code works once. The password must pass the same rules as registration, and a rejected password keeps the code usable. Success revokes every session of the account and returns `204`. An unknown, used, retired, expired or disabled code gets `400 INVALID_RESET_CODE`.
+
+Every admin action writes one structured log record with the action, the acting user and the target user. The records never contain a password, code or token.
+
+### Host recovery command
+
+`apps/main-server/src/recover-admin.ts` runs on the server host as the runtime database role, so it needs no extra secret. `reset-password --email` issues a reset code for an existing admin. `create-admin --email --name` creates an admin when no active admin exists, and it publishes `user-created-v1` like registration does. The README shows how to run both through Docker Compose.
 
 ## Domain rules
 
@@ -72,7 +91,7 @@ test/                        Testcontainers Postgres helper, with the shared mig
 
 ## Not in this record
 
-- Switching registration open or closed has no admin check yet. `setRegistrationOpen` is an infrastructure function with no caller; the admin check belongs in the application layer when the admin endpoints land.
 - Access tokens and the refresh endpoint. Sign-in, refresh and sign-out belong to the sign-in issue, which reads `refresh_token_hash`.
 - Sign-in-side rate limits and per-account lockout (ADR 0016).
 - Per-module database roles. ADR 0017 removed them, so the OG-46 criterion that a module role reaches only its own schema no longer applies.
+- Admin screens (separate issue), roles inside a family, deleting accounts, and an audit log UI. Admin actions are logged, not stored.

@@ -14,13 +14,11 @@ Feature: Account registration
     Then the account is created with the admin role
     And a recovery code is shown once
 
-  @wip
   Scenario: Later accounts are regular users
     Given an admin account exists and registration is open
     When another person registers
     Then the account is created with the user role
 
-  @wip
   Scenario: Registration is closed
     Given an admin account exists and registration is closed
     When someone tries to register

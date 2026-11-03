@@ -59,6 +59,20 @@ docker compose -f infra/compose/docker-compose.yml down
 
 This stops the containers and keeps the volumes and `data/`. Add `-v` only if you want to delete the database as well.
 
+### Recover the admin
+
+If the admin cannot sign in, run this on the server host. It creates a one-time reset code for the admin account. Give the code to the admin in person; it is shown once and expires after 24 hours:
+
+```bash
+docker compose -f infra/compose/docker-compose.yml exec server node --import tsx src/recover-admin.ts reset-password --email <admin-email>
+```
+
+If no active admin exists at all, create one. The command refuses while an active admin exists:
+
+```bash
+docker compose -f infra/compose/docker-compose.yml exec server node --import tsx src/recover-admin.ts create-admin --email <admin-email> --name "<display name>"
+```
+
 ## Develop
 
 Requirements: Node.js 24.22.1 or newer and pnpm. This repository uses `pnpm` only; do not use npm or yarn.

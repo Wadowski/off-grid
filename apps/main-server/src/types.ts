@@ -112,3 +112,8 @@ declare module "fastify" {
     requestContext: RequestContext;
   }
 }
+
+export interface RecoveryCommandValues {
+  readonly email?: string;
+  readonly name?: string;
+}

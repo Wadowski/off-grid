@@ -3,6 +3,7 @@
 
 import type { CurrentUserId } from "@offgrid/http";
 import type { ModuleDatabase } from "@offgrid/db";
+import type { Logger } from "@offgrid/observability";
 import type { ACCOUNT_STATUSES, INSTANCE_ROLES } from "./constants.js";
 
 export type InstanceRole = (typeof INSTANCE_ROLES)[number];
@@ -172,9 +173,41 @@ export interface UserCreatedInput {
 export interface IdentityRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly logger: Logger;
 }
 
 export interface VerifiedAccessToken {
   readonly userId: string;
   readonly sessionId: string;
+}
+
+export interface IssuedPasswordReset {
+  readonly userId: string;
+  readonly code: string;
+  readonly expiresAt: Date;
+}
+
+export interface NewPasswordReset {
+  readonly id: string;
+  readonly userId: string;
+  readonly codeHash: string;
+  readonly expiresAt: Date;
+}
+
+export interface PasswordResetRecord {
+  readonly passwordResetId: string;
+  readonly userId: string;
+  readonly expiresAt: Date;
+  readonly usedAt: Date | null;
+  readonly retiredAt: Date | null;
+}
+
+export interface CompletePasswordResetInput {
+  readonly code: string;
+  readonly password: string;
+}
+
+export interface CreateRecoveryAdminInput {
+  readonly email: string;
+  readonly displayName: string;
 }
