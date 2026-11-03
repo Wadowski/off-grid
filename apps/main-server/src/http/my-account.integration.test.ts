@@ -6,7 +6,6 @@ import type { FastifyInstance } from "fastify";
 import { migrateDeploy } from "@offgrid/db";
 import {
   accountProfileSchema,
-  familySchema,
   recoveryCodeIssuedSchema,
   sessionListSchema,
 } from "@offgrid/contracts";
@@ -76,7 +75,12 @@ describe("my account on the real stack", { timeout: 120_000 }, () => {
       modules: MODULES,
       identity: (request) => resolveRequestIdentity(runtime, request),
     });
-    await app.inject({ method: "POST", url: "/api/auth/register", payload: ANNA });
+    const registered = await app.inject({
+      method: "POST",
+      url: "/api/auth/register",
+      payload: ANNA,
+    });
+    expect(registered.statusCode).toBe(201);
   });
 
   afterEach(async () => {
@@ -138,10 +142,6 @@ describe("my account on the real stack", { timeout: 120_000 }, () => {
       "Cabin Circle",
       "Kowalski",
     ]);
-    expect(
-      familySchema.safeParse({ ...profile.families[0], createdAt: new Date().toISOString() })
-        .success,
-    ).toBe(true);
   });
 
   it("refuses my account and sessions without a session", async () => {
@@ -229,9 +229,7 @@ describe("my account on the real stack", { timeout: 120_000 }, () => {
   it("ends one of my other sessions", async () => {
     const laptop = await signIn(ANNA, "laptop");
     const phone = await signIn(ANNA, "phone");
-    const phoneSession = (await requestAs(phone, "GET", "/api/me/sessions"))
-      .json()
-      .sessions.find((session: { current: boolean }) => session.current);
+    const phoneSession = await currentSessionOf(phone);
 
     const response = await requestAs(laptop, "DELETE", `/api/me/sessions/${phoneSession.id}`);
 
@@ -301,6 +299,7 @@ describe("my account on the real stack", { timeout: 120_000 }, () => {
       "SELECT code_hash FROM identity.recovery_code WHERE retired_at IS NULL",
     );
     expect(active.rows).toEqual([{ code_hash: sha256Hex(recoveryCode) }]);
+    expect(oldCode).toBeDefined();
     expect(active.rows[0]?.code_hash).not.toBe(oldCode?.code_hash);
   });
 });

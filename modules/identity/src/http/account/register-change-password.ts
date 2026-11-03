@@ -4,6 +4,7 @@
 import { accountRoutes, changePasswordRequestSchema } from "@offgrid/contracts";
 import { sendUnauthenticated, sendValidationFailed, withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
+import { ACCOUNT_SECRET_RATE_LIMIT_PER_MINUTE, RATE_WINDOW_MS } from "../../constants.js";
 import { changeOwnPassword } from "../../application/account/change-own-password.js";
 import type { IdentityRouteContext } from "../../types.js";
 import { sendAccountError } from "./send-account-error.js";
@@ -14,6 +15,11 @@ export const registerChangePassword = (
 ): void => {
   api.post(
     accountRoutes.password,
+    {
+      config: {
+        rateLimit: { max: ACCOUNT_SECRET_RATE_LIMIT_PER_MINUTE, timeWindow: RATE_WINDOW_MS },
+      },
+    },
     withUser(context.currentUserId, async (request, reply, userId) => {
       const body = changePasswordRequestSchema.safeParse(request.body);
       if (!body.success) {

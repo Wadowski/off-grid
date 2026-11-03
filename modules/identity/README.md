@@ -50,11 +50,11 @@ Every admin action writes one structured log record with the action, the acting 
 A signed-in person manages their own account. Every route acts on the caller from the request context and never accepts another user's id. The profile read (`GET /api/me`) is composed in `apps/main-server`, because it also lists the families from the family module.
 
 - `PATCH /api/me`: `{ displayName }` (1 to 100 characters, trimmed). Returns `204`.
-- `POST /api/me/password`: `{ currentPassword, newPassword }`. The current password must match (`403 CURRENT_PASSWORD_INCORRECT`, nothing changes). The new password must pass the registration rules. Success ends every other session and keeps the current one. Returns `204`.
+- `POST /api/me/password` (rate limited): `{ currentPassword, newPassword }`. The current password must match (`403 CURRENT_PASSWORD_INCORRECT`, nothing changes). The new password must pass the registration rules. Success ends every other session and keeps the current one. Returns `204`.
 - `GET /api/me/sessions`: the live sessions with `id`, `deviceLabel`, `createdAt`, `lastUsedAt` and `current`.
 - `DELETE /api/me/sessions/:sessionId`: ends one of the caller's own sessions. A session that belongs to someone else, or does not exist, gets `404 NOT_FOUND`. Returns `204`.
 - `POST /api/me/sessions/sign-out-others`: ends every session except the current one. Returns `204`.
-- `POST /api/me/recovery-code`: `{ password }`. The password must match (`403 PASSWORD_INCORRECT`). Returns `201` with `{ recoveryCode }` once, marked `no-store`, and retires the old code.
+- `POST /api/me/recovery-code` (rate limited): `{ password }`. The password must match (`403 PASSWORD_INCORRECT`). Returns `201` with `{ recoveryCode }` once, marked `no-store`, and retires the old code.
 
 The current session comes from `request.requestContext.sessionId`, which the server sets from the verified bearer token.
 

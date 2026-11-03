@@ -14,8 +14,14 @@ Feature: My account
 
   Scenario: Changing my display name
     Given Anna is signed in
-    When she changes her display name to "Anna K."
-    Then her profile shows "Anna K."
+    When she changes her display name to Anna Kowalska
+    Then her profile shows Anna Kowalska
+
+  Scenario: Refusing an empty display name
+    Given Anna is signed in
+    When she changes her display name to an empty name
+    Then it is refused with "VALIDATION_FAILED"
+    And her display name is unchanged
 
   Scenario: Changing my password
     Given Anna is signed in on a laptop and a phone
@@ -23,6 +29,12 @@ Feature: My account
     Then the new password works for sign-in
     And her other sessions are signed out
     And her current session stays valid
+
+  Scenario: Refusing a new password that breaks the rules
+    Given Anna is signed in
+    When Anna tries to change her password to one that breaks the password rules
+    Then it is refused with "PASSWORD_TOO_SHORT"
+    And her password is unchanged
 
   Scenario: Wrong current password
     Given Anna is signed in
