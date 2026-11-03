@@ -1,16 +1,41 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { FamiliesPage } from "./pages/families-page/families-page.js";
+import { AuthPlaceholderPage } from "./pages/auth-placeholder-page/auth-placeholder-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
+import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
+import { startSession } from "./session/session-actions.js";
+import { RedirectIfSignedIn, RequireSignedIn } from "./session/route-guards.js";
 
-export const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route element={<AppShell />}>
-        <Route index element={<FamiliesPage />} />
-      </Route>
-    </Routes>
-  </BrowserRouter>
-);
+export const App = () => {
+  useEffect(() => {
+    void startSession();
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AuthLayout />}>
+          <Route element={<RedirectIfSignedIn />}>
+            <Route
+              path="/sign-in"
+              element={<AuthPlaceholderPage headingTextId="signIn.heading" />}
+            />
+            <Route
+              path="/create-account"
+              element={<AuthPlaceholderPage headingTextId="createAccount.heading" />}
+            />
+          </Route>
+        </Route>
+        <Route element={<RequireSignedIn />}>
+          <Route element={<AppShell />}>
+            <Route index element={<FamiliesPage />} />
+          </Route>
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+};

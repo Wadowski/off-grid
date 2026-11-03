@@ -34,4 +34,20 @@ export const en = {
     unexpected: "Something went wrong.",
     retry: "Try again",
   },
+  session: {
+    loading: "Loading…",
+    signedOut: "You were signed out",
+  },
+  authLayout: {
+    footer: "Offgrid runs on your own network.",
+  },
+  signIn: {
+    heading: "Sign in",
+  },
+  createAccount: {
+    heading: "Create account",
+  },
+  authPlaceholder: {
+    notReady: "This screen is not ready yet.",
+  },
 } as const;

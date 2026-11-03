@@ -3,19 +3,33 @@
 
 import { cleanup, render, screen } from "@testing-library/react";
 import axe from "axe-core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../app.js";
+import { resetSessionForTests } from "../../session/session-actions.js";
+import { signedInStartup } from "../../test-support/session-responses.js";
 
 describe("app shell", () => {
+  beforeEach(() => {
+    resetSessionForTests();
+    window.history.pushState({}, "", "/");
+  });
+
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
   });
 
   it("renders landmarks and has no axe violations", async () => {
+    const responses = [...signedInStartup(), { status: 200, body: { families: [] } }];
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => new Response(JSON.stringify({ families: [] }), { status: 200 })),
+      vi.fn(async () => {
+        const next = responses.shift();
+        if (next === undefined) {
+          throw new Error("Unexpected request");
+        }
+        return new Response(JSON.stringify(next.body), { status: next.status });
+      }),
     );
     const { container } = render(<App />);
     await screen.findByTestId("family-list-empty");

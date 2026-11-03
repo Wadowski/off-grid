@@ -19,3 +19,10 @@ export type CurrentUser = {
   readonly email: string;
   readonly role: CurrentUserRole;
 };
+
+export type SessionUser = {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly instanceRole: "admin" | "user";
+};
