@@ -10,6 +10,7 @@ import { accessGroupIdSchema } from "./access-group-id-schema.js";
 import { accountProfileSchema } from "./account-profile-schema.js";
 import { changePasswordRequestSchema } from "./change-password-request-schema.js";
 import { passwordConfirmationRequestSchema } from "./password-confirmation-request-schema.js";
+import { notificationListSchema } from "./notification-schema.js";
 import { recoveryCodeIssuedSchema } from "./recovery-code-issued-schema.js";
 import { sessionListSchema } from "./session-list-schema.js";
 import { updateProfileRequestSchema } from "./update-profile-request-schema.js";
@@ -56,4 +57,5 @@ export const openApiComponentSchemas = {
   PasswordConfirmationRequest: passwordConfirmationRequestSchema,
   RecoveryCodeIssued: recoveryCodeIssuedSchema,
   SessionList: sessionListSchema,
+  NotificationList: notificationListSchema,
 } satisfies Record<string, z.ZodType>;
