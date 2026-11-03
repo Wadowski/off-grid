@@ -63,11 +63,18 @@ async function setRegistration(world: ScenarioWorld, open: boolean): Promise<voi
 }
 
 After(async ({ world }) => {
-  if (world.registrationTouched !== true) {
-    return;
+  forgetRunAdminSession();
+  if (world.adminPasswordChanged === true) {
+    const code = issuedCodeFrom(
+      await runRecoveryCommand(["reset-password", "--email", RUN_ADMIN_EMAIL]),
+    );
+    await completePasswordReset(world.api, code, STRONG_PASSWORD);
   }
-  const admin = await ensureRunAdmin(world.api);
-  await setRegistrationOpen(world.api, admin, true);
+  if (world.registrationTouched === true) {
+    const admin = await ensureRunAdmin(world.api);
+    await setRegistrationOpen(world.api, admin, true);
+  }
+  forgetRunAdminSession();
 });
 
 Given("I am the admin", async ({ world }) => {
@@ -106,7 +113,10 @@ When("I open the admin user list", async ({ world }) => {
   const member = memberOf(world);
   const session = await signInWith(world.api, member.email, member.password);
   expect(session.session).toBeDefined();
-  const response = await listUsers(world.api, session.session!);
+  if (session.session === undefined) {
+    throw new Error("The regular user could not sign in.");
+  }
+  const response = await listUsers(world.api, session.session);
   world.response = { status: response.status(), body: await response.json() };
 });
 
@@ -182,6 +192,7 @@ Given("no admin can sign in", async ({ world }) => {
     await runRecoveryCommand(["reset-password", "--email", RUN_ADMIN_EMAIL]),
   );
   const forgottenPassword = randomUUID();
+  world.adminPasswordChanged = true;
   const reset = await completePasswordReset(world.api, issued, forgottenPassword);
   expect(reset.status()).toBe(204);
   const signIn = await signInWith(world.api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
@@ -200,5 +211,6 @@ Then("the admin password is reset", async ({ world }) => {
   expect(reset.status()).toBe(204);
   const signIn = await signInWith(world.api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
   expect(signIn.status).toBe(200);
+  world.adminPasswordChanged = false;
   forgetRunAdminSession();
 });

@@ -8,7 +8,9 @@ import { ACCESS_TOKEN_BYTES, USER_ACCOUNT_MODEL } from "../constants.js";
 import { emailSchema } from "../domain/email-schema.js";
 import { normalizeEmail } from "../domain/normalize-email.js";
 import { publishUserCreated } from "../events/publish-user-created.js";
+import { claimFirstAdmin } from "../infrastructure/claim-first-admin.js";
 import { countActiveAdmins } from "../infrastructure/count-active-admins.js";
+import { countUsers } from "../infrastructure/count-users.js";
 import { generateSecretToken } from "../infrastructure/generate-secret-token.js";
 import { hashPassword } from "../infrastructure/hash-password.js";
 import { insertCredential } from "../infrastructure/insert-credential.js";
@@ -34,6 +36,9 @@ export const createRecoveryAdmin = async (
       throw new AdminAlreadyActiveError();
     }
     await withUserContext(tx, userId);
+    if ((await countUsers(tx)) === 0) {
+      await claimFirstAdmin(tx);
+    }
     try {
       await insertUser(tx, { id: userId, email, displayName, instanceRole: "admin" });
     } catch (error) {

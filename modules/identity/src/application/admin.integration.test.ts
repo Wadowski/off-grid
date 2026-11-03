@@ -363,6 +363,10 @@ describe("instance administration", { timeout: 60_000 }, () => {
 
       const session = await signIn(db.db, { email: "owner@example.com", password: NEW_PASSWORD });
       expect(session.user.instanceRole).toBe("admin");
+      const { rows } = await db.admin.query<{ count: string }>(
+        "SELECT count(*)::text AS count FROM identity.first_admin_claim",
+      );
+      expect(rows[0]?.count).toBe("1");
     });
 
     it("refuses to create an admin while an active admin exists", async () => {

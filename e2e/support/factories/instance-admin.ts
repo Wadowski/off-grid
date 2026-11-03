@@ -68,7 +68,7 @@ export async function runRecoveryCommand(args: readonly string[]): Promise<strin
 export function issuedCodeFrom(recoveryOutput: string): string {
   const match = /One-time reset code for the admin: (\S+)/.exec(recoveryOutput);
   if (match?.[1] === undefined) {
-    throw new Error(`The recovery command printed no reset code: ${recoveryOutput}`);
+    throw new Error("The recovery command printed no reset code.");
   }
   return match[1];
 }

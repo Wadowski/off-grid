@@ -18,7 +18,7 @@ export const issuePasswordReset = async (
   now: Date,
 ): Promise<IssuedPasswordReset> => {
   await withUserContext(tx, userId);
-  await retireActivePasswordResets(tx, userId);
+  await retireActivePasswordResets(tx, userId, now);
   await revokeAllSessions(tx, userId);
   const code = generateResetCode();
   const expiresAt = new Date(now.getTime() + RESET_CODE_LIFETIME_MS);

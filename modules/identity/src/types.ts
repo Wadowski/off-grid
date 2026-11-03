@@ -202,12 +202,6 @@ export interface PasswordResetRecord {
   readonly retiredAt: Date | null;
 }
 
-export interface AccountSummary {
-  readonly userId: string;
-  readonly instanceRole: InstanceRole;
-  readonly status: AccountStatus;
-}
-
 export interface CompletePasswordResetInput {
   readonly code: string;
   readonly password: string;

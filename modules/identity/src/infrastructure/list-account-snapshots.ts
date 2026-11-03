@@ -4,9 +4,9 @@
 import type { ModuleTransaction } from "@offgrid/db";
 import { z } from "zod";
 import { ACCOUNT_STATUSES, INSTANCE_ROLES } from "../constants.js";
-import type { AccountSummary } from "../types.js";
+import type { AccountSnapshot } from "../types.js";
 
-export const listAccountSummaries = async (tx: ModuleTransaction): Promise<AccountSummary[]> => {
+export const listAccountSnapshots = async (tx: ModuleTransaction): Promise<AccountSnapshot[]> => {
   const accounts = await tx.userAccount.findMany({
     select: { userId: true, instanceRole: true, status: true },
   });

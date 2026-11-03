@@ -25,6 +25,7 @@ export type ScenarioWorld = {
   response?: JsonResponse;
   issuedCode?: string;
   registrationTouched?: boolean;
+  adminPasswordChanged?: boolean;
 };
 
 export const test = base.extend<{ world: ScenarioWorld }>({

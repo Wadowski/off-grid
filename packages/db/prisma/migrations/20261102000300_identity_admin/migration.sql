@@ -64,7 +64,8 @@ CREATE POLICY password_reset_code_lookup ON identity.password_reset
   USING (code_hash = current_setting('app.reset_code_hash', true));
 
 -- Counts active admins for the host recovery command, which runs as the runtime role
--- and has no signed-in user. It returns only a number, so it is not exposed to requests.
+-- and has no signed-in user. The runtime role may call it, so request code could too; it
+-- returns only a number, and no request path calls it.
 CREATE FUNCTION identity.active_admin_count() RETURNS bigint
 LANGUAGE sql
 STABLE

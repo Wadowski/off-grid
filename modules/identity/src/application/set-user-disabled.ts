@@ -4,7 +4,7 @@
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { canDisableAccount } from "../domain/can-disable-account.js";
 import { findAccount } from "../infrastructure/find-account.js";
-import { listAccountSummaries } from "../infrastructure/list-account-summaries.js";
+import { listAccountSnapshots } from "../infrastructure/list-account-snapshots.js";
 import { lockInstanceSettings } from "../infrastructure/lock-instance-settings.js";
 import { revokeAllSessions } from "../infrastructure/revoke-all-sessions.js";
 import { setAccountStatus } from "../infrastructure/set-account-status.js";
@@ -27,12 +27,13 @@ export const setUserDisabled = (
     if (target === null) {
       throw new AccountNotFoundError();
     }
-    if (disabled && !canDisableAccount(await listAccountSummaries(tx), targetUserId)) {
+    if (disabled && !canDisableAccount(await listAccountSnapshots(tx), targetUserId)) {
       throw new LastAdminError();
     }
-    await setAccountStatus(tx, targetUserId, disabled ? "disabled" : "active");
+    const nextStatus = disabled ? "disabled" : "active";
+    await setAccountStatus(tx, targetUserId, nextStatus);
     if (disabled) {
       await revokeAllSessions(tx, targetUserId);
     }
-    return { ...target, status: disabled ? "disabled" : "active" };
+    return { ...target, status: nextStatus };
   });
