@@ -8,8 +8,8 @@ import {
   startIdentityTestDatabase,
   type IdentityTestDatabase,
 } from "../../test/start-identity-test-database.js";
-import { createUser } from "../application/create-user.js";
-import { insertUser } from "../infrastructure/insert-user.js";
+import { createUser } from "../application/registration/create-user.js";
+import { insertUser } from "../infrastructure/accounts/insert-user.js";
 import { publishUserCreated } from "./publish-user-created.js";
 
 const HASH = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$aGFzaA";

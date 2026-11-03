@@ -1,0 +1,14 @@
+import { authRoutes } from "@offgrid/contracts";
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import type { FastifyInstance } from "fastify";
+import { getRegistrationStatus } from "../../application/registration/get-registration-status.js";
+import type { IdentityRouteContext } from "../../types.js";
+
+export const registerRegistrationStatus = (
+  api: FastifyInstance,
+  context: IdentityRouteContext,
+): void => {
+  api.get(authRoutes.registrationStatus, async () => getRegistrationStatus(context.db));
+};
