@@ -4,5 +4,5 @@
 import type { RequestContext } from "../types.js";
 
 export const anonymousContext = async (): Promise<RequestContext> => {
-  return { userId: null, familyId: null, accessGroupIds: [] };
+  return { userId: null, sessionId: null, familyId: null, accessGroupIds: [] };
 };

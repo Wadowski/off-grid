@@ -22,6 +22,7 @@ import { registerIdentityRoutes } from "../register-identity-routes.js";
 const PASSWORD = "correct horse battery staple";
 const ANNA = { displayName: "Anna", email: "anna@example.com", password: PASSWORD };
 const anonymousUserId = () => null;
+const anonymousSessionId = () => null;
 const CLIENT_HEADERS = { [CLIENT_REQUEST_HEADER]: "1" };
 
 const refreshCookieOf = (setCookie: string | string[] | undefined): string => {
@@ -50,7 +51,12 @@ describe("sign-in, refresh and sign-out routes", { timeout: 60_000 }, () => {
     signInAttempts.clear();
     app = Fastify();
     await app.register(
-      async (api) => registerIdentityRoutes(api, { db: db.db, currentUserId: anonymousUserId }),
+      async (api) =>
+        registerIdentityRoutes(api, {
+          db: db.db,
+          currentUserId: anonymousUserId,
+          currentSessionId: anonymousSessionId,
+        }),
       { prefix: "/api" },
     );
     await app.inject({ method: "POST", url: "/api/auth/register", payload: ANNA });

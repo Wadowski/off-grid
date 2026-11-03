@@ -45,6 +45,21 @@ Every admin action writes one structured log record with the action, the acting 
 
 `apps/main-server/src/recover-admin.ts` runs on the server host as the runtime database role, so it needs no extra secret. `reset-password --email` issues a reset code for an existing admin. `create-admin --email --name` creates an admin when no active admin exists, and it publishes `user-created-v1` like registration does. The README shows how to run both through Docker Compose.
 
+## My account
+
+A signed-in person manages their own account. Every route acts on the caller from the request context and never accepts another user's id. The profile read (`GET /api/me`) is composed in `apps/main-server`, because it also lists the families from the family module.
+
+- `PATCH /api/me`: `{ displayName }` (1 to 100 characters, trimmed). Returns `204`.
+- `POST /api/me/password` (rate limited): `{ currentPassword, newPassword }`. The current password must match (`403 CURRENT_PASSWORD_INCORRECT`, nothing changes). The new password must pass the registration rules. Success ends every other session and keeps the current one. Returns `204`.
+- `GET /api/me/sessions`: the live sessions with `id`, `deviceLabel`, `createdAt`, `lastUsedAt` and `current`.
+- `DELETE /api/me/sessions/:sessionId`: ends one of the caller's own sessions. A session that belongs to someone else, or does not exist, gets `404 NOT_FOUND`. Returns `204`.
+- `POST /api/me/sessions/sign-out-others`: ends every session except the current one. Returns `204`.
+- `POST /api/me/recovery-code` (rate limited): `{ password }`. The password must match (`403 PASSWORD_INCORRECT`). Returns `201` with `{ recoveryCode }` once, marked `no-store`, and retires the old code.
+
+The current session comes from `request.requestContext.sessionId`, which the server sets from the verified bearer token.
+
+Changing the password and regenerating the recovery code do not yet write a security notification. The notifications module is still a stub.
+
 ## Domain rules
 
 Pure code in `src/domain/`, with no I/O:
@@ -91,6 +106,7 @@ test/                        Testcontainers Postgres helper, with the shared mig
 
 ## Not in this record
 
+- Security notifications for password and recovery-code changes (waits for the notifications module).
 - Access tokens and the refresh endpoint. Sign-in, refresh and sign-out belong to the sign-in issue, which reads `refresh_token_hash`.
 - Sign-in-side rate limits and per-account lockout (ADR 0016).
 - Per-module database roles. ADR 0017 removed them, so the OG-46 criterion that a module role reaches only its own schema no longer applies.

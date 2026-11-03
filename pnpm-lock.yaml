@@ -231,6 +231,9 @@ importers:
       '@offgrid/family':
         specifier: workspace:*
         version: link:../../modules/family
+      '@offgrid/http':
+        specifier: workspace:*
+        version: link:../../packages/http
       '@offgrid/identity':
         specifier: workspace:*
         version: link:../../modules/identity

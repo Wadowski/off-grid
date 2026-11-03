@@ -9,5 +9,5 @@ export const stopContainer = async (
   container: StartedPostgreSqlContainer,
 ): Promise<void> => {
   await admin.end().catch(() => undefined);
-  await container.stop();
+  await container.stop({ timeout: 0 });
 };

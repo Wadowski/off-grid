@@ -12,5 +12,5 @@ export const stopTestDatabase = async (
 ): Promise<void> => {
   await Promise.all([...pools.map((pool) => pool.end()), ...clients.map((client) => client.end())]);
   await admin.end();
-  await container.stop();
+  await container.stop({ timeout: 0 });
 };

@@ -16,14 +16,15 @@ export const resolveRequestIdentity = async (
   runtime: ServerRuntime,
   request: FastifyRequest,
 ): Promise<RequestContext> => {
-  const bearerUserId = await requestIdentityFromBearer(request, runtime);
-  if (bearerUserId === null) {
+  const verified = await requestIdentityFromBearer(request, runtime);
+  if (verified === null) {
     return anonymousContext();
   }
-  const userId = userIdSchema.parse(bearerUserId);
+  const userId = userIdSchema.parse(verified.userId);
+  const sessionId = verified.sessionId;
   const requestedFamily = request.headers[FAMILY_HEADER];
   if (requestedFamily === undefined) {
-    return { userId, familyId: null, accessGroupIds: [] };
+    return { userId, sessionId, familyId: null, accessGroupIds: [] };
   }
   const parsedFamily = familyIdSchema.safeParse(requestedFamily);
   if (!parsedFamily.success) {
@@ -36,5 +37,5 @@ export const resolveRequestIdentity = async (
     familyId,
     listMyFamilies,
   );
-  return { userId, familyId, accessGroupIds: [accessGroupIdSchema.parse(familyId)] };
+  return { userId, sessionId, familyId, accessGroupIds: [accessGroupIdSchema.parse(familyId)] };
 };

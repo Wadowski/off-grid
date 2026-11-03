@@ -87,6 +87,7 @@ const testIdentity: IdentityResolver = async (request) => {
   const userId = request.headers["x-offgrid-user-id"];
   return {
     userId: typeof userId === "string" ? userIdSchema.parse(userId) : null,
+    sessionId: null,
     familyId: null,
     accessGroupIds: [],
   };
@@ -310,7 +311,12 @@ describe("request pipeline", () => {
       headers: { "x-offgrid-user-id": USER_ID },
     });
 
-    expect(response.json()).toEqual({ userId: null, familyId: null, accessGroupIds: [] });
+    expect(response.json()).toEqual({
+      userId: null,
+      sessionId: null,
+      familyId: null,
+      accessGroupIds: [],
+    });
   });
 
   it("exposes the identity from the configured resolver to routes", async () => {
@@ -323,7 +329,12 @@ describe("request pipeline", () => {
       headers: { "x-offgrid-user-id": USER_ID },
     });
 
-    expect(response.json()).toEqual({ userId: USER_ID, familyId: null, accessGroupIds: [] });
+    expect(response.json()).toEqual({
+      userId: USER_ID,
+      sessionId: null,
+      familyId: null,
+      accessGroupIds: [],
+    });
   });
 
   it("maps a 500 to a generic body and records the real error out of the response", async () => {

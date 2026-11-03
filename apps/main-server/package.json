@@ -19,6 +19,7 @@
     "@offgrid/contracts": "workspace:*",
     "@offgrid/db": "workspace:*",
     "@offgrid/event-bus": "workspace:*",
+    "@offgrid/http": "workspace:*",
     "@offgrid/family": "workspace:*",
     "@offgrid/identity": "workspace:*",
     "@offgrid/observability": "workspace:*",

@@ -5,6 +5,7 @@ import type { ModuleDescriptor } from "./types.js";
 import { familyModule } from "@offgrid/family";
 import { identityModule } from "@offgrid/identity";
 
+export const BEARER_PATTERN = /^Bearer (.+)$/;
 export const RATE_WINDOW_MS = 60_000;
 
 export const CORS_ALLOWED_METHODS = ["GET", "POST", "PATCH", "OPTIONS"];
@@ -34,8 +35,6 @@ export const MODULES: readonly ModuleDescriptor[] = [familyModule, identityModul
 export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 
 export const CONNECTION_TIMEOUT_MS = 5000;
-
-export const BEARER_PATTERN = /^Bearer (.+)$/;
 
 export const FORBIDDEN_FAMILY_MESSAGE = "You are not a member of this family";
 
