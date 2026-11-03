@@ -13,5 +13,3 @@ export type CreateAccountStep =
   | { readonly kind: "form" }
   | { readonly kind: "recovery"; readonly recoveryCode: string }
   | { readonly kind: "closed" };
-
-export type RecoveryContinueStatus = "idle" | "submitting" | "failed";

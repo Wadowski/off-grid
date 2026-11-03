@@ -1,13 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { completeRegistration } from "../../../../session/complete-registration.js";
 import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
+import { completeRegistration } from "../../../../session/complete-registration.js";
 import { RecoveryCodeActions } from "../recovery-code-actions/recovery-code-actions.js";
 import { checkboxLabelStyle, recoveryCodeBoxStyle, recoveryCodeStepStyle } from "./styles.js";
-import type { RecoveryCodeStepProps } from "./types.js";
-import type { RecoveryContinueStatus } from "../../types.js";
+import type { RecoveryCodeStepProps, RecoveryContinueStatus } from "./types.js";
 
 export const RecoveryCodeStep = ({ recoveryCode }: RecoveryCodeStepProps) => {
   const [saved, setSaved] = useState(false);

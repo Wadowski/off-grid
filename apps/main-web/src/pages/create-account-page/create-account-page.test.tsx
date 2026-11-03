@@ -130,7 +130,6 @@ describe("Create account page", () => {
     render(<App />);
     await screen.findByRole("heading", { name: "Create account" });
 
-    fireEvent.change(screen.getByTestId("create-account-password"), { target: { value: "short" } });
     fillForm({ password: "short", confirmation: "short" });
     submitForm();
 

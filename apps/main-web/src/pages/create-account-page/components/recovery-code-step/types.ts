@@ -4,3 +4,5 @@
 export type RecoveryCodeStepProps = {
   readonly recoveryCode: string;
 };
+
+export type RecoveryContinueStatus = "idle" | "submitting" | "failed";

@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { anonymousAuthClient } from "../../api/anonymous-api-client.js";
 import { Button, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { anonymousAuthClient } from "../../api/anonymous-api-client.js";
+import { NO_FIELD_ERRORS } from "../../constants.js";
 import { SignInLink } from "../../session/components/sign-in-link/sign-in-link.js";
 import { PasswordField } from "./components/password-field/password-field.js";
 import { PasswordStrengthMeter } from "./components/password-strength-meter/password-strength-meter.js";
@@ -18,13 +19,6 @@ import type {
 } from "./types.js";
 import { validateCreateAccount } from "./validate-create-account.js";
 
-const NO_FIELD_ERRORS: CreateAccountFieldErrors = {
-  displayName: undefined,
-  email: undefined,
-  password: undefined,
-  confirmation: undefined,
-};
-
 export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAccountFormProps) => {
   const [values, setValues] = useState<CreateAccountValues>({
     displayName: "",
@@ -37,7 +31,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmationVisible, setConfirmationVisible] = useState(false);
 
-  const updateValue = (field: keyof CreateAccountValues) => (value: string) => {
+  const updateValue = (field: keyof CreateAccountValues, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
   };
 
@@ -46,6 +40,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
     const fieldErrors = validateCreateAccount(values);
     setErrors(fieldErrors);
     if (Object.values(fieldErrors).some((textId) => textId !== undefined)) {
+      setStatus("idle");
       return;
     }
     setStatus("submitting");
@@ -78,7 +73,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
             name="name"
             autoComplete="name"
             value={values.displayName}
-            onChange={(event) => updateValue("displayName")(event.target.value)}
+            onChange={(event) => updateValue("displayName", event.target.value)}
             label={<Text variant="label" textId="createAccount.nameLabel" />}
             error={
               errors.displayName === undefined ? undefined : (
@@ -92,7 +87,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
             type="email"
             autoComplete="email"
             value={values.email}
-            onChange={(event) => updateValue("email")(event.target.value)}
+            onChange={(event) => updateValue("email", event.target.value)}
             label={<Text variant="label" textId="createAccount.emailLabel" />}
             error={
               errors.email === undefined ? undefined : (
@@ -105,7 +100,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
             name="password"
             labelTextId="createAccount.passwordLabel"
             value={values.password}
-            onChange={updateValue("password")}
+            onChange={(value) => updateValue("password", value)}
             errorTextId={errors.password}
             visible={passwordVisible}
             onToggleVisible={() => setPasswordVisible((visible) => !visible)}
@@ -116,7 +111,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
             name="confirmation"
             labelTextId="createAccount.confirmLabel"
             value={values.confirmation}
-            onChange={updateValue("confirmation")}
+            onChange={(value) => updateValue("confirmation", value)}
             errorTextId={errors.confirmation}
             visible={confirmationVisible}
             onToggleVisible={() => setConfirmationVisible((visible) => !visible)}

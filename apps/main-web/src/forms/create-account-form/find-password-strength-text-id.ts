@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { PASSWORD_MIN_LENGTH } from "../../constants.js";
+import { countPasswordCharacters } from "./count-password-characters.js";
 import type { PasswordStrengthTextId } from "./types.js";
 
 export const findPasswordStrengthTextId = (
@@ -10,7 +11,7 @@ export const findPasswordStrengthTextId = (
   if (password.length === 0) {
     return undefined;
   }
-  return [...password].length < PASSWORD_MIN_LENGTH
+  return countPasswordCharacters(password) < PASSWORD_MIN_LENGTH
     ? "createAccount.strength.tooWeak"
     : "createAccount.strength.strong";
 };
