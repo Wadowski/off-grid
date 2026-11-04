@@ -10,5 +10,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    // Route tests re-import the whole app per test; that is slow on a loaded CI runner.
+    testTimeout: 20_000,
+    hookTimeout: 30_000,
   },
 });

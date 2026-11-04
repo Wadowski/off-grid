@@ -2,11 +2,11 @@
   "file-name": ["on", { "style": "kebab-case" }],
   "allowed-tags": [
     "on",
-    { "tags": [], "patterns": ["^@(smoke|a11y|wip|infra)$", "^@module:[a-z][a-z0-9-]*$"] }
+    { "tags": [], "patterns": ["^@(smoke|a11y|wip|infra|ui)$", "^@module:[a-z][a-z0-9-]*$"] }
   ],
   "required-tags": [
     "on",
-    { "tags": ["^@(smoke|a11y|wip|infra|module:[a-z][a-z0-9-]*)$"], "ignoreUntagged": false }
+    { "tags": ["^@(smoke|a11y|wip|infra|ui|module:[a-z][a-z0-9-]*)$"], "ignoreUntagged": false }
   ],
   "no-superfluous-tags": "on",
   "no-empty-file": "on",

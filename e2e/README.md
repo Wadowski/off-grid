@@ -51,11 +51,17 @@ A failed run writes its artifacts under `e2e/artifacts/` (gitignored):
 - `artifacts/service-logs.txt`: the server and database logs of the stack, with timestamps, written when the first scenario fails.
 - `artifacts/report/`: the HTML report, when `CI` is set.
 
+## Screenshots of changed screens
+
+Tag a scenario `@ui` when it shows a screen. With `E2E_SCREENSHOTS=1`, the last state of every `@ui` scenario is saved as a full-page PNG at `artifacts/screens/<feature>/<scenario>.png`, and a step can save more states with `captureScreen(page, "name")` from `support/screenshots.ts`. `E2E_SCREENSHOTS_DIR` overrides the folder. Without the variable nothing is captured, so normal runs are unchanged.
+
+The `ui-screenshot-reviewer` agent (`.claude/agents/`) runs this for the screens a branch changed and reviews the images. Run it for any issue that changes `apps/main-web/` or `packages/ui/`.
+
 ## Conventions
 
 - One behaviour per scenario, in declarative business language.
 - New scenarios start tagged `@wip`; remove the tag once the feature works.
-- Allowed tags: `@smoke`, `@a11y`, `@wip`, `@infra`, `@module:<name>`.
+- Allowed tags: `@smoke`, `@a11y`, `@wip`, `@infra`, `@ui`, `@module:<name>`.
 - No selectors, URLs or HTTP details in `.feature` files. Put them in `steps/`.
 - Given steps set up state through the public API factories, not test-only backdoors.
 - Each scenario is isolated and creates its own data.
