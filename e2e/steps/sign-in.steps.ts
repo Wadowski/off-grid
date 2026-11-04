@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { expect } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { test } from "../support/fixtures.js";
+import { registerAccount } from "../support/factories/identity.js";
 import { signedInPerson } from "../support/factories/notifications.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -11,7 +13,13 @@ const notImplemented = (step: string): never => {
   throw new Error(`Step not implemented yet (OG-48 follow-up): ${step}`);
 };
 
-Given('an account for "anna@example.com"', () => notImplemented("an account for anna"));
+Given('an account for "anna@example.com"', async ({ world }) => {
+  const registration = await registerAccount(world.api, {
+    email: "anna@example.com",
+    displayName: "Anna",
+  });
+  expect(registration.status).toBe(201);
+});
 When("Anna signs in with the right password", () =>
   notImplemented("Anna signs in with the right password"),
 );

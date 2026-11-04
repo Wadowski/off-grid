@@ -16,7 +16,7 @@ const COMPOSE_FILE = fileURLToPath(
   new URL("../../infra/compose/docker-compose.yml", import.meta.url),
 );
 
-const STACK_SERVICES = ["server", "mail"] as const;
+const STACK_SERVICES = ["server", "mail", "web"] as const;
 
 const READY_PATH = "/api/health/ready";
 const READY_TIMEOUT_MS = 180_000;
@@ -34,13 +34,26 @@ export function serverPort(): string {
   return process.env.E2E_SERVER_PORT ?? "3000";
 }
 
+export function webPort(): string {
+  return process.env.E2E_WEB_PORT ?? "5173";
+}
+
 export function targetBaseUrl(): string {
   return process.env.BASE_URL ?? `http://127.0.0.1:${serverPort()}`;
 }
 
+export function webBaseUrl(): string {
+  return `http://127.0.0.1:${webPort()}`;
+}
+
 export async function compose(project: string, args: readonly string[]): Promise<string> {
   const { stdout } = await execFileAsync("docker", composeArgs(project, args), {
-    env: { ...process.env, OFFGRID_SERVER_PORT: serverPort() },
+    env: {
+      ...process.env,
+      OFFGRID_SERVER_PORT: serverPort(),
+      OFFGRID_WEB_PORT: webPort(),
+      OFFGRID_API_ORIGIN: targetBaseUrl(),
+    },
     maxBuffer: 64 * 1024 * 1024,
   });
   return stdout;

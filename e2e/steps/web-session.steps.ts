@@ -3,6 +3,7 @@
 
 import { createBdd } from "playwright-bdd";
 import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { webBaseUrl } from "../support/stack.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -23,7 +24,9 @@ When("I use the app", ({ world }) => notServed(world));
 When("I choose {string}", ({ world }, item: string) => notServed(world, item));
 Then("I am taken to the sign-in page", ({ world }) => notServed(world));
 Then("after signing in I land on the page I asked for", ({ world }) => notServed(world));
-Then("I am taken to the home page", ({ world }) => notServed(world));
+Then("I am taken to the home page", async ({ page }) => {
+  await page.waitForURL(`${webBaseUrl()}/`);
+});
 Then("I stay signed in without being asked for my password", ({ world }) => notServed(world));
 Then("I am taken to sign-in with the message {string}", ({ world }, message: string) =>
   notServed(world, message),
