@@ -1,10 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ModuleDescriptor } from "./types.js";
-import { familyModule } from "@offgrid/family";
-import { identityModule } from "@offgrid/identity";
-
 export const BEARER_PATTERN = /^Bearer (.+)$/;
 export const RATE_WINDOW_MS = 60_000;
 
@@ -32,7 +28,7 @@ export const INTERNAL_MESSAGE = "Internal server error";
 
 export const GENERIC_REJECTION_MESSAGE = "Request rejected";
 
-export const MODULES: readonly ModuleDescriptor[] = [familyModule, identityModule];
+export const MAIL_ENCRYPTION_KEY_BYTES = 32;
 
 export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 

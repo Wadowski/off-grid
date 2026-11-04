@@ -123,6 +123,37 @@ export interface components {
         InstanceSettingsUpdate: {
             registrationOpen: boolean;
         };
+        MailSettings: {
+            configured: boolean;
+            provider: ("gmail" | "icloud" | "fastmail" | "other") | null;
+            fromAddress: string | null;
+            smtpHost: string | null;
+            smtpPort: number | null;
+            smtpSecurity: ("tls" | "starttls" | "none") | null;
+            username: string | null;
+        };
+        MailSettingsRequest: {
+            /** Format: email */
+            email: string;
+            /** Format: email */
+            fromAddress?: string;
+            password: string;
+            /** @enum {string} */
+            provider: "gmail" | "icloud" | "fastmail";
+        } | {
+            /** Format: email */
+            email: string;
+            /** Format: email */
+            fromAddress?: string;
+            password: string;
+            /** @constant */
+            provider: "other";
+            username?: string;
+            smtpHost: string;
+            smtpPort: number;
+            /** @enum {string} */
+            smtpSecurity: "tls" | "starttls" | "none";
+        };
         AccountProfile: {
             /** Format: uuid */
             id: string;

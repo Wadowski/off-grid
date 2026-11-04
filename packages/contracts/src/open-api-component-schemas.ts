@@ -20,6 +20,8 @@ import { familyIdSchema } from "./family-id-schema.js";
 import { familyListSchema } from "./family-list-schema.js";
 import { instanceSettingsSchema } from "./instance-settings-schema.js";
 import { instanceSettingsUpdateSchema } from "./instance-settings-update-schema.js";
+import { mailSettingsRequestSchema } from "./mail-settings-request-schema.js";
+import { mailSettingsSchema } from "./mail-settings-schema.js";
 import { familySchema } from "./family-schema.js";
 import { passwordResetIssuedSchema } from "./password-reset-issued-schema.js";
 import { passwordResetRequestSchema } from "./password-reset-request-schema.js";
@@ -51,6 +53,8 @@ export const openApiComponentSchemas = {
   PasswordResetIssued: passwordResetIssuedSchema,
   InstanceSettings: instanceSettingsSchema,
   InstanceSettingsUpdate: instanceSettingsUpdateSchema,
+  MailSettings: mailSettingsSchema,
+  MailSettingsRequest: mailSettingsRequestSchema,
   AccountProfile: accountProfileSchema,
   UpdateProfileRequest: updateProfileRequestSchema,
   ChangePasswordRequest: changePasswordRequestSchema,

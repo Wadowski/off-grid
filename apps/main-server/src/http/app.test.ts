@@ -22,6 +22,7 @@ const baseConfig: ServerConfig = {
     password: "unused",
     poolMax: 1,
   },
+  mail: { encryptionKey: Buffer.alloc(32, 7) },
   trustedProxies: [],
   corsOrigins: [],
   rateLimitPerMinute: 1000,
