@@ -35,6 +35,7 @@ export const textVariantStyles: Record<TextVariant, CSSProperties> = {
   },
   action: {
     ...baseTextStyle,
+    color: "inherit",
     fontSize: cssVar("font-size-md"),
     fontWeight: cssVar("font-weight-semibold"),
   },
