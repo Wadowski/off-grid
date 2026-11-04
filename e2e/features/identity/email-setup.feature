@@ -7,7 +7,6 @@ Feature: Email setup
   The admin connects an outgoing mail account once. Offgrid then uses it to email people.
   Email is optional: the rest of the app works without it.
 
-  @wip
   Scenario: Choosing a provider fills in its server details
     Given I am the admin
     When I choose Gmail and enter my email and app password
@@ -27,14 +26,12 @@ Feature: Email setup
     When I send a test email with a wrong app password
     Then I see "The email provider did not accept this password"
 
-  @wip
   Scenario: Secret never shown again
     Given I am the admin
     And email is configured
     When I open the mail settings
     Then the saved password is not shown
 
-  @wip
   Scenario: Only the admin can change mail settings
     Given I am a regular user
     When I open the mail settings
