@@ -15,7 +15,8 @@ import type { TestDatabase } from "../../test/types.js";
 import { buildApp } from "../http/build-app.js";
 import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
-import { FAMILY_HEADER, modulesFor } from "../constants.js";
+import { FAMILY_HEADER } from "../constants.js";
+import { modulesFor } from "../module-wiring/modules-for.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
 
 const PASSWORD = "correct horse battery staple";

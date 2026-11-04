@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Logger } from "@offgrid/observability";
-import { classifyMailError } from "../../infrastructure/mail/classify-mail-error.js";
+import { classifyMailError } from "../../domain/mail/classify-mail-error.js";
 
 export const sendWithRetry = (
   attempt: () => Promise<void>,

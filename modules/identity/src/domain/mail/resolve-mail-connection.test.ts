@@ -23,6 +23,37 @@ describe("resolveMailConnection", () => {
     });
   });
 
+  it("fills in the iCloud server details and removes the hyphens from its app password", () => {
+    const request: MailSettingsRequest = {
+      provider: "icloud",
+      email: "anna@icloud.com",
+      password: "abcd-efgh-ijkl-mnop",
+    };
+
+    expect(resolveMailConnection(request)).toEqual({
+      host: "smtp.mail.me.com",
+      port: 587,
+      security: "starttls",
+      username: "anna@icloud.com",
+      password: "abcdefghijklmnop",
+      fromAddress: "anna@icloud.com",
+    });
+  });
+
+  it("fills in the Fastmail server details with implicit TLS", () => {
+    const request: MailSettingsRequest = {
+      provider: "fastmail",
+      email: "anna@fastmail.com",
+      password: "app-pass",
+    };
+
+    expect(resolveMailConnection(request)).toMatchObject({
+      host: "smtp.fastmail.com",
+      port: 465,
+      security: "tls",
+    });
+  });
+
   it("uses the given from address when one is set", () => {
     const request: MailSettingsRequest = {
       provider: "fastmail",

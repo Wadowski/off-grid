@@ -3,12 +3,12 @@
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { resolveMailConnection } from "../../domain/mail/resolve-mail-connection.js";
-import { classifyMailError } from "../../infrastructure/mail/classify-mail-error.js";
+import { classifyMailError } from "../../domain/mail/classify-mail-error.js";
 import { findAccount } from "../../infrastructure/accounts/find-account.js";
 import { MAIL_TEST_MESSAGE } from "../../constants.js";
 import type { MailSender, MailSettingsRequest } from "../../types.js";
 import { assertActiveAdmin } from "../admin/assert-active-admin.js";
-import { AdminRequiredError } from "../errors/admin-required-error.js";
+import { AccountNotFoundError } from "../errors/account-not-found-error.js";
 import { MailTestFailedError } from "../errors/mail-test-failed-error.js";
 
 export const sendTestMail = async (
@@ -23,7 +23,7 @@ export const sendTestMail = async (
     return (await findAccount(tx, actorUserId))?.email ?? null;
   });
   if (adminEmail === null) {
-    throw new AdminRequiredError();
+    throw new AccountNotFoundError();
   }
   const connection = resolveMailConnection(request);
   try {

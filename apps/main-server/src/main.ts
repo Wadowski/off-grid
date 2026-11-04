@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { startServer } from "./index.js";
-import { modulesFor } from "./constants.js";
+import { modulesFor } from "./module-wiring/modules-for.js";
 import { failStartup } from "./lifecycle/fail-startup.js";
 import { loadConfigOrExit } from "./config/load-config-or-exit.js";
 

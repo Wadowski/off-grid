@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export { createIdentityModule } from "./identity-module.js";
-export { isMailConfigured } from "./application/mail/is-mail-configured.js";
 export { verifyAccessToken } from "./application/sessions/verify-access-token.js";
 export { getOwnProfile } from "./application/account/get-own-profile.js";
 export { createRecoveryAdmin } from "./application/registration/create-recovery-admin.js";

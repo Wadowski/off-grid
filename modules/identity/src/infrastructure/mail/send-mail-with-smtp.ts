@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import nodemailer from "nodemailer";
+import { MAIL_CONNECTION_TIMEOUT_MS, MAIL_SOCKET_TIMEOUT_MS } from "../../constants.js";
 import type { MailConnection, MailMessage } from "../../types.js";
 
 export const sendMailWithSmtp = async (
@@ -15,9 +16,9 @@ export const sendMailWithSmtp = async (
     requireTLS: connection.security === "starttls",
     ignoreTLS: connection.security === "none",
     auth: { user: connection.username, pass: connection.password },
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 20_000,
+    connectionTimeout: MAIL_CONNECTION_TIMEOUT_MS,
+    greetingTimeout: MAIL_CONNECTION_TIMEOUT_MS,
+    socketTimeout: MAIL_SOCKET_TIMEOUT_MS,
   });
   try {
     await transport.sendMail(message);

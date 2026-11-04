@@ -7,10 +7,16 @@ Feature: Email setup
   The admin connects an outgoing mail account once. Offgrid then uses it to email people.
   Email is optional: the rest of the app works without it.
 
-  Scenario: Choosing a provider fills in its server details
+  Scenario Outline: Choosing a provider fills in its server details
     Given I am the admin
-    When I choose Gmail and enter my email and app password
-    Then the server details are filled in for me
+    When I choose <provider> and enter my email and app password
+    Then the server details are filled in for me with host "<host>", port <port> and security "<security>"
+
+    Examples:
+      | provider | host              | port | security |
+      | Gmail    | smtp.gmail.com    | 587  | starttls |
+      | iCloud   | smtp.mail.me.com  | 587  | starttls |
+      | Fastmail | smtp.fastmail.com | 465  | tls      |
 
   @wip
   Scenario: Sending a test email
@@ -32,9 +38,14 @@ Feature: Email setup
     When I open the mail settings
     Then the saved password is not shown
 
-  Scenario: Only the admin can change mail settings
+  Scenario: Only the admin can read mail settings
     Given I am a regular user
     When I open the mail settings
+    Then I am refused
+
+  Scenario: Only the admin can save mail settings
+    Given I am a regular user
+    When I save mail settings
     Then I am refused
 
   @wip

@@ -69,10 +69,20 @@ Given("no mail is configured", () => notImplemented("no mail is configured"));
 
 Given("the provider is unreachable", () => notImplemented("the provider is unreachable"));
 
-When("I choose Gmail and enter my email and app password", async ({ world }) => {
+When("I choose {word} and enter my email and app password", async ({ world }, provider: string) => {
   const admin = await ensureRunAdmin(world.api);
   world.admin = admin;
   const response = await saveMailSettings(world.api, admin, {
+    provider: provider.toLowerCase(),
+    email: RUN_ADMIN_EMAIL,
+    password: APP_PASSWORD,
+  });
+  world.response = await toJsonResponse(response);
+});
+
+When("I save mail settings", async ({ world }) => {
+  const member = await regularUserSession(world);
+  const response = await saveMailSettings(world.api, member, {
     provider: "gmail",
     email: RUN_ADMIN_EMAIL,
     password: APP_PASSWORD,
@@ -94,17 +104,19 @@ When("I send a test email with a wrong app password", () =>
 
 When("a notification should be emailed", () => notImplemented("a notification should be emailed"));
 
-Then("the server details are filled in for me", ({ world }) => {
-  const response = mailResponseOf(world);
-  expect(response.status).toBe(200);
-  expect(response.body).toMatchObject({
-    configured: true,
-    provider: "gmail",
-    smtpHost: "smtp.gmail.com",
-    smtpPort: 587,
-    smtpSecurity: "starttls",
-  });
-});
+Then(
+  "the server details are filled in for me with host {string}, port {int} and security {string}",
+  ({ world }, host: string, port: number, security: string) => {
+    const response = mailResponseOf(world);
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      configured: true,
+      smtpHost: host,
+      smtpPort: port,
+      smtpSecurity: security,
+    });
+  },
+);
 
 Then("the saved password is not shown", ({ world }) => {
   const response = mailResponseOf(world);

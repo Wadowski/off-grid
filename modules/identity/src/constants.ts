@@ -9,8 +9,6 @@ export const ACCOUNT_STATUSES = ["active", "disabled"] as const;
 
 export const EMAIL_MAX_LENGTH = 254;
 
-export const MAIL_KEY_BYTES = 32;
-
 export const MAIL_IV_BYTES = 12;
 
 export const MAIL_TAG_BYTES = 16;
@@ -18,6 +16,21 @@ export const MAIL_TAG_BYTES = 16;
 export const MAIL_CIPHER_ALGORITHM = "aes-256-gcm";
 
 export const MAIL_RETRY_DELAYS_MS: readonly number[] = [30_000, 120_000, 600_000];
+
+export const MAIL_CONNECTION_TIMEOUT_MS = 10_000;
+
+export const MAIL_SOCKET_TIMEOUT_MS = 20_000;
+
+export const MAIL_AUTH_ERROR_CODES: ReadonlySet<string> = new Set(["EAUTH"]);
+
+export const MAIL_AUTH_RESPONSE_CODES: ReadonlySet<number> = new Set([534, 535]);
+
+export const MAIL_UNREACHABLE_ERROR_CODES: ReadonlySet<string> = new Set([
+  "ECONNECTION",
+  "ETIMEDOUT",
+  "ESOCKET",
+  "EDNS",
+]);
 
 export const MAIL_FAILURE_MESSAGES = {
   AUTH_REJECTED: "The email provider did not accept this password",
