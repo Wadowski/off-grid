@@ -5,7 +5,7 @@ import type { ParseKeys } from "i18next";
 import type { HTMLAttributes } from "react";
 
 export type TextVariant =
-  "brand" | "heading" | "subheading" | "body" | "label" | "action" | "status" | "error";
+  "brand" | "heading" | "subheading" | "body" | "label" | "caption" | "action" | "status" | "error";
 
 type TextId = ParseKeys;
 

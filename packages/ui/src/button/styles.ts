@@ -6,11 +6,16 @@ import { cssVar } from "../css-var.js";
 import type { ButtonVariant } from "./types.js";
 
 export const buttonBaseStyle: CSSProperties = {
-  fontFamily: cssVar("font-family-base"),
-  fontSize: cssVar("font-size-md"),
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: cssVar("space-1"),
+  fontFamily: cssVar("font-family-heading"),
+  fontSize: cssVar("font-size-headline-sm"),
+  lineHeight: cssVar("line-height-headline-sm"),
+  letterSpacing: cssVar("letter-spacing-headline-sm"),
   fontWeight: cssVar("font-weight-semibold"),
-  lineHeight: 1.5,
-  padding: `${cssVar("space-2")} ${cssVar("space-4")}`,
+  padding: `${cssVar("space-7")} ${cssVar("space-3")}`,
   borderRadius: cssVar("radius-md"),
   borderStyle: "solid",
   borderWidth: "1px",
@@ -20,12 +25,14 @@ export const buttonBaseStyle: CSSProperties = {
 export const buttonVariantStyles: Record<ButtonVariant, CSSProperties> = {
   primary: {
     background: cssVar("color-accent"),
+    borderWidth: "0",
     borderColor: cssVar("color-accent"),
     color: cssVar("color-accent-fg"),
+    boxShadow: cssVar("elevation-3"),
   },
   secondary: {
     background: cssVar("color-surface"),
-    borderColor: cssVar("color-muted"),
+    borderColor: cssVar("color-line"),
     color: cssVar("color-fg"),
   },
 };

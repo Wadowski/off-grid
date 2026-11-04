@@ -56,7 +56,7 @@ describe("Text", () => {
 
     expect(screen.getByTestId("status")).toHaveAttribute(
       "style",
-      expect.stringContaining("var(--og-font-size-sm)"),
+      expect.stringContaining("var(--og-font-size-body-sm)"),
     );
   });
 });

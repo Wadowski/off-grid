@@ -5,9 +5,9 @@ import type { CSSProperties } from "react";
 import { cssVar } from "../css-var.js";
 
 export const cardStyle: CSSProperties = {
-  padding: cssVar("space-4"),
-  borderRadius: cssVar("radius-md"),
+  padding: cssVar("space-6"),
+  borderRadius: cssVar("radius-lg"),
   background: cssVar("color-surface"),
   color: cssVar("color-fg"),
-  boxShadow: cssVar("elevation-1"),
+  boxShadow: cssVar("elevation-2"),
 };

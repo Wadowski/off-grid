@@ -8,37 +8,30 @@ import type { TextVariant } from "./types.js";
 const baseTextStyle: CSSProperties = {
   margin: 0,
   fontFamily: cssVar("font-family-base"),
-  color: cssVar("color-fg"),
+  color: "inherit",
 };
 
+const typeStyle = (
+  size: string,
+  weight: string,
+  family: string = cssVar("font-family-base"),
+): CSSProperties => ({
+  ...baseTextStyle,
+  fontFamily: family,
+  fontSize: cssVar(`font-size-${size}`),
+  lineHeight: cssVar(`line-height-${size}`),
+  letterSpacing: cssVar(`letter-spacing-${size}`),
+  fontWeight: cssVar(`font-weight-${weight}`),
+});
+
 export const textVariantStyles: Record<TextVariant, CSSProperties> = {
-  brand: {
-    ...baseTextStyle,
-    fontSize: cssVar("font-size-lg"),
-    fontWeight: cssVar("font-weight-semibold"),
-  },
-  heading: {
-    ...baseTextStyle,
-    fontSize: cssVar("font-size-lg"),
-    fontWeight: cssVar("font-weight-semibold"),
-  },
-  subheading: {
-    ...baseTextStyle,
-    fontSize: cssVar("font-size-md"),
-    fontWeight: cssVar("font-weight-semibold"),
-  },
-  body: { ...baseTextStyle, fontSize: cssVar("font-size-md") },
-  label: {
-    ...baseTextStyle,
-    fontSize: cssVar("font-size-md"),
-    fontWeight: cssVar("font-weight-semibold"),
-  },
-  action: {
-    ...baseTextStyle,
-    color: "inherit",
-    fontSize: cssVar("font-size-md"),
-    fontWeight: cssVar("font-weight-semibold"),
-  },
-  status: { ...baseTextStyle, fontSize: cssVar("font-size-sm") },
-  error: { ...baseTextStyle, fontSize: cssVar("font-size-sm"), color: cssVar("color-danger") },
+  brand: typeStyle("headline-sm", "semibold", cssVar("font-family-heading")),
+  heading: typeStyle("headline-lg", "semibold", cssVar("font-family-heading")),
+  subheading: typeStyle("headline-md", "semibold", cssVar("font-family-heading")),
+  body: typeStyle("body-md", "regular"),
+  label: typeStyle("label-md", "medium"),
+  caption: typeStyle("label-sm", "medium"),
+  action: { ...typeStyle("headline-sm", "semibold"), color: "inherit" },
+  status: typeStyle("body-sm", "regular"),
+  error: { ...typeStyle("body-sm", "regular"), color: cssVar("color-danger") },
 };

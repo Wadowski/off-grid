@@ -8,6 +8,8 @@ export const sharedDeclarations = [
   declarations("space", tokens.space),
   declarations("font-family", tokens.font.family),
   declarations("font-size", tokens.font.size),
+  declarations("line-height", tokens.font.lineHeight),
+  declarations("letter-spacing", tokens.font.letterSpacing),
   declarations("font-weight", tokens.font.weight),
   declarations("radius", tokens.radius),
   declarations("elevation", tokens.elevation),

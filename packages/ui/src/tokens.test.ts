@@ -77,7 +77,7 @@ describe("tokens", () => {
 
   it("exposes spacing, typography, radius and elevation as CSS variables", () => {
     expect(tokensStylesheet).toContain("--og-space-4: 1rem;");
-    expect(tokensStylesheet).toContain("--og-font-size-md: 1rem;");
+    expect(tokensStylesheet).toContain("--og-font-size-body-md: 13px;");
     expect(tokensStylesheet).toContain("--og-radius-md: 0.5rem;");
     expect(tokensStylesheet).toContain("--og-elevation-1:");
   });

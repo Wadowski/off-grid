@@ -22,7 +22,7 @@ export const TextField = ({ label, error, id, ...rest }: TextFieldProps) => {
       <label htmlFor={inputId}>{label}</label>
       <input
         id={inputId}
-        className="og-focusable"
+        className="og-input"
         aria-invalid={hasError}
         aria-describedby={hasError ? errorId : undefined}
         style={{
