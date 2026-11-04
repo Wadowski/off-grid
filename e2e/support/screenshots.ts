@@ -21,7 +21,7 @@ export const screenPath = (feature: string, name: string): string =>
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
 const nextFrame = (page: Page): Promise<void> =>
-  page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
+  page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
 
 /**
  * Saves a full-page desktop screenshot and a 390px mobile one (`<name>-mobile.png`) when
