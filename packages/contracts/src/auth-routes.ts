@@ -16,4 +16,6 @@ export const adminRoutes = {
   enableUser: "/admin/users/:userId/enable",
   resetPassword: "/admin/users/:userId/password-reset",
   instanceSettings: "/admin/instance-settings",
+  mailSettings: "/admin/mail-settings",
+  mailTest: "/admin/mail-settings/test",
 } as const;

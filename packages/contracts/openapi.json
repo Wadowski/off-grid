@@ -501,6 +501,181 @@
         ],
         "additionalProperties": false
       },
+      "MailSettings": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "gmail",
+                  "icloud",
+                  "fastmail",
+                  "other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fromAddress": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "smtpHost": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "smtpPort": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "smtpSecurity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "tls",
+                  "starttls",
+                  "none"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "username": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "configured",
+          "provider",
+          "fromAddress",
+          "smtpHost",
+          "smtpPort",
+          "smtpSecurity",
+          "username"
+        ],
+        "additionalProperties": false
+      },
+      "MailSettingsRequest": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              "fromAddress": {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              "password": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "provider": {
+                "type": "string",
+                "enum": [
+                  "gmail",
+                  "icloud",
+                  "fastmail"
+                ]
+              }
+            },
+            "required": [
+              "email",
+              "password",
+              "provider"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              "fromAddress": {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              "password": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "provider": {
+                "type": "string",
+                "const": "other"
+              },
+              "username": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 254
+              },
+              "smtpHost": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 253
+              },
+              "smtpPort": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              },
+              "smtpSecurity": {
+                "type": "string",
+                "enum": [
+                  "tls",
+                  "starttls",
+                  "none"
+                ]
+              }
+            },
+            "required": [
+              "email",
+              "password",
+              "provider",
+              "smtpHost",
+              "smtpPort",
+              "smtpSecurity"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
       "AccountProfile": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",

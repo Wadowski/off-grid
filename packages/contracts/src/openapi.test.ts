@@ -26,6 +26,8 @@ describe("buildOpenApiDocument", () => {
       "FamilyList",
       "InstanceSettings",
       "InstanceSettingsUpdate",
+      "MailSettings",
+      "MailSettingsRequest",
       "NotificationList",
       "PasswordConfirmationRequest",
       "PasswordResetIssued",
