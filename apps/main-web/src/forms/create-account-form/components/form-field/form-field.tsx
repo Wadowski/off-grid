@@ -46,7 +46,10 @@ export const FormField = ({
         </label>
         {labelAside}
       </div>
-      <div className={narrow ? "og-input-shell" : undefined} style={shellStyle(narrow)}>
+      <div
+        className={narrow ? "og-input-shell" : undefined}
+        style={shellStyle(narrow, errorTextId !== undefined)}
+      >
         <span style={iconSlotStyle(narrow)}>
           <MaterialIcon
             name={icon}

@@ -25,7 +25,7 @@ export const labelStyle: CSSProperties = {
   color: cssColor("fg"),
 };
 
-export const shellStyle = (narrow: boolean): CSSProperties =>
+export const shellStyle = (narrow: boolean, invalid: boolean): CSSProperties =>
   narrow
     ? {
         position: "relative",
@@ -35,7 +35,9 @@ export const shellStyle = (narrow: boolean): CSSProperties =>
         padding: `${tokens.space[8]} ${tokens.space[3]}`,
         borderRadius: tokens.radius.lg,
         background: cssColor("surface-2"),
-        boxShadow: tokens.elevation[1],
+        boxShadow: invalid
+          ? `${tokens.elevation[1]}, 0 0 0 1px ${cssColor("danger")}`
+          : tokens.elevation[1],
       }
     : {
         position: "relative",
@@ -79,7 +81,7 @@ export const inputStyle = (
   invalid: boolean,
 ): CSSProperties => {
   const family = mono ? tokens.font.family.mono : tokens.font.family.base;
-  const invalidRing = invalid ? { boxShadow: `0 0 0 1px ${cssColor("danger")}` } : {};
+  const invalidRing = invalid && !narrow ? { boxShadow: `0 0 0 1px ${cssColor("danger")}` } : {};
   const letterSpacing = mono ? "0.025em" : tokens.font.letterSpacing["body-md"];
 
   if (narrow) {

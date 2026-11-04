@@ -18,7 +18,15 @@ export const slug = (text: string): string =>
 export const screenPath = (feature: string, name: string): string =>
   `${process.env.E2E_SCREENSHOTS_DIR ?? DEFAULT_DIR}/${slug(feature)}/${slug(name)}.png`;
 
-/** Saves a full-page screenshot when `E2E_SCREENSHOTS=1`; returns the path, or undefined when off. */
+const MOBILE_VIEWPORT = { width: 390, height: 844 };
+
+const nextFrame = (page: Page): Promise<void> =>
+  page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
+
+/**
+ * Saves a full-page desktop screenshot and a 390px mobile one (`<name>-mobile.png`) when
+ * `E2E_SCREENSHOTS=1`. The mobile shot resizes the same page, so the state on screen is kept.
+ */
 export async function captureScreen(
   page: Page,
   name: string,
@@ -30,5 +38,13 @@ export async function captureScreen(
   const path = screenPath(feature, name);
   await mkdir(path.slice(0, path.lastIndexOf("/")), { recursive: true });
   await page.screenshot({ path, fullPage: true });
+
+  const desktopViewport = page.viewportSize();
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await nextFrame(page);
+  await page.screenshot({ path: screenPath(feature, `${name} mobile`), fullPage: true });
+  if (desktopViewport !== null) {
+    await page.setViewportSize(desktopViewport);
+  }
   return path;
 }
