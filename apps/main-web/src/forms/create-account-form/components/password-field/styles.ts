@@ -6,6 +6,9 @@ import type { CSSProperties } from "react";
 
 export const passwordFieldStyle: CSSProperties = {
   display: "grid",
-  justifyItems: "start",
   gap: tokens.space[2],
+};
+
+export const toggleRowStyle: CSSProperties = {
+  justifySelf: "start",
 };

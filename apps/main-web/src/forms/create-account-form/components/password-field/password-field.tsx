@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text, TextField } from "@offgrid/ui";
-import { passwordFieldStyle } from "./styles.js";
+import { passwordFieldStyle, toggleRowStyle } from "./styles.js";
 import type { PasswordFieldProps } from "./types.js";
 
 export const PasswordField = ({
@@ -26,11 +26,13 @@ export const PasswordField = ({
       label={<Text variant="label" textId={labelTextId} />}
       error={errorTextId === undefined ? undefined : <Text variant="error" textId={errorTextId} />}
     />
-    <Button variant="secondary" data-testid={`${testId}-toggle`} onClick={onToggleVisible}>
-      <Text
-        variant="action"
-        textId={visible ? "createAccount.hidePassword" : "createAccount.showPassword"}
-      />
-    </Button>
+    <div style={toggleRowStyle}>
+      <Button variant="secondary" data-testid={`${testId}-toggle`} onClick={onToggleVisible}>
+        <Text
+          variant="action"
+          textId={visible ? "createAccount.hidePassword" : "createAccount.showPassword"}
+        />
+      </Button>
+    </div>
   </div>
 );
