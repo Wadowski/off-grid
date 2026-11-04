@@ -5,6 +5,7 @@ import type { ReadSecretFile, ServerConfig } from "../types.js";
 import { readSecretFileUtf8 } from "./read-secret-file-utf8.js";
 import { environmentSchema } from "./environment-schema.js";
 import { ConfigError } from "./config-error.js";
+import { readMailEncryptionKey } from "./read-mail-encryption-key.js";
 import { readRequiredSecret } from "./read-required-secret.js";
 
 export const loadConfig = (
@@ -33,6 +34,9 @@ export const loadConfig = (
         readSecretFile,
       ),
       poolMax: values.OFFGRID_DATABASE_POOL_MAX,
+    },
+    mail: {
+      encryptionKey: readMailEncryptionKey(values.OFFGRID_MAIL_ENCRYPTION_KEY_FILE, readSecretFile),
     },
     trustedProxies: values.OFFGRID_TRUSTED_PROXIES,
     corsOrigins: values.OFFGRID_CORS_ORIGINS,

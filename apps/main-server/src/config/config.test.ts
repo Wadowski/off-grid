@@ -4,13 +4,21 @@
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "./load-config.js";
 
+const DATABASE_SECRET_PATH = "/run/secrets/db_password";
+const MAIL_KEY_PATH = "/run/secrets/mail_encryption_key";
+const MAIL_KEY = Buffer.alloc(32, 7);
+
 const requiredEnv: NodeJS.ProcessEnv = {
   OFFGRID_DATABASE_HOST: "db.internal",
   OFFGRID_DATABASE_NAME: "offgrid",
-  OFFGRID_DATABASE_PASSWORD_FILE: "/run/secrets/db_password",
+  OFFGRID_DATABASE_PASSWORD_FILE: DATABASE_SECRET_PATH,
+  OFFGRID_MAIL_ENCRYPTION_KEY_FILE: MAIL_KEY_PATH,
 };
 
-const secretFiles = (contents: string) => () => `${contents}\n`;
+const secretFiles =
+  (contents: string, mailKey = MAIL_KEY.toString("base64")) =>
+  (path: string): string =>
+    path === MAIL_KEY_PATH ? `${mailKey}\n` : `${contents}\n`;
 
 describe("loadConfig", () => {
   it("applies non-secret defaults and reads the database password from its secret file", () => {
@@ -26,6 +34,7 @@ describe("loadConfig", () => {
         password: "s3cret",
         poolMax: 10,
       },
+      mail: { encryptionKey: MAIL_KEY },
       trustedProxies: [],
       corsOrigins: [],
       rateLimitPerMinute: 300,
@@ -53,6 +62,25 @@ describe("loadConfig", () => {
 
     expect(() => loadConfig(withoutSecret, secretFiles("x"))).toThrow(
       /OFFGRID_DATABASE_PASSWORD_FILE/,
+    );
+  });
+
+  it("names the missing mail encryption key variable", () => {
+    const withoutMailKey: NodeJS.ProcessEnv = {
+      ...requiredEnv,
+      OFFGRID_MAIL_ENCRYPTION_KEY_FILE: undefined,
+    };
+
+    expect(() => loadConfig(withoutMailKey, secretFiles("x"))).toThrow(
+      /OFFGRID_MAIL_ENCRYPTION_KEY_FILE/,
+    );
+  });
+
+  it("rejects a mail encryption key that is not 32 bytes and does not echo it", () => {
+    const shortKey = Buffer.alloc(16, 1).toString("base64");
+
+    expect(() => loadConfig(requiredEnv, secretFiles("x", shortKey))).toThrow(
+      "secret file named by OFFGRID_MAIL_ENCRYPTION_KEY_FILE must hold a base64-encoded 32-byte key",
     );
   });
 

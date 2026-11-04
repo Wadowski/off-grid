@@ -21,6 +21,7 @@ export interface DatabaseConnection {
 export interface ServerConfig {
   readonly http: { readonly host: string; readonly port: number };
   readonly database: DatabaseConnection;
+  readonly mail: { readonly encryptionKey: Buffer };
   readonly trustedProxies: readonly string[];
   readonly corsOrigins: readonly string[];
   readonly rateLimitPerMinute: number;

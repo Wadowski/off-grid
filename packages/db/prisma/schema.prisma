@@ -130,6 +130,21 @@ model InstanceSettings {
   @@schema("identity")
 }
 
+model MailSettings {
+  settingKey     String   @id @map("setting_key")
+  provider       String
+  fromAddress    String   @map("from_address")
+  smtpHost       String   @map("smtp_host")
+  smtpPort       Int      @map("smtp_port")
+  smtpSecurity   String   @map("smtp_security")
+  username       String
+  passwordSealed String   @map("password_sealed")
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("mail_settings")
+  @@schema("identity")
+}
+
 generator client {
   provider            = "prisma-client"
   output              = "../../../node_modules/.prisma/offgrid-db"

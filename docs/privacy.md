@@ -4,7 +4,7 @@ This page says, in plain language, what the local Offgrid server does with your 
 
 ## What it does not do
 
-- **Nothing leaves the machine at runtime.** The server and the web app run on your own host. Once the stack is running, it makes no outbound network calls, with one exception. If you turn on outgoing mail, the server sends mail only to an SMTP relay on your local network that you configure. Mail is off by default. The first build needs internet access to pull base images and install npm packages.
+- **Nothing leaves the machine at runtime.** The server and the web app run on your own host. Once the stack is running, it makes no outbound network calls, with one exception. If you turn on outgoing mail, the server sends mail only to the mail server that you configure, such as Gmail, iCloud, Fastmail or a server on your own network. Mail is off by default, and the mail content goes to that provider. The first build needs internet access to pull base images and install npm packages.
 - **No telemetry.** There are no analytics, tracking or crash-reporting SDKs, and no usage data is collected. `pnpm check:no-telemetry` runs in CI and fails the build if one is added. It scans for known packages and hosts only; the no-usage-data rule is a project policy that review enforces.
 - **No accounts with third parties.** Offgrid does not sign you in with an outside identity provider, and it does not need an account with anyone to run.
 

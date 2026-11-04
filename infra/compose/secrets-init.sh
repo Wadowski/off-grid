@@ -22,4 +22,5 @@ write_if_missing() {
 write_if_missing postgres-password "$(random_secret)"
 write_if_missing migrator-password "$(random_secret)"
 write_if_missing app-password "$(random_secret)"
+write_if_missing mail-encryption-key "$(random_secret)"
 write_if_missing instance-id "$(cat /proc/sys/kernel/random/uuid)"

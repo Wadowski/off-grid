@@ -10,7 +10,7 @@ import { RESET_SQL } from "../../test/constants.js";
 import type { TestDatabase } from "../../test/types.js";
 import { buildApp } from "./build-app.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
-import { MODULES } from "../constants.js";
+import { modulesFor } from "../module-wiring/modules-for.js";
 import { resolveRequestIdentity } from "../request-identity/resolve-request-identity.js";
 import type { ServerConfig, ServerRuntime } from "../types.js";
 
@@ -39,6 +39,7 @@ describe("admin routes on the real stack", { timeout: 120_000 }, () => {
     config = {
       http: { host: "127.0.0.1", port: 0 },
       database: database.connection,
+      mail: { encryptionKey: Buffer.alloc(32, 7) },
       trustedProxies: [],
       corsOrigins: [],
       rateLimitPerMinute: 1000,
@@ -57,7 +58,7 @@ describe("admin routes on the real stack", { timeout: 120_000 }, () => {
     app = await buildApp({
       config,
       runtime,
-      modules: MODULES,
+      modules: modulesFor(config),
       identity: (request) => resolveRequestIdentity(runtime, request),
     });
     await register(ANNA);

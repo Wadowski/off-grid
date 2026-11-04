@@ -10,7 +10,13 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const SCRIPT = fileURLToPath(new URL("../infra/compose/secrets-init.sh", import.meta.url));
-const SECRET_FILES = ["app-password", "instance-id", "migrator-password", "postgres-password"];
+const SECRET_FILES = [
+  "app-password",
+  "instance-id",
+  "mail-encryption-key",
+  "migrator-password",
+  "postgres-password",
+];
 
 function runSecretsInit(secretsDir) {
   execFileSync("sh", [SCRIPT], { env: { ...process.env, SECRETS_DIR: secretsDir } });
