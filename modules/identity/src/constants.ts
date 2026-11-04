@@ -9,6 +9,38 @@ export const ACCOUNT_STATUSES = ["active", "disabled"] as const;
 
 export const EMAIL_MAX_LENGTH = 254;
 
+export const MAIL_KEY_BYTES = 32;
+
+export const MAIL_IV_BYTES = 12;
+
+export const MAIL_TAG_BYTES = 16;
+
+export const MAIL_CIPHER_ALGORITHM = "aes-256-gcm";
+
+export const MAIL_RETRY_DELAYS_MS: readonly number[] = [30_000, 120_000, 600_000];
+
+export const MAIL_FAILURE_MESSAGES = {
+  AUTH_REJECTED: "The email provider did not accept this password",
+  UNREACHABLE: "The mail server could not be reached. Check the server address and port",
+  REJECTED: "The mail server did not accept the message",
+} as const;
+
+export const MAIL_TEST_MESSAGE = {
+  subject: "Offgrid test email",
+  text: "This is a test email from your Offgrid server. Email is working.",
+} as const;
+
+export const MAIL_NOTIFICATION_TEXT = {
+  "password-changed": {
+    subject: "Your Offgrid password was changed",
+    text: "Your Offgrid password was changed. If this was not you, reset your password now.",
+  },
+  "recovery-code-regenerated": {
+    subject: "Your Offgrid recovery code was replaced",
+    text: "A new recovery code was created for your Offgrid account. The previous code no longer works.",
+  },
+} as const;
+
 export const PASSWORD_HASH_PATTERN = /^\$argon2id\$v=19\$m=\d+,t=\d+,p=\d+\$/;
 
 export const FIRST_ADMIN_CLAIM_KEY = "instance";

@@ -5,6 +5,7 @@ import type { FastifyInstance } from "fastify";
 import type { IdentityRouteContext } from "../types.js";
 import { registerAdminRoutes } from "./admin/register-admin-routes.js";
 import { registerChangePassword } from "./account/register-change-password.js";
+import { registerMailSettings } from "./mail/register-mail-settings.js";
 import { registerNotifications } from "./notifications/register-notifications.js";
 import { registerRecoveryCode } from "./account/register-recovery-code.js";
 import { registerSessions } from "./account/register-sessions.js";
@@ -32,4 +33,5 @@ export const registerIdentityRoutes = (
   registerSessions(api, context);
   registerNotifications(api, context);
   registerAdminRoutes(api, context);
+  registerMailSettings(api, context);
 };

@@ -20,6 +20,7 @@
     "@offgrid/http": "workspace:*",
     "@offgrid/observability": "workspace:*",
     "fastify": "5.12.7",
+    "nodemailer": "10.1.7",
     "zod": "^4.6.7"
   },
   "devDependencies": {

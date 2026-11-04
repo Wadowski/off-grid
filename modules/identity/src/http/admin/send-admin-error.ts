@@ -4,9 +4,11 @@
 import { sendAccessDenied, sendError, sendNotFound, sendValidationFailed } from "@offgrid/http";
 import type { FastifyReply } from "fastify";
 import { z } from "zod";
+import { MAIL_FAILURE_MESSAGES } from "../../constants.js";
 import { AccountNotFoundError } from "../../application/errors/account-not-found-error.js";
 import { AdminRequiredError } from "../../application/errors/admin-required-error.js";
 import { LastAdminError } from "../../application/errors/last-admin-error.js";
+import { MailTestFailedError } from "../../application/errors/mail-test-failed-error.js";
 
 export const sendAdminError = (reply: FastifyReply, error: unknown): FastifyReply => {
   if (error instanceof z.ZodError) {
@@ -20,6 +22,9 @@ export const sendAdminError = (reply: FastifyReply, error: unknown): FastifyRepl
   }
   if (error instanceof AccountNotFoundError) {
     return sendNotFound(reply);
+  }
+  if (error instanceof MailTestFailedError) {
+    return sendError(reply, 422, "MAIL_TEST_FAILED", MAIL_FAILURE_MESSAGES[error.reason]);
   }
   throw error;
 };

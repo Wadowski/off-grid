@@ -3,10 +3,17 @@
 
 import type { CurrentUserId } from "@offgrid/http";
 import type { FastifyRequest } from "fastify";
-import type { NOTIFICATION_TYPES } from "@offgrid/contracts";
+import type {
+  MailProvider,
+  MailSecurity,
+  NOTIFICATION_TYPES,
+  mailSettingsRequestSchema,
+  mailSettingsSchema,
+} from "@offgrid/contracts";
+import type { z } from "zod";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { Logger } from "@offgrid/observability";
-import type { ACCOUNT_STATUSES, INSTANCE_ROLES } from "./constants.js";
+import type { ACCOUNT_STATUSES, INSTANCE_ROLES, MAIL_FAILURE_MESSAGES } from "./constants.js";
 
 export type InstanceRole = (typeof INSTANCE_ROLES)[number];
 
@@ -177,6 +184,59 @@ export interface IdentityRouteContext {
   readonly currentUserId: CurrentUserId;
   readonly currentSessionId: (request: FastifyRequest) => string | null;
   readonly logger: Logger;
+  readonly mailEncryptionKey: Buffer;
+  readonly notificationChannels: readonly NotificationChannel[];
+}
+
+export interface IdentityModuleOptions {
+  readonly mailEncryptionKey: Buffer;
+}
+
+export type IdentityRouteInput = Omit<
+  IdentityRouteContext,
+  "mailEncryptionKey" | "notificationChannels"
+>;
+
+export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;
+
+export type MailSettingsView = z.infer<typeof mailSettingsSchema>;
+
+export interface MailSettingsRecord {
+  readonly provider: MailProvider;
+  readonly fromAddress: string;
+  readonly smtpHost: string;
+  readonly smtpPort: number;
+  readonly smtpSecurity: MailSecurity;
+  readonly username: string;
+  readonly passwordSealed: string;
+}
+
+export interface MailConnection {
+  readonly host: string;
+  readonly port: number;
+  readonly security: MailSecurity;
+  readonly username: string;
+  readonly password: string;
+  readonly fromAddress: string;
+}
+
+export interface MailMessage {
+  readonly to: string;
+  readonly from: string;
+  readonly subject: string;
+  readonly text: string;
+}
+
+export type MailSender = (connection: MailConnection, message: MailMessage) => Promise<void>;
+
+export type MailFailureReason = keyof typeof MAIL_FAILURE_MESSAGES;
+
+export interface EmailChannelDependencies {
+  readonly db: ModuleDatabase;
+  readonly encryptionKey: Buffer;
+  readonly logger: Logger;
+  readonly sendMail: MailSender;
+  readonly retryDelaysMs: readonly number[];
 }
 
 export interface VerifiedAccessToken {
