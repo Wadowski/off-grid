@@ -7,6 +7,6 @@ import { signInLinkStyle } from "./styles.js";
 
 export const SignInLink = () => (
   <Link to="/sign-in" data-testid="sign-in-link" style={signInLinkStyle}>
-    <Text variant="action" textId="createAccount.signInLink" />
+    <Text variant="label" textId="createAccount.signInLink" />
   </Link>
 );

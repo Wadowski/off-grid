@@ -40,15 +40,22 @@ export const en = {
   },
   authLayout: {
     footer: "Offgrid runs on your own network.",
+    language: "English (US)",
   },
   signIn: {
     heading: "Sign in",
   },
   createAccount: {
-    heading: "Create account",
+    heading: "Create your account",
+    body: "This account signs you in to this Offgrid server. You can create and join family spaces anytime after setup.",
     firstRunHeading: "Set up your Offgrid",
     firstRunBody: "This account will manage this Offgrid server.",
-    nameLabel: "Name",
+    pill: {
+      account: "Local account • Your own server",
+      closed: "Local server • Sign-up closed",
+      recovery: "Account security • Recovery code",
+    },
+    nameLabel: "Full Name",
     emailLabel: "Email",
     passwordLabel: "Password",
     confirmLabel: "Confirm password",
@@ -57,7 +64,8 @@ export const en = {
     submit: "Create account",
     submitting: "Creating account…",
     signInPrompt: "Already have an account?",
-    signInLink: "Sign in",
+    signInLink: "Sign In",
+    tip: "Family spaces, shared households and guest circles can be created or joined from your account after setup.",
     nameRequired: "Enter your name.",
     emailInvalid: "Enter a valid email address.",
     emailTaken: "This email is already in use.",
@@ -67,6 +75,8 @@ export const en = {
     passwordTooCommon: "This password is too common. Choose another.",
     passwordContainsPersonalData: "Do not use your name or email in the password.",
     passwordsDoNotMatch: "Passwords do not match",
+    passwordHint:
+      "Minimum 12 characters. A lost password can only be reset with your recovery code.",
     createFailed: "The account could not be created. Try again.",
     strength: {
       tooWeak: "Too weak. Use at least 12 characters.",

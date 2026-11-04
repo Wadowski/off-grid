@@ -4,11 +4,13 @@
 import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const passwordFieldStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[2],
-};
-
-export const toggleRowStyle: CSSProperties = {
-  justifySelf: "start",
+export const visibilityToggleStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: tokens.space[1],
+  border: "none",
+  background: "transparent",
+  borderRadius: tokens.radius.sm,
+  cursor: "pointer",
 };

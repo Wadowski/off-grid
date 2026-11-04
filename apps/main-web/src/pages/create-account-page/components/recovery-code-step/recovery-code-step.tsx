@@ -4,8 +4,15 @@
 import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { completeRegistration } from "../../../../session/complete-registration.js";
+import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import { AccountIntro } from "../account-intro/account-intro.js";
 import { RecoveryCodeActions } from "../recovery-code-actions/recovery-code-actions.js";
-import { checkboxLabelStyle, recoveryCodeBoxStyle, recoveryCodeStepStyle } from "./styles.js";
+import {
+  checkboxLabelStyle,
+  recoveryCodeBoxStyle,
+  recoveryCodeStepStyle,
+  saveBlockStyle,
+} from "./styles.js";
 import type { RecoveryCodeStepProps, RecoveryContinueStatus } from "./types.js";
 
 export const RecoveryCodeStep = ({ recoveryCode }: RecoveryCodeStepProps) => {
@@ -23,28 +30,35 @@ export const RecoveryCodeStep = ({ recoveryCode }: RecoveryCodeStepProps) => {
 
   return (
     <div style={recoveryCodeStepStyle}>
-      <Text variant="heading" textId="createAccount.recovery.heading" />
-      <Text variant="body" textId="createAccount.recovery.explanation" />
+      <AccountIntro
+        icon="key"
+        pillTextId="createAccount.pill.recovery"
+        headingTextId="createAccount.recovery.heading"
+        bodyTextId="createAccount.recovery.explanation"
+      />
       <div style={recoveryCodeBoxStyle}>
         <Text variant="subheading" value={recoveryCode} data-testid="recovery-code" />
       </div>
       <RecoveryCodeActions recoveryCode={recoveryCode} />
-      <label style={checkboxLabelStyle}>
-        <input
-          type="checkbox"
-          data-testid="recovery-saved-checkbox"
-          checked={saved}
-          onChange={(event) => setSaved(event.target.checked)}
-        />
-        <Text variant="label" textId="createAccount.recovery.savedCheckbox" />
-      </label>
-      <Button
-        data-testid="recovery-continue"
-        disabled={!saved || continueStatus === "submitting"}
-        onClick={handleContinue}
-      >
-        <Text variant="action" textId="createAccount.recovery.continue" />
-      </Button>
+      <div style={saveBlockStyle}>
+        <label style={checkboxLabelStyle}>
+          <input
+            type="checkbox"
+            data-testid="recovery-saved-checkbox"
+            checked={saved}
+            onChange={(event) => setSaved(event.target.checked)}
+          />
+          <Text variant="body" textId="createAccount.recovery.savedCheckbox" />
+        </label>
+        <Button
+          data-testid="recovery-continue"
+          disabled={!saved || continueStatus === "submitting"}
+          onClick={handleContinue}
+        >
+          <Text variant="action" textId="createAccount.recovery.continue" />
+          <MaterialIcon name="arrow_forward" size="18px" color="currentColor" />
+        </Button>
+      </div>
       {continueStatus === "failed" && (
         <div role="alert">
           <Text variant="error" textId="createAccount.recovery.continueFailed" />

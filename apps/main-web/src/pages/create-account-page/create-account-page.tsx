@@ -4,6 +4,7 @@
 import { Text } from "@offgrid/ui";
 import { useState } from "react";
 import { CreateAccountForm } from "../../forms/create-account-form/create-account-form.js";
+import { AccountIntro } from "./components/account-intro/account-intro.js";
 import { RecoveryCodeStep } from "./components/recovery-code-step/recovery-code-step.js";
 import { RegistrationClosed } from "./components/registration-closed/registration-closed.js";
 import { useRegistrationStatus } from "./use-registration-status.js";
@@ -22,15 +23,15 @@ export const CreateAccountPage = () => {
   if (step.kind === "closed" || !registration.registrationOpen) {
     return <RegistrationClosed />;
   }
+  const firstRun = registration.freshServer;
   return (
     <>
-      <Text
-        variant="heading"
-        textId={
-          registration.freshServer ? "createAccount.firstRunHeading" : "createAccount.heading"
-        }
+      <AccountIntro
+        icon="lock_open_right"
+        pillTextId="createAccount.pill.account"
+        headingTextId={firstRun ? "createAccount.firstRunHeading" : "createAccount.heading"}
+        bodyTextId={firstRun ? "createAccount.firstRunBody" : "createAccount.body"}
       />
-      {registration.freshServer && <Text variant="body" textId="createAccount.firstRunBody" />}
       <CreateAccountForm
         onCreated={(recoveryCode) => setStep({ kind: "recovery", recoveryCode })}
         onRegistrationClosed={() => setStep({ kind: "closed" })}

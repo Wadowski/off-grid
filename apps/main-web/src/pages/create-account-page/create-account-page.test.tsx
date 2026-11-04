@@ -111,7 +111,7 @@ describe("Create account page", () => {
 
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Create account" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Create your account" })).toBeInTheDocument();
   });
 
   it("shows that registration is closed with a link to sign in", async () => {
@@ -128,7 +128,7 @@ describe("Create account page", () => {
   it("says a password under 12 characters is too weak and sends nothing", async () => {
     const fetchMock = stubRoutes(serverRoutes(EXISTING_SERVER, CREATED_ACCOUNT));
     render(<App />);
-    await screen.findByRole("heading", { name: "Create account" });
+    await screen.findByRole("heading", { name: "Create your account" });
 
     fillForm({ password: "short", confirmation: "short" });
     submitForm();
@@ -140,7 +140,7 @@ describe("Create account page", () => {
   it("shows a mismatch error and sends nothing when the passwords differ", async () => {
     const fetchMock = stubRoutes(serverRoutes(EXISTING_SERVER, CREATED_ACCOUNT));
     render(<App />);
-    await screen.findByRole("heading", { name: "Create account" });
+    await screen.findByRole("heading", { name: "Create your account" });
 
     fillForm({ confirmation: "something else entirely" });
     submitForm();
@@ -152,7 +152,7 @@ describe("Create account page", () => {
   it("tells the person the email is already in use", async () => {
     stubRoutes(serverRoutes(EXISTING_SERVER, EMAIL_TAKEN));
     render(<App />);
-    await screen.findByRole("heading", { name: "Create account" });
+    await screen.findByRole("heading", { name: "Create your account" });
 
     fillForm();
     submitForm();
@@ -163,7 +163,7 @@ describe("Create account page", () => {
   it("shows the recovery code with Continue disabled until the box is ticked", async () => {
     stubRoutes(serverRoutes(EXISTING_SERVER, CREATED_ACCOUNT));
     render(<App />);
-    await screen.findByRole("heading", { name: "Create account" });
+    await screen.findByRole("heading", { name: "Create your account" });
 
     fillForm();
     submitForm();

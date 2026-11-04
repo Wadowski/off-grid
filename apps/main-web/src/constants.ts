@@ -6,6 +6,8 @@ import type {
   CreateAccountFieldErrors,
 } from "./forms/create-account-form/types.js";
 
+export const NARROW_MEDIA_QUERY = "(max-width: 639px)";
+
 export const API_PATH = "/api";
 
 export const API_PORT = 3000;

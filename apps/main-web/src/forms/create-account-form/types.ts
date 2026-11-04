@@ -44,3 +44,9 @@ export type RegisterFailure =
 
 export type PasswordStrengthTextId =
   "createAccount.strength.tooWeak" | "createAccount.strength.strong";
+
+export type CreateAccountLabelTextId =
+  | "createAccount.nameLabel"
+  | "createAccount.emailLabel"
+  | "createAccount.passwordLabel"
+  | "createAccount.confirmLabel";
