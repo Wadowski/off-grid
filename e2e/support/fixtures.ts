@@ -5,6 +5,7 @@ import { expect, type APIRequestContext, type APIResponse } from "@playwright/te
 import { ApiError } from "@offgrid/api-client";
 import { test as base } from "playwright-bdd";
 import { targetBaseUrl } from "./stack.js";
+import { captureScreen, screenshotsEnabled } from "./screenshots.js";
 import { scenarioClientAddress } from "./scenario-client-address.js";
 import type { Family } from "./factories/family.js";
 import type { RegistrationResult } from "./factories/identity.js";
@@ -31,7 +32,7 @@ export type ScenarioWorld = {
   notificationId?: string;
 };
 
-export const test = base.extend<{ world: ScenarioWorld }>({
+export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({
   world: async ({ playwright }, use) => {
     const api = await playwright.request.newContext({
       baseURL: targetBaseUrl(),
@@ -40,6 +41,16 @@ export const test = base.extend<{ world: ScenarioWorld }>({
     await use({ api, families: [] });
     await api.dispose();
   },
+  screenOfUiScenario: [
+    async ({ page, $tags, $test }, use) => {
+      await use();
+      if (screenshotsEnabled() && $tags.includes("@ui")) {
+        const feature = $test.info().titlePath.at(-2) ?? "feature";
+        await captureScreen(page, $test.info().title, feature).catch(() => undefined);
+      }
+    },
+    { auto: true },
+  ],
 });
 
 export { expect };
