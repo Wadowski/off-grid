@@ -30,7 +30,7 @@ We will use local accounts with passwords, opaque sessions stored on the server,
 
 **Outgoing mail (an exception to the no-outbound-calls rule)**
 
-- Mail goes through one transport interface, and the deployment picks the adapter by config. In local mode the adapter is an SMTP relay that the owner configures. The relay address must be on the local network: a private address (RFC 1918 or the IPv6 unique-local range), or a name that resolves to one. The server validates this with zod and refuses to start local mail with any other address.
+- Mail goes through one transport interface, and the deployment picks the adapter by config. In local mode the adapter is an SMTP server that the owner configures. The LAN-only restriction on that server is superseded by [ADR 0018](0018-outgoing-mail-to-a-chosen-provider.md).
 - In cloud deployments the adapter is AWS SES. The cloud is not local mode, so this adapter is the one outbound call allowed beyond the LAN relay. Its credentials are secrets, loaded from Docker secrets or files, never from environment defaults (see [.claude/rules/security-privacy.md](../../.claude/rules/security-privacy.md)). The cloud adapter is outside the MVP scope of this record. Its interface must not need changes when it ships.
 - Mail is off by default. With mail off, the emailed recovery path and the mail setup screens are hidden, not shown as broken.
 - Mail carries only the emailed reset code and the admin's test message. It is never sent to an address that is not registered on the instance.

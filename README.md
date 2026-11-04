@@ -73,6 +73,22 @@ If no active admin exists at all, create one. The command refuses while an activ
 docker compose -f infra/compose/docker-compose.yml exec server node --import tsx src/recover-admin.ts create-admin --email <admin-email> --name "<display name>"
 ```
 
+### Outgoing email
+
+Email is optional. Offgrid uses it for emailed recovery codes and for notices about account changes. Until you set it up, the app works without email.
+
+You need an email address that sends mail through Gmail, iCloud or Fastmail, and an app password for it. An app password is a separate password that a provider issues for one application, so Offgrid never sees your real password.
+
+- **Gmail:** turn on 2-Step Verification in your Google Account under Security. Then open Security, App passwords, create one named Offgrid, and copy the 16-character password.
+- **iCloud:** sign in at appleid.apple.com, open Sign-In and Security, choose App-Specific Passwords, and create one named Offgrid.
+- **Fastmail:** open Settings, Privacy & Security, Integrations, and create a new app password with Mail (SMTP) access.
+
+Outlook.com is not supported yet, because Microsoft is moving SMTP to a sign-in method that Offgrid does not have yet.
+
+For any other mail server, enter its host, port and security (STARTTLS, TLS or none) and the username it expects.
+
+Save the settings as the admin, then send a test email. A failed test says why: the provider did not accept the password, the server cannot be reached, or the message was refused.
+
 ## Develop
 
 Requirements: Node.js 24.22.1 or newer and pnpm. This repository uses `pnpm` only; do not use npm or yarn.

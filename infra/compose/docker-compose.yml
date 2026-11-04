@@ -48,8 +48,10 @@ services:
       OFFGRID_DATABASE_NAME: offgrid
       OFFGRID_DATABASE_USER: offgrid_migrator
       OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/migrator-password
+      OFFGRID_MAIL_ENCRYPTION_KEY_FILE: /run/secrets/mail-encryption-key
     volumes:
       - ../../data/secrets/migrator-password:/run/secrets/migrator-password:ro
+      - ../../data/secrets/mail-encryption-key:/run/secrets/mail-encryption-key:ro
     depends_on:
       db:
         condition: service_healthy
@@ -67,10 +69,12 @@ services:
       OFFGRID_DATABASE_NAME: offgrid
       OFFGRID_DATABASE_USER: offgrid_app
       OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/app-password
+      OFFGRID_MAIL_ENCRYPTION_KEY_FILE: /run/secrets/mail-encryption-key
       OFFGRID_CORS_ORIGINS: ${OFFGRID_CORS_ORIGINS:-http://localhost:8080}
       TZ: ${TZ:-UTC}
     volumes:
       - ../../data/secrets/app-password:/run/secrets/app-password:ro
+      - ../../data/secrets/mail-encryption-key:/run/secrets/mail-encryption-key:ro
     ports:
       - "${OFFGRID_SERVER_PORT:-3000}:3000"
     healthcheck:
