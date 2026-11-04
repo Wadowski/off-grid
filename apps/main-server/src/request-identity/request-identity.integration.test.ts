@@ -15,7 +15,7 @@ import type { TestDatabase } from "../../test/types.js";
 import { buildApp } from "../http/build-app.js";
 import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
-import { FAMILY_HEADER, MODULES } from "../constants.js";
+import { FAMILY_HEADER, modulesFor } from "../constants.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
 
 const PASSWORD = "correct horse battery staple";
@@ -48,6 +48,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     config = {
       http: { host: "127.0.0.1", port: 0 },
       database: database.connection,
+      mail: { encryptionKey: Buffer.alloc(32, 7) },
       trustedProxies: [],
       corsOrigins: [],
       rateLimitPerMinute: 1000,
@@ -66,7 +67,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     app = await buildApp({
       config,
       runtime,
-      modules: [...MODULES, probeModule],
+      modules: [...modulesFor(config), probeModule],
       identity: (request) => resolveRequestIdentity(runtime, request),
     });
     const registered = await app.inject({

@@ -13,6 +13,7 @@ let database: TestDatabase;
 const configFor = (db: TestDatabase): ServerConfig => ({
   http: { host: "127.0.0.1", port: 0 },
   database: db.connection,
+  mail: { encryptionKey: Buffer.alloc(32, 7) },
   trustedProxies: [],
   corsOrigins: [],
   rateLimitPerMinute: 1000,

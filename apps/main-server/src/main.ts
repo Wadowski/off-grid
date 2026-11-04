@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { startServer } from "./index.js";
-import { MODULES } from "./constants.js";
+import { modulesFor } from "./constants.js";
 import { failStartup } from "./lifecycle/fail-startup.js";
 import { loadConfigOrExit } from "./config/load-config-or-exit.js";
 
-const running = await startServer(loadConfigOrExit(), MODULES).catch(failStartup);
+const config = loadConfigOrExit();
+const running = await startServer(config, modulesFor(config)).catch(failStartup);
 
 for (const signal of ["SIGTERM", "SIGINT"] as const) {
   process.once(signal, () => {

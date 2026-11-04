@@ -18,6 +18,7 @@ export const environmentSchema = z.object({
     .regex(/^[a-z][a-z0-9_]*$/)
     .default("offgrid_app"),
   OFFGRID_DATABASE_PASSWORD_FILE: z.string().min(1),
+  OFFGRID_MAIL_ENCRYPTION_KEY_FILE: z.string().min(1),
   OFFGRID_DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
   OFFGRID_TRUSTED_PROXIES: z
     .string()

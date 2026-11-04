@@ -16,7 +16,7 @@ const COMPOSE_FILE = fileURLToPath(
   new URL("../../infra/compose/docker-compose.yml", import.meta.url),
 );
 
-const STACK_SERVICES = ["server"] as const;
+const STACK_SERVICES = ["server", "mail"] as const;
 
 const READY_PATH = "/api/health/ready";
 const READY_TIMEOUT_MS = 180_000;
