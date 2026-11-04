@@ -32,4 +32,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0015](0015-no-reverse-proxy-cors-on-the-server.md)      | No reverse proxy; the server allows its web origins with CORS                | Accepted                  |
 | [0016](0016-local-authentication-model.md)               | Local authentication model: passwords, sessions, registration and recovery   | Partly superseded by 0018 |
 | [0017](0017-shared-database-roles-and-prisma-migrate.md) | Two database roles for all modules, and Prisma Migrate                       | Proposed                  |
-| [0018](0018-outgoing-mail-to-a-chosen-provider.md)       | Outgoing mail to a provider the owner chooses                                | Proposed                  |
+| [0018](0018-outgoing-mail-to-a-chosen-provider.md)       | Outgoing mail to a provider the owner chooses                                | Accepted                  |

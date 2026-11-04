@@ -1,6 +1,6 @@
 # 0018. Outgoing mail to a provider the owner chooses
 
-- **Status:** Proposed
+- **Status:** Accepted
 
 ## Context
 
@@ -24,5 +24,5 @@ Email is optional. Sign-in and every other feature must work without it.
 
 - Easier: an owner can connect Gmail, iCloud or Fastmail in two values, and recovery codes can be emailed.
 - Harder: with a public provider, mail content leaves the machine for that provider. The privacy statement says so, and mail stays off by default. The provider presets must be checked against provider documentation when they change.
-- Harder: the `instance` ownership scope in [ADR 0017](0017-shared-database-roles-and-prisma-migrate.md) means "no personal data". The mail settings row holds the admin's mail address and username, which are personal data. The row is kept in the `instance` scope for now, and ADR 0017 needs a follow-up change to allow an instance's own mail account.
+- Harder: the `instance` ownership scope in [ADR 0017](0017-shared-database-roles-and-prisma-migrate.md) means "no personal data". The mail settings row holds the admin's mail address and username, which are personal data. The row stays in the `instance` scope, and [ADR 0017](0017-shared-database-roles-and-prisma-migrate.md) is amended to allow an instance's own mail account there. The app role can read the row at the database level, so the admin's address is visible to any runtime session. Only the application's admin check guards it.
 - Harder: retries are lost on restart, so a notification email can be missed if the server restarts during a retry window. The in-app inbox still holds every notification.
