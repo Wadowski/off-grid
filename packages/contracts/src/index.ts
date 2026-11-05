@@ -43,6 +43,8 @@ export * from "./open-api-component-schemas.js";
 export * from "./parse-event.js";
 export * from "./password-reset-issued-schema.js";
 export * from "./password-reset-request-schema.js";
+export * from "./password-recovery-request-schema.js";
+export * from "./email-code-request-schema.js";
 export * from "./render-open-api.js";
 export * from "./registration-status-schema.js";
 export * from "./session-access-schema.js";
