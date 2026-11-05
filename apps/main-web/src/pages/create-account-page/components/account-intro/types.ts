@@ -4,15 +4,20 @@
 export type AccountIntroProps = {
   readonly icon: string;
   readonly pillTextId:
-    "createAccount.pill.account" | "createAccount.pill.closed" | "createAccount.pill.recovery";
+    | "createAccount.pill.account"
+    | "createAccount.pill.closed"
+    | "createAccount.pill.recovery"
+    | "signIn.pill";
   readonly headingTextId:
     | "createAccount.heading"
     | "createAccount.firstRunHeading"
     | "createAccount.closed.heading"
-    | "createAccount.recovery.heading";
+    | "createAccount.recovery.heading"
+    | "signIn.heading";
   readonly bodyTextId:
     | "createAccount.body"
     | "createAccount.firstRunBody"
     | "createAccount.closed.body"
-    | "createAccount.recovery.explanation";
+    | "createAccount.recovery.explanation"
+    | "signIn.welcome";
 };

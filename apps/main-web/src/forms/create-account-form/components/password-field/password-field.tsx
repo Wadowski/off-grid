@@ -19,6 +19,9 @@ export const PasswordField = ({
   labelAside,
   footer,
   trailingStatus,
+  autoComplete = "new-password",
+  onKeyDown,
+  onKeyUp,
 }: PasswordFieldProps) => {
   const { t } = useTranslation();
 
@@ -27,9 +30,11 @@ export const PasswordField = ({
       data-testid={testId}
       name={name}
       type={visible ? "text" : "password"}
-      autoComplete="new-password"
+      autoComplete={autoComplete}
       value={value}
       onChange={(event) => onChange(event.target.value)}
+      onKeyDown={onKeyDown}
+      onKeyUp={onKeyUp}
       mono
       label={<Text variant="label" textId={labelTextId} />}
       leading={<MaterialIcon name={icon} size="18px" color="var(--og-color-outline)" />}
