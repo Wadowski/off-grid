@@ -31,6 +31,7 @@ export type ScenarioWorld = {
   people?: Record<string, SignedInPerson>;
   notificationId?: string;
   newAccountEmail?: string;
+  signInEmail?: string;
 };
 
 export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({
