@@ -18,7 +18,39 @@ export const slug = (text: string): string =>
 export const screenPath = (feature: string, name: string): string =>
   `${process.env.E2E_SCREENSHOTS_DIR ?? DEFAULT_DIR}/${slug(feature)}/${slug(name)}.png`;
 
-/** Saves a full-page screenshot when `E2E_SCREENSHOTS=1`; returns the path, or undefined when off. */
+const MOBILE_VIEWPORT = { width: 390, height: 844 };
+
+type Theme = "light" | "dark";
+
+const nextFrame = (page: Page): Promise<void> =>
+  page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+
+const shotName = (name: string, theme: Theme, mobile: boolean): string =>
+  [name, theme === "dark" ? "dark" : undefined, mobile ? "mobile" : undefined]
+    .filter((part): part is string => part !== undefined)
+    .join(" ");
+
+const captureTheme = async (
+  page: Page,
+  name: string,
+  feature: string,
+  theme: Theme,
+): Promise<string> => {
+  await page.emulateMedia({ colorScheme: theme });
+  await nextFrame(page);
+  const path = screenPath(feature, shotName(name, theme, false));
+  await page.screenshot({ path, fullPage: true });
+
+  const desktopViewport = page.viewportSize();
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await nextFrame(page);
+  await page.screenshot({ path: screenPath(feature, shotName(name, theme, true)), fullPage: true });
+  if (desktopViewport !== null) {
+    await page.setViewportSize(desktopViewport);
+  }
+  return path;
+};
+
 export async function captureScreen(
   page: Page,
   name: string,
@@ -27,8 +59,9 @@ export async function captureScreen(
   if (!screenshotsEnabled()) {
     return undefined;
   }
-  const path = screenPath(feature, name);
-  await mkdir(path.slice(0, path.lastIndexOf("/")), { recursive: true });
-  await page.screenshot({ path, fullPage: true });
+  await mkdir(screenPath(feature, name).split("/").slice(0, -1).join("/"), { recursive: true });
+  const path = await captureTheme(page, name, feature, "light");
+  await captureTheme(page, name, feature, "dark");
+  await page.emulateMedia({ colorScheme: "light" });
   return path;
 }

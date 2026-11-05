@@ -30,6 +30,7 @@ export type ScenarioWorld = {
   adminPasswordChanged?: boolean;
   people?: Record<string, SignedInPerson>;
   notificationId?: string;
+  newAccountEmail?: string;
 };
 
 export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({

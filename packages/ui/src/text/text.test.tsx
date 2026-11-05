@@ -42,12 +42,21 @@ describe("Text", () => {
     expect(screen.getByTestId("status")).toHaveAttribute("role", "status");
   });
 
+  it("lets an action label inherit the colour of the control it sits in", () => {
+    renderWithI18n(<Text variant="action" value="Continue" data-testid="action" />);
+
+    expect(screen.getByTestId("action")).toHaveAttribute(
+      "style",
+      expect.stringContaining("color: inherit"),
+    );
+  });
+
   it("styles each variant with its font token", () => {
     renderWithI18n(<Text variant="status" value="Saving" data-testid="status" />);
 
     expect(screen.getByTestId("status")).toHaveAttribute(
       "style",
-      expect.stringContaining("var(--og-font-size-sm)"),
+      expect.stringContaining("var(--og-font-size-body-sm)"),
     );
   });
 });

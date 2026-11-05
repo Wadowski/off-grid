@@ -1,6 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/plus-jakarta-sans";
+import "material-symbols/outlined.css";
 import { tokensStylesheet } from "@offgrid/ui";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

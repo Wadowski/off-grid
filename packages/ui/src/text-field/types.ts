@@ -6,4 +6,9 @@ import type { InputHTMLAttributes, ReactNode } from "react";
 export type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "style" | "className"> & {
   readonly label: ReactNode;
   readonly error?: ReactNode;
+  readonly leading?: ReactNode;
+  readonly trailing?: ReactNode;
+  readonly labelAside?: ReactNode;
+  readonly footer?: ReactNode;
+  readonly mono?: boolean;
 };

@@ -57,7 +57,7 @@ describe("web session routes", () => {
 
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Create account" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Create your account" })).toBeInTheDocument();
     expect(window.location.pathname).toBe("/create-account");
   });
 

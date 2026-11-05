@@ -1,0 +1,17 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { PASSWORD_MIN_LENGTH } from "../../constants.js";
+import { countPasswordCharacters } from "./count-password-characters.js";
+import type { PasswordStrengthTextId } from "./types.js";
+
+export const findPasswordStrengthTextId = (
+  password: string,
+): PasswordStrengthTextId | undefined => {
+  if (password.length === 0) {
+    return undefined;
+  }
+  return countPasswordCharacters(password) < PASSWORD_MIN_LENGTH
+    ? "createAccount.strength.tooWeak"
+    : "createAccount.strength.strong";
+};
