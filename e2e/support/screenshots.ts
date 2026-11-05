@@ -51,12 +51,6 @@ const captureTheme = async (
   return path;
 };
 
-/**
- * Saves four full-page screenshots when `E2E_SCREENSHOTS=1`: light and dark theme, each at
- * desktop and 390px mobile width. Light files are `<name>.png` and `<name>-mobile.png`; dark
- * files add `dark` (`<name>-dark.png`, `<name>-dark-mobile.png`). The page is resized and
- * re-themed in place, so the state on screen is kept.
- */
 export async function captureScreen(
   page: Page,
   name: string,

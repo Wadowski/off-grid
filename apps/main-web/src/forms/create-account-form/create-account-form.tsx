@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { anonymousAuthClient } from "../../api/anonymous-api-client.js";
@@ -9,7 +9,6 @@ import { NO_FIELD_ERRORS } from "../../constants.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { SignInLink } from "../../session/components/sign-in-link/sign-in-link.js";
-import { FormField } from "./components/form-field/form-field.js";
 import { PasswordField } from "./components/password-field/password-field.js";
 import { PasswordStrengthBars } from "./components/password-strength-bars/password-strength-bars.js";
 import { PasswordStrengthLabel } from "./components/password-strength-label/password-strength-label.js";
@@ -86,27 +85,34 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
       style={formStyle(narrow)}
     >
       <div style={nameEmailRowStyle(narrow)}>
-        <FormField
-          testId="create-account-name"
+        <TextField
+          data-testid="create-account-name"
           name="name"
-          labelTextId="createAccount.nameLabel"
-          icon="badge"
-          type="text"
-          value={values.displayName}
-          onChange={(value) => updateValue("displayName", value)}
           autoComplete="name"
-          errorTextId={errors.displayName}
+          value={values.displayName}
+          onChange={(event) => updateValue("displayName", event.target.value)}
+          label={<Text variant="label" textId="createAccount.nameLabel" />}
+          leading={<MaterialIcon name="badge" size="18px" color="var(--og-color-outline)" />}
+          error={
+            errors.displayName === undefined ? undefined : (
+              <Text variant="error" textId={errors.displayName} />
+            )
+          }
         />
-        <FormField
-          testId="create-account-email"
+        <TextField
+          data-testid="create-account-email"
           name="email"
-          labelTextId="createAccount.emailLabel"
-          icon="alternate_email"
           type="email"
-          value={values.email}
-          onChange={(value) => updateValue("email", value)}
           autoComplete="email"
-          errorTextId={errors.email}
+          value={values.email}
+          onChange={(event) => updateValue("email", event.target.value)}
+          label={<Text variant="label" textId="createAccount.emailLabel" />}
+          leading={
+            <MaterialIcon name="alternate_email" size="18px" color="var(--og-color-outline)" />
+          }
+          error={
+            errors.email === undefined ? undefined : <Text variant="error" textId={errors.email} />
+          }
         />
       </div>
       <PasswordField

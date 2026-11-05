@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { Button, Text, TextField } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
-import { FormField } from "../form-field/form-field.js";
-import { visibilityToggleStyle } from "./styles.js";
 import type { PasswordFieldProps } from "./types.js";
 
 export const PasswordField = ({
@@ -22,42 +21,36 @@ export const PasswordField = ({
   trailingStatus,
 }: PasswordFieldProps) => {
   const { t } = useTranslation();
-  const toggleLabel = t(visible ? "createAccount.hidePassword" : "createAccount.showPassword");
-  const eyeToggle = (
-    <button
-      type="button"
-      data-testid={`${testId}-toggle`}
-      aria-label={toggleLabel}
-      onClick={onToggleVisible}
-      style={visibilityToggleStyle}
-    >
-      <MaterialIcon
-        name={visible ? "visibility_off" : "visibility"}
-        size="18px"
-        color="var(--og-color-outline)"
-      />
-    </button>
-  );
 
   return (
-    <FormField
-      testId={testId}
+    <TextField
+      data-testid={testId}
       name={name}
-      labelTextId={labelTextId}
-      icon={icon}
       type={visible ? "text" : "password"}
-      value={value}
-      onChange={onChange}
       autoComplete="new-password"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
       mono
-      errorTextId={errorTextId}
+      label={<Text variant="label" textId={labelTextId} />}
+      leading={<MaterialIcon name={icon} size="18px" color="var(--og-color-outline)" />}
       trailing={
         <>
           {trailingStatus}
-          {eyeToggle}
+          <Button
+            variant="ghost"
+            data-testid={`${testId}-toggle`}
+            aria-label={t(visible ? "createAccount.hidePassword" : "createAccount.showPassword")}
+            onClick={onToggleVisible}
+          >
+            <MaterialIcon
+              name={visible ? "visibility_off" : "visibility"}
+              size="18px"
+              color="currentColor"
+            />
+          </Button>
         </>
       }
-      trailingInset="action"
+      error={errorTextId === undefined ? undefined : <Text variant="error" textId={errorTextId} />}
       labelAside={labelAside}
       footer={footer}
     />
