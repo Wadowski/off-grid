@@ -8,30 +8,17 @@ export const textFieldStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: cssVar("space-1"),
+  minWidth: 0,
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-md"),
   color: cssVar("color-fg"),
 };
 
-export const textFieldInputStyle: CSSProperties = {
-  padding: `${cssVar("space-2")} ${cssVar("space-8")}`,
-  borderRadius: cssVar("radius-md"),
-  borderStyle: "solid",
-  borderWidth: "1px",
-  background: cssVar("color-surface-low"),
-  color: cssVar("color-fg"),
-  font: "inherit",
-  fontSize: cssVar("font-size-body-md"),
-  lineHeight: cssVar("line-height-body-md"),
-  outline: "none",
-};
-
-export const textFieldValidBorderStyle: CSSProperties = {
-  borderColor: "transparent",
-};
-
-export const textFieldInvalidBorderStyle: CSSProperties = {
-  borderColor: cssVar("color-danger"),
+export const textFieldLabelRowStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: cssVar("space-2"),
 };
 
 export const textFieldErrorStyle: CSSProperties = {
