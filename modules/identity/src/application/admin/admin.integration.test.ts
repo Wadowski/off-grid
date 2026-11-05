@@ -263,7 +263,7 @@ describe("instance administration", { timeout: 60_000 }, () => {
 
       await expect(
         completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD }),
-      ).resolves.toBeUndefined();
+      ).resolves.toMatchObject({ recoveryCode: expect.any(String) });
     });
 
     it("retires the previous code when a new one is started", async () => {
@@ -277,7 +277,7 @@ describe("instance administration", { timeout: 60_000 }, () => {
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
       await expect(
         completePasswordReset(db.db, { code: second.code, password: NEW_PASSWORD }),
-      ).resolves.toBeUndefined();
+      ).resolves.toMatchObject({ recoveryCode: expect.any(String) });
     });
 
     it("refuses a reset for a disabled account", async () => {

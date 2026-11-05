@@ -192,7 +192,7 @@ describe("admin routes on the real stack", { timeout: 120_000 }, () => {
     });
 
     expect(issued.statusCode).toBe(201);
-    expect(first.statusCode).toBe(204);
+    expect(first.statusCode).toBe(200);
     expect(second.statusCode).toBe(400);
     expect(second.json<{ code: string }>().code).toBe("INVALID_RESET_CODE");
     const signedIn = await app.inject({

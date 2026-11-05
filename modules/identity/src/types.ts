@@ -186,6 +186,7 @@ export interface IdentityRouteContext {
   readonly logger: Logger;
   readonly mailEncryptionKey: Buffer;
   readonly notificationChannels: readonly NotificationChannel[];
+  readonly emailDependencies: EmailChannelDependencies;
 }
 
 export interface IdentityModuleOptions {
@@ -194,7 +195,7 @@ export interface IdentityModuleOptions {
 
 export type IdentityRouteInput = Omit<
   IdentityRouteContext,
-  "mailEncryptionKey" | "notificationChannels"
+  "mailEncryptionKey" | "notificationChannels" | "emailDependencies"
 >;
 
 export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;
@@ -248,6 +249,23 @@ export interface IssuedPasswordReset {
   readonly userId: string;
   readonly code: string;
   readonly expiresAt: Date;
+}
+
+export type RecoveryAttemptState = SignInAttemptState;
+
+export interface RecoverWithRecoveryCodeInput {
+  readonly email: string;
+  readonly recoveryCode: string;
+  readonly password: string;
+}
+
+export interface PasswordResetOutcome {
+  readonly recoveryCode: string;
+  readonly notification: NewNotification;
+}
+
+export interface EmailCodeRequestInput {
+  readonly email: string;
 }
 
 export interface NewPasswordReset {
