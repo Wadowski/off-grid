@@ -20,12 +20,42 @@ export const screenPath = (feature: string, name: string): string =>
 
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
+type Theme = "light" | "dark";
+
 const nextFrame = (page: Page): Promise<void> =>
   page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
 
+const shotName = (name: string, theme: Theme, mobile: boolean): string =>
+  [name, theme === "dark" ? "dark" : undefined, mobile ? "mobile" : undefined]
+    .filter((part): part is string => part !== undefined)
+    .join(" ");
+
+const captureTheme = async (
+  page: Page,
+  name: string,
+  feature: string,
+  theme: Theme,
+): Promise<string> => {
+  await page.emulateMedia({ colorScheme: theme });
+  await nextFrame(page);
+  const path = screenPath(feature, shotName(name, theme, false));
+  await page.screenshot({ path, fullPage: true });
+
+  const desktopViewport = page.viewportSize();
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await nextFrame(page);
+  await page.screenshot({ path: screenPath(feature, shotName(name, theme, true)), fullPage: true });
+  if (desktopViewport !== null) {
+    await page.setViewportSize(desktopViewport);
+  }
+  return path;
+};
+
 /**
- * Saves a full-page desktop screenshot and a 390px mobile one (`<name>-mobile.png`) when
- * `E2E_SCREENSHOTS=1`. The mobile shot resizes the same page, so the state on screen is kept.
+ * Saves four full-page screenshots when `E2E_SCREENSHOTS=1`: light and dark theme, each at
+ * desktop and 390px mobile width. Light files are `<name>.png` and `<name>-mobile.png`; dark
+ * files add `dark` (`<name>-dark.png`, `<name>-dark-mobile.png`). The page is resized and
+ * re-themed in place, so the state on screen is kept.
  */
 export async function captureScreen(
   page: Page,
@@ -35,16 +65,9 @@ export async function captureScreen(
   if (!screenshotsEnabled()) {
     return undefined;
   }
-  const path = screenPath(feature, name);
-  await mkdir(path.slice(0, path.lastIndexOf("/")), { recursive: true });
-  await page.screenshot({ path, fullPage: true });
-
-  const desktopViewport = page.viewportSize();
-  await page.setViewportSize(MOBILE_VIEWPORT);
-  await nextFrame(page);
-  await page.screenshot({ path: screenPath(feature, `${name} mobile`), fullPage: true });
-  if (desktopViewport !== null) {
-    await page.setViewportSize(desktopViewport);
-  }
+  await mkdir(screenPath(feature, name).split("/").slice(0, -1).join("/"), { recursive: true });
+  const path = await captureTheme(page, name, feature, "light");
+  await captureTheme(page, name, feature, "dark");
+  await page.emulateMedia({ colorScheme: "light" });
   return path;
 }

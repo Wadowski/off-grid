@@ -7,6 +7,7 @@ import { darkColors } from "./dark-colors.js";
 
 export const tokensStylesheet = [
   `*, *::before, *::after { box-sizing: border-box; }`,
+  `html, body { background: var(--og-color-bg); color: var(--og-color-fg); }`,
   `:root { ${sharedDeclarations} ${lightColors} }`,
   `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${darkColors} } }`,
   `:root[data-theme="dark"] { ${darkColors} }`,
