@@ -130,11 +130,12 @@ export function startPasswordResetFor(
 
 export function completePasswordReset(
   api: APIRequestContext,
+  email: string,
   code: string,
   password: string,
 ): Promise<APIResponse> {
   return api.post("/api/auth/password-reset", {
-    data: { code, password },
+    data: { email, code, password },
     failOnStatusCode: false,
   });
 }

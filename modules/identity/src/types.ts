@@ -251,8 +251,6 @@ export interface IssuedPasswordReset {
   readonly expiresAt: Date;
 }
 
-export type RecoveryAttemptState = SignInAttemptState;
-
 export interface RecoverWithRecoveryCodeInput {
   readonly email: string;
   readonly recoveryCode: string;
@@ -284,6 +282,7 @@ export interface PasswordResetRecord {
 }
 
 export interface CompletePasswordResetInput {
+  readonly email: string;
   readonly code: string;
   readonly password: string;
 }

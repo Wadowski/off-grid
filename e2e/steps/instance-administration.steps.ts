@@ -68,7 +68,7 @@ After(async ({ world }) => {
     const code = issuedCodeFrom(
       await runRecoveryCommand(["reset-password", "--email", RUN_ADMIN_EMAIL]),
     );
-    await completePasswordReset(world.api, code, STRONG_PASSWORD);
+    await completePasswordReset(world.api, RUN_ADMIN_EMAIL, code, STRONG_PASSWORD);
   }
   if (world.registrationTouched === true) {
     const admin = await ensureRunAdmin(world.api);
@@ -169,9 +169,9 @@ Then("a one-time code is shown to the admin", async ({ world }) => {
 Then("Tom can set a new password with it, once", async ({ world }) => {
   const tom = memberOf(world);
   const code = world.issuedCode ?? "";
-  const first = await completePasswordReset(world.api, code, NEW_PASSWORD);
+  const first = await completePasswordReset(world.api, tom.email, code, NEW_PASSWORD);
   expect(first.status()).toBe(200);
-  const second = await completePasswordReset(world.api, code, NEW_PASSWORD);
+  const second = await completePasswordReset(world.api, tom.email, code, NEW_PASSWORD);
   expect(second.status()).toBe(400);
   const signIn = await signInWith(world.api, tom.email, NEW_PASSWORD);
   expect(signIn.status).toBe(200);
@@ -193,7 +193,7 @@ Given("no admin can sign in", async ({ world }) => {
   );
   const forgottenPassword = randomUUID();
   world.adminPasswordChanged = true;
-  const reset = await completePasswordReset(world.api, issued, forgottenPassword);
+  const reset = await completePasswordReset(world.api, RUN_ADMIN_EMAIL, issued, forgottenPassword);
   expect(reset.status()).toBe(200);
   const signIn = await signInWith(world.api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
   expect(signIn.status).toBe(401);
@@ -207,7 +207,12 @@ When("the server owner runs the recovery command on the server", async ({ world 
 });
 
 Then("the admin password is reset", async ({ world }) => {
-  const reset = await completePasswordReset(world.api, world.issuedCode ?? "", STRONG_PASSWORD);
+  const reset = await completePasswordReset(
+    world.api,
+    RUN_ADMIN_EMAIL,
+    world.issuedCode ?? "",
+    STRONG_PASSWORD,
+  );
   expect(reset.status()).toBe(200);
   const signIn = await signInWith(world.api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
   expect(signIn.status).toBe(200);

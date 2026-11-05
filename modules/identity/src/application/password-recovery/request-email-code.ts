@@ -10,12 +10,13 @@ import { normalizeResetCode } from "../../domain/password-reset/normalize-reset-
 import { findAccountForSignIn } from "../../infrastructure/accounts/find-account-for-sign-in.js";
 import { insertPasswordReset } from "../../infrastructure/password-resets/insert-password-reset.js";
 import { retireActivePasswordResets } from "../../infrastructure/password-resets/retire-active-password-resets.js";
-import { generateResetCode } from "../../infrastructure/password-resets/generate-reset-code.js";
+import { generateEmailCode } from "../../infrastructure/password-resets/generate-email-code.js";
 import { digestToken } from "../../infrastructure/tokens/digest-token.js";
 import type { EmailChannelDependencies, EmailCodeRequestInput } from "../../types.js";
 import { loadMailConnection } from "../mail/load-mail-connection.js";
 import { sendWithRetry } from "../notifications/send-with-retry.js";
 import { EmailNotConfiguredError } from "../errors/email-not-configured-error.js";
+import { claimEmailCodeRequest } from "./claim-email-code-request.js";
 
 export const requestEmailCode = async (
   dependencies: EmailChannelDependencies,
@@ -29,11 +30,14 @@ export const requestEmailCode = async (
     throw new EmailNotConfiguredError();
   }
   const email = normalizeEmail(input.email);
+  if (!claimEmailCodeRequest(email, now.getTime())) {
+    return;
+  }
   const account = await findAccountForSignIn(dependencies.db, email);
   if (account === null || account.status !== "active") {
     return;
   }
-  const code = generateResetCode();
+  const code = generateEmailCode();
   await dependencies.db.$transaction(async (tx) => {
     await withUserContext(tx, account.userId);
     await retireActivePasswordResets(tx, account.userId, now);

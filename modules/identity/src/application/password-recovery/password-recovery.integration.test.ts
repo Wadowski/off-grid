@@ -7,12 +7,16 @@ import {
   type IdentityTestDatabase,
 } from "../../../test/start-identity-test-database.js";
 import { RECOVERY_FAILURE_LIMIT } from "../../constants.js";
+import { emailCodeRequests } from "../../infrastructure/email-code-requests/email-code-requests.js";
 import { recoveryAttempts } from "../../infrastructure/recovery-attempts/recovery-attempts.js";
 import { sealMailPassword } from "../../infrastructure/mail/seal-mail-password.js";
 import { upsertMailSettings } from "../../infrastructure/mail/upsert-mail-settings.js";
 import type { EmailChannelDependencies, MailMessage } from "../../types.js";
+import { completePasswordReset } from "../password-reset/complete-password-reset.js";
 import { EmailNotConfiguredError } from "../errors/email-not-configured-error.js";
 import { InvalidRecoveryCodeError } from "../errors/invalid-recovery-code-error.js";
+import { InvalidResetCodeError } from "../errors/invalid-reset-code-error.js";
+import { PasswordRejectedError } from "../errors/password-rejected-error.js";
 import { RecoveryLockedError } from "../errors/recovery-locked-error.js";
 import { registerAccount } from "../registration/register-account.js";
 import { recoverWithRecoveryCode } from "./recover-with-recovery-code.js";
@@ -37,6 +41,7 @@ describe("password recovery", { timeout: 60_000 }, () => {
   beforeEach(async () => {
     await db.reset();
     recoveryAttempts.clear();
+    emailCodeRequests.clear();
   });
 
   const signUpAnna = () =>
@@ -139,7 +144,7 @@ describe("password recovery", { timeout: 60_000 }, () => {
           recoveryCode: account.recoveryCode,
           password: "short",
         }),
-      ).rejects.toThrow();
+      ).rejects.toBeInstanceOf(PasswordRejectedError);
 
       expect(await activeRecoveryCodeCount(EMAIL)).toBe(1);
       await expect(
@@ -203,7 +208,7 @@ describe("password recovery", { timeout: 60_000 }, () => {
       expect(sendMail).not.toHaveBeenCalled();
     });
 
-    it("emails a one-time code that resets the password once", async () => {
+    it("emails the code to the account owner, valid for 15 minutes", async () => {
       await signUpAnna();
       await configureMail();
       const sent: MailMessage[] = [];
@@ -216,10 +221,30 @@ describe("password recovery", { timeout: 60_000 }, () => {
       );
 
       await vi.waitFor(() => expect(sent).toHaveLength(1));
-      const code = /Your password reset code is (\S+)\./.exec(sent[0]?.text ?? "")?.[1];
-      expect(code).toBeDefined();
       expect(sent[0]?.to).toBe(EMAIL);
-      expect(sent[0]?.text).toContain("15 minutes");
+      expect(sent[0]?.text).toContain("10 minutes");
+    });
+
+    it("lets the emailed code reset the password once", async () => {
+      await signUpAnna();
+      await configureMail();
+      const sent: MailMessage[] = [];
+
+      await requestEmailCode(
+        mailDependencies(async (message) => {
+          sent.push(message);
+        }),
+        { email: EMAIL },
+      );
+
+      await vi.waitFor(() => expect(sent).toHaveLength(1));
+      const code = /Your password reset code is (\S+)\./.exec(sent[0]?.text ?? "")?.[1] ?? "";
+      await expect(
+        completePasswordReset(db.db, { email: EMAIL, code, password: NEW_PASSWORD }),
+      ).resolves.toMatchObject({ recoveryCode: expect.any(String) });
+      await expect(
+        completePasswordReset(db.db, { email: EMAIL, code, password: NEW_PASSWORD }),
+      ).rejects.toBeInstanceOf(InvalidResetCodeError);
     });
 
     it("does nothing and reports nothing for an unknown email", async () => {
@@ -230,6 +255,32 @@ describe("password recovery", { timeout: 60_000 }, () => {
         requestEmailCode(mailDependencies(sendMail), { email: "nobody@example.com" }),
       ).resolves.toBeUndefined();
       expect(sendMail).not.toHaveBeenCalled();
+    });
+
+    it("sends at most one emailed code per address within the cooldown", async () => {
+      await signUpAnna();
+      await configureMail();
+      const sendMail = vi.fn(async () => undefined);
+      const dependencies = mailDependencies(sendMail);
+
+      await requestEmailCode(dependencies, { email: EMAIL });
+      await requestEmailCode(dependencies, { email: EMAIL });
+
+      await vi.waitFor(() => expect(sendMail).toHaveBeenCalledTimes(1));
+    });
+  });
+
+  describe("completePasswordReset with wrong emailed codes", () => {
+    it("refuses further attempts for the address after five wrong codes", async () => {
+      await signUpAnna();
+      const attempt = () =>
+        completePasswordReset(db.db, { email: EMAIL, code: "00000000", password: NEW_PASSWORD });
+
+      for (let count = 0; count < RECOVERY_FAILURE_LIMIT; count += 1) {
+        await expect(attempt()).rejects.toBeInstanceOf(InvalidResetCodeError);
+      }
+
+      await expect(attempt()).rejects.toBeInstanceOf(RecoveryLockedError);
     });
   });
 });

@@ -11,5 +11,5 @@ export const buildRecoveryCodeMessage = (
   to: recipient,
   from: fromAddress,
   subject: "Your Offgrid password reset code",
-  text: `Your password reset code is ${code}.\n\nIt works once and expires in 15 minutes. If you did not ask for it, you can ignore this email.`,
+  text: `Your password reset code is ${code}.\n\nIt works once and expires in 10 minutes. If you did not ask for it, you can ignore this email.`,
 });

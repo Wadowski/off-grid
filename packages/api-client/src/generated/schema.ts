@@ -107,6 +107,7 @@ export interface components {
             }[];
         };
         PasswordResetRequest: {
+            email: string;
             code: string;
             password: string;
         };

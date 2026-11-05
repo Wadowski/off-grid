@@ -183,12 +183,12 @@ describe("admin routes on the real stack", { timeout: 120_000 }, () => {
     const first = await app.inject({
       method: "POST",
       url: "/api/auth/password-reset",
-      payload: { code, password: NEW_PASSWORD },
+      payload: { email: TOM.email, code, password: NEW_PASSWORD },
     });
     const second = await app.inject({
       method: "POST",
       url: "/api/auth/password-reset",
-      payload: { code, password: NEW_PASSWORD },
+      payload: { email: TOM.email, code, password: NEW_PASSWORD },
     });
 
     expect(issued.statusCode).toBe(201);

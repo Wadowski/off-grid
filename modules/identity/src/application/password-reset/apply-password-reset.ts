@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { withUserContext, type ModuleTransaction } from "@offgrid/db";
+import type { ModuleTransaction } from "@offgrid/db";
 import { RECOVERY_CODE_BYTES } from "../../constants.js";
 import { recoveryCodeHashSchema } from "../../domain/accounts/recovery-code-hash-schema.js";
 import { findPasswordProblems } from "../../domain/password/find-password-problems.js";
@@ -27,7 +27,6 @@ export const applyPasswordReset = async (
   password: string,
   now: Date,
 ): Promise<PasswordResetOutcome> => {
-  await withUserContext(tx, userId);
   const account = await findAccount(tx, userId);
   if (account === null) {
     throw new AccountNotFoundError();
