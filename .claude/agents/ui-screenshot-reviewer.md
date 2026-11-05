@@ -22,7 +22,7 @@ You review the visual result of a UI change. You did not write it, so look at it
 
 ## Output
 
-Start with the table of changed screens: screen, scenario, screenshot path, captured yes/no. If the branch is linked to a Linear issue (the branch name starts with an identifier such as `og-59-`, or the caller names one), do not print the table. Print one line (`N screens captured for OG-59`) followed by a `Screenshots:` block of one absolute path per line, which the caller uploads to the issue (see the linear-issue skill). You have no Linear tools and must not upload anything yourself. Then findings, most severe first:
+Start with the table of changed screens: screen, scenario, screenshot path, captured yes/no. If the branch is linked to a Linear issue (the branch name starts with an identifier such as `og-59-`, or the caller names one), do not print the table. Print one line (`N screens captured for OG-59`) followed by a `Screenshots:` block, which the caller uploads to the issue (see the linear-issue skill). The block lists every variant of every captured screen: light and dark theme, desktop and mobile. Group it by screen, one `<screen>:` heading per screen followed by its four absolute paths in this order: light desktop, light mobile, dark desktop, dark mobile. Do not repeat a screen under another heading. You have no Linear tools and must not upload anything yourself. Then findings, most severe first:
 
 - **Blocking**: a changed screen with no `@ui` scenario, a broken or unreadable layout, a missing state, an obvious contrast or focus failure, a raw message key.
 - **Advisory**: polish and consistency suggestions.
