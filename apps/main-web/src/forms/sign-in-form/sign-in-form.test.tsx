@@ -4,6 +4,7 @@
 import { ApiError } from "@offgrid/api-client";
 import { cleanup, createEvent, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ServerUnreachableError } from "../../session/server-unreachable-error.js";
 import { signIn } from "../../session/sign-in.js";
 import { SignInForm } from "./sign-in-form.js";
 
@@ -69,7 +70,7 @@ describe("SignInForm", () => {
   });
 
   it("explains when the server cannot be reached", async () => {
-    signInMock.mockRejectedValue(new TypeError("Failed to fetch"));
+    signInMock.mockRejectedValue(new ServerUnreachableError());
     fillForm({ email: ANNA_EMAIL, password: ANNA_PASSWORD });
 
     submitForm();
@@ -77,6 +78,16 @@ describe("SignInForm", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "The Offgrid server cannot be reached.",
     );
+  });
+
+  it("does not send a second request while the first one is still running", () => {
+    signInMock.mockReturnValue(new Promise(() => undefined));
+    fillForm({ email: ANNA_EMAIL, password: ANNA_PASSWORD });
+
+    fireEvent.submit(screen.getByTestId("sign-in-form"));
+    fireEvent.submit(screen.getByTestId("sign-in-form"));
+
+    expect(signInMock).toHaveBeenCalledTimes(1);
   });
 
   it("disables the button while the sign-in request is running", () => {

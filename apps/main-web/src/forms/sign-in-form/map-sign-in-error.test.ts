@@ -3,6 +3,7 @@
 
 import { ApiError } from "@offgrid/api-client";
 import { describe, expect, it } from "vitest";
+import { ServerUnreachableError } from "../../session/server-unreachable-error.js";
 import { mapSignInError } from "./map-sign-in-error.js";
 
 describe("mapSignInError", () => {
@@ -12,8 +13,14 @@ describe("mapSignInError", () => {
     expect(mapSignInError(error)).toEqual({ kind: "invalidCredentials" });
   });
 
-  it("treats a network failure as the server being unreachable", () => {
-    expect(mapSignInError(new TypeError("Failed to fetch"))).toEqual({ kind: "unreachable" });
+  it("treats a request that never reached the server as unreachable", () => {
+    expect(mapSignInError(new ServerUnreachableError())).toEqual({ kind: "unreachable" });
+  });
+
+  it("does not report a programming error as an unreachable server", () => {
+    expect(mapSignInError(new TypeError("Cannot read properties of undefined"))).toEqual({
+      kind: "failed",
+    });
   });
 
   it("treats any other server error as a generic failure", () => {

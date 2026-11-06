@@ -3,16 +3,27 @@
 
 import { Button, Text, TextField } from "@offgrid/ui";
 import type { FormEvent, KeyboardEvent } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { signIn } from "../../session/sign-in.js";
 import { PasswordField } from "../create-account-form/components/password-field/password-field.js";
 import { mapSignInError } from "./map-sign-in-error.js";
 import { checkboxLabelStyle, formStyle, statusStyle, submitBlockStyle } from "./styles.js";
-import type { SignInFieldErrors, SignInStatus, SignInValues } from "./types.js";
+import type {
+  SignInFailureTextId,
+  SignInFieldErrors,
+  SignInStatus,
+  SignInValues,
+} from "./types.js";
 import { validateSignIn } from "./validate-sign-in.js";
 
 const NO_ERRORS: SignInFieldErrors = { email: undefined, password: undefined };
+
+const FAILURE_TEXT_IDS: Partial<Record<SignInStatus, SignInFailureTextId>> = {
+  invalidCredentials: "signIn.invalidCredentials",
+  unreachable: "signIn.unreachable",
+  failed: "signIn.failed",
+};
 
 export const SignInForm = () => {
   const [values, setValues] = useState<SignInValues>({ email: "", password: "" });
@@ -21,6 +32,7 @@ export const SignInForm = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
+  const requestInFlight = useRef(false);
 
   const updateValue = (field: keyof SignInValues, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
@@ -32,18 +44,21 @@ export const SignInForm = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (status === "submitting") {
+    if (requestInFlight.current) {
       return;
     }
-    const fieldErrors = validateSignIn(values);
+    const email = values.email.trim();
+    const fieldErrors = validateSignIn({ email, password: values.password });
     setErrors(fieldErrors);
     if (fieldErrors.email !== undefined || fieldErrors.password !== undefined) {
       return;
     }
+    requestInFlight.current = true;
     setStatus("submitting");
     try {
-      await signIn({ email: values.email.trim(), password: values.password, rememberMe });
+      await signIn({ email, password: values.password, rememberMe });
     } catch (error) {
+      requestInFlight.current = false;
       const failure = mapSignInError(error);
       if (failure.kind === "invalidCredentials") {
         setValues((current) => ({ ...current, password: "" }));
@@ -108,19 +123,9 @@ export const SignInForm = () => {
           <MaterialIcon name="arrow_forward" size="18px" color="currentColor" />
         </Button>
       </div>
-      {status === "invalidCredentials" && (
+      {FAILURE_TEXT_IDS[status] !== undefined && (
         <div role="alert" data-testid="sign-in-status">
-          <Text variant="error" textId="signIn.invalidCredentials" />
-        </div>
-      )}
-      {status === "unreachable" && (
-        <div role="alert" data-testid="sign-in-status">
-          <Text variant="error" textId="signIn.unreachable" />
-        </div>
-      )}
-      {status === "failed" && (
-        <div role="alert" data-testid="sign-in-status">
-          <Text variant="error" textId="signIn.failed" />
+          <Text variant="error" textId={FAILURE_TEXT_IDS[status]} />
         </div>
       )}
     </form>

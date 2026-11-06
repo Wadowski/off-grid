@@ -13,6 +13,9 @@ export type SignInFieldErrors = {
 
 export type SignInStatus = "idle" | "submitting" | "invalidCredentials" | "unreachable" | "failed";
 
+export type SignInFailureTextId =
+  "signIn.invalidCredentials" | "signIn.unreachable" | "signIn.failed";
+
 export type SignInFailure =
   | { readonly kind: "invalidCredentials" }
   | { readonly kind: "unreachable" }

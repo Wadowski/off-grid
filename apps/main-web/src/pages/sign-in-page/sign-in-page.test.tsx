@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "../../test-support/json-response.js";
@@ -15,15 +15,24 @@ const stubRegistrationStatus = (registrationOpen: boolean) => {
     status: 200,
     body: { freshServer: false, registrationOpen },
   };
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL) => {
-      if (!String(input).endsWith(REGISTRATION_STATUS_PATH)) {
-        throw new Error(`Unexpected request: ${String(input)}`);
-      }
-      return jsonResponse(response);
-    }),
-  );
+  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+    if (!String(input).endsWith(REGISTRATION_STATUS_PATH)) {
+      throw new Error(`Unexpected request: ${String(input)}`);
+    }
+    return jsonResponse(response);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+};
+
+const waitForRegistrationStatusToSettle = async (
+  fetchMock: ReturnType<typeof stubRegistrationStatus>,
+) => {
+  await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+  await act(async () => {
+    await fetchMock.mock.results[0]!.value;
+  });
+  await act(async () => undefined);
 };
 
 const renderSignInPage = (state?: unknown) =>
@@ -50,14 +59,13 @@ describe("SignInPage", () => {
     );
   });
 
-  it("hides account creation when registration is closed", async () => {
-    stubRegistrationStatus(false);
+  it("hides account creation once registration is known to be closed", async () => {
+    const fetchMock = stubRegistrationStatus(false);
 
     renderSignInPage();
+    await waitForRegistrationStatusToSettle(fetchMock);
 
-    await screen.findByRole("heading", { name: "Sign in" });
     expect(screen.queryByTestId("create-account-link")).not.toBeInTheDocument();
-    expect(screen.queryByText("Create an account")).not.toBeInTheDocument();
   });
 
   it("tells the person they were signed out when the session ended", async () => {

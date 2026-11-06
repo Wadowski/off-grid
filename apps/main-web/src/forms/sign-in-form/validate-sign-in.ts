@@ -5,7 +5,7 @@ import { signInRequestSchema } from "@offgrid/contracts";
 import type { SignInFieldErrors, SignInValues } from "./types.js";
 
 export const validateSignIn = (values: SignInValues): SignInFieldErrors => ({
-  email: signInRequestSchema.shape.email.safeParse(values.email.trim()).success
+  email: signInRequestSchema.shape.email.safeParse(values.email).success
     ? undefined
     : "signIn.emailInvalid",
   password: values.password.length === 0 ? "signIn.passwordRequired" : undefined,

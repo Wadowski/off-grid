@@ -12,9 +12,14 @@ const { Given, When, Then } = createBdd(test);
 
 const FEATURE = "Sign in screen";
 const WRONG_PASSWORD = "not the right password";
+const INVALID_EMAIL = "not-an-email";
+const REFRESH_COOKIE_NAME = "offgrid_refresh";
+const ONE_MINUTE_MS = 60 * 1000;
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 const signInRequestCounts = new WeakMap<Page, number>();
+const pagesWithSignInCounter = new WeakSet<Page>();
+const registrationStatusResponses = new WeakMap<Page, Promise<unknown>>();
 
 const signInEmail = (world: ScenarioWorld): string => {
   world.signInEmail ??= uniqueEmail("sign-in");
@@ -23,6 +28,27 @@ const signInEmail = (world: ScenarioWorld): string => {
 
 const countSignInRequests = (page: Page): number => signInRequestCounts.get(page) ?? 0;
 
+const countSignInRequestsOn = (page: Page): void => {
+  if (pagesWithSignInCounter.has(page)) {
+    return;
+  }
+  pagesWithSignInCounter.add(page);
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().endsWith("/auth/sign-in")) {
+      signInRequestCounts.set(page, countSignInRequests(page) + 1);
+    }
+  });
+};
+
+const watchRegistrationStatus = (page: Page): void => {
+  registrationStatusResponses.set(
+    page,
+    page
+      .waitForResponse((response) => response.url().endsWith("/auth/registration-status"))
+      .catch(() => undefined),
+  );
+};
+
 const fillSignInForm = async (page: Page, email: string, password: string): Promise<void> => {
   await page.getByTestId("sign-in-email").fill(email);
   await page.getByTestId("sign-in-password").fill(password);
@@ -30,6 +56,13 @@ const fillSignInForm = async (page: Page, email: string, password: string): Prom
 
 const pressButton = (page: Page, label: string) =>
   page.getByRole("button", { name: label, exact: true }).click();
+
+const refreshCookieLifetimeMs = async (page: Page): Promise<number> => {
+  const cookie = (await page.context().cookies()).find(
+    (candidate) => candidate.name === REFRESH_COOKIE_NAME,
+  );
+  return cookie === undefined ? 0 : cookie.expires * 1000 - Date.now();
+};
 
 Given("I have an account", async ({ world }) => {
   const registration = await registerAccount(world.api, {
@@ -44,13 +77,8 @@ Given("the server cannot be reached", async ({ page }) => {
 });
 
 When("I open the sign in page", async ({ page }) => {
-  if (!signInRequestCounts.has(page)) {
-    page.on("request", (request) => {
-      if (request.method() === "POST" && request.url().endsWith("/auth/sign-in")) {
-        signInRequestCounts.set(page, countSignInRequests(page) + 1);
-      }
-    });
-  }
+  countSignInRequestsOn(page);
+  watchRegistrationStatus(page);
   await page.goto(`${webBaseUrl()}/sign-in`);
   await expect(page.getByTestId("sign-in-submit")).toBeVisible();
 });
@@ -68,6 +96,19 @@ When(
   },
 );
 
+When("I enter my email and press {string}", async ({ page, world }, label: string) => {
+  await page.getByTestId("sign-in-email").fill(signInEmail(world));
+  await pressButton(page, label);
+});
+
+When(
+  "I enter an invalid email and a password and press {string}",
+  async ({ page }, label: string) => {
+    await fillSignInForm(page, INVALID_EMAIL, STRONG_PASSWORD);
+    await pressButton(page, label);
+  },
+);
+
 When("I enter my email and password and press Enter", async ({ page, world }) => {
   await fillSignInForm(page, signInEmail(world), STRONG_PASSWORD);
   await page.getByTestId("sign-in-password").press("Enter");
@@ -77,11 +118,8 @@ When(
   "I enter my email and password and press {string} twice quickly",
   async ({ page, world }, label: string) => {
     await fillSignInForm(page, signInEmail(world), STRONG_PASSWORD);
-    const signInResponse = page.waitForResponse((response) =>
-      response.url().endsWith("/auth/sign-in"),
-    );
     await page.getByRole("button", { name: label, exact: true }).dblclick();
-    await signInResponse;
+    await expect.poll(() => countSignInRequests(page)).toBeGreaterThanOrEqual(1);
   },
 );
 
@@ -93,6 +131,10 @@ When("I press the show password button", async ({ page }) => {
   await page.getByTestId("sign-in-password-toggle").click();
 });
 
+When("I press the show password button again", async ({ page }) => {
+  await page.getByTestId("sign-in-password-toggle").click();
+});
+
 When("Caps Lock is on while I type my password", async ({ page }) => {
   await page.evaluate(`(() => {
     const keyDown = new KeyboardEvent("keydown", { key: "A", bubbles: true });
@@ -101,30 +143,27 @@ When("Caps Lock is on while I type my password", async ({ page }) => {
   })()`);
 });
 
-When(
-  "I tick {string} and sign in with my email and password",
-  async ({ page, world }, label: string) => {
-    await page.getByLabel(label).check();
-    await fillSignInForm(page, signInEmail(world), STRONG_PASSWORD);
-    const signInResponse = page.waitForResponse((response) =>
-      response.url().endsWith("/auth/sign-in"),
-    );
-    await pressButton(page, "Sign in");
-    expect((await signInResponse).status()).toBe(200);
+Then("I see the message {string}", async ({ page }, message: string) => {
+  await expect(page.getByText(message)).toBeVisible();
+  await captureScreen(page, message, FEATURE);
+});
+
+Then(
+  "I see the message {string} and my email stays filled in",
+  async ({ page, world }, message: string) => {
+    await expect(page.getByRole("alert")).toContainText(message);
+    await expect(page.getByTestId("sign-in-email")).toHaveValue(signInEmail(world));
+    await captureScreen(page, "wrong password", FEATURE);
   },
 );
 
-Then("I see {string} and my email stays filled in", async ({ page, world }, message: string) => {
-  await expect(page.getByRole("alert")).toContainText(message);
-  await expect(page.getByTestId("sign-in-email")).toHaveValue(signInEmail(world));
-  await captureScreen(page, "wrong password", FEATURE);
+Then("my password is shown", async ({ page }) => {
+  await expect(page.getByTestId("sign-in-password")).toHaveAttribute("type", "text");
+  await captureScreen(page, "show password", FEATURE);
 });
 
-Then("my password is shown, and pressing the button again hides it", async ({ page }) => {
-  const passwordInput = page.getByTestId("sign-in-password");
-  await expect(passwordInput).toHaveAttribute("type", "text");
-  await page.getByTestId("sign-in-password-toggle").click();
-  await expect(passwordInput).toHaveAttribute("type", "password");
+Then("my password is hidden", async ({ page }) => {
+  await expect(page.getByTestId("sign-in-password")).toHaveAttribute("type", "password");
 });
 
 Then("I see a caps-lock warning", async ({ page }) => {
@@ -132,21 +171,25 @@ Then("I see a caps-lock warning", async ({ page }) => {
   await captureScreen(page, "caps lock", FEATURE);
 });
 
+Then("I see the create account link", async ({ page }) => {
+  await expect(page.getByTestId("create-account-link")).toHaveAttribute("href", "/create-account");
+});
+
 Then("I do not see the create account link", async ({ page }) => {
+  await registrationStatusResponses.get(page);
+  await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("sign-in-submit")).toBeVisible();
   await expect(page.getByTestId("create-account-link")).toHaveCount(0);
   await captureScreen(page, "registration closed", FEATURE);
 });
 
-Then("I stay signed in after closing the browser", async ({ page }) => {
-  const cookies = await page.context().cookies();
-  const persistsForThirtyDays = cookies.some(
-    (cookie) => cookie.expires > 0 && cookie.expires * 1000 > Date.now() + THIRTY_DAYS_MS - 60_000,
-  );
-  expect(persistsForThirtyDays).toBe(true);
+Then("I stay signed in for 30 days", async ({ page }) => {
+  await expect
+    .poll(() => refreshCookieLifetimeMs(page))
+    .toBeGreaterThan(THIRTY_DAYS_MS - ONE_MINUTE_MS);
 });
 
-Then("the sign in request is sent once", async ({ page }) => {
+Then("the form is submitted only once", async ({ page }) => {
   await expect.poll(() => countSignInRequests(page)).toBe(1);
 });
 
