@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
+import { Text, TextField, VisuallyHidden } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../../../../icons/material-icon/material-icon.js";
 
@@ -10,19 +10,18 @@ export const HeaderSearch = () => {
 
   return (
     <div className="og-header-search">
-      <span className="og-header-search-icon" aria-hidden="true">
-        <MaterialIcon name="search" size="18px" color="currentColor" />
-      </span>
-      <input
-        className="og-header-search-input"
+      <TextField
         type="search"
         disabled
         placeholder={t("shell.searchPlaceholder")}
-        aria-label={t("shell.searchPlaceholder")}
+        label={
+          <VisuallyHidden>
+            <Text variant="label" textId="shell.searchPlaceholder" />
+          </VisuallyHidden>
+        }
+        leading={<MaterialIcon name="search" size="18px" color="currentColor" />}
+        trailing={<Text variant="caption" value="⌘K" />}
       />
-      <span className="og-header-search-shortcut" aria-hidden="true">
-        <Text variant="caption" value="⌘K" />
-      </span>
     </div>
   );
 };

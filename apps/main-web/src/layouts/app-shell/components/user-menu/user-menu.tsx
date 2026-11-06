@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
+import { Button, Text } from "@offgrid/ui";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -29,7 +29,7 @@ const roleTextIdOf = (user: CurrentUser): "userMenu.roleAdmin" | "userMenu.roleM
 export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
@@ -41,7 +41,7 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
 
   const closeMenu = () => {
     setIsOpen(false);
-    triggerRef.current?.focus();
+    menuRef.current?.querySelector<HTMLButtonElement>("[aria-haspopup='menu']")?.focus();
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -51,11 +51,9 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
   };
 
   return (
-    <div style={userMenuStyle} onKeyDown={handleKeyDown}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className="og-user-menu-trigger og-focusable"
+    <div ref={menuRef} style={userMenuStyle} onKeyDown={handleKeyDown}>
+      <Button
+        variant="secondary"
         aria-label={t("userMenu.trigger")}
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -72,7 +70,7 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
         <span className="og-user-menu-expand" aria-hidden="true">
           <MaterialIcon name="expand_more" size="18px" color="currentColor" />
         </span>
-      </button>
+      </Button>
       {isOpen && (
         <div
           ref={panelRef}
@@ -94,15 +92,9 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
               {t("userMenu.adminSettings")}
             </Link>
           )}
-          <button
-            role="menuitem"
-            type="button"
-            className="og-focusable"
-            style={userMenuItemStyle}
-            onClick={onSignOut}
-          >
-            {t("userMenu.signOut")}
-          </button>
+          <Button role="menuitem" variant="ghost" onClick={onSignOut}>
+            <Text variant="label" textId="userMenu.signOut" />
+          </Button>
         </div>
       )}
     </div>

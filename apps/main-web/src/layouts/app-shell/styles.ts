@@ -154,25 +154,6 @@ export const appShellCss = `
   text-decoration: underline;
 }
 
-.og-user-menu-trigger {
-  display: flex;
-  align-items: center;
-  gap: ${tokens.space[7]};
-  width: 100%;
-  padding: ${tokens.space[2]};
-  border: 0;
-  border-radius: ${tokens.radius.lg};
-  background: var(--og-color-surface-low);
-  color: var(--og-color-fg);
-  font-family: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-
-.og-user-menu-trigger:hover {
-  background: var(--og-color-surface-high);
-}
-
 .og-user-menu-avatar {
   display: inline-flex;
   flex-shrink: 0;
@@ -244,45 +225,8 @@ export const appShellCss = `
 }
 
 .og-header-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.og-header-search-icon {
-  position: absolute;
-  left: ${tokens.space[3]};
-  display: inline-flex;
-  color: var(--og-color-muted);
-  pointer-events: none;
-}
-
-.og-header-search-input {
   width: 24rem;
   max-width: 100%;
-  padding: 0.375rem 3.5rem 0.375rem 2.25rem;
-  border: 0;
-  border-radius: ${tokens.radius.md};
-  background: color-mix(in srgb, var(--og-color-surface-low) 80%, transparent);
-  color: var(--og-color-fg);
-  font-family: inherit;
-  font-size: ${tokens.font.size["body-sm"]};
-  line-height: ${tokens.font.lineHeight["body-sm"]};
-  outline: none;
-}
-
-.og-header-search-input::placeholder {
-  color: var(--og-color-muted);
-}
-
-.og-header-search-shortcut {
-  position: absolute;
-  right: ${tokens.space[2]};
-  padding: 0.125rem 0.375rem;
-  border-radius: ${tokens.radius.sm};
-  background: color-mix(in srgb, var(--og-color-surface-2) 60%, transparent);
-  color: var(--og-color-muted);
-  font-family: ${tokens.font.family.mono};
 }
 
 .og-header-actions {
@@ -299,19 +243,6 @@ export const appShellCss = `
   border-radius: ${tokens.radius.md};
   background: var(--og-color-surface-low);
   color: var(--og-color-muted);
-}
-
-.og-header-icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: 0;
-  border-radius: ${tokens.radius.md};
-  background: transparent;
-  color: var(--og-color-muted);
-  cursor: default;
 }
 
 .og-shell-main {
@@ -366,12 +297,6 @@ export const appShellCss = `
   .og-sidebar-bottom {
     margin-top: 0;
     padding: ${tokens.space[1]} ${tokens.space[2]};
-  }
-
-  .og-user-menu-trigger {
-    width: auto;
-    padding: 0;
-    background: transparent;
   }
 
   .og-header {
