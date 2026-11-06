@@ -6,4 +6,4 @@ export { resolveTraceId } from "./resolve-trace-id.js";
 export { runWithTrace } from "./run-with-trace.js";
 export { createLogger } from "./create-logger.js";
 export { createMemoryErrorSink } from "./create-memory-error-sink.js";
-export type { ErrorSink, LogLevel, Logger } from "./types.js";
+export type { ErrorRecord, ErrorSink, LogLevel, Logger } from "./types.js";

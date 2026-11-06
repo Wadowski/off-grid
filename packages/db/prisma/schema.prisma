@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["identity", "family", "access", "calendar", "lists", "notes", "files", "food", "relations", "notifications", "export", "outbox"]
+  schemas  = ["identity", "family", "access", "calendar", "lists", "notes", "files", "food", "relations", "notifications", "export", "outbox", "observability"]
 }
 
 model Family {
@@ -154,6 +154,19 @@ model AttemptCounter {
 
   @@map("attempt_counter")
   @@schema("identity")
+}
+
+model ErrorRecord {
+  errorRecordId String   @id @map("error_record_id") @db.Uuid
+  recordedAt    DateTime @map("recorded_at") @db.Timestamptz(6)
+  name          String
+  code          String?
+  traceId       String?  @map("trace_id")
+  context       Json
+
+  @@index([recordedAt])
+  @@map("error_record")
+  @@schema("observability")
 }
 
 generator client {

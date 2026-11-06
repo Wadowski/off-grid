@@ -34,6 +34,10 @@ export const MODULE_NAME_PATTERN = /^[a-z][a-z0-9]*$/;
 
 export const CONNECTION_TIMEOUT_MS = 5000;
 
+export const ERROR_RECORD_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+export const ERROR_RECORD_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
+
 export const FORBIDDEN_FAMILY_MESSAGE = "You are not a member of this family";
 
 export const INVALID_FAMILY_MESSAGE = "The family header must be a family id";

@@ -5,6 +5,8 @@ import type { LogLevel } from "./types.js";
 
 export const DEFAULT_CAPACITY = 200;
 
+export const DEFAULT_MAX_PENDING_WRITES = 100;
+
 export const LEVEL_RANK: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 };
 
 export const REDACTED = "[REDACTED]";
