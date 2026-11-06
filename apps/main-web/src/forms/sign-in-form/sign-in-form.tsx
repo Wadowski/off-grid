@@ -7,8 +7,9 @@ import { useRef, useState } from "react";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { signIn } from "../../session/sign-in.js";
 import { PasswordField } from "../create-account-form/components/password-field/password-field.js";
+import { actionBlockStyle, formStyle } from "../shared/styles.js";
 import { mapSignInError } from "./map-sign-in-error.js";
-import { formStyle, statusStyle, submitBlockStyle } from "./styles.js";
+import { statusStyle } from "./styles.js";
 import type {
   SignInFailureTextId,
   SignInFieldErrors,
@@ -111,7 +112,7 @@ export const SignInForm = () => {
         checked={rememberMe}
         onChange={(event) => setRememberMe(event.target.checked)}
       />
-      <div style={submitBlockStyle}>
+      <div style={actionBlockStyle}>
         <Button type="submit" data-testid="sign-in-submit" disabled={status === "submitting"}>
           <Text
             variant="action"

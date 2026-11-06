@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { tokens } from "@offgrid/ui";
+import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-const cssColor = (name: string): string => `var(--og-color-${name})`;
+const cssColor = (name: string): string => cssVar(`color-${name}`);
 
 export const authLayoutStyle: CSSProperties = {
   minHeight: "100vh",

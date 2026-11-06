@@ -4,26 +4,11 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { jsonResponse } from "../../test-support/json-response.js";
-import type { FakeResponse } from "../../test-support/types.js";
+import { stubApi } from "../../test-support/stub-api.js";
 import { SignInPage } from "./sign-in-page.js";
 
-const REGISTRATION_STATUS_PATH = "/auth/registration-status";
-
-const stubRegistrationStatus = (registrationOpen: boolean) => {
-  const response: FakeResponse = {
-    status: 200,
-    body: { freshServer: false, registrationOpen },
-  };
-  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-    if (!String(input).endsWith(REGISTRATION_STATUS_PATH)) {
-      throw new Error(`Unexpected request: ${String(input)}`);
-    }
-    return jsonResponse(response);
-  });
-  vi.stubGlobal("fetch", fetchMock);
-  return fetchMock;
-};
+const stubRegistrationStatus = (registrationOpen: boolean) =>
+  stubApi([{ status: 200, body: { freshServer: false, registrationOpen } }]);
 
 const waitForRegistrationStatusToSettle = async (
   fetchMock: ReturnType<typeof stubRegistrationStatus>,

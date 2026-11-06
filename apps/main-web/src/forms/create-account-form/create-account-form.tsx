@@ -9,18 +9,13 @@ import { NO_FIELD_ERRORS } from "../../constants.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { SignInLink } from "../../session/components/sign-in-link/sign-in-link.js";
+import { actionBlockStyle, formStyle, promptStyle } from "../shared/styles.js";
 import { PasswordField } from "./components/password-field/password-field.js";
 import { PasswordStrengthBars } from "./components/password-strength-bars/password-strength-bars.js";
 import { PasswordStrengthLabel } from "./components/password-strength-label/password-strength-label.js";
 import { TipNote } from "./components/tip-note/tip-note.js";
 import { mapRegisterError } from "./map-register-error.js";
-import {
-  errorBannerStyle,
-  formStyle,
-  nameEmailRowStyle,
-  signInPromptStyle,
-  submitBlockStyle,
-} from "./styles.js";
+import { errorBannerStyle, nameEmailRowStyle } from "./styles.js";
 import type {
   CreateAccountFieldErrors,
   CreateAccountFormProps,
@@ -78,12 +73,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
   };
 
   return (
-    <form
-      data-testid="create-account-form"
-      onSubmit={handleSubmit}
-      noValidate
-      style={formStyle(narrow)}
-    >
+    <form data-testid="create-account-form" onSubmit={handleSubmit} noValidate style={formStyle}>
       <div style={nameEmailRowStyle(narrow)}>
         <TextField
           data-testid="create-account-name"
@@ -145,7 +135,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
         }
       />
       {!narrow && <TipNote />}
-      <div style={submitBlockStyle}>
+      <div style={actionBlockStyle}>
         <Button
           type="submit"
           data-testid="create-account-submit"
@@ -157,7 +147,7 @@ export const CreateAccountForm = ({ onCreated, onRegistrationClosed }: CreateAcc
           />
           <MaterialIcon name="arrow_forward" size="18px" color="currentColor" />
         </Button>
-        <div style={signInPromptStyle}>
+        <div style={promptStyle}>
           <Text variant="status" textId="createAccount.signInPrompt" />
           <SignInLink />
         </div>
