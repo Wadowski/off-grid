@@ -20,6 +20,7 @@ export const shutDown = async (
     },
     () => runtime.pool.end(),
     () => disconnectModuleDatabases(runtime),
+    () => runtime.errorRecordDb.$disconnect(),
   ];
   const failures: unknown[] = [];
   for (const step of steps) {

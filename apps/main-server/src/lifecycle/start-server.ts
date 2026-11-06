@@ -12,6 +12,7 @@ import { disconnectModuleDatabases } from "./disconnect-module-databases.js";
 import { shutDown } from "./shut-down.js";
 import { startWorkers } from "../module-wiring/start-workers.js";
 import { baseUrlOf } from "./base-url-of.js";
+import { startErrorRecordPruning } from "../error-log/start-error-record-pruning.js";
 
 export const startServer = async (
   config: ServerConfig,
@@ -30,13 +31,21 @@ export const startServer = async (
       identity: (request) => resolveRequestIdentity(runtime, request),
     });
   } catch (error) {
-    await Promise.all([runtime.pool.end(), disconnectModuleDatabases(runtime)]);
+    await Promise.all([
+      runtime.pool.end(),
+      disconnectModuleDatabases(runtime),
+      runtime.errorRecordDb.$disconnect(),
+    ]);
     throw error;
   }
 
+  let stopPruning: () => void = () => undefined;
   let closing: Promise<void> | undefined;
   const close = (): Promise<void> => {
-    closing ??= shutDown(runtime, workers, () => app.close());
+    closing ??= shutDown(runtime, workers, async () => {
+      stopPruning();
+      await app.close();
+    });
     return closing;
   };
 
@@ -44,6 +53,7 @@ export const startServer = async (
     await runtime.pool.query("SELECT 1");
     await runtime.eventBus.start();
     runtime.state.publisherRunning = true;
+    stopPruning = startErrorRecordPruning(runtime.errorRecordDb, runtime.logger);
     await startWorkers(workers);
     await app.listen({ host: config.http.host, port: config.http.port });
   } catch (error) {

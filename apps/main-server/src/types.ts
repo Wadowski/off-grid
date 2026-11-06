@@ -61,6 +61,7 @@ export interface ServerRuntime {
   readonly moduleDatabases: Map<string, ModuleDatabase>;
   readonly eventBus: EventBus;
   readonly errorSink: ErrorSink;
+  readonly errorRecordDb: ModuleDatabase;
   readonly logger: Logger;
   readonly state: RuntimeState;
 }

@@ -10,7 +10,6 @@ import {
 import { renewSession } from "../../application/sessions/renew-session.js";
 import { SessionEndedError } from "../../application/errors/session-ended-error.js";
 import { signIn } from "../../application/sessions/sign-in.js";
-import { signInAttempts } from "../../infrastructure/sign-in-attempts/sign-in-attempts.js";
 import {
   CLIENT_REQUEST_HEADER,
   REFRESH_REUSE_GRACE_MS,
@@ -48,7 +47,6 @@ describe("sign-in, refresh and sign-out routes", { timeout: 60_000 }, () => {
 
   beforeEach(async () => {
     await db.reset();
-    signInAttempts.clear();
     app = Fastify();
     await app.register(
       async (api) =>

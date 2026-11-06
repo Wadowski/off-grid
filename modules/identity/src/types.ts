@@ -109,9 +109,17 @@ export interface IssueSessionOptions {
   readonly lifetimeMs?: number;
 }
 
-export interface SignInAttemptState {
-  failures: number;
-  lockedUntil: number;
+export type AttemptKind = "sign-in" | "recovery" | "email-code-request";
+
+export interface AttemptPolicy {
+  readonly limit: number;
+  readonly lockoutMs: number;
+}
+
+export interface AttemptCounterRecord {
+  readonly failures: number;
+  readonly lockedUntil: Date | null;
+  readonly requestedAt: Date | null;
 }
 
 export interface SignInInput {
@@ -186,6 +194,7 @@ export interface IdentityRouteContext {
   readonly logger: Logger;
   readonly mailEncryptionKey: Buffer;
   readonly notificationChannels: readonly NotificationChannel[];
+  readonly emailDependencies: EmailChannelDependencies;
 }
 
 export interface IdentityModuleOptions {
@@ -194,7 +203,7 @@ export interface IdentityModuleOptions {
 
 export type IdentityRouteInput = Omit<
   IdentityRouteContext,
-  "mailEncryptionKey" | "notificationChannels"
+  "mailEncryptionKey" | "notificationChannels" | "emailDependencies"
 >;
 
 export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;
@@ -250,6 +259,21 @@ export interface IssuedPasswordReset {
   readonly expiresAt: Date;
 }
 
+export interface RecoverWithRecoveryCodeInput {
+  readonly email: string;
+  readonly recoveryCode: string;
+  readonly password: string;
+}
+
+export interface PasswordResetOutcome {
+  readonly recoveryCode: string;
+  readonly notification: NewNotification;
+}
+
+export interface EmailCodeRequestInput {
+  readonly email: string;
+}
+
 export interface NewPasswordReset {
   readonly id: string;
   readonly userId: string;
@@ -266,6 +290,7 @@ export interface PasswordResetRecord {
 }
 
 export interface CompletePasswordResetInput {
+  readonly email: string;
   readonly code: string;
   readonly password: string;
 }

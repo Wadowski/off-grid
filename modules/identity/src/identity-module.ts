@@ -6,22 +6,27 @@ import { MAIL_RETRY_DELAYS_MS } from "./constants.js";
 import { createEmailChannel } from "./application/notifications/create-email-channel.js";
 import { sendMailWithSmtp } from "./infrastructure/mail/send-mail-with-smtp.js";
 import { registerIdentityRoutes } from "./http/register-identity-routes.js";
-import type { IdentityModuleOptions, IdentityRouteInput } from "./types.js";
+import type {
+  EmailChannelDependencies,
+  IdentityModuleOptions,
+  IdentityRouteInput,
+} from "./types.js";
 
 export const createIdentityModule = (options: IdentityModuleOptions) => ({
   name: "identity",
   registerRoutes: (api: FastifyInstance, context: IdentityRouteInput): void => {
-    const emailChannel = createEmailChannel({
+    const emailDependencies: EmailChannelDependencies = {
       db: context.db,
       encryptionKey: options.mailEncryptionKey,
       logger: context.logger,
       sendMail: sendMailWithSmtp,
       retryDelaysMs: MAIL_RETRY_DELAYS_MS,
-    });
+    };
     registerIdentityRoutes(api, {
       ...context,
       mailEncryptionKey: options.mailEncryptionKey,
-      notificationChannels: [emailChannel],
+      notificationChannels: [createEmailChannel(emailDependencies)],
+      emailDependencies,
     });
   },
 });

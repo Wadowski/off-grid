@@ -33,3 +33,5 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0016](0016-local-authentication-model.md)               | Local authentication model: passwords, sessions, registration and recovery   | Partly superseded by 0018 |
 | [0017](0017-shared-database-roles-and-prisma-migrate.md) | Two database roles for all modules, and Prisma Migrate                       | Proposed                  |
 | [0018](0018-outgoing-mail-to-a-chosen-provider.md)       | Outgoing mail to a provider the owner chooses                                | Accepted                  |
+| [0019](0019-state-shared-between-instances.md)           | State that must be shared between server instances lives in Postgres         | Proposed                  |
+| [0020](0020-error-records-in-postgres.md)                | Error records are kept in Postgres for a retention period                    | Accepted                  |

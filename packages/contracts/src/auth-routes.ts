@@ -8,6 +8,8 @@ export const authRoutes = {
   refresh: "/auth/refresh",
   signOut: "/auth/sign-out",
   passwordReset: "/auth/password-reset",
+  passwordRecovery: "/auth/password-recovery",
+  passwordRecoveryEmailCode: "/auth/password-recovery/email-code",
 } as const;
 
 export const adminRoutes = {

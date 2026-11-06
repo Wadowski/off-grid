@@ -183,7 +183,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       });
       const issued = await startPasswordReset(db.db, adminId, memberId);
 
-      await completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD });
+      await completePasswordReset(db.db, {
+        email: "tom@example.com",
+        code: issued.code,
+        password: NEW_PASSWORD,
+      });
 
       await expect(
         signIn(db.db, { email: "tom@example.com", password: NEW_PASSWORD }),
@@ -193,7 +197,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       ).rejects.toBeInstanceOf(InvalidCredentialsError);
       expect(await verifyAccessToken(db.db, memberSession.accessToken)).toBeNull();
       await expect(
-        completePasswordReset(db.db, { code: issued.code, password: "yet another passphrase" }),
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: issued.code,
+          password: "yet another passphrase",
+        }),
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
     });
 
@@ -220,7 +228,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       const issued = await startPasswordReset(db.db, adminId, memberId);
       const typed = issued.code.replace(/-/g, "").toLowerCase();
 
-      await completePasswordReset(db.db, { code: typed, password: NEW_PASSWORD });
+      await completePasswordReset(db.db, {
+        email: "tom@example.com",
+        code: typed,
+        password: NEW_PASSWORD,
+      });
 
       await expect(
         signIn(db.db, { email: "tom@example.com", password: NEW_PASSWORD }),
@@ -233,7 +245,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       await startPasswordReset(db.db, adminId, memberId);
 
       await expect(
-        completePasswordReset(db.db, { code: "AAAA-AAAA-AAAA", password: NEW_PASSWORD }),
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: "AAAA-AAAA-AAAA",
+          password: NEW_PASSWORD,
+        }),
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
     });
 
@@ -248,7 +264,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       );
 
       await expect(
-        completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD }),
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: issued.code,
+          password: NEW_PASSWORD,
+        }),
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
     });
 
@@ -258,12 +278,20 @@ describe("instance administration", { timeout: 60_000 }, () => {
       const issued = await startPasswordReset(db.db, adminId, memberId);
 
       await expect(
-        completePasswordReset(db.db, { code: issued.code, password: "short" }),
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: issued.code,
+          password: "short",
+        }),
       ).rejects.toBeInstanceOf(PasswordRejectedError);
 
       await expect(
-        completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD }),
-      ).resolves.toBeUndefined();
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: issued.code,
+          password: NEW_PASSWORD,
+        }),
+      ).resolves.toMatchObject({ recoveryCode: expect.any(String) });
     });
 
     it("retires the previous code when a new one is started", async () => {
@@ -273,11 +301,19 @@ describe("instance administration", { timeout: 60_000 }, () => {
       const second = await startPasswordReset(db.db, adminId, memberId);
 
       await expect(
-        completePasswordReset(db.db, { code: first.code, password: NEW_PASSWORD }),
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: first.code,
+          password: NEW_PASSWORD,
+        }),
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
       await expect(
-        completePasswordReset(db.db, { code: second.code, password: NEW_PASSWORD }),
-      ).resolves.toBeUndefined();
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: second.code,
+          password: NEW_PASSWORD,
+        }),
+      ).resolves.toMatchObject({ recoveryCode: expect.any(String) });
     });
 
     it("refuses a reset for a disabled account", async () => {
@@ -287,7 +323,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       await setUserDisabled(db.db, adminId, memberId, true);
 
       await expect(
-        completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD }),
+        completePasswordReset(db.db, {
+          email: "tom@example.com",
+          code: issued.code,
+          password: NEW_PASSWORD,
+        }),
       ).rejects.toBeInstanceOf(InvalidResetCodeError);
     });
 
@@ -338,7 +378,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
       await registerAdmin();
 
       const issued = await resetAdminPasswordByEmail(db.db, "anna@example.com");
-      await completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD });
+      await completePasswordReset(db.db, {
+        email: "anna@example.com",
+        code: issued.code,
+        password: NEW_PASSWORD,
+      });
 
       await expect(
         signIn(db.db, { email: "anna@example.com", password: NEW_PASSWORD }),
@@ -359,7 +403,11 @@ describe("instance administration", { timeout: 60_000 }, () => {
         email: "owner@example.com",
         displayName: "Owner",
       });
-      await completePasswordReset(db.db, { code: issued.code, password: NEW_PASSWORD });
+      await completePasswordReset(db.db, {
+        email: "owner@example.com",
+        code: issued.code,
+        password: NEW_PASSWORD,
+      });
 
       const session = await signIn(db.db, { email: "owner@example.com", password: NEW_PASSWORD });
       expect(session.user.instanceRole).toBe("admin");

@@ -107,8 +107,17 @@ export interface components {
             }[];
         };
         PasswordResetRequest: {
+            email: string;
             code: string;
             password: string;
+        };
+        PasswordRecoveryRequest: {
+            email: string;
+            recoveryCode: string;
+            password: string;
+        };
+        EmailCodeRequest: {
+            email: string;
         };
         PasswordResetIssued: {
             /** Format: uuid */

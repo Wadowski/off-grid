@@ -50,4 +50,6 @@ export interface ErrorSink {
 export interface MemoryErrorSinkOptions {
   readonly capacity?: number;
   readonly now?: () => Date;
+  readonly persist?: (record: ErrorRecord) => Promise<void>;
+  readonly maxPendingWrites?: number;
 }

@@ -6,6 +6,7 @@ import type { FastifyReply } from "fastify";
 import { z } from "zod";
 import { InvalidResetCodeError } from "../../application/errors/invalid-reset-code-error.js";
 import { PasswordRejectedError } from "../../application/errors/password-rejected-error.js";
+import { RecoveryLockedError } from "../../application/errors/recovery-locked-error.js";
 
 export const sendPasswordResetError = (reply: FastifyReply, error: unknown): FastifyReply => {
   if (error instanceof z.ZodError) {
@@ -13,6 +14,9 @@ export const sendPasswordResetError = (reply: FastifyReply, error: unknown): Fas
   }
   if (error instanceof InvalidResetCodeError) {
     return sendError(reply, 400, "INVALID_RESET_CODE", "The reset code is invalid or has expired");
+  }
+  if (error instanceof RecoveryLockedError) {
+    return sendError(reply, 429, "RECOVERY_LOCKED", "Too many attempts. Try again later");
   }
   if (error instanceof PasswordRejectedError) {
     const [firstProblem] = error.problems;

@@ -5,6 +5,7 @@ import { authRoutes, passwordResetRequestSchema } from "@offgrid/contracts";
 import { sendValidationFailed } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
 import { completePasswordReset } from "../../application/password-reset/complete-password-reset.js";
+import { deliverToChannels } from "../../application/notifications/deliver-to-channels.js";
 import { PASSWORD_RESET_RATE_LIMIT_PER_MINUTE, RATE_WINDOW_MS } from "../../constants.js";
 import type { IdentityRouteContext } from "../../types.js";
 import { sendPasswordResetError } from "./send-password-reset-error.js";
@@ -26,9 +27,11 @@ export const registerPasswordReset = (
         return sendValidationFailed(reply, body.error);
       }
       try {
-        await completePasswordReset(context.db, body.data);
+        const { recoveryCode, notification } = await completePasswordReset(context.db, body.data);
+        await deliverToChannels(context.notificationChannels, notification, context.logger);
         context.logger.info("password reset completed", { action: "password-reset.completed" });
-        return reply.code(204).send();
+        reply.header("cache-control", "no-store");
+        return reply.code(200).send({ recoveryCode });
       } catch (error) {
         return sendPasswordResetError(reply, error);
       }

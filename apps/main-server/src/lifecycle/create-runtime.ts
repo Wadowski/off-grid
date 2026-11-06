@@ -3,12 +3,13 @@
 
 import type { ServerConfig, ServerRuntime } from "../types.js";
 import { createLogger, createMemoryErrorSink } from "@offgrid/observability";
+import { createModuleDb } from "@offgrid/db";
 import { Pool } from "pg";
 import { CONNECTION_TIMEOUT_MS } from "../constants.js";
 import { createEventBus } from "@offgrid/event-bus";
+import { persistErrorRecord } from "../error-log/persist-error-record.js";
 
 export const createRuntime = (config: ServerConfig): ServerRuntime => {
-  const errorSink = createMemoryErrorSink();
   const logger = createLogger({ level: config.logLevel, bindings: { module: "server" } });
   const pool = new Pool({
     host: config.database.host,
@@ -19,12 +20,17 @@ export const createRuntime = (config: ServerConfig): ServerRuntime => {
     max: config.database.poolMax,
     connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
   });
+  const errorRecordDb = createModuleDb(pool);
+  const errorSink = createMemoryErrorSink({
+    persist: (record) => persistErrorRecord(errorRecordDb, logger, record),
+  });
   pool.on("error", (error) => errorSink.record(error, { source: "database-pool" }));
 
   return {
     pool,
     eventBus: createEventBus({ pool, errorSink }),
     errorSink,
+    errorRecordDb,
     logger,
     moduleDatabases: new Map(),
     state: { publisherRunning: false, draining: false },
