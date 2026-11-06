@@ -16,3 +16,5 @@ e2e/artifacts/
 
 # Local Claude Code overrides, never committed
 .claude/settings.local.json
+
+.claude/worktrees/
