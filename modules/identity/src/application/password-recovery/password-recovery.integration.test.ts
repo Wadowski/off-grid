@@ -7,8 +7,6 @@ import {
   type IdentityTestDatabase,
 } from "../../../test/start-identity-test-database.js";
 import { RECOVERY_FAILURE_LIMIT } from "../../constants.js";
-import { emailCodeRequests } from "../../infrastructure/email-code-requests/email-code-requests.js";
-import { recoveryAttempts } from "../../infrastructure/recovery-attempts/recovery-attempts.js";
 import { sealMailPassword } from "../../infrastructure/mail/seal-mail-password.js";
 import { upsertMailSettings } from "../../infrastructure/mail/upsert-mail-settings.js";
 import type { EmailChannelDependencies, MailMessage } from "../../types.js";
@@ -40,8 +38,6 @@ describe("password recovery", { timeout: 60_000 }, () => {
 
   beforeEach(async () => {
     await db.reset();
-    recoveryAttempts.clear();
-    emailCodeRequests.clear();
   });
 
   const signUpAnna = () =>

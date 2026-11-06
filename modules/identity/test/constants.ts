@@ -6,4 +6,5 @@ export const RESET_SQL = `TRUNCATE outbox.event, outbox.subscriber_cursor, outbo
   identity.user_account
   RESTART IDENTITY CASCADE;
   UPDATE identity.instance_settings SET registration_open = true;
-  DELETE FROM identity.mail_settings`;
+  DELETE FROM identity.mail_settings;
+  DELETE FROM identity.attempt_counter`;

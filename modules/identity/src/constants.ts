@@ -163,4 +163,14 @@ export const RECOVERY_FAILURE_LIMIT = 5;
 
 export const RECOVERY_LOCKOUT_MS = 15 * 60 * 1000;
 
+export const RECOVERY_ATTEMPT_POLICY = {
+  limit: RECOVERY_FAILURE_LIMIT,
+  lockoutMs: RECOVERY_LOCKOUT_MS,
+};
+
+export const SIGN_IN_ATTEMPT_POLICY = {
+  limit: SIGN_IN_FAILURE_LIMIT,
+  lockoutMs: SIGN_IN_LOCKOUT_MS,
+};
+
 export const ACCOUNT_SECRET_RATE_LIMIT_PER_MINUTE = 10;

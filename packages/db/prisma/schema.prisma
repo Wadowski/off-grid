@@ -145,6 +145,17 @@ model MailSettings {
   @@schema("identity")
 }
 
+model AttemptCounter {
+  attemptKey  String    @id @map("attempt_key")
+  failures    Int       @default(0)
+  lockedUntil DateTime? @map("locked_until") @db.Timestamptz(6)
+  requestedAt DateTime? @map("requested_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("attempt_counter")
+  @@schema("identity")
+}
+
 generator client {
   provider            = "prisma-client"
   output              = "../../../node_modules/.prisma/offgrid-db"

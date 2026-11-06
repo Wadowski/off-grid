@@ -109,9 +109,17 @@ export interface IssueSessionOptions {
   readonly lifetimeMs?: number;
 }
 
-export interface SignInAttemptState {
-  failures: number;
-  lockedUntil: number;
+export type AttemptKind = "sign-in" | "recovery" | "email-code-request";
+
+export interface AttemptPolicy {
+  readonly limit: number;
+  readonly lockoutMs: number;
+}
+
+export interface AttemptCounterRecord {
+  readonly failures: number;
+  readonly lockedUntil: Date | null;
+  readonly requestedAt: Date | null;
 }
 
 export interface SignInInput {
