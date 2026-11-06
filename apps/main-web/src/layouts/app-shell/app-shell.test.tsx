@@ -24,7 +24,7 @@ describe("app shell", () => {
   it("renders landmarks and has no axe violations", async () => {
     stubApi([...signedInStartup(), { status: 200, body: { families: [] } }]);
     const { container } = render(<App />);
-    await screen.findByTestId("family-list-empty");
+    await screen.findByText("Welcome to Offgrid");
 
     expect(screen.getByRole("banner")).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();

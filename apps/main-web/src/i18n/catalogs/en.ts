@@ -43,6 +43,11 @@ export const en = {
     listFailed: "Your families could not be loaded.",
     empty: "You are not in any family yet.",
   },
+  firstFamily: {
+    heading: "Welcome to Offgrid",
+    body: "Most of Offgrid works within a family. Create yours to get started.",
+    invitedNote: "Were you invited? Ask the family organizer to add you.",
+  },
   errors: {
     unexpected: "Something went wrong.",
     retry: "Try again",
