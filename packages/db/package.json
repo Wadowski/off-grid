@@ -9,10 +9,10 @@
   "scripts": {
     "generate": "prisma generate",
     "migrate:deploy": "prisma migrate deploy",
-    "build": "pnpm generate && tsc -b",
-    "typecheck": "pnpm generate && tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "build": "tsc -b",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
-    "test": "pnpm generate && vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

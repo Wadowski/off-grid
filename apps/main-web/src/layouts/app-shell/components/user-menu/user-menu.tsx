@@ -1,23 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
+import { Button, Text } from "@offgrid/ui";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import type { CurrentUser } from "../../../../types.js";
 import {
   userMenuIdentityStyle,
   userMenuItemStyle,
   userMenuPanelStyle,
   userMenuStyle,
-  userMenuTriggerStyle,
 } from "./styles.js";
-
-type UserMenuProps = {
-  readonly user: CurrentUser;
-  readonly onSignOut: () => void;
-};
+import type { UserMenuProps } from "./types.js";
 
 const initialsOf = (name: string): string =>
   name
@@ -27,10 +23,13 @@ const initialsOf = (name: string): string =>
     .slice(0, 2)
     .join("");
 
+const roleTextIdOf = (user: CurrentUser): "userMenu.roleAdmin" | "userMenu.roleMember" =>
+  user.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember";
+
 export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
@@ -42,7 +41,7 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
 
   const closeMenu = () => {
     setIsOpen(false);
-    triggerRef.current?.focus();
+    menuRef.current?.querySelector<HTMLButtonElement>("[aria-haspopup='menu']")?.focus();
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -51,23 +50,27 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
     }
   };
 
-  const roleTextId = user.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember";
-
   return (
-    <div style={userMenuStyle} onKeyDown={handleKeyDown}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className="og-focusable"
-        style={userMenuTriggerStyle}
+    <div ref={menuRef} style={userMenuStyle} onKeyDown={handleKeyDown}>
+      <Button
+        variant="secondary"
         aria-label={t("userMenu.trigger")}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={panelId}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <span aria-hidden="true">{initialsOf(user.name)}</span>
-      </button>
+        <span className="og-user-menu-avatar" aria-hidden="true">
+          {initialsOf(user.name)}
+        </span>
+        <span className="og-user-menu-meta" aria-hidden="true">
+          <Text variant="label" value={user.name} />
+          <Text variant="caption" textId={roleTextIdOf(user)} />
+        </span>
+        <span className="og-user-menu-expand" aria-hidden="true">
+          <MaterialIcon name="expand_more" size="18px" color="currentColor" />
+        </span>
+      </Button>
       {isOpen && (
         <div
           ref={panelRef}
@@ -79,7 +82,7 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
           <div style={userMenuIdentityStyle}>
             <Text variant="label" value={user.name} />
             <Text variant="status" value={user.email} />
-            <Text variant="label" textId={roleTextId} />
+            <Text variant="label" textId={roleTextIdOf(user)} />
           </div>
           <Link role="menuitem" to="/settings" style={userMenuItemStyle} onClick={closeMenu}>
             {t("userMenu.accountAndSecurity")}
@@ -89,15 +92,9 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
               {t("userMenu.adminSettings")}
             </Link>
           )}
-          <button
-            role="menuitem"
-            type="button"
-            className="og-focusable"
-            style={userMenuItemStyle}
-            onClick={onSignOut}
-          >
-            {t("userMenu.signOut")}
-          </button>
+          <Button role="menuitem" variant="ghost" onClick={onSignOut}>
+            <Text variant="label" textId="userMenu.signOut" />
+          </Button>
         </div>
       )}
     </div>

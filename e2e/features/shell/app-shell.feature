@@ -28,6 +28,13 @@ Feature: App shell
     Given a 390 px wide screen
     Then the bottom navigation shows "Family" and "Settings"
 
+  @wip
+  Scenario: Navigation on a desktop
+    Given a 1280 px wide screen
+    Then the sidebar shows "Family" and "Settings"
+    And the sidebar shows my name and the families I belong to
+    And the header shows the title of the page I am on
+
   Scenario: Keyboard use
     When I use only the keyboard
     Then I can reach the navigation and the user menu and close the menu with Escape
