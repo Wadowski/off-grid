@@ -6,7 +6,20 @@ export const en = {
   navLabel: "Main navigation",
   nav: {
     family: "Family",
+    calendar: "Calendar",
+    notes: "Notes",
+    smartLists: "Smart Lists",
+    vault: "Vault Storage",
+    meals: "Meal Planner",
     settings: "Settings",
+  },
+  shell: {
+    searchPlaceholder: "Search events, notes, files, recipes...",
+    privateNode: "Private Node",
+    notifications: "Notifications",
+    apps: "Apps",
+    manage: "Manage",
+    familyCount: "{{count}} families",
   },
   userMenu: {
     trigger: "Account menu",

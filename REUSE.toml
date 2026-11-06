@@ -28,3 +28,8 @@ path = [
 ]
 SPDX-FileCopyrightText = "2026 Dominik Wadowski"
 SPDX-License-Identifier = "FSL-1.1-ALv2"
+
+[[annotations]]
+path = "apps/main-web/src/media/*.png"
+SPDX-FileCopyrightText = "2026 Dominik Wadowski"
+SPDX-License-Identifier = "FSL-1.1-ALv2"
