@@ -3,8 +3,8 @@
 
 import { Text } from "@offgrid/ui";
 import { Outlet } from "react-router-dom";
+import markUrl from "../../media/offgrid-mark-64.png";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { LanguageLabel } from "./components/language-label/language-label.js";
 import {
   authLayoutStyle,
@@ -36,10 +36,8 @@ export const AuthLayout = () => {
         </div>
       )}
       <header style={headerStyle(narrow)}>
-        <div style={headerRowStyle}>
-          <div style={brandMarkStyle}>
-            <MaterialIcon name="deployed_code" size="18px" color="var(--og-color-primary)" filled />
-          </div>
+        <div style={headerRowStyle(narrow)}>
+          <img src={markUrl} alt="" aria-hidden="true" style={brandMarkStyle} />
           <Text variant="brand" textId="appName" />
         </div>
         {narrow && <LanguageLabel />}

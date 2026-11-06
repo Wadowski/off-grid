@@ -3,9 +3,9 @@
 
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AuthPlaceholderPage } from "./pages/auth-placeholder-page/auth-placeholder-page.js";
 import { CreateAccountPage } from "./pages/create-account-page/create-account-page.js";
 import { FamiliesPage } from "./pages/families-page/families-page.js";
+import { SignInPage } from "./pages/sign-in-page/sign-in-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
 import { RedirectIfSignedIn } from "./session/guards/redirect-if-signed-in/redirect-if-signed-in.js";
@@ -22,10 +22,7 @@ export const App = () => {
       <Routes>
         <Route element={<AuthLayout />}>
           <Route element={<RedirectIfSignedIn />}>
-            <Route
-              path="/sign-in"
-              element={<AuthPlaceholderPage headingTextId="signIn.heading" />}
-            />
+            <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
           </Route>
         </Route>

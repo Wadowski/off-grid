@@ -115,7 +115,9 @@ describe("web session routes", () => {
 
     expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
     expect(window.location.pathname).toBe("/sign-in");
-    const signOutCall = fetchMock.mock.calls.at(-1);
+    const signOutCall = fetchMock.mock.calls.find(([input]) =>
+      String(input).endsWith("/api/auth/sign-out"),
+    );
     expect(String(signOutCall?.[0])).toMatch(/\/api\/auth\/sign-out$/);
     expect(new Headers(signOutCall?.[1]?.headers).get("x-offgrid-request")).toBe("1");
   });

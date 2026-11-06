@@ -57,6 +57,21 @@ export const en = {
   },
   signIn: {
     heading: "Sign in",
+    pill: "Local account • Your own server",
+    welcome: "Welcome back. Sign in to reach your Offgrid server.",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    capsLock: "Caps Lock is on.",
+    rememberMe: "Remember me for 30 days",
+    submit: "Sign in",
+    submitting: "Signing in…",
+    createPrompt: "New here?",
+    createLink: "Create an account",
+    emailInvalid: "Enter a valid email address.",
+    passwordRequired: "Enter your password.",
+    invalidCredentials: "Email or password is incorrect",
+    unreachable: "The Offgrid server cannot be reached. Check the connection and try again.",
+    failed: "You could not be signed in. Try again.",
   },
   createAccount: {
     heading: "Create your account",
@@ -112,8 +127,5 @@ export const en = {
       continueFailed: "You could not be signed in. Try again.",
       fileHeading: "Offgrid recovery code",
     },
-  },
-  authPlaceholder: {
-    notReady: "This screen is not ready yet.",
   },
 } as const;

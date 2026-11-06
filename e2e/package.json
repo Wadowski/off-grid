@@ -8,7 +8,7 @@
     "e2e": "bddgen && playwright test --grep-invert @wip",
     "e2e:smoke": "bddgen && playwright test --grep @smoke --grep-invert @wip",
     "e2e:wip": "bddgen && playwright test --grep @wip",
-    "e2e:stack:up": "OFFGRID_SERVER_PORT=${E2E_SERVER_PORT:-3000} docker compose -p offgrid-e2e-local -f ../infra/compose/docker-compose.yml -f ../infra/compose/docker-compose.e2e.yml up --detach --wait server",
+    "e2e:stack:up": "OFFGRID_SERVER_PORT=${E2E_SERVER_PORT:-3000} OFFGRID_WEB_PORT=${E2E_WEB_PORT:-5173} OFFGRID_API_ORIGIN=http://127.0.0.1:${E2E_SERVER_PORT:-3000} docker compose -p offgrid-e2e-local -f ../infra/compose/docker-compose.yml -f ../infra/compose/docker-compose.e2e.yml up --detach --build --wait server web",
     "e2e:stack:down": "docker compose -p offgrid-e2e-local -f ../infra/compose/docker-compose.yml -f ../infra/compose/docker-compose.e2e.yml down --volumes --remove-orphans",
     "lint:features": "gherkin-lint --config .gherkin-lintrc.json \"features/**/*.feature\"",
     "test": "vitest run"

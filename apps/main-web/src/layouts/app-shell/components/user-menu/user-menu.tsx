@@ -51,7 +51,7 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
   };
 
   return (
-    <div ref={menuRef} style={userMenuStyle} onKeyDown={handleKeyDown}>
+    <div ref={menuRef} className="og-user-menu" style={userMenuStyle} onKeyDown={handleKeyDown}>
       <Button
         variant="secondary"
         aria-label={t("userMenu.trigger")}
