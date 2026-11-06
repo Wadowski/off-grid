@@ -6,7 +6,7 @@ paths:
 
 # Frontend rules
 
-- DO use the shared components from `packages/ui` before writing a native element. Use `Button` for every button, including icon-only and menu buttons, and `TextField` for every text input. Use `VisuallyHidden` for a label that only assistive technology should read. DON'T write a raw `<button>` or `<input>` in `apps/main-web`. If a shared component lacks a variant or prop you need, extend it in `packages/ui` rather than working around it.
+- DO use the shared components from `packages/ui` before writing a native element or a custom one. For example, use `Button` instead of a raw `<button>`, `TextField` instead of a raw `<input>`, and `VisuallyHidden` for a label that only assistive technology should read. DON'T write a raw HTML element or a new component in `apps/main-web` when `packages/ui` already has one that fits. If a shared component lacks a variant or prop you need, extend it in `packages/ui` rather than working around it.
 - DO use design tokens from `packages/ui` for colour, spacing and type.
 - DO meet WCAG 2.2 AA.
 - DO send every user-facing string through the i18n catalogs, and render it with `Text` from `packages/ui`. A static string takes `textId` (a catalog key, checked by the typecheck), for example `<Text variant="heading" textId="families.heading" />`. A dynamic value takes `value`, for example `<Text variant="body" value={family.name} />`. DON'T put text directly between tags or in a prop such as `label` or `error` without `Text`. Use `t` only for attributes such as `aria-label`, which `Text` cannot render.
