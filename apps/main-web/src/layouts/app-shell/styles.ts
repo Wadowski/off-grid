@@ -180,6 +180,10 @@ export const appShellCss = `
   color: var(--og-color-muted);
 }
 
+.og-user-menu > button {
+  width: 100%;
+}
+
 .og-settings-link {
   display: flex;
   align-items: center;
@@ -297,6 +301,10 @@ export const appShellCss = `
   .og-sidebar-bottom {
     margin-top: 0;
     padding: ${tokens.space[1]} ${tokens.space[2]};
+  }
+
+  .og-user-menu > button {
+    width: auto;
   }
 
   .og-header {
