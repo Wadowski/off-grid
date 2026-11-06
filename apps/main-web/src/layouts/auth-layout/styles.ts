@@ -80,23 +80,19 @@ export const headerStyle = (narrow: boolean): CSSProperties =>
         padding: `${tokens.space[5]} ${tokens.space[6]} 0`,
       };
 
-export const headerRowStyle: CSSProperties = {
+export const headerRowStyle = (narrow: boolean): CSSProperties => ({
   display: "flex",
   alignItems: "center",
   gap: tokens.space[2],
   maxWidth: "64rem",
-  margin: "0 auto",
-};
+  margin: narrow ? 0 : "0 auto",
+});
 
 export const brandMarkStyle: CSSProperties = {
   width: "1.75rem",
   height: "1.75rem",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+  display: "block",
   borderRadius: tokens.radius.md,
-  background: cssColor("surface"),
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
 };
 
 export const mainStyle = (narrow: boolean): CSSProperties =>
