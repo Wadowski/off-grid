@@ -33,6 +33,22 @@ For every new or changed function, component, style object, hook, type, constant
 
 Use Grep for the names, the key literals, and the distinctive logic (for example a regex, a media query, a status-to-text mapping, a date format, an initials helper). Match on behaviour as well as name: a function called `initialsOf` may be the same as `getInitials`.
 
+## Private and inline copies
+
+Some logic exists in the repo but cannot be imported: a function that is not exported, a helper defined inside a component, route or service file, a style object or regex repeated inline, or a mapping table copied into a second file. Search for these too. Look for the same logic under another name, in files that the diff did not touch, and for private helpers in the same folder as the changed file.
+
+When the duplicate is hidden like this, the finding is a plan for extraction, not a note:
+
+- **What is duplicated**, with both locations (`file:line`) and the behaviour they share.
+- **Where the shared version goes**, following the shared-code rule. Put HTTP code in `packages/http`, access checks in `packages/access-control`, database helpers in `packages/db`, UI in `packages/ui`, and contracts in `packages/contracts`. For code only the web app needs, use the nearest existing shared folder that both files can import without crossing a module boundary. Check whether one exists before proposing a new folder.
+- **The new export.** One function per file, named in kebab-case after the function, as an arrow function, with its dependencies as leading parameters. Export it only if the importing file uses it.
+- **Both call sites.** Name the private or inline copy to delete and the line that imports the shared version in its place.
+- **The test.** A unit test beside the new function, following the testing rules. Do not export the private helper only to test it.
+
+Mark hidden duplicates **Blocking** when the logic is business, validation, security, access or formatting logic, or when it is more than a few lines. Mark a trivial one-liner **Advisory**.
+
+The reviewer only reports. The fix for each Blocking extraction is applied in the verification step that runs this reviewer, which then re-runs the checks.
+
 ## What counts as a finding
 
 - **A native element where a shared component exists (web).** A raw `<button>`, `<input>`, `<label>` or similar in `apps/main-web` when `packages/ui` has a component that fits (frontend rule). Blocking.
@@ -54,7 +70,7 @@ Do not flag a copy that is intentionally different: say so only if the differenc
 
 Mark every place, not only the first few. Return findings in two groups, most severe first:
 
-- **Blocking**: a repo rule says the existing code must be used, or the copy crosses a module or package boundary.
+- **Blocking**: a repo rule says the existing code must be used, the copy crosses a module or package boundary, or a hidden duplicate needs the extraction plan above.
 - **Advisory**: an existing function, component or token would fit, but the change could reasonably keep its version.
 
 Each finding gives:
