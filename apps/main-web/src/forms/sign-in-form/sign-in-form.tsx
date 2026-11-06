@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text, TextField } from "@offgrid/ui";
+import { Button, Checkbox, Text, TextField } from "@offgrid/ui";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useRef, useState } from "react";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { signIn } from "../../session/sign-in.js";
 import { PasswordField } from "../create-account-form/components/password-field/password-field.js";
 import { mapSignInError } from "./map-sign-in-error.js";
-import { checkboxLabelStyle, formStyle, statusStyle, submitBlockStyle } from "./styles.js";
+import { formStyle, statusStyle, submitBlockStyle } from "./styles.js";
 import type {
   SignInFailureTextId,
   SignInFieldErrors,
@@ -105,15 +105,12 @@ export const SignInForm = () => {
           ) : undefined
         }
       />
-      <label style={checkboxLabelStyle}>
-        <input
-          type="checkbox"
-          data-testid="sign-in-remember-me"
-          checked={rememberMe}
-          onChange={(event) => setRememberMe(event.target.checked)}
-        />
-        <Text variant="body" textId="signIn.rememberMe" />
-      </label>
+      <Checkbox
+        data-testid="sign-in-remember-me"
+        label={<Text variant="body" textId="signIn.rememberMe" />}
+        checked={rememberMe}
+        onChange={(event) => setRememberMe(event.target.checked)}
+      />
       <div style={submitBlockStyle}>
         <Button type="submit" data-testid="sign-in-submit" disabled={status === "submitting"}>
           <Text
