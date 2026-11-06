@@ -31,6 +31,11 @@ Then(
   "the bottom navigation shows {string} and {string}",
   ({ world }, first: string, second: string) => notServed(world, first, second),
 );
+Then("the sidebar shows {string} and {string}", ({ world }, first: string, second: string) =>
+  notServed(world, first, second),
+);
+Then("the sidebar shows my name and the families I belong to", ({ world }) => notServed(world));
+Then("the header shows the title of the page I am on", ({ world }) => notServed(world));
 Then("I can reach the navigation and the user menu and close the menu with Escape", ({ world }) =>
   notServed(world),
 );

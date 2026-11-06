@@ -8,29 +8,12 @@ export const userMenuStyle: CSSProperties = {
   position: "relative",
 };
 
-export const userMenuTriggerStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "2.75rem",
-  height: "2.75rem",
-  borderRadius: "50%",
-  borderStyle: "solid",
-  borderWidth: "1px",
-  borderColor: "var(--og-color-muted)",
-  background: "var(--og-color-accent)",
-  color: "var(--og-color-accent-fg)",
-  fontFamily: tokens.font.family.base,
-  fontWeight: tokens.font.weight.semibold,
-  cursor: "pointer",
-};
-
 export const userMenuPanelStyle: CSSProperties = {
   position: "absolute",
+  left: 0,
   right: 0,
-  top: "calc(100% + 0.5rem)",
-  zIndex: 20,
-  minWidth: "14rem",
+  bottom: "calc(100% + 0.5rem)",
+  zIndex: 60,
   display: "flex",
   flexDirection: "column",
   gap: tokens.space[1],

@@ -2,14 +2,17 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Outlet } from "react-router-dom";
+import { useFamilies } from "../../families/use-families.js";
 import { signOut } from "../../session/sign-out.js";
 import { useSession } from "../../session/use-session.js";
 import type { CurrentUser } from "../../types.js";
 import { AppHeader } from "./components/app-header/app-header.js";
-import { appShellCss, appShellMainStyle, appShellStyle } from "./styles.js";
+import { AppSidebar } from "./components/app-sidebar/app-sidebar.js";
+import { appShellCss, appShellStyle } from "./styles.js";
 
 export const AppShell = () => {
   const session = useSession();
+  const familiesState = useFamilies();
   if (session.status !== "signedIn") {
     return null;
   }
@@ -22,9 +25,10 @@ export const AppShell = () => {
   return (
     <div style={appShellStyle}>
       <style>{appShellCss}</style>
-      <AppHeader user={user} onSignOut={() => void signOut()} />
-      <main className="og-app-shell-main" style={appShellMainStyle}>
-        <Outlet />
+      <AppSidebar user={user} families={familiesState.families} onSignOut={() => void signOut()} />
+      <AppHeader />
+      <main className="og-shell-main">
+        <Outlet context={familiesState} />
       </main>
     </div>
   );

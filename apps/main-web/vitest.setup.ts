@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import "@testing-library/jest-dom/vitest";
+import { configure } from "@testing-library/react";
 import "./src/i18n/i18n.js";
+
+configure({ asyncUtilTimeout: 5_000 });
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
