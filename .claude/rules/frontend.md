@@ -20,4 +20,5 @@ paths:
 - DO talk to the server only through `packages/contracts` and `packages/api-client`.
 - DON'T hard-code colours or spacing values.
 - DON'T import from `modules/` or from `packages/` other than `contracts`, `api-client` and `ui`. `web-allowed-imports` enforces this ([boundaries.md](../../docs/architecture/boundaries.md)).
+- DO upload the screenshots of every changed screen to the linked Linear issue each time a UI change is pushed, using the UI screenshots step in [linear-issue](../skills/linear-issue/SKILL.md). The issue must always show the current UI.
 - DON'T rely on immediate consistency. Events are eventually consistent, so screens must tolerate a short delay after a change ([ADR 0002](../../docs/adr/0002-outbox-events-and-projections.md)).

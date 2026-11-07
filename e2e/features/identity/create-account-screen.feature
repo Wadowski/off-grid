@@ -63,7 +63,7 @@ Feature: Create account screen
     And I tick "I saved my recovery code"
     Then "Continue" is enabled
     When I press "Continue"
-    Then I am taken to the home page
+    Then I am asked to create my family
 
   @ui
   Scenario: Registration closed

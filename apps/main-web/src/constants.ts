@@ -24,6 +24,8 @@ export const PASSWORD_MIN_LENGTH = 12;
 
 export const RECOVERY_CODE_FILE_NAME = "offgrid-recovery-code.txt";
 
+export const FIRST_FAMILY_PATH = "/welcome";
+
 export const NO_FIELD_ERRORS: CreateAccountFieldErrors = {
   displayName: undefined,
   email: undefined,

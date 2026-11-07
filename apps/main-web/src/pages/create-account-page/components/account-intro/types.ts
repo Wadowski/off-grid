@@ -7,17 +7,20 @@ export type AccountIntroProps = {
     | "createAccount.pill.account"
     | "createAccount.pill.closed"
     | "createAccount.pill.recovery"
+    | "firstFamily.pill"
     | "signIn.pill";
   readonly headingTextId:
     | "createAccount.heading"
     | "createAccount.firstRunHeading"
     | "createAccount.closed.heading"
     | "createAccount.recovery.heading"
+    | "firstFamily.heading"
     | "signIn.heading";
   readonly bodyTextId:
     | "createAccount.body"
     | "createAccount.firstRunBody"
     | "createAccount.closed.body"
     | "createAccount.recovery.explanation"
+    | "firstFamily.body"
     | "signIn.welcome";
 };

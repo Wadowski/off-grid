@@ -13,6 +13,7 @@ const openAt = (path: string) => {
 };
 
 const RENEWED_TOKEN = "renewed-access-token";
+const LAKESIDE_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 
 let App: typeof import("../app.js").App;
 
@@ -43,11 +44,14 @@ describe("web session routes", () => {
 
   it("sends a signed-in person from the sign-in page to home", async () => {
     openAt("/sign-in");
-    stubApi([...signedInStartup(), { status: 200, body: { families: [] } }]);
+    stubApi([
+      ...signedInStartup(),
+      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
+    ]);
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-empty")).toBeInTheDocument();
+    expect(await screen.findByTestId("family-list-item")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/");
   });
 
@@ -73,12 +77,12 @@ describe("web session routes", () => {
           accessExpiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
         },
       },
-      { status: 200, body: { families: [] } },
+      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
     ]);
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-empty")).toBeInTheDocument();
+    expect(await screen.findByTestId("family-list-item")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/");
     const lastCall = fetchMock.mock.calls.at(-1);
     expect(new Headers(lastCall?.[1]?.headers).get("authorization")).toBe(
@@ -104,11 +108,11 @@ describe("web session routes", () => {
     openAt("/");
     const fetchMock = stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [] } },
+      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
       { status: 204, body: undefined },
     ]);
     render(<App />);
-    await screen.findByTestId("family-list-empty");
+    await screen.findByTestId("family-list-item");
 
     fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));

@@ -13,7 +13,7 @@ Feature: Sign in screen
     Given I have an account
     When I open the sign in page
     And I enter my email and password and press "Sign in"
-    Then I am taken to the home page
+    Then I am asked to create my family
 
   @ui
   Scenario: Wrong password
@@ -75,7 +75,7 @@ Feature: Sign in screen
     Given I have an account
     When I open the sign in page
     And I enter my email and password and press Enter
-    Then I am taken to the home page
+    Then I am asked to create my family
 
   @ui
   Scenario: Double submission is prevented

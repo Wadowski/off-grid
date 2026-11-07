@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Text } from "@offgrid/ui";
-import { Outlet } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 import markUrl from "../../media/offgrid-mark-64.png";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { LanguageLabel } from "./components/language-label/language-label.js";
@@ -23,6 +23,7 @@ import {
 
 export const AuthLayout = () => {
   const narrow = useIsNarrow();
+  const outletContext = useOutletContext<unknown>();
 
   return (
     <div style={authLayoutStyle}>
@@ -44,7 +45,7 @@ export const AuthLayout = () => {
       </header>
       <main style={mainStyle(narrow)}>
         <section style={cardStyle(narrow)}>
-          <Outlet />
+          <Outlet context={outletContext} />
         </section>
       </main>
       <footer style={footerStyle(narrow)}>
