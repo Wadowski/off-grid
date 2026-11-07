@@ -22,6 +22,10 @@ export const buttonBaseStyle: CSSProperties = {
   cursor: "pointer",
 };
 
+export const buttonFullWidthStyle: CSSProperties = {
+  width: "100%",
+};
+
 export const buttonVariantStyles: Record<ButtonVariant, CSSProperties> = {
   primary: {
     background: cssVar("color-accent"),

@@ -7,4 +7,5 @@ export type ButtonVariant = "primary" | "secondary" | "ghost";
 
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style" | "className"> & {
   readonly variant?: ButtonVariant;
+  readonly fullWidth?: boolean;
 };
