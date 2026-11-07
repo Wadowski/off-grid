@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { AccountIntroProps } from "./pages/create-account-page/components/account-intro/types.js";
 import type {
   CreateAccountErrorTextId,
   CreateAccountFieldErrors,
@@ -25,6 +26,13 @@ export const PASSWORD_MIN_LENGTH = 12;
 export const RECOVERY_CODE_FILE_NAME = "offgrid-recovery-code.txt";
 
 export const FIRST_FAMILY_PATH = "/welcome";
+
+export const RECOVERY_INTRO: AccountIntroProps = {
+  icon: "key",
+  pillTextId: "createAccount.pill.recovery",
+  headingTextId: "createAccount.recovery.heading",
+  bodyTextId: "createAccount.recovery.explanation",
+};
 
 export const NO_FIELD_ERRORS: CreateAccountFieldErrors = {
   displayName: undefined,

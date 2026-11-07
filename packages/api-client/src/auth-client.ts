@@ -6,12 +6,21 @@ import {
   accountProfileSchema,
   accountRoutes,
   authRoutes,
+  passwordRecoveryOptionsSchema,
+  recoveryCodeIssuedSchema,
   registrationStatusSchema,
   sessionAccessSchema,
   signedInSchema,
 } from "@offgrid/contracts";
 import { CLIENT_REQUEST_HEADERS } from "./constants.js";
-import type { ApiClient, RegisterInput, SignInInput } from "./types.js";
+import type {
+  ApiClient,
+  EmailCodeInput,
+  PasswordRecoveryInput,
+  PasswordResetInput,
+  RegisterInput,
+  SignInInput,
+} from "./types.js";
 
 export const createAuthClient = (client: ApiClient) => ({
   registrationStatus: async () =>
@@ -30,6 +39,23 @@ export const createAuthClient = (client: ApiClient) => ({
 
   signOut: async (): Promise<void> => {
     await client.request("POST", authRoutes.signOut, undefined, CLIENT_REQUEST_HEADERS);
+  },
+
+  passwordRecoveryOptions: async () =>
+    passwordRecoveryOptionsSchema.parse(
+      await client.request("GET", authRoutes.passwordRecoveryOptions),
+    ),
+
+  recoverWithRecoveryCode: async (input: PasswordRecoveryInput) =>
+    recoveryCodeIssuedSchema.parse(
+      await client.request("POST", authRoutes.passwordRecovery, input),
+    ),
+
+  resetPassword: async (input: PasswordResetInput) =>
+    recoveryCodeIssuedSchema.parse(await client.request("POST", authRoutes.passwordReset, input)),
+
+  requestEmailCode: async (input: EmailCodeInput): Promise<void> => {
+    await client.request("POST", authRoutes.passwordRecoveryEmailCode, input);
   },
 
   profile: async () => accountProfileSchema.parse(await client.request("GET", accountRoutes.me)),

@@ -6,6 +6,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CreateAccountPage } from "./pages/create-account-page/create-account-page.js";
 import { FamiliesPage } from "./pages/families-page/families-page.js";
 import { FirstFamilyPage } from "./pages/first-family-page/first-family-page.js";
+import { ForgotPasswordPage } from "./pages/forgot-password-page/forgot-password-page.js";
+import { ResetPasswordPage } from "./pages/reset-password-page/reset-password-page.js";
 import { SignInPage } from "./pages/sign-in-page/sign-in-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
@@ -28,6 +30,8 @@ export const App = () => {
           <Route element={<RedirectIfSignedIn />}>
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
         </Route>
         <Route element={<RequireSignedIn />}>

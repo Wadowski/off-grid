@@ -29,3 +29,19 @@ export type RegisterInput = {
   readonly email: string;
   readonly password: string;
 };
+
+export type PasswordRecoveryInput = {
+  readonly email: string;
+  readonly recoveryCode: string;
+  readonly password: string;
+};
+
+export type PasswordResetInput = {
+  readonly email: string;
+  readonly code: string;
+  readonly password: string;
+};
+
+export type EmailCodeInput = {
+  readonly email: string;
+};

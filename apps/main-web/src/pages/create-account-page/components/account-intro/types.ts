@@ -8,6 +8,8 @@ export type AccountIntroProps = {
     | "createAccount.pill.closed"
     | "createAccount.pill.recovery"
     | "firstFamily.pill"
+    | "forgotPassword.pill"
+    | "resetPassword.pill"
     | "signIn.pill";
   readonly headingTextId:
     | "createAccount.heading"
@@ -15,6 +17,8 @@ export type AccountIntroProps = {
     | "createAccount.closed.heading"
     | "createAccount.recovery.heading"
     | "firstFamily.heading"
+    | "forgotPassword.heading"
+    | "resetPassword.heading"
     | "signIn.heading";
   readonly bodyTextId:
     | "createAccount.body"
@@ -22,5 +26,8 @@ export type AccountIntroProps = {
     | "createAccount.closed.body"
     | "createAccount.recovery.explanation"
     | "firstFamily.body"
+    | "forgotPassword.body"
+    | "resetPassword.bodyRecoveryCode"
+    | "resetPassword.bodyEmailCode"
     | "signIn.welcome";
 };
