@@ -20,7 +20,6 @@ Given("Anna has asked for an emailed code", () =>
 Given("Anna is signed in on another device", () =>
   notImplemented("Anna is signed in on another device"),
 );
-Given("email is not configured", () => notImplemented("email is not configured"));
 When("she resets her password with email, recovery code and a new password", () =>
   notImplemented("she resets her password with email, recovery code and a new password"),
 );

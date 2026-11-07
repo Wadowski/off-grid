@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:identity @wip
+@module:identity
 Feature: Forgot and reset password screens
 
   Someone who forgot their password can get back in using their recovery code,
@@ -24,12 +24,13 @@ Feature: Forgot and reset password screens
   @ui
   Scenario: Email option hidden
     Given email is not configured
-    Then I do not see "Email me a code"
+    Then the "Email me a code" option is not offered
 
   @ui
   Scenario: Same message for every email
+    Given email is configured on the server
     When I ask for an emailed code for any email address
-    Then I see "If this email has an account, we sent a code"
+    Then I see the message "If this email has an account, we sent a code"
 
   @ui
   Scenario: Wrong or expired code
@@ -43,5 +44,6 @@ Feature: Forgot and reset password screens
 
   @ui
   Scenario: Cancel
+    Given I am on the forgot password page
     When I press "Cancel and return to sign in"
     Then I am on the sign-in page
