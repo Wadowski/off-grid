@@ -82,6 +82,10 @@ When("I enter the family name {string} and continue", async ({ page }, name: str
   await createFamilyThroughForm(page, name);
 });
 
+When("I enter an empty family name and continue", async ({ page }) => {
+  await createFamilyThroughForm(page, "");
+});
+
 When("I reload the page", async ({ page }) => {
   await page.reload();
 });

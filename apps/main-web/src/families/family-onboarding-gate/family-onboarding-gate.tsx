@@ -10,11 +10,12 @@ export const FamilyOnboardingGate = () => {
   const { pathname } = useLocation();
   const isOnFirstFamilyPath = pathname === FIRST_FAMILY_PATH;
   const hasFamily = context.families.length > 0;
+  const isReady = context.listStatus === "ready";
 
-  if (context.listStatus === "ready" && !hasFamily && !isOnFirstFamilyPath) {
+  if (isReady && !hasFamily && !isOnFirstFamilyPath) {
     return <Navigate to={FIRST_FAMILY_PATH} replace />;
   }
-  if (context.listStatus === "ready" && hasFamily && isOnFirstFamilyPath) {
+  if (isReady && hasFamily && isOnFirstFamilyPath) {
     return <Navigate to="/" replace />;
   }
   return <Outlet context={context} />;

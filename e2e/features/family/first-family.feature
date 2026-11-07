@@ -13,12 +13,18 @@ Feature: First family
     Given I just created my account and have no family
     Then I am asked to create my family
 
-  @ui
+  @smoke @ui
   Scenario: Creating the family
     Given I just created my account and have no family
     When I enter the family name "Kowalski" and continue
     Then I land on the home page
     And I am a member of "Kowalski"
+
+  @ui
+  Scenario: Family name is required
+    Given I just created my account and have no family
+    When I enter an empty family name and continue
+    Then I see the message "Enter a family name."
 
   @ui
   Scenario: Existing members skip onboarding

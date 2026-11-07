@@ -6,13 +6,14 @@ import { useOutletContext } from "react-router-dom";
 import { CreateFamilyForm } from "../../forms/create-family-form/create-family-form.js";
 import { signOut } from "../../session/sign-out.js";
 import type { FamiliesContext } from "../../types.js";
-import { firstFamilyPageStyle, signOutStyle } from "./styles.js";
+import { familiesPageStyle } from "../families-page/styles.js";
+import { signOutStyle } from "./styles.js";
 
 export const FirstFamilyPage = () => {
   const { createStatus, submitFamily } = useOutletContext<FamiliesContext>();
 
   return (
-    <div style={firstFamilyPageStyle}>
+    <div style={familiesPageStyle}>
       <Text variant="heading" textId="firstFamily.heading" />
       <Text variant="status" textId="firstFamily.body" />
       <CreateFamilyForm status={createStatus} onSubmit={submitFamily} />

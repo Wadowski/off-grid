@@ -51,7 +51,7 @@ describe("First family page", () => {
     ).toBeInTheDocument();
   });
 
-  it("offers sign out so that nobody is stuck on this step", async () => {
+  it("shows a sign out button on the create-family step", async () => {
     stubApi([...signedInStartup(), { status: 200, body: { families: [] } }]);
 
     render(<App />);
