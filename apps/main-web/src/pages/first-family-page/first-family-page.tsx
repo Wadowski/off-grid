@@ -6,6 +6,7 @@ import { useOutletContext } from "react-router-dom";
 import { CreateFamilyForm } from "../../forms/create-family-form/create-family-form.js";
 import { signOut } from "../../session/sign-out.js";
 import type { FamiliesContext } from "../../types.js";
+import { AccountIntro } from "../create-account-page/components/account-intro/account-intro.js";
 import { familiesPageStyle } from "../families-page/styles.js";
 import { signOutStyle } from "./styles.js";
 
@@ -14,12 +15,21 @@ export const FirstFamilyPage = () => {
 
   return (
     <div style={familiesPageStyle}>
-      <Text variant="heading" textId="firstFamily.heading" />
-      <Text variant="status" textId="firstFamily.body" />
+      <AccountIntro
+        icon="diversity_3"
+        pillTextId="firstFamily.pill"
+        headingTextId="firstFamily.heading"
+        bodyTextId="firstFamily.body"
+      />
       <CreateFamilyForm status={createStatus} onSubmit={submitFamily} />
       <Text variant="status" textId="firstFamily.invitedNote" />
       <div style={signOutStyle}>
-        <Button type="button" onClick={() => void signOut()} data-testid="first-family-sign-out">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => void signOut()}
+          data-testid="first-family-sign-out"
+        >
           <Text variant="action" textId="userMenu.signOut" />
         </Button>
       </div>

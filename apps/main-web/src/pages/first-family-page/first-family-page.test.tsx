@@ -8,10 +8,10 @@ import { stubApi } from "../../test-support/stub-api.js";
 
 const FAMILY_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 const CREATED_AT = "2026-10-31T10:00:00.000Z";
-const WELCOME_HEADING = "Welcome to Offgrid";
+const WELCOME_HEADING = "Create a Family Space";
 
 const fillName = (value: string) => {
-  fireEvent.change(screen.getByLabelText("Family name"), { target: { value } });
+  fireEvent.change(screen.getByLabelText("Family or Household Name"), { target: { value } });
 };
 
 const submitForm = () => {
@@ -115,7 +115,7 @@ describe("First family page", () => {
     expect(
       await screen.findByText("The family could not be created. Try again."),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Family name")).toHaveValue("Lakeside");
+    expect(screen.getByLabelText("Family or Household Name")).toHaveValue("Lakeside");
     expect(window.location.pathname).toBe("/welcome");
   });
 

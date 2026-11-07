@@ -108,11 +108,11 @@ describe("web session routes", () => {
     openAt("/");
     const fetchMock = stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [] } },
+      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
       { status: 204, body: undefined },
     ]);
     render(<App />);
-    await screen.findByText("Welcome to Offgrid");
+    await screen.findByTestId("family-list-item");
 
     fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));

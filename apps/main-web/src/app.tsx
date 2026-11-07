@@ -9,6 +9,7 @@ import { FirstFamilyPage } from "./pages/first-family-page/first-family-page.js"
 import { SignInPage } from "./pages/sign-in-page/sign-in-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
+import { FamilyDataLayout } from "./families/family-data-layout/family-data-layout.js";
 import { FamilyOnboardingGate } from "./families/family-onboarding-gate/family-onboarding-gate.js";
 import { FIRST_FAMILY_PATH } from "./constants.js";
 import { RedirectIfSignedIn } from "./session/guards/redirect-if-signed-in/redirect-if-signed-in.js";
@@ -30,10 +31,14 @@ export const App = () => {
           </Route>
         </Route>
         <Route element={<RequireSignedIn />}>
-          <Route element={<AppShell />}>
+          <Route element={<FamilyDataLayout />}>
             <Route element={<FamilyOnboardingGate />}>
-              <Route index element={<FamiliesPage />} />
-              <Route path={FIRST_FAMILY_PATH} element={<FirstFamilyPage />} />
+              <Route element={<AuthLayout />}>
+                <Route path={FIRST_FAMILY_PATH} element={<FirstFamilyPage />} />
+              </Route>
+              <Route element={<AppShell />}>
+                <Route index element={<FamiliesPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { validateFamilyName } from "../../families/validate-family-name.js";
@@ -31,13 +30,12 @@ export const CreateFamilyForm = ({ status, onSubmit }: CreateFamilyFormProps) =>
   };
 
   return (
-    <section aria-labelledby="create-family-heading" style={createFamilyFormSectionStyle}>
-      <Text variant="subheading" id="create-family-heading" textId="families.createHeading" />
+    <div style={createFamilyFormSectionStyle}>
       <form data-testid="create-family-form" onSubmit={handleSubmit} noValidate>
         <FamilyNameField value={name} errorTextId={nameErrorTextId} onChange={setName} />
         <SubmitButton status={status} />
       </form>
       <FormStatus status={status} />
-    </section>
+    </div>
   );
 };

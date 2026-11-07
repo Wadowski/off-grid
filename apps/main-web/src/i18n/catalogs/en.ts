@@ -32,9 +32,10 @@ export const en = {
   },
   families: {
     heading: "Families",
-    createHeading: "Create family",
-    nameLabel: "Family name",
-    submit: "Create family",
+    nameLabel: "Family or Household Name",
+    namePlaceholder: "e.g., The Rostova Family or Highland House",
+    required: "Required",
+    submit: "Create Family Space",
     nameRequired: "Enter a family name.",
     nameTooLong: "Use 100 characters or fewer.",
     createFailed: "The family could not be created. Try again.",
@@ -44,8 +45,9 @@ export const en = {
     empty: "You are not in any family yet.",
   },
   firstFamily: {
-    heading: "Welcome to Offgrid",
-    body: "Most of Offgrid works within a family. Create yours to get started.",
+    pill: "Family Space • Shared Hub",
+    heading: "Create a Family Space",
+    body: "Set up a shared space for calendars, grocery lists, photos, and meal plans. You can invite family members or add more spaces anytime.",
     invitedNote: "Were you invited? Ask the family organizer to add you.",
   },
   errors: {

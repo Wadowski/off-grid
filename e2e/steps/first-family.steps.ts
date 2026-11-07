@@ -11,7 +11,7 @@ import { webBaseUrl } from "../support/stack.js";
 const { Given, When, Then } = createBdd(test);
 
 const FEATURE = "First family";
-const WELCOME_HEADING = "Welcome to Offgrid";
+const WELCOME_HEADING = "Create a Family Space";
 const INVITATION_NOTE = "Were you invited? Ask the family organizer to add you.";
 const CREATE_FAMILY_PATH = "/welcome";
 const HOME_PATH = "/";
@@ -42,7 +42,7 @@ const signInThroughForm = async (page: Page, email: string): Promise<void> => {
 };
 
 const createFamilyThroughForm = async (page: Page, name: string): Promise<void> => {
-  await page.getByLabel("Family name").fill(name);
+  await page.getByLabel("Family or Household Name").fill(name);
   await page.getByTestId("create-family-submit").click();
 };
 

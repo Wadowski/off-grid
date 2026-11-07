@@ -11,7 +11,7 @@ const OTHER_FAMILY_ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
 const CREATED_AT = "2026-10-31T10:00:00.000Z";
 
 const fillName = (value: string) => {
-  fireEvent.change(screen.getByLabelText("Family name"), { target: { value } });
+  fireEvent.change(screen.getByLabelText("Family or Household Name"), { target: { value } });
 };
 
 const submitForm = () => {
