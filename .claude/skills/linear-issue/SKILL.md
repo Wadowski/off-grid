@@ -45,6 +45,7 @@ Build a short internal list of: what must be true when done (acceptance criteria
 ## Phase 3 - Implement
 
 - Implement exactly what the issue asks. No drive-by refactors; mention unrelated findings instead.
+- **UI tasks must match the design 1 to 1.** If the issue changes UI (`apps/main-web/` or `packages/ui/`), the result must match the design it refers to exactly: layout, spacing, tokens, typography, colors and states. Scope the match to what the issue is about, not the whole page: if the issue names a specific page or component, align only that page or component and leave the rest of the page alone, even if it looks misaligned. If the issue names no page or component, the scope is the screens the issue describes. If the design for the scope is unclear or missing, ask before coding.
 - Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
 - Add or update tests for the behavior.
 - Run the checks that CI runs and fix failures: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, plus `pnpm build` if build output could be affected. Run them scoped (`pnpm --filter <pkg> ...` / `turbo --filter`) when only one package changed, then the full set once before handing over.
