@@ -5,6 +5,11 @@ import type { ApiClientOptions, HttpMethod } from "./types.js";
 import { requestHeaders } from "./request-headers.js";
 import { toApiError } from "./to-api-error.js";
 
+const readJsonBody = async (response: Response): Promise<unknown> => {
+  const text = await response.text();
+  return text.length === 0 ? undefined : JSON.parse(text);
+};
+
 export const requestApi = async (
   transport: NonNullable<ApiClientOptions["fetch"]>,
   baseUrl: string,
@@ -19,7 +24,7 @@ export const requestApi = async (
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (response.ok) {
-    return response.status === 204 ? undefined : response.json();
+    return readJsonBody(response);
   }
   throw await toApiError(response);
 };
