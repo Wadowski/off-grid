@@ -141,4 +141,29 @@ describe("identity registration routes", { timeout: 60_000 }, () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ freshServer: true, registrationOpen: true });
   });
+
+  it("reports email recovery as unavailable while mail is not configured", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/auth/password-recovery/options",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ emailCodeAvailable: false });
+  });
+
+  it("reports email recovery as available once mail settings are saved", async () => {
+    await db.admin.query(
+      `INSERT INTO identity.mail_settings
+        (setting_key, provider, from_address, smtp_host, smtp_port, smtp_security, username, password_sealed)
+       VALUES ('instance', 'other', 'offgrid@example.com', 'smtp.example.com', 587, 'starttls', 'offgrid', 'sealed')`,
+    );
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/auth/password-recovery/options",
+    });
+
+    expect(response.json()).toEqual({ emailCodeAvailable: true });
+  });
 });

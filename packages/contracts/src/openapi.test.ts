@@ -31,6 +31,7 @@ describe("buildOpenApiDocument", () => {
       "MailSettingsRequest",
       "NotificationList",
       "PasswordConfirmationRequest",
+      "PasswordRecoveryOptions",
       "PasswordRecoveryRequest",
       "PasswordResetIssued",
       "PasswordResetRequest",

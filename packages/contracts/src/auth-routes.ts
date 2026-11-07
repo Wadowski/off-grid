@@ -9,6 +9,7 @@ export const authRoutes = {
   signOut: "/auth/sign-out",
   passwordReset: "/auth/password-reset",
   passwordRecovery: "/auth/password-recovery",
+  passwordRecoveryOptions: "/auth/password-recovery/options",
   passwordRecoveryEmailCode: "/auth/password-recovery/email-code",
 } as const;
 
