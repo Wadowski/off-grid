@@ -6,7 +6,11 @@ import { methodChoiceStyle, methodLegendStyle } from "../../styles.js";
 import { RecoveryMethodOption } from "../recovery-method-option/recovery-method-option.js";
 import type { RecoveryMethodChoiceProps } from "./types.js";
 
-export const RecoveryMethodChoice = ({ method, onSelect }: RecoveryMethodChoiceProps) => (
+export const RecoveryMethodChoice = ({
+  method,
+  emailCodeAvailable,
+  onSelect,
+}: RecoveryMethodChoiceProps) => (
   <fieldset style={methodChoiceStyle} data-testid="forgot-password-methods">
     <legend style={methodLegendStyle}>
       <Text variant="label" textId="forgotPassword.methodLegend" />
@@ -18,12 +22,14 @@ export const RecoveryMethodChoice = ({ method, onSelect }: RecoveryMethodChoiceP
       labelTextId="forgotPassword.methodRecoveryCode"
       hintTextId="forgotPassword.methodRecoveryCodeHint"
     />
-    <RecoveryMethodOption
-      method="emailCode"
-      selected={method === "emailCode"}
-      onSelect={onSelect}
-      labelTextId="forgotPassword.methodEmailCode"
-      hintTextId="forgotPassword.methodEmailCodeHint"
-    />
+    {emailCodeAvailable && (
+      <RecoveryMethodOption
+        method="emailCode"
+        selected={method === "emailCode"}
+        onSelect={onSelect}
+        labelTextId="forgotPassword.methodEmailCode"
+        hintTextId="forgotPassword.methodEmailCodeHint"
+      />
+    )}
   </fieldset>
 );

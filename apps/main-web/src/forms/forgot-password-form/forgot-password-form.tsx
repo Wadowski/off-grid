@@ -77,7 +77,11 @@ export const ForgotPasswordForm = ({ emailCodeAvailable }: ForgotPasswordFormPro
         }
         error={emailError === undefined ? undefined : <Text variant="error" textId={emailError} />}
       />
-      {emailCodeAvailable && <RecoveryMethodChoice method={method} onSelect={setMethod} />}
+      <RecoveryMethodChoice
+        method={method}
+        emailCodeAvailable={emailCodeAvailable}
+        onSelect={setMethod}
+      />
       <div style={actionBlockStyle}>
         <Button
           type="submit"

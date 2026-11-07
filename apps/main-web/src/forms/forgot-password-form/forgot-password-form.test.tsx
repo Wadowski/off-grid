@@ -48,8 +48,8 @@ describe("ForgotPasswordForm", () => {
   it("hides the emailed code option while email is not set up", () => {
     renderForm(false);
 
+    expect(screen.getByText("Use my recovery code")).toBeInTheDocument();
     expect(screen.queryByText("Email me a code")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("forgot-password-methods")).not.toBeInTheDocument();
   });
 
   it("offers both methods while email is set up", () => {

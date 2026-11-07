@@ -5,5 +5,6 @@ import type { RecoveryMethod } from "../../../../recovery/types.js";
 
 export type RecoveryMethodChoiceProps = {
   readonly method: RecoveryMethod;
+  readonly emailCodeAvailable: boolean;
   readonly onSelect: (method: RecoveryMethod) => void;
 };
