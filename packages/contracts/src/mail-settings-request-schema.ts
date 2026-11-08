@@ -18,7 +18,7 @@ const sharedMailAccountFields = {
 
 const presetMailAccountSchema = z.object({
   ...sharedMailAccountFields,
-  provider: z.enum(["gmail", "icloud", "fastmail"]),
+  provider: z.enum(["gmail", "icloud", "fastmail", "outlook"]),
 });
 
 const customMailServerSchema = z.object({

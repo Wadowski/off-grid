@@ -10,7 +10,7 @@ import { formStyle, actionBlockStyle, errorBannerStyle } from "../../forms/share
 import { SettingsSubpage } from "../../layouts/settings-subpage/settings-subpage.js";
 import { useSession } from "../../session/use-session.js";
 import { buildMailRequest } from "./build-mail-request.js";
-import { MAIL_PROVIDER_OPTIONS, MAIL_SECURITY_OPTIONS } from "./constants.js";
+import { MAIL_PROVIDER_OPTIONS, MAIL_SECURITY_OPTIONS, testFailureTextIdOf } from "./constants.js";
 import { adminEmailStatusStyle } from "./styles.js";
 import type { MailFormState } from "./types.js";
 
@@ -40,7 +40,7 @@ const AdminEmailForm = () => {
   const [form, setForm] = useState<MailFormState>(INITIAL_FORM);
   const [configured, setConfigured] = useState<boolean>();
   const [testResult, setTestResult] = useState<TestResult>("idle");
-  const [failureMessage, setFailureMessage] = useState<string>();
+  const [failureCode, setFailureCode] = useState<string>();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -60,9 +60,7 @@ const AdminEmailForm = () => {
       await webAdminClient.sendTestMail(buildMailRequest(form));
       setTestResult("sent");
     } catch (error) {
-      setFailureMessage(
-        error instanceof ApiError && error.code === "MAIL_TEST_FAILED" ? error.message : undefined,
-      );
+      setFailureCode(error instanceof ApiError ? error.code : undefined);
       setTestResult("failed");
     }
   };
@@ -165,11 +163,8 @@ const AdminEmailForm = () => {
           </Button>
           <div role="status" style={errorBannerStyle}>
             {testResult === "sent" && <Text variant="status" textId="admin.testEmailSent" />}
-            {testResult === "failed" && failureMessage !== undefined && (
-              <Text variant="error" value={failureMessage} />
-            )}
-            {testResult === "failed" && failureMessage === undefined && (
-              <Text variant="error" textId="admin.testEmailFailed" />
+            {testResult === "failed" && (
+              <Text variant="error" textId={testFailureTextIdOf(failureCode)} />
             )}
             {saved && <Text variant="status" textId="admin.mailSaved" />}
           </div>

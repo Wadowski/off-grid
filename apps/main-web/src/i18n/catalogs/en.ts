@@ -254,6 +254,7 @@ export const en = {
       gmail: "Gmail",
       icloud: "iCloud",
       fastmail: "Fastmail",
+      outlook: "Outlook",
       other: "Other",
     },
     security: {
@@ -265,6 +266,11 @@ export const en = {
     saveMailSettings: "Save",
     testEmailSent: "Test email sent",
     testEmailFailed: "The test email could not be sent. Check the server details and try again.",
+    testEmailAuthRejected:
+      "The email provider did not accept this password. Create a new app password and try again. See the help below.",
+    testEmailUnreachable:
+      "The mail server could not be reached. Check the server address and port.",
+    testEmailRejected: "The mail server did not accept the message. Try again later.",
     mailSaved: "Email settings saved. The password is stored and not shown again.",
     appPasswordHelp:
       "For Gmail, iCloud and Fastmail, create an app password in your provider's account security settings and use it here instead of your mailbox password.",

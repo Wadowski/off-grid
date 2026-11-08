@@ -137,7 +137,7 @@ export interface components {
         };
         MailSettings: {
             configured: boolean;
-            provider: ("gmail" | "icloud" | "fastmail" | "other") | null;
+            provider: ("gmail" | "icloud" | "fastmail" | "outlook" | "other") | null;
             fromAddress: string | null;
             smtpHost: string | null;
             smtpPort: number | null;
@@ -151,7 +151,7 @@ export interface components {
             fromAddress?: string;
             password: string;
             /** @enum {string} */
-            provider: "gmail" | "icloud" | "fastmail";
+            provider: "gmail" | "icloud" | "fastmail" | "outlook";
         } | {
             /** Format: email */
             email: string;

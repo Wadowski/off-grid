@@ -11,6 +11,7 @@ export const MAIL_PROVIDER_OPTIONS: readonly {
   { value: "gmail", labelTextId: "admin.provider.gmail" },
   { value: "icloud", labelTextId: "admin.provider.icloud" },
   { value: "fastmail", labelTextId: "admin.provider.fastmail" },
+  { value: "outlook", labelTextId: "admin.provider.outlook" },
   { value: "other", labelTextId: "admin.provider.other" },
 ];
 
@@ -22,3 +23,13 @@ export const MAIL_SECURITY_OPTIONS: readonly {
   { value: "starttls", labelTextId: "admin.security.starttls" },
   { value: "none", labelTextId: "admin.security.none" },
 ];
+
+const TEST_FAILURE_TEXT_IDS: Readonly<Record<string, TranslationKey>> = {
+  MAIL_TEST_AUTH_REJECTED: "admin.testEmailAuthRejected",
+  MAIL_TEST_UNREACHABLE: "admin.testEmailUnreachable",
+  MAIL_TEST_REJECTED: "admin.testEmailRejected",
+};
+
+export const testFailureTextIdOf = (failureCode: string | undefined): TranslationKey =>
+  (failureCode === undefined ? undefined : TEST_FAILURE_TEXT_IDS[failureCode]) ??
+  "admin.testEmailFailed";

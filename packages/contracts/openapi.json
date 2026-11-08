@@ -577,6 +577,7 @@
                   "gmail",
                   "icloud",
                   "fastmail",
+                  "outlook",
                   "other"
                 ]
               },
@@ -668,7 +669,8 @@
                 "enum": [
                   "gmail",
                   "icloud",
-                  "fastmail"
+                  "fastmail",
+                  "outlook"
                 ]
               }
             },
