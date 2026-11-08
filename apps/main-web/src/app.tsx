@@ -9,6 +9,11 @@ import { FirstFamilyPage } from "./pages/first-family-page/first-family-page.js"
 import { ForgotPasswordPage } from "./pages/forgot-password-page/forgot-password-page.js";
 import { ResetPasswordPage } from "./pages/reset-password-page/reset-password-page.js";
 import { SignInPage } from "./pages/sign-in-page/sign-in-page.js";
+import { SettingsPage } from "./pages/settings-page/settings-page.js";
+import { SettingsProfilePage } from "./pages/settings-profile-page/settings-profile-page.js";
+import { SettingsPasswordPage } from "./pages/settings-password-page/settings-password-page.js";
+import { SettingsDevicesPage } from "./pages/settings-devices-page/settings-devices-page.js";
+import { SettingsRecoveryCodePage } from "./pages/settings-recovery-code-page/settings-recovery-code-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
 import { FamilyDataLayout } from "./families/family-data-layout/family-data-layout.js";
@@ -42,6 +47,11 @@ export const App = () => {
               </Route>
               <Route element={<AppShell />}>
                 <Route index element={<FamiliesPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="settings/profile" element={<SettingsProfilePage />} />
+                <Route path="settings/password" element={<SettingsPasswordPage />} />
+                <Route path="settings/devices" element={<SettingsDevicesPage />} />
+                <Route path="settings/recovery-code" element={<SettingsRecoveryCodePage />} />
               </Route>
             </Route>
           </Route>

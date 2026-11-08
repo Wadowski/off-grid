@@ -29,3 +29,16 @@ export type RegisterInput = {
   readonly email: string;
   readonly password: string;
 };
+
+export type UpdateProfileInput = {
+  readonly displayName: string;
+};
+
+export type ChangePasswordInput = {
+  readonly currentPassword: string;
+  readonly newPassword: string;
+};
+
+export type PasswordConfirmationInput = {
+  readonly password: string;
+};

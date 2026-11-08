@@ -8,11 +8,23 @@ export type PasswordFieldProps = {
   readonly testId: string;
   readonly name: string;
   readonly labelTextId:
-    "createAccount.passwordLabel" | "createAccount.confirmLabel" | "signIn.passwordLabel";
+    | "createAccount.passwordLabel"
+    | "createAccount.confirmLabel"
+    | "signIn.passwordLabel"
+    | "settings.currentPasswordLabel"
+    | "settings.newPasswordLabel"
+    | "settings.confirmPasswordLabel";
   readonly icon: string;
   readonly value: string;
   readonly onChange: (value: string) => void;
-  readonly errorTextId: CreateAccountErrorTextId | "signIn.passwordRequired" | undefined;
+  readonly errorTextId:
+    | CreateAccountErrorTextId
+    | "signIn.passwordRequired"
+    | "settings.currentPasswordRequired"
+    | "settings.currentPasswordIncorrect"
+    | "settings.passwordTooShort"
+    | "settings.confirmationMismatch"
+    | undefined;
   readonly visible: boolean;
   readonly onToggleVisible: () => void;
   readonly autoComplete?: "new-password" | "current-password";
