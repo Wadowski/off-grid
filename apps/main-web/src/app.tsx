@@ -14,6 +14,8 @@ import { SettingsProfilePage } from "./pages/settings-profile-page/settings-prof
 import { SettingsPasswordPage } from "./pages/settings-password-page/settings-password-page.js";
 import { SettingsDevicesPage } from "./pages/settings-devices-page/settings-devices-page.js";
 import { SettingsRecoveryCodePage } from "./pages/settings-recovery-code-page/settings-recovery-code-page.js";
+import { AdminPage } from "./pages/admin-page/admin-page.js";
+import { AdminEmailPage } from "./pages/admin-email-page/admin-email-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
 import { FamilyDataLayout } from "./families/family-data-layout/family-data-layout.js";
@@ -52,6 +54,8 @@ export const App = () => {
                 <Route path="settings/password" element={<SettingsPasswordPage />} />
                 <Route path="settings/devices" element={<SettingsDevicesPage />} />
                 <Route path="settings/recovery-code" element={<SettingsRecoveryCodePage />} />
+                <Route path="admin" element={<AdminPage />} />
+                <Route path="admin/email" element={<AdminEmailPage />} />
               </Route>
             </Route>
           </Route>

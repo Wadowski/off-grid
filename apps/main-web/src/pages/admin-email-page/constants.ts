@@ -1,0 +1,24 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import type { MailProvider, MailSecurity } from "@offgrid/contracts";
+import type { TranslationKey } from "./types.js";
+
+export const MAIL_PROVIDER_OPTIONS: readonly {
+  value: MailProvider;
+  labelTextId: TranslationKey;
+}[] = [
+  { value: "gmail", labelTextId: "admin.provider.gmail" },
+  { value: "icloud", labelTextId: "admin.provider.icloud" },
+  { value: "fastmail", labelTextId: "admin.provider.fastmail" },
+  { value: "other", labelTextId: "admin.provider.other" },
+];
+
+export const MAIL_SECURITY_OPTIONS: readonly {
+  value: MailSecurity;
+  labelTextId: TranslationKey;
+}[] = [
+  { value: "tls", labelTextId: "admin.security.tls" },
+  { value: "starttls", labelTextId: "admin.security.starttls" },
+  { value: "none", labelTextId: "admin.security.none" },
+];

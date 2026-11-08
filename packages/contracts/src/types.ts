@@ -9,6 +9,7 @@ import type { errorResponseSchema } from "./error-response-schema.js";
 import type { passwordRecoveryOptionsSchema } from "./password-recovery-options-schema.js";
 import type { passwordRecoveryRequestSchema } from "./password-recovery-request-schema.js";
 import type { passwordResetRequestSchema } from "./password-reset-request-schema.js";
+import type { adminUserSchema } from "./admin-user-schema.js";
 import type { mailSettingsRequestSchema } from "./mail-settings-request-schema.js";
 import type { instanceSettingsUpdateSchema } from "./instance-settings-update-schema.js";
 import type { familyIdSchema } from "./family-id-schema.js";
@@ -25,6 +26,7 @@ export type PasswordRecoveryRequest = z.infer<typeof passwordRecoveryRequestSche
 export type PasswordResetRequest = z.infer<typeof passwordResetRequestSchema>;
 export type EmailCodeRequest = z.infer<typeof emailCodeRequestSchema>;
 export type PasswordRecoveryOptions = z.infer<typeof passwordRecoveryOptionsSchema>;
+export type AdminUser = z.infer<typeof adminUserSchema>;
 export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;
 export type InstanceSettingsUpdate = z.infer<typeof instanceSettingsUpdateSchema>;
 
