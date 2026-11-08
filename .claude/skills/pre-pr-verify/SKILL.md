@@ -30,6 +30,9 @@ The Definition of Done is in [CLAUDE.md](../../../CLAUDE.md). This skill runs it
 7. **End-to-end.** Run the e2e suite. Until OG-33 adds a smoke tag, `pnpm e2e` is a placeholder that only prints a message; say so in the report instead of treating it as a pass.
    Verify: `pnpm e2e` exits 0, and the report states whether real scenarios ran.
 
+7a. **UI screenshots, mandatory when the diff touches `apps/main-web/` or `packages/ui/`.** Run the `@ui` scenarios of every feature the diff changes with `E2E_SCREENSHOTS=1`, for example `E2E_SCREENSHOTS=1 pnpm --filter @offgrid/e2e exec playwright test --grep "<feature title>"`. Screenshots are off by default, so a run without that variable produces none and does not satisfy this step. Then upload them to the linked Linear issue as the linear-issue skill describes, in one comment per push.
+Verify: `e2e/artifacts/screens/<feature>/` holds a PNG for each changed screen, each variant the reviewer lists is present, and the Linear issue has the comment with a link to the upload. If any of these is missing, the step has not passed and the PR must not be opened.
+
 8. **No `@wip` on finished work.** Every feature file for behaviour that now works must have its `@wip` tag removed.
    Verify: `grep -rn "@wip" e2e/features` shows only scenarios that are still unfinished, and each one is listed in the PR body.
 
