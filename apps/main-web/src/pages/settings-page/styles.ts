@@ -11,44 +11,9 @@ export const settingsPageStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const settingsSummaryStyle: CSSProperties = {
+export const signOutRowStyle: CSSProperties = {
   display: "flex",
-  alignItems: "center",
-  gap: tokens.space[3],
-  minWidth: 0,
+  justifyContent: "center",
 };
 
-export const settingsAvatarStyle: CSSProperties = {
-  display: "grid",
-  placeItems: "center",
-  width: "3rem",
-  height: "3rem",
-  borderRadius: "9999px",
-  background: cssVar("color-primary"),
-  color: cssVar("color-on-primary"),
-  fontWeight: 600,
-  flexShrink: 0,
-};
-
-export const settingsLinkListStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[2],
-  margin: 0,
-  padding: 0,
-  listStyle: "none",
-};
-
-export const settingsLinkStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[1],
-  padding: tokens.space[3],
-  borderRadius: "0.75rem",
-  border: `1px solid ${cssVar("color-line")}`,
-  textDecoration: "none",
-  color: "inherit",
-  minHeight: "44px",
-};
-
-export const settingsSignOutStyle: CSSProperties = {
-  justifySelf: "start",
-};
+export const signOutIconColor = cssVar("color-danger");

@@ -20,3 +20,13 @@ export const settingsBackLinkStyle: CSSProperties = {
   color: cssVar("color-accent"),
   textDecoration: "none",
 };
+
+export const settingsSubpageContentStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[3],
+  padding: tokens.space[4],
+  borderRadius: cssVar("radius-lg"),
+  background: cssVar("color-surface"),
+  boxShadow: cssVar("elevation-1"),
+  minWidth: 0,
+};

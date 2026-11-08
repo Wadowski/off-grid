@@ -51,7 +51,9 @@ export const en = {
     invitedNote: "Were you invited? Ask the family organizer to add you.",
   },
   settings: {
-    heading: "Account and security",
+    heading: "Settings",
+    accountSection: "Account",
+    securitySection: "Security",
     profileLabel: "Profile",
     profileDescription: "Your display name",
     passwordLabel: "Password",

@@ -4,7 +4,11 @@
 import { Text } from "@offgrid/ui";
 import { Link } from "react-router-dom";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
-import { settingsBackLinkStyle, settingsSubpageStyle } from "./styles.js";
+import {
+  settingsBackLinkStyle,
+  settingsSubpageContentStyle,
+  settingsSubpageStyle,
+} from "./styles.js";
 import type { SettingsSubpageProps } from "./types.js";
 
 export const SettingsSubpage = ({ titleTextId, children }: SettingsSubpageProps) => (
@@ -14,6 +18,6 @@ export const SettingsSubpage = ({ titleTextId, children }: SettingsSubpageProps)
       <Text variant="action" textId="settings.back" />
     </Link>
     <Text variant="heading" textId={titleTextId} />
-    {children}
+    <div style={settingsSubpageContentStyle}>{children}</div>
   </div>
 );
