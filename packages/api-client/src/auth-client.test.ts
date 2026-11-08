@@ -83,4 +83,77 @@ describe("createAuthClient", () => {
       code: "SESSION_ENDED",
     });
   });
+
+  it("sends the new display name when updating the profile", async () => {
+    const { auth, transport } = authWith(new Response(null, { status: 204 }));
+
+    await auth.updateProfile({ displayName: "Anna Kowalska" });
+
+    expect(transport).toHaveBeenCalledWith(
+      "http://localhost:3000/api/me",
+      expect.objectContaining({
+        method: "PATCH",
+        body: JSON.stringify({ displayName: "Anna Kowalska" }),
+      }),
+    );
+  });
+
+  it("sends both passwords when changing the password", async () => {
+    const { auth, transport } = authWith(new Response(null, { status: 204 }));
+
+    await auth.changePassword({ currentPassword: "old passphrase", newPassword: "new passphrase" });
+
+    expect(transport).toHaveBeenCalledWith(
+      "http://localhost:3000/api/me/password",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ currentPassword: "old passphrase", newPassword: "new passphrase" }),
+      }),
+    );
+  });
+
+  it("deletes the session named in the path when ending one session", async () => {
+    const sessionId = "c0ffee00-1111-4222-8333-944444444444";
+    const { auth, transport } = authWith(new Response(null, { status: 204 }));
+
+    await auth.endSession(sessionId);
+
+    expect(transport).toHaveBeenCalledWith(
+      `http://localhost:3000/api/me/sessions/${sessionId}`,
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("parses the session list into the contract shape", async () => {
+    const sessionId = "c0ffee00-1111-4222-8333-944444444444";
+    const { auth } = authWith(
+      jsonResponse({
+        sessions: [
+          {
+            id: sessionId,
+            deviceLabel: "Laptop",
+            createdAt: EXPIRES_AT,
+            lastUsedAt: EXPIRES_AT,
+            current: true,
+          },
+        ],
+      }),
+    );
+
+    await expect(auth.sessions()).resolves.toMatchObject({
+      sessions: [{ id: sessionId, deviceLabel: "Laptop", current: true }],
+    });
+  });
+
+  it("returns the new recovery code when regenerating it", async () => {
+    const { auth, transport } = authWith(jsonResponse({ recoveryCode: "ABCD-EFGH-IJKL" }, 201));
+
+    await expect(auth.regenerateRecoveryCode({ password: "a long passphrase" })).resolves.toEqual({
+      recoveryCode: "ABCD-EFGH-IJKL",
+    });
+    expect(transport).toHaveBeenCalledWith(
+      "http://localhost:3000/api/me/recovery-code",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
 });
