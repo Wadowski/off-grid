@@ -38,6 +38,12 @@ export type ScenarioWorld = {
     recoveryCode?: string;
     newRecoveryCode?: string;
   };
+  ownAccount?: {
+    email: string;
+    password: string;
+    displayName: string;
+    phoneAccessToken?: string;
+  };
 };
 
 export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({

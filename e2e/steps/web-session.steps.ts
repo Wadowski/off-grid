@@ -14,7 +14,6 @@ const notServed = (_world: ScenarioWorld, ...details: unknown[]): never => {
 };
 
 Given("I am not signed in", ({ world }) => notServed(world));
-Given("I am signed in", ({ world }) => notServed(world));
 Given("my access has expired but my session is valid", ({ world }) => notServed(world));
 Given("my session was ended elsewhere", ({ world }) => notServed(world));
 When("I open a protected page", ({ world }) => notServed(world));
@@ -22,7 +21,6 @@ When("I open the sign-in page", ({ world }) => notServed(world));
 When("I open the app", ({ world }) => notServed(world));
 When("I use the app", ({ world }) => notServed(world));
 When("I choose {string}", ({ world }, item: string) => notServed(world, item));
-Then("I am taken to the sign-in page", ({ world }) => notServed(world));
 Then("after signing in I land on the page I asked for", ({ world }) => notServed(world));
 Then("I am taken to the home page", async ({ page }) => {
   await page.waitForURL(`${webBaseUrl()}/`);
