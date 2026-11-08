@@ -1,6 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type {
+  EmailCodeRequest,
+  PasswordRecoveryRequest,
+  PasswordResetRequest,
+} from "@offgrid/contracts";
 import {
   accountCreatedSchema,
   accountProfileSchema,
@@ -13,14 +18,7 @@ import {
   signedInSchema,
 } from "@offgrid/contracts";
 import { CLIENT_REQUEST_HEADERS } from "./constants.js";
-import type {
-  ApiClient,
-  EmailCodeInput,
-  PasswordRecoveryInput,
-  PasswordResetInput,
-  RegisterInput,
-  SignInInput,
-} from "./types.js";
+import type { ApiClient, RegisterInput, SignInInput } from "./types.js";
 
 export const createAuthClient = (client: ApiClient) => ({
   registrationStatus: async () =>
@@ -46,15 +44,15 @@ export const createAuthClient = (client: ApiClient) => ({
       await client.request("GET", authRoutes.passwordRecoveryOptions),
     ),
 
-  recoverWithRecoveryCode: async (input: PasswordRecoveryInput) =>
+  recoverWithRecoveryCode: async (input: PasswordRecoveryRequest) =>
     recoveryCodeIssuedSchema.parse(
       await client.request("POST", authRoutes.passwordRecovery, input),
     ),
 
-  resetPassword: async (input: PasswordResetInput) =>
+  resetPassword: async (input: PasswordResetRequest) =>
     recoveryCodeIssuedSchema.parse(await client.request("POST", authRoutes.passwordReset, input)),
 
-  requestEmailCode: async (input: EmailCodeInput): Promise<void> => {
+  requestEmailCode: async (input: EmailCodeRequest): Promise<void> => {
     await client.request("POST", authRoutes.passwordRecoveryEmailCode, input);
   },
 

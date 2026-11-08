@@ -182,10 +182,6 @@ export interface RegistrationStatus {
   readonly registrationOpen: boolean;
 }
 
-export interface PasswordRecoveryOptions {
-  readonly emailCodeAvailable: boolean;
-}
-
 export interface UserCreatedInput {
   readonly userId: string;
   readonly displayName: string;
