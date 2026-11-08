@@ -15,6 +15,7 @@ import {
   readMailSettings,
   saveMailSettings,
 } from "../support/factories/mail-setup.js";
+import { testMailArrivedFor } from "../support/mail-catcher.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -125,9 +126,9 @@ Then("the saved password is not shown", ({ world }) => {
   expect(response.body).not.toHaveProperty("password");
 });
 
-Then("the test email arrives in the catcher", () =>
-  notImplemented("the test email arrives in the catcher"),
-);
+Then("the test email arrives in the catcher", async () => {
+  await testMailArrivedFor(RUN_ADMIN_EMAIL);
+});
 
 Then("the app reports that email is unavailable", () =>
   notImplemented("the app reports that email is unavailable"),

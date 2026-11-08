@@ -4,11 +4,16 @@
 import { eventually } from "./eventually.js";
 
 const MAIL_CATCHER_BASE_URL = `http://127.0.0.1:${process.env.OFFGRID_MAIL_UI_PORT ?? "8025"}`;
+const TEST_MAIL_SUBJECT = "Offgrid test email";
 const RECOVERY_CODE_PATTERN = /reset code is (\d+)/;
 const MAIL_TIMEOUT_MS = 15_000;
 const MAIL_POLL_INTERVAL_MS = 250;
 
-type MailSummary = { readonly ID: string; readonly To: readonly { readonly Address: string }[] };
+type MailSummary = {
+  readonly ID: string;
+  readonly Subject: string;
+  readonly To: readonly { readonly Address: string }[];
+};
 type MailDetail = { readonly Text: string };
 
 const getMailJson = async <T>(path: string): Promise<T> => {
@@ -37,6 +42,24 @@ const findRecoveryCodeInMail = async (email: string): Promise<string> => {
 
 export const recoveryCodeMailedTo = (email: string): Promise<string> =>
   eventually(() => findRecoveryCodeInMail(email), {
+    timeout: MAIL_TIMEOUT_MS,
+    interval: MAIL_POLL_INTERVAL_MS,
+  });
+
+const findTestMailTo = async (email: string): Promise<void> => {
+  const { messages } = await getMailJson<{ messages: MailSummary[] }>("/api/v1/messages");
+  const found = messages.some(
+    (candidate) =>
+      candidate.Subject === TEST_MAIL_SUBJECT &&
+      candidate.To.some((recipient) => recipient.Address === email),
+  );
+  if (!found) {
+    throw new Error(`No test mail for ${email} yet`);
+  }
+};
+
+export const testMailArrivedFor = (email: string): Promise<void> =>
+  eventually(() => findTestMailTo(email), {
     timeout: MAIL_TIMEOUT_MS,
     interval: MAIL_POLL_INTERVAL_MS,
   });
