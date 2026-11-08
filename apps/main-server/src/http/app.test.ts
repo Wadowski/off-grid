@@ -176,6 +176,24 @@ describe("CORS", () => {
     expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-request");
   });
 
+  it("lets an allowed origin end a session with DELETE and send the forwarded client address", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
+
+    const response = await app.inject({
+      method: "OPTIONS",
+      url: "/api/me/sessions/9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
+      headers: {
+        origin: WEB_ORIGIN,
+        "access-control-request-method": "DELETE",
+        "access-control-request-headers": "authorization,x-forwarded-for",
+      },
+    });
+
+    expect(response.headers["access-control-allow-methods"]).toContain("DELETE");
+    expect(response.headers["access-control-allow-headers"]).toContain("x-forwarded-for");
+  });
+
   it("sends no allow-origin header to an origin that is not configured", async () => {
     const { runtime } = stubRuntime();
     const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
