@@ -1,7 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { buttonBaseStyle, buttonFullWidthStyle, buttonVariantStyles } from "./styles.js";
+import {
+  buttonBaseStyle,
+  buttonDisabledStyle,
+  buttonFullWidthStyle,
+  buttonVariantStyles,
+} from "./styles.js";
 import type { ButtonProps } from "./types.js";
 
 export const Button = ({
@@ -18,6 +23,7 @@ export const Button = ({
         ...buttonBaseStyle,
         ...buttonVariantStyles[variant],
         ...(fullWidth ? buttonFullWidthStyle : {}),
+        ...(rest.disabled === true ? buttonDisabledStyle : {}),
       }}
       {...rest}
     />
