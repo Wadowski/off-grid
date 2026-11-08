@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import { initialsOf } from "../../../../session/initials-of.js";
 import type { CurrentUser } from "../../../../types.js";
 import {
   userMenuIdentityStyle,
@@ -14,14 +15,6 @@ import {
   userMenuStyle,
 } from "./styles.js";
 import type { UserMenuProps } from "./types.js";
-
-const initialsOf = (name: string): string =>
-  name
-    .split(/\s+/)
-    .filter((part) => part.length > 0)
-    .map((part) => part.charAt(0).toUpperCase())
-    .slice(0, 2)
-    .join("");
 
 const roleTextIdOf = (user: CurrentUser): "userMenu.roleAdmin" | "userMenu.roleMember" =>
   user.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember";
