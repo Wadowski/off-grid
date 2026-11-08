@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Navigate, Outlet, useLocation, useOutletContext } from "react-router-dom";
+import { SessionLoading } from "../../session/components/session-loading/session-loading.js";
 import { FIRST_FAMILY_PATH } from "../../constants.js";
 import type { FamiliesContext } from "../../types.js";
 
@@ -12,6 +13,9 @@ export const FamilyOnboardingGate = () => {
   const hasFamily = context.families.length > 0;
   const isReady = context.listStatus === "ready";
 
+  if (context.listStatus === "loading") {
+    return <SessionLoading />;
+  }
   if (isReady && !hasFamily && !isOnFirstFamilyPath) {
     return <Navigate to={FIRST_FAMILY_PATH} replace />;
   }
