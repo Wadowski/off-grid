@@ -20,14 +20,10 @@ export const methodLegendStyle: CSSProperties = {
 };
 
 export const methodOptionStyle = (selected: boolean): CSSProperties => ({
-  display: "flex",
-  alignItems: "flex-start",
-  gap: tokens.space[2],
   padding: tokens.space[3],
   borderRadius: tokens.radius.lg,
   border: `1px solid ${selected ? "var(--og-color-primary)" : cssVar("color-muted")}`,
   background: cssVar("color-surface-low"),
-  cursor: "pointer",
 });
 
 export const methodOptionHintStyle: CSSProperties = {
