@@ -8,8 +8,7 @@ import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { PasswordField } from "../create-account-form/components/password-field/password-field.js";
 import { PasswordStrengthBars } from "../create-account-form/components/password-strength-bars/password-strength-bars.js";
 import { PasswordStrengthLabel } from "../create-account-form/components/password-strength-label/password-strength-label.js";
-import { errorBannerStyle } from "../create-account-form/styles.js";
-import { actionBlockStyle, formStyle } from "../shared/styles.js";
+import { actionBlockStyle, errorBannerStyle, formStyle } from "../shared/styles.js";
 import { mapResetError } from "./map-reset-error.js";
 import { submitReset } from "./submit-reset.js";
 import type {
@@ -112,7 +111,7 @@ export const ResetPasswordForm = ({ email, method, onRecovered }: ResetPasswordF
         testId="reset-password-confirmation"
         name="confirmation"
         labelTextId="createAccount.confirmLabel"
-        icon="lock_reset"
+        icon="lock"
         value={values.confirmation}
         onChange={(value) => updateValue("confirmation", value)}
         errorTextId={errors.confirmation}

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { ApiError } from "@offgrid/api-client";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
@@ -102,5 +103,31 @@ describe("ForgotPasswordForm", () => {
     fireEvent.click(screen.getByTestId("forgot-password-cancel"));
 
     expect(screen.getByText("Sign in page")).toBeInTheDocument();
+  });
+
+  it("explains that email is not set up when the server cannot send a code", async () => {
+    requestEmailCodeMock.mockRejectedValue(new ApiError(409, "EMAIL_NOT_CONFIGURED", "x"));
+    renderForm(true);
+    typeEmail("anna@example.com");
+    fireEvent.click(screen.getByText("Email me a code"));
+
+    fireEvent.click(screen.getByTestId("forgot-password-submit"));
+
+    expect(
+      await screen.findByText(
+        "Email is not set up on this server. Use your recovery code instead.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a generic failure when the code request fails otherwise", async () => {
+    requestEmailCodeMock.mockRejectedValue(new Error("network"));
+    renderForm(true);
+    typeEmail("anna@example.com");
+    fireEvent.click(screen.getByText("Email me a code"));
+
+    fireEvent.click(screen.getByTestId("forgot-password-submit"));
+
+    expect(await screen.findByText("We could not continue. Try again.")).toBeInTheDocument();
   });
 });

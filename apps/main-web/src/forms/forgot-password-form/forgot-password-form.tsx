@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { ApiError } from "@offgrid/api-client";
 import { Button, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
@@ -9,10 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { anonymousAuthClient } from "../../api/anonymous-api-client.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import type { RecoveryMethod } from "../../recovery/types.js";
-import { actionBlockStyle, formStyle } from "../shared/styles.js";
-import { errorBannerStyle } from "../create-account-form/styles.js";
+import { actionBlockStyle, errorBannerStyle, formStyle } from "../shared/styles.js";
 import { RecoveryMethodChoice } from "./components/recovery-method-choice/recovery-method-choice.js";
 import { findEmailError } from "./find-email-error.js";
+import { mapCodeRequestError } from "./map-code-request-error.js";
 import { helpStyle } from "./styles.js";
 import type {
   ForgotPasswordEmailTextId,
@@ -25,11 +24,6 @@ const FAILURE_TEXT_IDS: Partial<Record<ForgotPasswordStatus, ForgotPasswordFailu
   failed: "forgotPassword.failed",
   emailNotConfigured: "forgotPassword.emailNotConfigured",
 };
-
-const mapCodeRequestError = (error: unknown): ForgotPasswordStatus =>
-  error instanceof ApiError && error.code === "EMAIL_NOT_CONFIGURED"
-    ? "emailNotConfigured"
-    : "failed";
 
 export const ForgotPasswordForm = ({ emailCodeAvailable }: ForgotPasswordFormProps) => {
   const navigate = useNavigate();

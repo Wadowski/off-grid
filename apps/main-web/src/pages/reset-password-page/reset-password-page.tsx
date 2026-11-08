@@ -25,7 +25,7 @@ export const ResetPasswordPage = () => {
       <RecoveryCodeStep
         recoveryCode={recoveredCode}
         intro={RECOVERY_INTRO}
-        onContinue={async () => navigate("/sign-in")}
+        onContinue={() => navigate("/sign-in")}
       />
     );
   }

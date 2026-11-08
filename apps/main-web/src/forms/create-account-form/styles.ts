@@ -9,7 +9,3 @@ export const nameEmailRowStyle = (narrow: boolean): CSSProperties => ({
   gridTemplateColumns: narrow ? "minmax(0, 1fr)" : "repeat(2, minmax(0, 1fr))",
   gap: narrow ? tokens.space[3] : tokens.space[2],
 });
-
-export const errorBannerStyle: CSSProperties = {
-  marginTop: tokens.space[2],
-};

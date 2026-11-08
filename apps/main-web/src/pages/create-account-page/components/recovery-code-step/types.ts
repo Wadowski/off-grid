@@ -6,7 +6,7 @@ import type { AccountIntroProps } from "../account-intro/types.js";
 export type RecoveryCodeStepProps = {
   readonly recoveryCode: string;
   readonly intro: AccountIntroProps;
-  readonly onContinue: () => Promise<void>;
+  readonly onContinue: () => void | Promise<void>;
 };
 
 export type RecoveryContinueStatus = "idle" | "submitting" | "failed";

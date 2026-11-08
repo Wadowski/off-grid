@@ -26,3 +26,7 @@ export const promptStyle: CSSProperties = {
   gap: tokens.space[1],
   color: cssVar("color-muted"),
 };
+
+export const errorBannerStyle: CSSProperties = {
+  marginTop: tokens.space[2],
+};
