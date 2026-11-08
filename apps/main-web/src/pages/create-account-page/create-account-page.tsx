@@ -4,6 +4,8 @@
 import { Text } from "@offgrid/ui";
 import { useState } from "react";
 import { CreateAccountForm } from "../../forms/create-account-form/create-account-form.js";
+import { RECOVERY_INTRO } from "../../constants.js";
+import { completeRegistration } from "../../session/complete-registration.js";
 import { AccountIntro } from "./components/account-intro/account-intro.js";
 import { RecoveryCodeStep } from "./components/recovery-code-step/recovery-code-step.js";
 import { RegistrationClosed } from "./components/registration-closed/registration-closed.js";
@@ -18,7 +20,13 @@ export const CreateAccountPage = () => {
     return <Text variant="body" textId="session.loading" />;
   }
   if (step.kind === "recovery") {
-    return <RecoveryCodeStep recoveryCode={step.recoveryCode} />;
+    return (
+      <RecoveryCodeStep
+        recoveryCode={step.recoveryCode}
+        intro={RECOVERY_INTRO}
+        onContinue={completeRegistration}
+      />
+    );
   }
   if (step.kind === "closed" || !registration.registrationOpen) {
     return <RegistrationClosed />;

@@ -12,6 +12,12 @@ describe("Button", () => {
     expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute("type", "button");
   });
 
+  it("dims a disabled button so it does not look enabled", () => {
+    render(<Button disabled>Save</Button>);
+
+    expect(screen.getByRole("button")).toHaveAttribute("style", expect.stringContaining("opacity"));
+  });
+
   it("calls its click handler", () => {
     const onClick = vi.fn();
     render(<Button onClick={onClick}>Save</Button>);

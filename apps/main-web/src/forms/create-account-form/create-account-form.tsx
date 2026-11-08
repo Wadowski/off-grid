@@ -9,13 +9,13 @@ import { NO_FIELD_ERRORS } from "../../constants.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { SignInLink } from "../../session/components/sign-in-link/sign-in-link.js";
-import { actionBlockStyle, formStyle, promptStyle } from "../shared/styles.js";
+import { actionBlockStyle, errorBannerStyle, formStyle, promptStyle } from "../shared/styles.js";
 import { PasswordField } from "./components/password-field/password-field.js";
 import { PasswordStrengthBars } from "./components/password-strength-bars/password-strength-bars.js";
 import { PasswordStrengthLabel } from "./components/password-strength-label/password-strength-label.js";
 import { TipNote } from "./components/tip-note/tip-note.js";
 import { mapRegisterError } from "./map-register-error.js";
-import { errorBannerStyle, nameEmailRowStyle } from "./styles.js";
+import { nameEmailRowStyle } from "./styles.js";
 import type {
   CreateAccountFieldErrors,
   CreateAccountFormProps,

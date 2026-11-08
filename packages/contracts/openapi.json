@@ -482,6 +482,19 @@
         ],
         "additionalProperties": false
       },
+      "PasswordRecoveryOptions": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "emailCodeAvailable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "emailCodeAvailable"
+        ],
+        "additionalProperties": false
+      },
       "EmailCodeRequest": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",

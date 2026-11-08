@@ -4,7 +4,11 @@
 import type { z } from "zod";
 import type { eventEnvelopeSchema } from "./event-envelope-schema.js";
 import type { accessGroupIdSchema } from "./access-group-id-schema.js";
+import type { emailCodeRequestSchema } from "./email-code-request-schema.js";
 import type { errorResponseSchema } from "./error-response-schema.js";
+import type { passwordRecoveryOptionsSchema } from "./password-recovery-options-schema.js";
+import type { passwordRecoveryRequestSchema } from "./password-recovery-request-schema.js";
+import type { passwordResetRequestSchema } from "./password-reset-request-schema.js";
 import type { familyIdSchema } from "./family-id-schema.js";
 import type { timestampSchema } from "./timestamp-schema.js";
 import type { userIdSchema } from "./user-id-schema.js";
@@ -15,6 +19,10 @@ export type UserId = z.infer<typeof userIdSchema>;
 export type AccessGroupId = z.infer<typeof accessGroupIdSchema>;
 export type Timestamp = z.infer<typeof timestampSchema>;
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;
+export type PasswordRecoveryRequest = z.infer<typeof passwordRecoveryRequestSchema>;
+export type PasswordResetRequest = z.infer<typeof passwordResetRequestSchema>;
+export type EmailCodeRequest = z.infer<typeof emailCodeRequestSchema>;
+export type PasswordRecoveryOptions = z.infer<typeof passwordRecoveryOptionsSchema>;
 
 export type MailProvider = (typeof MAIL_PROVIDERS)[number];
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ApiClientOptions, HttpMethod } from "./types.js";
+import { readJsonBody } from "./read-json-body.js";
 import { requestHeaders } from "./request-headers.js";
 import { toApiError } from "./to-api-error.js";
 
@@ -19,7 +20,7 @@ export const requestApi = async (
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (response.ok) {
-    return response.status === 204 ? undefined : response.json();
+    return readJsonBody(response);
   }
   throw await toApiError(response);
 };

@@ -13,6 +13,7 @@ import { registerUpdateProfile } from "./account/register-update-profile.js";
 import { registerPasswordReset } from "./auth/register-password-reset.js";
 import { registerPasswordRecovery } from "./auth/register-password-recovery.js";
 import { registerPasswordRecoveryEmailCode } from "./auth/register-password-recovery-email-code.js";
+import { registerPasswordRecoveryOptions } from "./auth/register-password-recovery-options.js";
 import { registerCreateAccount } from "./auth/register-create-account.js";
 import { registerRefreshSession } from "./auth/register-refresh-session.js";
 import { registerRegistrationStatus } from "./auth/register-registration-status.js";
@@ -30,6 +31,7 @@ export const registerIdentityRoutes = (
   registerSignOut(api, context);
   registerPasswordReset(api, context);
   registerPasswordRecovery(api, context);
+  registerPasswordRecoveryOptions(api, context);
   registerPasswordRecoveryEmailCode(api, context);
   registerUpdateProfile(api, context);
   registerChangePassword(api, context);

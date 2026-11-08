@@ -25,6 +25,7 @@ import { mailSettingsSchema } from "./mail-settings-schema.js";
 import { familySchema } from "./family-schema.js";
 import { passwordResetIssuedSchema } from "./password-reset-issued-schema.js";
 import { passwordResetRequestSchema } from "./password-reset-request-schema.js";
+import { passwordRecoveryOptionsSchema } from "./password-recovery-options-schema.js";
 import { passwordRecoveryRequestSchema } from "./password-recovery-request-schema.js";
 import { emailCodeRequestSchema } from "./email-code-request-schema.js";
 import { registrationStatusSchema } from "./registration-status-schema.js";
@@ -53,6 +54,7 @@ export const openApiComponentSchemas = {
   AdminUserList: adminUserListSchema,
   PasswordResetRequest: passwordResetRequestSchema,
   PasswordRecoveryRequest: passwordRecoveryRequestSchema,
+  PasswordRecoveryOptions: passwordRecoveryOptionsSchema,
   EmailCodeRequest: emailCodeRequestSchema,
   PasswordResetIssued: passwordResetIssuedSchema,
   InstanceSettings: instanceSettingsSchema,

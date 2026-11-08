@@ -22,6 +22,12 @@ export const buttonBaseStyle: CSSProperties = {
   cursor: "pointer",
 };
 
+export const buttonDisabledStyle: CSSProperties = {
+  cursor: "not-allowed",
+  opacity: 0.45,
+  boxShadow: "none",
+};
+
 export const buttonFullWidthStyle: CSSProperties = {
   width: "100%",
 };

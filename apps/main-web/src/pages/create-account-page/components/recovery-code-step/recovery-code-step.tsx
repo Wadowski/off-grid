@@ -3,7 +3,6 @@
 
 import { Button, Checkbox, Text } from "@offgrid/ui";
 import { useState } from "react";
-import { completeRegistration } from "../../../../session/complete-registration.js";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { actionBlockStyle } from "../../../../forms/shared/styles.js";
 import { AccountIntro } from "../account-intro/account-intro.js";
@@ -11,14 +10,14 @@ import { RecoveryCodeActions } from "../recovery-code-actions/recovery-code-acti
 import { recoveryCodeBoxStyle, recoveryCodeStepStyle } from "./styles.js";
 import type { RecoveryCodeStepProps, RecoveryContinueStatus } from "./types.js";
 
-export const RecoveryCodeStep = ({ recoveryCode }: RecoveryCodeStepProps) => {
+export const RecoveryCodeStep = ({ recoveryCode, intro, onContinue }: RecoveryCodeStepProps) => {
   const [saved, setSaved] = useState(false);
   const [continueStatus, setContinueStatus] = useState<RecoveryContinueStatus>("idle");
 
   const handleContinue = async () => {
     setContinueStatus("submitting");
     try {
-      await completeRegistration();
+      await onContinue();
     } catch {
       setContinueStatus("failed");
     }
@@ -26,12 +25,7 @@ export const RecoveryCodeStep = ({ recoveryCode }: RecoveryCodeStepProps) => {
 
   return (
     <div style={recoveryCodeStepStyle}>
-      <AccountIntro
-        icon="key"
-        pillTextId="createAccount.pill.recovery"
-        headingTextId="createAccount.recovery.heading"
-        bodyTextId="createAccount.recovery.explanation"
-      />
+      <AccountIntro {...intro} />
       <div style={recoveryCodeBoxStyle}>
         <Text variant="subheading" value={recoveryCode} data-testid="recovery-code" />
       </div>

@@ -30,6 +30,14 @@ describe("createApiClient", () => {
     await expect(client.request("DELETE", "/families/1")).resolves.toBeUndefined();
   });
 
+  it("returns undefined for an accepted response with no body", async () => {
+    const { client } = clientWith(new Response(null, { status: 202 }));
+
+    await expect(
+      client.request("POST", "/auth/password-recovery/email-code"),
+    ).resolves.toBeUndefined();
+  });
+
   it("sends only the headers the server expects and serialises the body", async () => {
     const { client, transport } = clientWith(jsonResponse({ id: "1" }, 201));
 

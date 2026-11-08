@@ -32,6 +32,12 @@ export type ScenarioWorld = {
   notificationId?: string;
   newAccountEmail?: string;
   signInEmail?: string;
+  recoveryAccount?: {
+    email: string;
+    password: string;
+    recoveryCode?: string;
+    newRecoveryCode?: string;
+  };
 };
 
 export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({

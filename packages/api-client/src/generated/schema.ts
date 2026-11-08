@@ -116,6 +116,9 @@ export interface components {
             recoveryCode: string;
             password: string;
         };
+        PasswordRecoveryOptions: {
+            emailCodeAvailable: boolean;
+        };
         EmailCodeRequest: {
             email: string;
         };

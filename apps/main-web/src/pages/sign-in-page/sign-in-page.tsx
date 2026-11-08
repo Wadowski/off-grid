@@ -5,6 +5,7 @@ import { Text } from "@offgrid/ui";
 import { useLocation } from "react-router-dom";
 import { SignInForm } from "../../forms/sign-in-form/sign-in-form.js";
 import { CreateAccountLink } from "../../session/components/create-account-link/create-account-link.js";
+import { ForgotPasswordLink } from "../../session/components/forgot-password-link/forgot-password-link.js";
 import { AccountIntro } from "../create-account-page/components/account-intro/account-intro.js";
 import { useRegistrationStatus } from "../create-account-page/use-registration-status.js";
 import { isSessionEndedState } from "./is-session-ended-state.js";
@@ -29,6 +30,9 @@ export const SignInPage = () => {
         bodyTextId="signIn.welcome"
       />
       <SignInForm />
+      <div style={signInPagePromptStyle}>
+        <ForgotPasswordLink />
+      </div>
       {registrationOpen && (
         <div style={signInPagePromptStyle}>
           <Text variant="status" textId="signIn.createPrompt" />
