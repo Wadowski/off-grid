@@ -189,15 +189,18 @@ When("my new password is too weak or the confirmation differs", async ({ page, w
   await expect(page.getByText("Use at least 12 characters.", { exact: true })).toBeVisible();
 });
 
-Then("I can sign in with the new password", async ({ page, world }) => {
-  const account = recoveryAccountOf(world);
+const signInWithNewPassword = async (page: Page, email: string): Promise<void> => {
   await page.getByLabel("I saved my recovery code").check();
   await page.getByTestId("recovery-continue").click();
   await expect(page).toHaveURL(`${webBaseUrl()}/sign-in`);
-  await page.getByTestId("sign-in-email").fill(account.email);
+  await page.getByTestId("sign-in-email").fill(email);
   await page.getByTestId("sign-in-password").fill(NEW_PASSWORD);
   await page.getByTestId("sign-in-submit").click();
   await page.waitForURL((url) => !url.pathname.endsWith("/sign-in"));
+};
+
+Then("I can sign in with the new password", async ({ page, world }) => {
+  await signInWithNewPassword(page, recoveryAccountOf(world).email);
 });
 
 Then("I see a new recovery code", async ({ page, world }) => {
@@ -207,11 +210,12 @@ Then("I see a new recovery code", async ({ page, world }) => {
   account.newRecoveryCode = code;
 });
 
-Then("I can set a new password", async ({ page }) => {
+Then("I can set a new password", async ({ page, world }) => {
   await page.getByTestId("reset-password-password").fill(NEW_PASSWORD);
   await page.getByTestId("reset-password-confirmation").fill(NEW_PASSWORD);
   await submitReset(page);
   await expectNewRecoveryCodeShown(page);
+  await signInWithNewPassword(page, recoveryAccountOf(world).email);
 });
 
 Then('the "Email me a code" option is not offered', async ({ page }) => {
