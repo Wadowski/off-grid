@@ -11,6 +11,13 @@ export const formStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const actionRowStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: tokens.space[2],
+};
+
 export const actionBlockStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",

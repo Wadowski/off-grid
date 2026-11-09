@@ -24,7 +24,7 @@ export const sendAdminError = (reply: FastifyReply, error: unknown): FastifyRepl
     return sendNotFound(reply);
   }
   if (error instanceof MailTestFailedError) {
-    return sendError(reply, 422, "MAIL_TEST_FAILED", MAIL_FAILURE_MESSAGES[error.reason]);
+    return sendError(reply, 422, `MAIL_TEST_${error.reason}`, MAIL_FAILURE_MESSAGES[error.reason]);
   }
   throw error;
 };

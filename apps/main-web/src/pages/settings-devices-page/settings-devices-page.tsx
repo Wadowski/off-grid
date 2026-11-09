@@ -1,15 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { actionRowStyle } from "../../forms/shared/styles.js";
 import { Button, Text } from "@offgrid/ui";
 import { useEffect, useState } from "react";
 import { webAuthClient } from "../../api/web-api-client.js";
 import { SettingsSubpage } from "../../layouts/settings-subpage/settings-subpage.js";
-import {
-  settingsDeviceListStyle,
-  settingsDeviceRowStyle,
-  settingsDevicesActionsStyle,
-} from "./styles.js";
+import { settingsDeviceListStyle, settingsDeviceRowStyle } from "./styles.js";
 import type { DeviceListStatus, DeviceSession } from "./types.js";
 
 export const SettingsDevicesPage = () => {
@@ -74,7 +71,7 @@ export const SettingsDevicesPage = () => {
         <Text variant="status" textId="settings.devicesEmpty" />
       )}
       {listStatus === "ready" && otherSessions.length > 0 && (
-        <div style={settingsDevicesActionsStyle}>
+        <div style={actionRowStyle}>
           {confirmingSignOutOthers ? (
             <>
               <Text variant="body" textId="settings.signOutOthersConfirm" />
