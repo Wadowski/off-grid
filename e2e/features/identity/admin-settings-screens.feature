@@ -58,6 +58,14 @@ Feature: Admin settings screens
     And the test email arrives in the catcher
 
   @ui
+  Scenario: A test email to a server that does not answer explains why
+    Given I am the admin signed in to the web app
+    When I open the email setup page
+    And I choose Other and enter a server that does not answer
+    And I press "Send test email"
+    Then the page says "The mail server could not be reached. Check the server address and port."
+
+  @ui
   Scenario: Password never shown
     Given I am the admin signed in to the web app
     And email is connected

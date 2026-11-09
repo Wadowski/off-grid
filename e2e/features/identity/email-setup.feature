@@ -19,13 +19,6 @@ Feature: Email setup
       | Fastmail | smtp.fastmail.com | 465  | tls      |
 
   @wip
-  Scenario: Sending a test email
-    Given I am the admin
-    And a mail catcher is the mail server
-    When I send a test email to myself
-    Then the test email arrives in the catcher
-
-  @wip
   Scenario: Wrong app password
     Given I am the admin
     And a mail catcher is the mail server

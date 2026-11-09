@@ -22,10 +22,3 @@ export const settingsDeviceRowStyle: CSSProperties = {
   border: `1px solid ${cssVar("color-line")}`,
   minWidth: 0,
 };
-
-export const settingsDevicesActionsStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  gap: tokens.space[2],
-};

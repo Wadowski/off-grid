@@ -97,8 +97,6 @@ When("I open the mail settings", async ({ world }) => {
   world.response = await toJsonResponse(await readMailSettings(world.api, session));
 });
 
-When("I send a test email to myself", () => notImplemented("I send a test email to myself"));
-
 When("I send a test email with a wrong app password", () =>
   notImplemented("I send a test email with a wrong app password"),
 );

@@ -10,6 +10,7 @@ import {
   listUsers,
   RUN_ADMIN_EMAIL,
   type Member,
+  type Session,
 } from "../support/factories/instance-admin.js";
 import { APP_PASSWORD, saveMailSettings } from "../support/factories/mail-setup.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
@@ -23,12 +24,47 @@ const EMAIL_PATH = "/admin/email";
 const FAMILY_NAME = "Rostova Family";
 const CATCHER_HOST = "mail";
 const CATCHER_PORT = 1025;
+const NO_ONE_LISTENS_HOST = "nothing.invalid";
+const NO_ONE_LISTENS_PORT = 25;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const readUserId = (body: unknown): string => {
+  if (isRecord(body) && isRecord(body.user) && typeof body.user.id === "string") {
+    return body.user.id;
+  }
+  throw new Error("The registration response has no user id.");
+};
+
+const readActiveAdminCount = (body: unknown): number => {
+  if (!isRecord(body) || !Array.isArray(body.users)) {
+    throw new Error("The user list response has no users.");
+  }
+  return body.users.filter(
+    (user) => isRecord(user) && user.instanceRole === "admin" && user.status === "active",
+  ).length;
+};
+
+const readRegistrationOpen = (body: unknown): boolean => {
+  if (isRecord(body) && typeof body.registrationOpen === "boolean") {
+    return body.registrationOpen;
+  }
+  throw new Error("The registration status response has no registrationOpen flag.");
+};
 
 const memberOf = (world: ScenarioWorld): Member => {
   if (world.member === undefined) {
     throw new Error("No member has been created in this scenario.");
   }
   return world.member;
+};
+
+const adminOf = (world: ScenarioWorld): Session => {
+  if (world.admin === undefined) {
+    throw new Error("The admin has not been set up in this scenario.");
+  }
+  return world.admin;
 };
 
 const signInThroughUi = async (page: Page, email: string, password: string): Promise<void> => {
@@ -40,7 +76,7 @@ const signInThroughUi = async (page: Page, email: string, password: string): Pro
   const accountMenu = page.getByRole("button", { name: "Account menu", exact: true });
   const firstFamilyHeading = page.getByRole("heading", { name: "Create a Family Space" });
   await expect(accountMenu.or(firstFamilyHeading)).toBeVisible();
-  if (await firstFamilyHeading.isVisible()) {
+  if (await firstFamilyHeading.count()) {
     await page.getByTestId("create-family-name").fill(FAMILY_NAME);
     await page.getByTestId("create-family-submit").click();
     await expect(accountMenu).toBeVisible();
@@ -85,21 +121,14 @@ Given("Tom has an active account", async ({ world }) => {
     password: STRONG_PASSWORD,
   });
   expect(registration.status, "could not create Tom's account").toBe(201);
-  const body = registration.body as { user: { id: string } };
-  world.member = { userId: body.user.id, email, password: STRONG_PASSWORD };
+  world.member = { userId: readUserId(registration.body), email, password: STRONG_PASSWORD };
 });
 
 Given("I am the only active admin", async ({ world }) => {
   const admin = await ensureRunAdmin(world.api);
   world.admin = admin;
   const response = await listUsers(world.api, admin);
-  const body = (await response.json()) as {
-    users: { instanceRole: string; status: string }[];
-  };
-  const activeAdmins = body.users.filter(
-    (user) => user.instanceRole === "admin" && user.status === "active",
-  );
-  expect(activeAdmins, "more than one active admin exists").toHaveLength(1);
+  expect(readActiveAdminCount(await response.json()), "more than one active admin exists").toBe(1);
 });
 
 When("I disable Tom's account and confirm", async ({ page, world }) => {
@@ -117,7 +146,7 @@ Then("Tom is shown as disabled", async ({ page, world }) => {
 
 Then("my own account cannot be disabled and the screen explains why", async ({ page, world }) => {
   await openAdminPage(page);
-  const ownRow = page.getByTestId(`admin-person-${world.admin?.userId ?? ""}`);
+  const ownRow = page.getByTestId(`admin-person-${adminOf(world).userId}`);
   await expect(ownRow.getByRole("button", { name: "Disable", exact: true })).toBeDisabled();
   await expect(ownRow.getByText("This is the last active admin", { exact: false })).toBeVisible();
 });
@@ -147,17 +176,18 @@ When("I turn off {string}", async ({ page, world }, label: string) => {
 
 Then("the sign-in page no longer offers {string}", async ({ browser, world }, label: string) => {
   const status = await world.api.get("/api/auth/registration-status");
-  expect((await status.json()) as { registrationOpen: boolean }).toMatchObject({
-    registrationOpen: false,
-  });
+  expect(readRegistrationOpen(await status.json())).toBe(false);
   const context = await browser.newContext({
     extraHTTPHeaders: { "x-forwarded-for": scenarioClientAddress() },
   });
-  const page = await context.newPage();
-  await page.goto(`${webBaseUrl()}/sign-in`);
-  await expect(page.getByTestId("sign-in-email")).toBeVisible();
-  await expect(page.getByText(label, { exact: true })).toHaveCount(0);
-  await context.close();
+  try {
+    const page = await context.newPage();
+    await page.goto(`${webBaseUrl()}/sign-in`);
+    await expect(page.getByTestId("sign-in-email")).toBeVisible();
+    await expect(page.getByText(label, { exact: true })).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
 });
 
 When("I open the email setup page", async ({ page }) => {
@@ -175,13 +205,21 @@ Then("only the email address and app password are asked", async ({ page }) => {
   await expect(page.getByTestId("admin-email-port")).toHaveCount(0);
 });
 
-When("I choose Other and fill in the mail catcher server", async ({ page }) => {
+const chooseOtherServer = async (page: Page, host: string, port: number): Promise<void> => {
   await page.getByRole("radio", { name: "Other", exact: true }).check();
   await page.getByTestId("admin-email-address").fill(RUN_ADMIN_EMAIL);
   await page.getByTestId("admin-email-app-password").fill(APP_PASSWORD);
-  await page.getByTestId("admin-email-host").fill(CATCHER_HOST);
-  await page.getByTestId("admin-email-port").fill(String(CATCHER_PORT));
+  await page.getByTestId("admin-email-host").fill(host);
+  await page.getByTestId("admin-email-port").fill(String(port));
   await page.getByRole("radio", { name: "None", exact: true }).check();
+};
+
+When("I choose Other and fill in the mail catcher server", async ({ page }) => {
+  await chooseOtherServer(page, CATCHER_HOST, CATCHER_PORT);
+});
+
+When("I choose Other and enter a server that does not answer", async ({ page }) => {
+  await chooseOtherServer(page, NO_ONE_LISTENS_HOST, NO_ONE_LISTENS_PORT);
 });
 
 Given("email is connected", async ({ world }) => {

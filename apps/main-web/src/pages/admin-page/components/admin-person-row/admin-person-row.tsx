@@ -4,7 +4,8 @@
 import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { webAdminClient } from "../../../../api/web-api-client.js";
-import { adminActionsStyle, adminPersonMetaStyle, adminPersonRowStyle } from "../../styles.js";
+import { actionRowStyle } from "../../../../forms/shared/styles.js";
+import { adminPersonMetaStyle, adminPersonRowStyle } from "../../styles.js";
 import type { AdminPersonRowProps } from "./types.js";
 
 export const AdminPersonRow = ({
@@ -55,7 +56,7 @@ export const AdminPersonRow = ({
         />
         {cannotDisable && <Text variant="caption" textId="admin.lastAdminExplanation" />}
       </div>
-      <div style={adminActionsStyle}>
+      <div style={actionRowStyle}>
         {isDisabled && (
           <Button variant="secondary" onClick={() => void setDisabled(false)}>
             <Text variant="action" textId="admin.enable" />

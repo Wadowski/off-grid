@@ -34,9 +34,3 @@ export const adminPersonMetaStyle: CSSProperties = {
   minWidth: 0,
   overflowWrap: "anywhere",
 };
-
-export const adminActionsStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: tokens.space[2],
-};
