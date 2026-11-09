@@ -13,6 +13,7 @@ const { Given, When, Then } = createBdd(test);
 const LONG_NAME_LENGTH = 101;
 const NOT_FOUND_CODE = "NOT_FOUND";
 const VALIDATION_CODE = "VALIDATION_FAILED";
+const LAST_ADMIN_CODE = "LAST_ADMIN";
 
 const bearer = (session: Session): Record<string, string> => ({
   authorization: `Bearer ${session.accessToken}`,
@@ -39,6 +40,12 @@ const recordResponse = async (world: ScenarioWorld, response: APIResponse): Prom
     status: response.status(),
     body: await response.json().catch(() => undefined),
   };
+};
+
+const familyIdNamed = (world: ScenarioWorld, name: string): string => {
+  const family = world.families.find((created) => created.name === name);
+  expect(family, `family "${name}" was not created`).toBeDefined();
+  return family?.id ?? "";
 };
 
 const postFamily = (api: APIRequestContext, session: Session, name: string): Promise<APIResponse> =>
@@ -85,9 +92,7 @@ When("I try to create a family with a name that is 101 characters long", async (
 });
 
 When("I ask for the family {string} by its identifier", async ({ world }, name: string) => {
-  const family = world.families.find((created) => created.name === name);
-  expect(family, `family "${name}" was not created`).toBeDefined();
-  const response = await world.api.get(`/api/families/${family?.id ?? ""}`, {
+  const response = await world.api.get(`/api/families/${familyIdNamed(world, name)}`, {
     headers: bearer(memberSessionOf(world)),
     failOnStatusCode: false,
   });
@@ -118,4 +123,45 @@ Then("I am told that the family name is too long", ({ world }) => {
 Then("I am told that the family was not found", ({ world }) => {
   expect(world.response?.status).toBe(404);
   expect(world.response?.body).toMatchObject({ code: NOT_FOUND_CODE });
+});
+
+When("I ask for the members of {string}", async ({ world }, name: string) => {
+  const response = await world.api.get(`/api/families/${familyIdNamed(world, name)}/members`, {
+    headers: bearer(memberSessionOf(world)),
+    failOnStatusCode: false,
+  });
+  await recordResponse(world, response);
+});
+
+When(
+  "I try to change my own role to {string} in {string}",
+  async ({ world }, role: string, name: string) => {
+    const session = memberSessionOf(world);
+    const response = await world.api.patch(
+      `/api/families/${familyIdNamed(world, name)}/members/${session.userId}`,
+      { headers: bearer(session), data: { role }, failOnStatusCode: false },
+    );
+    await recordResponse(world, response);
+  },
+);
+
+When("I try to remove myself from {string}", async ({ world }, name: string) => {
+  const session = memberSessionOf(world);
+  const response = await world.api.delete(
+    `/api/families/${familyIdNamed(world, name)}/members/${session.userId}`,
+    { headers: bearer(session), failOnStatusCode: false },
+  );
+  await recordResponse(world, response);
+});
+
+Then("I see 1 member, who is an admin", ({ world }) => {
+  expect(world.response?.status).toBe(200);
+  expect(world.response?.body).toMatchObject({
+    members: [{ userId: world.userId, role: "admin" }],
+  });
+});
+
+Then("I am told that a family must keep at least one admin", ({ world }) => {
+  expect(world.response?.status).toBe(409);
+  expect(world.response?.body).toMatchObject({ code: LAST_ADMIN_CODE });
 });
