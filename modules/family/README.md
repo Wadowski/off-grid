@@ -9,7 +9,9 @@ Owner: module team (family)
 - Schema `family`, owned by the migration role `offgrid_migrator`. The runtime role `offgrid_app` has DML on its tables (ADR 0017).
 - Data access uses a Prisma client for this module, created by `createModuleDb` and logged in as `offgrid_app` ([ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). Each request runs in a Prisma transaction that sets the request context with `withUserContext` or `withFamilyContext`. The outbox write uses `rawSqlExecutor` in the same transaction.
 - `family.family` (scope `family`): one row per family, keyed by `family_id`.
-- `family.family_member` (scope `family`): membership with a `role` of `admin` or `member` ([ADR 0021](../../docs/adr/0021-family-membership.md)). The creator is the first member and the first admin; invitations are out of scope.
+- `family.family_member` (scope `family`): membership with a `role` of `admin` or `member` ([ADR 0021](../../docs/adr/0021-family-membership.md)). The creator is the first member and the first admin.
+- `family.invitation` (scope `family`): one row per invitation, keyed by `invitation_id`. Only the SHA-256 hash of the code is stored (`code_hash`), and the code is shown once at creation. Admins of the family can read and write its rows. A joiner can read and consume a row only while presenting its code, through a policy keyed on `app.invitation_code_hash` (the same pattern as `session_access_lookup`). No `SECURITY DEFINER` function is used.
+- `family.invitation_attempt` (scope `user`): failed redemption attempts per account, with `locked_until`, so the lockout is shared between instances ([ADR 0019](../../docs/adr/0019-state-shared-between-instances.md)).
 - Read policies (in the `family_init` migration): a user sees their own `family_member` rows, and the `family` rows of families they belong to. `GET /families` relies on these, so it needs no projection.
 
 Migrations for every module live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations): the `family` folder is `*_family_init`.
@@ -22,8 +24,15 @@ Migrations for every module live in [packages/db/prisma/migrations](../../packag
 - `GET /families/:id/members`: the members and their roles. Any member may read it. Non-members get 404 `NOT_FOUND`.
 - `PATCH /families/:id/members/:userId`: body `{ role }`, `admin` or `member`. Only an admin may change a role; a member gets 403 `ACCESS_DENIED`. Returns 200 with the member. Demoting the last admin returns 409 `LAST_ADMIN`.
 - `DELETE /families/:id/members/:userId`: an admin removes a member and gets 204. A member gets 403 `ACCESS_DENIED`. Removing the last admin returns 409 `LAST_ADMIN`. A removed member loses access on their next request, because the request identity reads memberships from this module's table.
+- `POST /families/:id/invitations`: an admin creates an invitation. Returns 201 with `{ invitationId, code, expiresAt }`. The code is 128 random bits and expires seven days later. A member gets 403 `ACCESS_DENIED`.
+- `DELETE /families/:id/invitations/:invitationId`: an admin revokes an unused invitation and gets 204. An invitation that is used, revoked or unknown gets 404 `NOT_FOUND`.
+- `POST /families/join`: body `{ code }`. A signed-in account redeems a code and joins as a `member`. Returns 201 with `{ familyId }`. A code that is unknown, used, revoked, expired, or belongs to a family the account already joined gets the same 404 `NOT_FOUND`, so codes cannot be probed. An account that gets 5 wrong answers in a row is locked for 15 minutes and gets 429 `RATE_LIMITED`, even with a valid code. A successful join clears the count.
+
+Redemption is one transaction: the code row is found under the code policy, the conditional update that sets `used_at` decides whether the code is still usable, and the membership is inserted only then. Two concurrent redemptions of one code cannot both succeed.
 
 Admin checks take a family-wide advisory lock first, so two concurrent changes cannot leave a family without an admin. The rule that keeps an admin lives in `src/domain/keeps-an-admin.ts`; the role check lives in `packages/access-control`.
+
+Invitation codes never appear in logs or events. No event is published when a member joins by invitation yet: the event names and payloads are left to the follow-up record named in [ADR 0021](../../docs/adr/0021-family-membership.md).
 
 Errors use the shared codes from [packages/http](../../packages/http/README.md): `UNAUTHENTICATED`, `VALIDATION_FAILED`, `NOT_FOUND`, `ACCESS_DENIED`.
 
@@ -44,13 +53,14 @@ src/types.ts                       all types of the module
 src/family-module.ts               the module descriptor
 src/index.ts                       re-exports only
 src/domain/                        pure rules, e.g. keeps-an-admin
-src/application/                   create-family, get-family, list-my-families, list-family-members, change-family-member-role, remove-family-member, require-family-admin
-src/infrastructure/                one file per SQL query and transaction helper
+src/application/                   create-family, get-family, list-my-families, list-family-members, change-family-member-role, remove-family-member, require-family-admin; invitations/ holds create, revoke and redeem for invitations
+src/domain/invitations/            lockout rules for redemption attempts
+src/infrastructure/                one file per SQL query and transaction helper; invitations/ holds the invitation and attempt queries
 src/events/                        publish-family-event and publish-family-created
-src/http/                          one register-* file per route; register-family-routes wires them
+src/http/                          one register-* file per route; invitations/ holds the invitation routes; register-family-routes wires them
 src/workers/                       placeholder; background jobs go here
 test/start-family-test-database.ts Testcontainers Postgres with the init scripts and the shared migrations
-test/add-family-member.ts          seeds a member with a role, since invitations are not built yet
+test/add-family-member.ts          seeds a member with a role for tests
 ```
 
 Name validation lives in `packages/contracts` (`familyNameSchema`), so the route and the event payload share one rule.

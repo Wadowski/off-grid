@@ -165,3 +165,136 @@ Then("I am told that a family must keep at least one admin", ({ world }) => {
   expect(world.response?.status).toBe(409);
   expect(world.response?.body).toMatchObject({ code: LAST_ADMIN_CODE });
 });
+
+const RATE_LIMITED_CODE = "RATE_LIMITED";
+const ACCESS_DENIED_CODE = "ACCESS_DENIED";
+const WRONG_CODE = "wrong-code";
+
+const requireInvitationCode = (world: ScenarioWorld): string => {
+  if (world.invitationCode === undefined) {
+    throw new Error("No invitation has been created in this scenario.");
+  }
+  return world.invitationCode;
+};
+
+const newJoinerSession = async (world: ScenarioWorld): Promise<Session> => {
+  const session = await sessionOf(world.api, "New Joiner");
+  world.joinerSession = session;
+  return session;
+};
+
+const redeemAs = async (world: ScenarioWorld, session: Session, code: string): Promise<void> => {
+  const response = await world.api.post("/api/families/join", {
+    headers: bearer(session),
+    data: { code },
+    failOnStatusCode: false,
+  });
+  await recordResponse(world, response);
+};
+
+const redeemWithNewUser = async (world: ScenarioWorld, code: string): Promise<void> => {
+  await redeemAs(world, await newJoinerSession(world), code);
+};
+
+const joinerSessionOf = (world: ScenarioWorld): Session => {
+  if (world.joinerSession === undefined) {
+    throw new Error("No new user has been set up for this scenario.");
+  }
+  return world.joinerSession;
+};
+
+When("I create an invitation to {string}", async ({ world }, name: string) => {
+  const familyId = familyIdNamed(world, name);
+  const response = await world.api.post(`/api/families/${familyId}/invitations`, {
+    headers: bearer(memberSessionOf(world)),
+    failOnStatusCode: false,
+  });
+  await recordResponse(world, response);
+  if (response.status() === 201) {
+    const invitation = (await response.json()) as { invitationId: string; code: string };
+    world.invitationId = invitation.invitationId;
+    world.invitationCode = invitation.code;
+    world.invitationFamilyId = familyId;
+  }
+});
+
+When("I revoke the invitation", async ({ world }) => {
+  const response = await world.api.delete(
+    `/api/families/${world.invitationFamilyId}/invitations/${world.invitationId}`,
+    { headers: bearer(memberSessionOf(world)), failOnStatusCode: false },
+  );
+  await recordResponse(world, response);
+});
+
+When("a new user redeems an invitation to {string}", async ({ world }, name: string) => {
+  const response = await world.api.post(`/api/families/${familyIdNamed(world, name)}/invitations`, {
+    headers: bearer(memberSessionOf(world)),
+    failOnStatusCode: false,
+  });
+  const invitation = (await response.json()) as { code: string };
+  world.invitationCode = invitation.code;
+  await redeemWithNewUser(world, invitation.code);
+});
+
+When(
+  /^(?:a|another) new user (?:tries to )?redeems? the (?:same )?invitation code$/,
+  async ({ world }) => {
+    await redeemWithNewUser(world, requireInvitationCode(world));
+  },
+);
+
+When("a new user tries to redeem the code {string}", async ({ world }, code: string) => {
+  await redeemWithNewUser(world, code);
+});
+
+When(
+  "a new user tries to redeem a wrong invitation code {int} times",
+  async ({ world }, times: number) => {
+    const session = await newJoinerSession(world);
+    for (let attempt = 0; attempt < times; attempt += 1) {
+      await redeemAs(world, session, WRONG_CODE);
+    }
+  },
+);
+
+When("the new user tries to create an invitation to {string}", async ({ world }, name: string) => {
+  const response = await world.api.post(`/api/families/${familyIdNamed(world, name)}/invitations`, {
+    headers: bearer(joinerSessionOf(world)),
+    failOnStatusCode: false,
+  });
+  await recordResponse(world, response);
+});
+
+Then("the next redemption attempt is refused because of too many attempts", async ({ world }) => {
+  await redeemAs(world, joinerSessionOf(world), WRONG_CODE);
+  expect(world.response?.status).toBe(429);
+  expect(world.response?.body).toMatchObject({ code: RATE_LIMITED_CODE });
+});
+
+Then("I am told that the invitation code is not valid", ({ world }) => {
+  expect(world.response?.status).toBe(404);
+  expect(world.response?.body).toMatchObject({ code: NOT_FOUND_CODE });
+});
+
+Then("I am told that I am not allowed to do that", ({ world }) => {
+  expect(world.response?.status).toBe(403);
+  expect(world.response?.body).toMatchObject({ code: ACCESS_DENIED_CODE });
+});
+
+Then("the new user is a member of {string}", ({ world }, name: string) => {
+  expect(world.response?.status).toBe(201);
+  expect(world.response?.body).toMatchObject({ familyId: familyIdNamed(world, name) });
+});
+
+Then("the new user is listed as a member, not an admin", async ({ world }) => {
+  const joiner = joinerSessionOf(world);
+  const familyId = world.invitationFamilyId;
+  const response = await world.api.get(`/api/families/${familyId}/members`, {
+    headers: bearer(memberSessionOf(world)),
+    failOnStatusCode: false,
+  });
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toMatchObject({
+    members: expect.arrayContaining([{ userId: joiner.userId, role: "member" }]),
+  });
+});
