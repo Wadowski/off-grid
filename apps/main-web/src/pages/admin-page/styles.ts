@@ -4,6 +4,13 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
+export const adminResetCodeStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[1],
+  paddingBlock: tokens.space[2],
+  overflowWrap: "anywhere",
+};
+
 export const adminSectionStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[3],

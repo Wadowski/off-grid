@@ -237,6 +237,7 @@ export const en = {
     disableConfirm: "Confirm disable",
     cancel: "Cancel",
     resetPassword: "Reset password",
+    resetCodeFor: "For",
     resetCodeIntro: "One-time code. Give it to the person in person:",
     resetCodeInstruction:
       "Tell them to open the reset page and enter this code once, then choose a new password.",

@@ -8,7 +8,10 @@ import { webAdminClient } from "../../api/web-api-client.js";
 import { useSession } from "../../session/use-session.js";
 import { AdminPeopleSection } from "./components/admin-people-section/admin-people-section.js";
 import { AdminRegistrationSection } from "./components/admin-registration-section/admin-registration-section.js";
-import { settingsSubpageStyle } from "../../layouts/settings-subpage/styles.js";
+import {
+  settingsBackLinkStyle,
+  settingsSubpageStyle,
+} from "../../layouts/settings-subpage/styles.js";
 import type { AdminUser } from "@offgrid/contracts";
 
 export const AdminPage = () => {
@@ -64,7 +67,7 @@ const AdminContent = () => {
         onChange={setRegistrationOpen}
       />
       <AdminPeopleSection users={users} onChanged={loadUsers} />
-      <Link to="/admin/email">
+      <Link to="/admin/email" style={settingsBackLinkStyle}>
         <Text variant="action" textId="admin.emailLink" />
       </Link>
     </div>

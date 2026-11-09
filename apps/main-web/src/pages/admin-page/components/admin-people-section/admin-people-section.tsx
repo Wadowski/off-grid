@@ -5,7 +5,7 @@ import { Text } from "@offgrid/ui";
 import { useState } from "react";
 import { AdminPersonRow } from "../admin-person-row/admin-person-row.js";
 import type { IssuedResetCode } from "../../types.js";
-import { adminSectionStyle } from "../../styles.js";
+import { adminResetCodeStyle, adminSectionStyle } from "../../styles.js";
 import type { AdminPeopleSectionProps } from "./types.js";
 
 export const AdminPeopleSection = ({ users, onChanged }: AdminPeopleSectionProps) => {
@@ -27,11 +27,12 @@ export const AdminPeopleSection = ({ users, onChanged }: AdminPeopleSectionProps
         />
       ))}
       {issuedCode !== undefined && (
-        <div data-testid="admin-reset-code">
+        <div data-testid="admin-reset-code" style={adminResetCodeStyle}>
           <Text variant="status" textId="admin.resetCodeIntro" />
-          <Text variant="label" value={issuedCode.code} />
+          <Text variant="subheading" value={issuedCode.code} />
           <Text variant="caption" textId="admin.resetCodeInstruction" />
-          <Text variant="caption" value={issuedCode.displayName} />
+          <Text variant="label" textId="admin.resetCodeFor" />
+          <Text variant="body" value={issuedCode.displayName} />
         </div>
       )}
     </section>
