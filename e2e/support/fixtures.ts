@@ -29,7 +29,7 @@ export type ScenarioWorld = {
   invitationCode?: string;
   invitationId?: string;
   invitationFamilyId?: string;
-  joinerSession?: { userId: string; accessToken: string };
+  joinerSession?: Session;
   registrationTouched?: boolean;
   adminPasswordChanged?: boolean;
   people?: Record<string, SignedInPerson>;
