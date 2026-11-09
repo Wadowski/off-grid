@@ -17,7 +17,6 @@ Feature: Email setup
       | Gmail    | smtp.gmail.com    | 587  | starttls |
       | iCloud   | smtp.mail.me.com  | 587  | starttls |
       | Fastmail | smtp.fastmail.com | 465  | tls      |
-      | Outlook  | smtp.office365.com | 587 | starttls |
 
   @wip
   Scenario: Sending a test email

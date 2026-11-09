@@ -256,7 +256,6 @@ export const en = {
       gmail: "Gmail",
       icloud: "iCloud",
       fastmail: "Fastmail",
-      outlook: "Outlook",
       other: "Other",
     },
     security: {
@@ -275,6 +274,6 @@ export const en = {
     testEmailRejected: "The mail server did not accept the message. Try again later.",
     mailSaved: "Email settings saved. The password is stored and not shown again.",
     appPasswordHelp:
-      "For Gmail, iCloud, Fastmail and Outlook, create an app password in your provider's account security settings and use it here instead of your mailbox password.",
+      "For Gmail, iCloud and Fastmail, create an app password in your provider's account security settings and use it here instead of your mailbox password.",
   },
 } as const;

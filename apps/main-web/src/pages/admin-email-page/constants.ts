@@ -11,7 +11,6 @@ export const MAIL_PROVIDER_OPTIONS: readonly {
   { value: "gmail", labelTextId: "admin.provider.gmail" },
   { value: "icloud", labelTextId: "admin.provider.icloud" },
   { value: "fastmail", labelTextId: "admin.provider.fastmail" },
-  { value: "outlook", labelTextId: "admin.provider.outlook" },
   { value: "other", labelTextId: "admin.provider.other" },
 ];
 
