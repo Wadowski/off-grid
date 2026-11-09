@@ -43,6 +43,6 @@ Feature: Family invitations
   Scenario: A member cannot create an invitation
     Given I am a user without any family
     And I create a family named "The Smiths"
-    And a new user redeems an invitation to "The Smiths"
+    And a new user has joined "The Smiths" with an invitation
     When the new user tries to create an invitation to "The Smiths"
     Then I am told that I am not allowed to do that

@@ -94,3 +94,8 @@ export interface InsertedInvitation {
   readonly invitationId: string;
   readonly expiresAt: Date;
 }
+
+export type JoinOutcome =
+  | { readonly outcome: "joined"; readonly value: JoinedFamily }
+  | { readonly outcome: "already-member" }
+  | { readonly outcome: "invalid" };

@@ -18,11 +18,14 @@ export const redeemFamilyInvitation = async (
   if (await isAccountLockedOut(db, userId, now)) {
     return { outcome: "rate-limited" };
   }
-  const joined = await db.$transaction((tx) =>
+  const join = await db.$transaction((tx) =>
     joinWithInvitation(tx, userId, hashInvitationCode(code), now),
   );
-  if (joined !== null) {
-    return { outcome: "joined", value: joined };
+  if (join.outcome === "joined") {
+    return join;
+  }
+  if (join.outcome === "already-member") {
+    return { outcome: "invalid" };
   }
   await db.$transaction(async (tx) => {
     await withUserContext(tx, userId);

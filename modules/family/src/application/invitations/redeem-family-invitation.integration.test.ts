@@ -52,6 +52,11 @@ describe("redeemFamilyInvitation", { timeout: 60_000 }, () => {
       [family.id, joiner],
     );
     expect(rows).toEqual([{ role: "member" }]);
+    const events = await db.admin.query(
+      "SELECT count(*)::int AS n FROM outbox.event WHERE type = 'family-member-added-v1' AND family_id = $1",
+      [family.id],
+    );
+    expect(events.rows).toEqual([{ n: 1 }]);
   });
 
   it("accepts a code only once", async () => {
@@ -97,14 +102,23 @@ describe("redeemFamilyInvitation", { timeout: 60_000 }, () => {
     const family = await createFamily(db.db, admin, "Novak family");
     const invitation = await createCode(db, admin, family.id);
 
-    expect(await redeemFamilyInvitation(db.db, admin, invitation.code)).toEqual({
-      outcome: "invalid",
-    });
+    for (let attempt = 0; attempt < INVITATION_ATTEMPT_POLICY.limit; attempt += 1) {
+      expect(await redeemFamilyInvitation(db.db, admin, invitation.code)).toEqual({
+        outcome: "invalid",
+      });
+    }
     const { rows } = await db.admin.query(
       "SELECT used_at FROM family.invitation WHERE invitation_id = $1",
       [invitation.invitationId],
     );
     expect(rows).toEqual([{ used_at: null }]);
+    const attempts = await db.admin.query(
+      "SELECT count(*)::int AS n FROM family.invitation_attempt",
+    );
+    expect(attempts.rows).toEqual([{ n: 0 }]);
+    expect(await redeemFamilyInvitation(db.db, admin, invitation.code)).toEqual({
+      outcome: "invalid",
+    });
   });
 
   it("blocks an account after too many wrong codes, even with a valid code, until the lockout ends", async () => {

@@ -203,7 +203,7 @@ const joinerSessionOf = (world: ScenarioWorld): Session => {
   return world.joinerSession;
 };
 
-When("I create an invitation to {string}", async ({ world }, name: string) => {
+const createInvitationFor = async (world: ScenarioWorld, name: string): Promise<void> => {
   const familyId = familyIdNamed(world, name);
   const response = await world.api.post(`/api/families/${familyId}/invitations`, {
     headers: bearer(memberSessionOf(world)),
@@ -216,6 +216,10 @@ When("I create an invitation to {string}", async ({ world }, name: string) => {
     world.invitationCode = invitation.code;
     world.invitationFamilyId = familyId;
   }
+};
+
+When("I create an invitation to {string}", async ({ world }, name: string) => {
+  await createInvitationFor(world, name);
 });
 
 When("I revoke the invitation", async ({ world }) => {
@@ -226,14 +230,10 @@ When("I revoke the invitation", async ({ world }) => {
   await recordResponse(world, response);
 });
 
-When("a new user redeems an invitation to {string}", async ({ world }, name: string) => {
-  const response = await world.api.post(`/api/families/${familyIdNamed(world, name)}/invitations`, {
-    headers: bearer(memberSessionOf(world)),
-    failOnStatusCode: false,
-  });
-  const invitation = (await response.json()) as { code: string };
-  world.invitationCode = invitation.code;
-  await redeemWithNewUser(world, invitation.code);
+Given("a new user has joined {string} with an invitation", async ({ world }, name: string) => {
+  await createInvitationFor(world, name);
+  expect(world.invitationCode, "the invitation was not created").toBeDefined();
+  await redeemWithNewUser(world, requireInvitationCode(world));
 });
 
 When(
@@ -289,6 +289,9 @@ Then("the new user is a member of {string}", ({ world }, name: string) => {
 Then("the new user is listed as a member, not an admin", async ({ world }) => {
   const joiner = joinerSessionOf(world);
   const familyId = world.invitationFamilyId;
+  if (familyId === undefined) {
+    throw new Error("No invitation family is set up for this scenario.");
+  }
   const response = await world.api.get(`/api/families/${familyId}/members`, {
     headers: bearer(memberSessionOf(world)),
     failOnStatusCode: false,

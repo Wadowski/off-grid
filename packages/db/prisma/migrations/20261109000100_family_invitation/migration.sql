@@ -49,7 +49,14 @@ CREATE POLICY invitation_redeem_update ON family.invitation
     AND revoked_at IS NULL
     AND expires_at > now()
   )
-  WITH CHECK (used_by = NULLIF(current_setting('app.user_id', true), '')::uuid);
+  WITH CHECK (
+    used_by = NULLIF(current_setting('app.user_id', true), '')::uuid
+    AND used_at IS NOT NULL
+    AND revoked_at IS NULL
+  );
+
+REVOKE UPDATE ON family.invitation FROM offgrid_app;
+GRANT UPDATE (used_by, used_at, revoked_at) ON family.invitation TO offgrid_app;
 
 CREATE TABLE family.invitation_attempt (
   user_id      uuid        PRIMARY KEY,

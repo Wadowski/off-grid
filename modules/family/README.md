@@ -10,7 +10,7 @@ Owner: module team (family)
 - Data access uses a Prisma client for this module, created by `createModuleDb` and logged in as `offgrid_app` ([ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). Each request runs in a Prisma transaction that sets the request context with `withUserContext` or `withFamilyContext`. The outbox write uses `rawSqlExecutor` in the same transaction.
 - `family.family` (scope `family`): one row per family, keyed by `family_id`.
 - `family.family_member` (scope `family`): membership with a `role` of `admin` or `member` ([ADR 0021](../../docs/adr/0021-family-membership.md)). The creator is the first member and the first admin.
-- `family.invitation` (scope `family`): one row per invitation, keyed by `invitation_id`. Only the SHA-256 hash of the code is stored (`code_hash`), and the code is shown once at creation. Admins of the family can read and write its rows. A joiner can read and consume a row only while presenting its code, through a policy keyed on `app.invitation_code_hash` (the same pattern as `session_access_lookup`). No `SECURITY DEFINER` function is used.
+- `family.invitation` (scope `family`): one row per invitation, keyed by `invitation_id`. Only the SHA-256 hash of the code is stored (`code_hash`), and the code is shown once at creation. Admins of the family can read and write its rows. A joiner can read a row, and set `used_by`, `used_at` and `revoked_at` on it, only while presenting its code. Both policies are keyed on `app.invitation_code_hash`, as in [ADR 0021](../../docs/adr/0021-family-membership.md). The database role may update only those three columns. No `SECURITY DEFINER` function is used.
 - `family.invitation_attempt` (scope `user`): failed redemption attempts per account, with `locked_until`, so the lockout is shared between instances ([ADR 0019](../../docs/adr/0019-state-shared-between-instances.md)).
 - Read policies (in the `family_init` migration): a user sees their own `family_member` rows, and the `family` rows of families they belong to. `GET /families` relies on these, so it needs no projection.
 
@@ -28,11 +28,11 @@ Migrations for every module live in [packages/db/prisma/migrations](../../packag
 - `DELETE /families/:id/invitations/:invitationId`: an admin revokes an unused invitation and gets 204. An invitation that is used, revoked or unknown gets 404 `NOT_FOUND`.
 - `POST /families/join`: body `{ code }`. A signed-in account redeems a code and joins as a `member`. Returns 201 with `{ familyId }`. A code that is unknown, used, revoked, expired, or belongs to a family the account already joined gets the same 404 `NOT_FOUND`, so codes cannot be probed. An account that gets 5 wrong answers in a row is locked for 15 minutes and gets 429 `RATE_LIMITED`, even with a valid code. A successful join clears the count.
 
-Redemption is one transaction: the code row is found under the code policy, the conditional update that sets `used_at` decides whether the code is still usable, and the membership is inserted only then. Two concurrent redemptions of one code cannot both succeed.
+Redemption is one transaction: the code row is found under the code policy, the conditional update that sets `used_at` decides whether the code is still usable, and the membership and the `family-member-added-v1` event are written only then. Two concurrent redemptions of one code cannot both succeed. An account that already belongs to the family gets the same 404, and that answer does not count toward the lockout.
 
 Admin checks take a family-wide advisory lock first, so two concurrent changes cannot leave a family without an admin. The rule that keeps an admin lives in `src/domain/keeps-an-admin.ts`; the role check lives in `packages/access-control`.
 
-Invitation codes never appear in logs or events. No event is published when a member joins by invitation yet: the event names and payloads are left to the follow-up record named in [ADR 0021](../../docs/adr/0021-family-membership.md).
+Invitation codes never appear in logs or events.
 
 Errors use the shared codes from [packages/http](../../packages/http/README.md): `UNAUTHENTICATED`, `VALIDATION_FAILED`, `NOT_FOUND`, `ACCESS_DENIED`.
 
@@ -41,6 +41,7 @@ Errors use the shared codes from [packages/http](../../packages/http/README.md):
 - `family-created-v1` (version 1): `{ name }`, owned by the family. Defined in [packages/contracts/src/family-created-v1.ts](../../packages/contracts/src/family-created-v1.ts). Written to the outbox in the same transaction as the family row.
 - `family-member-updated-v1` (version 1): `{ userId, role }`, written when a role changes. Defined in [packages/contracts/src/family-member-updated-v1.ts](../../packages/contracts/src/family-member-updated-v1.ts).
 - `family-member-removed-v1` (version 1): `{ userId }`, written when a member is removed. Defined in [packages/contracts/src/family-member-removed-v1.ts](../../packages/contracts/src/family-member-removed-v1.ts).
+- `family-member-added-v1` (version 1): `{ userId, role }`, written when a member joins by invitation. Defined in [packages/contracts/src/family-member-added-v1.ts](../../packages/contracts/src/family-member-added-v1.ts).
 
 Both membership events use `sourceVersion` 1 for now. No projection reads them yet. A projection that needs ordering must add a per-membership version first.
 

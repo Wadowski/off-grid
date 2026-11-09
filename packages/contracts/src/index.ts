@@ -29,6 +29,7 @@ export * from "./event-definitions.js";
 export * from "./event-envelope-schema.js";
 export * from "./change-family-member-role-request-schema.js";
 export * from "./family-created-v1.js";
+export * from "./family-member-added-v1.js";
 export * from "./family-member-list-schema.js";
 export * from "./family-member-params-schema.js";
 export * from "./family-member-removed-v1.js";
