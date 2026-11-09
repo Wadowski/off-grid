@@ -28,9 +28,14 @@ Then("I see my name, my email and the badge {string}", ({ world }, badge: string
 Then("I see {string}", ({ world }, label: string) => notServed(world, label));
 Then("I do not see {string}", ({ world }, label: string) => notServed(world, label));
 Then(
-  "the bottom navigation shows {string} and {string}",
-  ({ world }, first: string, second: string) => notServed(world, first, second),
+  "the bottom navigation shows {string}, {string} and {string}",
+  ({ world }, first: string, second: string, third: string) =>
+    notServed(world, first, second, third),
 );
+When("I tap {string} in the bottom navigation", ({ world }, item: string) =>
+  notServed(world, item),
+);
+Then("I see the list of apps", ({ world }) => notServed(world));
 Then("the sidebar shows {string} and {string}", ({ world }, first: string, second: string) =>
   notServed(world, first, second),
 );

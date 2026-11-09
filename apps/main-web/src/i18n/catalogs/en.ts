@@ -5,6 +5,7 @@ export const en = {
   appName: "Offgrid",
   navLabel: "Main navigation",
   nav: {
+    apps: "Apps",
     family: "Family",
     calendar: "Calendar",
     notes: "Notes",
@@ -29,6 +30,9 @@ export const en = {
     accountAndSecurity: "Account and security",
     adminSettings: "Admin settings",
     signOut: "Sign out",
+  },
+  apps: {
+    heading: "Apps",
   },
   families: {
     heading: "Families",

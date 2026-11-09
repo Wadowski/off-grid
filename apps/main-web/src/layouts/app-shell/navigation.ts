@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export type AppNavLabelTextId =
+  | "nav.apps"
   | "nav.family"
   | "nav.calendar"
   | "nav.notes"
@@ -15,11 +16,17 @@ export type AppNavItem = {
   readonly labelTextId: AppNavLabelTextId;
   readonly iconName: string;
   readonly path?: string;
-  readonly mobileOnly?: boolean;
+};
+
+export const familyNavItem: AppNavItem = {
+  id: "family",
+  labelTextId: "nav.family",
+  iconName: "groups",
+  path: "/",
 };
 
 export const appNavItems: readonly AppNavItem[] = [
-  { id: "family", labelTextId: "nav.family", iconName: "groups", path: "/", mobileOnly: true },
+  familyNavItem,
   { id: "calendar", labelTextId: "nav.calendar", iconName: "calendar_today" },
   { id: "notes", labelTextId: "nav.notes", iconName: "description" },
   { id: "smart-lists", labelTextId: "nav.smartLists", iconName: "checklist" },
@@ -33,3 +40,12 @@ export const settingsNavItem: AppNavItem = {
   iconName: "settings",
   path: "/settings",
 };
+
+export const appsNavItem: AppNavItem = {
+  id: "apps",
+  labelTextId: "nav.apps",
+  iconName: "grid_view",
+  path: "/apps",
+};
+
+export const mobileTabItems: readonly AppNavItem[] = [appsNavItem, familyNavItem, settingsNavItem];
