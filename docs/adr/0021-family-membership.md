@@ -49,10 +49,11 @@ Options considered for joining:
 - An invitation expires seven days after it is created. An admin may revoke an unused invitation at any time.
 - Code entry is rate limited per account and per client address, as sign-in is ([ADR 0016](0016-local-authentication-model.md)).
 - The code is hashed with SHA-256. A code has 128 random bits, so a slow password hash is not needed, and Argon2id does not apply. The hash cannot be reversed to the code, and lookup is an exact match on an indexed column.
-- Codes and their hashes never appear in logs, traces, outbox event payloads ([ADR 0002](0002-outbox-events-and-projections.md)) or error records ([ADR 0020](0020-error-records-in-postgres.md)).
+- Codes and their hashes never appear in logs, traces, outbox event payloads ([ADR 0011](0011-restricted-event-access-and-retention.md)) or error records ([ADR 0020](0020-error-records-in-postgres.md)).
+- The hash is compared in constant time.
 - The code is entered on the Join Family Space screen. A link that carries the same code may be added later; it is not part of this record.
 - An invitation does not grant a role above `member`. Admin rights are given only by an admin changing a role after the person has joined.
-- Joining requires a signed-in account. Invitations are refused for accounts that are disabled (see [ADR 0016](0016-local-authentication-model.md)).
+- Joining requires a signed-in account. Disabling an account revokes its sessions ([ADR 0016](0016-local-authentication-model.md)), so a disabled account has no session with which to join.
 
 **Several families**
 
@@ -72,7 +73,8 @@ Options considered for joining:
 - The invitation table also uses the family scope, but only admins of that family may read its rows. Members have no read access to invitation rows, even though they share the family scope.
 - **Exception for accepting an invitation.** A joiner is not yet a member, so RLS would hide the invitation row they need. Accepting therefore goes through one function owned by the family module. The function takes the hashed code and returns only the invitation's family id and whether it is still usable. No other path reads invitation rows without membership. This is an exception to the family-scope rule of [ADR 0009](0009-table-ownership-scopes.md), recorded here; ADR 0009 is not edited.
 - Invitation codes are stored in a table of their own in the family module. Their hashes are never sent to the client after creation.
-- Identity keeps the read-only projection of current memberships described in [ADR 0016](0016-local-authentication-model.md). Membership changes are published as events under the event rules of [ADR 0011](0011-restricted-event-access-and-retention.md).
+- Identity keeps the read-only projection of current memberships described in [ADR 0016](0016-local-authentication-model.md). Membership changes are published as events under the event rules of [ADR 0011](0011-restricted-event-access-and-retention.md) and [ADR 0014](0014-subscriber-handlers-on-module-logins.md). The event names and payloads are set in the follow-up record that builds the family module, using the `<entity>-<action>-v1` naming and zod schemas in `packages/contracts`.
+- Role checks are added to `packages/access-control` alongside its resource grants.
 - Membership, roles and invitations are never feature-gated. The family module never imports the entitlements or billing modules.
 
 ## Consequences
@@ -81,7 +83,7 @@ Options considered for joining:
 - The two-role model is easy to check and to test. Permission checks live in `packages/access-control`, so every module asks the same question.
 - A household with no second admin cannot lose its only admin by accident: the server refuses the change.
 - Per-permission roles, email invitations and invitation links are not built. Each needs its own record if it is wanted.
-- Removed members keep access until the identity projection catches up, a few seconds on a local server, as [ADR 0016](0016-local-authentication-model.md) already accepts. This window is an explicitly accepted risk for removal. A removal that must take effect at once needs its own record.
+- Removed members keep access until the identity projection catches up. In normal operation that takes a few seconds on a local server, as [ADR 0016](0016-local-authentication-model.md) already accepts, but outbox retries can delay it longer. The bound is best effort, not a guarantee. This is an explicitly accepted risk for removal. A removal that must take effect at once needs its own record.
 - A later invitation link must keep the code out of any URL path or query string, since servers and referrers log those. It needs its own record.
 - Follow-up issues for members, invitations and access groups must reference this record.
 - Owner acceptance is pending. Until the owner accepts this record, the status stays `Proposed`.
