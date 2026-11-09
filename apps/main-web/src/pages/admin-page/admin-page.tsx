@@ -1,18 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { AdminUser } from "@offgrid/contracts";
 import { Text } from "@offgrid/ui";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { webAdminClient } from "../../api/web-api-client.js";
+import { SettingsSubpage } from "../../layouts/settings-subpage/settings-subpage.js";
 import { useSession } from "../../session/use-session.js";
+import { SettingsSection } from "../settings-page/components/settings-section/settings-section.js";
 import { AdminPeopleSection } from "./components/admin-people-section/admin-people-section.js";
 import { AdminRegistrationSection } from "./components/admin-registration-section/admin-registration-section.js";
-import {
-  settingsBackLinkStyle,
-  settingsSubpageStyle,
-} from "../../layouts/settings-subpage/styles.js";
-import type { AdminUser } from "@offgrid/contracts";
+import { ADMIN_MAIL_SECTION } from "./constants.js";
 
 export const AdminPage = () => {
   const session = useSession();
@@ -21,10 +19,9 @@ export const AdminPage = () => {
   }
   if (session.user.instanceRole !== "admin") {
     return (
-      <div style={settingsSubpageStyle}>
-        <Text variant="heading" textId="admin.heading" />
+      <SettingsSubpage titleTextId="admin.heading">
         <Text variant="body" textId="admin.noAccess" />
-      </div>
+      </SettingsSubpage>
     );
   }
   return <AdminContent />;
@@ -53,23 +50,24 @@ const AdminContent = () => {
   }, []);
 
   if (loadFailed) {
-    return <Text variant="error" textId="admin.loadFailed" />;
+    return (
+      <SettingsSubpage titleTextId="admin.heading">
+        <Text variant="error" textId="admin.loadFailed" />
+      </SettingsSubpage>
+    );
   }
   if (users === undefined || registrationOpen === undefined) {
     return null;
   }
 
   return (
-    <div style={settingsSubpageStyle}>
-      <Text variant="heading" textId="admin.heading" />
+    <SettingsSubpage titleTextId="admin.heading">
       <AdminRegistrationSection
         registrationOpen={registrationOpen}
         onChange={setRegistrationOpen}
       />
       <AdminPeopleSection users={users} onChanged={loadUsers} />
-      <Link to="/admin/email" style={settingsBackLinkStyle}>
-        <Text variant="action" textId="admin.emailLink" />
-      </Link>
-    </div>
+      <SettingsSection section={ADMIN_MAIL_SECTION} />
+    </SettingsSubpage>
   );
 };

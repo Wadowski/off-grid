@@ -6,6 +6,7 @@ import type { IssuedResetCode } from "../../types.js";
 
 export type AdminPersonRowProps = {
   readonly user: AdminUser;
+  readonly isFirst: boolean;
   readonly isLastActiveAdmin: boolean;
   readonly onChanged: () => void;
   readonly onResetCode: (issued: IssuedResetCode) => void;

@@ -242,6 +242,10 @@ export const en = {
     resetCodeInstruction:
       "Tell them to open the reset page and enter this code once, then choose a new password.",
     emailLink: "Email setup",
+    emailDescription: "Connect an outgoing mail account",
+    mailSection: "Email",
+    emailAccountSection: "Account",
+    serverSection: "Server",
     saveFailed: "Nothing was saved. Check your connection and try again.",
     actionFailed: "That did not work. Nothing changed. Try again.",
     emailHeading: "Email setup",
