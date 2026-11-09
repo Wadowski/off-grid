@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { RENEW_BEFORE_EXPIRY_MS } from "../constants.js";
+import { markSignedIn } from "./signed-in-marker.js";
 import { sessionRuntime } from "./session-runtime.js";
 
 export const storeAccessToken = (
@@ -10,6 +11,7 @@ export const storeAccessToken = (
   onRenewalDue: () => void,
 ): void => {
   sessionRuntime.accessToken = token;
+  markSignedIn();
   clearTimeout(sessionRuntime.renewalTimer);
   const delay = Math.max(0, Date.parse(expiresAt) - Date.now() - RENEW_BEFORE_EXPIRY_MS);
   sessionRuntime.renewalTimer = setTimeout(onRenewalDue, delay);
