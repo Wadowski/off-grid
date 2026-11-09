@@ -26,7 +26,13 @@ Feature: App shell
 
   Scenario: Navigation on a phone
     Given a 390 px wide screen
-    Then the bottom navigation shows "Family" and "Settings"
+    Then the bottom navigation shows "Apps", "Family" and "Settings"
+
+  @wip
+  Scenario: Apps list opens from the bottom navigation on a phone
+    Given a 390 px wide screen
+    When I tap "Apps" in the bottom navigation
+    Then I see the list of apps
 
   @wip
   Scenario: Navigation on a desktop

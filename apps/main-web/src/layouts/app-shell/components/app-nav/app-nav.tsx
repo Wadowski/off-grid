@@ -21,16 +21,7 @@ export const AppNav = () => {
             <AppNavLabel item={item} />
           </span>
         ) : (
-          <NavLink
-            key={item.id}
-            to={item.path}
-            end
-            className={
-              item.mobileOnly
-                ? "og-app-nav-item og-app-nav-item-mobile-only og-focusable"
-                : "og-app-nav-item og-focusable"
-            }
-          >
+          <NavLink key={item.id} to={item.path} end className="og-app-nav-item og-focusable">
             <AppNavLabel item={item} />
           </NavLink>
         ),

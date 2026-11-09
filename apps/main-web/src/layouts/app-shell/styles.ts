@@ -87,7 +87,7 @@ export const appShellCss = `
   cursor: default;
 }
 
-.og-app-nav-item-mobile-only {
+.og-tab-bar {
   display: none;
 }
 
@@ -258,53 +258,45 @@ export const appShellCss = `
 
 @media (max-width: 767px) {
   .og-sidebar {
-    top: auto;
-    right: 0;
-    width: auto;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: none;
-    border-top: 1px solid var(--og-color-line);
-    backdrop-filter: none;
-    background: var(--og-color-surface);
-  }
-
-  .og-sidebar-brand,
-  .og-sidebar-divider,
-  .og-family-card,
-  .og-settings-link,
-  .og-user-menu-meta,
-  .og-user-menu-expand {
     display: none;
   }
 
-  .og-app-nav {
-    flex: 1;
-    flex-direction: row;
-    justify-content: space-around;
-    gap: 0;
-    padding: ${tokens.space[1]};
-  }
-
-  .og-app-nav-item-mobile-only {
+  .og-tab-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    box-sizing: border-box;
     display: flex;
+    justify-content: space-around;
+    gap: ${tokens.space[2]};
+    padding: ${tokens.space[2]} ${tokens.space[4]} ${tokens.space[3]};
+    border-top: 1px solid var(--og-color-surface-high);
+    background: color-mix(in srgb, var(--og-color-surface) 90%, transparent);
+    backdrop-filter: blur(12px);
   }
 
-  .og-app-nav-item {
+  .og-tab-bar-item {
+    display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 0.125rem;
-    padding: ${tokens.space[1]} ${tokens.space[1]};
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    color: var(--og-color-muted);
     font-size: ${tokens.font.size["label-sm"]};
+    font-weight: ${tokens.font.weight.medium};
+    text-decoration: none;
   }
 
-  .og-sidebar-bottom {
-    margin-top: 0;
-    padding: ${tokens.space[1]} ${tokens.space[2]};
+  .og-tab-bar-item:hover {
+    color: var(--og-color-primary);
   }
 
-  .og-user-menu > button {
-    width: auto;
+  .og-tab-bar-item[aria-current="page"] {
+    color: var(--og-color-primary);
+    font-weight: ${tokens.font.weight.semibold};
   }
 
   .og-header {

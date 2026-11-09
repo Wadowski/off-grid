@@ -4,6 +4,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CreateAccountPage } from "./pages/create-account-page/create-account-page.js";
+import { AppsPage } from "./pages/apps-page/apps-page.js";
 import { FamiliesPage } from "./pages/families-page/families-page.js";
 import { FirstFamilyPage } from "./pages/first-family-page/first-family-page.js";
 import { ForgotPasswordPage } from "./pages/forgot-password-page/forgot-password-page.js";
@@ -49,6 +50,7 @@ export const App = () => {
               </Route>
               <Route element={<AppShell />}>
                 <Route index element={<FamiliesPage />} />
+                <Route path="apps" element={<AppsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="settings/profile" element={<SettingsProfilePage />} />
                 <Route path="settings/password" element={<SettingsPasswordPage />} />
