@@ -32,6 +32,10 @@ export type ScenarioWorld = {
   notificationId?: string;
   newAccountEmail?: string;
   signInEmail?: string;
+  signInFailure?: JsonResponse;
+  unknownEmailFailure?: JsonResponse;
+  refreshCookie?: string;
+  rememberMeCookie?: string;
   recoveryAccount?: {
     email: string;
     password: string;

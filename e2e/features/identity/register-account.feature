@@ -7,6 +7,7 @@ Feature: Account registration
   Anyone on the local network can create an account. The first account on a
   fresh server becomes the admin, and later accounts are regular users.
 
+ 
   @wip
   Scenario: The first account becomes the admin
     Given a fresh Offgrid server with no accounts
@@ -39,6 +40,7 @@ Feature: Account registration
     When someone registers with a valid name, email and password
     Then the new user has an active session
 
+ 
   @wip
   Scenario: The web app can learn whether this is a fresh server
     Given a fresh Offgrid server with no accounts

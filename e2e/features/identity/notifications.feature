@@ -23,6 +23,7 @@ Feature: Notifications
     And Tom has an unread inbox item
     Then Anna cannot see Tom's notifications
 
+ 
   @wip
   Scenario: Channel failure does not block
     Given Anna is signed in

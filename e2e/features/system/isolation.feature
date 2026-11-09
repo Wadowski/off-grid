@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@infra @wip
+@infra
 Feature: Scenario isolation
 
   Each scenario creates the data it needs, so scenarios can run in parallel

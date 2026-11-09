@@ -18,6 +18,7 @@ Feature: Email setup
       | iCloud   | smtp.mail.me.com  | 587  | starttls |
       | Fastmail | smtp.fastmail.com | 465  | tls      |
 
+ 
   @wip
   Scenario: Wrong app password
     Given I am the admin
@@ -41,12 +42,14 @@ Feature: Email setup
     When I save mail settings
     Then I am refused
 
+ 
   @wip
   Scenario: Email not configured
     Given no mail is configured
     Then the app reports that email is unavailable
     And no part of the app depends on it
 
+ 
   @wip
   Scenario: Mail server is down
     Given email is configured

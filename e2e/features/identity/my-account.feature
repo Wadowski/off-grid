@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:identity @wip
+@module:identity
 Feature: My account
 
   A signed-in person can see and manage their own account and security.
