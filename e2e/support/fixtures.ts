@@ -26,6 +26,10 @@ export type ScenarioWorld = {
   member?: Member;
   response?: JsonResponse;
   issuedCode?: string;
+  invitationCode?: string;
+  invitationId?: string;
+  invitationFamilyId?: string;
+  joinerSession?: Session;
   registrationTouched?: boolean;
   adminPasswordChanged?: boolean;
   people?: Record<string, SignedInPerson>;

@@ -57,3 +57,45 @@ export interface FamilyRouteContext {
 }
 
 export type FamilyModuleContext = FamilyRouteContext;
+
+export interface AttemptPolicy {
+  readonly limit: number;
+  readonly lockoutMs: number;
+}
+
+export interface FamilyInvitationCreated {
+  readonly invitationId: string;
+  readonly code: string;
+  readonly expiresAt: Date;
+}
+
+export interface FamilyInvitationRef {
+  readonly invitationId: string;
+}
+
+export interface JoinedFamily {
+  readonly familyId: string;
+}
+
+export type RedeemOutcome =
+  | { readonly outcome: "joined"; readonly value: JoinedFamily }
+  | { readonly outcome: "invalid" }
+  | { readonly outcome: "rate-limited" };
+
+export interface NewInvitation {
+  readonly familyId: string;
+  readonly codeHash: string;
+  readonly createdBy: string;
+  readonly expiresAt: Date;
+  readonly now: Date;
+}
+
+export interface InsertedInvitation {
+  readonly invitationId: string;
+  readonly expiresAt: Date;
+}
+
+export type JoinOutcome =
+  | { readonly outcome: "joined"; readonly value: JoinedFamily }
+  | { readonly outcome: "already-member" }
+  | { readonly outcome: "invalid" };
