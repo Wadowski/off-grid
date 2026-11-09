@@ -241,6 +241,8 @@ export const en = {
     resetCodeInstruction:
       "Tell them to open the reset page and enter this code once, then choose a new password.",
     emailLink: "Email setup",
+    saveFailed: "Nothing was saved. Check your connection and try again.",
+    actionFailed: "That did not work. Nothing changed. Try again.",
     emailHeading: "Email setup",
     emailWorking: "Email is connected",
     emailNotSetUp: "Email is not set up",
@@ -273,6 +275,6 @@ export const en = {
     testEmailRejected: "The mail server did not accept the message. Try again later.",
     mailSaved: "Email settings saved. The password is stored and not shown again.",
     appPasswordHelp:
-      "For Gmail, iCloud and Fastmail, create an app password in your provider's account security settings and use it here instead of your mailbox password.",
+      "For Gmail, iCloud, Fastmail and Outlook, create an app password in your provider's account security settings and use it here instead of your mailbox password.",
   },
 } as const;

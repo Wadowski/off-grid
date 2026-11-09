@@ -8,7 +8,7 @@ import { webAdminClient } from "../../api/web-api-client.js";
 import { useSession } from "../../session/use-session.js";
 import { AdminPeopleSection } from "./components/admin-people-section/admin-people-section.js";
 import { AdminRegistrationSection } from "./components/admin-registration-section/admin-registration-section.js";
-import { adminPageStyle } from "./styles.js";
+import { settingsSubpageStyle } from "../../layouts/settings-subpage/styles.js";
 import type { AdminUser } from "@offgrid/contracts";
 
 export const AdminPage = () => {
@@ -18,7 +18,7 @@ export const AdminPage = () => {
   }
   if (session.user.instanceRole !== "admin") {
     return (
-      <div style={adminPageStyle}>
+      <div style={settingsSubpageStyle}>
         <Text variant="heading" textId="admin.heading" />
         <Text variant="body" textId="admin.noAccess" />
       </div>
@@ -33,7 +33,11 @@ const AdminContent = () => {
   const [loadFailed, setLoadFailed] = useState(false);
 
   const loadUsers = async () => {
-    setUsers((await webAdminClient.users()).users);
+    try {
+      setUsers((await webAdminClient.users()).users);
+    } catch {
+      setLoadFailed(true);
+    }
   };
 
   useEffect(() => {
@@ -53,7 +57,7 @@ const AdminContent = () => {
   }
 
   return (
-    <div style={adminPageStyle}>
+    <div style={settingsSubpageStyle}>
       <Text variant="heading" textId="admin.heading" />
       <AdminRegistrationSection
         registrationOpen={registrationOpen}

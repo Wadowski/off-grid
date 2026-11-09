@@ -42,9 +42,14 @@ const AdminEmailForm = () => {
   const [testResult, setTestResult] = useState<TestResult>("idle");
   const [failureCode, setFailureCode] = useState<string>();
   const [saved, setSaved] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    void webAdminClient.mailSettings().then((settings) => setConfigured(settings.configured));
+    webAdminClient
+      .mailSettings()
+      .then((settings) => setConfigured(settings.configured))
+      .catch(() => setLoadFailed(true));
   }, []);
 
   const updateField = <Field extends keyof MailFormState>(
@@ -67,10 +72,15 @@ const AdminEmailForm = () => {
 
   const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const settings = await webAdminClient.saveMailSettings(buildMailRequest(form));
-    setConfigured(settings.configured);
-    setForm((current) => ({ ...current, password: "" }));
-    setSaved(true);
+    setSaveFailed(false);
+    try {
+      const settings = await webAdminClient.saveMailSettings(buildMailRequest(form));
+      setConfigured(settings.configured);
+      setForm((current) => ({ ...current, password: "" }));
+      setSaved(true);
+    } catch {
+      setSaveFailed(true);
+    }
   };
 
   const isOther = form.provider === "other";
@@ -80,6 +90,7 @@ const AdminEmailForm = () => {
       <div style={adminEmailStatusStyle}>
         <Text variant="status" textId={configured ? "admin.emailWorking" : "admin.emailNotSetUp"} />
       </div>
+      {loadFailed && <Text variant="error" textId="admin.loadFailed" />}
       <form data-testid="admin-email-form" onSubmit={handleSave} noValidate style={formStyle}>
         <fieldset>
           <legend>
@@ -167,6 +178,7 @@ const AdminEmailForm = () => {
               <Text variant="error" textId={testFailureTextIdOf(failureCode)} />
             )}
             {saved && <Text variant="status" textId="admin.mailSaved" />}
+            {saveFailed && <Text variant="error" textId="admin.saveFailed" />}
           </div>
         </div>
       </form>

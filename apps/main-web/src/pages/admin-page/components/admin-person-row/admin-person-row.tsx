@@ -17,19 +17,31 @@ export const AdminPersonRow = ({
   const isDisabled = user.status === "disabled";
   const cannotDisable = isLastActiveAdmin && user.instanceRole === "admin" && !isDisabled;
 
+  const [actionFailed, setActionFailed] = useState(false);
+
   const setDisabled = async (disabled: boolean) => {
-    if (disabled) {
-      await webAdminClient.disableUser(user.id);
-    } else {
-      await webAdminClient.enableUser(user.id);
+    setActionFailed(false);
+    try {
+      if (disabled) {
+        await webAdminClient.disableUser(user.id);
+      } else {
+        await webAdminClient.enableUser(user.id);
+      }
+      setConfirmingDisable(false);
+      onChanged();
+    } catch {
+      setActionFailed(true);
     }
-    setConfirmingDisable(false);
-    onChanged();
   };
 
   const startReset = async () => {
-    const issued = await webAdminClient.startPasswordReset(user.id);
-    onResetCode({ userId: user.id, displayName: user.displayName, code: issued.code });
+    setActionFailed(false);
+    try {
+      const issued = await webAdminClient.startPasswordReset(user.id);
+      onResetCode({ userId: user.id, displayName: user.displayName, code: issued.code });
+    } catch {
+      setActionFailed(true);
+    }
   };
 
   return (
@@ -72,6 +84,7 @@ export const AdminPersonRow = ({
           <Text variant="action" textId="admin.resetPassword" />
         </Button>
       </div>
+      {actionFailed && <Text variant="error" textId="admin.actionFailed" />}
     </div>
   );
 };

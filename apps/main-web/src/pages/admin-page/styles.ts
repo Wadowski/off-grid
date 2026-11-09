@@ -4,13 +4,6 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const adminPageStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[4],
-  maxWidth: "40rem",
-  minWidth: 0,
-};
-
 export const adminSectionStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[3],
