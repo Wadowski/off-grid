@@ -20,6 +20,7 @@ model FamilyMember {
   familyId String   @map("family_id") @db.Uuid
   userId   String   @map("user_id") @db.Uuid
   joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamptz(6)
+  role     String   @default("member")
   family   Family   @relation(fields: [familyId], references: [familyId])
 
   @@id([familyId, userId])

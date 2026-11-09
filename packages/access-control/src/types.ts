@@ -41,3 +41,5 @@ export type ReadOutcomeInput<Value> = {
   readonly subject: Subject;
   readonly resource: Resource;
 };
+
+export type FamilyRole = "admin" | "member";
