@@ -24,8 +24,21 @@ model FamilyMember {
   role     String   @default("member")
   family   Family   @relation(fields: [familyId], references: [familyId])
 
+  activeFamilies FamilyActiveFamily[]
+
   @@id([familyId, userId])
   @@map("family_member")
+  @@schema("family")
+}
+
+model FamilyActiveFamily {
+  sessionId  String       @id @map("session_id") @db.Uuid
+  userId     String       @map("user_id") @db.Uuid
+  familyId   String       @map("family_id") @db.Uuid
+  selectedAt DateTime     @default(now()) @map("selected_at") @db.Timestamptz(6)
+  member     FamilyMember @relation(fields: [familyId, userId], references: [familyId, userId], onDelete: Cascade)
+
+  @@map("active_family")
   @@schema("family")
 }
 

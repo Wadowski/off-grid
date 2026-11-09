@@ -23,6 +23,8 @@ import { instanceSettingsUpdateSchema } from "./instance-settings-update-schema.
 import { mailSettingsRequestSchema } from "./mail-settings-request-schema.js";
 import { mailSettingsSchema } from "./mail-settings-schema.js";
 import { familySchema } from "./family-schema.js";
+import { activeFamilySchema } from "./active-family-schema.js";
+import { selectActiveFamilyRequestSchema } from "./select-active-family-request-schema.js";
 import { passwordResetIssuedSchema } from "./password-reset-issued-schema.js";
 import { passwordResetRequestSchema } from "./password-reset-request-schema.js";
 import { passwordRecoveryOptionsSchema } from "./password-recovery-options-schema.js";
@@ -43,6 +45,8 @@ export const openApiComponentSchemas = {
   ErrorResponse: errorResponseSchema,
   CreateFamilyRequest: createFamilyRequestSchema,
   Family: familySchema,
+  ActiveFamily: activeFamilySchema,
+  SelectActiveFamilyRequest: selectActiveFamilyRequestSchema,
   FamilyList: familyListSchema,
   CreateAccountRequest: createAccountRequestSchema,
   AccountCreated: accountCreatedSchema,
