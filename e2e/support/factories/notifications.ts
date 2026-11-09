@@ -11,7 +11,7 @@ export type Person = {
   password: string;
 };
 
-export type SignedInPerson = Person & { session: Session };
+export type SignedInPerson = Person & { session: Session; recoveryCode?: string };
 
 export type NotificationItem = {
   id: string;
@@ -38,7 +38,8 @@ export async function signedInPerson(
     throw new Error(`${name} cannot sign in after registering`);
   }
   const body = registration.body as { user: { id: string } };
-  return { userId: body.user.id, email, password: STRONG_PASSWORD, session };
+  const recoveryCode = (registration.body as { recoveryCode?: string }).recoveryCode;
+  return { userId: body.user.id, email, password: STRONG_PASSWORD, session, recoveryCode };
 }
 
 function bearer(session: Session): Record<string, string> {

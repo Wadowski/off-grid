@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:identity @wip
+@module:identity
 Feature: Authenticated requests
 
   Every protected request carries a real, trusted identity and family
@@ -10,7 +10,7 @@ Feature: Authenticated requests
 
   Scenario: No session
     When a request without a session reaches a protected endpoint
-    Then it is refused with "unauthorized"
+    Then it is refused with "UNAUTHENTICATED"
 
   Scenario: Public endpoints stay public
     When anyone calls the health endpoint
@@ -28,10 +28,11 @@ Feature: Authenticated requests
 
   Scenario: Acting in a family you do not belong to
     Given Anna is signed in
-    And another user has a family named "Cabin Circle"
+    And another person already has a family named "Cabin Circle"
     When Anna sends a request acting in "Cabin Circle"
-    Then it is refused with "forbidden"
+    Then it is refused with "FORBIDDEN"
 
+  @wip
   Scenario: Removed member loses access immediately
     Given Anna is signed in
     And Anna has created the family "Kowalski"

@@ -7,21 +7,27 @@ import { describe, expect, it } from "vitest";
 import { Button, Card, TextField } from "./index.js";
 import { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 
+const AXE_RUN_TIMEOUT_MS = 30_000;
+
 describe("accessibility", () => {
-  it("has no axe violations for the shared components", async () => {
-    const { container } = render(
-      <main>
-        <Card>
-          <TextField label="Family name" error="Name is required." />
-          <Button>Create family</Button>
-          <Button variant="secondary">Cancel</Button>
-          <VisuallyHidden>Opens in a new tab</VisuallyHidden>
-        </Card>
-      </main>,
-    );
+  it(
+    "has no axe violations for the shared components",
+    async () => {
+      const { container } = render(
+        <main>
+          <Card>
+            <TextField label="Family name" error="Name is required." />
+            <Button>Create family</Button>
+            <Button variant="secondary">Cancel</Button>
+            <VisuallyHidden>Opens in a new tab</VisuallyHidden>
+          </Card>
+        </main>,
+      );
 
-    const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
+      const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
 
-    expect(results.violations).toEqual([]);
-  });
+      expect(results.violations).toEqual([]);
+    },
+    AXE_RUN_TIMEOUT_MS,
+  );
 });

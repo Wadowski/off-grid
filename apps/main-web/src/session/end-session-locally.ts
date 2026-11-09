@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { clearAccessToken } from "./clear-access-token.js";
+import { forgetSignedIn } from "./signed-in-marker.js";
 import { setSessionState } from "./set-session-state.js";
 import type { SignedOutReason } from "./types.js";
 
 export const endSessionLocally = (reason: SignedOutReason | null): void => {
   clearAccessToken();
+  forgetSignedIn();
   setSessionState({ status: "signedOut", freshServer: false, reason });
 };
