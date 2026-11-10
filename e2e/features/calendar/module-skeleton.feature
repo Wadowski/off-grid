@@ -17,5 +17,6 @@ Feature: Calendar data stays with its owner
   @wip
   Scenario: A personal calendar is hidden from other people
     Given Anna has a personal calendar named "Work"
+    And Ben belongs to a family of his own
     When Ben looks at the calendars
     Then Ben sees no calendars

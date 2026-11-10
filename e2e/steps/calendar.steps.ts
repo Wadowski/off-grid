@@ -22,6 +22,10 @@ Given(/^Anna has a personal calendar named "[^"]*"$/, () =>
   notImplemented("Anna has a personal calendar named"),
 );
 
+Given("Ben belongs to a family of his own", () =>
+  notImplemented("Ben belongs to a family of his own"),
+);
+
 When("Ben looks at the calendars", () => notImplemented("Ben looks at the calendars"));
 
 Then("Ben sees no calendars", () => notImplemented("Ben sees no calendars"));
