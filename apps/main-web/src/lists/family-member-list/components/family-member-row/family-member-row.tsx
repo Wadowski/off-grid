@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, Select, Text } from "@offgrid/ui";
 import type { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { CurrentUserRole } from "../../../../types.js";
@@ -10,7 +10,6 @@ import {
   familyMemberActionsStyle,
   familyMemberIdentityStyle,
   familyMemberRowStyle,
-  familyMemberSelectStyle,
 } from "./styles.js";
 
 export const FamilyMemberRow = ({
@@ -35,18 +34,13 @@ export const FamilyMemberRow = ({
         <div style={familyMemberActionsStyle}>
           <label>
             <Text variant="caption" textId="familyManager.roleLabel" />{" "}
-            <select
-              value={member.role}
-              onChange={changeRole}
-              style={familyMemberSelectStyle}
-              data-testid="family-member-role"
-            >
+            <Select value={member.role} onChange={changeRole} data-testid="family-member-role">
               {roleOptions.map((role) => (
                 <option key={role} value={role}>
                   {t(role === "admin" ? "familyManager.roleAdmin" : "familyManager.roleMember")}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
           <Button variant="ghost" data-testid="family-member-remove" onClick={onRemove}>
             <Text variant="error" textId="familyManager.remove" />

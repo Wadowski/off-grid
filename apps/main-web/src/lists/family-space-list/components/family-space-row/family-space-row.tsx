@@ -51,12 +51,12 @@ export const FamilySpaceRow = ({
       {isActive ? (
         <Text variant="status" textId="families.activeSpace" />
       ) : (
-        <Button variant="secondary" data-testid="family-space-switch" onClick={onSwitch}>
-          <Text variant="action" textId="families.switch" />
+        <Button variant="ghost" data-testid="family-space-switch" onClick={onSwitch}>
+          <Text variant="link" textId="families.switch" />
         </Button>
       )}
       <Button variant="ghost" data-testid="family-space-manage" onClick={onManage}>
-        <Text variant="action" textId="families.manage" />
+        <Text variant="link" textId="families.manage" />
       </Button>
       <Button variant="ghost" data-testid="family-space-leave" onClick={onLeave}>
         <Text variant="error" textId="families.leave" />

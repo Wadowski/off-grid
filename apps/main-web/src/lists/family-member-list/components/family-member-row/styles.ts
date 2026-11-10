@@ -27,12 +27,3 @@ export const familyMemberActionsStyle: CSSProperties = {
   alignItems: "center",
   gap: tokens.space[2],
 };
-
-export const familyMemberSelectStyle: CSSProperties = {
-  padding: `${tokens.space[1]} ${tokens.space[2]}`,
-  borderRadius: tokens.radius.md,
-  border: `1px solid ${cssVar("color-line")}`,
-  background: cssVar("color-surface"),
-  color: cssVar("color-fg"),
-  font: "inherit",
-};

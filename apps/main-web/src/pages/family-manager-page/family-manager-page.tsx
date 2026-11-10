@@ -13,7 +13,11 @@ import { FamilyMemberList } from "../../lists/family-member-list/family-member-l
 import { useSession } from "../../session/use-session.js";
 import type { CurrentUserRole, FamilyMember, FamiliesContext, ListStatus } from "../../types.js";
 import type { FamilyManagerErrorTextId } from "./types.js";
-import { familyManagerActionsStyle, familyManagerPageStyle } from "./styles.js";
+import {
+  familyManagerHeaderStyle,
+  familyManagerIntroStyle,
+  familyManagerPageStyle,
+} from "./styles.js";
 
 export const FamilyManagerPage = () => {
   const { familyId = "" } = useParams();
@@ -83,9 +87,18 @@ export const FamilyManagerPage = () => {
   };
 
   return (
-    <div style={familyManagerPageStyle}>
-      <Text variant="heading" textId="familyManager.heading" />
-      <Text variant="body" textId="familyManager.description" />
+    <section style={familyManagerPageStyle}>
+      <div style={familyManagerHeaderStyle}>
+        <div style={familyManagerIntroStyle}>
+          <Text variant="subheading" textId="familyManager.heading" />
+          <Text variant="body" textId="familyManager.description" />
+        </div>
+        {canManage && (
+          <Button variant="primary" size="small" onClick={() => setInviteOpen(true)}>
+            <Text variant="action" textId="familyManager.invite" />
+          </Button>
+        )}
+      </div>
       {membersStatus === "loading" && <Text variant="status" textId="familyManager.loading" />}
       {membersStatus === "failed" && (
         <div role="alert">
@@ -106,16 +119,9 @@ export const FamilyManagerPage = () => {
           <Text variant="error" textId={errorTextId} />
         </div>
       )}
-      {canManage && (
-        <div style={familyManagerActionsStyle}>
-          <Button variant="primary" onClick={() => setInviteOpen(true)}>
-            <Text variant="action" textId="familyManager.invite" />
-          </Button>
-        </div>
-      )}
       {inviteOpen && (
         <FamilyInviteDialog familyId={familyId} onClose={() => setInviteOpen(false)} />
       )}
-    </div>
+    </section>
   );
 };

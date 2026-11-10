@@ -8,6 +8,7 @@ export const settingsSubpageStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[4],
   maxWidth: "40rem",
+  marginInline: "auto",
   minWidth: 0,
 };
 

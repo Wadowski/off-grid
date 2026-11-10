@@ -56,8 +56,9 @@ export const App = () => {
                 <Route path="apps" element={<AppsPage />} />
                 <Route path="families/new" element={<CreateFamilySpacePage />} />
                 <Route path="settings" element={<SettingsPage />} />
-                <Route path="settings/families" element={<SettingsFamiliesPage />} />
-                <Route path="settings/families/:familyId" element={<FamilyManagerPage />} />
+                <Route path="settings/families" element={<SettingsFamiliesPage />}>
+                  <Route path=":familyId" element={<FamilyManagerPage />} />
+                </Route>
                 <Route path="settings/profile" element={<SettingsProfilePage />} />
                 <Route path="settings/password" element={<SettingsPasswordPage />} />
                 <Route path="settings/devices" element={<SettingsDevicesPage />} />

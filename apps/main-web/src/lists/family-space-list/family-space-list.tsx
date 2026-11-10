@@ -59,7 +59,7 @@ export const FamilySpaceList = () => {
     <>
       <div style={familySpacesHeaderStyle}>
         <Text variant="body" textId="families.managerDescription" />
-        <Button variant="secondary" onClick={() => navigate("/families/new")}>
+        <Button variant="secondary" size="small" onClick={() => navigate("/families/new")}>
           <Text variant="action" textId="families.addSpace" />
         </Button>
       </div>

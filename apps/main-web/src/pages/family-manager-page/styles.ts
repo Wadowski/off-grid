@@ -5,18 +5,22 @@ import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
 export const familyManagerPageStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: tokens.space[4],
+  display: "grid",
+  gap: tokens.space[3],
   width: "100%",
-  maxWidth: "48rem",
   minWidth: 0,
-  marginInline: "auto",
 };
 
-export const familyManagerActionsStyle: CSSProperties = {
+export const familyManagerHeaderStyle: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
-  justifyContent: "flex-end",
-  gap: tokens.space[2],
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: tokens.space[3],
+};
+
+export const familyManagerIntroStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[1],
+  minWidth: 0,
 };
