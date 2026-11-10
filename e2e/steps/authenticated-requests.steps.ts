@@ -154,3 +154,20 @@ Then("it is refused even though her session is still valid", async ({ world }) =
   });
   expect(session.status()).toBe(200);
 });
+
+When("Anna chooses {string} as the family she is acting in", async ({ world }, name: string) => {
+  const anna = await annaOf(world);
+  await recordResponse(
+    world,
+    await world.api.put("/api/families/active", {
+      headers: bearer(anna.session),
+      data: { familyId: familyIdNamed(world, name) },
+      failOnStatusCode: false,
+    }),
+  );
+});
+
+Then("the choice is confirmed for {string}", ({ world }, name: string) => {
+  expect(world.response?.status).toBe(200);
+  expect(world.response?.body).toEqual({ familyId: familyIdNamed(world, name) });
+});
