@@ -23,7 +23,10 @@ export const FamilyMemberRow = ({
   onRemove,
 }: FamilyMemberRowProps) => {
   const { t } = useTranslation();
-  const roleOptions: readonly CurrentUserRole[] = ["admin", "member"];
+  const roleOptions = (["admin", "member"] as const).map((role) => ({
+    value: role,
+    label: t(role === "admin" ? "familyManager.roleAdmin" : "familyManager.roleMember"),
+  }));
   const roleTextId =
     member.role === "admin" ? "familyManager.roleAdmin" : "familyManager.roleMember";
   const changeRole = (event: ChangeEvent<HTMLSelectElement>) =>
@@ -48,13 +51,12 @@ export const FamilyMemberRow = ({
         <div style={familyMemberActionsStyle}>
           <label>
             <Text variant="caption" textId="familyManager.roleLabel" />{" "}
-            <Select value={member.role} onChange={changeRole} data-testid="family-member-role">
-              {roleOptions.map((role) => (
-                <option key={role} value={role}>
-                  {t(role === "admin" ? "familyManager.roleAdmin" : "familyManager.roleMember")}
-                </option>
-              ))}
-            </Select>
+            <Select
+              value={member.role}
+              options={roleOptions}
+              onChange={changeRole}
+              data-testid="family-member-role"
+            />
           </label>
           <Button variant="ghost" data-testid="family-member-remove" onClick={onRemove}>
             <Text variant="error" textId="familyManager.remove" />

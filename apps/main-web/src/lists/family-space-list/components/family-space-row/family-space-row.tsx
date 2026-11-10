@@ -15,7 +15,6 @@ import {
   familySpaceHeaderStyle,
   familySpaceIdentityStyle,
   familySpaceNameStyle,
-  familySpaceSelectStyle,
 } from "./styles.js";
 
 export const FamilySpaceRow = ({
@@ -35,15 +34,15 @@ export const FamilySpaceRow = ({
     data-testid="family-space-row"
   >
     <div style={familySpaceHeaderStyle}>
-      <button
-        type="button"
-        className="og-focusable"
-        style={familySpaceSelectStyle}
+      <Button
+        variant="ghost"
+        align="start"
+        fullWidth
         aria-current={isSelected ? "true" : undefined}
         data-testid="family-space-select"
         onClick={onSelect}
       >
-        <div style={familySpaceIdentityStyle}>
+        <span style={familySpaceIdentityStyle}>
           <IconTile size="2.5rem" {...FAMILY_ACCENT_COLORS[space.accent]}>
             <MaterialIcon
               name={FAMILY_PURPOSE_ICON_NAMES[space.purpose]}
@@ -51,12 +50,12 @@ export const FamilySpaceRow = ({
               color="currentColor"
             />
           </IconTile>
-          <div style={familySpaceNameStyle}>
+          <span style={familySpaceNameStyle}>
             <Text variant="label" value={space.name} />
             <Text variant="caption" textId={FAMILY_PURPOSE_LABEL_TEXT_IDS[space.purpose]} />
-          </div>
-        </div>
-      </button>
+          </span>
+        </span>
+      </Button>
       <Text
         variant="caption"
         textId={space.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember"}

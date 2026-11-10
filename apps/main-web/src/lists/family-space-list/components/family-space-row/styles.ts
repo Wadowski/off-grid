@@ -31,24 +31,13 @@ export const familySpaceHeaderStyle: CSSProperties = {
   gap: tokens.space[2],
 };
 
-export const familySpaceSelectStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  padding: 0,
-  border: "none",
-  borderRadius: tokens.radius.md,
-  background: "transparent",
-  color: "inherit",
-  font: "inherit",
-  textAlign: "start",
-  cursor: "pointer",
-};
-
 export const familySpaceIdentityStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: tokens.space[3],
   minWidth: 0,
+  // The ghost button colours its content muted; the space name stays at full text colour.
+  color: cssVar("color-fg"),
 };
 
 export const familySpaceNameStyle: CSSProperties = {
