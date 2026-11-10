@@ -4,19 +4,18 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const familySpaceRowStyle: CSSProperties = {
+export const familySpaceRowStyle = (active: boolean, divided: boolean): CSSProperties => ({
   display: "flex",
   flexWrap: "wrap",
   alignItems: "center",
   justifyContent: "space-between",
   gap: tokens.space[3],
   padding: tokens.space[3],
-  borderRadius: tokens.radius.lg,
-  background: cssVar("color-surface"),
-  borderStyle: "solid",
-  borderWidth: "1px",
-  borderColor: cssVar("color-line"),
-};
+  background: active ? cssVar("color-accent-soft") : "transparent",
+  borderTopStyle: divided ? "solid" : "none",
+  borderTopWidth: "1px",
+  borderTopColor: cssVar("color-surface-high"),
+});
 
 export const familySpaceIdentityStyle: CSSProperties = {
   display: "flex",

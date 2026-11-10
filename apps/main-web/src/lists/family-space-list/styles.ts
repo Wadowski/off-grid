@@ -11,12 +11,15 @@ export const familySpacesHeaderStyle: CSSProperties = {
   gap: tokens.space[3],
 };
 
-export const familySpaceListStyle: CSSProperties = {
+export const familySpaceGroupStyle: CSSProperties = {
   listStyle: "none",
   margin: 0,
   padding: 0,
   display: "grid",
-  gap: tokens.space[2],
+  overflow: "hidden",
+  borderRadius: tokens.radius.lg,
+  background: cssVar("color-surface"),
+  boxShadow: cssVar("elevation-1"),
 };
 
 export const familySpaceErrorStyle: CSSProperties = {

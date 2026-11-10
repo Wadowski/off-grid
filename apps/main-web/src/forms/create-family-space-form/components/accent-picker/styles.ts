@@ -6,30 +6,9 @@ import type { CSSProperties } from "react";
 import type { FamilyAccent } from "@offgrid/contracts";
 import { FAMILY_ACCENT_COLORS } from "../../../../families/family-appearance.js";
 
-export const accentRowStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: tokens.space[3],
-  padding: tokens.space[3],
-  borderRadius: tokens.radius.lg,
-  background: cssVar("color-bg"),
-};
-
-export const accentPreviewStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: tokens.space[3],
-};
-
-export const accentPreviewTextStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[1],
-};
-
 export const accentSwatchesStyle: CSSProperties = {
   display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
   gap: tokens.space[2],
 };

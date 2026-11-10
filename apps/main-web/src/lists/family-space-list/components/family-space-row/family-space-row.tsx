@@ -14,8 +14,14 @@ import {
   familySpaceRowStyle,
 } from "./styles.js";
 
-export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpaceRowProps) => (
-  <li style={familySpaceRowStyle} data-testid="family-space-row">
+export const FamilySpaceRow = ({
+  space,
+  isActive,
+  divided,
+  onSwitch,
+  onLeave,
+}: FamilySpaceRowProps) => (
+  <li style={familySpaceRowStyle(isActive, divided)} data-testid="family-space-row">
     <div style={familySpaceIdentityStyle}>
       <IconTile size="2.5rem" {...FAMILY_ACCENT_COLORS[space.accent]}>
         <MaterialIcon

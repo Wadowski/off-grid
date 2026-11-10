@@ -26,13 +26,20 @@ Feature: Create a family space and see the spaces I belong to
   Scenario: A person picks an accent colour and a space purpose on the create screen
     Given I am a user with a family named "The Smiths"
     When I open the create family space screen
-    And I choose the "sage" accent colour and the "Getaway" space purpose
-    Then the "sage" accent colour and the "Getaway" space purpose are selected
+    And I choose the "teal" accent colour and the "Getaway" space purpose
+    Then the "teal" accent colour and the "Getaway" space purpose are selected
 
   Scenario: A person sees every space they belong to with their role
     Given I am a user with a family named "The Smiths"
     And another user adds me to a family named "Cabin Circle" as a member
     When I open family and spaces settings
+    Then I see "The Smiths" with the role "admin"
+    And I see "Cabin Circle" with the role "member"
+
+  Scenario: The family selector on the home page lists every space with its role
+    Given I am a user with a family named "The Smiths"
+    And another user adds me to a family named "Cabin Circle" as a member
+    When I open the home page
     Then I see "The Smiths" with the role "admin"
     And I see "Cabin Circle" with the role "member"
 
@@ -59,5 +66,5 @@ Feature: Create a family space and see the spaces I belong to
 
   Scenario: A family space keeps the accent and purpose chosen when it was created
     Given I am a user with a family named "The Smiths"
-    When I create a family space named "Lake House" choosing the "sage" accent colour and the "Getaway" space purpose
-    Then "Lake House" is saved with the "sage" accent colour and the "Getaway" space purpose
+    When I create a family space named "Lake House" choosing the "teal" accent colour and the "Getaway" space purpose
+    Then "Lake House" is saved with the "teal" accent colour and the "Getaway" space purpose

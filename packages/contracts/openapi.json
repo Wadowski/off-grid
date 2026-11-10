@@ -65,9 +65,17 @@
             "type": "string",
             "enum": [
               "blue",
-              "sage",
-              "terracotta",
-              "lilac"
+              "sky",
+              "teal",
+              "green",
+              "lime",
+              "amber",
+              "orange",
+              "red",
+              "pink",
+              "purple",
+              "indigo",
+              "slate"
             ]
           },
           "purpose": {
@@ -171,9 +179,17 @@
                   "type": "string",
                   "enum": [
                     "blue",
-                    "sage",
-                    "terracotta",
-                    "lilac"
+                    "sky",
+                    "teal",
+                    "green",
+                    "lime",
+                    "amber",
+                    "orange",
+                    "red",
+                    "pink",
+                    "purple",
+                    "indigo",
+                    "slate"
                   ]
                 },
                 "purpose": {

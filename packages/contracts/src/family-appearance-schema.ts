@@ -3,7 +3,20 @@
 
 import { z } from "zod";
 
-export const familyAccentSchema = z.enum(["blue", "sage", "terracotta", "lilac"]);
+export const familyAccentSchema = z.enum([
+  "blue",
+  "sky",
+  "teal",
+  "green",
+  "lime",
+  "amber",
+  "orange",
+  "red",
+  "pink",
+  "purple",
+  "indigo",
+  "slate",
+]);
 
 export type FamilyAccent = z.infer<typeof familyAccentSchema>;
 

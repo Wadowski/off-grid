@@ -20,7 +20,7 @@ export interface components {
         CreateFamilyRequest: {
             name: string;
             /** @enum {string} */
-            accent?: "blue" | "sage" | "terracotta" | "lilac";
+            accent?: "blue" | "sky" | "teal" | "green" | "lime" | "amber" | "orange" | "red" | "pink" | "purple" | "indigo" | "slate";
             /** @enum {string} */
             purpose?: "household" | "getaway" | "extended";
         };
@@ -47,7 +47,7 @@ export interface components {
                 /** @enum {string} */
                 role: "admin" | "member";
                 /** @enum {string} */
-                accent: "blue" | "sage" | "terracotta" | "lilac";
+                accent: "blue" | "sky" | "teal" | "green" | "lime" | "amber" | "orange" | "red" | "pink" | "purple" | "indigo" | "slate";
                 /** @enum {string} */
                 purpose: "household" | "getaway" | "extended";
             }[];

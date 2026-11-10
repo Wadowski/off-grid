@@ -179,6 +179,11 @@ Then(
   },
 );
 
+When("I open the home page", async ({ page }) => {
+  await page.goto(`${webBaseUrl()}/`);
+  await expect(page.getByTestId(SPACE_LIST)).toBeVisible();
+});
+
 When("I open family and spaces settings", async ({ page }) => {
   await openSettings(page);
 });

@@ -70,7 +70,7 @@ Given("I belong to a family named {string}", async ({ page, world }, name: strin
   await registerAndOpenApp(page, world);
   await expectCreateFamilyStep(page);
   await createFamilyThroughForm(page, name);
-  await expect(page.getByTestId("family-list-item")).toContainText(name);
+  await expect(page.getByTestId("family-space-row")).toContainText(name);
   await signOutFromHome(page);
 });
 
@@ -105,16 +105,16 @@ Then("I am still on the create-family step", async ({ page }) => {
 
 Then("I land on the home page", async ({ page }) => {
   await expect.poll(() => currentPath(page)).toBe(HOME_PATH);
-  await expect(page.getByTestId("family-list-item").first()).toBeVisible();
+  await expect(page.getByTestId("family-space-row").first()).toBeVisible();
 });
 
 Then("I am a member of {string}", async ({ page }, name: string) => {
-  await expect(page.getByTestId("family-list-item")).toContainText(name);
+  await expect(page.getByTestId("family-space-row")).toContainText(name);
 });
 
 Then("I go straight to the home page", async ({ page }) => {
   await expect.poll(() => currentPath(page)).toBe(HOME_PATH);
-  await expect(page.getByTestId("family-list-item").first()).toBeVisible();
+  await expect(page.getByTestId("family-space-row").first()).toBeVisible();
 });
 
 Then("I see a note to ask my family organizer for an invitation", async ({ page }) => {

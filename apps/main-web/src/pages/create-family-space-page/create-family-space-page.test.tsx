@@ -71,10 +71,10 @@ describe("Create family space page", () => {
     ]);
     render(<App />);
 
-    const sage = await screen.findByRole("button", { name: "Sage" });
-    fireEvent.click(sage);
+    const teal = await screen.findByRole("button", { name: "Teal" });
+    fireEvent.click(teal);
 
-    expect(sage).toHaveAttribute("aria-pressed", "true");
+    expect(teal).toHaveAttribute("aria-pressed", "true");
   });
 
   it("asks for a name before creating a space", async () => {
@@ -149,7 +149,7 @@ describe("Create family space page", () => {
     fireEvent.change(screen.getByLabelText("Family or Household Name"), {
       target: { value: "Cabin Circle" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /^Sage$/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Teal$/ }));
     fireEvent.click(screen.getByRole("radio", { name: /Getaway/ }));
     fireEvent.click(screen.getByTestId("create-family-submit"));
 
@@ -158,7 +158,7 @@ describe("Create family space page", () => {
       expect.stringContaining("/families"),
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ name: "Cabin Circle", accent: "sage", purpose: "getaway" }),
+        body: JSON.stringify({ name: "Cabin Circle", accent: "teal", purpose: "getaway" }),
       }),
     );
   });

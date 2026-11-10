@@ -40,7 +40,7 @@ describe("app shell", () => {
       },
     ]);
     const { container } = render(<App />);
-    await screen.findByTestId("family-list-item");
+    await screen.findByTestId("family-space-row");
 
     expect(screen.getByRole("banner")).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();

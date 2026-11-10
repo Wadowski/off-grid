@@ -85,7 +85,7 @@ describe("First family page", () => {
     fillName("Lakeside");
     submitForm();
 
-    expect(await screen.findByTestId("family-list-item")).toHaveTextContent("Lakeside");
+    expect(await screen.findByTestId("family-space-row")).toHaveTextContent("Lakeside");
     expect(window.location.pathname).toBe("/");
     expect(fetchMock).toHaveBeenCalledTimes(5);
     const postCall = fetchMock.mock.calls.find(
@@ -164,7 +164,7 @@ describe("First family page", () => {
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-item")).toHaveTextContent("Lakeside");
+    expect(await screen.findByTestId("family-space-row")).toHaveTextContent("Lakeside");
     expect(window.location.pathname).toBe("/");
     expect(screen.queryByText(WELCOME_HEADING)).not.toBeInTheDocument();
   });

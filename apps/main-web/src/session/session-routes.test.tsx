@@ -64,7 +64,7 @@ describe("web session routes", () => {
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-item")).toBeInTheDocument();
+    expect(await screen.findByTestId("family-space-row")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/");
   });
 
@@ -108,7 +108,7 @@ describe("web session routes", () => {
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-item")).toBeInTheDocument();
+    expect(await screen.findByTestId("family-space-row")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/");
     const lastCall = fetchMock.mock.calls.at(-1);
     expect(new Headers(lastCall?.[1]?.headers).get("authorization")).toBe(
@@ -151,7 +151,7 @@ describe("web session routes", () => {
       { status: 204, body: undefined },
     ]);
     render(<App />);
-    await screen.findByTestId("family-list-item");
+    await screen.findByTestId("family-space-row");
 
     fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));

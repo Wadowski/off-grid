@@ -60,7 +60,7 @@ describe("list families route", { timeout: 60_000 }, () => {
 
   it("returns the accent and purpose a family was created with", async () => {
     const person = randomUUID();
-    await createFamily(db.db, person, "Cabin Circle", { accent: "sage", purpose: "getaway" });
+    await createFamily(db.db, person, "Cabin Circle", { accent: "teal", purpose: "getaway" });
 
     const response = await app.inject({
       method: "GET",
@@ -73,7 +73,7 @@ describe("list families route", { timeout: 60_000 }, () => {
         id: expect.any(String),
         name: "Cabin Circle",
         role: "admin",
-        accent: "sage",
+        accent: "teal",
         purpose: "getaway",
       },
     ]);

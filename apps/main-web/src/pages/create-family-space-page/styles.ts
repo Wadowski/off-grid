@@ -8,4 +8,6 @@ export const createFamilySpacePageStyle: CSSProperties = {
   ...familiesPageStyle,
   maxWidth: "30rem",
   minWidth: 0,
+  marginInline: "auto",
+  textAlign: "center",
 };

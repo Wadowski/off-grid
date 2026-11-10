@@ -10,12 +10,18 @@ export const purposeGroupStyle: CSSProperties = {
   gap: tokens.space[2],
 };
 
+export const purposeCardStyle = (selected: boolean): CSSProperties => ({
+  padding: tokens.space[3],
+  borderRadius: tokens.radius.lg,
+  borderStyle: "solid",
+  borderWidth: "1px",
+  borderColor: selected ? cssVar("color-accent") : cssVar("color-line"),
+  background: selected ? cssVar("color-accent-soft") : cssVar("color-surface"),
+});
+
 export const purposeOptionStyle: CSSProperties = {
   display: "grid",
   justifyItems: "center",
   gap: tokens.space[1],
-  padding: tokens.space[3],
-  borderRadius: tokens.radius.lg,
-  background: cssVar("color-bg"),
   textAlign: "center",
 };

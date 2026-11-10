@@ -8,4 +8,6 @@ export type RadioProps = Omit<
   "style" | "className" | "type"
 > & {
   readonly label: ReactNode;
+  /** Stacks the input above the label content and centres both. */
+  readonly centered?: boolean;
 };
