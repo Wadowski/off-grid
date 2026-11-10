@@ -26,11 +26,21 @@ describe("app shell", () => {
       ...signedInStartup(),
       {
         status: 200,
-        body: { families: [{ id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f", name: "Lakeside" }] },
+        body: {
+          families: [
+            {
+              id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
       },
     ]);
     const { container } = render(<App />);
-    await screen.findByTestId("family-list-item");
+    await screen.findByTestId("family-space-row");
 
     expect(screen.getByRole("banner")).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();

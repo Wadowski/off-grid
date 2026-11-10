@@ -15,17 +15,10 @@ export const profileCardStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const profileAvatarStyle: CSSProperties = {
-  display: "grid",
-  placeItems: "center",
-  width: "3.5rem",
-  height: "3.5rem",
-  borderRadius: "9999px",
+export const profileAvatarColors = {
   background: cssVar("color-accent"),
   color: cssVar("color-accent-fg"),
-  fontWeight: 600,
-  flexShrink: 0,
-};
+} as const;
 
 export const profileTextStyle: CSSProperties = {
   display: "grid",

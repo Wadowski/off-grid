@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, IconTile, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { webAdminClient } from "../../../../api/web-api-client.js";
 import { initialsOf } from "../../../../session/initials-of.js";
 import {
   adminActionsStyle,
-  adminAvatarStyle,
+  adminAvatarColors,
   adminChipMutedStyle,
   adminChipRowStyle,
   adminChipStyle,
@@ -58,9 +58,9 @@ export const AdminPersonRow = ({
   return (
     <div style={adminRowStyle(isFirst)} data-testid={`admin-person-${user.id}`}>
       <div style={adminRowMainStyle}>
-        <span style={adminAvatarStyle} aria-hidden="true">
+        <IconTile size="2.25rem" shape="circle" {...adminAvatarColors}>
           {initialsOf(user.displayName)}
-        </span>
+        </IconTile>
         <div style={adminRowTextStyle}>
           <Text variant="label" value={user.displayName} />
           <Text variant="status" value={user.email} />

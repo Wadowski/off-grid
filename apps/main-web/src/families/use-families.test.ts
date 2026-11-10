@@ -6,7 +6,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "../test-support/json-response.js";
 import { useFamilies } from "./use-families.js";
 
-const LAKESIDE = { id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f", name: "Lakeside" };
+const LAKESIDE = {
+  id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
+  name: "Lakeside",
+  role: "admin",
+  accent: "blue",
+  purpose: "household",
+};
 const CREATED_AT = "2026-10-31T10:00:00.000Z";
 
 const deferredResponse = () => {

@@ -46,12 +46,25 @@ describe("web session routes", () => {
     openAt("/sign-in");
     stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: LAKESIDE_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-item")).toBeInTheDocument();
+    expect(await screen.findByTestId("family-space-row")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/");
   });
 
@@ -77,12 +90,25 @@ describe("web session routes", () => {
           accessExpiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
         },
       },
-      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: LAKESIDE_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-item")).toBeInTheDocument();
+    expect(await screen.findByTestId("family-space-row")).toBeInTheDocument();
     expect(window.location.pathname).toBe("/");
     const lastCall = fetchMock.mock.calls.at(-1);
     expect(new Headers(lastCall?.[1]?.headers).get("authorization")).toBe(
@@ -108,11 +134,24 @@ describe("web session routes", () => {
     openAt("/");
     const fetchMock = stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: LAKESIDE_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
       { status: 204, body: undefined },
     ]);
     render(<App />);
-    await screen.findByTestId("family-list-item");
+    await screen.findByTestId("family-space-row");
 
     fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));

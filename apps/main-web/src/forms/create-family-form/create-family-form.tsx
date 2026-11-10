@@ -11,7 +11,7 @@ import { SubmitButton } from "./components/submit-button/submit-button.js";
 import { createFamilyFormSectionStyle } from "./styles.js";
 import type { CreateFamilyFormProps } from "./types.js";
 
-export const CreateFamilyForm = ({ status, onSubmit }: CreateFamilyFormProps) => {
+export const CreateFamilyForm = ({ status, onSubmit, children }: CreateFamilyFormProps) => {
   const [name, setName] = useState("");
   const [nameErrorTextId, setNameErrorTextId] = useState<FamilyNameErrorTextId | undefined>(
     undefined,
@@ -33,6 +33,7 @@ export const CreateFamilyForm = ({ status, onSubmit }: CreateFamilyFormProps) =>
     <div style={createFamilyFormSectionStyle}>
       <form data-testid="create-family-form" onSubmit={handleSubmit} noValidate>
         <FamilyNameField value={name} errorTextId={nameErrorTextId} onChange={setName} />
+        {children}
         <SubmitButton status={status} />
       </form>
       <FormStatus status={status} />

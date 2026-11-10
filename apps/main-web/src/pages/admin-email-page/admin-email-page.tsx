@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { Button, Text, TextField } from "@offgrid/ui";
+import { Button, IconTile, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { webAdminClient } from "../../api/web-api-client.js";
@@ -14,7 +14,7 @@ import {
   profileCardStyle,
   profileTextStyle,
 } from "../settings-page/components/settings-profile-card/styles.js";
-import { iconTileStyle } from "../settings-page/components/settings-link-row/styles.js";
+import { settingsIconColors } from "../settings-page/components/settings-link-row/styles.js";
 import {
   sectionCardStyle,
   sectionHeaderStyle,
@@ -104,9 +104,9 @@ const AdminEmailForm = () => {
   return (
     <SettingsSubpage titleTextId="admin.emailHeading">
       <div style={profileCardStyle}>
-        <span style={iconTileStyle(configured ? "good" : "soft")} aria-hidden="true">
+        <IconTile size="2rem" {...settingsIconColors(configured ? "good" : "soft")}>
           <MaterialIcon name="mail" size="19px" color="currentColor" />
-        </span>
+        </IconTile>
         <div style={profileTextStyle}>
           <Text
             variant="label"

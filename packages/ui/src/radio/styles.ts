@@ -11,6 +11,13 @@ export const radioLabelStyle: CSSProperties = {
   cursor: "pointer",
 };
 
+export const radioCenteredLabelStyle: CSSProperties = {
+  ...radioLabelStyle,
+  flexDirection: "column",
+  alignItems: "center",
+  textAlign: "center",
+};
+
 export const radioInputStyle: CSSProperties = {
   flexShrink: 0,
   margin: 0,

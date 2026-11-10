@@ -4,7 +4,7 @@
 export const BEARER_PATTERN = /^Bearer (.+)$/;
 export const RATE_WINDOW_MS = 60_000;
 
-export const CORS_ALLOWED_METHODS = ["GET", "POST", "PATCH", "DELETE", "OPTIONS"];
+export const CORS_ALLOWED_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"];
 
 export const FAMILY_HEADER = "x-offgrid-family-id";
 

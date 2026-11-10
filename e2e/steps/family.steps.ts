@@ -4,9 +4,9 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "../support/factories/identity.js";
-import { signInWith, type Session } from "../support/factories/instance-admin.js";
+import type { Session } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
+import { bearer, memberSessionOf, sessionOf } from "../support/family-sessions.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -14,26 +14,6 @@ const LONG_NAME_LENGTH = 101;
 const NOT_FOUND_CODE = "NOT_FOUND";
 const VALIDATION_CODE = "VALIDATION_FAILED";
 const LAST_ADMIN_CODE = "LAST_ADMIN";
-
-const bearer = (session: Session): Record<string, string> => ({
-  authorization: `Bearer ${session.accessToken}`,
-});
-
-const sessionOf = async (api: APIRequestContext, displayName: string): Promise<Session> => {
-  const email = uniqueEmail(displayName.toLowerCase().replace(/\s+/g, "-"));
-  const registration = await registerAccount(api, { email, displayName });
-  expect(registration.status).toBe(201);
-  const { session } = await signInWith(api, email, STRONG_PASSWORD);
-  expect(session, `${displayName} cannot sign in`).toBeDefined();
-  return session as Session;
-};
-
-const memberSessionOf = (world: ScenarioWorld): Session => {
-  if (world.memberAccessToken === undefined || world.userId === undefined) {
-    throw new Error("No signed-in member is set up for this scenario.");
-  }
-  return { userId: world.userId, accessToken: world.memberAccessToken };
-};
 
 const recordResponse = async (world: ScenarioWorld, response: APIResponse): Promise<void> => {
   world.response = {

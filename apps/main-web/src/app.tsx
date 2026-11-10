@@ -5,11 +5,13 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CreateAccountPage } from "./pages/create-account-page/create-account-page.js";
 import { AppsPage } from "./pages/apps-page/apps-page.js";
+import { CreateFamilySpacePage } from "./pages/create-family-space-page/create-family-space-page.js";
 import { FamiliesPage } from "./pages/families-page/families-page.js";
 import { FirstFamilyPage } from "./pages/first-family-page/first-family-page.js";
 import { ForgotPasswordPage } from "./pages/forgot-password-page/forgot-password-page.js";
 import { ResetPasswordPage } from "./pages/reset-password-page/reset-password-page.js";
 import { SignInPage } from "./pages/sign-in-page/sign-in-page.js";
+import { SettingsFamiliesPage } from "./pages/settings-families-page/settings-families-page.js";
 import { SettingsPage } from "./pages/settings-page/settings-page.js";
 import { SettingsProfilePage } from "./pages/settings-profile-page/settings-profile-page.js";
 import { SettingsPasswordPage } from "./pages/settings-password-page/settings-password-page.js";
@@ -51,7 +53,9 @@ export const App = () => {
               <Route element={<AppShell />}>
                 <Route index element={<FamiliesPage />} />
                 <Route path="apps" element={<AppsPage />} />
+                <Route path="families/new" element={<CreateFamilySpacePage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="settings/families" element={<SettingsFamiliesPage />} />
                 <Route path="settings/profile" element={<SettingsProfilePage />} />
                 <Route path="settings/password" element={<SettingsPasswordPage />} />
                 <Route path="settings/devices" element={<SettingsDevicesPage />} />

@@ -46,6 +46,29 @@ describe("removeFamilyMember", { timeout: 60_000 }, () => {
     expect(rows[0]).toEqual({ n: 1 });
   });
 
+  it("lets a member leave the family, and then they no longer see it", async () => {
+    const admin = randomUUID();
+    const member = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+    await addFamilyMember(db.db, family.id, member, "member");
+
+    const outcome = await removeFamilyMember(db.db, member, family.id, member);
+
+    expect(outcome).toMatchObject({ outcome: "found", value: { userId: member } });
+    expect(await listMyFamilies(db.db, member)).toEqual([]);
+    expect(await getFamily(db.db, admin, family.id)).toMatchObject({ outcome: "found" });
+  });
+
+  it("refuses the only admin leaving the family", async () => {
+    const admin = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+
+    expect(await removeFamilyMember(db.db, admin, family.id, admin)).toEqual({
+      outcome: "last-admin",
+    });
+    expect(await getFamily(db.db, admin, family.id)).toMatchObject({ outcome: "found" });
+  });
+
   it("refuses a member, who cannot remove anyone", async () => {
     const admin = randomUUID();
     const member = randomUUID();

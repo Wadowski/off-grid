@@ -3,8 +3,9 @@
 
 import { familySchema } from "@offgrid/contracts";
 import { webApiClient } from "../api/web-api-client.js";
+import type { FamilyAppearance } from "../types.js";
 
-export const createFamily = async (name: string) => {
-  const body = await webApiClient.request("POST", "/families", { name });
+export const createFamily = async (name: string, appearance?: FamilyAppearance) => {
+  const body = await webApiClient.request("POST", "/families", { name, ...appearance });
   return familySchema.parse(body);
 };

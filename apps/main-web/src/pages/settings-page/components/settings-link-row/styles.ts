@@ -24,21 +24,16 @@ export const linkTextStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const TONE_STYLES: Record<SettingsIconTone, CSSProperties> = {
+const TONE_COLORS: Record<
+  SettingsIconTone,
+  { readonly background: string; readonly color: string }
+> = {
   accent: { background: cssVar("color-accent"), color: cssVar("color-accent-fg") },
   soft: { background: cssVar("color-accent-soft"), color: cssVar("color-accent") },
   good: { background: cssVar("color-secondary-fixed"), color: cssVar("color-good") },
 };
 
-export const iconTileStyle = (tone: SettingsIconTone): CSSProperties => ({
-  display: "grid",
-  placeItems: "center",
-  width: "2rem",
-  height: "2rem",
-  borderRadius: cssVar("radius-md"),
-  flexShrink: 0,
-  ...TONE_STYLES[tone],
-});
+export const settingsIconColors = (tone: SettingsIconTone) => TONE_COLORS[tone];
 
 export const linkRowIcon = {
   chevron: cssVar("color-outline"),

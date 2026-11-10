@@ -3,12 +3,18 @@
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { listFamiliesForUser } from "../infrastructure/list-families-for-user.js";
-import type { FamilySummary } from "../types.js";
+import type { FamilyListEntry, FamilySummary } from "../types.js";
 
 export const listMyFamilies = async (
   db: ModuleDatabase,
   viewerUserId: string,
 ): Promise<FamilySummary[]> =>
+  (await listMyFamilySpaces(db, viewerUserId)).map(({ id, name }) => ({ id, name }));
+
+export const listMyFamilySpaces = async (
+  db: ModuleDatabase,
+  viewerUserId: string,
+): Promise<FamilyListEntry[]> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, viewerUserId);
     return listFamiliesForUser(tx, viewerUserId);

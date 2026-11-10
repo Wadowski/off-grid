@@ -64,7 +64,20 @@ describe("First family page", () => {
       ...signedInStartup(),
       { status: 200, body: { families: [] } },
       { status: 201, body: { id: FAMILY_ID, name: "Lakeside", createdAt: CREATED_AT } },
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
     render(<App />);
     await screen.findByText(WELCOME_HEADING);
@@ -72,7 +85,7 @@ describe("First family page", () => {
     fillName("Lakeside");
     submitForm();
 
-    expect(await screen.findByTestId("family-list-item")).toHaveTextContent("Lakeside");
+    expect(await screen.findByTestId("family-space-row")).toHaveTextContent("Lakeside");
     expect(window.location.pathname).toBe("/");
     expect(fetchMock).toHaveBeenCalledTimes(5);
     const postCall = fetchMock.mock.calls.find(
@@ -133,12 +146,25 @@ describe("First family page", () => {
     window.history.pushState({}, "", "/welcome");
     stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
 
     render(<App />);
 
-    expect(await screen.findByTestId("family-list-item")).toHaveTextContent("Lakeside");
+    expect(await screen.findByTestId("family-space-row")).toHaveTextContent("Lakeside");
     expect(window.location.pathname).toBe("/");
     expect(screen.queryByText(WELCOME_HEADING)).not.toBeInTheDocument();
   });

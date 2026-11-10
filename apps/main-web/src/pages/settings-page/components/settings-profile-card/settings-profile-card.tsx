@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
+import { IconTile, Text } from "@offgrid/ui";
 import {
-  profileAvatarStyle,
+  profileAvatarColors,
   profileCardStyle,
   profileRoleChipStyle,
   profileTextStyle,
@@ -17,9 +17,9 @@ export const SettingsProfileCard = ({
   roleTextId,
 }: SettingsProfileCardProps) => (
   <div style={profileCardStyle}>
-    <span style={profileAvatarStyle} aria-hidden="true">
+    <IconTile size="3.5rem" shape="circle" {...profileAvatarColors}>
       {initials}
-    </span>
+    </IconTile>
     <div style={profileTextStyle}>
       <Text variant="label" value={displayName} />
       <Text variant="status" value={email} />

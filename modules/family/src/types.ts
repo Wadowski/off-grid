@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FamilyRole, ReadOutcome } from "@offgrid/access-control";
+import type { FamilyAccent, FamilyPurpose } from "@offgrid/contracts";
 import type { CurrentUserId } from "@offgrid/http";
 import type { FastifyRequest } from "fastify";
 import type { ModuleDatabase } from "@offgrid/db";
@@ -17,13 +18,24 @@ export interface FamilySummary {
   readonly name: string;
 }
 
+export interface FamilyListEntry extends FamilySummary {
+  readonly role: FamilyRole;
+  readonly accent: FamilyAccent;
+  readonly purpose: FamilyPurpose;
+}
+
+export interface FamilyAppearance {
+  readonly accent: FamilyAccent;
+  readonly purpose: FamilyPurpose;
+}
+
 export interface FamilyRecord {
   readonly familyId: string;
   readonly name: string;
   readonly createdAt: Date;
 }
 
-export interface NewFamily {
+export interface NewFamily extends FamilyAppearance {
   readonly id: string;
   readonly name: string;
 }
