@@ -90,7 +90,19 @@ describe("Family manager screen", () => {
     const rows = await screen.findAllByTestId("family-member-row");
     expect(within(rows[0] as HTMLElement).getByText("Anna Kowalska")).toBeInTheDocument();
     expect(within(rows[1] as HTMLElement).getByText("Sam Smith")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Manage" }));
     expect(within(rows[1] as HTMLElement).getByTestId("family-member-role")).toHaveValue("member");
+  });
+
+  it("shows each role as a tag and marks the person themself", async () => {
+    await renderManager([SMITHS_ADMIN], [me, sam]);
+
+    const rows = await screen.findAllByTestId("family-member-row");
+    expect(within(rows[0] as HTMLElement).getByText("Admin")).toBeInTheDocument();
+    expect(within(rows[0] as HTMLElement).getByText("You")).toBeInTheDocument();
+    expect(within(rows[1] as HTMLElement).getByText("Member")).toBeInTheDocument();
+    expect(within(rows[1] as HTMLElement).queryByText("You")).toBeNull();
+    expect(screen.queryByTestId("family-member-role")).toBeNull();
   });
 
   it("shows a member the list without any admin actions", async () => {
@@ -117,6 +129,7 @@ describe("Family manager screen", () => {
     );
     render(<App />);
     const rows = await screen.findAllByTestId("family-member-row");
+    fireEvent.click(screen.getByRole("button", { name: "Manage" }));
 
     fireEvent.change(within(rows[1] as HTMLElement).getByTestId("family-member-role"), {
       target: { value: "admin" },
@@ -145,6 +158,7 @@ describe("Family manager screen", () => {
     });
     render(<App />);
     const row = (await screen.findAllByTestId("family-member-row"))[0] as HTMLElement;
+    fireEvent.click(screen.getByRole("button", { name: "Manage" }));
 
     fireEvent.change(within(row).getByTestId("family-member-role"), {
       target: { value: "member" },
@@ -170,6 +184,7 @@ describe("Family manager screen", () => {
     );
     render(<App />);
     const rows = await screen.findAllByTestId("family-member-row");
+    fireEvent.click(screen.getByRole("button", { name: "Manage" }));
 
     fireEvent.click(within(rows[1] as HTMLElement).getByTestId("family-member-remove"));
 

@@ -1,14 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Select, Text } from "@offgrid/ui";
+import { Avatar, Button, Select, Tag, Text } from "@offgrid/ui";
 import type { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { initialsOf } from "../../../../session/initials-of.js";
 import type { CurrentUserRole } from "../../../../types.js";
 import type { FamilyMemberRowProps } from "./types.js";
 import {
   familyMemberActionsStyle,
   familyMemberIdentityStyle,
+  familyMemberNameLineStyle,
+  familyMemberNameStyle,
   familyMemberRowStyle,
 } from "./styles.js";
 
@@ -21,14 +24,25 @@ export const FamilyMemberRow = ({
 }: FamilyMemberRowProps) => {
   const { t } = useTranslation();
   const roleOptions: readonly CurrentUserRole[] = ["admin", "member"];
+  const roleTextId =
+    member.role === "admin" ? "familyManager.roleAdmin" : "familyManager.roleMember";
   const changeRole = (event: ChangeEvent<HTMLSelectElement>) =>
     onChangeRole(event.target.value as CurrentUserRole);
 
   return (
     <li style={familyMemberRowStyle} data-testid="family-member-row">
       <div style={familyMemberIdentityStyle}>
-        <Text variant="label" value={member.displayName ?? t("familyManager.unnamed")} />
-        {isSelf && <Text variant="caption" textId="familyManager.you" />}
+        <Avatar initials={member.displayName === null ? "?" : initialsOf(member.displayName)} />
+        <div style={familyMemberNameStyle}>
+          <div style={familyMemberNameLineStyle}>
+            <Text variant="label" value={member.displayName ?? t("familyManager.unnamed")} />
+            {isSelf && (
+              <Tag tone="accent">
+                <Text variant="caption" textId="familyManager.you" />
+              </Tag>
+            )}
+          </div>
+        </div>
       </div>
       {canManage ? (
         <div style={familyMemberActionsStyle}>
@@ -47,10 +61,9 @@ export const FamilyMemberRow = ({
           </Button>
         </div>
       ) : (
-        <Text
-          variant="caption"
-          textId={member.role === "admin" ? "familyManager.roleAdmin" : "familyManager.roleMember"}
-        />
+        <Tag tone={member.role === "admin" ? "accent" : "neutral"}>
+          <Text variant="caption" textId={roleTextId} />
+        </Tag>
       )}
     </li>
   );

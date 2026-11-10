@@ -16,9 +16,21 @@ export const familyMemberRowStyle: CSSProperties = {
 
 export const familyMemberIdentityStyle: CSSProperties = {
   display: "flex",
-  flexDirection: "column",
+  alignItems: "center",
+  gap: tokens.space[3],
   minWidth: 0,
-  gap: tokens.space[1],
+};
+
+export const familyMemberNameStyle: CSSProperties = {
+  display: "grid",
+  minWidth: 0,
+};
+
+export const familyMemberNameLineStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: tokens.space[2],
 };
 
 export const familyMemberActionsStyle: CSSProperties = {

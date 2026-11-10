@@ -3,7 +3,7 @@
 
 import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useMatch, useNavigate, useOutletContext } from "react-router-dom";
 import { ApiError } from "@offgrid/api-client";
 import { leaveFamily } from "../../families/leave-family.js";
 import {
@@ -20,6 +20,7 @@ export const FamilySpaceList = () => {
   const { families, listStatus, refreshFamilies } = useOutletContext<FamiliesContext>();
   const session = useSession();
   const navigate = useNavigate();
+  const selectedFamilyId = useMatch("/settings/families/:familyId")?.params.familyId;
   const [errorTextId, setErrorTextId] = useState<SpaceErrorTextId | undefined>(undefined);
 
   if (session.status !== "signedIn") {
@@ -76,9 +77,10 @@ export const FamilySpaceList = () => {
               key={space.id}
               space={space}
               isActive={space.id === activeFamilyId}
+              isSelected={space.id === selectedFamilyId}
+              onSelect={() => navigate(`/settings/families/${space.id}`)}
               onSwitch={() => void switchSpace(space.id)}
               onLeave={() => void leaveSpace(space.id)}
-              onManage={() => navigate(`/settings/families/${space.id}`)}
             />
           ))}
         </ul>

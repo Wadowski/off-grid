@@ -4,7 +4,7 @@
 import { ApiError } from "@offgrid/api-client";
 import { Button, Text } from "@offgrid/ui";
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams, useSearchParams } from "react-router-dom";
 import { FamilyInviteDialog } from "../../families/family-invite-dialog/family-invite-dialog.js";
 import { changeFamilyMemberRole } from "../../families/change-family-member-role.js";
 import { listFamilyMembers } from "../../families/list-family-members.js";
@@ -14,8 +14,8 @@ import { useSession } from "../../session/use-session.js";
 import type { CurrentUserRole, FamilyMember, FamiliesContext, ListStatus } from "../../types.js";
 import type { FamilyManagerErrorTextId } from "./types.js";
 import {
+  familyManagerActionsStyle,
   familyManagerHeaderStyle,
-  familyManagerIntroStyle,
   familyManagerPageStyle,
 } from "./styles.js";
 
@@ -28,6 +28,22 @@ export const FamilyManagerPage = () => {
   const [membersStatus, setMembersStatus] = useState<ListStatus>("loading");
   const [errorTextId, setErrorTextId] = useState<FamilyManagerErrorTextId | undefined>(undefined);
   const [inviteOpen, setInviteOpen] = useState(false);
+  // Kept in the URL: a family refresh remounts this page, which would drop local state.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isManaging = searchParams.get("manage") === "true";
+  const toggleManaging = () =>
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        if (isManaging) {
+          next.delete("manage");
+        } else {
+          next.set("manage", "true");
+        }
+        return next;
+      },
+      { replace: true },
+    );
 
   const loadMembers = useCallback(async () => {
     try {
@@ -89,16 +105,27 @@ export const FamilyManagerPage = () => {
   return (
     <section style={familyManagerPageStyle}>
       <div style={familyManagerHeaderStyle}>
-        <div style={familyManagerIntroStyle}>
-          <Text variant="subheading" textId="familyManager.heading" />
-          <Text variant="body" textId="familyManager.description" />
-        </div>
+        <Text variant="subheading" textId="familyManager.heading" />
         {canManage && (
-          <Button variant="primary" size="small" onClick={() => setInviteOpen(true)}>
-            <Text variant="action" textId="familyManager.invite" />
-          </Button>
+          <div style={familyManagerActionsStyle}>
+            <Button
+              variant="secondary"
+              size="small"
+              aria-pressed={isManaging}
+              onClick={toggleManaging}
+            >
+              <Text
+                variant="action"
+                textId={isManaging ? "familyManager.doneManaging" : "familyManager.manage"}
+              />
+            </Button>
+            <Button variant="primary" size="small" onClick={() => setInviteOpen(true)}>
+              <Text variant="action" textId="familyManager.invite" />
+            </Button>
+          </div>
         )}
       </div>
+      <Text variant="body" textId="familyManager.description" />
       {membersStatus === "loading" && <Text variant="status" textId="familyManager.loading" />}
       {membersStatus === "failed" && (
         <div role="alert">
@@ -109,7 +136,7 @@ export const FamilyManagerPage = () => {
         <FamilyMemberList
           members={members}
           selfUserId={selfUserId}
-          canManage={canManage}
+          canManage={canManage && isManaging}
           onChangeRole={(userId, role) => void changeRole(userId, role)}
           onRemove={(userId) => void removeMember(userId)}
         />

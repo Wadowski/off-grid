@@ -69,13 +69,33 @@ When(
   },
 );
 
+// Outside manage mode a row shows its role as a tag; in manage mode it shows the role select.
+const expectRole = async (page: Page, name: string, role: string): Promise<void> => {
+  const row = memberRow(page, name);
+  const select = row.getByTestId(ROLE_SELECT);
+  if ((await select.count()) > 0) {
+    await expect(select).toHaveValue(roleValue(role));
+    return;
+  }
+  await expect(row).toContainText(role);
+};
+
+When("I start managing the members", async ({ page }) => {
+  await page.getByRole("button", { name: "Manage", exact: true }).click();
+  await expect(page.getByTestId(ROLE_SELECT).first()).toBeVisible();
+});
+
+Then("I see the members with their admin controls", async ({ page }) => {
+  await expect(page.getByTestId(ROLE_SELECT).first()).toBeVisible();
+  await captureScreen(page, "family manager managing", FEATURE);
+});
+
 Then("the member {string} has the role {string}", async ({ page }, name: string, role: string) => {
-  await expect(memberRow(page, name).getByTestId(ROLE_SELECT)).toHaveValue(roleValue(role));
+  await expectRole(page, name, role);
 });
 
 Then("I see my own display name with the role {string}", async ({ page, world }, role: string) => {
-  const name = world.ownAccount?.displayName ?? "";
-  await expect(memberRow(page, name).getByTestId(ROLE_SELECT)).toHaveValue(roleValue(role));
+  await expectRole(page, world.ownAccount?.displayName ?? "", role);
 });
 
 When("I change the role of {string} to {string}", async ({ page }, name: string, role: string) => {
@@ -104,6 +124,7 @@ Then("I do not see any admin actions", async ({ page }) => {
   await expect(page.getByTestId(ROLE_SELECT)).toHaveCount(0);
   await expect(page.getByTestId(REMOVE_BUTTON)).toHaveCount(0);
   await expect(page.getByRole("button", { name: INVITE_BUTTON })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Manage", exact: true })).toHaveCount(0);
 });
 
 Then("I can change a role, remove a member and create an invitation", async ({ page }) => {

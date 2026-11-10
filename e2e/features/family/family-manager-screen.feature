@@ -19,6 +19,8 @@ Feature: Manage the members of a family from the family manager screen
     Given I am a user with a family named "The Smiths"
     And another user with the display name "Sam Smith" joins "The Smiths" as a member
     When I open the family manager for "The Smiths"
+    And I start managing the members
+    Then I see the members with their admin controls
     And I change the role of "Sam Smith" to "Admin"
     Then the member "Sam Smith" has the role "Admin"
 
@@ -26,12 +28,14 @@ Feature: Manage the members of a family from the family manager screen
     Given I am a user with a family named "The Smiths"
     And another user with the display name "Sam Smith" joins "The Smiths" as a member
     When I open the family manager for "The Smiths"
+    And I start managing the members
     And I remove "Sam Smith" from the family
     Then I do not see "Sam Smith" in the members
 
   Scenario: The only admin is told they cannot be demoted
     Given I am a user with a family named "The Smiths"
     When I open the family manager for "The Smiths"
+    And I start managing the members
     And I change my own role to "Member"
     Then I see the message "A family must keep at least one admin."
 
@@ -59,4 +63,5 @@ Feature: Manage the members of a family from the family manager screen
   Scenario: The family manager works on a phone-sized screen
     Given I am a user with a family named "The Smiths"
     When I open the family manager for "The Smiths" on a phone-sized screen
+    And I start managing the members
     Then I can change a role, remove a member and create an invitation

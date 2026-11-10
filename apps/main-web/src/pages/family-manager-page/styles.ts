@@ -14,13 +14,14 @@ export const familyManagerPageStyle: CSSProperties = {
 export const familyManagerHeaderStyle: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
-  alignItems: "flex-start",
+  alignItems: "center",
   justifyContent: "space-between",
   gap: tokens.space[3],
 };
 
-export const familyManagerIntroStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[1],
-  minWidth: 0,
+export const familyManagerActionsStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: tokens.space[2],
 };

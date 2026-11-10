@@ -54,7 +54,6 @@ export const en = {
     activeSpace: "Active",
     switch: "Switch",
     leave: "Leave",
-    manage: "Manage members",
     switchFailed: "The space could not be switched. Try again.",
     leaveFailed: "The space could not be left. Try again.",
     leaveLastAdmin:
@@ -96,6 +95,8 @@ export const en = {
     removeFailed: "The member could not be removed. Try again.",
     lastAdmin: "A family must keep at least one admin.",
     invite: "Invite someone",
+    manage: "Manage",
+    doneManaging: "Done",
     inviteHeading: "Invite someone",
     inviteDescription:
       "Create an invitation code and share it once. It works until you revoke it or it expires.",
