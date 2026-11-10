@@ -6,7 +6,6 @@ import type { FamilySpace } from "../../../../types.js";
 export type FamilySpaceRowProps = {
   readonly space: FamilySpace;
   readonly isActive: boolean;
-  readonly divided: boolean;
   readonly onSwitch: () => void;
   readonly onLeave: () => void;
 };

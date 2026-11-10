@@ -14,7 +14,7 @@ import { useSession } from "../../session/use-session.js";
 import type { FamiliesContext } from "../../types.js";
 import { FamilySpaceRow } from "./components/family-space-row/family-space-row.js";
 import type { SpaceErrorTextId } from "./types.js";
-import { familySpaceErrorStyle, familySpaceGroupStyle, familySpacesHeaderStyle } from "./styles.js";
+import { familySpaceErrorStyle, familySpaceGridStyle, familySpacesHeaderStyle } from "./styles.js";
 
 export const FamilySpaceList = () => {
   const { families, listStatus, refreshFamilies } = useOutletContext<FamiliesContext>();
@@ -58,7 +58,7 @@ export const FamilySpaceList = () => {
   return (
     <>
       <div style={familySpacesHeaderStyle}>
-        <Text variant="label" textId="families.spacesHeading" />
+        <Text variant="body" textId="families.managerDescription" />
         <Button variant="secondary" onClick={() => navigate("/families/new")}>
           <Text variant="action" textId="families.addSpace" />
         </Button>
@@ -70,13 +70,12 @@ export const FamilySpaceList = () => {
         </div>
       )}
       {listStatus === "ready" && (
-        <ul data-testid="family-space-list" style={familySpaceGroupStyle}>
-          {families.map((space, index) => (
+        <ul data-testid="family-space-list" style={familySpaceGridStyle}>
+          {families.map((space) => (
             <FamilySpaceRow
               key={space.id}
               space={space}
               isActive={space.id === activeFamilyId}
-              divided={index > 0}
               onSwitch={() => void switchSpace(space.id)}
               onLeave={() => void leaveSpace(space.id)}
             />

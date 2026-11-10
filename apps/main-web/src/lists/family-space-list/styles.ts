@@ -6,20 +6,19 @@ import type { CSSProperties } from "react";
 
 export const familySpacesHeaderStyle: CSSProperties = {
   display: "flex",
-  alignItems: "center",
+  flexWrap: "wrap",
+  alignItems: "flex-end",
   justifyContent: "space-between",
   gap: tokens.space[3],
 };
 
-export const familySpaceGroupStyle: CSSProperties = {
+export const familySpaceGridStyle: CSSProperties = {
   listStyle: "none",
   margin: 0,
   padding: 0,
   display: "grid",
-  overflow: "hidden",
-  borderRadius: tokens.radius.lg,
-  background: cssVar("color-surface"),
-  boxShadow: cssVar("elevation-1"),
+  gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))",
+  gap: tokens.space[4],
 };
 
 export const familySpaceErrorStyle: CSSProperties = {

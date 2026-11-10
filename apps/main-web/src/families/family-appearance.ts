@@ -52,6 +52,12 @@ export const FAMILY_ACCENT_COLORS: Record<
   slate: { background: "#5f6b7d", color: "#ffffff" },
 };
 
+export const FAMILY_PURPOSE_LABEL_TEXT_IDS = {
+  household: "families.purposeHousehold",
+  getaway: "families.purposeGetaway",
+  extended: "families.purposeExtended",
+} as const satisfies Record<FamilyPurpose, string>;
+
 export const FAMILY_PURPOSE_ICON_NAMES: Record<FamilyPurpose, string> = {
   household: "home",
   getaway: "deck",

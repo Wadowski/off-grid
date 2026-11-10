@@ -15,7 +15,7 @@ const { Given, When, Then } = createBdd(test);
 const CREATE_SPACE_PATH = "/families/new";
 const SETTINGS_PATH = "/settings/families";
 const CREATE_HEADING = "Create a Family Space";
-const SPACES_HEADING = "Family & Spaces";
+const SPACES_HEADING = "Family Spaces & Members";
 const SPACE_ROW = "family-space-row";
 const SPACE_LIST = "family-space-list";
 

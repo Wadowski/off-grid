@@ -7,7 +7,7 @@ import { familiesPageStyle } from "./styles.js";
 
 export const FamiliesPage = () => (
   <div style={familiesPageStyle}>
-    <Text variant="heading" textId="settings.familyLabel" />
+    <Text variant="heading" textId="families.managerHeading" />
     <FamilySpaceList />
   </div>
 );

@@ -12,4 +12,5 @@ export const createFamilySpaceFormStyle: CSSProperties = {
 export const pickerSectionStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[2],
+  textAlign: "left",
 };

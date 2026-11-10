@@ -48,7 +48,7 @@ describe("Families page", () => {
     expect(window.location.pathname).toBe("/");
   });
 
-  it("opens the create family space screen from the add space button", async () => {
+  it("opens the create family space screen from the create family space button", async () => {
     stubApi([
       ...signedInStartup(),
       {
@@ -68,7 +68,7 @@ describe("Families page", () => {
     ]);
     render(<App />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Add Space" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Create Family Space" }));
 
     expect(window.location.pathname).toBe("/families/new");
   });

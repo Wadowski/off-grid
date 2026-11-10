@@ -4,18 +4,26 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const familySpaceRowStyle = (active: boolean, divided: boolean): CSSProperties => ({
+export const familySpaceCardStyle = (accent: string, active: boolean): CSSProperties => ({
   display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
+  flexDirection: "column",
   justifyContent: "space-between",
-  gap: tokens.space[3],
-  padding: tokens.space[3],
-  background: active ? cssVar("color-accent-soft") : "transparent",
-  borderTopStyle: divided ? "solid" : "none",
-  borderTopWidth: "1px",
-  borderTopColor: cssVar("color-surface-high"),
+  gap: tokens.space[4],
+  padding: tokens.space[4],
+  borderRadius: tokens.radius.lg,
+  background: cssVar("color-surface"),
+  boxShadow: cssVar("elevation-1"),
+  borderLeftStyle: "solid",
+  borderLeftWidth: "4px",
+  borderLeftColor: active ? accent : "transparent",
 });
+
+export const familySpaceHeaderStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: tokens.space[2],
+};
 
 export const familySpaceIdentityStyle: CSSProperties = {
   display: "flex",
@@ -24,8 +32,19 @@ export const familySpaceIdentityStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const familySpaceActionsStyle: CSSProperties = {
+export const familySpaceNameStyle: CSSProperties = {
+  display: "grid",
+  minWidth: 0,
+};
+
+export const familySpaceFooterStyle: CSSProperties = {
   display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
+  justifyContent: "space-between",
   gap: tokens.space[2],
+  paddingTop: tokens.space[3],
+  borderTopStyle: "solid",
+  borderTopWidth: "1px",
+  borderTopColor: cssVar("color-surface-high"),
 };
