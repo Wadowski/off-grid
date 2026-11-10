@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@wip @module:family @ui
+@module:family @ui
 Feature: Create a family space and see the spaces I belong to
 
   A signed-in person can create another family space from its own screen,
@@ -21,7 +21,7 @@ Feature: Create a family space and see the spaces I belong to
   Scenario: The create family space screen asks for a name
     Given I am a user with a family named "The Smiths"
     When I try to create a family space with an empty name
-    Then I am told that the family name is required
+    Then I see the message "Enter a family name."
 
   Scenario: A person picks an accent colour and a space purpose before creating
     Given I am a user with a family named "The Smiths"
@@ -40,8 +40,8 @@ Feature: Create a family space and see the spaces I belong to
     Given I am a user with a family named "The Smiths"
     And another user adds me to a family named "Cabin Circle" as a member
     When I open family and spaces settings
-    And I switch to "Cabin Circle"
-    Then "Cabin Circle" is the space I act in
+    And I switch to "The Smiths"
+    Then "The Smiths" is the family I act in
 
   Scenario: A member leaves a space and it disappears from their spaces
     Given I am a user with a family named "The Smiths"
@@ -54,4 +54,4 @@ Feature: Create a family space and see the spaces I belong to
     Given I am a user with a family named "The Smiths"
     When I open family and spaces settings
     And I try to leave "The Smiths"
-    Then I am told that a family must keep at least one admin
+    Then I see the message "You are the only admin of this space. Make another person an admin before you leave."
