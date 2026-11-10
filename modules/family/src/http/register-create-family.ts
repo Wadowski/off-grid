@@ -4,7 +4,7 @@
 import { createFamilyRequestSchema } from "@offgrid/contracts";
 import { sendValidationFailed, withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
-import { createFamily } from "../application/create-family.js";
+import { createFamily, DEFAULT_FAMILY_APPEARANCE } from "../application/create-family.js";
 import type { FamilyRouteContext } from "../types.js";
 
 export const registerCreateFamily = (api: FastifyInstance, context: FamilyRouteContext): void => {
@@ -15,7 +15,10 @@ export const registerCreateFamily = (api: FastifyInstance, context: FamilyRouteC
       if (!body.success) {
         return sendValidationFailed(reply, body.error);
       }
-      const family = await createFamily(context.db, userId, body.data.name);
+      const family = await createFamily(context.db, userId, body.data.name, {
+        accent: body.data.accent ?? DEFAULT_FAMILY_APPEARANCE.accent,
+        purpose: body.data.purpose ?? DEFAULT_FAMILY_APPEARANCE.purpose,
+      });
       return reply.code(201).send(family);
     }),
   );

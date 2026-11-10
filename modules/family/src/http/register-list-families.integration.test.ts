@@ -53,8 +53,29 @@ describe("list families route", { timeout: 60_000 }, () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().families).toEqual([
-      { id: joined.id, name: "Cabin Circle", role: "member" },
-      { id: owned.id, name: "Lakeside", role: "admin" },
+      { id: joined.id, name: "Cabin Circle", role: "member", accent: "blue", purpose: "household" },
+      { id: owned.id, name: "Lakeside", role: "admin", accent: "blue", purpose: "household" },
+    ]);
+  });
+
+  it("returns the accent and purpose a family was created with", async () => {
+    const person = randomUUID();
+    await createFamily(db.db, person, "Cabin Circle", { accent: "sage", purpose: "getaway" });
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/families",
+      headers: { "x-user-id": person },
+    });
+
+    expect(response.json().families).toEqual([
+      {
+        id: expect.any(String),
+        name: "Cabin Circle",
+        role: "admin",
+        accent: "sage",
+        purpose: "getaway",
+      },
     ]);
   });
 });

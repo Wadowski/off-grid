@@ -9,6 +9,8 @@ datasource db {
 model Family {
   familyId    String             @id @map("family_id") @db.Uuid
   name        String             @db.VarChar(100)
+  accent      String             @default("blue") @db.VarChar(20)
+  purpose     String             @default("household") @db.VarChar(20)
   createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   members     FamilyMember[]
   invitations FamilyInvitation[]

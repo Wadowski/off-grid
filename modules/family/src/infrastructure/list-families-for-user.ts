@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { familyRoleSchema } from "@offgrid/contracts";
+import { familyAccentSchema, familyPurposeSchema, familyRoleSchema } from "@offgrid/contracts";
 import type { ModuleTransaction } from "@offgrid/db";
 import type { FamilyListEntry } from "../types.js";
 
@@ -18,5 +18,7 @@ export const listFamiliesForUser = async (
     id: membership.family.familyId,
     name: membership.family.name,
     role: familyRoleSchema.parse(membership.role),
+    accent: familyAccentSchema.parse(membership.family.accent),
+    purpose: familyPurposeSchema.parse(membership.family.purpose),
   }));
 };

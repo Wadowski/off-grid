@@ -60,6 +60,23 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 100
+          },
+          "accent": {
+            "type": "string",
+            "enum": [
+              "blue",
+              "sage",
+              "terracotta",
+              "lilac"
+            ]
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "household",
+              "getaway",
+              "extended"
+            ]
           }
         },
         "required": [
@@ -149,12 +166,31 @@
                     "admin",
                     "member"
                   ]
+                },
+                "accent": {
+                  "type": "string",
+                  "enum": [
+                    "blue",
+                    "sage",
+                    "terracotta",
+                    "lilac"
+                  ]
+                },
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "household",
+                    "getaway",
+                    "extended"
+                  ]
                 }
               },
               "required": [
                 "id",
                 "name",
-                "role"
+                "role",
+                "accent",
+                "purpose"
               ],
               "additionalProperties": false
             }

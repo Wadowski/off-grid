@@ -19,6 +19,7 @@ export * from "./constants.js";
 export * from "./account-created-schema.js";
 export * from "./create-account-request-schema.js";
 export * from "./create-family-request-schema.js";
+export * from "./family-appearance-schema.js";
 export * from "./current-event-schemas.js";
 export * from "./define-event.js";
 export * from "./display-name-schema.js";

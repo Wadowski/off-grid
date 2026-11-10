@@ -19,6 +19,10 @@ export interface components {
         };
         CreateFamilyRequest: {
             name: string;
+            /** @enum {string} */
+            accent?: "blue" | "sage" | "terracotta" | "lilac";
+            /** @enum {string} */
+            purpose?: "household" | "getaway" | "extended";
         };
         Family: {
             /** Format: uuid */
@@ -42,6 +46,10 @@ export interface components {
                 name: string;
                 /** @enum {string} */
                 role: "admin" | "member";
+                /** @enum {string} */
+                accent: "blue" | "sage" | "terracotta" | "lilac";
+                /** @enum {string} */
+                purpose: "household" | "getaway" | "extended";
             }[];
         };
         CreateAccountRequest: {
