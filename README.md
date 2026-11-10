@@ -23,7 +23,7 @@ docker compose -f infra/compose/docker-compose.yml up -d --wait
 
 The first run builds the images, generates the secrets, creates the database and runs the migration job. Later runs keep your data and secrets. The migration job applies migrations for the modules the server registers; none are registered yet, so it currently applies nothing.
 
-The first build needs internet access: it pulls base images and installs npm packages. After the stack is running, it makes no outbound calls.
+The first build needs internet access: it pulls base images and installs npm packages. After the stack is running, it makes no outbound calls, except outgoing mail that you turn on and web push that you subscribe a browser to (see the [privacy statement](docs/privacy.md)).
 
 Open the web app at `http://localhost:8080`. The API listens on port 3000 of the same host. Both ports listen on all network interfaces.
 

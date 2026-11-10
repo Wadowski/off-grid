@@ -9,8 +9,9 @@ import { findAccount } from "../../infrastructure/accounts/find-account.js";
 import { hashPassword } from "../../infrastructure/credentials/hash-password.js";
 import { setCredentialHash } from "../../infrastructure/credentials/set-credential-hash.js";
 import { revokeOtherSessions } from "../../infrastructure/sessions/revoke-other-sessions.js";
-import { raiseNotification } from "../notifications/raise-notification.js";
-import type { ChangePasswordInput, NewNotification } from "../../types.js";
+import { passwordChangedV1 } from "@offgrid/contracts";
+import { publishUserFact } from "../../events/publish-user-fact.js";
+import type { ChangePasswordInput } from "../../types.js";
 import { AccountNotFoundError } from "../errors/account-not-found-error.js";
 import { CurrentPasswordIncorrectError } from "../errors/current-password-incorrect-error.js";
 import { PasswordRejectedError } from "../errors/password-rejected-error.js";
@@ -22,7 +23,7 @@ export const changeOwnPassword = (
   currentSessionId: string,
   input: ChangePasswordInput,
   now: Date = new Date(),
-): Promise<NewNotification> =>
+): Promise<void> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
     if (!(await passwordMatches(tx, userId, input.currentPassword))) {
@@ -42,5 +43,5 @@ export const changeOwnPassword = (
     }
     await setCredentialHash(tx, userId, await hashPassword(newPassword), now);
     await revokeOtherSessions(tx, userId, currentSessionId);
-    return raiseNotification(tx, { userId, type: "password-changed" }, now);
+    await publishUserFact(tx, passwordChangedV1, userId, now);
   });

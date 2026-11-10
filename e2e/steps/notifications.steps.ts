@@ -8,15 +8,12 @@ import {
   markOwnNotificationRead,
   regenerateOwnRecoveryCode,
   signedInPerson,
+  waitForOwnNotifications,
   type SignedInPerson,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
-
-const notImplemented = (step: string): never => {
-  throw new Error(`Step not implemented yet (OG-52 follow-up): ${step}`);
-};
 
 function personOf(world: ScenarioWorld, key: string): SignedInPerson {
   const person = world.people?.[key];
@@ -32,7 +29,11 @@ Given("Tom has an unread inbox item", async ({ world }) => {
   world.people.tom = tom;
   const response = await regenerateOwnRecoveryCode(world.api, tom);
   expect(response.status()).toBe(201);
-  const { body } = await listOwnNotifications(world.api, tom.session);
+  const { body } = await waitForOwnNotifications(
+    world.api,
+    tom.session,
+    (list) => list.notifications.length === 1,
+  );
   expect(body.notifications).toHaveLength(1);
   world.notificationId = body.notifications[0]?.id;
   expect(world.notificationId).toBeDefined();
@@ -44,12 +45,6 @@ Given("she has an unread inbox item", async ({ world }) => {
   expect(response.status()).toBe(201);
 });
 
-Given("a delivery channel is failing", () =>
-  notImplemented(
-    "a delivery channel is failing: no channel besides the inbox is registered until OG-53",
-  ),
-);
-
 When("Anna changes her password", async ({ world }) => {
   const anna = personOf(world, "anna");
   const response = await changeOwnPassword(world.api, anna);
@@ -58,7 +53,9 @@ When("Anna changes her password", async ({ world }) => {
 
 When("Anna marks an item as read", async ({ world }) => {
   const anna = personOf(world, "anna");
-  const { body } = await listOwnNotifications(world.api, anna.session);
+  const { body } = await waitForOwnNotifications(world.api, anna.session, (list) =>
+    list.notifications.some((notification) => notification.readAt === null),
+  );
   const item = body.notifications.find((notification) => notification.readAt === null);
   expect(item, "Anna has no unread item to mark").toBeDefined();
   if (item === undefined) {
@@ -69,11 +66,13 @@ When("Anna marks an item as read", async ({ world }) => {
   expect(response.status()).toBe(204);
 });
 
-Then("she has a new unread inbox item saying so", async ({ world }) => {
+Then("she has a new unread inbox item about the password change", async ({ world }) => {
   const anna = personOf(world, "anna");
-  const { body } = await listOwnNotifications(world.api, anna.session);
-  expect(body.unreadCount).toBeGreaterThanOrEqual(1);
-  expect(body.notifications.map((notification) => notification.type)).toContain("password-changed");
+  const { body } = await waitForOwnNotifications(world.api, anna.session, (list) =>
+    list.notifications.some((notification) => notification.type === "password-changed"),
+  );
+  const item = body.notifications.find((notification) => notification.type === "password-changed");
+  expect(item?.readAt).toBeNull();
 });
 
 Then("it no longer counts as unread", async ({ world }) => {
@@ -96,14 +95,4 @@ Then("Anna cannot see Tom's notifications", async ({ world }) => {
     world.notificationId ?? "",
   );
   expect(response.status()).toBe(404);
-});
-
-Then("the password change still succeeds", ({ world }) => {
-  expect(world.response?.status).toBe(204);
-});
-
-Then("the inbox item is still created", async ({ world }) => {
-  const anna = personOf(world, "anna");
-  const { body } = await listOwnNotifications(world.api, anna.session);
-  expect(body.notifications.map((notification) => notification.type)).toContain("password-changed");
 });

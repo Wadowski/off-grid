@@ -4,6 +4,7 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { NEW_PASSWORD, signInWith, type Session } from "./instance-admin.js";
 import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "./identity.js";
+import { eventually } from "../eventually.js";
 
 export type Person = {
   userId: string;
@@ -79,6 +80,23 @@ export async function listOwnNotifications(
     failOnStatusCode: false,
   });
   return { status: response.status(), body: (await response.json()) as NotificationList };
+}
+
+export async function waitForOwnNotifications(
+  api: APIRequestContext,
+  session: Session,
+  ready: (list: NotificationList) => boolean,
+): Promise<{ status: number; body: NotificationList }> {
+  return eventually(
+    async () => {
+      const result = await listOwnNotifications(api, session);
+      if (!ready(result.body)) {
+        throw new Error("the expected notification has not arrived yet");
+      }
+      return result;
+    },
+    { timeout: 10_000, interval: 200 },
+  );
 }
 
 export function markOwnNotificationRead(

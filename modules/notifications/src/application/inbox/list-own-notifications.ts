@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
-import { findOwnNotifications } from "../../infrastructure/notifications/find-own-notifications.js";
+import { findOwnNotifications } from "../../infrastructure/inbox/find-own-notifications.js";
 import type { ListedNotification, NotificationList } from "../../types.js";
 
 export const listOwnNotifications = async (

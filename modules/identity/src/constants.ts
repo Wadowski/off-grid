@@ -43,17 +43,6 @@ export const MAIL_TEST_MESSAGE = {
   text: "This is a test email from your Offgrid server. Email is working.",
 } as const;
 
-export const MAIL_NOTIFICATION_TEXT = {
-  "password-changed": {
-    subject: "Your Offgrid password was changed",
-    text: "Your Offgrid password was changed. If this was not you, reset your password now.",
-  },
-  "recovery-code-regenerated": {
-    subject: "Your Offgrid recovery code was replaced",
-    text: "A new recovery code was created for your Offgrid account. The previous code no longer works.",
-  },
-} as const;
-
 export const PASSWORD_HASH_PATTERN = /^\$argon2id\$v=19\$m=\d+,t=\d+,p=\d+\$/;
 
 export const FIRST_ADMIN_CLAIM_KEY = "instance";

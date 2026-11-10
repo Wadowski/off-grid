@@ -7,6 +7,8 @@ import { familyMemberRemovedV1 } from "./family-member-removed-v1.js";
 import { familyMemberUpdatedV1 } from "./family-member-updated-v1.js";
 import { userCreatedV1 } from "./user-created-v1.js";
 import { userProfileUpdatedV1 } from "./user-profile-updated-v1.js";
+import { passwordChangedV1 } from "./password-changed-v1.js";
+import { recoveryCodeRegeneratedV1 } from "./recovery-code-regenerated-v1.js";
 import { userNotifiedV1 } from "./user-notified-v1.js";
 import type { AnyEventDefinition } from "./types.js";
 
@@ -17,5 +19,7 @@ export const eventDefinitions: readonly AnyEventDefinition[] = [
   familyMemberRemovedV1,
   userCreatedV1,
   userProfileUpdatedV1,
+  passwordChangedV1,
+  recoveryCodeRegeneratedV1,
   userNotifiedV1,
 ];

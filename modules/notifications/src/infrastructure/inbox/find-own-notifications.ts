@@ -9,7 +9,7 @@ export const findOwnNotifications = async (
   tx: ModuleTransaction,
   userId: string,
 ): Promise<NotificationRecord[]> => {
-  const rows = await tx.notification.findMany({
+  const rows = await tx.notificationItem.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
   });

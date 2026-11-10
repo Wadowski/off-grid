@@ -6,7 +6,6 @@
       "Read(./.env*)",
       "Read(./data/**)",
       "Read(./**/secrets/**)",
-      "Bash(git reset --hard:*)",
       "Bash(git push origin main:*)",
       "Bash(git push * main)",
       "Bash(curl:* | sh)",

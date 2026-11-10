@@ -91,7 +91,6 @@ model UserAccount {
   sessions           Session[]
   recoveryCodes      RecoveryCode[]
   passwordResets     PasswordReset[]
-  notifications      Notification[]
 
   @@map("user_account")
   @@schema("identity")
@@ -153,18 +152,17 @@ model PasswordReset {
   @@schema("identity")
 }
 
-model Notification {
-  notificationId String      @id @map("notification_id") @db.Uuid
-  userId         String      @map("user_id") @db.Uuid
-  type           String
-  data           Json        @default("{}")
-  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  readAt         DateTime?   @map("read_at") @db.Timestamptz(6)
-  user           UserAccount @relation(fields: [userId], references: [userId])
+model NotificationItem {
+  notificationId String    @id @map("notification_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  type           String    @db.VarChar(100)
+  data           Json      @default("{}")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  readAt         DateTime? @map("read_at") @db.Timestamptz(6)
 
   @@index([userId, createdAt], map: "notification_user_created_key")
   @@map("notification")
-  @@schema("identity")
+  @@schema("notifications")
 }
 
 model FirstAdminClaim {

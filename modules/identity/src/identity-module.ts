@@ -3,7 +3,6 @@
 
 import type { FastifyInstance } from "fastify";
 import { MAIL_RETRY_DELAYS_MS } from "./constants.js";
-import { createEmailChannel } from "./application/notifications/create-email-channel.js";
 import { sendMailWithSmtp } from "./infrastructure/mail/send-mail-with-smtp.js";
 import { registerIdentityRoutes } from "./http/register-identity-routes.js";
 import type {
@@ -25,7 +24,6 @@ export const createIdentityModule = (options: IdentityModuleOptions) => ({
     registerIdentityRoutes(api, {
       ...context,
       mailEncryptionKey: options.mailEncryptionKey,
-      notificationChannels: [createEmailChannel(emailDependencies)],
       emailDependencies,
     });
   },

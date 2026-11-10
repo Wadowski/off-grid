@@ -16,7 +16,7 @@ import { generateEmailCode } from "../../infrastructure/password-resets/generate
 import { digestToken } from "../../infrastructure/tokens/digest-token.js";
 import type { EmailChannelDependencies, EmailCodeRequestInput } from "../../types.js";
 import { loadMailConnection } from "../mail/load-mail-connection.js";
-import { sendWithRetry } from "../notifications/send-with-retry.js";
+import { sendWithRetry } from "../mail/send-with-retry.js";
 import { EmailNotConfiguredError } from "../errors/email-not-configured-error.js";
 
 export const requestEmailCode = async (
