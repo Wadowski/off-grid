@@ -60,6 +60,15 @@ model FamilyInvitation {
   @@schema("family")
 }
 
+model FamilyAccountName {
+  userId        String @id @map("user_id") @db.Uuid
+  displayName   String @map("display_name") @db.VarChar(100)
+  sourceVersion Int    @map("source_version")
+
+  @@map("account_name")
+  @@schema("family")
+}
+
 model FamilyInvitationAttempt {
   userId      String    @id @map("user_id") @db.Uuid
   failures    Int       @default(0)
@@ -71,17 +80,18 @@ model FamilyInvitationAttempt {
 }
 
 model UserAccount {
-  userId         String          @id @map("user_id") @db.Uuid
-  email          String          @db.VarChar(254)
-  displayName    String          @map("display_name") @db.VarChar(100)
-  instanceRole   String          @map("instance_role")
-  status         String          @default("active")
-  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  credential     Credential?
-  sessions       Session[]
-  recoveryCodes  RecoveryCode[]
-  passwordResets PasswordReset[]
-  notifications  Notification[]
+  userId             String          @id @map("user_id") @db.Uuid
+  email              String          @db.VarChar(254)
+  displayName        String          @map("display_name") @db.VarChar(100)
+  displayNameVersion Int             @default(1) @map("display_name_version")
+  instanceRole       String          @map("instance_role")
+  status             String          @default("active")
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  credential         Credential?
+  sessions           Session[]
+  recoveryCodes      RecoveryCode[]
+  passwordResets     PasswordReset[]
+  notifications      Notification[]
 
   @@map("user_account")
   @@schema("identity")
