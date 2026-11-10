@@ -58,7 +58,7 @@ Failed recovery attempts, including wrong emailed codes entered on the reset rou
 
 A signed-in person manages their own account. Every route acts on the caller from the request context and never accepts another user's id. The profile read (`GET /api/me`) is composed in `apps/main-server`, because it also lists the families from the family module.
 
-- `PATCH /api/me`: `{ displayName }` (1 to 100 characters, trimmed). Returns `204`.
+- `PATCH /api/me`: `{ displayName }` (1 to 100 characters, trimmed). Returns `204`. Each change increments the account's `display_name_version` and writes `user-profile-updated-v1` in the same transaction.
 - `POST /api/me/password` (rate limited): `{ currentPassword, newPassword }`. The current password must match (`403 CURRENT_PASSWORD_INCORRECT`, nothing changes). The new password must pass the registration rules. Success ends every other session and keeps the current one. Returns `204`.
 - `GET /api/me/sessions`: the live sessions with `id`, `deviceLabel`, `createdAt`, `lastUsedAt` and `current`.
 - `DELETE /api/me/sessions/:sessionId`: ends one of the caller's own sessions. A session that belongs to someone else, or does not exist, gets `404 NOT_FOUND`. Returns `204`.
@@ -103,6 +103,8 @@ The two concurrent first sign-ups are covered by `register-account.integration.t
 ## Published events
 
 - `user-created-v1` (version 1): `{ userId, displayName }`, owned by the new user. Defined in [packages/contracts/src/user-created-v1.ts](../../packages/contracts/src/user-created-v1.ts). Written to the outbox in the same transaction as the account. The email address is never in the payload.
+- `user-profile-updated-v1` (version 1): `{ userId, displayName }`, owned by the user. Its source version is the account's `display_name_version`, so a change that skips a version is not applied by a consumer. Defined in [packages/contracts/src/user-profile-updated-v1.ts](../../packages/contracts/src/user-profile-updated-v1.ts). The family module keeps a copy of the name ([ADR 0023](../../docs/adr/0023-display-names-visible-to-family-members.md)).
+- `user-notified-v1` (version 1): `{ notificationId, userId, type, data }`, owned by the notified user. Defined in [packages/contracts/src/user-notified-v1.ts](../../packages/contracts/src/user-notified-v1.ts). Written in the same transaction as the inbox item.
 - `user-notified-v1` (version 1): `{ notificationId, userId, type, data }`, owned by the notified user. Defined in [packages/contracts/src/user-notified-v1.ts](../../packages/contracts/src/user-notified-v1.ts). Written to the outbox in the same transaction as the change that caused the notice. The notifications module consumes it.
 
 ## Layout

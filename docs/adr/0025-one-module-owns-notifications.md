@@ -1,4 +1,4 @@
-# 0024. One module owns every notification
+# 0025. One module owns every notification
 
 - **Status:** Accepted
 
@@ -25,4 +25,4 @@ Notices to a person were split across identity. Identity wrote the inbox row, ra
 - Easier: one place to find and change how a person is notified, and one place to add a channel.
 - Harder: an inbox item appears after the outbox poll, not in the same request. The e2e steps poll for it, and a person who acts and reloads at once may see it a moment later.
 - Harder: a notice from a retried event can be delivered again to channels. Channels must be idempotent, as the event rules already require.
-- Follow-up: the per-channel delivery table, added with the first external channel. Web push is still [ADR 0023](0023-browser-notifications-web-push.md) and is not implemented.
+- Follow-up: the per-channel delivery table, added with the first external channel. Web push is still [ADR 0024](0024-browser-notifications-web-push.md) and is not implemented.

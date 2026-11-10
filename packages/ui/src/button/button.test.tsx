@@ -46,4 +46,13 @@ describe("Button", () => {
 
     expect(screen.getByRole("button")).toHaveClass("og-focusable");
   });
+
+  it("can align its content to the start instead of the centre", () => {
+    render(<Button align="start">Space</Button>);
+
+    expect(screen.getByRole("button")).toHaveAttribute(
+      "style",
+      expect.stringContaining("flex-start"),
+    );
+  });
 });

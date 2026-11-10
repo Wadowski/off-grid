@@ -1,4 +1,4 @@
-# 0023. Browser notifications use web push
+# 0024. Browser notifications use web push
 
 - **Status:** Proposed
 

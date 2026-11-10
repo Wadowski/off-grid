@@ -3,6 +3,7 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 import type { FamilyMember } from "../types.js";
+import { listAccountNames } from "./account-names/list-account-names.js";
 import { toFamilyMember } from "./to-family-member.js";
 
 export const listMembers = async (
@@ -13,5 +14,9 @@ export const listMembers = async (
     where: { familyId },
     orderBy: [{ joinedAt: "asc" }, { userId: "asc" }],
   });
-  return records.map(toFamilyMember);
+  const names = await listAccountNames(
+    tx,
+    records.map((record) => record.userId),
+  );
+  return records.map((record) => toFamilyMember(record, names.get(record.userId) ?? null));
 };

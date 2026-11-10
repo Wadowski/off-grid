@@ -187,6 +187,12 @@ export interface UserCreatedInput {
   readonly displayName: string;
 }
 
+export interface UserProfileUpdatedInput {
+  readonly userId: string;
+  readonly displayName: string;
+  readonly sourceVersion: number;
+}
+
 export interface IdentityRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;

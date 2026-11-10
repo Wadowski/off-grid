@@ -17,25 +17,45 @@ import {
   familySpaceNameStyle,
 } from "./styles.js";
 
-export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpaceRowProps) => (
+export const FamilySpaceRow = ({
+  space,
+  isActive,
+  isSelected,
+  onSelect,
+  onSwitch,
+  onLeave,
+}: FamilySpaceRowProps) => (
   <li
-    style={familySpaceCardStyle(FAMILY_ACCENT_COLORS[space.accent].background, isActive)}
+    style={familySpaceCardStyle(
+      FAMILY_ACCENT_COLORS[space.accent].background,
+      isActive,
+      isSelected,
+    )}
     data-testid="family-space-row"
   >
     <div style={familySpaceHeaderStyle}>
-      <div style={familySpaceIdentityStyle}>
-        <IconTile size="2.5rem" {...FAMILY_ACCENT_COLORS[space.accent]}>
-          <MaterialIcon
-            name={FAMILY_PURPOSE_ICON_NAMES[space.purpose]}
-            size="20px"
-            color="currentColor"
-          />
-        </IconTile>
-        <div style={familySpaceNameStyle}>
-          <Text variant="label" value={space.name} />
-          <Text variant="caption" textId={FAMILY_PURPOSE_LABEL_TEXT_IDS[space.purpose]} />
-        </div>
-      </div>
+      <Button
+        variant="ghost"
+        align="start"
+        fullWidth
+        aria-current={isSelected ? "true" : undefined}
+        data-testid="family-space-select"
+        onClick={onSelect}
+      >
+        <span style={familySpaceIdentityStyle}>
+          <IconTile size="2.5rem" {...FAMILY_ACCENT_COLORS[space.accent]}>
+            <MaterialIcon
+              name={FAMILY_PURPOSE_ICON_NAMES[space.purpose]}
+              size="20px"
+              color="currentColor"
+            />
+          </IconTile>
+          <span style={familySpaceNameStyle}>
+            <Text variant="label" value={space.name} />
+            <Text variant="caption" textId={FAMILY_PURPOSE_LABEL_TEXT_IDS[space.purpose]} />
+          </span>
+        </span>
+      </Button>
       <Text
         variant="caption"
         textId={space.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember"}
@@ -45,8 +65,8 @@ export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpa
       {isActive ? (
         <Text variant="status" textId="families.activeSpace" />
       ) : (
-        <Button variant="secondary" data-testid="family-space-switch" onClick={onSwitch}>
-          <Text variant="action" textId="families.switch" />
+        <Button variant="ghost" data-testid="family-space-switch" onClick={onSwitch}>
+          <Text variant="link" textId="families.switch" />
         </Button>
       )}
       <Button variant="ghost" data-testid="family-space-leave" onClick={onLeave}>

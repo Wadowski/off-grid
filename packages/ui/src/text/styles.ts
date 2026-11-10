@@ -33,5 +33,6 @@ export const textVariantStyles: Record<TextVariant, CSSProperties> = {
   caption: typeStyle("label-sm", "medium"),
   action: { ...typeStyle("headline-sm", "semibold"), color: "inherit" },
   status: typeStyle("body-sm", "regular"),
+  link: { ...typeStyle("body-sm", "medium"), color: cssVar("color-accent") },
   error: { ...typeStyle("body-sm", "regular"), color: cssVar("color-danger") },
 };

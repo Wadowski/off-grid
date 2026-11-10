@@ -3,6 +3,7 @@
 
 import { displayNameSchema } from "@offgrid/contracts";
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
+import { publishUserProfileUpdated } from "../../events/publish-user-profile-updated.js";
 import { updateDisplayName } from "../../infrastructure/accounts/update-display-name.js";
 
 export const updateOwnDisplayName = (
@@ -12,5 +13,7 @@ export const updateOwnDisplayName = (
 ): Promise<void> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
-    await updateDisplayName(tx, userId, displayNameSchema.parse(displayName));
+    const parsed = displayNameSchema.parse(displayName);
+    const sourceVersion = await updateDisplayName(tx, userId, parsed);
+    await publishUserProfileUpdated(tx, { userId, displayName: parsed, sourceVersion });
   });

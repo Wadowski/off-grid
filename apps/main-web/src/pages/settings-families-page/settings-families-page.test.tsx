@@ -113,4 +113,25 @@ describe("Family and spaces settings", () => {
     );
     expect(rowFor("Lakeside")).toBeInTheDocument();
   });
+
+  it("selects a space by its card and marks the selected card", async () => {
+    stubApi([
+      ...signedInStartup([{ id: LAKESIDE_ID, name: "Lakeside" }]),
+      { status: 200, body: { families: [LAKESIDE_ADMIN, CABIN_MEMBER] } },
+      { status: 200, body: { members: [] } },
+    ]);
+    render(<App />);
+    await screen.findByTestId("family-space-list");
+
+    fireEvent.click(within(rowFor("Cabin Circle")).getByTestId("family-space-select"));
+
+    expect(await screen.findByTestId("family-member-list")).toBeInTheDocument();
+    expect(within(rowFor("Cabin Circle")).getByTestId("family-space-select")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    expect(within(rowFor("Lakeside")).getByTestId("family-space-select")).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
 });

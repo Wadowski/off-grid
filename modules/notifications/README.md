@@ -1,6 +1,6 @@
 # @offgrid/notifications
 
-Purpose: the one place that owns every notice to a person. It stores the inbox and delivers each notice through the channels that are registered. See [ADR 0024](../../docs/adr/0024-one-module-owns-notifications.md).
+Purpose: the one place that owns every notice to a person. It stores the inbox and delivers each notice through the channels that are registered. See [ADR 0025](../../docs/adr/0025-one-module-owns-notifications.md).
 
 Public API: only `createNotificationsModule` from `src/index.ts`. Other code imports nothing else from this package.
 
@@ -23,7 +23,7 @@ Owner: module team (notifications)
 
 A channel is a way to reach a person besides the inbox: `NotificationChannel` in `src/types.ts`, with `deliver(notice)`. The inbox is always written, in the subscriber's transaction. Channels run after that transaction commits, through `deliverToChannels`, which never throws. A channel that fails is logged by its name and error type only, and the other channels still run.
 
-The module registers no channel yet, so `createNotificationsModule()` has an empty channel list. Mobile push, web push ([ADR 0023](../../docs/adr/0023-browser-notifications-web-push.md)) and email each register one by passing it in the options. No caller changes.
+The module registers no channel yet, so `createNotificationsModule()` has an empty channel list. Mobile push, web push ([ADR 0024](../../docs/adr/0024-browser-notifications-web-push.md)) and email each register one by passing it in the options. No caller changes.
 
 ## Layout
 

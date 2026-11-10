@@ -46,3 +46,10 @@ export type SessionUser = {
   readonly displayName: string;
   readonly instanceRole: "admin" | "user";
 };
+
+export type FamilyMember = {
+  readonly userId: string;
+  readonly displayName: string | null;
+  readonly role: CurrentUserRole;
+  readonly joinedAt: string;
+};
