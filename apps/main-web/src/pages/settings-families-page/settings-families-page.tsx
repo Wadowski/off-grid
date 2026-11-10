@@ -5,7 +5,7 @@ import { FamilySpaceList } from "../../lists/family-space-list/family-space-list
 import { SettingsSubpage } from "../../layouts/settings-subpage/settings-subpage.js";
 
 export const SettingsFamiliesPage = () => (
-  <SettingsSubpage titleTextId="families.managerHeading">
+  <SettingsSubpage titleTextId="families.managerHeading" centered>
     <FamilySpaceList />
   </SettingsSubpage>
 );

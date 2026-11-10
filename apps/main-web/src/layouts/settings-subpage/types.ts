@@ -6,5 +6,6 @@ import type { ReactNode } from "react";
 
 export type SettingsSubpageProps = {
   readonly titleTextId: ParseKeys;
+  readonly centered?: boolean;
   readonly children: ReactNode;
 };

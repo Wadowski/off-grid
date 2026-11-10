@@ -5,7 +5,10 @@ import type { ButtonHTMLAttributes } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 
+export type ButtonSize = "medium" | "small";
+
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style" | "className"> & {
   readonly variant?: ButtonVariant;
+  readonly size?: ButtonSize;
   readonly fullWidth?: boolean;
 };

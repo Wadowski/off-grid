@@ -61,8 +61,8 @@ export const FamilySpaceList = () => {
     <>
       <div style={familySpacesHeaderStyle}>
         <Text variant="body" textId="families.managerDescription" />
-        <Button variant="secondary" onClick={() => navigate("/families/new")}>
-          <Text variant="action" textId="families.addSpace" />
+        <Button variant="secondary" size="small" onClick={() => navigate("/families/new")}>
+          <Text variant="label" textId="families.addSpace" />
         </Button>
       </div>
       {listStatus === "loading" && <Text variant="status" textId="families.loading" />}

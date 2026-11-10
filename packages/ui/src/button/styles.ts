@@ -3,7 +3,7 @@
 
 import type { CSSProperties } from "react";
 import { cssVar } from "../css-var.js";
-import type { ButtonVariant } from "./types.js";
+import type { ButtonSize, ButtonVariant } from "./types.js";
 
 export const buttonBaseStyle: CSSProperties = {
   display: "flex",
@@ -30,6 +30,13 @@ export const buttonDisabledStyle: CSSProperties = {
 
 export const buttonFullWidthStyle: CSSProperties = {
   width: "100%",
+};
+
+export const buttonSizeStyles: Record<ButtonSize, CSSProperties> = {
+  medium: {},
+  small: {
+    padding: `${cssVar("space-1")} ${cssVar("space-3")}`,
+  },
 };
 
 export const buttonVariantStyles: Record<ButtonVariant, CSSProperties> = {

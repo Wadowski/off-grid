@@ -11,6 +11,10 @@ export const settingsSubpageStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const settingsSubpageCenteredStyle: CSSProperties = {
+  marginInline: "auto",
+};
+
 export const settingsBackLinkStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",

@@ -48,11 +48,11 @@ export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpa
       {isActive ? (
         <Text variant="status" textId="families.activeSpace" />
       ) : (
-        <Button variant="secondary" data-testid="family-space-switch" onClick={onSwitch}>
-          <Text variant="action" textId="families.switch" />
+        <Button variant="primary" size="small" data-testid="family-space-switch" onClick={onSwitch}>
+          <Text variant="status" textId="families.switch" />
         </Button>
       )}
-      <Button variant="ghost" data-testid="family-space-leave" onClick={onLeave}>
+      <Button variant="ghost" size="small" data-testid="family-space-leave" onClick={onLeave}>
         <Text variant="error" textId="families.leave" />
       </Button>
     </div>
