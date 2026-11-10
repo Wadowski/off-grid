@@ -30,6 +30,8 @@ export type ScenarioWorld = {
   invitationId?: string;
   invitationFamilyId?: string;
   joinerSession?: Session;
+  familyOwner?: Session;
+  inviterDisplayName?: string;
   otherPeople?: Record<string, Session>;
   lastOtherPerson?: string;
   registrationTouched?: boolean;

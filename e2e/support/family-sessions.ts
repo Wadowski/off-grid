@@ -5,6 +5,7 @@ import { expect, type APIRequestContext } from "@playwright/test";
 import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "./factories/identity.js";
 import { signInWith, type Session } from "./factories/instance-admin.js";
 import type { ScenarioWorld } from "./fixtures.js";
+import type { WebAccount } from "./web-session.js";
 
 export const bearer = (session: Session): Record<string, string> => ({
   authorization: `Bearer ${session.accessToken}`,
@@ -17,6 +18,21 @@ export const sessionOf = async (api: APIRequestContext, displayName: string): Pr
   const { session } = await signInWith(api, email, STRONG_PASSWORD);
   expect(session, `${displayName} cannot sign in`).toBeDefined();
   return session as Session;
+};
+
+export const accountSessionOf = async (
+  api: APIRequestContext,
+  displayName: string,
+): Promise<{ account: WebAccount; session: Session }> => {
+  const email = uniqueEmail(displayName.toLowerCase().replace(/\s+/g, "-"));
+  const registration = await registerAccount(api, { email, displayName });
+  expect(registration.status).toBe(201);
+  const { session } = await signInWith(api, email, STRONG_PASSWORD);
+  expect(session, `${displayName} cannot sign in`).toBeDefined();
+  return {
+    account: { email, password: STRONG_PASSWORD, displayName },
+    session: session as Session,
+  };
 };
 
 export const memberSessionOf = (world: ScenarioWorld): Session => {

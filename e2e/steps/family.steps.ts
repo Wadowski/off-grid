@@ -6,7 +6,12 @@ import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
 import type { Session } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
-import { bearer, memberSessionOf, sessionOf } from "../support/family-sessions.js";
+import {
+  accountSessionOf,
+  bearer,
+  memberSessionOf,
+  sessionOf,
+} from "../support/family-sessions.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -42,9 +47,10 @@ const familyNamesOf = async (api: APIRequestContext, session: Session): Promise<
 };
 
 Given("I am a user without any family", async ({ world }) => {
-  const session = await sessionOf(world.api, "Ben Member");
+  const { account, session } = await accountSessionOf(world.api, "Ben Member");
   world.userId = session.userId;
   world.memberAccessToken = session.accessToken;
+  world.ownAccount = { ...account };
 });
 
 Given("another user has a family named {string}", async ({ world }, name: string) => {
@@ -52,6 +58,8 @@ Given("another user has a family named {string}", async ({ world }, name: string
   const response = await postFamily(world.api, owner, name);
   expect(response.status()).toBe(201);
   world.families.push((await response.json()) as { id: string; name: string });
+  world.familyOwner = owner;
+  world.inviterDisplayName = "Other Person";
 });
 
 When("I create a family named {string}", async ({ world }, name: string) => {
