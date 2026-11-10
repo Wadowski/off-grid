@@ -19,3 +19,15 @@ export interface TestDatabase {
   connectClient(): Promise<Client>;
   stop(): Promise<void>;
 }
+
+export interface MigratedTestDatabaseOptions {
+  readonly migrate: (target: DatabaseTarget) => Promise<unknown>;
+  readonly resetSql: string;
+}
+
+export interface MigratedTestDatabase {
+  readonly admin: Client;
+  connect(): Pool;
+  reset(): Promise<void>;
+  stop(): Promise<void>;
+}

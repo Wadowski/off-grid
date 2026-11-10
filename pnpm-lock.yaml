@@ -219,6 +219,9 @@ importers:
       '@fastify/rate-limit':
         specifier: 11.2.1
         version: 11.2.1
+      '@offgrid/calendar':
+        specifier: workspace:*
+        version: link:../../modules/calendar
       '@offgrid/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -360,7 +363,23 @@ importers:
 
   modules/access: {}
 
-  modules/calendar: {}
+  modules/calendar:
+    devDependencies:
+      '@offgrid/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@offgrid/test-db':
+        specifier: workspace:*
+        version: link:../../packages/test-db
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
 
   modules/export: {}
 
