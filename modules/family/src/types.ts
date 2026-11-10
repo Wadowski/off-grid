@@ -97,6 +97,18 @@ export interface JoinedFamily {
   readonly familyId: string;
 }
 
+export interface InvitationPreview {
+  readonly familyId: string;
+  readonly familyName: string;
+  readonly familyCreatedAt: string;
+  readonly invitedBy: { readonly displayName: string | null };
+}
+
+export type PreviewOutcome =
+  | { readonly outcome: "found"; readonly value: InvitationPreview }
+  | { readonly outcome: "invalid" }
+  | { readonly outcome: "rate-limited" };
+
 export type RedeemOutcome =
   | { readonly outcome: "joined"; readonly value: JoinedFamily }
   | { readonly outcome: "invalid" }

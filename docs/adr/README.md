@@ -41,3 +41,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0024](0024-browser-notifications-web-push.md)           | Browser notifications use web push, an exception to the no-outbound rule             | Proposed                  |
 | [0025](0025-one-module-owns-notifications.md)            | One module owns every notification                                                   | Partly superseded by 0026 |
 | [0026](0026-notifications-map-domain-facts.md)           | Notifications map domain facts to notices                                            | Accepted                  |
+| [0027](0027-invitation-preview.md)                       | Invitation preview: a code shows its family before the person joins                  | Proposed                  |

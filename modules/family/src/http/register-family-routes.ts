@@ -10,6 +10,7 @@ import { registerListFamilies } from "./register-list-families.js";
 import { registerListFamilyMembers } from "./register-list-family-members.js";
 import { registerRemoveFamilyMember } from "./register-remove-family-member.js";
 import { registerCreateFamilyInvitation } from "./invitations/register-create-family-invitation.js";
+import { registerPreviewFamilyInvitation } from "./invitations/register-preview-family-invitation.js";
 import { registerRedeemFamilyInvitation } from "./invitations/register-redeem-family-invitation.js";
 import { registerRevokeFamilyInvitation } from "./invitations/register-revoke-family-invitation.js";
 import type { FamilyRouteContext } from "../types.js";
@@ -24,5 +25,6 @@ export const registerFamilyRoutes = (api: FastifyInstance, context: FamilyRouteC
   registerSelectActiveFamily(api, context);
   registerCreateFamilyInvitation(api, context);
   registerRevokeFamilyInvitation(api, context);
+  registerPreviewFamilyInvitation(api, context);
   registerRedeemFamilyInvitation(api, context);
 };
