@@ -5,9 +5,7 @@ export const ACCENT_IDS = ["blue", "sage", "terracotta", "lilac"] as const;
 
 export type AccentId = (typeof ACCENT_IDS)[number];
 
-export const SPACE_PURPOSE_IDS = ["household", "getaway", "extended"] as const;
-
-export type SpacePurposeId = (typeof SPACE_PURPOSE_IDS)[number];
+export type SpacePurposeId = "household" | "getaway" | "extended";
 
 export const SPACE_PURPOSE_OPTIONS = [
   {

@@ -50,10 +50,10 @@ export const SettingsFamiliesPage = () => {
       );
       return;
     }
-    await refreshFamilies();
     if (activeFamilyId === familyId) {
       setSessionActiveFamilyId(remaining[0]?.id ?? null);
     }
+    await refreshFamilies();
   };
 
   return (

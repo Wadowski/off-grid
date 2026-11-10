@@ -5,11 +5,6 @@ import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 import type { AccentId } from "../../constants.js";
 
-export const accentPickerStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[2],
-};
-
 export const accentRowStyle: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
@@ -25,6 +20,11 @@ export const accentPreviewStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: tokens.space[3],
+};
+
+export const accentPreviewTextStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[1],
 };
 
 export const accentSwatchesStyle: CSSProperties = {

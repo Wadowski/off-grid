@@ -4,11 +4,12 @@
 import { Radio, Text, cssVar } from "@offgrid/ui";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { SPACE_PURPOSE_OPTIONS } from "../../constants.js";
+import { pickerSectionStyle } from "../../styles.js";
 import type { PurposePickerProps } from "./types.js";
-import { purposeGroupStyle, purposeOptionStyle, purposePickerStyle } from "./styles.js";
+import { purposeGroupStyle, purposeOptionStyle } from "./styles.js";
 
 export const PurposePicker = ({ value, onChange }: PurposePickerProps) => (
-  <section style={purposePickerStyle} aria-labelledby="purpose-picker-heading">
+  <section style={pickerSectionStyle} aria-labelledby="purpose-picker-heading">
     <Text variant="label" id="purpose-picker-heading" textId="families.purposeHeading" />
     <div role="radiogroup" aria-labelledby="purpose-picker-heading" style={purposeGroupStyle}>
       {SPACE_PURPOSE_OPTIONS.map((option) => (

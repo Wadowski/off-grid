@@ -57,7 +57,7 @@ describe("Create family space page", () => {
       { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
     ]);
     render(<App />);
-    await screen.findByTestId("create-family-space-form");
+    await screen.findByTestId("create-family-form");
 
     fireEvent.click(screen.getByTestId("create-family-submit"));
 
@@ -80,7 +80,7 @@ describe("Create family space page", () => {
       },
     ]);
     render(<App />);
-    await screen.findByTestId("create-family-space-form");
+    await screen.findByTestId("create-family-form");
 
     fireEvent.change(screen.getByLabelText("Family or Household Name"), {
       target: { value: "Cabin Circle" },

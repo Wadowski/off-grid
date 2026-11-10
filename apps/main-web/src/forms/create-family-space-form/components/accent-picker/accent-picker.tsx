@@ -5,11 +5,12 @@ import { Button, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { ACCENT_IDS, type AccentId } from "../../constants.js";
+import { pickerSectionStyle } from "../../styles.js";
 import type { AccentPickerProps } from "./types.js";
 import {
   accentIconTile,
-  accentPickerStyle,
   accentPreviewStyle,
+  accentPreviewTextStyle,
   accentRowStyle,
   accentSwatch,
   accentSwatchesStyle,
@@ -26,14 +27,14 @@ export const AccentPicker = ({ value, onChange }: AccentPickerProps) => {
   const { t } = useTranslation();
 
   return (
-    <section style={accentPickerStyle} aria-labelledby="accent-picker-heading">
+    <section style={pickerSectionStyle} aria-labelledby="accent-picker-heading">
       <Text variant="label" id="accent-picker-heading" textId="families.accentHeading" />
       <div style={accentRowStyle}>
         <div style={accentPreviewStyle}>
           <div style={accentIconTile(value)}>
             <MaterialIcon name="cottage" size="20px" color="currentColor" />
           </div>
-          <div>
+          <div style={accentPreviewTextStyle}>
             <Text variant="label" textId="families.accentPreviewName" />
             <Text variant="caption" textId="families.accentPreviewDescription" />
           </div>

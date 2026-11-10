@@ -7,7 +7,11 @@ import {
   startFamilyTestDatabase,
   type FamilyTestDatabase,
 } from "../../../test/start-family-test-database.js";
+import { addFamilyMember } from "../../../test/add-family-member.js";
+import { createFamily } from "../create-family.js";
+import { removeFamilyMember } from "../remove-family-member.js";
 import { findActiveFamilyForSession } from "./find-active-family-for-session.js";
+import { selectActiveFamily } from "./select-active-family.js";
 
 describe("findActiveFamilyForSession", { timeout: 60_000 }, () => {
   let db: FamilyTestDatabase;
@@ -26,5 +30,17 @@ describe("findActiveFamilyForSession", { timeout: 60_000 }, () => {
 
   it("returns null when the session has made no choice", async () => {
     expect(await findActiveFamilyForSession(db.db, randomUUID(), randomUUID())).toBeNull();
+  });
+
+  it("forgets a family the person has left, even though it was chosen for the session", async () => {
+    const user = randomUUID();
+    const sessionId = randomUUID();
+    const family = await createFamily(db.db, randomUUID(), "Cabin Circle");
+    await addFamilyMember(db.db, family.id, user, "member");
+    await selectActiveFamily(db.db, user, sessionId, family.id);
+
+    await removeFamilyMember(db.db, user, family.id, user);
+
+    expect(await findActiveFamilyForSession(db.db, user, sessionId)).toBeNull();
   });
 });

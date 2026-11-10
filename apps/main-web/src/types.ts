@@ -12,10 +12,8 @@ export type CreateFamilyStatus = "idle" | "submitting" | "failed";
 
 export type FamilyNameErrorTextId = "families.nameRequired" | "families.nameTooLong";
 
-export type FamilyRole = "admin" | "member";
-
 export type FamilySpace = FamilySummary & {
-  readonly role: FamilyRole;
+  readonly role: CurrentUserRole;
 };
 
 export type FamiliesContext = {

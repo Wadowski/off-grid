@@ -23,7 +23,7 @@ Feature: Create a family space and see the spaces I belong to
     When I try to create a family space with an empty name
     Then I see the message "Enter a family name."
 
-  Scenario: A person picks an accent colour and a space purpose before creating
+  Scenario: A person picks an accent colour and a space purpose on the create screen
     Given I am a user with a family named "The Smiths"
     When I open the create family space screen
     And I choose the "sage" accent colour and the "Getaway" space purpose
@@ -40,7 +40,8 @@ Feature: Create a family space and see the spaces I belong to
     Given I am a user with a family named "The Smiths"
     And another user adds me to a family named "Cabin Circle" as a member
     When I open family and spaces settings
-    And I switch to "The Smiths"
+    Then "Cabin Circle" is the family I act in
+    When I switch to "The Smiths"
     Then "The Smiths" is the family I act in
 
   Scenario: A member leaves a space and it disappears from their spaces

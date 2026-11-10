@@ -4,11 +4,6 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const purposePickerStyle: CSSProperties = {
-  display: "grid",
-  gap: tokens.space[2],
-};
-
 export const purposeGroupStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(7rem, 1fr))",

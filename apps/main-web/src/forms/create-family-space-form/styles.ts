@@ -8,3 +8,8 @@ export const createFamilySpaceFormStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[5],
 };
+
+export const pickerSectionStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[2],
+};

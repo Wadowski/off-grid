@@ -21,7 +21,7 @@ export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpa
         <Text variant="label" value={space.name} />
         <Text
           variant="status"
-          textId={space.role === "admin" ? "families.roleAdmin" : "families.roleMember"}
+          textId={space.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember"}
         />
       </div>
     </div>

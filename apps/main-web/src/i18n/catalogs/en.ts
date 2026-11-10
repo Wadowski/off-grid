@@ -20,7 +20,8 @@ export const en = {
     notifications: "Notifications",
     apps: "Apps",
     manage: "Manage",
-    familyCount: "{{count}} families",
+    familyCount_one: "{{count}} family",
+    familyCount_other: "{{count}} families",
   },
   userMenu: {
     trigger: "Account menu",
@@ -49,8 +50,6 @@ export const en = {
     empty: "You are not in any family yet.",
     spacesHeading: "Your spaces",
     addSpace: "Add Space",
-    roleAdmin: "Admin",
-    roleMember: "Member",
     activeSpace: "Active",
     switch: "Switch",
     leave: "Leave",

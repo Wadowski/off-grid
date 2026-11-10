@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FamilyRole } from "@offgrid/access-control";
+import { familyRoleSchema } from "@offgrid/contracts";
 import type { ModuleTransaction } from "@offgrid/db";
 import type { FamilyListEntry } from "../types.js";
 
@@ -17,6 +17,6 @@ export const listFamiliesForUser = async (
   return memberships.map((membership) => ({
     id: membership.family.familyId,
     name: membership.family.name,
-    role: membership.role as FamilyRole,
+    role: familyRoleSchema.parse(membership.role),
   }));
 };
