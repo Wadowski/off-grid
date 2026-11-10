@@ -13,7 +13,6 @@ import {
   type Session,
 } from "../support/factories/instance-admin.js";
 import {
-  listOwnNotifications,
   waitForOwnNotifications,
   type SignedInPerson,
 } from "../support/factories/notifications.js";
