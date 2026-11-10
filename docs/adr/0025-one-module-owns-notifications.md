@@ -1,6 +1,6 @@
 # 0025. One module owns every notification
 
-- **Status:** Accepted
+- **Status:** Partly superseded by 0026
 
 ## Context
 
