@@ -4,6 +4,7 @@
 import type { FamilyRole } from "@offgrid/access-control";
 import type { ModuleTransaction } from "@offgrid/db";
 import type { FamilyMember } from "../types.js";
+import { listAccountNames } from "./account-names/list-account-names.js";
 import { toFamilyMember } from "./to-family-member.js";
 
 export const updateMemberRole = async (
@@ -11,10 +12,11 @@ export const updateMemberRole = async (
   familyId: string,
   userId: string,
   role: FamilyRole,
-): Promise<FamilyMember> =>
-  toFamilyMember(
-    await tx.familyMember.update({
-      where: { familyId_userId: { familyId, userId } },
-      data: { role },
-    }),
-  );
+): Promise<FamilyMember> => {
+  const record = await tx.familyMember.update({
+    where: { familyId_userId: { familyId, userId } },
+    data: { role },
+  });
+  const names = await listAccountNames(tx, [userId]);
+  return toFamilyMember(record, names.get(userId) ?? null);
+};
