@@ -13,5 +13,5 @@ export const findMembership = async (
   const record = await tx.familyMember.findUnique({
     where: { familyId_userId: { familyId, userId } },
   });
-  return record === null ? null : toFamilyMember(record);
+  return record === null ? null : toFamilyMember(record, null);
 };

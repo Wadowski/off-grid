@@ -4,7 +4,11 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const familySpaceCardStyle = (accent: string, active: boolean): CSSProperties => ({
+export const familySpaceCardStyle = (
+  accent: string,
+  active: boolean,
+  selected: boolean,
+): CSSProperties => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
@@ -12,10 +16,12 @@ export const familySpaceCardStyle = (accent: string, active: boolean): CSSProper
   padding: tokens.space[4],
   borderRadius: tokens.radius.lg,
   background: cssVar("color-surface"),
-  boxShadow: cssVar("elevation-1"),
-  borderLeftStyle: "solid",
+  boxShadow: selected ? cssVar("elevation-2") : cssVar("elevation-1"),
+  borderStyle: "solid",
+  borderWidth: "1px",
+  borderColor: selected ? accent : "transparent",
   borderLeftWidth: "4px",
-  borderLeftColor: active ? accent : "transparent",
+  borderLeftColor: active ? accent : selected ? accent : "transparent",
 });
 
 export const familySpaceHeaderStyle: CSSProperties = {
@@ -30,6 +36,8 @@ export const familySpaceIdentityStyle: CSSProperties = {
   alignItems: "center",
   gap: tokens.space[3],
   minWidth: 0,
+  // The ghost button colours its content muted; the space name stays at full text colour.
+  color: cssVar("color-fg"),
 };
 
 export const familySpaceNameStyle: CSSProperties = {

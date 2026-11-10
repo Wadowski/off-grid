@@ -11,6 +11,7 @@ export const TEXT_VARIANT_ELEMENTS: Record<TextVariant, "h1" | "h2" | "p" | "spa
   label: "span",
   action: "span",
   status: "p",
+  link: "span",
   error: "p",
   caption: "span",
 };

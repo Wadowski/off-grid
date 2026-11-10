@@ -12,6 +12,7 @@ import { ForgotPasswordPage } from "./pages/forgot-password-page/forgot-password
 import { ResetPasswordPage } from "./pages/reset-password-page/reset-password-page.js";
 import { SignInPage } from "./pages/sign-in-page/sign-in-page.js";
 import { SettingsFamiliesPage } from "./pages/settings-families-page/settings-families-page.js";
+import { FamilyManagerPage } from "./pages/family-manager-page/family-manager-page.js";
 import { SettingsPage } from "./pages/settings-page/settings-page.js";
 import { SettingsProfilePage } from "./pages/settings-profile-page/settings-profile-page.js";
 import { SettingsPasswordPage } from "./pages/settings-password-page/settings-password-page.js";
@@ -55,7 +56,9 @@ export const App = () => {
                 <Route path="apps" element={<AppsPage />} />
                 <Route path="families/new" element={<CreateFamilySpacePage />} />
                 <Route path="settings" element={<SettingsPage />} />
-                <Route path="settings/families" element={<SettingsFamiliesPage />} />
+                <Route path="settings/families" element={<SettingsFamiliesPage />}>
+                  <Route path=":familyId" element={<FamilyManagerPage />} />
+                </Route>
                 <Route path="settings/profile" element={<SettingsProfilePage />} />
                 <Route path="settings/password" element={<SettingsPasswordPage />} />
                 <Route path="settings/devices" element={<SettingsDevicesPage />} />

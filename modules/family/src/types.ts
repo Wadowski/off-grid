@@ -6,6 +6,7 @@ import type { FamilyAccent, FamilyPurpose } from "@offgrid/contracts";
 import type { CurrentUserId } from "@offgrid/http";
 import type { FastifyRequest } from "fastify";
 import type { ModuleDatabase } from "@offgrid/db";
+import type { HandlerContext } from "@offgrid/event-bus";
 
 export interface Family {
   readonly id: string;
@@ -47,6 +48,7 @@ export interface FamilyCreatedInput {
 
 export interface FamilyMember {
   readonly userId: string;
+  readonly displayName: string | null;
   readonly role: FamilyRole;
   readonly joinedAt: string;
 }
@@ -117,3 +119,5 @@ export type JoinOutcome =
   | { readonly outcome: "joined"; readonly value: JoinedFamily }
   | { readonly outcome: "already-member" }
   | { readonly outcome: "invalid" };
+
+export type SubscriberClient = HandlerContext["tx"];

@@ -7,6 +7,11 @@ export const updateDisplayName = async (
   tx: ModuleTransaction,
   userId: string,
   displayName: string,
-): Promise<void> => {
-  await tx.userAccount.update({ where: { userId }, data: { displayName } });
+): Promise<number> => {
+  const account = await tx.userAccount.update({
+    where: { userId },
+    data: { displayName, displayNameVersion: { increment: 1 } },
+    select: { displayNameVersion: true },
+  });
+  return account.displayNameVersion;
 };

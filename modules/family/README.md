@@ -21,7 +21,7 @@ Migrations for every module live in [packages/db/prisma/migrations](../../packag
 - `POST /families`: body `{ name }`, trimmed, 1 to 100 characters. Returns 201 with the family.
 - `GET /families/:id`: 200 for a member. Non-members get 404 `NOT_FOUND`, the same as for a family that does not exist, so the response does not reveal which families exist. Membership is checked under the caller's user context before the family context is set.
 - `GET /families`: the caller's families, read through the membership policies (no projection).
-- `GET /families/:id/members`: the members and their roles. Any member may read it. Non-members get 404 `NOT_FOUND`.
+- `GET /families/:id/members`: the members with `userId`, `displayName` (or `null` until the name has been copied), `role` and `joinedAt`. Any member may read it. Non-members get 404 `NOT_FOUND`. Names come from `family.account_name` and are visible only to people who share a family with the person ([ADR 0023](../../docs/adr/0023-display-names-visible-to-family-members.md)).
 - `PATCH /families/:id/members/:userId`: body `{ role }`, `admin` or `member`. Only an admin may change a role; a member gets 403 `ACCESS_DENIED`. Returns 200 with the member. Demoting the last admin returns 409 `LAST_ADMIN`.
 - `DELETE /families/:id/members/:userId`: an admin removes a member and gets 204. A member gets 403 `ACCESS_DENIED`. Removing the last admin returns 409 `LAST_ADMIN`. A removed member loses access on their next request, because the request identity reads memberships from this module's table.
 - `POST /families/:id/invitations`: an admin creates an invitation. Returns 201 with `{ invitationId, code, expiresAt }`. The code is 128 random bits and expires seven days later. A member gets 403 `ACCESS_DENIED`.
@@ -44,6 +44,10 @@ Errors use the shared codes from [packages/http](../../packages/http/README.md):
 - `family-member-added-v1` (version 1): `{ userId, role }`, written when a member joins by invitation. Defined in [packages/contracts/src/family-member-added-v1.ts](../../packages/contracts/src/family-member-added-v1.ts).
 
 Both membership events use `sourceVersion` 1 for now. No projection reads them yet. A projection that needs ordering must add a per-membership version first.
+
+## Consumed events
+
+- `user-created-v1` and `user-profile-updated-v1` (from identity): each one writes the person's name to `family.account_name`, with the source version. A change at or below the stored version is ignored. A change that skips a version fails so that the bus retries it. Handlers run in a transaction as the person the event names, so the row-level security rules hold. Subscribers are registered in [src/events/account-names](src/events/account-names).
 
 ## Layout
 
