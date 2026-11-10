@@ -47,6 +47,7 @@ export interface FamilyCreatedInput {
 
 export interface FamilyMember {
   readonly userId: string;
+  readonly displayName: string | null;
   readonly role: FamilyRole;
   readonly joinedAt: string;
 }

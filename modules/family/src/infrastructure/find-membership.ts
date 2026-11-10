@@ -3,6 +3,7 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 import type { FamilyMember } from "../types.js";
+import { findDisplayNames } from "./find-display-names.js";
 import { toFamilyMember } from "./to-family-member.js";
 
 export const findMembership = async (
@@ -13,5 +14,9 @@ export const findMembership = async (
   const record = await tx.familyMember.findUnique({
     where: { familyId_userId: { familyId, userId } },
   });
-  return record === null ? null : toFamilyMember(record);
+  if (record === null) {
+    return null;
+  }
+  const names = await findDisplayNames(tx, [userId]);
+  return toFamilyMember(record, names.get(userId) ?? null);
 };

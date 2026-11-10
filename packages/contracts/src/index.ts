@@ -70,6 +70,7 @@ export * from "./released-snapshot-schema.js";
 export * from "./timestamp-schema.js";
 export * from "./types.js";
 export * from "./user-created-v1.js";
+export * from "./user-display-name-changed-v1.js";
 export * from "./user-notified-v1.js";
 export * from "./user-id-schema.js";
 export * from "./uuid-schema.js";

@@ -33,6 +33,16 @@ model FamilyMember {
   @@schema("family")
 }
 
+model FamilyUserProfile {
+  userId        String   @id @map("user_id") @db.Uuid
+  displayName   String   @map("display_name") @db.VarChar(100)
+  sourceVersion Int      @map("source_version")
+  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("user_profile")
+  @@schema("family")
+}
+
 model FamilyActiveFamily {
   sessionId  String       @id @map("session_id") @db.Uuid
   userId     String       @map("user_id") @db.Uuid
@@ -74,6 +84,7 @@ model UserAccount {
   userId         String          @id @map("user_id") @db.Uuid
   email          String          @db.VarChar(254)
   displayName    String          @map("display_name") @db.VarChar(100)
+  displayNameVersion Int         @default(1) @map("display_name_version")
   instanceRole   String          @map("instance_role")
   status         String          @default("active")
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
