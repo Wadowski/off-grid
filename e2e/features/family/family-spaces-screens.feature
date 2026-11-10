@@ -43,6 +43,13 @@ Feature: Create a family space and see the spaces I belong to
     Then I see "The Smiths" with the role "admin"
     And I see "Cabin Circle" with the role "member"
 
+  Scenario: The household roster lists each member of the active space by name
+    Given I am a user with a family named "The Smiths"
+    And another person joins my family "The Smiths" as a member
+    When I open the home page
+    Then I see "Ben Spaces" in the household roster
+    And I see "Ana Spaces" in the household roster
+
   Scenario: A person switches the space they act in from settings
     Given I am a user with a family named "The Smiths"
     And another user adds me to a family named "Cabin Circle" as a member

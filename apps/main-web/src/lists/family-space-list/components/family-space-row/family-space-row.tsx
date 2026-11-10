@@ -15,6 +15,7 @@ import {
   familySpaceHeaderStyle,
   familySpaceIdentityStyle,
   familySpaceNameStyle,
+  familySpaceRolePillStyle,
 } from "./styles.js";
 
 export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpaceRowProps) => (
@@ -36,10 +37,12 @@ export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpa
           <Text variant="caption" textId={FAMILY_PURPOSE_LABEL_TEXT_IDS[space.purpose]} />
         </div>
       </div>
-      <Text
-        variant="caption"
-        textId={space.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember"}
-      />
+      <span style={familySpaceRolePillStyle}>
+        <Text
+          variant="caption"
+          textId={space.role === "admin" ? "userMenu.roleAdmin" : "userMenu.roleMember"}
+        />
+      </span>
     </div>
     <div style={familySpaceFooterStyle}>
       {isActive ? (

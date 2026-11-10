@@ -5,6 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { signedInStartup } from "../../test-support/signed-in-startup.js";
 import { stubApi } from "../../test-support/stub-api.js";
+import { SIGNED_IN_USER_ID } from "../../test-support/constants.js";
 
 const LAKESIDE_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 const CABIN_ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
@@ -60,7 +61,9 @@ describe("Family and spaces settings", () => {
     const fetchMock = stubApi([
       ...signedInStartup([{ id: LAKESIDE_ID, name: "Lakeside" }]),
       { status: 200, body: { families: [LAKESIDE_ADMIN, CABIN_MEMBER] } },
+      { status: 200, body: { members: [] } },
       { status: 204, body: undefined },
+      { status: 200, body: { members: [] } },
     ]);
     render(<App />);
     await screen.findByTestId("family-space-list");
@@ -78,6 +81,7 @@ describe("Family and spaces settings", () => {
     stubApi([
       ...signedInStartup([{ id: LAKESIDE_ID, name: "Lakeside" }]),
       { status: 200, body: { families: [LAKESIDE_ADMIN, CABIN_MEMBER] } },
+      { status: 200, body: { members: [] } },
       { status: 204, body: undefined },
       { status: 200, body: { families: [LAKESIDE_ADMIN] } },
     ]);
@@ -98,6 +102,7 @@ describe("Family and spaces settings", () => {
     stubApi([
       ...signedInStartup([{ id: LAKESIDE_ID, name: "Lakeside" }]),
       { status: 200, body: { families: [LAKESIDE_ADMIN] } },
+      { status: 200, body: { members: [] } },
       {
         status: 409,
         body: { code: "LAST_ADMIN", message: "A family must keep at least one admin" },
@@ -112,5 +117,67 @@ describe("Family and spaces settings", () => {
       "You are the only admin of this space.",
     );
     expect(rowFor("Lakeside")).toBeInTheDocument();
+  });
+  it("lists the household roster with names, and lets an admin change a role", async () => {
+    const CABIN_MEMBER_ID = "0b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e";
+    const fetchMock = stubApi([
+      ...signedInStartup([{ id: LAKESIDE_ID, name: "Lakeside" }]),
+      { status: 200, body: { families: [LAKESIDE_ADMIN] } },
+      {
+        status: 200,
+        body: {
+          members: [
+            {
+              userId: SIGNED_IN_USER_ID,
+              displayName: "Ana Spaces",
+              role: "admin",
+              joinedAt: "2026-10-31T10:00:00.000Z",
+            },
+            {
+              userId: CABIN_MEMBER_ID,
+              displayName: "Ben Spaces",
+              role: "member",
+              joinedAt: "2026-10-31T11:00:00.000Z",
+            },
+          ],
+        },
+      },
+      { status: 204, body: undefined },
+      {
+        status: 200,
+        body: {
+          members: [
+            {
+              userId: SIGNED_IN_USER_ID,
+              displayName: "Ana Spaces",
+              role: "admin",
+              joinedAt: "2026-10-31T10:00:00.000Z",
+            },
+            {
+              userId: CABIN_MEMBER_ID,
+              displayName: "Ben Spaces",
+              role: "admin",
+              joinedAt: "2026-10-31T11:00:00.000Z",
+            },
+          ],
+        },
+      },
+    ]);
+    render(<App />);
+
+    const roster = await screen.findByTestId("family-roster");
+    expect(within(roster).getByText("Ana Spaces")).toBeInTheDocument();
+    expect(within(roster).getByText("You")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Role of Ben Spaces" }), {
+      target: { value: "admin" },
+    });
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining(`/families/${LAKESIDE_ID}/members/${CABIN_MEMBER_ID}`),
+        expect.objectContaining({ method: "PATCH", body: JSON.stringify({ role: "admin" }) }),
+      ),
+    );
   });
 });

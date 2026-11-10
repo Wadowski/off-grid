@@ -18,6 +18,7 @@ const CREATE_HEADING = "Create a Family Space";
 const SPACES_HEADING = "Family Spaces & Members";
 const SPACE_ROW = "family-space-row";
 const SPACE_LIST = "family-space-list";
+const ROSTER_ROW = "family-roster-row";
 
 const accountWithSession = async (
   api: ScenarioWorld["api"],
@@ -101,6 +102,32 @@ Given(
     expect(joined.ok(), `could not join "${name}"`).toBe(true);
   },
 );
+
+Given("another person joins my family {string} as a member", async ({ world }, name: string) => {
+  const { session: joiner } = await accountWithSession(world.api, "Ben Spaces");
+  const family = world.families.find((space) => space.name === name);
+  expect(family, `no family named "${name}" in this scenario`).toBeDefined();
+  const invitation = await world.api.post(`/api/families/${family?.id}/invitations`, {
+    headers: bearer(memberSessionOf(world)),
+    failOnStatusCode: false,
+  });
+  expect(invitation.status(), "the invitation was not created").toBe(201);
+  const { code } = (await invitation.json()) as { code: string };
+  const joined = await world.api.post("/api/families/join", {
+    headers: bearer(joiner),
+    data: { code },
+    failOnStatusCode: false,
+  });
+  expect(joined.ok(), `could not join "${name}"`).toBe(true);
+});
+
+Then("I see {string} in the household roster", async ({ page }, name: string) => {
+  // Names reach the roster through the event projection, so reload until the name arrives.
+  await expect(async () => {
+    await page.reload();
+    await expect(page.getByTestId(ROSTER_ROW).filter({ hasText: name })).toBeVisible();
+  }).toPass({ timeout: 15_000 });
+});
 
 When(
   "I create a family space named {string} from the create family space screen",

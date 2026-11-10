@@ -37,6 +37,13 @@ export const familySpaceNameStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const familySpaceRolePillStyle: CSSProperties = {
+  flexShrink: 0,
+  padding: `${tokens.space[1]} ${tokens.space[2]}`,
+  borderRadius: tokens.radius.full,
+  background: cssVar("color-surface-high"),
+};
+
 export const familySpaceFooterStyle: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",

@@ -13,6 +13,7 @@ import {
 import { useSession } from "../../session/use-session.js";
 import type { FamiliesContext } from "../../types.js";
 import { FamilySpaceRow } from "./components/family-space-row/family-space-row.js";
+import { FamilyRoster } from "../family-roster/family-roster.js";
 import type { SpaceErrorTextId } from "./types.js";
 import { familySpaceErrorStyle, familySpaceGridStyle, familySpacesHeaderStyle } from "./styles.js";
 
@@ -26,6 +27,7 @@ export const FamilySpaceList = () => {
     return null;
   }
   const { activeFamilyId, user } = session;
+  const activeFamily = families.find((family) => family.id === activeFamilyId);
 
   const switchSpace = async (familyId: string) => {
     setErrorTextId(undefined);
@@ -81,6 +83,13 @@ export const FamilySpaceList = () => {
             />
           ))}
         </ul>
+      )}
+      {listStatus === "ready" && activeFamily !== undefined && (
+        <FamilyRoster
+          familyId={activeFamily.id}
+          viewerUserId={user.id}
+          viewerRole={activeFamily.role}
+        />
       )}
       {errorTextId !== undefined && (
         <div role="alert" style={familySpaceErrorStyle}>
