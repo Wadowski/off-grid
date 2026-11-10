@@ -238,7 +238,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       userId: expect.any(String),
       sessionId: expect.any(String),
       familyId: cabin.id,
-      accessGroupIds: [cabin.id],
+      accessGroupIds: [expect.any(String), cabin.id],
     });
   });
 
@@ -252,7 +252,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       userId: expect.any(String),
       sessionId: expect.any(String),
       familyId: null,
-      accessGroupIds: [],
+      accessGroupIds: [expect.any(String)],
     });
   });
 
@@ -329,5 +329,68 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     expect(response.statusCode).toBe(400);
     expect(response.json().code).toBe("VALIDATION_FAILED");
     expect(response.json().message).toContain("name:");
+  });
+
+  const selectActiveFamily = (token: string, familyId: string) =>
+    app.inject({
+      method: "PUT",
+      url: "/api/families/active",
+      headers: bearer(token),
+      payload: { familyId },
+    });
+
+  it("uses the family selected for the session when no family header is sent", async () => {
+    const token = await signInToken();
+    await createFamily(token, "Kowalski");
+    const cabin = await createFamily(token, "Cabin Circle");
+
+    const selected = await selectActiveFamily(token, cabin.id);
+    const response = await probeContext(bearer(token));
+
+    expect(selected.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      userId: expect.any(String),
+      sessionId: expect.any(String),
+      familyId: cabin.id,
+      accessGroupIds: [expect.any(String), cabin.id],
+    });
+  });
+
+  it("prefers the family header over the selected family", async () => {
+    const token = await signInToken();
+    const kowalski = await createFamily(token, "Kowalski");
+    const cabin = await createFamily(token, "Cabin Circle");
+    await selectActiveFamily(token, cabin.id);
+
+    const response = await probeContext(bearer(token, kowalski.id));
+
+    expect(response.json().familyId).toBe(kowalski.id);
+  });
+
+  it("refuses to select a family the caller does not belong to", async () => {
+    const token = await signInToken();
+    const foreignFamilyId = await insertForeignFamily("Cabin Circle");
+
+    const response = await selectActiveFamily(token, foreignFamilyId);
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json().code).toBe("NOT_FOUND");
+  });
+
+  it("forgets the selected family once the caller is removed from it", async () => {
+    const token = await signInToken();
+    await createFamily(token, "Kowalski");
+    const cabin = await createFamily(token, "Cabin Circle");
+    await selectActiveFamily(token, cabin.id);
+    await admin.query("DELETE FROM family.family_member WHERE family_id = $1", [cabin.id]);
+
+    const response = await probeContext(bearer(token));
+
+    expect(response.json()).toEqual({
+      userId: expect.any(String),
+      sessionId: expect.any(String),
+      familyId: null,
+      accessGroupIds: [expect.any(String)],
+    });
   });
 });

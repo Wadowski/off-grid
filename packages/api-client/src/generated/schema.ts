@@ -27,6 +27,14 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        ActiveFamily: {
+            /** Format: uuid */
+            familyId: string;
+        };
+        SelectActiveFamilyRequest: {
+            /** Format: uuid */
+            familyId: string;
+        };
         FamilyList: {
             families: {
                 /** Format: uuid */

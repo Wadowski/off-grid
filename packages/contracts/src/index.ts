@@ -41,6 +41,8 @@ export * from "./family-list-schema.js";
 export * from "./family-name-schema.js";
 export * from "./family-params-schema.js";
 export * from "./family-schema.js";
+export * from "./active-family-schema.js";
+export * from "./select-active-family-request-schema.js";
 export * from "./family-summary-schema.js";
 export * from "./instance-settings-schema.js";
 export * from "./instance-settings-update-schema.js";

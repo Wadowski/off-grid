@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyRequest } from "fastify";
-import { accessGroupIdSchema, familyIdSchema, userIdSchema } from "@offgrid/contracts";
-import { listMyFamilies } from "@offgrid/family";
+import { familyIdSchema, userIdSchema } from "@offgrid/contracts";
+import { findActiveFamilyForSession, listMyFamilies } from "@offgrid/family";
 import { moduleDatabaseFor } from "../module-wiring/module-database-for.js";
 import { requestIdentityFromBearer } from "./request-identity-from-bearer.js";
 import { requireFamilyMembership } from "./require-family-membership.js";
 import { anonymousContext } from "./anonymous-context.js";
+import { signedInContext } from "./signed-in-context.js";
 import { ApiError } from "../http/errors/api-error.js";
 import { FAMILY_HEADER, INVALID_FAMILY_MESSAGE } from "../constants.js";
 import type { RequestContext, ServerRuntime } from "../types.js";
@@ -24,7 +25,12 @@ export const resolveRequestIdentity = async (
   const sessionId = verified.sessionId;
   const requestedFamily = request.headers[FAMILY_HEADER];
   if (requestedFamily === undefined) {
-    return { userId, sessionId, familyId: null, accessGroupIds: [] };
+    const selectedFamily = await findActiveFamilyForSession(
+      moduleDatabaseFor(runtime, "family"),
+      userId,
+      sessionId,
+    );
+    return signedInContext(userId, sessionId, selectedFamily);
   }
   const parsedFamily = familyIdSchema.safeParse(requestedFamily);
   if (!parsedFamily.success) {
@@ -37,5 +43,5 @@ export const resolveRequestIdentity = async (
     familyId,
     listMyFamilies,
   );
-  return { userId, sessionId, familyId, accessGroupIds: [accessGroupIdSchema.parse(familyId)] };
+  return signedInContext(userId, sessionId, familyId);
 };

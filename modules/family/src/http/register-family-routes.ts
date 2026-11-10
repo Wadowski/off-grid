@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
+import { registerSelectActiveFamily } from "./active-family/register-select-active-family.js";
 import { registerChangeFamilyMemberRole } from "./register-change-family-member-role.js";
 import { registerCreateFamily } from "./register-create-family.js";
 import { registerGetFamily } from "./register-get-family.js";
@@ -20,6 +21,7 @@ export const registerFamilyRoutes = (api: FastifyInstance, context: FamilyRouteC
   registerListFamilyMembers(api, context);
   registerChangeFamilyMemberRole(api, context);
   registerRemoveFamilyMember(api, context);
+  registerSelectActiveFamily(api, context);
   registerCreateFamilyInvitation(api, context);
   registerRevokeFamilyInvitation(api, context);
   registerRedeemFamilyInvitation(api, context);

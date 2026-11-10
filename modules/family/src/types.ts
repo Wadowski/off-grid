@@ -3,6 +3,7 @@
 
 import type { FamilyRole, ReadOutcome } from "@offgrid/access-control";
 import type { CurrentUserId } from "@offgrid/http";
+import type { FastifyRequest } from "fastify";
 import type { ModuleDatabase } from "@offgrid/db";
 
 export interface Family {
@@ -54,6 +55,11 @@ export type MembershipChangeOutcome<Value> =
 export interface FamilyRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly currentSessionId: (request: FastifyRequest) => string | null;
+}
+
+export interface ActiveFamily {
+  readonly familyId: string;
 }
 
 export type FamilyModuleContext = FamilyRouteContext;
