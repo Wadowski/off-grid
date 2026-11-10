@@ -56,3 +56,8 @@ Feature: Create a family space and see the spaces I belong to
     When I open family and spaces settings
     And I try to leave "The Smiths"
     Then I see the message "You are the only admin of this space. Make another person an admin before you leave."
+
+  Scenario: A family space keeps the accent and purpose chosen when it was created
+    Given I am a user with a family named "The Smiths"
+    When I create a family space named "Lake House" choosing the "sage" accent colour and the "Getaway" space purpose
+    Then "Lake House" is saved with the "sage" accent colour and the "Getaway" space purpose

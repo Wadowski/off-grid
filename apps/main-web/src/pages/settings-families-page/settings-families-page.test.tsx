@@ -9,8 +9,20 @@ import { stubApi } from "../../test-support/stub-api.js";
 const LAKESIDE_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 const CABIN_ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
 
-const LAKESIDE_ADMIN = { id: LAKESIDE_ID, name: "Lakeside", role: "admin" };
-const CABIN_MEMBER = { id: CABIN_ID, name: "Cabin Circle", role: "member" };
+const LAKESIDE_ADMIN = {
+  id: LAKESIDE_ID,
+  name: "Lakeside",
+  role: "admin",
+  accent: "blue",
+  purpose: "household",
+};
+const CABIN_MEMBER = {
+  id: CABIN_ID,
+  name: "Cabin Circle",
+  role: "member",
+  accent: "blue",
+  purpose: "household",
+};
 
 let App: typeof import("../../app.js").App;
 

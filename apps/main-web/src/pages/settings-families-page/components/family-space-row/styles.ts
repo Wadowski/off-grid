@@ -25,17 +25,6 @@ export const familySpaceIdentityStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const familySpaceIconStyle: CSSProperties = {
-  width: "2.5rem",
-  height: "2.5rem",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: tokens.radius.lg,
-  background: cssVar("color-bg"),
-  flexShrink: 0,
-};
-
 export const familySpaceActionsStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",

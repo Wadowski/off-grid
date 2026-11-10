@@ -1,28 +1,24 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-export const ACCENT_IDS = ["blue", "sage", "terracotta", "lilac"] as const;
-
-export type AccentId = (typeof ACCENT_IDS)[number];
-
-export type SpacePurposeId = "household" | "getaway" | "extended";
+import { FAMILY_PURPOSE_ICON_NAMES } from "../../families/family-appearance.js";
 
 export const SPACE_PURPOSE_OPTIONS = [
   {
     id: "household",
-    iconName: "home",
+    iconName: FAMILY_PURPOSE_ICON_NAMES.household,
     nameTextId: "families.purposeHousehold",
     descriptionTextId: "families.purposeHouseholdDescription",
   },
   {
     id: "getaway",
-    iconName: "deck",
+    iconName: FAMILY_PURPOSE_ICON_NAMES.getaway,
     nameTextId: "families.purposeGetaway",
     descriptionTextId: "families.purposeGetawayDescription",
   },
   {
     id: "extended",
-    iconName: "hub",
+    iconName: FAMILY_PURPOSE_ICON_NAMES.extended,
     nameTextId: "families.purposeExtended",
     descriptionTextId: "families.purposeExtendedDescription",
   },

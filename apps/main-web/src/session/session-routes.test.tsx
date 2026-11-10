@@ -46,7 +46,20 @@ describe("web session routes", () => {
     openAt("/sign-in");
     stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: LAKESIDE_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
 
     render(<App />);
@@ -77,7 +90,20 @@ describe("web session routes", () => {
           accessExpiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
         },
       },
-      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: LAKESIDE_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
 
     render(<App />);
@@ -108,7 +134,20 @@ describe("web session routes", () => {
     openAt("/");
     const fetchMock = stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: LAKESIDE_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: LAKESIDE_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
       { status: 204, body: undefined },
     ]);
     render(<App />);

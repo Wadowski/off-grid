@@ -8,6 +8,7 @@ import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "../support/factor
 import { signInWith, type Session } from "../support/factories/instance-admin.js";
 import { webBaseUrl } from "../support/stack.js";
 import { signInThroughUi, type WebAccount } from "../support/web-session.js";
+import { bearer, memberSessionOf } from "../support/family-sessions.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -17,10 +18,6 @@ const CREATE_HEADING = "Create a Family Space";
 const SPACES_HEADING = "Family & Spaces";
 const SPACE_ROW = "family-space-row";
 const SPACE_LIST = "family-space-list";
-
-const bearer = (session: Session): Record<string, string> => ({
-  authorization: `Bearer ${session.accessToken}`,
-});
 
 const accountWithSession = async (
   api: ScenarioWorld["api"],
@@ -37,12 +34,7 @@ const accountWithSession = async (
   };
 };
 
-const memberSessionOf = (world: ScenarioWorld): Session => {
-  if (world.memberAccessToken === undefined || world.userId === undefined) {
-    throw new Error("No signed-in member is set up for this scenario.");
-  }
-  return { userId: world.userId, accessToken: world.memberAccessToken };
-};
+type SavedSpace = { name: string; accent: string; purpose: string };
 
 const spaceRow = (page: Page, name: string) =>
   page.getByTestId(SPACE_ROW).filter({ hasText: name });
@@ -117,6 +109,33 @@ When(
     await page.getByLabel("Family or Household Name").fill(name);
     await page.getByTestId("create-family-submit").click();
     await expect.poll(() => new URL(page.url()).pathname).toBe(SETTINGS_PATH);
+  },
+);
+
+When(
+  "I create a family space named {string} choosing the {string} accent colour and the {string} space purpose",
+  async ({ page }, name: string, accent: string, purpose: string) => {
+    await openCreateSpace(page);
+    await page.getByRole("button", { name: new RegExp(`^${accentLabel(accent)}$`) }).click();
+    await page.getByRole("radio", { name: new RegExp(`^${purpose}`) }).click();
+    await page.getByLabel("Family or Household Name").fill(name);
+    await page.getByTestId("create-family-submit").click();
+    await expect.poll(() => new URL(page.url()).pathname).toBe(SETTINGS_PATH);
+  },
+);
+
+Then(
+  "{string} is saved with the {string} accent colour and the {string} space purpose",
+  async ({ world }, name: string, accent: string, purpose: string) => {
+    const response = await world.api.get("/api/families", {
+      headers: bearer(memberSessionOf(world)),
+      failOnStatusCode: false,
+    });
+    const families = ((await response.json()) as { families: SavedSpace[] }).families;
+    expect(families.find((family) => family.name === name)).toMatchObject({
+      accent: accent.toLowerCase(),
+      purpose: purpose.toLowerCase(),
+    });
   },
 );
 

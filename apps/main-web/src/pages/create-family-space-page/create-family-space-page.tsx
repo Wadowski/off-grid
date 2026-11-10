@@ -3,7 +3,7 @@
 
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { CreateFamilySpaceForm } from "../../forms/create-family-space-form/create-family-space-form.js";
-import type { FamiliesContext } from "../../types.js";
+import type { FamiliesContext, FamilyAppearance } from "../../types.js";
 import { AccountIntro } from "../create-account-page/components/account-intro/account-intro.js";
 import { createFamilySpacePageStyle } from "./styles.js";
 
@@ -11,8 +11,8 @@ export const CreateFamilySpacePage = () => {
   const { createStatus, submitFamily } = useOutletContext<FamiliesContext>();
   const navigate = useNavigate();
 
-  const createSpace = async (name: string) => {
-    const created = await submitFamily(name);
+  const createSpace = async (name: string, appearance: FamilyAppearance) => {
+    const created = await submitFamily(name, appearance);
     if (created) {
       navigate("/settings/families");
     }

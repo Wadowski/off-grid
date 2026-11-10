@@ -27,7 +27,20 @@ describe("Create family space page", () => {
   it("offers household, getaway and extended purposes and selects one", async () => {
     stubApi([
       ...signedInStartup([{ id: FAMILY_ID, name: "Lakeside" }]),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
     render(<App />);
 
@@ -41,7 +54,20 @@ describe("Create family space page", () => {
   it("selects an accent colour", async () => {
     stubApi([
       ...signedInStartup([{ id: FAMILY_ID, name: "Lakeside" }]),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
     render(<App />);
 
@@ -54,7 +80,20 @@ describe("Create family space page", () => {
   it("asks for a name before creating a space", async () => {
     stubApi([
       ...signedInStartup([{ id: FAMILY_ID, name: "Lakeside" }]),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
     render(<App />);
     await screen.findByTestId("create-family-form");
@@ -67,14 +106,39 @@ describe("Create family space page", () => {
   it("creates the space and goes to Family & Spaces settings", async () => {
     const fetchMock = stubApi([
       ...signedInStartup([{ id: FAMILY_ID, name: "Lakeside" }]),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
       { status: 201, body: { id: CABIN_ID, name: "Cabin Circle", createdAt: CREATED_AT } },
       {
         status: 200,
         body: {
           families: [
-            { id: CABIN_ID, name: "Cabin Circle", role: "admin" },
-            { id: FAMILY_ID, name: "Lakeside", role: "admin" },
+            {
+              id: CABIN_ID,
+              name: "Cabin Circle",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
           ],
         },
       },
@@ -85,12 +149,17 @@ describe("Create family space page", () => {
     fireEvent.change(screen.getByLabelText("Family or Household Name"), {
       target: { value: "Cabin Circle" },
     });
+    fireEvent.click(screen.getByRole("button", { name: /^Sage$/ }));
+    fireEvent.click(screen.getByRole("radio", { name: /Getaway/ }));
     fireEvent.click(screen.getByTestId("create-family-submit"));
 
     await waitFor(() => expect(window.location.pathname).toBe("/settings/families"));
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining("/families"),
-      expect.objectContaining({ method: "POST", body: JSON.stringify({ name: "Cabin Circle" }) }),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ name: "Cabin Circle", accent: "sage", purpose: "getaway" }),
+      }),
     );
   });
 });

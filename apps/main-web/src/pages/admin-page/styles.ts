@@ -31,17 +31,10 @@ export const adminRowTextStyle: CSSProperties = {
   overflowWrap: "anywhere",
 };
 
-export const adminAvatarStyle: CSSProperties = {
-  display: "grid",
-  placeItems: "center",
-  width: "2.25rem",
-  height: "2.25rem",
-  borderRadius: "9999px",
+export const adminAvatarColors = {
   background: cssVar("color-accent-soft"),
   color: cssVar("color-accent"),
-  fontWeight: 600,
-  flexShrink: 0,
-};
+} as const;
 
 export const adminChipRowStyle: CSSProperties = {
   display: "flex",

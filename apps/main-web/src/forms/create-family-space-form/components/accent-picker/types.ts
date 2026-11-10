@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { AccentId } from "../../constants.js";
+import type { FamilyAccent } from "@offgrid/contracts";
 
 export type AccentPickerProps = {
-  readonly value: AccentId;
-  readonly onChange: (accent: AccentId) => void;
+  readonly value: FamilyAccent;
+  readonly onChange: (accent: FamilyAccent) => void;
 };

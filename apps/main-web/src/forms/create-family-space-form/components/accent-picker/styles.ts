@@ -3,7 +3,8 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
-import type { AccentId } from "../../constants.js";
+import type { FamilyAccent } from "@offgrid/contracts";
+import { FAMILY_ACCENT_COLORS } from "../../../../families/family-appearance.js";
 
 export const accentRowStyle: CSSProperties = {
   display: "flex",
@@ -33,22 +34,6 @@ export const accentSwatchesStyle: CSSProperties = {
   gap: tokens.space[2],
 };
 
-const accentIconTileStyle: CSSProperties = {
-  width: "2.5rem",
-  height: "2.5rem",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: tokens.radius.lg,
-};
-
-const accentColors: Record<AccentId, { background: string; foreground: string }> = {
-  blue: { background: cssVar("color-accent"), foreground: cssVar("color-accent-fg") },
-  sage: { background: cssVar("color-good"), foreground: cssVar("color-surface") },
-  terracotta: { background: cssVar("color-warn"), foreground: cssVar("color-surface") },
-  lilac: { background: cssVar("color-primary"), foreground: cssVar("color-surface") },
-};
-
 const accentSwatchBaseStyle: CSSProperties = {
   width: "1.5rem",
   height: "1.5rem",
@@ -58,14 +43,8 @@ const accentSwatchBaseStyle: CSSProperties = {
   borderColor: "transparent",
 };
 
-export const accentIconTile = (accent: AccentId): CSSProperties => ({
-  ...accentIconTileStyle,
-  background: accentColors[accent].background,
-  color: accentColors[accent].foreground,
-});
-
-export const accentSwatch = (accent: AccentId, selected: boolean): CSSProperties => ({
+export const accentSwatch = (accent: FamilyAccent, selected: boolean): CSSProperties => ({
   ...accentSwatchBaseStyle,
-  background: accentColors[accent].background,
+  background: FAMILY_ACCENT_COLORS[accent].background,
   borderColor: selected ? cssVar("color-fg") : "transparent",
 });

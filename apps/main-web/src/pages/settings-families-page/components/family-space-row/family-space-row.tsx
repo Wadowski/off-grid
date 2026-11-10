@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text, cssVar } from "@offgrid/ui";
+import { Button, IconTile, Text } from "@offgrid/ui";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import {
+  FAMILY_ACCENT_COLORS,
+  FAMILY_PURPOSE_ICON_NAMES,
+} from "../../../../families/family-appearance.js";
 import type { FamilySpaceRowProps } from "./types.js";
 import {
   familySpaceActionsStyle,
-  familySpaceIconStyle,
   familySpaceIdentityStyle,
   familySpaceRowStyle,
 } from "./styles.js";
@@ -14,9 +17,13 @@ import {
 export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpaceRowProps) => (
   <li style={familySpaceRowStyle} data-testid="family-space-row">
     <div style={familySpaceIdentityStyle}>
-      <div style={familySpaceIconStyle}>
-        <MaterialIcon name="home" size="20px" color={cssVar("color-accent")} />
-      </div>
+      <IconTile size="2.5rem" {...FAMILY_ACCENT_COLORS[space.accent]}>
+        <MaterialIcon
+          name={FAMILY_PURPOSE_ICON_NAMES[space.purpose]}
+          size="20px"
+          color="currentColor"
+        />
+      </IconTile>
       <div>
         <Text variant="label" value={space.name} />
         <Text

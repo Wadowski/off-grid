@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Checkbox, Text } from "@offgrid/ui";
+import { Checkbox, IconTile, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { webAdminClient } from "../../../../api/web-api-client.js";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
-import { iconTileStyle } from "../../../settings-page/components/settings-link-row/styles.js";
+import { settingsIconColors } from "../../../settings-page/components/settings-link-row/styles.js";
 import {
   sectionCardStyle,
   sectionHeaderStyle,
@@ -45,9 +45,9 @@ export const AdminRegistrationSection = ({
       <div style={sectionCardStyle}>
         <div style={adminRowStyle(true)}>
           <div style={adminRowMainStyle}>
-            <span style={iconTileStyle("accent")} aria-hidden="true">
+            <IconTile size="2rem" {...settingsIconColors("accent")}>
               <MaterialIcon name="person_add" size="19px" color="currentColor" />
-            </span>
+            </IconTile>
             <div style={adminRowTextStyle}>
               <Checkbox
                 data-testid="admin-registration-toggle"

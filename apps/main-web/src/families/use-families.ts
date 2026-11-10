@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CreateFamilyStatus, FamilySpace, ListStatus } from "../types.js";
+import type { CreateFamilyStatus, FamilyAppearance, FamilySpace, ListStatus } from "../types.js";
 import { createFamily } from "./create-family.js";
 import { listFamilies } from "./list-families.js";
 
@@ -33,10 +33,10 @@ export const useFamilies = () => {
     void loadFamilies();
   }, [loadFamilies]);
 
-  const submitFamily = async (name: string): Promise<boolean> => {
+  const submitFamily = async (name: string, appearance?: FamilyAppearance): Promise<boolean> => {
     setCreateStatus("submitting");
     try {
-      await createFamily(name);
+      await createFamily(name, appearance);
       setCreateStatus("idle");
     } catch {
       setCreateStatus("failed");

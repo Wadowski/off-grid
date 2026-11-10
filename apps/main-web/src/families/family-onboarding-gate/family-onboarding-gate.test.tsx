@@ -11,6 +11,8 @@ const FAMILY = {
   id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
   name: "Lakeside",
   role: "admin" as const,
+  accent: "blue" as const,
+  purpose: "household" as const,
 };
 
 const familiesContext = (overrides: Partial<FamiliesContext>): FamiliesContext => ({

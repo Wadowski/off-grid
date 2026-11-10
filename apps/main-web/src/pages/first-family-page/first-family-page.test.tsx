@@ -64,7 +64,20 @@ describe("First family page", () => {
       ...signedInStartup(),
       { status: 200, body: { families: [] } },
       { status: 201, body: { id: FAMILY_ID, name: "Lakeside", createdAt: CREATED_AT } },
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
     render(<App />);
     await screen.findByText(WELCOME_HEADING);
@@ -133,7 +146,20 @@ describe("First family page", () => {
     window.history.pushState({}, "", "/welcome");
     stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
+      {
+        status: 200,
+        body: {
+          families: [
+            {
+              id: FAMILY_ID,
+              name: "Lakeside",
+              role: "admin",
+              accent: "blue",
+              purpose: "household",
+            },
+          ],
+        },
+      },
     ]);
 
     render(<App />);
