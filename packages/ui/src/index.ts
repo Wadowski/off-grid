@@ -10,6 +10,8 @@ export { Card } from "./card/card.js";
 export { Checkbox } from "./checkbox/checkbox.js";
 export { Radio } from "./radio/radio.js";
 export { Select } from "./select/select.js";
+export { Tag } from "./tag/tag.js";
+export { Avatar } from "./avatar/avatar.js";
 export { Text } from "./text/text.js";
 export { IconTile } from "./icon-tile/icon-tile.js";
 export { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
