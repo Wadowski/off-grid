@@ -41,7 +41,7 @@ Feature: Join a family space with an invitation code
     When I continue on the join family space screen without a code
     Then I see the message "Enter an invitation code."
 
-  Scenario: A wrong code shows the same message as a spent or expired code
+  Scenario: A code that was never issued gets the generic message
     Given I am a user without any family
     When I enter the invitation code "not-a-real-code" on the join family space screen
     Then I see the message "That code isn't valid. Check it and try again."

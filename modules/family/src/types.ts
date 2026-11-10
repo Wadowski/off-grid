@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FamilyRole, ReadOutcome } from "@offgrid/access-control";
-import type { FamilyAccent, FamilyPurpose } from "@offgrid/contracts";
+import type { FamilyAccent, FamilyPurpose, InvitationPreview } from "@offgrid/contracts";
 import type { CurrentUserId } from "@offgrid/http";
 import type { FastifyRequest } from "fastify";
 import type { ModuleDatabase } from "@offgrid/db";
@@ -95,13 +95,6 @@ export interface FamilyInvitationRef {
 
 export interface JoinedFamily {
   readonly familyId: string;
-}
-
-export interface InvitationPreview {
-  readonly familyId: string;
-  readonly familyName: string;
-  readonly familyCreatedAt: string;
-  readonly invitedBy: { readonly displayName: string | null };
 }
 
 export type PreviewOutcome =

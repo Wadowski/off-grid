@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { withInvitationCodeHashContext, withUserContext, type ModuleDatabase } from "@offgrid/db";
-import { INVITATION_ATTEMPT_POLICY } from "../../constants.js";
 import { hashInvitationCode } from "../../infrastructure/invitations/hash-invitation-code.js";
 import { findInvitationPreview } from "../../infrastructure/invitations/find-invitation-preview.js";
-import { recordFailedRedemption } from "../../infrastructure/invitations/record-failed-redemption.js";
 import { findMembership } from "../../infrastructure/find-membership.js";
 import type { PreviewOutcome } from "../../types.js";
 import { isAccountLockedOut } from "./is-account-locked-out.js";
+import { recordInvalidRedemption } from "./record-invalid-redemption.js";
 
-// Reads the family an invitation is for without consuming the code. A failed
-// lookup counts towards the same attempt limit as redemption.
+// Reads the family an invitation is for without consuming the code. A code
+// that is unknown, spent, revoked or expired counts towards the attempt limit,
+// as a failed redemption does. A person who is already a member gets the same
+// generic answer but does not count, as redemption does.
 export const previewFamilyInvitation = async (
   db: ModuleDatabase,
   userId: string,
@@ -22,21 +23,24 @@ export const previewFamilyInvitation = async (
     return { outcome: "rate-limited" };
   }
   const codeHash = hashInvitationCode(code);
-  const preview = await db.$transaction(async (tx) => {
+  const lookup = await db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
     await withInvitationCodeHashContext(tx, codeHash);
-    const found = await findInvitationPreview(tx, codeHash);
-    if (found === null || (await findMembership(tx, found.familyId, userId)) !== null) {
-      return null;
+    const found = await findInvitationPreview(tx, codeHash, now);
+    if (found === null) {
+      return { outcome: "unknown" as const };
     }
-    return found;
+    if ((await findMembership(tx, found.familyId, userId)) !== null) {
+      return { outcome: "already-member" as const };
+    }
+    return { outcome: "found" as const, value: found };
   });
-  if (preview !== null) {
-    return { outcome: "found", value: preview };
+  if (lookup.outcome === "found") {
+    return lookup;
   }
-  await db.$transaction(async (tx) => {
-    await withUserContext(tx, userId);
-    await recordFailedRedemption(tx, userId, INVITATION_ATTEMPT_POLICY, now);
-  });
+  if (lookup.outcome === "already-member") {
+    return { outcome: "invalid" };
+  }
+  await recordInvalidRedemption(db, userId, now);
   return { outcome: "invalid" };
 };

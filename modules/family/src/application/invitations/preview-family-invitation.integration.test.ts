@@ -86,16 +86,41 @@ describe("previewFamilyInvitation", { timeout: 60_000 }, () => {
     });
   });
 
-  it("answers invalid for a code that was never issued, and for a family the person already joined", async () => {
+  it("answers invalid for a code that was never issued", async () => {
+    const admin = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+    await createCode(db, admin, family.id);
+
+    expect(await previewFamilyInvitation(db.db, randomUUID(), "not-a-real-code")).toEqual({
+      outcome: "invalid",
+    });
+  });
+
+  it("answers invalid for a family the person already joined", async () => {
     const admin = randomUUID();
     const member = randomUUID();
     const family = await createFamily(db.db, admin, "Novak family");
     await addFamilyMember(db.db, family.id, member, "member");
     const invitation = await createCode(db, admin, family.id);
 
-    expect(await previewFamilyInvitation(db.db, randomUUID(), "not-a-real-code")).toEqual({
+    expect(await previewFamilyInvitation(db.db, member, invitation.code)).toEqual({
       outcome: "invalid",
     });
+  });
+
+  it("does not count a preview from an existing member towards the attempt limit", async () => {
+    const admin = randomUUID();
+    const member = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+    await addFamilyMember(db.db, family.id, member, "member");
+    const invitation = await createCode(db, admin, family.id);
+
+    for (let attempt = 0; attempt < INVITATION_ATTEMPT_POLICY.limit; attempt += 1) {
+      expect(await previewFamilyInvitation(db.db, member, invitation.code)).toEqual({
+        outcome: "invalid",
+      });
+    }
+
     expect(await previewFamilyInvitation(db.db, member, invitation.code)).toEqual({
       outcome: "invalid",
     });
@@ -126,6 +151,33 @@ describe("previewFamilyInvitation", { timeout: 60_000 }, () => {
 
     expect(await previewFamilyInvitation(db.db, joiner, invitation.code)).toEqual({
       outcome: "rate-limited",
+    });
+  });
+
+  it("answers invalid for a revoked code", async () => {
+    const admin = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+    const invitation = await createCode(db, admin, family.id);
+    await db.admin.query("UPDATE family.invitation SET revoked_at = now() WHERE family_id = $1", [
+      family.id,
+    ]);
+
+    expect(await previewFamilyInvitation(db.db, randomUUID(), invitation.code)).toEqual({
+      outcome: "invalid",
+    });
+  });
+
+  it("answers invalid for an expired code", async () => {
+    const admin = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+    const invitation = await createCode(db, admin, family.id);
+    await db.admin.query(
+      "UPDATE family.invitation SET expires_at = now() - interval '1 day' WHERE family_id = $1",
+      [family.id],
+    );
+
+    expect(await previewFamilyInvitation(db.db, randomUUID(), invitation.code)).toEqual({
+      outcome: "invalid",
     });
   });
 });

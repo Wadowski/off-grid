@@ -25,9 +25,8 @@ const signedInPages = new WeakSet<Page>();
 
 const openJoinScreen = async (page: Page, world: ScenarioWorld): Promise<void> => {
   if (!signedInPages.has(page)) {
-    expect(world.ownAccount, "no signed-in person is set up for this scenario").toBeDefined();
     signedInPages.add(page);
-    await signInThroughUi(page, world.ownAccount as NonNullable<ScenarioWorld["ownAccount"]>);
+    await signInThroughUi(page, requireOwnAccount(world));
   }
   await page.goto(`${webBaseUrl()}${JOIN_PATH}`);
   await expect(page.getByTestId(CODE_FORM)).toBeVisible();
@@ -38,6 +37,27 @@ const enterCode = async (page: Page, code: string): Promise<void> => {
   await page.getByRole("button", { name: CONTINUE }).click();
 };
 
+const requireOwnAccount = (world: ScenarioWorld): NonNullable<ScenarioWorld["ownAccount"]> => {
+  if (world.ownAccount === undefined) {
+    throw new Error("No signed-in person is set up for this scenario.");
+  }
+  return world.ownAccount;
+};
+
+const requireFamilyOwner = (world: ScenarioWorld): NonNullable<ScenarioWorld["familyOwner"]> => {
+  if (world.familyOwner === undefined) {
+    throw new Error("The family owner is not set up for this scenario.");
+  }
+  return world.familyOwner;
+};
+
+const requireInviterName = (world: ScenarioWorld): string => {
+  if (world.inviterDisplayName === undefined) {
+    throw new Error("The inviter is not set up for this scenario.");
+  }
+  return world.inviterDisplayName;
+};
+
 const requireInvitationCode = (world: ScenarioWorld): string => {
   if (world.invitationCode === undefined) {
     throw new Error("No invitation has been created in this scenario.");
@@ -46,12 +66,13 @@ const requireInvitationCode = (world: ScenarioWorld): string => {
 };
 
 Given("that user has invited me with a code to {string}", async ({ world }, name: string) => {
-  expect(world.familyOwner, "the family owner is not set up").toBeDefined();
   const family = world.families.find((created) => created.name === name);
-  expect(family, `family "${name}" was not created`).toBeDefined();
-  const owner = world.familyOwner as NonNullable<ScenarioWorld["familyOwner"]>;
+  if (family === undefined) {
+    throw new Error(`family "${name}" was not created`);
+  }
+  const owner = requireFamilyOwner(world);
 
-  const invitation = await world.api.post(`/api/families/${family?.id}/invitations`, {
+  const invitation = await world.api.post(`/api/families/${family.id}/invitations`, {
     headers: bearer(owner),
     failOnStatusCode: false,
   });
@@ -62,11 +83,11 @@ Given("that user has invited me with a code to {string}", async ({ world }, name
   };
   world.invitationId = invitationId;
   world.invitationCode = code;
-  world.invitationFamilyId = family?.id;
+  world.invitationFamilyId = family.id;
 
   // The inviter's name reaches the family module through an event, so wait for it.
   await eventually(async () => {
-    const members = await world.api.get(`/api/families/${family?.id}/members`, {
+    const members = await world.api.get(`/api/families/${family.id}/members`, {
       headers: bearer(owner),
       failOnStatusCode: false,
     });
@@ -124,7 +145,7 @@ Then("I see the family name {string}", async ({ page }, name: string) => {
 
 Then("I see that the invitation came from that user", async ({ page, world }) => {
   await expect(
-    page.getByText(`${world.inviterDisplayName ?? ""} invited you to join`, { exact: false }),
+    page.getByText(`${requireInviterName(world)} invited you to join`, { exact: false }),
   ).toBeVisible();
 });
 

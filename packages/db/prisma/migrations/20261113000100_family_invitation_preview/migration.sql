@@ -7,6 +7,9 @@
 -- ADR 0027). A row is visible only while its invitation is unused, unrevoked
 -- and unexpired, and nothing else about the family or its members is exposed.
 
+-- The policy is row-level, so it exposes every column of family.family to a
+-- code holder. The preview reads only the name and creation time. A column
+-- added to family.family later must be reviewed against this policy first.
 CREATE POLICY family_visible_to_invitation_code ON family.family
   FOR SELECT
   USING (

@@ -4,6 +4,7 @@
 import { Button, Text, TextField } from "@offgrid/ui";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { joinCodeActionStyle } from "./styles.js";
 import type { JoinCodeFormProps } from "./types.js";
 
 export const JoinCodeForm = ({ submitting, errorTextId, onSubmit }: JoinCodeFormProps) => {
@@ -28,15 +29,17 @@ export const JoinCodeForm = ({ submitting, errorTextId, onSubmit }: JoinCodeForm
         label={<Text variant="label" textId="joinSpace.codeLabel" />}
         error={
           errorTextId === undefined ? undefined : (
-            <span role="alert">
+            <div role="alert">
               <Text variant="error" textId={errorTextId} />
-            </span>
+            </div>
           )
         }
       />
-      <Button type="submit" variant="primary" fullWidth disabled={submitting}>
-        <Text variant="action" textId="joinSpace.continue" />
-      </Button>
+      <div style={joinCodeActionStyle}>
+        <Button type="submit" variant="primary" fullWidth disabled={submitting}>
+          <Text variant="action" textId="joinSpace.continue" />
+        </Button>
+      </div>
     </form>
   );
 };

@@ -1,6 +1,6 @@
 # 0027. Invitation preview: a code shows its family before the person joins
 
-- **Status:** Proposed
+- **Status:** Accepted
 
 ## Context
 
@@ -16,7 +16,7 @@ Constraints:
 
 - A new endpoint, `POST /families/invitations/preview`, takes a code and returns the family's id, name and creation time, and the display name of the person who created the invitation, or `null` if that person has no name copy. The member list, member count and roles are not returned.
 - The preview does not consume the code, and accepting still goes through `POST /families/join`.
-- A preview of an unknown, spent, revoked, expired or already-joined code gets the same answer as a failed redemption. Each failure counts towards the account's attempt limit (ADR 0021), and a limited account gets the same rate-limit answer.
+- An unknown, spent, revoked or expired code gets the same generic answer as a failed redemption and counts towards the account's attempt limit (ADR 0021). A person who has already joined the family gets the same answer and does not count, as redemption does. A limited account gets the same rate-limit answer.
 - Two additional row-level security policies, keyed on `app.invitation_code_hash` in the same way as the redeem policies in ADR 0021, let the lookup read:
   - the family row, and only while a live invitation with that code hash exists for it;
   - the display-name copy of the invitation's creator, only under the same condition.
@@ -29,3 +29,5 @@ Constraints:
 - A person who only guesses codes learns nothing from the preview, because wrong codes get the same answer and count towards the limit.
 - The design's member count and governance text are not shown: the first needs member rows a non-member cannot read, and the second makes claims the product does not yet back.
 - The preview runs under the same transaction rules as redemption, and its integration tests cover spent, revoked, unknown, already-joined and rate-limited codes.
+- The family policy is row-level, so it makes every column of `family.family` readable to a code holder. The preview selects only the name and creation time. A column added to `family.family` later must be reviewed against this policy first, and the migration says so.
+- The attempt limit is checked and recorded in separate transactions, as redemption is. Parallel requests can therefore exceed the limit slightly. Closing that gap would change redemption as well, so it is left for a later record.

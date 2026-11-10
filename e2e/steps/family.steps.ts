@@ -15,6 +15,8 @@ import {
 
 const { Given, When, Then } = createBdd(test);
 
+const INVITER_NAME = "Other Person";
+
 const LONG_NAME_LENGTH = 101;
 const NOT_FOUND_CODE = "NOT_FOUND";
 const VALIDATION_CODE = "VALIDATION_FAILED";
@@ -50,16 +52,16 @@ Given("I am a user without any family", async ({ world }) => {
   const { account, session } = await accountSessionOf(world.api, "Ben Member");
   world.userId = session.userId;
   world.memberAccessToken = session.accessToken;
-  world.ownAccount = { ...account };
+  world.ownAccount = account;
 });
 
 Given("another user has a family named {string}", async ({ world }, name: string) => {
-  const owner = await sessionOf(world.api, "Other Person");
+  const owner = await sessionOf(world.api, INVITER_NAME);
   const response = await postFamily(world.api, owner, name);
   expect(response.status()).toBe(201);
   world.families.push((await response.json()) as { id: string; name: string });
   world.familyOwner = owner;
-  world.inviterDisplayName = "Other Person";
+  world.inviterDisplayName = INVITER_NAME;
 });
 
 When("I create a family named {string}", async ({ world }, name: string) => {

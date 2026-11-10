@@ -4,6 +4,14 @@
 import { Button, Card, IconTile, Tag, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import {
+  invitationIconColor,
+  invitationIconTileBackground,
+  invitationInviterStyle,
+  invitationNameStyle,
+  invitationPreviewStyle,
+  invitationSummaryStyle,
+} from "./styles.js";
 import type { InvitationPreviewCardProps } from "./types.js";
 
 export const InvitationPreviewCard = ({
@@ -20,23 +28,23 @@ export const InvitationPreviewCard = ({
   const inviterName = preview.invitedBy.displayName;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "left" }}>
+    <div style={invitationPreviewStyle}>
       <Card>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", padding: "1rem" }}>
+        <div style={invitationSummaryStyle}>
           <IconTile
             size="2.5rem"
-            background="var(--og-color-accent-soft)"
-            color="var(--og-color-accent)"
+            background={invitationIconTileBackground}
+            color={invitationIconColor}
           >
             <MaterialIcon name="house" size="20px" color="var(--og-color-accent)" />
           </IconTile>
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <div style={invitationNameStyle}>
             <Text variant="subheading" value={preview.familyName} />
             <Text variant="caption" value={t("joinSpace.createdOn", { date: createdOn })} />
           </div>
           <Tag tone="accent">{t("userMenu.roleMember")}</Tag>
         </div>
-        <div style={{ padding: "0 1rem 1rem" }}>
+        <div style={invitationInviterStyle}>
           <Text
             variant="body"
             value={
