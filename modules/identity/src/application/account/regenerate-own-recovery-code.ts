@@ -10,7 +10,7 @@ import { retireActiveRecoveryCodes } from "../../infrastructure/recovery-codes/r
 import { digestToken } from "../../infrastructure/tokens/digest-token.js";
 import { generateSecretToken } from "../../infrastructure/tokens/generate-secret-token.js";
 import type { RegeneratedRecoveryCode } from "../../types.js";
-import { raiseNotification } from "../notifications/raise-notification.js";
+import { notifyUser } from "../notifications/notify-user.js";
 import { PasswordIncorrectError } from "../errors/password-incorrect-error.js";
 import { passwordMatches } from "./password-matches.js";
 
@@ -22,14 +22,14 @@ export const regenerateOwnRecoveryCode = async (
 ): Promise<RegeneratedRecoveryCode> => {
   const recoveryCode = generateSecretToken(RECOVERY_CODE_BYTES);
   const codeHash = recoveryCodeHashSchema.parse(digestToken(recoveryCode));
-  const notification = await db.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
     if (!(await passwordMatches(tx, userId, password))) {
       throw new PasswordIncorrectError();
     }
     await retireActiveRecoveryCodes(tx, userId);
     await insertRecoveryCode(tx, { id: randomUUID(), userId, codeHash });
-    return raiseNotification(tx, { userId, type: "recovery-code-regenerated" }, now);
+    await notifyUser(tx, { userId, type: "recovery-code-regenerated" }, now);
   });
-  return { recoveryCode, notification };
+  return { recoveryCode };
 };

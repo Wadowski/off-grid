@@ -17,7 +17,7 @@ import { revokeAllSessions } from "../../infrastructure/sessions/revoke-all-sess
 import { digestToken } from "../../infrastructure/tokens/digest-token.js";
 import { generateSecretToken } from "../../infrastructure/tokens/generate-secret-token.js";
 import type { PasswordResetOutcome } from "../../types.js";
-import { raiseNotification } from "../notifications/raise-notification.js";
+import { notifyUser } from "../notifications/notify-user.js";
 import { AccountNotFoundError } from "../errors/account-not-found-error.js";
 import { PasswordRejectedError } from "../errors/password-rejected-error.js";
 
@@ -48,6 +48,6 @@ export const applyPasswordReset = async (
     userId,
     codeHash: recoveryCodeHashSchema.parse(digestToken(recoveryCode)),
   });
-  const notification = await raiseNotification(tx, { userId, type: "password-changed" }, now);
-  return { recoveryCode, notification };
+  await notifyUser(tx, { userId, type: "password-changed" }, now);
+  return { recoveryCode };
 };

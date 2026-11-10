@@ -49,9 +49,9 @@ describe("password recovery", { timeout: 60_000 }, () => {
 
   const notificationTypesOf = async (email: string): Promise<string[]> => {
     const { rows } = await db.admin.query<{ type: string }>(
-      `SELECT n.type FROM identity.notification n
-         JOIN identity.user_account u ON u.user_id = n.user_id
-        WHERE u.email = $1`,
+      `SELECT e.payload->>'type' AS type FROM outbox.event e
+         JOIN identity.user_account u ON u.user_id = e.user_id
+        WHERE u.email = $1 AND e.type = 'user-notified-v1'`,
       [email],
     );
     return rows.map((row) => row.type);
@@ -180,7 +180,7 @@ describe("password recovery", { timeout: 60_000 }, () => {
       await expect(attempt()).rejects.toBeInstanceOf(RecoveryLockedError);
     });
 
-    it("raises a security notification", async () => {
+    it("publishes a security notification", async () => {
       const account = await signUpAnna();
 
       await recoverWithRecoveryCode(db.db, {

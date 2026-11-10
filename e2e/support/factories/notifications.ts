@@ -81,6 +81,21 @@ export async function listOwnNotifications(
   return { status: response.status(), body: (await response.json()) as NotificationList };
 }
 
+export async function waitForOwnNotifications(
+  api: APIRequestContext,
+  session: Session,
+  ready: (list: NotificationList) => boolean,
+): Promise<{ status: number; body: NotificationList }> {
+  const deadline = Date.now() + 10_000;
+  for (;;) {
+    const result = await listOwnNotifications(api, session);
+    if (ready(result.body) || Date.now() >= deadline) {
+      return result;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+}
+
 export function markOwnNotificationRead(
   api: APIRequestContext,
   session: Session,

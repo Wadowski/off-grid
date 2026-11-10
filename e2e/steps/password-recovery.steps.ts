@@ -12,7 +12,11 @@ import {
   signInWith,
   type Session,
 } from "../support/factories/instance-admin.js";
-import { listOwnNotifications, type SignedInPerson } from "../support/factories/notifications.js";
+import {
+  listOwnNotifications,
+  waitForOwnNotifications,
+  type SignedInPerson,
+} from "../support/factories/notifications.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -228,6 +232,8 @@ Then("the other device is signed out", async ({ world }) => {
 Then("she gets a security notification in her inbox", async ({ world }) => {
   const account = recoveryAccountOf(world);
   const signedIn = await signedInAs(world.api, { ...account, password: NEW_PASSWORD });
-  const inbox = await listOwnNotifications(world.api, signedIn.session);
+  const inbox = await waitForOwnNotifications(world.api, signedIn.session, (list) =>
+    list.notifications.some((item) => item.type === PASSWORD_CHANGED_TYPE),
+  );
   expect(inbox.body.notifications.map((item) => item.type)).toContain(PASSWORD_CHANGED_TYPE);
 });

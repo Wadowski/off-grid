@@ -9,11 +9,11 @@ export const markNotificationRead = async (
   notificationId: string,
   readAt: Date,
 ): Promise<boolean> => {
-  const owned = await tx.notification.count({ where: { notificationId, userId } });
+  const owned = await tx.notificationItem.count({ where: { notificationId, userId } });
   if (owned === 0) {
     return false;
   }
-  await tx.notification.updateMany({
+  await tx.notificationItem.updateMany({
     where: { notificationId, userId, readAt: null },
     data: { readAt },
   });

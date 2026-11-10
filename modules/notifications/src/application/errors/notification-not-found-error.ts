@@ -3,7 +3,7 @@
 
 export class NotificationNotFoundError extends Error {
   constructor() {
-    super("The notification was not found");
+    super("Notification not found");
     this.name = "NotificationNotFoundError";
   }
 }

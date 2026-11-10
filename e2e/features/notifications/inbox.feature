@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:identity
+@module:notifications
 Feature: Notifications
 
-  A signed-in person gets an inbox item for security messages about their account.
+  Every notice to a person lands in one inbox, owned by the notifications module.
   Nobody can read another person's notifications.
 
   Scenario: Password change notice
@@ -22,12 +22,3 @@ Feature: Notifications
     Given Anna is signed in
     And Tom has an unread inbox item
     Then Anna cannot see Tom's notifications
-
- 
-  @wip
-  Scenario: Channel failure does not block
-    Given Anna is signed in
-    And a delivery channel is failing
-    When Anna changes her password
-    Then the password change still succeeds
-    And the inbox item is still created

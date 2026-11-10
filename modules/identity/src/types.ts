@@ -193,7 +193,6 @@ export interface IdentityRouteContext {
   readonly currentSessionId: (request: FastifyRequest) => string | null;
   readonly logger: Logger;
   readonly mailEncryptionKey: Buffer;
-  readonly notificationChannels: readonly NotificationChannel[];
   readonly emailDependencies: EmailChannelDependencies;
 }
 
@@ -203,7 +202,7 @@ export interface IdentityModuleOptions {
 
 export type IdentityRouteInput = Omit<
   IdentityRouteContext,
-  "mailEncryptionKey" | "notificationChannels" | "emailDependencies"
+  "mailEncryptionKey" | "emailDependencies"
 >;
 
 export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;
@@ -267,7 +266,6 @@ export interface RecoverWithRecoveryCodeInput {
 
 export interface PasswordResetOutcome {
   readonly recoveryCode: string;
-  readonly notification: NewNotification;
 }
 
 export interface EmailCodeRequestInput {
@@ -334,40 +332,12 @@ export interface NotificationInput {
   readonly type: NotificationType;
 }
 
-export interface NewNotification {
+export interface UserNotice {
   readonly id: string;
   readonly userId: string;
   readonly type: NotificationType;
-  readonly data: Record<string, string>;
-}
-
-export interface NotificationRecord {
-  readonly notificationId: string;
-  readonly type: string;
-  readonly data: Record<string, string>;
-  readonly createdAt: Date;
-  readonly readAt: Date | null;
-}
-
-export interface ListedNotification {
-  readonly id: string;
-  readonly type: string;
-  readonly data: Record<string, string>;
-  readonly createdAt: string;
-  readonly readAt: string | null;
-}
-
-export interface NotificationList {
-  readonly notifications: ListedNotification[];
-  readonly unreadCount: number;
-}
-
-export interface NotificationChannel {
-  readonly name: string;
-  deliver(notification: NewNotification): Promise<void>;
 }
 
 export interface RegeneratedRecoveryCode {
   readonly recoveryCode: string;
-  readonly notification: NewNotification;
 }

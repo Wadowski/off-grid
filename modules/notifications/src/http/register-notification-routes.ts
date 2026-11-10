@@ -5,16 +5,16 @@ import { accountRoutes, uuidSchema } from "@offgrid/contracts";
 import { sendNotFound, sendValidationFailed, withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { listOwnNotifications } from "../../application/notifications/list-own-notifications.js";
-import { markOwnNotificationRead } from "../../application/notifications/mark-own-notification-read.js";
-import { NotificationNotFoundError } from "../../application/errors/notification-not-found-error.js";
-import type { IdentityRouteContext } from "../../types.js";
+import { listOwnNotifications } from "../application/inbox/list-own-notifications.js";
+import { markOwnNotificationRead } from "../application/inbox/mark-own-notification-read.js";
+import { NotificationNotFoundError } from "../application/errors/notification-not-found-error.js";
+import type { NotificationRouteContext } from "../types.js";
 
 const notificationParamsSchema = z.object({ notificationId: uuidSchema });
 
-export const registerNotifications = (
+export const registerNotificationRoutes = (
   api: FastifyInstance,
-  context: IdentityRouteContext,
+  context: NotificationRouteContext,
 ): void => {
   api.get(
     accountRoutes.notifications,

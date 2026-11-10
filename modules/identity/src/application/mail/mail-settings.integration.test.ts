@@ -3,16 +3,14 @@
 
 import { randomBytes } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Logger } from "@offgrid/observability";
 import {
   startIdentityTestDatabase,
   type IdentityTestDatabase,
 } from "../../../test/start-identity-test-database.js";
 import { AdminRequiredError } from "../errors/admin-required-error.js";
 import { MailTestFailedError } from "../errors/mail-test-failed-error.js";
-import { deliverEmailNotification } from "../notifications/deliver-email-notification.js";
 import { registerAccount } from "../registration/register-account.js";
-import type { MailSender, MailSettingsRequest, NewNotification } from "../../types.js";
+import type { MailSender, MailSettingsRequest } from "../../types.js";
 import { getMailSettings } from "./get-mail-settings.js";
 import { isMailConfigured } from "./is-mail-configured.js";
 import { saveMailSettings } from "./save-mail-settings.js";
@@ -26,17 +24,6 @@ const gmailRequest: MailSettingsRequest = {
   provider: "gmail",
   email: "anna@gmail.com",
   password: APP_PASSWORD,
-};
-
-const fakeLogger = (): Logger => {
-  const logger: Logger = {
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    child: () => logger,
-  };
-  return logger;
 };
 
 describe("mail settings", { timeout: 60_000 }, () => {
@@ -130,56 +117,5 @@ describe("mail settings", { timeout: 60_000 }, () => {
       expect.objectContaining({ host: "smtp.gmail.com", password: "abcdefghijklmnop" }),
       expect.objectContaining({ to: "anna@example.com", from: "anna@gmail.com" }),
     );
-  });
-
-  it("emails a notification to the user through the saved settings", async () => {
-    const adminId = await registerAdmin();
-    await saveMailSettings(db.db, ENCRYPTION_KEY, adminId, gmailRequest);
-    const sender = vi.fn<MailSender>(async () => undefined);
-    const notification: NewNotification = {
-      id: randomBytes(16).toString("hex"),
-      userId: adminId,
-      type: "password-changed",
-      data: {},
-    };
-
-    await deliverEmailNotification(
-      {
-        db: db.db,
-        encryptionKey: ENCRYPTION_KEY,
-        logger: fakeLogger(),
-        sendMail: sender,
-        retryDelaysMs: [],
-      },
-      notification,
-    );
-
-    expect(sender).toHaveBeenCalledWith(
-      expect.objectContaining({ host: "smtp.gmail.com" }),
-      expect.objectContaining({ to: "anna@example.com", from: "anna@gmail.com" }),
-    );
-  });
-
-  it("sends nothing when mail is not configured", async () => {
-    const adminId = await registerAdmin();
-    const sender = vi.fn<MailSender>(async () => undefined);
-
-    await deliverEmailNotification(
-      {
-        db: db.db,
-        encryptionKey: ENCRYPTION_KEY,
-        logger: fakeLogger(),
-        sendMail: sender,
-        retryDelaysMs: [],
-      },
-      {
-        id: randomBytes(16).toString("hex"),
-        userId: adminId,
-        type: "password-changed",
-        data: {},
-      },
-    );
-
-    expect(sender).not.toHaveBeenCalled();
   });
 });

@@ -7,7 +7,6 @@ import type { FastifyInstance } from "fastify";
 import { ACCOUNT_SECRET_RATE_LIMIT_PER_MINUTE, RATE_WINDOW_MS } from "../../constants.js";
 import { regenerateOwnRecoveryCode } from "../../application/account/regenerate-own-recovery-code.js";
 import type { IdentityRouteContext } from "../../types.js";
-import { deliverToChannels } from "../../application/notifications/deliver-to-channels.js";
 import { sendAccountError } from "./send-account-error.js";
 
 export const registerRecoveryCode = (api: FastifyInstance, context: IdentityRouteContext): void => {
@@ -24,12 +23,11 @@ export const registerRecoveryCode = (api: FastifyInstance, context: IdentityRout
         return sendValidationFailed(reply, body.error);
       }
       try {
-        const { recoveryCode, notification } = await regenerateOwnRecoveryCode(
+        const { recoveryCode } = await regenerateOwnRecoveryCode(
           context.db,
           userId,
           body.data.password,
         );
-        await deliverToChannels(context.notificationChannels, notification, context.logger);
         reply.header("cache-control", "no-store");
         return reply.code(201).send({ recoveryCode });
       } catch (error) {

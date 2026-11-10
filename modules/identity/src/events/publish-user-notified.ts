@@ -6,11 +6,11 @@ import { userNotifiedV1 } from "@offgrid/contracts";
 import { publish } from "@offgrid/event-bus";
 import { rawSqlExecutor, type ModuleTransaction } from "@offgrid/db";
 import { currentTraceId, resolveTraceId } from "@offgrid/observability";
-import type { NewNotification } from "../types.js";
+import type { UserNotice } from "../types.js";
 
 export const publishUserNotified = async (
   tx: ModuleTransaction,
-  notification: NewNotification,
+  notification: UserNotice,
   occurredAt: Date,
 ): Promise<void> => {
   await publish(
@@ -28,7 +28,7 @@ export const publishUserNotified = async (
         notificationId: notification.id,
         userId: notification.userId,
         type: notification.type,
-        data: notification.data,
+        data: {},
       },
     },
     { userId: notification.userId },

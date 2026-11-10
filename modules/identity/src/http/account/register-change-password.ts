@@ -6,7 +6,6 @@ import { sendUnauthenticated, sendValidationFailed, withUser } from "@offgrid/ht
 import type { FastifyInstance } from "fastify";
 import { ACCOUNT_SECRET_RATE_LIMIT_PER_MINUTE, RATE_WINDOW_MS } from "../../constants.js";
 import { changeOwnPassword } from "../../application/account/change-own-password.js";
-import { deliverToChannels } from "../../application/notifications/deliver-to-channels.js";
 import type { IdentityRouteContext } from "../../types.js";
 import { sendAccountError } from "./send-account-error.js";
 
@@ -31,11 +30,10 @@ export const registerChangePassword = (
         return sendUnauthenticated(reply);
       }
       try {
-        const notification = await changeOwnPassword(context.db, userId, currentSessionId, {
+        await changeOwnPassword(context.db, userId, currentSessionId, {
           currentPassword: body.data.currentPassword,
           newPassword: body.data.newPassword,
         });
-        await deliverToChannels(context.notificationChannels, notification, context.logger);
         return reply.code(204).send();
       } catch (error) {
         return sendAccountError(reply, error);

@@ -5,7 +5,6 @@ import { authRoutes, passwordRecoveryRequestSchema } from "@offgrid/contracts";
 import { sendValidationFailed } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
 import { recoverWithRecoveryCode } from "../../application/password-recovery/recover-with-recovery-code.js";
-import { deliverToChannels } from "../../application/notifications/deliver-to-channels.js";
 import { PASSWORD_RECOVERY_RATE_LIMIT_PER_MINUTE, RATE_WINDOW_MS } from "../../constants.js";
 import type { IdentityRouteContext } from "../../types.js";
 import { sendPasswordRecoveryError } from "./send-password-recovery-error.js";
@@ -27,8 +26,7 @@ export const registerPasswordRecovery = (
         return sendValidationFailed(reply, body.error);
       }
       try {
-        const { recoveryCode, notification } = await recoverWithRecoveryCode(context.db, body.data);
-        await deliverToChannels(context.notificationChannels, notification, context.logger);
+        const { recoveryCode } = await recoverWithRecoveryCode(context.db, body.data);
         context.logger.info("password recovered with recovery code", {
           action: "password-recovery.completed",
         });

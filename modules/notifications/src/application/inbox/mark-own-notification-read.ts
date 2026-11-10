@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
-import { markNotificationRead } from "../../infrastructure/notifications/mark-notification-read.js";
+import { markNotificationRead } from "../../infrastructure/inbox/mark-notification-read.js";
 import { NotificationNotFoundError } from "../errors/notification-not-found-error.js";
 
 export const markOwnNotificationRead = (

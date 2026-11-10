@@ -2,16 +2,14 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Logger } from "@offgrid/observability";
-import type { NewNotification, NotificationChannel } from "../../types.js";
+import type { InboxNotice, NotificationChannel } from "../../types.js";
 
 export const deliverToChannels = async (
   channels: readonly NotificationChannel[],
-  notification: NewNotification,
+  notice: InboxNotice,
   logger: Logger,
 ): Promise<void> => {
-  const results = await Promise.allSettled(
-    channels.map(async (channel) => channel.deliver(notification)),
-  );
+  const results = await Promise.allSettled(channels.map((channel) => channel.deliver(notice)));
   results.forEach((result, index) => {
     if (result.status === "rejected") {
       logger.warn("notification channel failed", {
