@@ -212,6 +212,68 @@ model ErrorRecord {
   @@schema("observability")
 }
 
+model Calendar {
+  calendarId String   @id @map("calendar_id") @db.Uuid
+  familyId   String?  @map("family_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  name       String   @db.VarChar(100)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("calendar")
+  @@schema("calendar")
+}
+
+model CalendarEvent {
+  eventId    String   @id @map("event_id") @db.Uuid
+  calendarId String   @map("calendar_id") @db.Uuid
+  familyId   String?  @map("family_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  title      String   @db.VarChar(200)
+  startsAt   DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt     DateTime @map("ends_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([calendarId])
+  @@map("calendar_event")
+  @@schema("calendar")
+}
+
+model EventGuest {
+  eventId     String   @map("event_id") @db.Uuid
+  guestUserId String   @map("guest_user_id") @db.Uuid
+  familyId    String?  @map("family_id") @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  invitedAt   DateTime @default(now()) @map("invited_at") @db.Timestamptz(6)
+
+  @@id([eventId, guestUserId])
+  @@map("event_guest")
+  @@schema("calendar")
+}
+
+model EventReminder {
+  reminderId String   @id @map("reminder_id") @db.Uuid
+  eventId    String   @map("event_id") @db.Uuid
+  familyId   String?  @map("family_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  remindAt   DateTime @map("remind_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([eventId])
+  @@map("event_reminder")
+  @@schema("calendar")
+}
+
+model Location {
+  locationId String   @id @map("location_id") @db.Uuid
+  familyId   String?  @map("family_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  name       String   @db.VarChar(100)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("location")
+  @@schema("calendar")
+}
+
 generator client {
   provider            = "prisma-client"
   output              = "../../../node_modules/.prisma/offgrid-db"

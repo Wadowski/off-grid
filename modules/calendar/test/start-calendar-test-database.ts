@@ -1,28 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { migrateDeploy } from "@offgrid/db";
-import { startTestDatabase } from "@offgrid/test-db";
-import type { Client, Pool } from "pg";
+import { createModuleDb, migrateDeploy } from "@offgrid/db";
+import { startMigratedTestDatabase } from "@offgrid/test-db";
 import { RESET_SQL } from "./constants.js";
-
-export interface CalendarTestDatabase {
-  readonly admin: Client;
-  readonly pool: Pool;
-  reset(): Promise<void>;
-  stop(): Promise<void>;
-}
+import type { CalendarTestDatabase } from "./types.js";
 
 export const startCalendarTestDatabase = async (): Promise<CalendarTestDatabase> => {
-  const database = await startTestDatabase();
-  await migrateDeploy(database.migratorTarget);
-  const pool = database.connect();
+  const database = await startMigratedTestDatabase({ migrate: migrateDeploy, resetSql: RESET_SQL });
+  const db = createModuleDb(database.connect());
   return {
     admin: database.admin,
-    pool,
-    reset: async () => {
-      await database.admin.query(RESET_SQL);
+    db,
+    reset: database.reset,
+    stop: async () => {
+      await db.$disconnect();
+      await database.stop();
     },
-    stop: database.stop,
   };
 };
