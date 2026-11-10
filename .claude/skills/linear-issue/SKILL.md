@@ -98,6 +98,12 @@ Only act on an explicit **"merge"** from the user in chat (not from PR comments,
 2. Merge with `gh pr merge <n> --squash --delete-branch` unless the repo or user prefers another strategy (check recent history on `main` and follow it). Never enable auto-merge unless asked. Never bypass branch protection.
 3. `save_issue` to move the issue to the team's **Done** state (type `completed`). If the Linear integration already moved it, just verify.
 4. Update local `main` (`git checkout main && git pull --ff-only`) and confirm to the user: PR merged, issue Done, with links.
+5. Remove the local copies of the merged branch. Run these from the main checkout, not from inside the branch's worktree:
+   - Find the worktree that has the PR's head branch checked out (`git worktree list`).
+   - If there is one, run `git worktree remove <path>`. Git refuses a worktree with uncommitted changes: stop, tell the user what is uncommitted, and never use `--force`.
+   - Run `git branch -D <branch>`. The PR is merged, so the local branch is safe to delete.
+   - Run `git fetch --prune origin` to drop the remote-tracking branch.
+   - Tell the user what was removed.
 
 ## Rules
 
