@@ -9,7 +9,7 @@ import { countAdmins } from "../infrastructure/count-admins.js";
 import { deleteMembership } from "../infrastructure/delete-membership.js";
 import { findMembership } from "../infrastructure/find-membership.js";
 import type { FamilyMember, MembershipChangeOutcome } from "../types.js";
-import { requireFamilyAdmin } from "./require-family-admin.js";
+import { requireFamilyAdmin, requireFamilyMember } from "./require-family-admin.js";
 
 export const removeFamilyMember = async (
   db: ModuleDatabase,
@@ -18,9 +18,12 @@ export const removeFamilyMember = async (
   targetUserId: string,
 ): Promise<MembershipChangeOutcome<FamilyMember>> =>
   db.$transaction(async (tx) => {
-    const admin = await requireFamilyAdmin(tx, actorUserId, familyId);
-    if (admin.outcome !== "found") {
-      return admin;
+    const leavesItself = actorUserId === targetUserId;
+    const actor = leavesItself
+      ? await requireFamilyMember(tx, actorUserId, familyId)
+      : await requireFamilyAdmin(tx, actorUserId, familyId);
+    if (actor.outcome !== "found") {
+      return actor;
     }
     const target = await findMembership(tx, familyId, targetUserId);
     if (target === null) {

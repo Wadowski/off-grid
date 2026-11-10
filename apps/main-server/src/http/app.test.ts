@@ -191,6 +191,7 @@ describe("CORS", () => {
     });
 
     expect(response.headers["access-control-allow-methods"]).toContain("DELETE");
+    expect(response.headers["access-control-allow-methods"]).toContain("PUT");
     expect(response.headers["access-control-allow-headers"]).toContain("x-forwarded-for");
   });
 

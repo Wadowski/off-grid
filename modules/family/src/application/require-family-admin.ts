@@ -7,7 +7,7 @@ import { findMembership } from "../infrastructure/find-membership.js";
 import { lockFamilyMembership } from "../infrastructure/lock-family-membership.js";
 import type { FamilyMember } from "../types.js";
 
-export const requireFamilyAdmin = async (
+export const requireFamilyMember = async (
   tx: ModuleTransaction,
   actorUserId: string,
   familyId: string,
@@ -19,7 +19,17 @@ export const requireFamilyAdmin = async (
     return { outcome: "not-found" };
   }
   await withFamilyContext(tx, familyId);
-  return canManageFamilyMembers(actor.role)
-    ? { outcome: "found", value: actor }
-    : { outcome: "forbidden" };
+  return { outcome: "found", value: actor };
+};
+
+export const requireFamilyAdmin = async (
+  tx: ModuleTransaction,
+  actorUserId: string,
+  familyId: string,
+): Promise<ReadOutcome<FamilyMember>> => {
+  const actor = await requireFamilyMember(tx, actorUserId, familyId);
+  if (actor.outcome !== "found") {
+    return actor;
+  }
+  return canManageFamilyMembers(actor.value.role) ? actor : { outcome: "forbidden" };
 };
