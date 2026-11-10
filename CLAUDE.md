@@ -42,7 +42,7 @@ Starting the Docker Compose stack: not available yet (`infra/compose/` is still 
 
 ## Non-negotiables
 
-- No telemetry, analytics SDKs or outbound network calls in local mode. The one exception is outgoing mail to a mail server that the owner configures, off by default (see [ADR 0016](docs/adr/0016-local-authentication-model.md) and [ADR 0018](docs/adr/0018-outgoing-mail-to-a-chosen-provider.md)).
+- No telemetry, analytics SDKs or outbound network calls in local mode. The exceptions are outgoing mail to a mail server that the owner configures, off by default (see [ADR 0016](docs/adr/0016-local-authentication-model.md) and [ADR 0018](docs/adr/0018-outgoing-mail-to-a-chosen-provider.md)), and web push to a browser subscription that a person created on their own device (see [ADR 0023](docs/adr/0023-browser-notifications-web-push.md)).
 - No secrets, tokens or real hostnames in the repo. Config is validated with zod, and missing secrets fail fast.
 - Modules talk only through versioned events and `packages/contracts`. A module touches only its own Postgres schema. Projections are read-only copies of another module's data; a module reads its own data directly.
 - Inside a module layer, group files into feature subfolders and keep errors in `application/errors/` (see `modules/README.md`, reference: `modules/identity`). `apps/main-server/src/` follows `.claude/rules/main-server.md`.

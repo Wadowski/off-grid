@@ -22,18 +22,18 @@ Feature: Notification core with pluggable channels
     Then she sees the entry with its message
 
   @wip
-  Scenario: Browser notification is shown only when permission is granted
+  Scenario: Web push is sent only to a subscribed device with permission
     Given Anna is signed in
-    And Anna has allowed browser notifications
+    And Anna has subscribed a browser with permission granted
     When a notification about Anna's event is sent to Anna
-    Then a browser notification with its message is shown
+    Then the browser receives a push with its message
 
   @wip
-  Scenario: Browser notification is not shown without permission
+  Scenario: No web push without a subscription
     Given Anna is signed in
-    And Anna has not allowed browser notifications
+    And Anna has not subscribed a browser
     When a notification about Anna's event is sent to Anna
-    Then no browser notification is shown
+    Then no web push is sent
     And the in-app inbox entry is still created
 
   @wip
