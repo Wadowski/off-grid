@@ -4,10 +4,8 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { withFamilyContext, withUserContext } from "@offgrid/db";
-import {
-  startFamilyTestDatabase,
-  type FamilyTestDatabase,
-} from "../../test/start-family-test-database.js";
+import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
+import type { FamilyTestDatabase } from "../../test/types.js";
 
 describe("family schema isolation", { timeout: 60_000 }, () => {
   let db: FamilyTestDatabase;
@@ -68,6 +66,68 @@ describe("family schema isolation", { timeout: 60_000 }, () => {
         await tx.familyMember.create({ data: { familyId: otherFamilyId, userId: randomUUID() } });
       }),
     ).rejects.toThrow(/row-level security/);
+  });
+
+  it("changes and deletes no rows of another family", async () => {
+    const familyA = randomUUID();
+    const familyB = randomUUID();
+    await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyA);
+      await tx.family.create({ data: { familyId: familyA, name: "A" } });
+    });
+
+    const result = await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyB);
+      return {
+        updated: await tx.family.updateMany({ where: { familyId: familyA }, data: { name: "x" } }),
+        deleted: await tx.family.deleteMany({ where: { familyId: familyA } }),
+      };
+    });
+    const names = await db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyA);
+      return tx.family.findMany({ select: { name: true } });
+    });
+
+    expect(result.updated.count).toBe(0);
+    expect(result.deleted.count).toBe(0);
+    expect(names).toEqual([{ name: "A" }]);
+  });
+
+  it("shows an invitation only to an admin of the family that issued it", async () => {
+    const familyA = randomUUID();
+    const familyB = randomUUID();
+    const adminA = randomUUID();
+    const adminB = randomUUID();
+    await db.admin.query(
+      "INSERT INTO family.family (family_id, name) VALUES ($1, 'A'), ($2, 'B')",
+      [familyA, familyB],
+    );
+    await db.admin.query(
+      "INSERT INTO family.family_member (family_id, user_id, role) VALUES ($1, $2, 'admin'), ($3, $4, 'admin')",
+      [familyA, adminA, familyB, adminB],
+    );
+    await db.admin.query(
+      `INSERT INTO family.invitation (invitation_id, family_id, code_hash, created_by, expires_at)
+       VALUES ($1, $2, $3, $4, now() + interval '7 days')`,
+      [randomUUID(), familyA, "a".repeat(64), adminA],
+    );
+
+    const seenByOtherFamilyAdmin = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, adminB);
+      return tx.familyInvitation.findMany();
+    });
+    const deletedByOtherFamilyAdmin = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, adminB);
+      return tx.familyInvitation.deleteMany({ where: { familyId: familyA } });
+    });
+    const seenByIssuingAdmin = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, adminA);
+      return tx.familyInvitation.findMany();
+    });
+
+    expect(seenByOtherFamilyAdmin).toEqual([]);
+    expect(deletedByOtherFamilyAdmin.count).toBe(0);
+    expect(seenByIssuingAdmin).toHaveLength(1);
   });
 
   it("shows a user only the memberships that name them", async () => {

@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import Fastify, { type FastifyInstance } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import {
-  startFamilyTestDatabase,
-  type FamilyTestDatabase,
-} from "../../test/start-family-test-database.js";
+import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
+import type { FamilyTestDatabase } from "../../test/types.js";
 import { addFamilyMember } from "../../test/add-family-member.js";
 import { createFamily } from "../application/create-family.js";
-import { registerFamilyRoutes } from "./register-family-routes.js";
+import { createFamilyTestApp } from "../../test/create-family-test-app.js";
 
 describe("family member routes", { timeout: 60_000 }, () => {
   let db: FamilyTestDatabase;
@@ -26,13 +24,7 @@ describe("family member routes", { timeout: 60_000 }, () => {
 
   beforeEach(async () => {
     await db.reset();
-    app = Fastify();
-    await app.register(async (api) =>
-      registerFamilyRoutes(api, {
-        db: db.db,
-        currentUserId: (request) => request.headers["x-user-id"]?.toString() ?? null,
-      }),
-    );
+    app = await createFamilyTestApp(db);
   });
 
   afterEach(async () => {
