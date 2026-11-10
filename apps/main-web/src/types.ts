@@ -12,11 +12,18 @@ export type CreateFamilyStatus = "idle" | "submitting" | "failed";
 
 export type FamilyNameErrorTextId = "families.nameRequired" | "families.nameTooLong";
 
+export type FamilyRole = "admin" | "member";
+
+export type FamilySpace = FamilySummary & {
+  readonly role: FamilyRole;
+};
+
 export type FamiliesContext = {
-  readonly families: readonly FamilySummary[];
+  readonly families: readonly FamilySpace[];
   readonly listStatus: ListStatus;
   readonly createStatus: CreateFamilyStatus;
   readonly submitFamily: (name: string) => Promise<boolean>;
+  readonly refreshFamilies: () => Promise<void>;
 };
 
 export type CurrentUserRole = "admin" | "member";

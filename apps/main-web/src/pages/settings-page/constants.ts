@@ -5,6 +5,18 @@ import type { SettingsSection } from "./types.js";
 
 export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   {
+    labelTextId: "settings.familySection",
+    links: [
+      {
+        path: "/settings/families",
+        labelTextId: "settings.familyLabel",
+        descriptionTextId: "settings.familyDescription",
+        iconName: "diversity_3",
+        tone: "accent",
+      },
+    ],
+  },
+  {
     labelTextId: "settings.accountSection",
     links: [
       {
