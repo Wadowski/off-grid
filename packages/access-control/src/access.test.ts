@@ -76,6 +76,12 @@ describe("highestAccess", () => {
       expected: undefined,
     },
     {
+      name: "a personal resource is hidden from a family member who is not its owner",
+      subject: bob,
+      resource: buildResource({ owner: buildUserGroup("alice") }),
+      expected: undefined,
+    },
+    {
       name: "another family's resource is always denied",
       subject: outsider,
       resource: buildResource({ owner: familyA }),
