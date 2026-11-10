@@ -8,4 +8,5 @@ export type FamilySpaceRowProps = {
   readonly isActive: boolean;
   readonly onSwitch: () => void;
   readonly onLeave: () => void;
+  readonly onManage: () => void;
 };

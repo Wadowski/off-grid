@@ -78,6 +78,7 @@ export const FamilySpaceList = () => {
               isActive={space.id === activeFamilyId}
               onSwitch={() => void switchSpace(space.id)}
               onLeave={() => void leaveSpace(space.id)}
+              onManage={() => navigate(`/settings/families/${space.id}`)}
             />
           ))}
         </ul>

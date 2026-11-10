@@ -17,7 +17,13 @@ import {
   familySpaceNameStyle,
 } from "./styles.js";
 
-export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpaceRowProps) => (
+export const FamilySpaceRow = ({
+  space,
+  isActive,
+  onSwitch,
+  onLeave,
+  onManage,
+}: FamilySpaceRowProps) => (
   <li
     style={familySpaceCardStyle(FAMILY_ACCENT_COLORS[space.accent].background, isActive)}
     data-testid="family-space-row"
@@ -49,6 +55,9 @@ export const FamilySpaceRow = ({ space, isActive, onSwitch, onLeave }: FamilySpa
           <Text variant="action" textId="families.switch" />
         </Button>
       )}
+      <Button variant="ghost" data-testid="family-space-manage" onClick={onManage}>
+        <Text variant="action" textId="families.manage" />
+      </Button>
       <Button variant="ghost" data-testid="family-space-leave" onClick={onLeave}>
         <Text variant="error" textId="families.leave" />
       </Button>
