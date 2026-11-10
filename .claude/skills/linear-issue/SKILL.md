@@ -31,7 +31,7 @@ Then proceed with the picked identifier exactly as if the user had given it.
 1. `get_issue` for the identifier. Note title, description, team, labels, parent/sub-issues, linked issues/relations, attachments, and `gitBranchName`.
 2. `list_comments` for the issue. Read every comment: later comments often refine or override the description.
 3. `list_issue_statuses` for the issue's team, then `save_issue` to set status to the team's **In Progress** state (type `started`). Skip if it is already started. Do not reassign the issue unless it is unassigned, in which case assign to the current user.
-4. Make sure the working tree is clean and on an up-to-date `main`; then create the branch using Linear's `gitBranchName` (fallback: `<lowercase-id>-<short-slug>`). If the tree is dirty, stop and ask.
+4. Each Linear issue gets its own branch and its own worktree. Fetch `origin/main`, then create both in one step: `git worktree add <sibling-path> -b <branch> origin/main`, where the branch is Linear's `gitBranchName` (fallback: `<lowercase-id>-<short-slug>`) and the path is a sibling of the main checkout named after the issue (for example `../offgrid-og-76`). Do all work for the issue inside that worktree, never in a worktree or branch that belongs to another issue. If the target path or branch already exists, stop and ask.
 5. **Set the session title, every time.** Call `mcp__ccd_session_mgmt__set_session_title` (load it with ToolSearch first) with `<ID>: <short issue title>`, for example `OG-24: PR template and workflow doc`. Keep it under 60 characters. Do this right after picking up the issue, before any other work, and again if the issue is switched.
 
 ## Phase 2 - Analyze requirements
