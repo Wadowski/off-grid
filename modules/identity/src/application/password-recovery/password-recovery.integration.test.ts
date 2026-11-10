@@ -47,11 +47,11 @@ describe("password recovery", { timeout: 60_000 }, () => {
       password: STRONG_PASSWORD,
     });
 
-  const notificationTypesOf = async (email: string): Promise<string[]> => {
+  const publishedFactsOf = async (email: string): Promise<string[]> => {
     const { rows } = await db.admin.query<{ type: string }>(
-      `SELECT e.payload->>'type' AS type FROM outbox.event e
+      `SELECT e.type FROM outbox.event e
          JOIN identity.user_account u ON u.user_id = e.user_id
-        WHERE u.email = $1 AND e.type = 'user-notified-v1'`,
+        WHERE u.email = $1`,
       [email],
     );
     return rows.map((row) => row.type);
@@ -189,7 +189,7 @@ describe("password recovery", { timeout: 60_000 }, () => {
         password: NEW_PASSWORD,
       });
 
-      expect(await notificationTypesOf(EMAIL)).toContain("password-changed");
+      expect(await publishedFactsOf(EMAIL)).toContain("password-changed-v1");
     });
   });
 

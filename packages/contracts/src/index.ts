@@ -72,6 +72,8 @@ export * from "./timestamp-schema.js";
 export * from "./types.js";
 export * from "./user-created-v1.js";
 export * from "./user-profile-updated-v1.js";
+export * from "./password-changed-v1.js";
+export * from "./recovery-code-regenerated-v1.js";
 export * from "./user-notified-v1.js";
 export * from "./user-id-schema.js";
 export * from "./uuid-schema.js";

@@ -69,12 +69,14 @@ The current session comes from `request.requestContext.sessionId`, which the ser
 
 ## Notifications
 
-Identity does not own notifications. When a change needs a notice to a person, identity publishes `user-notified-v1` in the same transaction as the change, so a rolled-back change publishes nothing. The notifications module ([modules/notifications](../notifications/README.md)) writes the inbox item and owns the inbox API. Identity publishes these notices:
+Identity publishes domain facts and does not decide who is told what. When a person's password or recovery code changes, identity publishes a fact in the same transaction as the change, so a rolled-back change publishes nothing. The notifications module ([modules/notifications](../notifications/README.md)) maps each fact to an inbox item.
 
-- `password-changed`, from `POST /api/me/password` and from a password reset.
-- `recovery-code-regenerated`, from `POST /api/me/recovery-code`.
+Facts published:
 
-Notification text is not stored. The inbox holds only the type and its data, and the client translates the text for display.
+- `password-changed-v1`, from `POST /api/me/password` and from a password reset.
+- `recovery-code-regenerated-v1`, from `POST /api/me/recovery-code`.
+
+Notification text is not stored. The inbox holds only the notice type, and the client translates the text for display.
 
 ## Domain rules
 
@@ -104,7 +106,8 @@ The two concurrent first sign-ups are covered by `register-account.integration.t
 
 - `user-created-v1` (version 1): `{ userId, displayName }`, owned by the new user. Defined in [packages/contracts/src/user-created-v1.ts](../../packages/contracts/src/user-created-v1.ts). Written to the outbox in the same transaction as the account. The email address is never in the payload.
 - `user-profile-updated-v1` (version 1): `{ userId, displayName }`, owned by the user. Its source version is the account's `display_name_version`, so a change that skips a version is not applied by a consumer. Defined in [packages/contracts/src/user-profile-updated-v1.ts](../../packages/contracts/src/user-profile-updated-v1.ts). The family module keeps a copy of the name ([ADR 0023](../../docs/adr/0023-display-names-visible-to-family-members.md)).
-- `user-notified-v1` (version 1): `{ notificationId, userId, type, data }`, owned by the notified user. Defined in [packages/contracts/src/user-notified-v1.ts](../../packages/contracts/src/user-notified-v1.ts). Written to the outbox in the same transaction as the change that caused the notice. The notifications module consumes it.
+- `password-changed-v1` (version 1): `{ userId }`, owned by the user. Defined in [packages/contracts/src/password-changed-v1.ts](../../packages/contracts/src/password-changed-v1.ts). Written to the outbox in the same transaction as the password change.
+- `recovery-code-regenerated-v1` (version 1): `{ userId }`, owned by the user. Defined in [packages/contracts/src/recovery-code-regenerated-v1.ts](../../packages/contracts/src/recovery-code-regenerated-v1.ts). Written to the outbox in the same transaction as the recovery code change.
 
 ## Layout
 
@@ -114,10 +117,10 @@ Each file holds one function, named after it in kebab-case ([function rules](../
 src/types.ts                 all types of the module
 src/constants.ts             module constants
 src/domain/                  pure rules: email, display name, password, first admin, last admin
-src/application/             create-user, register-account, issue-session, rotate-recovery-code, notify-user
+src/application/             create-user, register-account, issue-session, rotate-recovery-code
 src/infrastructure/          one file per table operation, plus hashing and tokens
 src/http/                    registration routes and the refresh cookie
-src/events/                  publish-user-created, publish-user-notified
+src/events/                  publish-user-created, publish-user-fact
 src/index.ts                 public entry point (exports identityModule)
 test/                        Testcontainers Postgres helper, with the shared migrations
 ```

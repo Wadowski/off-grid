@@ -7,7 +7,7 @@ import { deliverToChannels } from "../application/channels/deliver-to-channels.j
 import { writeInboxNotification } from "../application/inbox/write-inbox-notification.js";
 import type { InboxNotice, NotificationChannel } from "../types.js";
 
-export const handleUserNotified = async (
+export const handleFactNotice = async (
   db: ModuleDatabase,
   channels: readonly NotificationChannel[],
   logger: Logger,

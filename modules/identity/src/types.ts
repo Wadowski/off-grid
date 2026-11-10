@@ -6,7 +6,6 @@ import type { FastifyRequest } from "fastify";
 import type {
   MailProvider,
   MailSecurity,
-  NOTIFICATION_TYPES,
   mailSettingsRequestSchema,
   mailSettingsSchema,
 } from "@offgrid/contracts";
@@ -329,19 +328,6 @@ export interface ListedSession {
 export interface ChangePasswordInput {
   readonly currentPassword: string;
   readonly newPassword: string;
-}
-
-export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
-
-export interface NotificationInput {
-  readonly userId: string;
-  readonly type: NotificationType;
-}
-
-export interface UserNotice {
-  readonly id: string;
-  readonly userId: string;
-  readonly type: NotificationType;
 }
 
 export interface RegeneratedRecoveryCode {

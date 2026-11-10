@@ -10,7 +10,8 @@ import { retireActiveRecoveryCodes } from "../../infrastructure/recovery-codes/r
 import { digestToken } from "../../infrastructure/tokens/digest-token.js";
 import { generateSecretToken } from "../../infrastructure/tokens/generate-secret-token.js";
 import type { RegeneratedRecoveryCode } from "../../types.js";
-import { notifyUser } from "../notifications/notify-user.js";
+import { recoveryCodeRegeneratedV1 } from "@offgrid/contracts";
+import { publishUserFact } from "../../events/publish-user-fact.js";
 import { PasswordIncorrectError } from "../errors/password-incorrect-error.js";
 import { passwordMatches } from "./password-matches.js";
 
@@ -29,7 +30,7 @@ export const regenerateOwnRecoveryCode = async (
     }
     await retireActiveRecoveryCodes(tx, userId);
     await insertRecoveryCode(tx, { id: randomUUID(), userId, codeHash });
-    await notifyUser(tx, { userId, type: "recovery-code-regenerated" }, now);
+    await publishUserFact(tx, recoveryCodeRegeneratedV1, userId, now);
   });
   return { recoveryCode };
 };

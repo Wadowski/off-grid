@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import { passwordChangedV1, recoveryCodeRegeneratedV1 } from "@offgrid/contracts";
 import { withUserContext } from "@offgrid/db";
 import { createEventBus } from "@offgrid/event-bus";
+import type { Logger } from "@offgrid/observability";
 import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { publishUserNotified } from "../../test/publish-user-notified.js";
+import { publishFact } from "../../test/publish-fact.js";
 import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
 import type { NotificationsTestDatabase } from "../../test/types.js";
-import type { Logger } from "@offgrid/observability";
-import { registerUserNotifiedSubscriber } from "./register-user-notified-subscriber.js";
+import { registerFactSubscribers } from "./register-fact-subscribers.js";
 
 const fakeLogger = (): Logger =>
   ({
@@ -21,7 +22,7 @@ const fakeLogger = (): Logger =>
     child: vi.fn(),
   }) as unknown as Logger;
 
-describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
+describe("domain fact subscribers", { timeout: 60_000 }, () => {
   let db: NotificationsTestDatabase;
 
   beforeAll(async () => {
@@ -42,7 +43,7 @@ describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
       errorSink: createMemoryErrorSink(),
       retryDelayMs: () => 0,
     });
-    registerUserNotifiedSubscriber(
+    registerFactSubscribers(
       {
         eventBus: bus,
         logger: fakeLogger(),
@@ -55,49 +56,53 @@ describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
     await bus.deliverPending();
   };
 
-  it("writes an inbox item when the notice is published", async () => {
+  const inboxTypesOf = async (userId: string): Promise<string[]> => {
+    const { rows } = await db.admin.query<{ type: string }>(
+      "SELECT type FROM notifications.notification WHERE user_id = $1 ORDER BY type",
+      [userId],
+    );
+    return rows.map((row) => row.type);
+  };
+
+  it("maps a password change fact to a password-changed inbox item", async () => {
     const anna = randomUUID();
-    const notificationId = randomUUID();
 
     await deliverWith(() =>
       db.db.$transaction(async (tx) => {
         await withUserContext(tx, anna);
-        await publishUserNotified(
-          tx,
-          { notificationId, userId: anna, type: "password-changed" },
-          new Date(),
-        );
+        await publishFact(tx, passwordChangedV1, anna, new Date());
       }),
     );
 
-    const { rows } = await db.admin.query<{ notification_id: string }>(
-      "SELECT notification_id FROM notifications.notification WHERE user_id = $1",
-      [anna],
-    );
-    expect(rows.map((row) => row.notification_id)).toEqual([notificationId]);
+    expect(await inboxTypesOf(anna)).toEqual(["password-changed"]);
   });
 
-  it("writes no inbox item when the change that raised it rolls back", async () => {
+  it("maps a recovery code fact to a recovery-code-regenerated inbox item", async () => {
+    const anna = randomUUID();
+
+    await deliverWith(() =>
+      db.db.$transaction(async (tx) => {
+        await withUserContext(tx, anna);
+        await publishFact(tx, recoveryCodeRegeneratedV1, anna, new Date());
+      }),
+    );
+
+    expect(await inboxTypesOf(anna)).toEqual(["recovery-code-regenerated"]);
+  });
+
+  it("writes no inbox item when the change that published the fact rolls back", async () => {
     const anna = randomUUID();
 
     await expect(
       deliverWith(() =>
         db.db.$transaction(async (tx) => {
           await withUserContext(tx, anna);
-          await publishUserNotified(
-            tx,
-            { notificationId: randomUUID(), userId: anna, type: "password-changed" },
-            new Date(),
-          );
+          await publishFact(tx, passwordChangedV1, anna, new Date());
           throw new Error("change failed");
         }),
       ),
     ).rejects.toThrow("change failed");
 
-    const { rows } = await db.admin.query(
-      "SELECT 1 FROM notifications.notification WHERE user_id = $1",
-      [anna],
-    );
-    expect(rows).toEqual([]);
+    expect(await inboxTypesOf(anna)).toEqual([]);
   });
 });

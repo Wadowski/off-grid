@@ -9,7 +9,8 @@ import { findAccount } from "../../infrastructure/accounts/find-account.js";
 import { hashPassword } from "../../infrastructure/credentials/hash-password.js";
 import { setCredentialHash } from "../../infrastructure/credentials/set-credential-hash.js";
 import { revokeOtherSessions } from "../../infrastructure/sessions/revoke-other-sessions.js";
-import { notifyUser } from "../notifications/notify-user.js";
+import { passwordChangedV1 } from "@offgrid/contracts";
+import { publishUserFact } from "../../events/publish-user-fact.js";
 import type { ChangePasswordInput } from "../../types.js";
 import { AccountNotFoundError } from "../errors/account-not-found-error.js";
 import { CurrentPasswordIncorrectError } from "../errors/current-password-incorrect-error.js";
@@ -42,5 +43,5 @@ export const changeOwnPassword = (
     }
     await setCredentialHash(tx, userId, await hashPassword(newPassword), now);
     await revokeOtherSessions(tx, userId, currentSessionId);
-    await notifyUser(tx, { userId, type: "password-changed" }, now);
+    await publishUserFact(tx, passwordChangedV1, userId, now);
   });

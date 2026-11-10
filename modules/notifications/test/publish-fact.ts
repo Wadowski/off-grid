@@ -2,29 +2,30 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { userNotifiedV1 } from "@offgrid/contracts";
+import type { AnyEventDefinition } from "@offgrid/contracts";
 import { rawSqlExecutor, type ModuleTransaction } from "@offgrid/db";
 import { publish } from "@offgrid/event-bus";
 import { currentTraceId, resolveTraceId } from "@offgrid/observability";
 
-export const publishUserNotified = async (
+export const publishFact = async (
   tx: ModuleTransaction,
-  notice: { readonly notificationId: string; readonly userId: string; readonly type: string },
+  definition: AnyEventDefinition,
+  userId: string,
   occurredAt: Date,
 ): Promise<void> => {
   await publish(
     rawSqlExecutor(tx),
-    userNotifiedV1,
+    definition,
     {
       id: randomUUID(),
-      type: userNotifiedV1.name,
-      version: userNotifiedV1.version,
+      type: definition.name,
+      version: definition.version,
       occurredAt: occurredAt.toISOString(),
       traceId: resolveTraceId(currentTraceId()),
       familyId: null,
       sourceVersion: 1,
-      payload: { ...notice, data: {} },
+      payload: { userId },
     },
-    { userId: notice.userId },
+    { userId },
   );
 };
