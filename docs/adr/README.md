@@ -37,3 +37,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0020](0020-error-records-in-postgres.md)                | Error records are kept in Postgres for a retention period                    | Accepted                  |
 | [0021](0021-family-membership.md)                        | Family membership: two roles, single-use invitation codes, one admin minimum | Proposed                  |
 | [0022](0022-active-family-per-session.md)                | Active family per session, and personal groups in the request context        | Proposed                  |
+| [0023](0023-browser-notifications-notification-api.md)   | Browser notifications use the Notification API                               | Proposed                  |
