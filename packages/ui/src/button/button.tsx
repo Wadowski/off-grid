@@ -5,12 +5,14 @@ import {
   buttonBaseStyle,
   buttonDisabledStyle,
   buttonFullWidthStyle,
+  buttonSizeStyles,
   buttonVariantStyles,
 } from "./styles.js";
 import type { ButtonProps } from "./types.js";
 
 export const Button = ({
   variant = "primary",
+  size = "medium",
   fullWidth = false,
   type = "button",
   ...rest
@@ -22,6 +24,7 @@ export const Button = ({
       style={{
         ...buttonBaseStyle,
         ...buttonVariantStyles[variant],
+        ...buttonSizeStyles[size],
         ...(fullWidth ? buttonFullWidthStyle : {}),
         ...(rest.disabled === true ? buttonDisabledStyle : {}),
       }}
