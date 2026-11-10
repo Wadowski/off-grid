@@ -176,7 +176,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
     });
 
     expect(familyListSchema.parse(listed.json()).families).toEqual([
-      { id: created.id, name: "Kowalski" },
+      { id: created.id, name: "Kowalski", role: "admin" },
     ]);
   });
 

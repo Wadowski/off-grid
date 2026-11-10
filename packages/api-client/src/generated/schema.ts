@@ -40,6 +40,8 @@ export interface components {
                 /** Format: uuid */
                 id: string;
                 name: string;
+                /** @enum {string} */
+                role: "admin" | "member";
             }[];
         };
         CreateAccountRequest: {

@@ -35,7 +35,7 @@ describe("Families page", () => {
   it("lists the families the person belongs to", async () => {
     stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside" }] } },
+      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
     ]);
 
     render(<App />);
@@ -47,14 +47,14 @@ describe("Families page", () => {
   it("creates another family from the home page and lists it next to the existing one", async () => {
     stubApi([
       ...signedInStartup(),
-      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside" }] } },
+      { status: 200, body: { families: [{ id: FAMILY_ID, name: "Lakeside", role: "admin" }] } },
       { status: 201, body: { id: OTHER_FAMILY_ID, name: "Hillside", createdAt: CREATED_AT } },
       {
         status: 200,
         body: {
           families: [
-            { id: FAMILY_ID, name: "Lakeside" },
-            { id: OTHER_FAMILY_ID, name: "Hillside" },
+            { id: FAMILY_ID, name: "Lakeside", role: "admin" },
+            { id: OTHER_FAMILY_ID, name: "Hillside", role: "member" },
           ],
         },
       },

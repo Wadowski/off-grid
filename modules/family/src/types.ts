@@ -17,6 +17,10 @@ export interface FamilySummary {
   readonly name: string;
 }
 
+export interface FamilyListEntry extends FamilySummary {
+  readonly role: FamilyRole;
+}
+
 export interface FamilyRecord {
   readonly familyId: string;
   readonly name: string;

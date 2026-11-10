@@ -142,11 +142,19 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 100
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "admin",
+                    "member"
+                  ]
                 }
               },
               "required": [
                 "id",
-                "name"
+                "name",
+                "role"
               ],
               "additionalProperties": false
             }

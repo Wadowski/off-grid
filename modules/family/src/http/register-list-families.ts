@@ -3,14 +3,14 @@
 
 import { withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
-import { listMyFamilies } from "../application/list-my-families.js";
+import { listMyFamilySpaces } from "../application/list-my-families.js";
 import type { FamilyRouteContext } from "../types.js";
 
 export const registerListFamilies = (api: FastifyInstance, context: FamilyRouteContext): void => {
   api.get(
     "/families",
     withUser(context.currentUserId, async (_request, reply, userId) =>
-      reply.send({ families: await listMyFamilies(context.db, userId) }),
+      reply.send({ families: await listMyFamilySpaces(context.db, userId) }),
     ),
   );
 };
