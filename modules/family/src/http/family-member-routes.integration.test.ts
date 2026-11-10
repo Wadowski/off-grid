@@ -4,10 +4,8 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import {
-  startFamilyTestDatabase,
-  type FamilyTestDatabase,
-} from "../../test/start-family-test-database.js";
+import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
+import type { FamilyTestDatabase } from "../../test/types.js";
 import { addFamilyMember } from "../../test/add-family-member.js";
 import { createFamily } from "../application/create-family.js";
 import { createFamilyTestApp } from "../../test/create-family-test-app.js";

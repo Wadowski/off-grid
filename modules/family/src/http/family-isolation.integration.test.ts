@@ -128,7 +128,7 @@ describe("family routes keep each family's data to its members", { timeout: 60_0
     expect(invitation.rows).toEqual([{ revoked_at: null }]);
   });
 
-  it("answers 404 when an admin names a family they are not in, in the path", async () => {
+  it("answers 404 when an admin of one family changes a member of a family they are not in", async () => {
     expectNotFound(
       await inject("PATCH", `/families/${familyBId}/members/${memberA}`, adminA, {
         role: "admin",
