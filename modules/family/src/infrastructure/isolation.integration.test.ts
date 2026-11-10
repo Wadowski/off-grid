@@ -4,10 +4,8 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { withFamilyContext, withUserContext } from "@offgrid/db";
-import {
-  startFamilyTestDatabase,
-  type FamilyTestDatabase,
-} from "../../test/start-family-test-database.js";
+import { startFamilyTestDatabase } from "../../test/start-family-test-database.js";
+import type { FamilyTestDatabase } from "../../test/types.js";
 
 describe("family schema isolation", { timeout: 60_000 }, () => {
   let db: FamilyTestDatabase;
