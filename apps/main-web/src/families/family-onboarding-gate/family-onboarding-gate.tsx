@@ -3,20 +3,21 @@
 
 import { Navigate, Outlet, useLocation, useOutletContext } from "react-router-dom";
 import { SessionLoading } from "../../session/components/session-loading/session-loading.js";
-import { FIRST_FAMILY_PATH } from "../../constants.js";
+import { FIRST_FAMILY_PATH, JOIN_FAMILY_PATH } from "../../constants.js";
 import type { FamiliesContext } from "../../types.js";
 
 export const FamilyOnboardingGate = () => {
   const context = useOutletContext<FamiliesContext>();
   const { pathname } = useLocation();
   const isOnFirstFamilyPath = pathname === FIRST_FAMILY_PATH;
+  const isOnJoinPath = pathname === JOIN_FAMILY_PATH;
   const hasFamily = context.families.length > 0;
   const isReady = context.listStatus === "ready";
 
   if (context.listStatus === "loading") {
     return <SessionLoading />;
   }
-  if (isReady && !hasFamily && !isOnFirstFamilyPath) {
+  if (isReady && !hasFamily && !isOnFirstFamilyPath && !isOnJoinPath) {
     return <Navigate to={FIRST_FAMILY_PATH} replace />;
   }
   if (isReady && hasFamily && isOnFirstFamilyPath) {

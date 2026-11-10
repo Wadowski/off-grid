@@ -28,6 +28,7 @@ export const PASSWORD_MIN_LENGTH = 12;
 export const RECOVERY_CODE_FILE_NAME = "offgrid-recovery-code.txt";
 
 export const FIRST_FAMILY_PATH = "/welcome";
+export const JOIN_FAMILY_PATH = "/families/join";
 
 export const RECOVERY_INTRO: AccountIntroProps = {
   icon: "key",
