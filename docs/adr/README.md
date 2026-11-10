@@ -38,3 +38,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0021](0021-family-membership.md)                        | Family membership: two roles, single-use invitation codes, one admin minimum | Proposed                  |
 | [0022](0022-active-family-per-session.md)                | Active family per session, and personal groups in the request context        | Proposed                  |
 | [0023](0023-browser-notifications-web-push.md)           | Browser notifications use web push, an exception to the no-outbound rule     | Proposed                  |
+| [0024](0024-one-module-owns-notifications.md)            | One module owns every notification                                           | Accepted                  |
