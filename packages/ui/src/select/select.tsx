@@ -4,6 +4,12 @@
 import { selectStyle } from "./styles.js";
 import type { SelectProps } from "./types.js";
 
-export const Select = (props: SelectProps) => (
-  <select className="og-focusable" style={selectStyle} {...props} />
+export const Select = ({ options, ...rest }: SelectProps) => (
+  <select className="og-focusable" style={selectStyle} {...rest}>
+    {options.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.label}
+      </option>
+    ))}
+  </select>
 );

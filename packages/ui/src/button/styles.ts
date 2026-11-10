@@ -3,7 +3,7 @@
 
 import type { CSSProperties } from "react";
 import { cssVar } from "../css-var.js";
-import type { ButtonSize, ButtonVariant } from "./types.js";
+import type { ButtonAlign, ButtonSize, ButtonVariant } from "./types.js";
 
 export const buttonBaseStyle: CSSProperties = {
   display: "flex",
@@ -37,6 +37,14 @@ export const buttonSizeStyles: Record<ButtonSize, CSSProperties> = {
   small: {
     padding: `${cssVar("space-1")} ${cssVar("space-2")}`,
     fontSize: cssVar("font-size-label-md"),
+  },
+};
+
+export const buttonAlignStyles: Record<ButtonAlign, CSSProperties> = {
+  center: {},
+  start: {
+    justifyContent: "flex-start",
+    textAlign: "start",
   },
 };
 

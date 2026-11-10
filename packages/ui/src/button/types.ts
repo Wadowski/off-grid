@@ -7,8 +7,11 @@ export type ButtonVariant = "primary" | "secondary" | "ghost";
 
 export type ButtonSize = "medium" | "small";
 
+export type ButtonAlign = "center" | "start";
+
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style" | "className"> & {
   readonly variant?: ButtonVariant;
   readonly size?: ButtonSize;
+  readonly align?: ButtonAlign;
   readonly fullWidth?: boolean;
 };

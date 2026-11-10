@@ -3,4 +3,14 @@
 
 import type { SelectHTMLAttributes } from "react";
 
-export type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, "style" | "className">;
+export type SelectOption = {
+  readonly value: string;
+  readonly label: string;
+};
+
+export type SelectProps = Omit<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  "style" | "className" | "children"
+> & {
+  readonly options: readonly SelectOption[];
+};

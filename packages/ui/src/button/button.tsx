@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import {
+  buttonAlignStyles,
   buttonBaseStyle,
   buttonDisabledStyle,
   buttonFullWidthStyle,
@@ -13,6 +14,7 @@ import type { ButtonProps } from "./types.js";
 export const Button = ({
   variant = "primary",
   size = "medium",
+  align = "center",
   fullWidth = false,
   type = "button",
   ...rest
@@ -25,6 +27,7 @@ export const Button = ({
         ...buttonBaseStyle,
         ...buttonVariantStyles[variant],
         ...buttonSizeStyles[size],
+        ...buttonAlignStyles[align],
         ...(fullWidth ? buttonFullWidthStyle : {}),
         ...(rest.disabled === true ? buttonDisabledStyle : {}),
       }}
