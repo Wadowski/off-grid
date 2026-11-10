@@ -9,15 +9,17 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { publishUserNotified } from "../../test/publish-user-notified.js";
 import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
 import type { NotificationsTestDatabase } from "../../test/types.js";
+import type { Logger } from "@offgrid/observability";
 import { registerUserNotifiedSubscriber } from "./register-user-notified-subscriber.js";
 
-const fakeLogger = () => ({
-  debug: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  child: vi.fn(),
-});
+const fakeLogger = (): Logger =>
+  ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    child: vi.fn(),
+  }) as unknown as Logger;
 
 describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
   let db: NotificationsTestDatabase;
@@ -43,7 +45,7 @@ describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
     registerUserNotifiedSubscriber(
       {
         eventBus: bus,
-        logger: fakeLogger() as never,
+        logger: fakeLogger(),
         db: db.db,
         currentUserId: () => null,
       },
@@ -78,9 +80,9 @@ describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
   it("writes no inbox item when the change that raised it rolls back", async () => {
     const anna = randomUUID();
 
-    await deliverWith(() =>
-      db.db
-        .$transaction(async (tx) => {
+    await expect(
+      deliverWith(() =>
+        db.db.$transaction(async (tx) => {
           await withUserContext(tx, anna);
           await publishUserNotified(
             tx,
@@ -88,9 +90,9 @@ describe("user-notified-v1 subscriber", { timeout: 60_000 }, () => {
             new Date(),
           );
           throw new Error("change failed");
-        })
-        .catch(() => undefined),
-    );
+        }),
+      ),
+    ).rejects.toThrow("change failed");
 
     const { rows } = await db.admin.query(
       "SELECT 1 FROM notifications.notification WHERE user_id = $1",

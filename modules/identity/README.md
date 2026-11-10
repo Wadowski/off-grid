@@ -104,7 +104,6 @@ The two concurrent first sign-ups are covered by `register-account.integration.t
 
 - `user-created-v1` (version 1): `{ userId, displayName }`, owned by the new user. Defined in [packages/contracts/src/user-created-v1.ts](../../packages/contracts/src/user-created-v1.ts). Written to the outbox in the same transaction as the account. The email address is never in the payload.
 - `user-profile-updated-v1` (version 1): `{ userId, displayName }`, owned by the user. Its source version is the account's `display_name_version`, so a change that skips a version is not applied by a consumer. Defined in [packages/contracts/src/user-profile-updated-v1.ts](../../packages/contracts/src/user-profile-updated-v1.ts). The family module keeps a copy of the name ([ADR 0023](../../docs/adr/0023-display-names-visible-to-family-members.md)).
-- `user-notified-v1` (version 1): `{ notificationId, userId, type, data }`, owned by the notified user. Defined in [packages/contracts/src/user-notified-v1.ts](../../packages/contracts/src/user-notified-v1.ts). Written in the same transaction as the inbox item.
 - `user-notified-v1` (version 1): `{ notificationId, userId, type, data }`, owned by the notified user. Defined in [packages/contracts/src/user-notified-v1.ts](../../packages/contracts/src/user-notified-v1.ts). Written to the outbox in the same transaction as the change that caused the notice. The notifications module consumes it.
 
 ## Layout

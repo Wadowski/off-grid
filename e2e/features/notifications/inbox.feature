@@ -4,13 +4,13 @@
 @module:notifications
 Feature: Notifications
 
-  Every notice to a person lands in one inbox, owned by the notifications module.
+  Every notice to a person shows up in that person's inbox.
   Nobody can read another person's notifications.
 
   Scenario: Password change notice
     Given Anna is signed in
     When Anna changes her password
-    Then she has a new unread inbox item saying so
+    Then she has a new unread inbox item about the password change
 
   Scenario: Marking as read
     Given Anna is signed in

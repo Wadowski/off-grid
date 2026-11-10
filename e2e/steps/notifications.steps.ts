@@ -66,13 +66,13 @@ When("Anna marks an item as read", async ({ world }) => {
   expect(response.status()).toBe(204);
 });
 
-Then("she has a new unread inbox item saying so", async ({ world }) => {
+Then("she has a new unread inbox item about the password change", async ({ world }) => {
   const anna = personOf(world, "anna");
   const { body } = await waitForOwnNotifications(world.api, anna.session, (list) =>
     list.notifications.some((notification) => notification.type === "password-changed"),
   );
-  expect(body.unreadCount).toBeGreaterThanOrEqual(1);
-  expect(body.notifications.map((notification) => notification.type)).toContain("password-changed");
+  const item = body.notifications.find((notification) => notification.type === "password-changed");
+  expect(item?.readAt).toBeNull();
 });
 
 Then("it no longer counts as unread", async ({ world }) => {
@@ -95,12 +95,4 @@ Then("Anna cannot see Tom's notifications", async ({ world }) => {
     world.notificationId ?? "",
   );
   expect(response.status()).toBe(404);
-});
-
-Then("the inbox item is still created", async ({ world }) => {
-  const anna = personOf(world, "anna");
-  const { body } = await waitForOwnNotifications(world.api, anna.session, (list) =>
-    list.notifications.some((notification) => notification.type === "password-changed"),
-  );
-  expect(body.notifications.map((notification) => notification.type)).toContain("password-changed");
 });

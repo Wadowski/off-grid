@@ -4,6 +4,7 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { NEW_PASSWORD, signInWith, type Session } from "./instance-admin.js";
 import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "./identity.js";
+import { eventually } from "../eventually.js";
 
 export type Person = {
   userId: string;
@@ -86,14 +87,16 @@ export async function waitForOwnNotifications(
   session: Session,
   ready: (list: NotificationList) => boolean,
 ): Promise<{ status: number; body: NotificationList }> {
-  const deadline = Date.now() + 10_000;
-  for (;;) {
-    const result = await listOwnNotifications(api, session);
-    if (ready(result.body) || Date.now() >= deadline) {
+  return eventually(
+    async () => {
+      const result = await listOwnNotifications(api, session);
+      if (!ready(result.body)) {
+        throw new Error("the expected notification has not arrived yet");
+      }
       return result;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 200));
-  }
+    },
+    { timeout: 10_000, interval: 200 },
+  );
 }
 
 export function markOwnNotificationRead(

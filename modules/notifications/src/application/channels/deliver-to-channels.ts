@@ -9,7 +9,9 @@ export const deliverToChannels = async (
   notice: InboxNotice,
   logger: Logger,
 ): Promise<void> => {
-  const results = await Promise.allSettled(channels.map((channel) => channel.deliver(notice)));
+  const results = await Promise.allSettled(
+    channels.map(async (channel) => channel.deliver(notice)),
+  );
   results.forEach((result, index) => {
     if (result.status === "rejected") {
       logger.warn("notification channel failed", {
