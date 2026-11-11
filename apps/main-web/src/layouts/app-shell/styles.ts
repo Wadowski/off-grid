@@ -154,6 +154,10 @@ export const appShellCss = `
   text-decoration: underline;
 }
 
+.og-user-menu-avatar::before {
+  content: attr(data-initials);
+}
+
 .og-user-menu-avatar {
   display: inline-flex;
   flex-shrink: 0;

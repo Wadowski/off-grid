@@ -25,8 +25,8 @@ describe("UserMenu", () => {
   it("shows the initials and opens a menu with the name, email and role", () => {
     renderMenu(member);
 
-    const trigger = screen.getByRole("button", { name: "Account menu" });
-    expect(trigger).toHaveTextContent("AK");
+    const trigger = screen.getByRole("button", { name: /Account menu/ });
+    expect(trigger.querySelector(".og-user-menu-avatar")).toHaveAttribute("data-initials", "AK");
     expect(trigger).toHaveAttribute("aria-expanded", "false");
 
     fireEvent.click(trigger);
@@ -40,18 +40,18 @@ describe("UserMenu", () => {
 
   it("offers admin settings only to admins", () => {
     const { unmount } = renderMenu(admin);
-    fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
+    fireEvent.click(screen.getByRole("button", { name: /Account menu/ }));
     expect(screen.getByRole("menuitem", { name: "Admin settings" })).toBeInTheDocument();
     unmount();
 
     renderMenu(member);
-    fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
+    fireEvent.click(screen.getByRole("button", { name: /Account menu/ }));
     expect(screen.queryByRole("menuitem", { name: "Admin settings" })).not.toBeInTheDocument();
   });
 
   it("closes on Escape and returns focus to the trigger", () => {
     renderMenu(member);
-    const trigger = screen.getByRole("button", { name: "Account menu" });
+    const trigger = screen.getByRole("button", { name: /Account menu/ });
     fireEvent.click(trigger);
 
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
@@ -63,7 +63,7 @@ describe("UserMenu", () => {
   it("signs out through the sign out item", () => {
     const onSignOut = vi.fn();
     renderMenu(member, onSignOut);
-    fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
+    fireEvent.click(screen.getByRole("button", { name: /Account menu/ }));
 
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));
 
