@@ -233,6 +233,15 @@ model Calendar {
   @@schema("calendar")
 }
 
+model CalendarFamilyMembership {
+  familyId String @map("family_id") @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+
+  @@id([familyId, userId])
+  @@map("family_membership")
+  @@schema("calendar")
+}
+
 model CalendarEvent {
   eventId    String   @id @map("event_id") @db.Uuid
   calendarId String   @map("calendar_id") @db.Uuid
