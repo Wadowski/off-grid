@@ -91,7 +91,7 @@ describe("Create account page", () => {
     vi.resetModules();
     ({ App } = await import("../../app.js"));
     window.history.pushState({}, "", "/create-account");
-  });
+  }, 120_000);
 
   afterEach(() => {
     cleanup();

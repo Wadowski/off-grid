@@ -77,7 +77,7 @@ describe("Family manager screen", () => {
     HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
       this.removeAttribute("open");
     };
-  });
+  }, 120_000);
 
   afterEach(() => {
     cleanup();

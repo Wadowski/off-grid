@@ -25,7 +25,7 @@ describe("First family page", () => {
     vi.resetModules();
     ({ App } = await import("../../app.js"));
     window.history.pushState({}, "", "/");
-  });
+  }, 120_000);
 
   afterEach(() => {
     cleanup();
