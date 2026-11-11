@@ -37,6 +37,19 @@ describe("publishOwnedEvent", () => {
     expect(calls[0]).toContain("calendar-event-removed-v1");
   });
 
+  it("stores the source version the owner gives, so membership changes can be ordered", async () => {
+    const { executor, calls } = recordingExecutor();
+
+    await publishOwnedEvent(
+      executor,
+      calendarEventRemovedV1,
+      { familyId: "9b2e0c1a-0000-4000-8000-000000000003", sourceVersion: 4 },
+      payload,
+    );
+
+    expect(calls[0]).toContain(4);
+  });
+
   it("stores a personal event under the user when no family is given", async () => {
     const { executor, calls } = recordingExecutor();
 

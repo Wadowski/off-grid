@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { PoolClient } from "pg";
-import type { Subscription, DeliverySettings } from "./types.js";
+import type { Delivery, DeliverySettings } from "./types.js";
 import { lockCursor } from "./lock-cursor.js";
 import { readEventsAfter } from "./read-events-after.js";
 import { deliverOne } from "./deliver-one.js";
@@ -10,7 +10,7 @@ import { advanceCursor } from "./advance-cursor.js";
 
 export const deliverLockedBatch = async (
   client: PoolClient,
-  subscription: Subscription,
+  subscription: Delivery,
   settings: DeliverySettings,
 ): Promise<boolean> => {
   const position = await lockCursor(client, subscription.name);

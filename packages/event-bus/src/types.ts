@@ -11,11 +11,35 @@ export interface HandlerContext {
   readonly tx: ClientBase;
 }
 
+// "skip" dead-letters an event after its attempts run out and moves on. "halt" stops
+// the subscriber at that event and retries it on later passes, so no later event is
+// applied past it. Use "halt" for projections whose state must not drift.
+export type FailurePolicy = "skip" | "halt";
+
 export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition> {
   readonly name: string;
   readonly event: D;
   readonly runAs: string;
+  readonly onFailure?: FailurePolicy;
   handler(event: EventOf<D>, context: HandlerContext): Promise<void>;
+}
+
+// One cursor for several event types, so the handler sees them in publish order.
+export interface MultiEventSubscription<Ds extends readonly AnyEventDefinition[]> {
+  readonly name: string;
+  readonly events: Ds;
+  readonly runAs: string;
+  readonly onFailure?: FailurePolicy;
+  handler(event: EventOf<Ds[number]>, context: HandlerContext): Promise<void>;
+}
+
+// What the delivery code works on: every subscription, single or multi, in one shape.
+export interface Delivery {
+  readonly name: string;
+  readonly events: readonly AnyEventDefinition[];
+  readonly runAs: string;
+  readonly onFailure: FailurePolicy;
+  handler(event: EventOf<AnyEventDefinition>, context: HandlerContext): Promise<void>;
 }
 
 export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinition> {
@@ -34,6 +58,9 @@ export interface EventBusOptions {
 
 export interface EventBus {
   subscribe<D extends AnyEventDefinition>(subscription: Subscription<D>): void;
+  subscribeToEvents<const Ds extends readonly AnyEventDefinition[]>(
+    subscription: MultiEventSubscription<Ds>,
+  ): void;
   subscribeTransport<D extends AnyEventDefinition>(options: {
     readonly name: string;
     readonly event: D;

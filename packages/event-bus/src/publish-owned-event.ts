@@ -10,6 +10,7 @@ import type { SqlExecutor } from "./types.js";
 export interface EventOwner {
   readonly familyId?: string | null;
   readonly userId?: string | null;
+  readonly sourceVersion?: number;
 }
 
 // Builds the envelope every module needs and publishes it in the caller's transaction.
@@ -29,7 +30,7 @@ export const publishOwnedEvent = (
       occurredAt: new Date().toISOString(),
       traceId: resolveTraceId(currentTraceId()),
       familyId: owner.familyId ?? null,
-      sourceVersion: 1,
+      sourceVersion: owner.sourceVersion ?? 1,
       payload,
     },
     owner.userId ? { userId: owner.userId } : {},
