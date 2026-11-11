@@ -90,7 +90,9 @@ When(/^Ben looks at the calendar "[^"]*"$/, () =>
   notImplemented("Ben looks at the calendar {string}"),
 );
 
-Then(/^Ben gets not-found for "[^"]*"$/, () => notImplemented("Ben gets not-found for {string}"));
+Then(/^Ben cannot see the calendar "[^"]*"$/, () =>
+  notImplemented("Ben cannot see the calendar {string}"),
+);
 
 When(/^Ben renames the calendar "[^"]*" to "[^"]*"$/, () =>
   notImplemented("Ben renames the calendar {string} to {string}"),

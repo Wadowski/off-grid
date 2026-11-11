@@ -55,7 +55,7 @@ Feature: Managing calendars
     Given Anna has a personal calendar named "Work"
     And Ben belongs to his own family
     When Ben looks at the calendar "Work"
-    Then Ben gets not-found for "Work"
+    Then Ben cannot see the calendar "Work"
     When Ben renames the calendar "Work" to "Hijacked"
     Then the calendar "Work" is still named "Work"
     When Ben deletes the calendar "Work"
@@ -68,7 +68,7 @@ Feature: Managing calendars
     When Ben renames the calendar "Kitchen" to "Hijacked"
     Then the calendar "Kitchen" is still named "Kitchen"
     When Ben creates a calendar named "Garden" in the family "Home"
-    Then Ben gets not-found for the family "Home"
+    Then Ben cannot use the family "Home"
 
   @wip
   Scenario: A removed family member loses access to the family calendars
@@ -83,4 +83,4 @@ Feature: Managing calendars
   Scenario: An invalid name or color is refused
     Given Anna is signed in
     When she creates a personal calendar named "" with the color "neon"
-    Then the request fails with a validation error
+    Then the name is refused as invalid

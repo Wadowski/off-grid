@@ -3,6 +3,7 @@
 
 export { createEventBus } from "./create-event-bus.js";
 export { publish } from "./publish.js";
+export { publishOwnedEvent, type EventOwner } from "./publish-owned-event.js";
 export { replayEvents } from "./replay-events.js";
 export { classifySourceVersion } from "./classify-source-version.js";
 export { withTransaction } from "./with-transaction.js";
