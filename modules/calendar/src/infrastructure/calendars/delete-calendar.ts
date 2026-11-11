@@ -1,17 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { SubscriberClient } from "../../types.js";
+import type { ModuleTransaction } from "@offgrid/db";
 
-// The default calendar is never deleted. Returns false when no row was deleted,
-// which includes the default calendar and calendars that row-level security hides.
+// The default calendar is never deleted.
 export const deleteCalendar = async (
-  client: SubscriberClient,
+  tx: ModuleTransaction,
   calendarId: string,
 ): Promise<boolean> => {
-  const result = await client.query(
-    "DELETE FROM calendar.calendar WHERE calendar_id = $1 AND is_default = false",
-    [calendarId],
-  );
-  return (result.rowCount ?? 0) > 0;
+  const result = await tx.calendar.deleteMany({ where: { calendarId, isDefault: false } });
+  return result.count > 0;
 };

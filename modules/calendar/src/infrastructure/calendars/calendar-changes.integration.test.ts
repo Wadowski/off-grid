@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import type { PoolClient } from "pg";
-import { setPgFamilyContext, setPgUserContext } from "@offgrid/db";
+import { withFamilyContext, withUserContext, type ModuleTransaction } from "@offgrid/db";
 import { withTransaction } from "@offgrid/event-bus";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
@@ -30,17 +29,20 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     await db.reset();
   });
 
-  const inUserContext = <T>(userId: string, work: (client: PoolClient) => Promise<T>) =>
-    withTransaction(db.pool, async (client) => {
-      await setPgUserContext(client, userId);
-      return work(client);
+  const inUserContext = <T>(userId: string, work: (tx: ModuleTransaction) => Promise<T>) =>
+    db.db.$transaction(async (tx) => {
+      await withUserContext(tx, userId);
+      return work(tx);
     });
 
-  const inFamilyContext = <T>(familyId: string, work: (client: PoolClient) => Promise<T>) =>
-    withTransaction(db.pool, async (client) => {
-      await setPgFamilyContext(client, familyId);
-      return work(client);
+  const inFamilyContext = <T>(familyId: string, work: (tx: ModuleTransaction) => Promise<T>) =>
+    db.db.$transaction(async (tx) => {
+      await withFamilyContext(tx, familyId);
+      return work(tx);
     });
+
+  const createDefaultFor = (userId: string) =>
+    withTransaction(db.pool, (client) => createDefaultCalendar(client, userId));
 
   const calendarRow = async (calendarId: string) => {
     const { rows } = await db.admin.query<{ name: string; color: string }>(
@@ -52,9 +54,7 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
 
   const insertPersonalCalendar = async (userId: string, name: string, color: CalendarColor) => {
     const calendarId = randomUUID();
-    await inUserContext(userId, (client) =>
-      insertCalendar(client, { calendarId, userId, name, color }),
-    );
+    await inUserContext(userId, (tx) => insertCalendar(tx, { calendarId, userId, name, color }));
     return calendarId;
   };
 
@@ -62,8 +62,8 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const familyId = randomUUID();
     const calendarId = randomUUID();
 
-    await inFamilyContext(familyId, (client) =>
-      insertCalendar(client, { calendarId, familyId, name: "Kitchen", color: "teal" }),
+    await inFamilyContext(familyId, (tx) =>
+      insertCalendar(tx, { calendarId, familyId, name: "Kitchen", color: "teal" }),
     );
 
     expect(await calendarRow(calendarId)).toEqual({ name: "Kitchen", color: "teal" });
@@ -73,8 +73,8 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const userId = randomUUID();
     const calendarId = await insertPersonalCalendar(userId, "Work", "violet");
 
-    const renamed = await inUserContext(userId, (client) =>
-      renameCalendar(client, { calendarId, name: "  Office  " }),
+    const renamed = await inUserContext(userId, (tx) =>
+      renameCalendar(tx, { calendarId, name: "  Office  " }),
     );
 
     expect(renamed).toBe(true);
@@ -85,8 +85,8 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const userId = randomUUID();
     const calendarId = await insertPersonalCalendar(userId, "Work", "violet");
 
-    const recolored = await inUserContext(userId, (client) =>
-      recolorCalendar(client, { calendarId, color: "amber" }),
+    const recolored = await inUserContext(userId, (tx) =>
+      recolorCalendar(tx, { calendarId, color: "amber" }),
     );
 
     expect(recolored).toBe(true);
@@ -97,7 +97,7 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const userId = randomUUID();
     const calendarId = await insertPersonalCalendar(userId, "Work", "violet");
 
-    const deleted = await inUserContext(userId, (client) => deleteCalendar(client, calendarId));
+    const deleted = await inUserContext(userId, (tx) => deleteCalendar(tx, calendarId));
 
     expect(deleted).toBe(true);
     expect(await calendarRow(calendarId)).toBeUndefined();
@@ -105,15 +105,13 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
 
   it("keeps the default calendar when a delete is requested", async () => {
     const userId = randomUUID();
-    await inUserContext(userId, (client) => createDefaultCalendar(client, userId));
+    await createDefaultFor(userId);
     const { rows } = await db.admin.query<{ calendar_id: string }>(
       "SELECT calendar_id FROM calendar.calendar WHERE user_id = $1",
       [userId],
     );
 
-    const deleted = await inUserContext(userId, (client) =>
-      deleteCalendar(client, rows[0].calendar_id),
-    );
+    const deleted = await inUserContext(userId, (tx) => deleteCalendar(tx, rows[0].calendar_id));
 
     expect(deleted).toBe(false);
     expect(await calendarRow(rows[0].calendar_id)).toEqual({ name: "Personal", color: "blue" });
@@ -124,15 +122,13 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const otherUserId = randomUUID();
     const calendarId = await insertPersonalCalendar(ownerId, "Work", "violet");
 
-    const renamed = await inUserContext(otherUserId, (client) =>
-      renameCalendar(client, { calendarId, name: "Hijacked" }),
+    const renamed = await inUserContext(otherUserId, (tx) =>
+      renameCalendar(tx, { calendarId, name: "Hijacked" }),
     );
-    const recolored = await inUserContext(otherUserId, (client) =>
-      recolorCalendar(client, { calendarId, color: "rose" }),
+    const recolored = await inUserContext(otherUserId, (tx) =>
+      recolorCalendar(tx, { calendarId, color: "rose" }),
     );
-    const deleted = await inUserContext(otherUserId, (client) =>
-      deleteCalendar(client, calendarId),
-    );
+    const deleted = await inUserContext(otherUserId, (tx) => deleteCalendar(tx, calendarId));
 
     expect([renamed, recolored, deleted]).toEqual([false, false, false]);
     expect(await calendarRow(calendarId)).toEqual({ name: "Work", color: "violet" });
@@ -142,8 +138,8 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const userId = randomUUID();
 
     await expect(
-      inUserContext(userId, (client) =>
-        insertCalendar(client, {
+      inUserContext(userId, (tx) =>
+        insertCalendar(tx, {
           calendarId: randomUUID(),
           userId,
           name: "Work",
@@ -166,8 +162,8 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     const userId = randomUUID();
 
     await expect(
-      inUserContext(userId, (client) =>
-        insertCalendar(client, { calendarId: randomUUID(), userId, name: "   ", color: "blue" }),
+      inUserContext(userId, (tx) =>
+        insertCalendar(tx, { calendarId: randomUUID(), userId, name: "   ", color: "blue" }),
       ),
     ).rejects.toThrow();
   });
@@ -183,7 +179,7 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
 
   it("refuses a second default calendar for the same user", async () => {
     const userId = randomUUID();
-    await inUserContext(userId, (client) => createDefaultCalendar(client, userId));
+    await createDefaultFor(userId);
 
     await expect(
       db.admin.query(
