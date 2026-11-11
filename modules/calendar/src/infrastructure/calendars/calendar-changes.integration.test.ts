@@ -3,7 +3,7 @@
 
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
-import { setPgUserContext } from "@offgrid/db";
+import { setPgFamilyContext, setPgUserContext } from "@offgrid/db";
 import { withTransaction } from "@offgrid/event-bus";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
@@ -38,7 +38,7 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
 
   const inFamilyContext = <T>(familyId: string, work: (client: PoolClient) => Promise<T>) =>
     withTransaction(db.pool, async (client) => {
-      await client.query("SELECT set_config('app.family_id', $1, true)", [familyId]);
+      await setPgFamilyContext(client, familyId);
       return work(client);
     });
 
