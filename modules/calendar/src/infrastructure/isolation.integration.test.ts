@@ -28,7 +28,7 @@ describe("calendar schema isolation", { timeout: 60_000 }, () => {
     const calendarId = randomUUID();
     await db.db.$transaction(async (tx) => {
       await withFamilyContext(tx, familyId);
-      await tx.calendar.create({ data: { calendarId, familyId, name: "Kitchen" } });
+      await tx.calendar.create({ data: { calendarId, familyId, name: "Kitchen", color: "teal" } });
     });
 
     const visibleToFamily = await db.db.$transaction(async (tx) => {
@@ -49,7 +49,9 @@ describe("calendar schema isolation", { timeout: 60_000 }, () => {
     const calendarId = randomUUID();
     await db.db.$transaction(async (tx) => {
       await withUserContext(tx, ownerId);
-      await tx.calendar.create({ data: { calendarId, userId: ownerId, name: "Work" } });
+      await tx.calendar.create({
+        data: { calendarId, userId: ownerId, name: "Work", color: "violet" },
+      });
     });
 
     const visibleToOwner = await db.db.$transaction(async (tx) => {
@@ -69,7 +71,9 @@ describe("calendar schema isolation", { timeout: 60_000 }, () => {
     const familyId = randomUUID();
     await db.db.$transaction(async (tx) => {
       await withFamilyContext(tx, familyId);
-      await tx.calendar.create({ data: { calendarId: randomUUID(), familyId, name: "Kitchen" } });
+      await tx.calendar.create({
+        data: { calendarId: randomUUID(), familyId, name: "Kitchen", color: "teal" },
+      });
     });
 
     const rows = await db.db.$transaction((tx) => tx.calendar.findMany());
@@ -80,7 +84,7 @@ describe("calendar schema isolation", { timeout: 60_000 }, () => {
   it("refuses a calendar that has both a family and a user owner", async () => {
     await expect(
       db.admin.query(
-        "INSERT INTO calendar.calendar (calendar_id, family_id, user_id, name) VALUES ($1, $2, $3, 'Both')",
+        "INSERT INTO calendar.calendar (calendar_id, family_id, user_id, name, color) VALUES ($1, $2, $3, 'Both', 'blue')",
         [randomUUID(), randomUUID(), randomUUID()],
       ),
     ).rejects.toThrow(/calendar_one_owner/);

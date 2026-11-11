@@ -11,6 +11,7 @@ export const startCalendarTestDatabase = async (): Promise<CalendarTestDatabase>
   const db = createModuleDb(database.connect());
   return {
     admin: database.admin,
+    pool: database.connect(),
     db,
     reset: database.reset,
     stop: async () => {

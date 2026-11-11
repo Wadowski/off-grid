@@ -8,13 +8,17 @@ Owner: module team (calendar)
 
 - Schema `calendar`, owned by the migration role `offgrid_migrator`. The runtime role `offgrid_app` has DML on its tables ([ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). The schema is created by the init scripts in `infra/init/sql`.
 - Every table uses the `family-or-user` scope ([ADR 0009](../../docs/adr/0009-table-ownership-scopes.md)): each row has exactly one of `family_id` or `user_id`, and RLS keys on `app.family_id` or `app.user_id`.
-- `calendar.calendar`: named calendars.
+- `calendar.calendar`: named calendars with a `color` from the palette in `src/domain/calendar-colors.ts`. Each user has one default calendar (`is_default`, created when the user is created and never deleted).
 - `calendar.calendar_event`: events in one calendar, with `starts_at` and `ends_at`.
 - `calendar.event_guest`: guests invited to an event, keyed by `(event_id, guest_user_id)`.
 - `calendar.event_reminder`: reminders of an event.
 - `calendar.location`: named places.
 
-Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init`.
+Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init` and `*_calendar_color_and_default`.
+
+## Events
+
+`src/events/default-calendar` subscribes to `user-created-v1` (from identity) and creates the user's default calendar. The insert is idempotent, so a repeated event creates nothing.
 
 ## Tests
 
