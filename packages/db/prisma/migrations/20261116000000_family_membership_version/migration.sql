@@ -11,3 +11,10 @@ CREATE TABLE family.membership_version (
   PRIMARY KEY (family_id, user_id)
 );
 SELECT public.offgrid_declare_scope('family', 'membership_version', 'family');
+
+-- Members who joined before this table existed already have their add event at
+-- version 1, so their counter starts at 1 and their next change is version 2.
+INSERT INTO family.membership_version (family_id, user_id, source_version)
+SELECT family_id, user_id, 1
+  FROM family.family_member
+ON CONFLICT (family_id, user_id) DO NOTHING;
