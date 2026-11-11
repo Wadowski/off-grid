@@ -157,4 +157,62 @@ describe("family invitation routes", { timeout: 60_000 }, () => {
 
     expect(response.statusCode).toBe(401);
   });
+
+  it("previews an invitation for a new person and answers 200 without joining", async () => {
+    const admin = randomUUID();
+    const joiner = randomUUID();
+    const family = await createFamily(db.db, admin, "Novak family");
+    const created = await app.inject({
+      method: "POST",
+      url: `/families/${family.id}/invitations`,
+      headers: { "x-user-id": admin },
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/families/invitations/preview",
+      headers: { "x-user-id": joiner },
+      payload: { code: created.json().code },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      familyId: family.id,
+      familyName: "Novak family",
+      familyCreatedAt: expect.any(String),
+      invitedBy: { displayName: null },
+    });
+  });
+
+  it("answers 404 for an unknown code in a preview", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/families/invitations/preview",
+      headers: { "x-user-id": randomUUID() },
+      payload: { code: "not-a-real-code" },
+    });
+
+    expect(response.statusCode).toBe(404);
+  });
+
+  it("answers 429 once a person has used up the attempt limit on previews", async () => {
+    const joiner = randomUUID();
+    for (let attempt = 0; attempt < INVITATION_ATTEMPT_POLICY.limit; attempt += 1) {
+      await app.inject({
+        method: "POST",
+        url: "/families/invitations/preview",
+        headers: { "x-user-id": joiner },
+        payload: { code: "wrong-code" },
+      });
+    }
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/families/invitations/preview",
+      headers: { "x-user-id": joiner },
+      payload: { code: "wrong-code" },
+    });
+
+    expect(response.statusCode).toBe(429);
+  });
 });

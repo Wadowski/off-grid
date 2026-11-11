@@ -67,6 +67,8 @@ export * from "./signed-in-schema.js";
 export * from "./notification-schema.js";
 export * from "./notification-type-schema.js";
 export * from "./redeem-family-invitation-request-schema.js";
+export * from "./family-invitation-preview-schema.js";
+export * from "./joined-family-schema.js";
 export * from "./released-snapshot-schema.js";
 export * from "./timestamp-schema.js";
 export * from "./types.js";

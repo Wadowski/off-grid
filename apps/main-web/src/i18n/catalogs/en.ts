@@ -35,6 +35,25 @@ export const en = {
   apps: {
     heading: "Apps",
   },
+  joinSpace: {
+    pill: "Family invitation",
+    heading: "Join a family space",
+    body: "Enter the invitation code you were sent. You will see the family before you join.",
+    codeLabel: "Invitation code",
+    codePlaceholder: "Enter the code",
+    continue: "Continue",
+    codeRequired: "Enter an invitation code.",
+    invalidCode: "That code isn't valid. Check it and try again.",
+    rateLimited: "Too many attempts. Wait a few minutes and try again.",
+    failed: "Something went wrong. Try again.",
+    previewHeading: "You've been invited to a family space",
+    previewBody: "Check the family below. Accepting makes you a member.",
+    invitedBy: "{{name}} invited you to join {{family}} as a member.",
+    invitedByUnknown: "You've been invited to join {{family}} as a member.",
+    createdOn: "Created {{date}}",
+    accept: "Accept invitation & join space",
+    decline: "Decline",
+  },
   families: {
     heading: "Families",
     nameLabel: "Family or Household Name",
@@ -114,6 +133,7 @@ export const en = {
     heading: "Create a Family Space",
     body: "Set up a shared space for calendars, grocery lists, photos, and meal plans. You can invite family members or add more spaces anytime.",
     invitedNote: "Were you invited? Ask the family organizer to add you.",
+    joinWithCode: "Join with an invitation code",
   },
   settings: {
     heading: "Settings",

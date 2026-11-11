@@ -1,13 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { withUserContext, type ModuleDatabase } from "@offgrid/db";
-import { INVITATION_ATTEMPT_POLICY } from "../../constants.js";
+import type { ModuleDatabase } from "@offgrid/db";
 import { hashInvitationCode } from "../../infrastructure/invitations/hash-invitation-code.js";
-import { recordFailedRedemption } from "../../infrastructure/invitations/record-failed-redemption.js";
 import type { RedeemOutcome } from "../../types.js";
 import { isAccountLockedOut } from "./is-account-locked-out.js";
 import { joinWithInvitation } from "./join-with-invitation.js";
+import { recordInvalidRedemption } from "./record-invalid-redemption.js";
 
 export const redeemFamilyInvitation = async (
   db: ModuleDatabase,
@@ -27,9 +26,6 @@ export const redeemFamilyInvitation = async (
   if (join.outcome === "already-member") {
     return { outcome: "invalid" };
   }
-  await db.$transaction(async (tx) => {
-    await withUserContext(tx, userId);
-    await recordFailedRedemption(tx, userId, INVITATION_ATTEMPT_POLICY, now);
-  });
+  await recordInvalidRedemption(db, userId, now);
   return { outcome: "invalid" };
 };
