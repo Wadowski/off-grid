@@ -10,6 +10,7 @@ import {
 } from "@offgrid/db";
 import { publishFamilyEvent } from "../../events/publish-family-event.js";
 import { findMembership } from "../../infrastructure/find-membership.js";
+import { bumpMembershipVersion } from "../../infrastructure/bump-membership-version.js";
 import { insertMembership } from "../../infrastructure/insert-membership.js";
 import { clearInvitationAttempts } from "../../infrastructure/invitations/clear-invitation-attempts.js";
 import { consumeInvitation } from "../../infrastructure/invitations/consume-invitation.js";
@@ -36,10 +37,14 @@ export const joinWithInvitation = async (
   }
   await withFamilyContext(tx, invitation.familyId);
   await insertMembership(tx, invitation.familyId, userId, "member");
-  await publishFamilyEvent(tx, familyMemberAddedV1, invitation.familyId, {
-    userId,
-    role: "member",
-  });
+  const sourceVersion = await bumpMembershipVersion(tx, invitation.familyId, userId);
+  await publishFamilyEvent(
+    tx,
+    familyMemberAddedV1,
+    invitation.familyId,
+    { userId, role: "member" },
+    sourceVersion,
+  );
   await clearInvitationAttempts(tx, userId);
   return { outcome: "joined", value: { familyId: invitation.familyId } };
 };

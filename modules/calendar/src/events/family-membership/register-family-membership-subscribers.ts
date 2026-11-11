@@ -3,7 +3,7 @@
 
 import { familyMemberAddedV1, familyMemberRemovedV1 } from "@offgrid/contracts";
 import type { EventBus } from "@offgrid/event-bus";
-import { addFamilyMembership, removeFamilyMembership } from "./apply-family-membership.js";
+import { applyFamilyMembership } from "./apply-family-membership.js";
 
 const requireFamilyId = (familyId: string | null): string => {
   if (familyId === null) {
@@ -12,25 +12,21 @@ const requireFamilyId = (familyId: string | null): string => {
   return familyId;
 };
 
+// One subscription for both events, so they are applied in the order the family made
+// them. "halt" keeps a change that cannot be applied from being skipped: access stays
+// as the last applied change left it until the change is fixed and delivered.
 export const registerFamilyMembershipSubscribers = (eventBus: EventBus): void => {
-  eventBus.subscribe({
-    name: "calendar-family-membership-from-member-added",
-    event: familyMemberAddedV1,
+  eventBus.subscribeToEvents({
+    name: "calendar-family-membership",
+    events: [familyMemberAddedV1, familyMemberRemovedV1],
     runAs: "calendar",
+    onFailure: "halt",
     handler: (event, { tx }) =>
-      addFamilyMembership(tx, {
+      applyFamilyMembership(tx, {
         familyId: requireFamilyId(event.familyId),
         userId: event.payload.userId,
-      }),
-  });
-  eventBus.subscribe({
-    name: "calendar-family-membership-from-member-removed",
-    event: familyMemberRemovedV1,
-    runAs: "calendar",
-    handler: (event, { tx }) =>
-      removeFamilyMembership(tx, {
-        familyId: requireFamilyId(event.familyId),
-        userId: event.payload.userId,
+        sourceVersion: event.sourceVersion,
+        isMember: event.type === familyMemberAddedV1.name,
       }),
   });
 };

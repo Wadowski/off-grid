@@ -32,7 +32,10 @@ export const removeCalendar = (
     }
     const eventIds = await listEventIdsOfCalendar(tx, calendarId);
     await deleteEvents(tx, eventIds);
-    await deleteCalendar(tx, calendarId);
+    if (!(await deleteCalendar(tx, calendarId))) {
+      // Throwing rolls back the event deletes above, so no removal is published.
+      throw new Error("calendar was removed by another request while its events were deleted");
+    }
     for (const eventId of eventIds) {
       await publishCalendarEventRemoved(
         tx,

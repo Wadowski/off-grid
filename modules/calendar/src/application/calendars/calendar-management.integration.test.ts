@@ -6,10 +6,7 @@ import { withTransaction } from "@offgrid/event-bus";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
-import {
-  addFamilyMembership,
-  removeFamilyMembership,
-} from "../../events/family-membership/apply-family-membership.js";
+import { applyFamilyMembership } from "../../events/family-membership/apply-family-membership.js";
 import { createCalendar } from "./create-calendar.js";
 import { createDefaultCalendar } from "./create-default-calendar.js";
 import { listCalendarsFor } from "./list-calendars.js";
@@ -32,10 +29,14 @@ describe("calendar management", { timeout: 60_000 }, () => {
   });
 
   const joinFamily = (familyId: string, userId: string) =>
-    withTransaction(db.pool, (client) => addFamilyMembership(client, { familyId, userId }));
+    withTransaction(db.pool, (client) =>
+      applyFamilyMembership(client, { familyId, userId, sourceVersion: 1, isMember: true }),
+    );
 
   const leaveFamily = (familyId: string, userId: string) =>
-    withTransaction(db.pool, (client) => removeFamilyMembership(client, { familyId, userId }));
+    withTransaction(db.pool, (client) =>
+      applyFamilyMembership(client, { familyId, userId, sourceVersion: 2, isMember: false }),
+    );
 
   const insertFamilyCalendar = async (familyId: string, name: string, color: string) => {
     const calendarId = randomUUID();

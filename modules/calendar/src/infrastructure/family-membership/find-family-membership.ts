@@ -10,5 +10,5 @@ export const findFamilyMembership = async (
   const membership = await tx.calendarFamilyMembership.findUnique({
     where: { familyId_userId: { familyId: input.familyId, userId: input.userId } },
   });
-  return membership !== null;
+  return membership?.isMember === true;
 };

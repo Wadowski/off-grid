@@ -93,6 +93,10 @@ When(/^Ben looks at the calendar "[^"]*"$/, () =>
 Then(/^Ben cannot see the calendar "[^"]*"$/, () =>
   notImplemented("Ben cannot see the calendar {string}"),
 );
+Then(/^Ben cannot use the family "[^"]*"$/, () =>
+  notImplemented("Ben cannot use the family {string}"),
+);
+Then(/^the name is refused as invalid$/, () => notImplemented("the name is refused as invalid"));
 
 When(/^Ben renames the calendar "[^"]*" to "[^"]*"$/, () =>
   notImplemented("Ben renames the calendar {string} to {string}"),

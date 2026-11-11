@@ -44,7 +44,7 @@ Errors use the shared codes from [packages/http](../../packages/http/README.md):
 - `family-member-removed-v1` (version 1): `{ userId }`, written when a member is removed. Defined in [packages/contracts/src/family-member-removed-v1.ts](../../packages/contracts/src/family-member-removed-v1.ts).
 - `family-member-added-v1` (version 1): `{ userId, role }`, written when a member joins by invitation. Defined in [packages/contracts/src/family-member-added-v1.ts](../../packages/contracts/src/family-member-added-v1.ts).
 
-Both membership events use `sourceVersion` 1 for now. No projection reads them yet. A projection that needs ordering must add a per-membership version first.
+Membership events carry a per-membership `sourceVersion`, counted in `family.membership_version`. That table keeps its rows after a removal, so a person who rejoins continues the count and an older event can never look newer. Role changes do not move this version, because no projection needs them. The calendar module reads the added and removed events.
 
 ## Consumed events
 

@@ -13,7 +13,7 @@ Owner: module team (calendar)
 - `calendar.calendar_event`: events in one calendar, with `starts_at` and `ends_at`.
 - `calendar.event_guest`: guests invited to an event, keyed by `(event_id, guest_user_id)`.
 - `calendar.event_reminder`: reminders of an event.
-- `calendar.family_membership`: which people belong to each family, fed by family events.
+- `calendar.family_membership`: which people belong to each family, fed by family membership events. A removed membership stays as a row with `is_member = false` and the newest `source_version` applied, so an older join cannot bring it back.
 - `calendar.location`: named places.
 
 Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init`, `*_calendar_color_and_default` and `*_calendar_family_membership`.
@@ -27,6 +27,12 @@ Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migr
 `src/events/default-calendar` subscribes to `user-created-v1` (from identity) and creates the user's default calendar. The insert is idempotent, so a repeated event creates nothing.
 
 `src/events/family-membership` subscribes to `family-member-added-v1` and `family-member-removed-v1` and keeps `calendar.family_membership` in step. That table is how the calendar module knows which family calendars a person may manage. Each family creator also gets a `family-member-added-v1` event, so the creator appears in the table too. Families created before that change have no rows here, so their members cannot manage family calendars until those rows are backfilled.
+
+Each change is applied in the order the family made it. A change that was already applied is ignored. A change that arrives after a skipped one is a gap: the person is denied until their next change is applied, so access never comes back from a guess.
+
+Both events go to one subscription, `calendar-family-membership`, so they are applied in the order the family made them, even when a removal and a later rejoin are delivered together. The subscription uses the bus's `halt` failure policy: an event that still fails after its retries stops the subscriber there, rather than being skipped. Later events wait until the failure is fixed, and the error is recorded.
+
+Known gap: while the subscriber is halted, the stored state stays as the last applied change left it. If that change was a join that was never followed by its removal, the person keeps access until the failure is fixed. Denying access while the projection is halted needs a health signal that the policies can check, and it is not built yet.
 
 ## Tests
 

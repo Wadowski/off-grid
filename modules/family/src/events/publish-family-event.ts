@@ -10,4 +10,6 @@ export const publishFamilyEvent = (
   definition: AnyEventDefinition,
   familyId: string,
   payload: unknown,
-): Promise<number> => publishOwnedEvent(rawSqlExecutor(tx), definition, { familyId }, payload);
+  sourceVersion?: number,
+): Promise<number> =>
+  publishOwnedEvent(rawSqlExecutor(tx), definition, { familyId, sourceVersion }, payload);
