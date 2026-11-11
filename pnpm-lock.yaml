@@ -367,10 +367,20 @@ importers:
   modules/access: {}
 
   modules/calendar:
-    devDependencies:
+    dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@offgrid/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@offgrid/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
       '@offgrid/test-db':
         specifier: workspace:*
         version: link:../../packages/test-db
