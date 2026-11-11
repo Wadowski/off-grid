@@ -8,6 +8,7 @@ export { loadMigrations } from "./load-migrations.js";
 export { migrateDeploy } from "./migrate-deploy.js";
 export { PRISMA_MIGRATIONS_DIRECTORY } from "./prisma-migrations-directory.js";
 export { rawSqlExecutor } from "./raw-sql-executor.js";
+export { setPgUserContext } from "./set-pg-user-context.js";
 export { withFamilyContext } from "./with-family-context.js";
 export { withInvitationCodeHashContext } from "./with-invitation-code-hash-context.js";
 export { withUserContext } from "./with-user-context.js";

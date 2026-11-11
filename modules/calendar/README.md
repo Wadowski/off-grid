@@ -8,7 +8,8 @@ Owner: module team (calendar)
 
 - Schema `calendar`, owned by the migration role `offgrid_migrator`. The runtime role `offgrid_app` has DML on its tables ([ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). The schema is created by the init scripts in `infra/init/sql`.
 - Every table uses the `family-or-user` scope ([ADR 0009](../../docs/adr/0009-table-ownership-scopes.md)): each row has exactly one of `family_id` or `user_id`, and RLS keys on `app.family_id` or `app.user_id`.
-- `calendar.calendar`: named calendars with a `color` from the palette in `src/domain/calendar-colors.ts`. Each user has one default calendar (`is_default`, created when the user is created and never deleted).
+- `calendar.calendar`: named calendars with a `color` from the palette in `src/domain/calendar-colors.ts`. Each user has one default calendar (`is_default`, created when the user is created and never deleted). Users created before this change have no default calendar.
+- Family calendars can be renamed, recolored and deleted by any family member, as ADR 0021 gives members rights over family-shared entities.
 - `calendar.calendar_event`: events in one calendar, with `starts_at` and `ends_at`.
 - `calendar.event_guest`: guests invited to an event, keyed by `(event_id, guest_user_id)`.
 - `calendar.event_reminder`: reminders of an event.

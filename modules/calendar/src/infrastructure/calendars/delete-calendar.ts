@@ -3,8 +3,8 @@
 
 import type { SubscriberClient } from "../../types.js";
 
-// The default calendar is never deleted, so every user keeps one. Returns
-// false when no row was deleted.
+// The default calendar is never deleted. Returns false when no row was deleted,
+// which includes the default calendar and calendars that row-level security hides.
 export const deleteCalendar = async (
   client: SubscriberClient,
   calendarId: string,

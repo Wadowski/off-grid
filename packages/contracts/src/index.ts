@@ -40,6 +40,7 @@ export * from "./family-role-schema.js";
 export * from "./family-id-schema.js";
 export * from "./family-list-schema.js";
 export * from "./family-name-schema.js";
+export * from "./name-schema.js";
 export * from "./family-params-schema.js";
 export * from "./family-schema.js";
 export * from "./active-family-schema.js";

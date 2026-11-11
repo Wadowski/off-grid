@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { z } from "zod";
+import { nameSchema } from "./name-schema.js";
 
-export const displayNameSchema = z.string().trim().min(1).max(100);
+export const displayNameSchema = nameSchema;

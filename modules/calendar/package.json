@@ -14,14 +14,14 @@
   },
   "dependencies": {
     "@offgrid/contracts": "workspace:*",
+    "@offgrid/db": "workspace:*",
     "@offgrid/event-bus": "workspace:*",
-    "pg": "8.23.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@offgrid/db": "workspace:*",
     "@offgrid/test-db": "workspace:*",
     "@types/node": "^24.19.2",
-    "@types/pg": "^8.23.1"
+    "@types/pg": "^8.23.1",
+    "pg": "8.23.1"
   }
 }

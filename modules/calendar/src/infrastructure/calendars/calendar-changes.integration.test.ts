@@ -3,15 +3,17 @@
 
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
+import { setPgUserContext } from "@offgrid/db";
+import { withTransaction } from "@offgrid/event-bus";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
+import type { CalendarColor } from "../../domain/calendar-colors.js";
 import { createDefaultCalendar } from "../../application/calendars/create-default-calendar.js";
 import { deleteCalendar } from "./delete-calendar.js";
 import { insertCalendar } from "./insert-calendar.js";
 import { recolorCalendar } from "./recolor-calendar.js";
 import { renameCalendar } from "./rename-calendar.js";
-import { setUserContext } from "./set-user-context.js";
 
 describe("calendar changes at the data level", { timeout: 60_000 }, () => {
   let db: CalendarTestDatabase;
@@ -28,36 +30,17 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     await db.reset();
   });
 
-  const inContext = async <T>(
-    setContext: (client: PoolClient) => Promise<void>,
-    work: (client: PoolClient) => Promise<T>,
-  ): Promise<T> => {
-    const client = await db.pool.connect();
-    try {
-      await client.query("BEGIN");
-      await setContext(client);
-      const result = await work(client);
-      await client.query("COMMIT");
-      return result;
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
-  };
-
   const inUserContext = <T>(userId: string, work: (client: PoolClient) => Promise<T>) =>
-    inContext((client) => setUserContext(client, userId), work);
+    withTransaction(db.pool, async (client) => {
+      await setPgUserContext(client, userId);
+      return work(client);
+    });
 
   const inFamilyContext = <T>(familyId: string, work: (client: PoolClient) => Promise<T>) =>
-    inContext(
-      (client) =>
-        client
-          .query("SELECT set_config('app.family_id', $1, true)", [familyId])
-          .then(() => undefined),
-      work,
-    );
+    withTransaction(db.pool, async (client) => {
+      await client.query("SELECT set_config('app.family_id', $1, true)", [familyId]);
+      return work(client);
+    });
 
   const calendarRow = async (calendarId: string) => {
     const { rows } = await db.admin.query<{ name: string; color: string }>(
@@ -65,6 +48,14 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
       [calendarId],
     );
     return rows[0];
+  };
+
+  const insertPersonalCalendar = async (userId: string, name: string, color: CalendarColor) => {
+    const calendarId = randomUUID();
+    await inUserContext(userId, (client) =>
+      insertCalendar(client, { calendarId, userId, name, color }),
+    );
+    return calendarId;
   };
 
   it("creates a family calendar with a name and a color", async () => {
@@ -78,40 +69,33 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     expect(await calendarRow(calendarId)).toEqual({ name: "Kitchen", color: "teal" });
   });
 
-  it("renames a calendar", async () => {
+  it("renames a calendar and reports that a row changed", async () => {
     const userId = randomUUID();
-    const calendarId = randomUUID();
-    await inUserContext(userId, (client) =>
-      insertCalendar(client, { calendarId, userId, name: "Work", color: "violet" }),
-    );
+    const calendarId = await insertPersonalCalendar(userId, "Work", "violet");
 
-    await inUserContext(userId, (client) =>
+    const renamed = await inUserContext(userId, (client) =>
       renameCalendar(client, { calendarId, name: "  Office  " }),
     );
 
+    expect(renamed).toBe(true);
     expect(await calendarRow(calendarId)).toEqual({ name: "Office", color: "violet" });
   });
 
-  it("recolors a calendar", async () => {
+  it("recolors a calendar and reports that a row changed", async () => {
     const userId = randomUUID();
-    const calendarId = randomUUID();
-    await inUserContext(userId, (client) =>
-      insertCalendar(client, { calendarId, userId, name: "Work", color: "violet" }),
-    );
+    const calendarId = await insertPersonalCalendar(userId, "Work", "violet");
 
-    await inUserContext(userId, (client) =>
+    const recolored = await inUserContext(userId, (client) =>
       recolorCalendar(client, { calendarId, color: "amber" }),
     );
 
+    expect(recolored).toBe(true);
     expect(await calendarRow(calendarId)).toEqual({ name: "Work", color: "amber" });
   });
 
   it("deletes a non-default calendar", async () => {
     const userId = randomUUID();
-    const calendarId = randomUUID();
-    await inUserContext(userId, (client) =>
-      insertCalendar(client, { calendarId, userId, name: "Work", color: "violet" }),
-    );
+    const calendarId = await insertPersonalCalendar(userId, "Work", "violet");
 
     const deleted = await inUserContext(userId, (client) => deleteCalendar(client, calendarId));
 
@@ -135,7 +119,26 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     expect(await calendarRow(rows[0].calendar_id)).toEqual({ name: "Personal", color: "blue" });
   });
 
-  it("refuses an unknown color", async () => {
+  it("leaves another user's calendar unchanged by rename, recolor and delete", async () => {
+    const ownerId = randomUUID();
+    const otherUserId = randomUUID();
+    const calendarId = await insertPersonalCalendar(ownerId, "Work", "violet");
+
+    const renamed = await inUserContext(otherUserId, (client) =>
+      renameCalendar(client, { calendarId, name: "Hijacked" }),
+    );
+    const recolored = await inUserContext(otherUserId, (client) =>
+      recolorCalendar(client, { calendarId, color: "rose" }),
+    );
+    const deleted = await inUserContext(otherUserId, (client) =>
+      deleteCalendar(client, calendarId),
+    );
+
+    expect([renamed, recolored, deleted]).toEqual([false, false, false]);
+    expect(await calendarRow(calendarId)).toEqual({ name: "Work", color: "violet" });
+  });
+
+  it("refuses an unknown color at the application layer", async () => {
     const userId = randomUUID();
 
     await expect(
@@ -144,10 +147,19 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
           calendarId: randomUUID(),
           userId,
           name: "Work",
-          color: "neon" as "blue",
+          color: "neon" as unknown as CalendarColor,
         }),
       ),
     ).rejects.toThrow();
+  });
+
+  it("refuses an unknown color at the database", async () => {
+    await expect(
+      db.admin.query(
+        "INSERT INTO calendar.calendar (calendar_id, user_id, name, color) VALUES ($1, $2, 'Work', 'neon')",
+        [randomUUID(), randomUUID()],
+      ),
+    ).rejects.toThrow(/calendar_color_check/);
   });
 
   it("refuses an empty name", async () => {

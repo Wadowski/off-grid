@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import { setPgUserContext } from "@offgrid/db";
+import { withTransaction } from "@offgrid/event-bus";
 import type { PoolClient } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
-import { setUserContext } from "../../infrastructure/calendars/set-user-context.js";
 import { createDefaultCalendar } from "./create-default-calendar.js";
 
 describe("createDefaultCalendar", { timeout: 60_000 }, () => {
@@ -24,24 +25,11 @@ describe("createDefaultCalendar", { timeout: 60_000 }, () => {
     await db.reset();
   });
 
-  const inUserContext = async <T>(
-    userId: string,
-    work: (client: PoolClient) => Promise<T>,
-  ): Promise<T> => {
-    const client = await db.pool.connect();
-    try {
-      await client.query("BEGIN");
-      await setUserContext(client, userId);
-      const result = await work(client);
-      await client.query("COMMIT");
-      return result;
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
-  };
+  const inUserContext = <T>(userId: string, work: (client: PoolClient) => Promise<T>) =>
+    withTransaction(db.pool, async (client) => {
+      await setPgUserContext(client, userId);
+      return work(client);
+    });
 
   const defaultCalendarsOf = (userId: string) =>
     inUserContext(userId, async (client) => {
