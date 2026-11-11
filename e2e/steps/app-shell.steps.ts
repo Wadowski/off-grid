@@ -63,7 +63,7 @@ When("I open the user menu", async ({ page }) => {
 });
 
 When("I use only the keyboard", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Account menu" });
+  const trigger = page.getByRole("button", { name: /Account menu/ });
   for (let press = 0; press < SHELL_KEYBOARD_TAB_LIMIT; press++) {
     if (await isFocused(trigger)) {
       return;
@@ -83,7 +83,14 @@ Then("the header shows my initials", async ({ page, world }) => {
     .displayName.split(" ")
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
-  await expect(page.getByRole("button", { name: "Account menu" })).toContainText(initials);
+  // The initials are drawn by a CSS pseudo-element, so read the rendered content.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        `getComputedStyle(document.querySelector(".og-user-menu-avatar"), "::before").content`,
+      ),
+    )
+    .toBe(`"${initials}"`);
 });
 
 Then("I see my name, my email and the badge {string}", async ({ page, world }, badge: string) => {
@@ -128,7 +135,7 @@ Then("the sidebar shows {string} and {string}", async ({ page }, first: string, 
 
 Then("the sidebar shows my name and the families I belong to", async ({ page, world }) => {
   await expect(page.getByTestId("sidebar-family-card")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Account menu" })).toContainText(
+  await expect(page.getByRole("button", { name: /Account menu/ })).toContainText(
     accountOf(world).displayName,
   );
 });

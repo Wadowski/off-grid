@@ -130,6 +130,10 @@ When("I continue on the join family space screen without a code", async ({ page,
   await page.getByRole("button", { name: CONTINUE }).click();
 });
 
+When("I open the join family space screen", async ({ page, world }) => {
+  await openJoinScreen(page, world);
+});
+
 When("I accept the invitation", async ({ page }) => {
   await page.getByRole("button", { name: ACCEPT }).click();
   await expect.poll(() => new URL(page.url()).pathname).toBe(SETTINGS_PATH);

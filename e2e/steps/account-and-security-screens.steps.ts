@@ -53,7 +53,7 @@ const signInThroughUi = async (page: Page, email: string, password: string): Pro
 };
 
 const createFirstFamilyIfAsked = async (page: Page): Promise<void> => {
-  const accountMenu = page.getByRole("button", { name: "Account menu" });
+  const accountMenu = page.getByRole("button", { name: /Account menu/ });
   const firstFamilyHeading = page.getByRole("heading", { name: "Create a Family Space" });
   await expect(accountMenu.or(firstFamilyHeading)).toBeVisible();
   if (await accountMenu.isVisible()) {
@@ -80,7 +80,7 @@ const openSettings = async (page: Page): Promise<void> => {
   if (SETTINGS_PATH.test(pathOf(page))) {
     await page.getByRole("link", { name: "Back to settings" }).click();
   } else {
-    await page.getByRole("button", { name: "Account menu" }).click();
+    await page.getByRole("button", { name: /Account menu/ }).click();
     await page.getByRole("menuitem", { name: "Account and security" }).click();
   }
   await page.waitForURL(`${webBaseUrl()}/settings`);
@@ -136,7 +136,7 @@ When("I change my display name and save", async ({ page, world }) => {
 
 Then("the header and menu show the new name", async ({ page }) => {
   await expect(page.getByText(RENAMED, { exact: true }).first()).toBeVisible();
-  await page.getByRole("button", { name: "Account menu" }).click();
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await expect(page.getByRole("menu").getByText(RENAMED, { exact: true })).toBeVisible();
 });
 

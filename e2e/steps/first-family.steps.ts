@@ -47,7 +47,7 @@ const createFamilyThroughForm = async (page: Page, name: string): Promise<void> 
 };
 
 const signOutFromHome = async (page: Page): Promise<void> => {
-  await page.getByRole("button", { name: "Account menu" }).click();
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await page.getByRole("menuitem", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 };

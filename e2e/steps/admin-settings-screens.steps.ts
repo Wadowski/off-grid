@@ -73,7 +73,7 @@ const signInThroughUi = async (page: Page, email: string, password: string): Pro
   await page.getByTestId("sign-in-email").fill(email);
   await page.getByTestId("sign-in-password").fill(password);
   await page.getByTestId("sign-in-submit").click();
-  const accountMenu = page.getByRole("button", { name: "Account menu", exact: true });
+  const accountMenu = page.getByRole("button", { name: /Account menu/ });
   const firstFamilyHeading = page.getByRole("heading", { name: "Create a Family Space" });
   await expect(accountMenu.or(firstFamilyHeading)).toBeVisible();
   if (await firstFamilyHeading.count()) {
@@ -100,7 +100,7 @@ Given("I am a regular member signed in to the web app", async ({ page, world }) 
 });
 
 Then("the user menu has no {string}", async ({ page }, label: string) => {
-  await page.getByRole("button", { name: "Account menu", exact: true }).click();
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await expect(page.getByRole("menuitem", { name: label, exact: true })).toHaveCount(0);
 });
 

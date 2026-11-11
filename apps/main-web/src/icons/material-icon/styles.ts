@@ -11,3 +11,9 @@ export const materialIconStyle = (size: string, color: string, filled: boolean):
   userSelect: "none",
   fontVariationSettings: filled ? "'FILL' 1" : "'FILL' 0",
 });
+
+export const materialIconCss = `
+.og-material-icon::before {
+  content: attr(data-icon);
+}
+`;

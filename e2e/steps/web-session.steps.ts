@@ -92,7 +92,7 @@ Then("after signing in I land on the page I asked for", async ({ page, world }) 
 });
 
 Then("I stay signed in without being asked for my password", async ({ page }) => {
-  await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Account menu/ })).toBeVisible();
   await expect(page.getByTestId("sign-in-submit")).toHaveCount(0);
 });
 

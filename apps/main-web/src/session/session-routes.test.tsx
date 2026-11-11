@@ -153,7 +153,7 @@ describe("web session routes", () => {
     render(<App />);
     await screen.findByTestId("family-space-row");
 
-    fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
+    fireEvent.click(screen.getByRole("button", { name: /Account menu/ }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));
 
     expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();

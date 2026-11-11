@@ -55,12 +55,12 @@ export const signInThroughUi = async (page: Page, account: WebAccount): Promise<
   await page.getByTestId("sign-in-submit").click();
   await expect(
     page
-      .getByRole("button", { name: "Account menu" })
+      .getByRole("button", { name: /Account menu/ })
       .or(page.getByRole("heading", { name: "Create a Family Space" })),
   ).toBeVisible();
 };
 
 export const openUserMenu = async (page: Page): Promise<void> => {
-  await page.getByRole("button", { name: "Account menu" }).click();
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await expect(page.getByRole("menu")).toBeVisible();
 };

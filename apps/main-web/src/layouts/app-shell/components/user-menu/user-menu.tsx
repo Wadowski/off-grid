@@ -47,17 +47,19 @@ export const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
     <div ref={menuRef} className="og-user-menu" style={userMenuStyle} onKeyDown={handleKeyDown}>
       <Button
         variant="secondary"
-        aria-label={t("userMenu.trigger")}
+        aria-label={`${t("userMenu.trigger")}, ${user.name}, ${t(roleTextIdOf(user))}`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={panelId}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <span className="og-user-menu-avatar" aria-hidden="true">
-          {initialsOf(user.name)}
-        </span>
+        <span
+          className="og-user-menu-avatar"
+          data-initials={initialsOf(user.name)}
+          aria-hidden="true"
+        />
         <span className="og-user-menu-meta" aria-hidden="true">
-          <Text variant="label" value={user.name} />
+          <Text variant="label" value={user.name} />{" "}
           <Text variant="caption" textId={roleTextIdOf(user)} />
         </span>
         <span className="og-user-menu-expand" aria-hidden="true">

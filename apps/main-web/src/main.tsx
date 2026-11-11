@@ -12,10 +12,15 @@ import { ErrorBoundary } from "react-error-boundary";
 import { App } from "./app.js";
 import "./i18n/i18n.js";
 import { ErrorFallback } from "./errors/error-fallback/error-fallback.js";
+import { materialIconCss } from "./icons/material-icon/styles.js";
 
 const tokenStyle = document.createElement("style");
 tokenStyle.textContent = tokensStylesheet;
 document.head.append(tokenStyle);
+
+const iconStyle = document.createElement("style");
+iconStyle.textContent = materialIconCss;
+document.head.append(iconStyle);
 
 const rootElement = document.getElementById("root");
 if (rootElement === null) {
