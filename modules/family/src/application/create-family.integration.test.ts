@@ -24,7 +24,7 @@ describe("createFamily", { timeout: 60_000 }, () => {
     await db.reset();
   });
 
-  it("stores the family with its creator as the first member and an outbox event", async () => {
+  it("stores the family with its creator as the first member and outbox events", async () => {
     const creator = randomUUID();
 
     const family = await createFamily(db.db, creator, "Novak family");
@@ -36,7 +36,7 @@ describe("createFamily", { timeout: 60_000 }, () => {
     );
     expect(members).toEqual([{ user_id: creator }]);
     const { rows: events } = await db.admin.query(
-      "SELECT type, family_id, payload FROM outbox.event WHERE family_id = $1",
+      "SELECT type, family_id, payload FROM outbox.event WHERE family_id = $1 ORDER BY sequence",
       [family.id],
     );
     expect(events).toEqual([
@@ -44,6 +44,11 @@ describe("createFamily", { timeout: 60_000 }, () => {
         type: "family-created-v1",
         family_id: family.id,
         payload: { name: "Novak family" },
+      },
+      {
+        type: "family-member-added-v1",
+        family_id: family.id,
+        payload: { userId: creator, role: "admin" },
       },
     ]);
   });
