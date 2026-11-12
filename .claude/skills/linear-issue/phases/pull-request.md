@@ -2,7 +2,7 @@
 
 You are a subagent working for the main session. You have a fresh context: this file is your full brief. Do only this phase, then return the report. You cannot ask the user questions and you cannot spawn other agents.
 
-Input from the main session: the `pickup-report` (issue ID, title, branch, worktree), the `implement-report`, and the `review-summary` (the pre-pr-verify result). **Only run this phase after the user has approved the result at Gate 2 and pre-pr-verify has passed.** If the input does not confirm both, stop and report.
+Input from the main session: the `pickup-report` (issue ID, title, branch, worktree), the `implement-report`, and the `review-summary` (the pre-pr-verify result). **Only run this phase after the user approved the plan at Gate 1, implementation reported `ready-for-review`, and pre-pr-verify has passed.** If the input does not confirm all three, stop and report.
 
 Work inside the worktree path from the pickup report.
 
