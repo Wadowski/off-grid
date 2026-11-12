@@ -87,7 +87,7 @@ describe("First family page", () => {
 
     expect(await screen.findByTestId("family-space-row")).toHaveTextContent("Lakeside");
     expect(window.location.pathname).toBe("/");
-    expect(fetchMock).toHaveBeenCalledTimes(5);
+    expect(fetchMock).toHaveBeenCalledTimes(6);
     const postCall = fetchMock.mock.calls.find(
       ([input, init]) => init?.method === "POST" && String(input).endsWith("/api/families"),
     );

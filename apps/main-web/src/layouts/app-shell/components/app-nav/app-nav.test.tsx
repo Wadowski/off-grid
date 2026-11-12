@@ -11,7 +11,7 @@ describe("AppNav", () => {
     cleanup();
   });
 
-  it("links to the family screen and lists the planned sections as unavailable", () => {
+  it("links to the family and calendar screens and lists the planned sections as unavailable", () => {
     render(
       <MemoryRouter>
         <AppNav />
@@ -20,10 +20,10 @@ describe("AppNav", () => {
 
     const nav = screen.getByRole("navigation", { name: "Main navigation" });
     expect(within(nav).getByRole("link", { name: "Family" })).toHaveAttribute("href", "/");
-    expect(within(nav).getByText("Calendar").closest("[aria-disabled]")).toHaveAttribute(
-      "aria-disabled",
-      "true",
+    expect(within(nav).getByRole("link", { name: "Calendar" })).toHaveAttribute(
+      "href",
+      "/calendar",
     );
-    expect(nav.querySelectorAll(".og-app-nav-item-disabled")).toHaveLength(5);
+    expect(nav.querySelectorAll(".og-app-nav-item-disabled")).toHaveLength(4);
   });
 });

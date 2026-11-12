@@ -6,7 +6,14 @@ import type {
   createCalendarRequestSchema,
   updateCalendarRequestSchema,
 } from "@offgrid/contracts";
+import type { ListStatus } from "../types.js";
 
 export type Calendar = ReturnType<typeof calendarSchema.parse>;
 export type CreateCalendarInput = ReturnType<typeof createCalendarRequestSchema.parse>;
 export type UpdateCalendarInput = ReturnType<typeof updateCalendarRequestSchema.parse>;
+
+export type CalendarsState = {
+  readonly calendars: readonly Calendar[];
+  readonly listStatus: ListStatus;
+  readonly refreshCalendars: () => Promise<void>;
+};

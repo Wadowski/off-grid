@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Outlet, useOutletContext } from "react-router-dom";
+import { useCalendars } from "../../calendars/use-calendars.js";
 import { signOut } from "../../session/sign-out.js";
 import { useSession } from "../../session/use-session.js";
-import type { CurrentUser, FamiliesContext } from "../../types.js";
+import type { CurrentUser, FamiliesContext, ShellContext } from "../../types.js";
 import { AppHeader } from "./components/app-header/app-header.js";
 import { AppSidebar } from "./components/app-sidebar/app-sidebar.js";
 import { MobileTabBar } from "./components/mobile-tab-bar/mobile-tab-bar.js";
@@ -13,6 +14,8 @@ import { appShellCss, appShellStyle } from "./styles.js";
 export const AppShell = () => {
   const session = useSession();
   const familiesState = useOutletContext<FamiliesContext>();
+  const calendarsState = useCalendars(session.status === "signedIn");
+  const shellContext: ShellContext = { ...familiesState, calendars: calendarsState };
   if (session.status !== "signedIn") {
     return null;
   }
@@ -28,7 +31,7 @@ export const AppShell = () => {
       <AppSidebar user={user} families={familiesState.families} onSignOut={() => void signOut()} />
       <AppHeader />
       <main className="og-shell-main">
-        <Outlet context={familiesState} />
+        <Outlet context={shellContext} />
       </main>
       <MobileTabBar />
     </div>

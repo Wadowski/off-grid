@@ -8,7 +8,12 @@ import type { FakeResponse } from "./types.js";
 export const stubApi = (responses: readonly FakeResponse[]) => {
   const queue = [...responses];
   const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
-    async () => {
+    async (input, init) => {
+      // The shell loads the calendar list on every mount. Answer it with an empty list
+      // so tests that do not script calendars keep their own response order.
+      if ((init?.method ?? "GET") === "GET" && String(input).endsWith("/calendars")) {
+        return jsonResponse({ status: 200, body: { calendars: [] } });
+      }
       const next = queue.shift();
       if (next === undefined) {
         throw new Error("Unexpected request");
