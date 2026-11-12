@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { ApiError } from "@offgrid/api-client";
 import { calendarSchema } from "@offgrid/contracts";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
@@ -119,6 +120,19 @@ describe("CreateCalendarPage", () => {
 
     expect(await screen.findByText("Calendar list screen")).toBeInTheDocument();
     expect(refreshCalendars).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the mapped message when the server reports the calendar as no longer available", async () => {
+    createCalendarMock.mockRejectedValue(new ApiError(404, "NOT_FOUND", "Not found."));
+    renderPage();
+
+    fillAndSubmit("Studio");
+
+    expect(
+      await screen.findByText("This calendar is no longer available."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Something went wrong. Try again.")).not.toBeInTheDocument();
+    expect(refreshCalendars).not.toHaveBeenCalled();
   });
 
   it("stays on the form and shows the failure text when saving fails", async () => {

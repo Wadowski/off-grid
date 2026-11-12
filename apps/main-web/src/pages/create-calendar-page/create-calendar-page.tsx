@@ -6,6 +6,10 @@ import { Text } from "@offgrid/ui";
 import { useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { createCalendar } from "../../calendars/calendar-api.js";
+import {
+  toCalendarErrorTextId,
+  type CalendarErrorTextId,
+} from "../../calendars/to-calendar-error-text-id.js";
 import type { CalendarSaveStatus } from "../../calendars/types.js";
 import { CalendarForm } from "../../forms/calendar-form/calendar-form.js";
 import type { CalendarFormValues } from "../../forms/calendar-form/types.js";
@@ -17,17 +21,20 @@ export const CreateCalendarPage = () => {
   const { families, calendars } = useOutletContext<ShellContext>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<CalendarSaveStatus>("idle");
+  const [errorTextId, setErrorTextId] = useState<CalendarErrorTextId | undefined>(undefined);
 
   const saveCalendar = async ({ name, color, familyId }: CalendarFormValues) => {
     setStatus("submitting");
+    setErrorTextId(undefined);
     try {
       await createCalendar(
         familyId === undefined
           ? { name, color }
           : { name, color, familyId: familyIdSchema.parse(familyId) },
       );
-    } catch {
+    } catch (error) {
       setStatus("failed");
+      setErrorTextId(toCalendarErrorTextId(error));
       return;
     }
     await calendars.refreshCalendars();
@@ -46,6 +53,7 @@ export const CreateCalendarPage = () => {
         mode="create"
         families={families}
         status={status}
+        errorTextId={errorTextId}
         submitTextId="calendar.calendars.create"
         onSubmit={saveCalendar}
         footer={
