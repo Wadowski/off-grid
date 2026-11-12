@@ -48,7 +48,6 @@ describe("calendar event replay", { timeout: 60_000 }, () => {
     return calendarId;
   };
 
-  // Replays one event name through the event bus and returns what each handler saw.
   const replayName = async (
     definition:
       typeof calendarEventCreatedV1 | typeof calendarEventUpdatedV1 | typeof calendarEventRemovedV1,

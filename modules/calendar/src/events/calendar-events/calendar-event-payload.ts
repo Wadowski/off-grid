@@ -3,7 +3,6 @@
 
 import type { CalendarEventRecord } from "../../types.js";
 
-// The full state of the event after a change, so a projection can upsert it.
 export const toCalendarEventPayload = (record: CalendarEventRecord) => ({
   eventId: record.eventId,
   calendarId: record.calendarId,

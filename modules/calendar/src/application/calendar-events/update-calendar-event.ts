@@ -21,15 +21,12 @@ import { toEventView, type CalendarEventView } from "./event-view.js";
 export type UpdateCalendarEventOutcome =
   CalendarOutcome<CalendarEventView> | { readonly outcome: "invalid-window" };
 
-// The timing fields that a change writes. An empty object leaves the window as it is.
 interface WindowChange {
   readonly isAllDay?: boolean;
   readonly startsAt?: Date;
   readonly endsAt?: Date;
 }
 
-// A moved event keeps its owner, so the target calendar must have the same owner.
-// The mismatch error is thrown before any write, so nothing is stored or published.
 export const updateCalendarEvent = (
   db: ModuleDatabase,
   userId: string,
@@ -80,9 +77,6 @@ const resolveTargetCalendar = async (
   return target.calendarId;
 };
 
-// Returns null when the window that results from the merge is not valid.
-// A change that sends only one bound takes the other bound from the stored event.
-// Sending the other kind of timing switches the event's kind.
 const windowChange = (
   current: CalendarEventRecord,
   input: CalendarEventUpdateInput,

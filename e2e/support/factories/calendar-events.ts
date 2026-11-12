@@ -8,7 +8,6 @@ import type { Session } from "./instance-admin.js";
 export type CalendarRecord = {
   name: string;
   id: string;
-  // The person who owns a personal calendar. Family calendars have no owner here.
   owner?: string;
   familyName?: string;
 };

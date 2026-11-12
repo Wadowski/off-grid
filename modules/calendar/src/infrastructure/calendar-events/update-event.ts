@@ -5,8 +5,6 @@ import type { ModuleTransaction } from "@offgrid/db";
 import type { CalendarEventChanges, CalendarEventRecord } from "../../types.js";
 import { toEventRecord } from "./event-record.js";
 
-// The version is incremented in the same UPDATE statement as the change, so the
-// returned row carries the version that the published event must use.
 export const updateEvent = async (
   tx: ModuleTransaction,
   eventId: string,

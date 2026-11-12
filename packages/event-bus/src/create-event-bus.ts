@@ -77,8 +77,6 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
     prune: async (retentionSeconds) => {
       const client = await settings.pool.connect();
       try {
-        // A registered subscriber that has not run yet has no cursor row, and the prune
-        // ignores missing rows. Creating its cursor at zero keeps the events it still needs.
         for (const subscription of subscriptions) {
           await lockCursor(client, subscription.name);
         }

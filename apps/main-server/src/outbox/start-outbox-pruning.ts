@@ -5,8 +5,6 @@ import type { EventBus } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
 import { OUTBOX_PRUNE_INTERVAL_MS, SECONDS_PER_DAY } from "../constants.js";
 
-// Removes delivered outbox events older than the retention. The bus deletes an event
-// only when every registered subscriber has passed it.
 export const startOutboxPruning = (
   eventBus: EventBus,
   retentionDays: number,

@@ -24,7 +24,6 @@ import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
 
-// "she" and "he" always mean the person who was signed in last.
 const PRONOUNS = ["she", "he"];
 const DEFAULT_START = "2026-11-20 10:00";
 const DEFAULT_END = "2026-11-20 11:00";
@@ -38,7 +37,6 @@ const state = (world: ScenarioWorld): CalendarEventsWorld => {
   return world.calendarEvents;
 };
 
-// Each family has a hidden admin account that creates it and invites the people the scenario names.
 const adminOf = (family: string): string => `${family} admin`;
 
 const ownerOf = (calendar: CalendarRecord): string =>
@@ -46,7 +44,6 @@ const ownerOf = (calendar: CalendarRecord): string =>
 
 const instant = (text: string): string => `${text.replace(" ", "T")}:00Z`;
 
-// Unmatched optional regex groups arrive as null, so null and undefined both mean absent.
 const endInstant = (start: string, endDate: string | null | undefined, endTime: string): string =>
   instant(`${endDate ?? start.slice(0, 10)} ${endTime}`);
 
@@ -55,7 +52,6 @@ const personNamed = async (
   who: string,
 ): Promise<{ name: string; session: { userId: string; accessToken: string } }> => {
   const scenario = state(world);
-  // Anna is the default: the shared "Anna is signed in" step does not record who is acting.
   const name = PRONOUNS.includes(who) ? (scenario.actor ?? "Anna") : who;
   let session = scenario.people[name];
   if (session === undefined) {
@@ -114,9 +110,6 @@ const joinFamily = async (world: ScenarioWorld, who: string, family: string): Pr
   scenario.members[family] = [...(scenario.members[family] ?? []), person.name];
 };
 
-// Membership reaches the calendar module through the event bus, so a new family calendar is
-// only readable by each member once the membership has been applied. Wait for that here, then
-// the scenario's own steps make the assertions.
 const waitUntilMembersCanRead = async (
   world: ScenarioWorld,
   family: string,
@@ -142,8 +135,6 @@ const createFamilyCalendar = async (
   await ensureFamily(world, family);
   const scenario = state(world);
   const admin = await personNamed(world, adminOf(family));
-  // The family creator's membership reaches the calendar module through the event bus, so the
-  // first calendar can be refused until that is applied. Retry the setup call until it is accepted.
   const { id } = await eventually(
     () =>
       createCalendarNamed(world.api, admin.session, {
@@ -237,9 +228,6 @@ const sameInstant = (actual: string, expected: string): void => {
   expect(new Date(actual).toISOString()).toBe(new Date(expected).toISOString());
 };
 
-// Given: setup through the public API.
-
-// Anna's sign-in step is shared with the sign-in scenarios (sign-in.steps.ts), so it is not repeated here.
 Given(/^(Ben|Carol) is signed in$/, async ({ world }, who: string) => {
   const person = await personNamed(world, who);
   state(world).actor = person.name;
@@ -321,8 +309,6 @@ Given(
     rememberCreated(world, body, response.status(), title, creator.name);
   },
 );
-
-// When: actions through the public API.
 
 When(
   /^(\w+) creates an event "([^"]*)" in "([^"]*)" from (\d{4}-\d{2}-\d{2} \d{2}:\d{2}) to (?:(\d{4}-\d{2}-\d{2}) )?(\d{2}:\d{2}) in UTC$/,
@@ -448,8 +434,6 @@ When(
     await recordResponse(world, response);
   },
 );
-
-// Then: checks, read back through the public API.
 
 Then(
   /^the event "([^"]*)" is (?:still )?stored with the start (\S+) and the end (\S+)$/,

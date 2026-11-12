@@ -10,7 +10,6 @@ export const publishCalendarEventRemoved = (
   owner: {
     readonly familyId: string | null;
     readonly userId: string | null;
-    // The version the removed row would have after its removal, so it sorts after the last update.
     readonly sourceVersion: number;
   },
   payload: { readonly eventId: string; readonly calendarId: string },

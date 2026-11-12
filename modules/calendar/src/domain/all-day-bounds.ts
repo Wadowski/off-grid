@@ -33,7 +33,6 @@ const zonedParts = (instant: Date, timeZone: string): ZonedParts => {
   };
 };
 
-// Offset of the zone from UTC at this instant, in milliseconds.
 const offsetAt = (instant: number, timeZone: string): number => {
   const instantSeconds = Math.floor(instant / 1000) * 1000;
   const parts = zonedParts(new Date(instantSeconds), timeZone);
@@ -55,7 +54,6 @@ const parseDay = (date: string): { year: number; month: number; day: number } =>
 
 const formatDay = (utcMs: number): string => new Date(utcMs).toISOString().slice(0, 10);
 
-// The UTC instant of local midnight at the start of a calendar date in a zone.
 export const localMidnight = (date: string, timeZone: string): Date => {
   const { year, month, day } = parseDay(date);
   const asUtc = Date.UTC(year, month - 1, day);
@@ -78,12 +76,10 @@ export const allDayBounds = (input: {
   endsAt: localMidnight(nextDay(input.endDate), input.timeZone),
 });
 
-// The calendar date an instant falls on in a zone.
 export const localDate = (instant: Date, timeZone: string): string => {
   const { year, month, day } = zonedParts(instant, timeZone);
   return formatDay(Date.UTC(year, month - 1, day));
 };
 
-// The inclusive last date covered by an all-day window that ends at endsAt.
 export const lastDayOf = (endsAt: Date, timeZone: string): string =>
   localDate(new Date(endsAt.getTime() - 1), timeZone);

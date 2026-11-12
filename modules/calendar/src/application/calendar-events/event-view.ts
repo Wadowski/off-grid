@@ -5,7 +5,6 @@ import { lastDayOf, localDate } from "../../domain/all-day-bounds.js";
 import type { CalendarEventRecord } from "../../types.js";
 
 export interface CalendarEventView extends CalendarEventRecord {
-  // Calendar dates in the caller's zone. Set only for all-day events.
   readonly startDate: string | null;
   readonly endDate: string | null;
 }
