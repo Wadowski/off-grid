@@ -4,8 +4,11 @@
 import { request } from "@playwright/test";
 import { provisionRunAdmin } from "./factories/instance-admin.js";
 import {
+  assertPortsFree,
   bringUpStack,
+  e2ePortChecks,
   newComposeProjectName,
+  stopLeftoverRunStacks,
   targetBaseUrl,
   tearDownStack,
   waitForReady,
@@ -26,6 +29,9 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     await provisionOnRunningStack();
     return async () => {};
   }
+
+  await stopLeftoverRunStacks();
+  await assertPortsFree(e2ePortChecks());
 
   const project = newComposeProjectName();
   process.env.E2E_COMPOSE_PROJECT = project;
