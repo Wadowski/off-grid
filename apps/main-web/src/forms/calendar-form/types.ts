@@ -3,6 +3,7 @@
 
 import type { FamilySummary } from "../../types.js";
 import type { CalendarColor } from "../../calendars/calendar-accents.js";
+import type { CalendarErrorTextId } from "../../calendars/to-calendar-error-text-id.js";
 import type { CalendarSaveStatus } from "../../calendars/types.js";
 import type { ReactNode } from "react";
 
@@ -15,6 +16,7 @@ export type CalendarFormValues = {
 type CalendarFormBase = {
   readonly initialValues?: { readonly name: string; readonly color: CalendarColor };
   readonly status: CalendarSaveStatus;
+  readonly errorTextId?: CalendarErrorTextId;
   readonly onSubmit: (values: CalendarFormValues) => Promise<void>;
   readonly submitTextId: "calendar.calendars.create" | "calendar.actions.save";
   readonly footer?: ReactNode;

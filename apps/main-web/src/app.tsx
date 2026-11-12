@@ -24,6 +24,7 @@ import { AdminEmailPage } from "./pages/admin-email-page/admin-email-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { CalendarsPage } from "./pages/calendars-page/calendars-page.js";
 import { CreateCalendarPage } from "./pages/create-calendar-page/create-calendar-page.js";
+import { EditCalendarPage } from "./pages/edit-calendar-page/edit-calendar-page.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
 import { FamilyDataLayout } from "./families/family-data-layout/family-data-layout.js";
 import { FamilyOnboardingGate } from "./families/family-onboarding-gate/family-onboarding-gate.js";
@@ -60,6 +61,7 @@ export const App = () => {
                 <Route path="apps" element={<AppsPage />} />
                 <Route path="calendar" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />
+                <Route path="calendar/:calendarId" element={<EditCalendarPage />} />
                 <Route path="families/new" element={<CreateFamilySpacePage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="settings/families" element={<SettingsFamiliesPage />}>

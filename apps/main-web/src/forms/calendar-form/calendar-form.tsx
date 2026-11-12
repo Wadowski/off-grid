@@ -15,7 +15,7 @@ import type { CalendarFormProps } from "./types.js";
 import { validateCalendarName, type CalendarNameErrorTextId } from "./validate-calendar-name.js";
 
 export const CalendarForm = (props: CalendarFormProps) => {
-  const { mode, status, onSubmit, submitTextId, footer, initialValues } = props;
+  const { mode, status, errorTextId, onSubmit, submitTextId, footer, initialValues } = props;
   const [name, setName] = useState(initialValues?.name ?? "");
   const [color, setColor] = useState<CalendarColor>(initialValues?.color ?? "blue");
   const [familyId, setFamilyId] = useState("");
@@ -70,7 +70,9 @@ export const CalendarForm = (props: CalendarFormProps) => {
         <Text variant="action" textId={submitTextId} />
       </Button>
       <div role="status" data-testid="calendar-status">
-        {status === "failed" && <Text variant="status" textId="calendar.errors.failed" />}
+        {status === "failed" && (
+          <Text variant="status" textId={errorTextId ?? "calendar.errors.failed"} />
+        )}
       </div>
       {footer !== undefined && <div style={calendarFormFooterStyle}>{footer}</div>}
     </form>

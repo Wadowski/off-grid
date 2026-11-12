@@ -11,7 +11,7 @@ import { CalendarForm } from "../../forms/calendar-form/calendar-form.js";
 import type { CalendarFormValues } from "../../forms/calendar-form/types.js";
 import type { ShellContext } from "../../types.js";
 import { AccountIntro } from "../create-account-page/components/account-intro/account-intro.js";
-import { calendarPageStyle } from "./styles.js";
+import { calendarCardPageStyle } from "../../calendars/styles.js";
 
 export const CreateCalendarPage = () => {
   const { families, calendars } = useOutletContext<ShellContext>();
@@ -35,7 +35,7 @@ export const CreateCalendarPage = () => {
   };
 
   return (
-    <div style={calendarPageStyle}>
+    <div style={calendarCardPageStyle}>
       <AccountIntro
         icon="calendar_today"
         pillTextId="calendar.heading"
