@@ -2,22 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { tokens } from "@offgrid/ui";
+import type { CSSProperties } from "react";
 
-export const calendarLayoutCss = `
-.og-calendar-layout {
-  display: grid;
-  grid-template-columns: 14rem minmax(0, 1fr);
-  align-items: start;
-  gap: ${tokens.space[6]};
-}
+export const calendarLayoutStyle = (narrow: boolean): CSSProperties => ({
+  display: "grid",
+  gridTemplateColumns: narrow ? "minmax(0, 1fr)" : "14rem minmax(0, 1fr)",
+  alignItems: "start",
+  gap: tokens.space[6],
+});
 
-.og-calendar-layout-content {
-  min-width: 0;
-}
-
-@media (max-width: 899px) {
-  .og-calendar-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-`;
+export const calendarLayoutContentStyle: CSSProperties = {
+  minWidth: 0,
+};

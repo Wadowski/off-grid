@@ -5,7 +5,7 @@ import { Text } from "@offgrid/ui";
 import { NavLink } from "react-router-dom";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
 import type { CalendarSidebarListProps } from "./types.js";
-import { calendarListStyle, colorDotStyle } from "./styles.js";
+import { calendarListStyle, calendarNameStyle, calendarRowStyle, colorDotStyle } from "./styles.js";
 
 export const CalendarSidebarList = ({ calendars }: CalendarSidebarListProps) => {
   if (calendars.length === 0) {
@@ -19,14 +19,15 @@ export const CalendarSidebarList = ({ calendars }: CalendarSidebarListProps) => 
           <NavLink
             to={`/calendar/${calendar.id}`}
             end
-            className="og-calendar-sidebar-row og-focusable"
+            className="og-focusable"
+            style={({ isActive }) => calendarRowStyle(isActive)}
             data-testid="sidebar-calendar-row"
           >
             <span
               aria-hidden="true"
               style={colorDotStyle(calendarAccentColor(calendar.color).background)}
             />
-            <span className="og-calendar-sidebar-name">
+            <span style={calendarNameStyle}>
               <Text variant="body" value={calendar.name} />
             </span>
           </NavLink>
