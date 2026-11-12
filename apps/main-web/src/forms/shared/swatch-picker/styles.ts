@@ -3,17 +3,15 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
-import type { FamilyAccent } from "@offgrid/contracts";
-import { FAMILY_ACCENT_COLORS } from "../../../../families/family-appearance.js";
 
-export const accentSwatchesStyle: CSSProperties = {
+export const swatchesStyle: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   alignItems: "center",
   gap: tokens.space[2],
 };
 
-const accentSwatchBaseStyle: CSSProperties = {
+const swatchBaseStyle: CSSProperties = {
   width: "1.5rem",
   height: "1.5rem",
   borderRadius: tokens.radius.full,
@@ -22,8 +20,8 @@ const accentSwatchBaseStyle: CSSProperties = {
   borderColor: "transparent",
 };
 
-export const accentSwatch = (accent: FamilyAccent, selected: boolean): CSSProperties => ({
-  ...accentSwatchBaseStyle,
-  background: FAMILY_ACCENT_COLORS[accent].background,
+export const swatchStyle = (background: string, selected: boolean): CSSProperties => ({
+  ...swatchBaseStyle,
+  background,
   borderColor: selected ? cssVar("color-fg") : "transparent",
 });

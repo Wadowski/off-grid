@@ -27,7 +27,7 @@ export const familyNavItem: AppNavItem = {
 
 export const appNavItems: readonly AppNavItem[] = [
   familyNavItem,
-  { id: "calendar", labelTextId: "nav.calendar", iconName: "calendar_today" },
+  { id: "calendar", labelTextId: "nav.calendar", iconName: "calendar_today", path: "/calendar" },
   { id: "notes", labelTextId: "nav.notes", iconName: "description" },
   { id: "smart-lists", labelTextId: "nav.smartLists", iconName: "checklist" },
   { id: "vault", labelTextId: "nav.vault", iconName: "lock" },

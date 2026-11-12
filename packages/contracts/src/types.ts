@@ -12,6 +12,8 @@ import type { passwordResetRequestSchema } from "./password-reset-request-schema
 import type { adminUserSchema } from "./admin-user-schema.js";
 import type { mailSettingsRequestSchema } from "./mail-settings-request-schema.js";
 import type { instanceSettingsUpdateSchema } from "./instance-settings-update-schema.js";
+import type { createCalendarRequestSchema } from "./create-calendar-request-schema.js";
+import type { updateCalendarRequestSchema } from "./update-calendar-request-schema.js";
 import type { familyIdSchema } from "./family-id-schema.js";
 import type { timestampSchema } from "./timestamp-schema.js";
 import type { userIdSchema } from "./user-id-schema.js";
@@ -33,6 +35,8 @@ export type PasswordRecoveryOptions = z.infer<typeof passwordRecoveryOptionsSche
 export type AdminUser = z.infer<typeof adminUserSchema>;
 export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;
 export type InstanceSettingsUpdate = z.infer<typeof instanceSettingsUpdateSchema>;
+export type CreateCalendarRequest = z.infer<typeof createCalendarRequestSchema>;
+export type UpdateCalendarRequest = z.infer<typeof updateCalendarRequestSchema>;
 export type NewCalendarEventInput = z.infer<typeof createCalendarEventRequestSchema>;
 export type CalendarEventUpdateInput = z.infer<typeof updateCalendarEventRequestSchema>;
 export type TimeZoneSetting = z.infer<typeof calendarTimeZoneSchema>;

@@ -8,6 +8,7 @@ export type AccountIntroProps = {
     | "createAccount.pill.closed"
     | "createAccount.pill.recovery"
     | "firstFamily.pill"
+    | "calendar.heading"
     | "forgotPassword.pill"
     | "joinSpace.pill"
     | "resetPassword.pill"
@@ -16,6 +17,8 @@ export type AccountIntroProps = {
     | "createAccount.heading"
     | "createAccount.firstRunHeading"
     | "createAccount.closed.heading"
+    | "calendar.calendars.editHeading"
+    | "calendar.calendars.newHeading"
     | "createAccount.recovery.heading"
     | "firstFamily.heading"
     | "forgotPassword.heading"
@@ -23,7 +26,8 @@ export type AccountIntroProps = {
     | "joinSpace.previewHeading"
     | "resetPassword.heading"
     | "signIn.heading";
-  readonly bodyTextId:
+  readonly bodyTextId?:
+    | "calendar.calendars.newBody"
     | "createAccount.body"
     | "createAccount.firstRunBody"
     | "createAccount.closed.body"

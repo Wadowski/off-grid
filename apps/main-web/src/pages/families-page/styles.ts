@@ -8,3 +8,11 @@ export const familiesPageStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[4],
 };
+
+export const narrowCardPageStyle: CSSProperties = {
+  ...familiesPageStyle,
+  maxWidth: "30rem",
+  minWidth: 0,
+  marginInline: "auto",
+  textAlign: "center",
+};

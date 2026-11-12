@@ -18,6 +18,8 @@ export type ScenarioWorld = {
   api: APIRequestContext;
   healthResponse?: APIResponse;
   families: Family[];
+  calendarIds?: Record<string, string>;
+  accessibilityViolations?: string[];
   userId?: string;
   lastError?: ApiError;
   registration?: RegistrationResult;

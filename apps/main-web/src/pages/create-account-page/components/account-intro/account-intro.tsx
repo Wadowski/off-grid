@@ -45,9 +45,11 @@ export const AccountIntro = ({
       <div style={introHeadingStyle}>
         <Text variant="heading" textId={headingTextId} />
       </div>
-      <div style={introBodyStyle(narrow)}>
-        <Text variant="body" textId={bodyTextId} />
-      </div>
+      {bodyTextId !== undefined && (
+        <div style={introBodyStyle(narrow)}>
+          <Text variant="body" textId={bodyTextId} />
+        </div>
+      )}
     </div>
   );
 };

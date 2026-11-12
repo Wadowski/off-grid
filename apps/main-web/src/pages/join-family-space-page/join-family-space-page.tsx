@@ -10,7 +10,7 @@ import { previewFamilyInvitation } from "../../families/preview-family-invitatio
 import { switchActiveFamily } from "../../families/switch-active-family.js";
 import type { FamiliesContext } from "../../types.js";
 import { AccountIntro } from "../create-account-page/components/account-intro/account-intro.js";
-import { createFamilySpacePageStyle } from "../create-family-space-page/styles.js";
+import { narrowCardPageStyle } from "../families-page/styles.js";
 import { InvitationPreviewCard } from "./components/invitation-preview-card/invitation-preview-card.js";
 import { JoinCodeForm } from "./components/join-code-form/join-code-form.js";
 import type { JoinErrorTextId } from "./types.js";
@@ -72,7 +72,7 @@ export const JoinFamilySpacePage = () => {
   };
 
   return (
-    <div style={createFamilySpacePageStyle}>
+    <div style={narrowCardPageStyle}>
       <AccountIntro
         icon="diversity_3"
         pillTextId="joinSpace.pill"

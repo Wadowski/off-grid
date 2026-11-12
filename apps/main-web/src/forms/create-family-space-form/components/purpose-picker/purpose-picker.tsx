@@ -4,7 +4,7 @@
 import { Radio, Text, cssVar } from "@offgrid/ui";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { SPACE_PURPOSE_OPTIONS } from "../../constants.js";
-import { pickerSectionStyle } from "../../styles.js";
+import { pickerSectionStyle } from "../../../shared/styles.js";
 import type { PurposePickerProps } from "./types.js";
 import { purposeCardStyle, purposeGroupStyle, purposeOptionStyle } from "./styles.js";
 

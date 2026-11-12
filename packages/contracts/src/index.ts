@@ -45,6 +45,7 @@ export * from "./family-params-schema.js";
 export * from "./calendar-color-schema.js";
 export * from "./calendar-id-schema.js";
 export * from "./calendar-params-schema.js";
+export * from "./calendar-routes.js";
 export * from "./calendar-schema.js";
 export * from "./calendar-list-schema.js";
 export * from "./create-calendar-request-schema.js";
