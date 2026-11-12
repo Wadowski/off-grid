@@ -14,7 +14,7 @@ Feature: Calendar management screens
     When I open the calendar from the navigation
     Then I see the calendars list
 
-  Scenario: The sidebar lists every calendar I can access with its color dot
+  Scenario: The sidebar lists my calendar with its color dot
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I open the home page
@@ -64,6 +64,7 @@ Feature: Calendar management screens
 
   Scenario: Opening another person's calendar shows that it is no longer available
     Given I am a user with a family named "The Smiths"
+    And another person has a personal calendar that I cannot access
     When I open the edit screen for a calendar I cannot access
     Then I see the message "This calendar is no longer available."
 

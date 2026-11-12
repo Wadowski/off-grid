@@ -16,6 +16,8 @@ const NEW_CALENDAR_PATH = "/calendar/new";
 const NAME_PLACEHOLDER = "Enter a calendar name";
 const CALENDAR_ROW = "calendar-row";
 const SIDEBAR_ROW = "sidebar-calendar-row";
+// World key for the calendar owned by another person, which the signed-in person cannot access.
+const OTHER_PERSON_CALENDAR_KEY = "other-person-calendar";
 
 // Swatch colors as rendered by the browser (the family accent colors the API colors map to).
 const RGB_BY_COLOR: Record<string, string> = {
@@ -201,13 +203,19 @@ Then("I do not see a delete button", async ({ page }) => {
   await expect(page.getByTestId("calendar-delete")).toHaveCount(0);
 });
 
-When("I open the edit screen for a calendar I cannot access", async ({ page, world }) => {
+Given("another person has a personal calendar that I cannot access", async ({ world }) => {
   const other = await accountSessionOf(world.api, "Ben Calendars");
   const created = await createCalendar(world.api, other.session, {
     name: "Ben's private calendar",
     color: "rose",
   });
-  await page.goto(`${webBaseUrl()}${CALENDARS_PATH}/${created.id}`);
+  world.calendarIds = { ...world.calendarIds, [OTHER_PERSON_CALENDAR_KEY]: created.id };
+});
+
+When("I open the edit screen for a calendar I cannot access", async ({ page, world }) => {
+  await page.goto(
+    `${webBaseUrl()}${CALENDARS_PATH}/${calendarIdOf(world, OTHER_PERSON_CALENDAR_KEY)}`,
+  );
 });
 
 When("I open the calendars list at a phone width of 375 pixels", async ({ page }) => {
