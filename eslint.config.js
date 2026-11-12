@@ -48,5 +48,31 @@ export default tseslint.config(
       globals: { module: "readonly" },
     },
   },
+  {
+    files: [
+      "apps/main-web/src/**/calendar*/**/*.{ts,tsx}",
+      "apps/main-web/src/**/*calendar*.{ts,tsx}",
+    ],
+    ignores: ["**/*.test.*"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXText[value=/\\S/]",
+          message: "Use Text with textId for calendar UI text.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name=/^(label|placeholder|title|error|aria-label)$/] > Literal",
+          message: "Use a catalog key through Text or t().",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name=/^(label|placeholder|title|error|aria-label)$/] > JSXExpressionContainer > Literal[value=/\\S/]",
+          message: "Use a catalog key through Text or t().",
+        },
+      ],
+    },
+  },
   prettier,
 );
