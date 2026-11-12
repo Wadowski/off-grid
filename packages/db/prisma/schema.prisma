@@ -33,6 +33,16 @@ model FamilyMember {
   @@schema("family")
 }
 
+model FamilyMembershipVersion {
+  familyId      String @map("family_id") @db.Uuid
+  userId        String @map("user_id") @db.Uuid
+  sourceVersion Int    @map("source_version")
+
+  @@id([familyId, userId])
+  @@map("membership_version")
+  @@schema("family")
+}
+
 model FamilyActiveFamily {
   sessionId  String       @id @map("session_id") @db.Uuid
   userId     String       @map("user_id") @db.Uuid
@@ -230,6 +240,17 @@ model Calendar {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("calendar")
+  @@schema("calendar")
+}
+
+model CalendarFamilyMembership {
+  familyId      String  @map("family_id") @db.Uuid
+  userId        String  @map("user_id") @db.Uuid
+  sourceVersion Int     @map("source_version")
+  isMember      Boolean @map("is_member")
+
+  @@id([familyId, userId])
+  @@map("family_membership")
   @@schema("calendar")
 }
 

@@ -13,6 +13,8 @@ import {
   type EventBus,
   type HandlerContext,
 } from "./index.js";
+import { defineEvent } from "@offgrid/contracts";
+import { z } from "zod";
 import { familyCreated } from "../test/family-created.js";
 import { startTestDatabase } from "../test/start-test-database.js";
 import { waitFor } from "../test/wait-for.js";
@@ -274,6 +276,76 @@ describe("delivery", () => {
       "SELECT subscriber, attempts, error_name FROM outbox.dead_letter",
     );
     expect(rows).toEqual([{ subscriber: "flaky", attempts: 3, error_name: "Error" }]);
+  });
+
+  it("delivers events of several types to one subscriber in publish order", async () => {
+    const familyRenamed = defineEvent({
+      name: "family-renamed-v1",
+      version: 1,
+      schema: z.object({ name: z.string().min(1).max(100) }),
+    });
+    const seen: string[] = [];
+    bus.subscribeToEvents({
+      name: "both-types",
+      events: [familyCreated, familyRenamed],
+      runAs: "family",
+      handler: async (event) => {
+        seen.push(`${event.type}:${event.payload.name}`);
+      },
+    });
+    await publishCommitted(family, envelope(1, "Alpha"));
+    const client = await family.connect();
+    try {
+      await client.query("BEGIN");
+      await publish(client, familyRenamed, {
+        ...envelope(2, "Beta"),
+        type: familyRenamed.name,
+      });
+      await client.query("COMMIT");
+    } finally {
+      client.release();
+    }
+    await publishCommitted(family, envelope(3, "Gamma"));
+
+    await bus.deliverPending();
+
+    expect(seen).toEqual([
+      "family-created-v1:Alpha",
+      "family-renamed-v1:Beta",
+      "family-created-v1:Gamma",
+    ]);
+  });
+
+  it("halts a subscriber at an event it cannot apply, then resumes once the failure is gone", async () => {
+    let failing = true;
+    const applied: string[] = [];
+    bus.subscribe({
+      name: "strict",
+      event: familyCreated,
+      runAs: "family",
+      onFailure: "halt",
+      handler: async (event) => {
+        if (failing && event.payload.name === "Broken") {
+          throw new Error("projection unavailable");
+        }
+        applied.push(event.payload.name);
+      },
+    });
+    await publishCommitted(family, envelope(1, "Alpha"));
+    await publishCommitted(family, envelope(2, "Broken"));
+    await publishCommitted(family, envelope(3, "Gamma"));
+
+    await bus.deliverPending();
+
+    expect(applied).toEqual(["Alpha"]);
+    expect(errors.list()).toHaveLength(1);
+    const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM outbox.dead_letter");
+    expect(rows[0]).toEqual({ n: 0 });
+
+    failing = false;
+    await bus.deliverPending();
+
+    expect(applied).toEqual(["Alpha", "Alpha", "Broken", "Gamma"]);
   });
 
   it("keeps the projection on the newest source version", async () => {

@@ -3,11 +3,11 @@
 
 import { randomUUID } from "node:crypto";
 import { withFamilyContext, withUserContext, type ModuleTransaction } from "@offgrid/db";
-import { withTransaction } from "@offgrid/event-bus";
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
-import type { CalendarColor } from "../../domain/calendar-colors.js";
+import type { CalendarColor } from "../../types.js";
 import { createDefaultCalendar } from "../../application/calendars/create-default-calendar.js";
 import { deleteCalendar } from "./delete-calendar.js";
 import { insertCalendar } from "./insert-calendar.js";
@@ -42,7 +42,7 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     });
 
   const createDefaultFor = (userId: string) =>
-    withTransaction(db.pool, (client) => createDefaultCalendar(client, userId));
+    db.db.$transaction((tx) => createDefaultCalendar(tx, userId));
 
   const calendarRow = async (calendarId: string) => {
     const { rows } = await db.admin.query<{ name: string; color: string }>(

@@ -40,10 +40,10 @@ describe("removeFamilyMember", { timeout: 60_000 }, () => {
     expect(await getFamily(db.db, member, family.id)).toEqual({ outcome: "not-found" });
     expect(await listMyFamilies(db.db, member)).toEqual([]);
     const { rows } = await db.admin.query(
-      "SELECT count(*)::int AS n FROM outbox.event WHERE type = 'family-member-removed-v1' AND family_id = $1",
+      "SELECT count(*)::int AS n, max(source_version)::int AS version FROM outbox.event WHERE type = 'family-member-removed-v1' AND family_id = $1",
       [family.id],
     );
-    expect(rows[0]).toEqual({ n: 1 });
+    expect(rows[0]).toEqual({ n: 1, version: 1 });
   });
 
   it("lets a member leave the family, and then they no longer see it", async () => {

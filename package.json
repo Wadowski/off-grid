@@ -24,6 +24,7 @@
     "e2e": "pnpm --filter @offgrid/e2e e2e",
     "e2e:smoke": "pnpm --filter @offgrid/e2e e2e:smoke",
     "e2e:wip": "pnpm --filter @offgrid/e2e e2e:wip",
+    "e2e:affected": "pnpm --filter @offgrid/e2e e2e:affected",
     "e2e:stack:up": "pnpm --filter @offgrid/e2e e2e:stack:up",
     "e2e:stack:down": "pnpm --filter @offgrid/e2e e2e:stack:down",
     "lint:features": "pnpm --filter @offgrid/e2e lint:features",

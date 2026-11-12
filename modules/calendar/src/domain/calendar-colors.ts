@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-export const CALENDAR_COLORS = ["blue", "teal", "green", "amber", "rose", "violet"] as const;
+import { CALENDAR_COLORS } from "@offgrid/contracts";
 
-export type CalendarColor = (typeof CALENDAR_COLORS)[number];
+export { CALENDAR_COLORS };
