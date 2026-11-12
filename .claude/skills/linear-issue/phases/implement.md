@@ -20,7 +20,7 @@ Input from the main session: a `pickup-report` block (issue ID, branch, worktree
 - Add or update the tests the plan lists.
 - Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
 - Add or update tests for the behavior.
-- Run the checks that CI runs and fix failures: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, plus `pnpm build` if build output could be affected. Run them scoped (`pnpm --filter <pkg> ...` / `turbo --filter`) when only one package changed, then the full set once before handing over.
+- Run the checks that CI runs and fix failures: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, plus `pnpm build` if build output could be affected. Run `BASE_REF=origin/main pnpm e2e:affected` for the scenarios the change touches; the full e2e suite is not run on a branch. Run them scoped (`pnpm --filter <pkg> ...` / `turbo --filter`) when only one package changed, then the full set once before handing over.
 - If the change affects a published package, add a changeset (`pnpm changeset`) the way existing ones in `.changeset/` look.
 - Commit in logical commits on the branch: `git commit -s` (DCO sign-off, see CONTRIBUTING.md). Messages: imperative, reference the issue (`... (OG-16)`), matching `git log` style. Do not add attribution or co-author lines. Never use `--no-verify`.
 

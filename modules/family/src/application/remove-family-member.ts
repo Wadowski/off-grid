@@ -5,6 +5,7 @@ import { familyMemberRemovedV1 } from "@offgrid/contracts";
 import type { ModuleDatabase } from "@offgrid/db";
 import { keepsAnAdmin } from "../domain/keeps-an-admin.js";
 import { publishFamilyEvent } from "../events/publish-family-event.js";
+import { bumpMembershipVersion } from "../infrastructure/bump-membership-version.js";
 import { countAdmins } from "../infrastructure/count-admins.js";
 import { deleteMembership } from "../infrastructure/delete-membership.js";
 import { findMembership } from "../infrastructure/find-membership.js";
@@ -34,6 +35,13 @@ export const removeFamilyMember = async (
       return { outcome: "last-admin" };
     }
     await deleteMembership(tx, familyId, targetUserId);
-    await publishFamilyEvent(tx, familyMemberRemovedV1, familyId, { userId: targetUserId });
+    const sourceVersion = await bumpMembershipVersion(tx, familyId, targetUserId);
+    await publishFamilyEvent(
+      tx,
+      familyMemberRemovedV1,
+      familyId,
+      { userId: targetUserId },
+      sourceVersion,
+    );
     return { outcome: "found", value: target };
   });

@@ -2,27 +2,29 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ClientBase } from "pg";
-import { parseEvent } from "@offgrid/contracts";
-import type { Subscription, StoredEvent, DeliverySettings, EventOf } from "./types.js";
+import { parseEvent, type AnyEventDefinition } from "@offgrid/contracts";
+import type { Delivery, StoredEvent, DeliverySettings, EventOf } from "./types.js";
 import { toEnvelope } from "./to-envelope.js";
 import { deadLetter } from "./dead-letter.js";
 import { runHandler } from "./run-handler.js";
 import { sleep } from "./sleep.js";
+import { SubscriptionHalted } from "./subscription-halted.js";
 
 export const deliverOne = async (
   busClient: ClientBase,
-  subscription: Subscription,
+  subscription: Delivery,
   stored: StoredEvent,
   settings: DeliverySettings,
 ): Promise<void> => {
-  if (stored.type !== subscription.event.name) {
+  const definition = subscription.events.find((candidate) => candidate.name === stored.type);
+  if (definition === undefined) {
     return;
   }
-  let event: EventOf<typeof subscription.event>;
+  let event: EventOf<AnyEventDefinition>;
   try {
-    event = parseEvent(subscription.event, toEnvelope(stored));
+    event = parseEvent(definition, toEnvelope(stored));
   } catch (error) {
-    await deadLetter(busClient, subscription, stored, 1, error, settings);
+    await giveUp(busClient, subscription, stored, 1, error, settings);
     return;
   }
   for (let attempt = 1; ; attempt += 1) {
@@ -31,10 +33,30 @@ export const deliverOne = async (
       return;
     } catch (error) {
       if (attempt >= settings.maxAttempts) {
-        await deadLetter(busClient, subscription, stored, attempt, error, settings);
+        await giveUp(busClient, subscription, stored, attempt, error, settings);
         return;
       }
       await sleep(settings.retryDelayMs(attempt));
     }
   }
+};
+
+const giveUp = async (
+  busClient: ClientBase,
+  subscription: Delivery,
+  stored: StoredEvent,
+  attempts: number,
+  error: unknown,
+  settings: DeliverySettings,
+): Promise<void> => {
+  if (subscription.onFailure === "halt") {
+    settings.errorSink.record(error, {
+      subscriber: subscription.name,
+      event_id: stored.id,
+      event_sequence: stored.sequence,
+      attempts,
+    });
+    throw new SubscriptionHalted(subscription.name, stored.sequence, error);
+  }
+  await deadLetter(busClient, subscription, stored, attempts, error, settings);
 };

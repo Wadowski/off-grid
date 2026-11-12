@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ClientBase } from "pg";
-import type { Subscription, StoredEvent, DeliverySettings } from "./types.js";
+import type { Delivery, StoredEvent, DeliverySettings } from "./types.js";
 import { recordDeadLetter } from "./record-dead-letter.js";
 
 export const deadLetter = async (
   client: ClientBase,
-  subscription: Subscription,
+  subscription: Delivery,
   stored: StoredEvent,
   attempts: number,
   error: unknown,

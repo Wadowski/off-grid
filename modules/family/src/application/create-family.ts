@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import { familyMemberAddedV1 } from "@offgrid/contracts";
 import { withFamilyContext, type ModuleDatabase } from "@offgrid/db";
+import { publishFamilyEvent } from "../events/publish-family-event.js";
 import { publishFamilyCreated } from "../events/publish-family-created.js";
 import { insertFamily } from "../infrastructure/insert-family.js";
+import { bumpMembershipVersion } from "../infrastructure/bump-membership-version.js";
 import { insertMembership } from "../infrastructure/insert-membership.js";
 import type { Family, FamilyAppearance } from "../types.js";
 
@@ -25,6 +28,14 @@ export const createFamily = async (
     const family = await insertFamily(tx, { id, name, ...appearance });
     await insertMembership(tx, id, creatorUserId, "admin");
     await publishFamilyCreated(tx, { familyId: id, name });
+    const sourceVersion = await bumpMembershipVersion(tx, id, creatorUserId);
+    await publishFamilyEvent(
+      tx,
+      familyMemberAddedV1,
+      id,
+      { userId: creatorUserId, role: "admin" },
+      sourceVersion,
+    );
     return family;
   });
 };

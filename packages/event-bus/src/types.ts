@@ -11,11 +11,30 @@ export interface HandlerContext {
   readonly tx: ClientBase;
 }
 
+export type FailurePolicy = "skip" | "halt";
+
 export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition> {
   readonly name: string;
   readonly event: D;
   readonly runAs: string;
+  readonly onFailure?: FailurePolicy;
   handler(event: EventOf<D>, context: HandlerContext): Promise<void>;
+}
+
+export interface MultiEventSubscription<Ds extends readonly AnyEventDefinition[]> {
+  readonly name: string;
+  readonly events: Ds;
+  readonly runAs: string;
+  readonly onFailure?: FailurePolicy;
+  handler(event: EventOf<Ds[number]>, context: HandlerContext): Promise<void>;
+}
+
+export interface Delivery {
+  readonly name: string;
+  readonly events: readonly AnyEventDefinition[];
+  readonly runAs: string;
+  readonly onFailure: FailurePolicy;
+  handler(event: EventOf<AnyEventDefinition>, context: HandlerContext): Promise<void>;
 }
 
 export interface EventTransport<D extends AnyEventDefinition = AnyEventDefinition> {
@@ -34,6 +53,9 @@ export interface EventBusOptions {
 
 export interface EventBus {
   subscribe<D extends AnyEventDefinition>(subscription: Subscription<D>): void;
+  subscribeToEvents<const Ds extends readonly AnyEventDefinition[]>(
+    subscription: MultiEventSubscription<Ds>,
+  ): void;
   subscribeTransport<D extends AnyEventDefinition>(options: {
     readonly name: string;
     readonly event: D;
@@ -118,4 +140,10 @@ export interface DeliveryLoopState {
 export interface DeliveryLoop {
   start(): Promise<void>;
   stop(): Promise<void>;
+}
+
+export interface EventOwner {
+  readonly familyId?: string | null;
+  readonly userId?: string | null;
+  readonly sourceVersion?: number;
 }

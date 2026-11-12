@@ -46,7 +46,7 @@ describe("createDefaultCalendar", { timeout: 60_000 }, () => {
   it("creates a personal blue default calendar for a new user", async () => {
     const userId = randomUUID();
 
-    await inUserContext(userId, (client) => createDefaultCalendar(client, userId));
+    await db.db.$transaction((tx) => createDefaultCalendar(tx, userId));
 
     expect(await defaultCalendarsOf(userId)).toEqual([
       { user_id: userId, family_id: null, name: "Personal", color: "blue", is_default: true },
@@ -56,8 +56,8 @@ describe("createDefaultCalendar", { timeout: 60_000 }, () => {
   it("creates no second default calendar when the user already has one", async () => {
     const userId = randomUUID();
 
-    await inUserContext(userId, (client) => createDefaultCalendar(client, userId));
-    await inUserContext(userId, (client) => createDefaultCalendar(client, userId));
+    await db.db.$transaction((tx) => createDefaultCalendar(tx, userId));
+    await db.db.$transaction((tx) => createDefaultCalendar(tx, userId));
 
     expect(await defaultCalendarsOf(userId)).toHaveLength(1);
   });
@@ -66,7 +66,7 @@ describe("createDefaultCalendar", { timeout: 60_000 }, () => {
     const userId = randomUUID();
     const otherUserId = randomUUID();
 
-    await inUserContext(userId, (client) => createDefaultCalendar(client, userId));
+    await db.db.$transaction((tx) => createDefaultCalendar(tx, userId));
 
     expect(await defaultCalendarsOf(otherUserId)).toEqual([]);
   });

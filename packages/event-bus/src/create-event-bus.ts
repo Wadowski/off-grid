@@ -2,7 +2,14 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { AnyEventDefinition } from "@offgrid/contracts";
-import type { EventBusOptions, EventBus, DeliverySettings, Subscription } from "./types.js";
+import type {
+  EventBusOptions,
+  EventBus,
+  DeliverySettings,
+  Delivery,
+  Subscription,
+  MultiEventSubscription,
+} from "./types.js";
 import {
   DEFAULT_BATCH_SIZE,
   DEFAULT_MAX_ATTEMPTS,
@@ -14,6 +21,7 @@ import { defaultRetryDelayMs } from "./default-retry-delay-ms.js";
 import { createDeliveryLoop } from "./create-delivery-loop.js";
 import { deliverAll } from "./deliver-all.js";
 import { pruneDelivered } from "./prune-delivered.js";
+import { multiDelivery, singleDelivery } from "./to-delivery.js";
 
 export const createEventBus = (options: EventBusOptions): EventBus => {
   const settings: DeliverySettings = {
@@ -24,14 +32,14 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
     batchSize: options.batchSize ?? DEFAULT_BATCH_SIZE,
     pollIntervalMs: options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS,
   };
-  const subscriptions: Subscription[] = [];
+  const subscriptions: Delivery[] = [];
   const loop = createDeliveryLoop(
     settings,
     () => deliverAll(subscriptions, settings),
     options.listener,
   );
 
-  const register = <D extends AnyEventDefinition>(subscription: Subscription<D>): void => {
+  const register = (subscription: Delivery): void => {
     if (subscriptions.some((existing) => existing.name === subscription.name)) {
       throw new Error(`subscriber "${subscription.name}" is already registered`);
     }
@@ -39,17 +47,28 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
   };
 
   return {
-    subscribe: (subscription) => {
+    subscribe: <D extends AnyEventDefinition>(subscription: Subscription<D>) => {
       assertModuleName(subscription.runAs);
-      register(subscription);
+      register(singleDelivery(subscription));
+    },
+    subscribeToEvents: <const Ds extends readonly AnyEventDefinition[]>(
+      subscription: MultiEventSubscription<Ds>,
+    ) => {
+      assertModuleName(subscription.runAs);
+      if (subscription.events.length === 0) {
+        throw new Error(`subscriber "${subscription.name}" has no events to deliver`);
+      }
+      register(multiDelivery(subscription));
     },
     subscribeTransport: ({ name, event, transport }) => {
-      register({
-        name,
-        event,
-        runAs: TRANSPORT_RUN_AS,
-        handler: (envelope) => transport.send(envelope),
-      });
+      register(
+        singleDelivery({
+          name,
+          event,
+          runAs: TRANSPORT_RUN_AS,
+          handler: (envelope) => transport.send(envelope),
+        }),
+      );
     },
     deliverPending: () => deliverAll(subscriptions, settings),
     start: () => loop.start(),

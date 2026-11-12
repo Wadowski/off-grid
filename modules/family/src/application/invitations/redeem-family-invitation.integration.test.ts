@@ -53,8 +53,8 @@ describe("redeemFamilyInvitation", { timeout: 60_000 }, () => {
     );
     expect(rows).toEqual([{ role: "member" }]);
     const events = await db.admin.query(
-      "SELECT count(*)::int AS n FROM outbox.event WHERE type = 'family-member-added-v1' AND family_id = $1",
-      [family.id],
+      "SELECT count(*)::int AS n FROM outbox.event WHERE type = 'family-member-added-v1' AND family_id = $1 AND payload->>'userId' = $2",
+      [family.id, joiner],
     );
     expect(events.rows).toEqual([{ n: 1 }]);
   });
