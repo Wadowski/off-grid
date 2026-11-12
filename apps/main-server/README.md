@@ -39,6 +39,7 @@ Read from the environment and validated with zod at startup. Missing or invalid 
 | `OFFGRID_DATABASE_POOL_MAX`      | `10`          |                                                                                                                                                                                                     |
 | `OFFGRID_TRUSTED_PROXIES`        | empty         | Comma-separated proxy addresses or subnets whose `X-Forwarded-For` header is trusted for the client IP. Empty trusts no proxy, so behind a proxy every client shares its address for the rate limit |
 | `OFFGRID_RATE_LIMIT_PER_MINUTE`  | `300`         | Per client IP                                                                                                                                                                                       |
+| `OFFGRID_OUTBOX_RETENTION_DAYS`  | `7`           | Days a delivered event stays in the outbox before the prune job removes it. Events are removed only after every subscriber has passed them. Range 1 to 3650                                         |
 | `OFFGRID_LOG_LEVEL`              | `info`        | `debug`, `info`, `warn` or `error`                                                                                                                                                                  |
 
 ## Endpoints
