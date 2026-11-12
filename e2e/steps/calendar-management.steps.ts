@@ -14,10 +14,6 @@ Given(/^Anna belongs to the family "[^"]*" and has a personal calendar named "[^
   notImplemented("Anna belongs to the family {string} and has a personal calendar named {string}"),
 );
 
-Given(/^the family "[^"]*" has a calendar named "[^"]*"$/, () =>
-  notImplemented("the family {string} has a calendar named {string}"),
-);
-
 Given(/^Ben belongs to his own family and has a personal calendar named "[^"]*"$/, () =>
   notImplemented("Ben belongs to his own family and has a personal calendar named {string}"),
 );
@@ -34,10 +30,6 @@ When(/^she creates a personal calendar named "[^"]*" with the color "[^"]*"$/, (
 
 Then(/^the calendar "[^"]*" exists with the color "[^"]*" for Anna only$/, () =>
   notImplemented("the calendar {string} exists with the color {string} for Anna only"),
-);
-
-Given(/^Anna and Ben are both members of the family "[^"]*"$/, () =>
-  notImplemented("Anna and Ben are both members of the family {string}"),
 );
 
 When(/^Ben creates a calendar named "[^"]*" in the family "[^"]*" with the color "[^"]*"$/, () =>
@@ -108,10 +100,6 @@ Then(/^the calendar "[^"]*" is still named "[^"]*"$/, () =>
 
 Then(/^the calendar "[^"]*" still exists$/, () =>
   notImplemented("the calendar {string} still exists"),
-);
-
-Given(/^Ben does not belong to the family "[^"]*"$/, () =>
-  notImplemented("Ben does not belong to the family {string}"),
 );
 
 When(/^Ben creates a calendar named "[^"]*" in the family "[^"]*"$/, () =>
