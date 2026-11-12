@@ -8,6 +8,10 @@ import { adminUserSchema } from "./admin-user-schema.js";
 import { createAccountRequestSchema } from "./create-account-request-schema.js";
 import { accessGroupIdSchema } from "./access-group-id-schema.js";
 import { accountProfileSchema } from "./account-profile-schema.js";
+import { calendarListSchema } from "./calendar-list-schema.js";
+import { calendarSchema } from "./calendar-schema.js";
+import { createCalendarRequestSchema } from "./create-calendar-request-schema.js";
+import { updateCalendarRequestSchema } from "./update-calendar-request-schema.js";
 import { changePasswordRequestSchema } from "./change-password-request-schema.js";
 import { passwordConfirmationRequestSchema } from "./password-confirmation-request-schema.js";
 import { notificationListSchema } from "./notification-schema.js";
@@ -56,6 +60,10 @@ export const openApiComponentSchemas = {
   SessionAccess: sessionAccessSchema,
   AdminUser: adminUserSchema,
   AdminUserList: adminUserListSchema,
+  Calendar: calendarSchema,
+  CalendarList: calendarListSchema,
+  CreateCalendarRequest: createCalendarRequestSchema,
+  UpdateCalendarRequest: updateCalendarRequestSchema,
   PasswordResetRequest: passwordResetRequestSchema,
   PasswordRecoveryRequest: passwordRecoveryRequestSchema,
   PasswordRecoveryOptions: passwordRecoveryOptionsSchema,

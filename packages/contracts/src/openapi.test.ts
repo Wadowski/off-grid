@@ -18,8 +18,11 @@ describe("buildOpenApiDocument", () => {
       "ActiveFamily",
       "AdminUser",
       "AdminUserList",
+      "Calendar",
+      "CalendarList",
       "ChangePasswordRequest",
       "CreateAccountRequest",
+      "CreateCalendarRequest",
       "CreateFamilyRequest",
       "EmailCodeRequest",
       "ErrorResponse",
@@ -44,9 +47,22 @@ describe("buildOpenApiDocument", () => {
       "SignInRequest",
       "SignedIn",
       "Timestamp",
+      "UpdateCalendarRequest",
       "UpdateProfileRequest",
       "UserId",
     ]);
+  });
+});
+
+describe("buildOpenApiDocument calendar paths", () => {
+  it("publishes the calendar routes with their operation ids", () => {
+    const { paths } = buildOpenApiDocument();
+
+    expect(Object.keys(paths).sort()).toEqual(["/calendars", "/calendars/{id}"]);
+    expect(paths["/calendars"].get.operationId).toBe("listCalendars");
+    expect(paths["/calendars"].post.operationId).toBe("createCalendar");
+    expect(paths["/calendars/{id}"].patch.operationId).toBe("updateCalendar");
+    expect(paths["/calendars/{id}"].delete.operationId).toBe("removeCalendar");
   });
 });
 

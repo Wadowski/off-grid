@@ -3,79 +3,57 @@
 
 import { ApiError } from "@offgrid/api-client";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { jsonResponse } from "../test-support/json-response.js";
+import { webCalendarClient } from "../api/web-api-client.js";
 import { createCalendar, listCalendars, removeCalendar, updateCalendar } from "./calendar-api.js";
+import type { Calendar } from "./types.js";
 
-const ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
-const CALENDAR = { id: ID, name: "Studio", color: "teal", familyId: null, isDefault: false };
-
-const stubFetch = (response: Response) => {
-  const fetchMock = vi.fn(async () => response);
-  vi.stubGlobal("fetch", fetchMock);
-  return fetchMock;
-};
-
-const sentRequest = (fetchMock: ReturnType<typeof stubFetch>) => {
-  const [input, init] = fetchMock.mock.calls[0] as unknown as [RequestInfo | URL, RequestInit];
-  return { url: String(input), method: init.method, body: init.body };
+const ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f" as Calendar["id"];
+const CALENDAR: Calendar = {
+  id: ID,
+  name: "Studio",
+  color: "teal",
+  familyId: null,
+  isDefault: false,
 };
 
 afterEach(() => {
-  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("calendar API", () => {
-  it("lists the calendars the person can access", async () => {
-    const fetchMock = stubFetch(jsonResponse({ status: 200, body: { calendars: [CALENDAR] } }));
+  it("returns the calendars the api client lists", async () => {
+    const list = vi.spyOn(webCalendarClient, "listCalendars").mockResolvedValue([CALENDAR]);
 
     await expect(listCalendars()).resolves.toEqual([CALENDAR]);
-    expect(sentRequest(fetchMock).method).toBe("GET");
-    expect(sentRequest(fetchMock).url).toMatch(/\/calendars$/);
+    expect(list).toHaveBeenCalledOnce();
   });
 
-  it("posts the name, color and optional family to create a calendar", async () => {
-    const fetchMock = stubFetch(jsonResponse({ status: 201, body: CALENDAR }));
+  it("passes the name, color and optional family to the api client create method", async () => {
+    const create = vi.spyOn(webCalendarClient, "createCalendar").mockResolvedValue(CALENDAR);
 
     await expect(createCalendar({ name: "Studio", color: "teal" })).resolves.toEqual(CALENDAR);
-    expect(sentRequest(fetchMock)).toMatchObject({
-      method: "POST",
-      url: expect.stringMatching(/\/calendars$/),
-      body: JSON.stringify({ name: "Studio", color: "teal" }),
-    });
+    expect(create).toHaveBeenCalledWith({ name: "Studio", color: "teal" });
   });
 
-  it("patches the calendar at its id with only the changed fields", async () => {
-    const fetchMock = stubFetch(
-      jsonResponse({ status: 200, body: { ...CALENDAR, color: "rose" } }),
-    );
+  it("passes the id and only the changed fields to the api client update method", async () => {
+    const update = vi
+      .spyOn(webCalendarClient, "updateCalendar")
+      .mockResolvedValue({ ...CALENDAR, color: "rose" });
 
-    await updateCalendar(ID, { color: "rose" });
-    expect(sentRequest(fetchMock)).toMatchObject({
-      method: "PATCH",
-      url: expect.stringMatching(new RegExp(`/calendars/${ID}$`)),
-      body: JSON.stringify({ color: "rose" }),
-    });
+    await expect(updateCalendar(ID, { color: "rose" })).resolves.toMatchObject({ color: "rose" });
+    expect(update).toHaveBeenCalledWith(ID, { color: "rose" });
   });
 
-  it("deletes the calendar at its id", async () => {
-    const fetchMock = stubFetch(new Response(null, { status: 204 }));
+  it("passes the id to the api client delete method", async () => {
+    const remove = vi.spyOn(webCalendarClient, "removeCalendar").mockResolvedValue(undefined);
 
-    await removeCalendar(ID);
-    expect(sentRequest(fetchMock)).toMatchObject({
-      method: "DELETE",
-      url: expect.stringMatching(new RegExp(`/calendars/${ID}$`)),
-    });
+    await expect(removeCalendar(ID)).resolves.toBeUndefined();
+    expect(remove).toHaveBeenCalledWith(ID);
   });
 
-  it("rejects a response that does not match the calendar contract", async () => {
-    stubFetch(jsonResponse({ status: 201, body: { id: ID } }));
-
-    await expect(createCalendar({ name: "Studio", color: "teal" })).rejects.toThrow();
-  });
-
-  it("surfaces the status and code of a 409 default-calendar refusal", async () => {
-    stubFetch(
-      jsonResponse({ status: 409, body: { code: "DEFAULT_CALENDAR", message: "Default." } }),
+  it("lets the status and code of a 409 default-calendar refusal reach the caller", async () => {
+    vi.spyOn(webCalendarClient, "removeCalendar").mockRejectedValue(
+      new ApiError(409, "DEFAULT_CALENDAR", "Default."),
     );
 
     const error = await removeCalendar(ID).catch((caught: unknown) => caught);
