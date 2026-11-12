@@ -3,6 +3,6 @@
 
 import type { Calendar } from "../../../../../../calendars/types.js";
 
-export type SidebarCalendarListProps = {
+export type CalendarSidebarListProps = {
   readonly calendars: readonly Calendar[];
 };

@@ -15,27 +15,8 @@ const CALENDARS_PATH = "/calendar";
 const NEW_CALENDAR_PATH = "/calendar/new";
 const NAME_PLACEHOLDER = "Enter a calendar name";
 const CALENDAR_ROW = "calendar-row";
-const SIDEBAR_ROW = "sidebar-calendar-row";
 // World key for the calendar owned by another person, which the signed-in person cannot access.
 const OTHER_PERSON_CALENDAR_KEY = "other-person-calendar";
-
-// Swatch colors as rendered by the browser (the family accent colors the API colors map to).
-const RGB_BY_COLOR: Record<string, string> = {
-  blue: "rgb(59, 111, 212)",
-  teal: "rgb(15, 148, 136)",
-  green: "rgb(63, 145, 66)",
-  amber: "rgb(211, 138, 14)",
-  rose: "rgb(201, 72, 138)",
-  violet: "rgb(142, 77, 196)",
-};
-
-const colorOf = (color: string): string => {
-  const rgb = RGB_BY_COLOR[color];
-  if (rgb === undefined) {
-    throw new Error(`Unknown calendar color: ${color}`);
-  }
-  return rgb;
-};
 
 const openCalendars = async (page: Page): Promise<void> => {
   await page.goto(`${webBaseUrl()}${CALENDARS_PATH}`);
@@ -44,9 +25,6 @@ const openCalendars = async (page: Page): Promise<void> => {
 
 const rowNamed = (page: Page, name: string) =>
   page.getByTestId(CALENDAR_ROW).filter({ hasText: name });
-
-const sidebarRowNamed = (page: Page, name: string) =>
-  page.getByTestId(SIDEBAR_ROW).filter({ hasText: name });
 
 const fillName = async (page: Page, name: string): Promise<void> => {
   await page.getByPlaceholder(NAME_PLACEHOLDER).fill(name);
@@ -94,18 +72,6 @@ When("I open the calendar from the navigation", async ({ page }) => {
 Then("I see the calendars list", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Calendars", exact: true })).toBeVisible();
 });
-
-Then(
-  "the sidebar lists {string} with a {string} color dot",
-  async ({ page }, name: string, color: string) => {
-    const row = sidebarRowNamed(page, name);
-    await expect(row).toBeVisible();
-    await expect(row.locator("span[aria-hidden='true']")).toHaveCSS(
-      "background-color",
-      colorOf(color),
-    );
-  },
-);
 
 When(
   "I create a personal calendar named {string} with the color {string} from the calendar screen",
@@ -170,8 +136,10 @@ Then("I see the calendars list without {string}", async ({ page }, name: string)
   await expect(rowNamed(page, name)).toHaveCount(0);
 });
 
-Then("the sidebar does not list {string}", async ({ page }, name: string) => {
-  await expect(sidebarRowNamed(page, name)).toHaveCount(0);
+Then("the main navigation does not list {string}", async ({ page }, name: string) => {
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name }),
+  ).toHaveCount(0);
 });
 
 When(

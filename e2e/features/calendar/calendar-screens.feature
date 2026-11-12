@@ -4,9 +4,9 @@
 @module:calendar @ui
 Feature: Calendar management screens
 
-  A signed-in person sees the calendars they can access in the sidebar,
-  lists them on the calendars page, and creates, edits and deletes them
-  from the calendar screens.
+  A signed-in person sees the calendars they can access on the calendars
+  page, and creates, edits and deletes them from the calendar screens. The
+  calendar sidebar is kept apart from the main navigation.
 
   @smoke
   Scenario: The Calendar nav item opens the calendars list
@@ -14,18 +14,17 @@ Feature: Calendar management screens
     When I open the calendar from the navigation
     Then I see the calendars list
 
-  Scenario: The sidebar lists my calendar with its color dot
+  Scenario: The calendar sidebar is not part of the main navigation
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I open the home page
-    Then the sidebar lists "Studio" with a "teal" color dot
+    Then the main navigation does not list "Studio"
 
   @smoke
   Scenario: I create a personal calendar with a name and a color from the create screen
     Given I am a user with a family named "The Smiths"
     When I create a personal calendar named "Studio" with the color "teal" from the calendar screen
     Then I see the calendars list with "Studio"
-    And the sidebar lists "Studio" with a "teal" color dot
 
   Scenario: I create a family calendar for one of my families
     Given I am a user with a family named "The Smiths"
@@ -42,14 +41,13 @@ Feature: Calendar management screens
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I rename the calendar "Studio" to "Workshop" and change its color to "rose" on the edit screen
-    Then the sidebar lists "Workshop" with a "rose" color dot
+    Then I see the calendars list with "Workshop"
 
   Scenario: I delete a calendar after confirming
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I delete the calendar "Studio" after confirming
     Then I see the calendars list without "Studio"
-    And the sidebar does not list "Studio"
 
   Scenario: Cancelling the delete confirmation keeps the calendar
     Given I am a user with a family named "The Smiths"

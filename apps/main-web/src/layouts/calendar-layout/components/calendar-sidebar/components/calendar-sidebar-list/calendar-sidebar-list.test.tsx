@@ -5,7 +5,7 @@ import { calendarSchema } from "@offgrid/contracts";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
-import { SidebarCalendarList } from "./sidebar-calendar-list.js";
+import { CalendarSidebarList } from "./calendar-sidebar-list.js";
 
 const STUDIO = calendarSchema.parse({
   id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
@@ -30,14 +30,14 @@ const dotOf = (row: HTMLElement): HTMLElement => {
   return dot;
 };
 
-const renderList = (calendars: (typeof STUDIO)[]) =>
+const renderList = (calendars: (typeof STUDIO)[], path = "/calendar") =>
   render(
-    <MemoryRouter>
-      <SidebarCalendarList calendars={calendars} />
+    <MemoryRouter initialEntries={[path]}>
+      <CalendarSidebarList calendars={calendars} />
     </MemoryRouter>,
   );
 
-describe("SidebarCalendarList", () => {
+describe("CalendarSidebarList", () => {
   afterEach(() => {
     cleanup();
   });
@@ -52,6 +52,14 @@ describe("SidebarCalendarList", () => {
     expect(within(rows[0]!).getByText("Studio")).toBeInTheDocument();
     expect(dotOf(rows[0]!).style.background).toBe("rgb(15, 148, 136)");
     expect(dotOf(rows[1]!).style.background).toBe("rgb(211, 138, 14)");
+  });
+
+  it("marks the row of the open calendar as the current page", () => {
+    renderList([STUDIO, KITCHEN], `/calendar/${KITCHEN.id}`);
+
+    const rows = screen.getAllByTestId("sidebar-calendar-row");
+    expect(rows[0]).not.toHaveAttribute("aria-current");
+    expect(rows[1]).toHaveAttribute("aria-current", "page");
   });
 
   it("renders nothing when there are no calendars", () => {
