@@ -21,6 +21,8 @@ import { listCalendarsFor } from "../application/calendars/list-calendars.js";
 import { removeCalendar } from "../application/calendars/remove-calendar.js";
 import { updateCalendar } from "../application/calendars/update-calendar.js";
 import type { CalendarRecord, CalendarRouteContext } from "../types.js";
+import { registerCalendarEventRoutes } from "./calendar-events/register-calendar-event-routes.js";
+import { registerTimeZoneRoutes } from "./time-zone/register-time-zone-routes.js";
 
 const toCalendar = (record: CalendarRecord) => ({
   id: record.calendarId,
@@ -97,4 +99,7 @@ export const registerCalendarRoutes = (
       return reply.code(204).send();
     }),
   );
+
+  registerCalendarEventRoutes(api, context);
+  registerTimeZoneRoutes(api, context);
 };
