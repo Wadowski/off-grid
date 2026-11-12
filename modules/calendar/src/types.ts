@@ -97,3 +97,8 @@ export interface CalendarEventChanges {
   readonly startsAt?: Date;
   readonly endsAt?: Date;
 }
+
+export interface CalendarViewEventRecord extends CalendarEventRecord {
+  readonly calendarName: string;
+  readonly calendarColor: string;
+}
