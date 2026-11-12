@@ -16,11 +16,12 @@ The shipped server has no sign-in. The identity module is an empty stub, so ever
 
 ## What it stores, and where
 
-| What                                                 | Where                                     |
-| ---------------------------------------------------- | ----------------------------------------- |
-| Your data (families, memberships, and later modules) | The `offgrid-db` Docker volume (Postgres) |
-| Database passwords and the instance id               | `data/secrets/` in the repository folder  |
-| Optional settings, such as ports and allowed origins | `infra/compose/.env`, if you create it    |
+| What                                                                                             | Where                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Your data (families, memberships, and later modules)                                             | The `offgrid-db` Docker volume (Postgres)                                                                                             |
+| Database passwords and the instance id                                                           | `data/secrets/` in the repository folder                                                                                              |
+| Optional settings, such as ports and allowed origins                                             | `infra/compose/.env`, if you create it                                                                                                |
+| Calendar event titles, locations and descriptions, and copies kept for delivery to other modules | The `offgrid-db` Docker volume (Postgres). Copies in the event outbox stay until a prune job removes them, and no prune job runs yet. |
 
 Everything stays on the machine that runs the stack. The `data/` folder and `infra/compose/.env` are git-ignored, so they are not committed to the repository.
 
