@@ -72,14 +72,6 @@ const calendarIdOf = (world: ScenarioWorld, name: string): string => {
   return id;
 };
 
-const familyIdOf = (world: ScenarioWorld, name: string): string => {
-  const family = world.families.find((candidate) => candidate.name === name);
-  if (family === undefined) {
-    throw new Error(`No family named "${name}" was set up in this scenario.`);
-  }
-  return family.id;
-};
-
 Given(
   "I have a personal calendar named {string} with the color {string}",
   async ({ world }, name: string, color: string) => {
