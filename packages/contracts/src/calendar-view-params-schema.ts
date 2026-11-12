@@ -8,6 +8,8 @@ export const CALENDAR_VIEWS = ["agenda", "day", "week", "month"] as const;
 
 export const calendarViewKindSchema = z.enum(CALENDAR_VIEWS);
 
+export type CalendarViewKind = (typeof CALENDAR_VIEWS)[number];
+
 export const calendarViewParamsSchema = z.object({
   view: calendarViewKindSchema,
   date: eventDateSchema,
