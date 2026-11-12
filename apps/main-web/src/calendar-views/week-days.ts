@@ -54,3 +54,8 @@ const WEEKDAY = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "
 export const weekDayLabel = (date: string): string => WEEKDAY.format(new Date(`${date}T00:00:00Z`));
 
 export const weekDayNumber = (date: string): number => Number(date.slice(8, 10));
+
+export const mondayIndexOf = (date: string): number => {
+  const { year, month, day } = parseDate(date);
+  return (new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7;
+};

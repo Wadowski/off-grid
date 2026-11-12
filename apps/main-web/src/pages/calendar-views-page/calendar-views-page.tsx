@@ -22,6 +22,7 @@ import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarFilterBar } from "./components/calendar-filter-bar/calendar-filter-bar.js";
 import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
+import { WeekGrid } from "./components/week-grid/week-grid.js";
 import { ViewSegmentedControl } from "./components/view-segmented-control/view-segmented-control.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
@@ -56,10 +57,11 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const { status, days, retry } = useCalendarView(view, date);
   const { timeZone } = useCalendarTimeZone(session.status === "signedIn");
   const today = localDateOf(new Date());
-  const selectedEvents =
-    days
-      .map((day) => ({ ...day, events: filterByCalendar(day.events, filter) }))
-      .find((day) => day.date === date)?.events ?? [];
+  const visibleDays = days.map((day) => ({
+    ...day,
+    events: filterByCalendar(day.events, filter),
+  }));
+  const selectedEvents = visibleDays.find((day) => day.date === date)?.events ?? [];
 
   const activeFamily =
     session.status === "signedIn"
@@ -144,6 +146,15 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
           <DayHeader date={date} scheduledCount={selectedEvents.length} />
           <AgendaList events={selectedEvents} timeZone={timeZone} />
         </>
+      )}
+      {view === "week" && status === "ready" && (
+        <WeekGrid
+          days={visibleDays}
+          selectedDate={date}
+          todayDate={today}
+          timeZone={timeZone}
+          now={new Date()}
+        />
       )}
       {view === "day" && status === "ready" && (
         <>
