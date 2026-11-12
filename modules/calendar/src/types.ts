@@ -60,3 +60,40 @@ export interface MembershipChange {
   readonly sourceVersion: number;
   readonly isMember: boolean;
 }
+
+export interface CalendarEventRecord {
+  readonly eventId: string;
+  readonly calendarId: string;
+  readonly familyId: string | null;
+  readonly userId: string | null;
+  readonly title: string;
+  readonly location: string | null;
+  readonly description: string | null;
+  readonly isAllDay: boolean;
+  readonly startsAt: Date;
+  readonly endsAt: Date;
+  readonly version: number;
+}
+
+export interface NewCalendarEvent {
+  readonly eventId: string;
+  readonly calendarId: string;
+  readonly familyId?: string;
+  readonly userId?: string;
+  readonly title: string;
+  readonly location: string | null;
+  readonly description: string | null;
+  readonly isAllDay: boolean;
+  readonly startsAt: Date;
+  readonly endsAt: Date;
+}
+
+export interface CalendarEventChanges {
+  readonly title?: string;
+  readonly location?: string | null;
+  readonly description?: string | null;
+  readonly calendarId?: string;
+  readonly isAllDay?: boolean;
+  readonly startsAt?: Date;
+  readonly endsAt?: Date;
+}
