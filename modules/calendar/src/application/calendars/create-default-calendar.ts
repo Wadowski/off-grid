@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { setPgUserContext } from "@offgrid/db";
+import { withUserContext, type ModuleTransaction } from "@offgrid/db";
 import { insertDefaultCalendar } from "../../infrastructure/calendars/insert-default-calendar.js";
-import type { SubscriberClient } from "../../types.js";
 
 export const createDefaultCalendar = async (
-  client: SubscriberClient,
+  tx: ModuleTransaction,
   userId: string,
 ): Promise<void> => {
-  await setPgUserContext(client, userId);
-  await insertDefaultCalendar(client, { calendarId: randomUUID(), userId });
+  await withUserContext(tx, userId);
+  await insertDefaultCalendar(tx, { calendarId: randomUUID(), userId });
 };

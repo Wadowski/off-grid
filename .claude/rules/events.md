@@ -13,6 +13,7 @@ Modules talk only through versioned events ([ADR 0002](../../docs/adr/0002-outbo
 - DO define each payload schema in `packages/contracts`, validated with zod.
 - DO write the event to the outbox in the same transaction as the data change.
 - DO make handlers idempotent. Delivery can repeat or arrive out of order.
+- DO open a handler's transaction with the module's Prisma client (`context.db.$transaction`, from the module context passed to `registerSubscribers`). The `tx` the bus passes to a handler is a raw `pg` client, so DON'T use it, and DON'T write raw SQL in a handler.
 - DO store the source event version in projections, and treat projections as read-only.
 - DO use a projection only for another module's data. A module's own reads use its own tables.
 - DON'T change a released event version. Add a `-v2` event instead.

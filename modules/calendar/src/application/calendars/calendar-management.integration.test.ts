@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { withTransaction } from "@offgrid/event-bus";
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
@@ -29,13 +29,13 @@ describe("calendar management", { timeout: 60_000 }, () => {
   });
 
   const joinFamily = (familyId: string, userId: string) =>
-    withTransaction(db.pool, (client) =>
-      applyFamilyMembership(client, { familyId, userId, sourceVersion: 1, isMember: true }),
+    db.db.$transaction((tx) =>
+      applyFamilyMembership(tx, { familyId, userId, sourceVersion: 1, isMember: true }),
     );
 
   const leaveFamily = (familyId: string, userId: string) =>
-    withTransaction(db.pool, (client) =>
-      applyFamilyMembership(client, { familyId, userId, sourceVersion: 2, isMember: false }),
+    db.db.$transaction((tx) =>
+      applyFamilyMembership(tx, { familyId, userId, sourceVersion: 2, isMember: false }),
     );
 
   const insertFamilyCalendar = async (familyId: string, name: string, color: string) => {
@@ -241,7 +241,7 @@ describe("calendar management", { timeout: 60_000 }, () => {
 
     it("refuses to remove the default calendar", async () => {
       const anna = randomUUID();
-      await withTransaction(db.pool, (client) => createDefaultCalendar(client, anna));
+      await db.db.$transaction((tx) => createDefaultCalendar(tx, anna));
       const { rows } = await db.admin.query<{ calendar_id: string }>(
         "SELECT calendar_id FROM calendar.calendar WHERE user_id = $1",
         [anna],

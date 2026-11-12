@@ -69,7 +69,7 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
       errorSink: createMemoryErrorSink(),
       retryDelayMs: () => 0,
     });
-    registerFamilyMembershipSubscribers(bus);
+    registerFamilyMembershipSubscribers({ eventBus: bus, db: db.db });
 
     await bus.deliverPending();
 
@@ -89,7 +89,7 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
       errorSink: createMemoryErrorSink(),
       retryDelayMs: () => 0,
     });
-    registerFamilyMembershipSubscribers(bus);
+    registerFamilyMembershipSubscribers({ eventBus: bus, db: db.db });
 
     await bus.deliverPending();
 

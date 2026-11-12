@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { withTransaction } from "@offgrid/event-bus";
+
 import type { FastifyInstance } from "fastify";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { applyFamilyMembership } from "../events/family-membership/apply-family-membership.js";
@@ -29,9 +29,9 @@ describe("calendar routes", { timeout: 60_000 }, () => {
   beforeEach(async () => {
     await db.reset();
     app = await createCalendarTestApp(db);
-    await withTransaction(db.pool, (client) => createDefaultCalendar(client, anna));
-    await withTransaction(db.pool, (client) =>
-      applyFamilyMembership(client, {
+    await db.db.$transaction((tx) => createDefaultCalendar(tx, anna));
+    await db.db.$transaction((tx) =>
+      applyFamilyMembership(tx, {
         familyId: home,
         userId: anna,
         sourceVersion: 1,

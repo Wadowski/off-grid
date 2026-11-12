@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { withTransaction } from "@offgrid/event-bus";
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
@@ -26,8 +26,8 @@ describe("family membership projection", { timeout: 60_000 }, () => {
   });
 
   const apply = (sourceVersion: number, isMember: boolean) =>
-    withTransaction(db.pool, (client) =>
-      applyFamilyMembership(client, { familyId, userId, sourceVersion, isMember }),
+    db.db.$transaction((tx) =>
+      applyFamilyMembership(tx, { familyId, userId, sourceVersion, isMember }),
     );
 
   const stored = async () => {

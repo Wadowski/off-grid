@@ -4,9 +4,12 @@
 import type { ModuleDatabase } from "@offgrid/db";
 import type { CurrentUserId } from "@offgrid/http";
 import type { CALENDAR_COLORS } from "@offgrid/contracts";
-import type { HandlerContext } from "@offgrid/event-bus";
+import type { EventBus } from "@offgrid/event-bus";
 
-export type SubscriberClient = HandlerContext["tx"];
+export interface CalendarSubscriberContext {
+  readonly eventBus: EventBus;
+  readonly db: ModuleDatabase;
+}
 
 export interface CalendarRecord {
   readonly calendarId: string;
