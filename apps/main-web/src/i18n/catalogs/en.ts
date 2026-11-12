@@ -74,6 +74,7 @@ export const en = {
       owner: "Owner",
       ownerSelf: "Just me",
       personal: "Personal",
+      default: "Default",
       backToList: "Back to calendars",
     },
     colors: {
