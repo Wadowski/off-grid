@@ -6,7 +6,7 @@ import { FAMILY_ACCENT_COLORS } from "../families/family-appearance.js";
 
 export type CalendarColor = (typeof CALENDAR_COLORS)[number];
 
-// The API accepts six calendar colors. Rose and violet have no exact family accent, so they reuse the nearest one.
+// Rose and violet have no exact family accent, so they reuse the nearest one.
 export const CALENDAR_COLOR_ACCENT: Record<CalendarColor, FamilyAccent> = {
   blue: "blue",
   teal: "teal",
