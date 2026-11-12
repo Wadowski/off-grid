@@ -463,6 +463,29 @@ describe("delivery", () => {
     await expect(loopBus.stop()).resolves.toBeUndefined();
   });
 
+  it("keeps events for a registered subscriber that has not started yet", async () => {
+    bus.subscribe({
+      name: "first",
+      event: familyCreated,
+      runAs: "family",
+      handler: async () => undefined,
+    });
+    await publishCommitted(family, envelope(1, "Still needed by a late subscriber"));
+    await publishCommitted(family, envelope(2, "Also still needed"));
+    await bus.deliverPending();
+
+    bus.subscribe({
+      name: "late",
+      event: familyCreated,
+      runAs: "family",
+      handler: async () => undefined,
+    });
+    expect(await bus.prune(0)).toBe(0);
+
+    await bus.deliverPending();
+    expect(await bus.prune(0)).toBe(2);
+  });
+
   it("prunes only events that every subscriber has passed", async () => {
     bus.subscribe({
       name: "first",
