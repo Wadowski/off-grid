@@ -67,7 +67,7 @@ const openEditScreenNamed = async (page: Page, name: string): Promise<void> => {
 const calendarIdOf = (world: ScenarioWorld, name: string): string => {
   const id = world.calendarIds?.[name];
   if (id === undefined) {
-    throw new Error(`No calendar named "${name}" was set up in this scenario.`);
+    throw new Error("The calendar this step refers to was not set up in this scenario.");
   }
   return id;
 };
