@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { isValidDayWindow, isValidEventWindow } from "@offgrid/contracts";
 import { withUserContext, type ModuleDatabase, type ModuleTransaction } from "@offgrid/db";
 import { EventMoveOwnerMismatchError } from "../errors/event-move-owner-mismatch-error.js";
 import { allDayBounds, lastDayOf, localDate } from "../../domain/all-day-bounds.js";
-import { isValidDayWindow, isValidEventWindow } from "../../domain/event-window.js";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { publishCalendarEventUpdated } from "../../events/calendar-events/publish-calendar-event-updated.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";

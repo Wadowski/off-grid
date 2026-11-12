@@ -9,6 +9,8 @@ import {
   eventLocationSchema,
   eventTitleSchema,
 } from "./calendar-event-fields-schema.js";
+import { isValidDayWindow } from "./is-valid-day-window.js";
+import { isValidEventWindow } from "./is-valid-event-window.js";
 
 const commonFields = {
   title: eventTitleSchema,
@@ -23,10 +25,14 @@ const timedEventRequestSchema = z
     startsAt: eventInstantSchema,
     endsAt: eventInstantSchema,
   })
-  .refine((value) => Date.parse(value.endsAt) >= Date.parse(value.startsAt), {
-    message: "The event must not end before it starts",
-    path: ["endsAt"],
-  });
+  .refine(
+    (value) =>
+      isValidEventWindow({ startsAt: new Date(value.startsAt), endsAt: new Date(value.endsAt) }),
+    {
+      message: "The event must not end before it starts",
+      path: ["endsAt"],
+    },
+  );
 
 const allDayEventRequestSchema = z
   .strictObject({
@@ -35,7 +41,7 @@ const allDayEventRequestSchema = z
     startDate: eventDateSchema,
     endDate: eventDateSchema,
   })
-  .refine((value) => value.endDate >= value.startDate, {
+  .refine((value) => isValidDayWindow({ startDate: value.startDate, endDate: value.endDate }), {
     message: "The event must not end before it starts",
     path: ["endDate"],
   });
