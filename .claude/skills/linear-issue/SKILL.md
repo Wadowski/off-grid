@@ -75,7 +75,7 @@ Run the [pre-pr-verify](../pre-pr-verify/SKILL.md) skill on the worktree branch.
 
 Launch a `general-purpose` Agent. Prompt: "Read `<repo>/.claude/skills/linear-issue/phases/pull-request.md` and follow it exactly. Input: the pickup-report, the implement-report, and this review-summary. Return the pull-request-report block."
 
-Then bind the PR to the session: `mcp__ccd_pr__get_status`; if it does not report this PR, `mcp__ccd_pr__bind_pr`.
+Then bind the PR to the session: `mcp__ccd_pr__get_status`; if it does not report this PR, `mcp__ccd_pr__bind_pr`. Then turn on Auto-fix for this PR, which this session opened: `mcp__ccd_pr__set_monitor` with the PR URL, `auto_fix: true` and `address_comments: true`. The app asks the user to approve this call, so tell the user why it is asked.
 
 ### 7. Monitor CI - main session
 
