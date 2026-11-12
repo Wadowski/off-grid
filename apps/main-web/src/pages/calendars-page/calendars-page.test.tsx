@@ -5,8 +5,8 @@ import { calendarSchema } from "@offgrid/contracts";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Calendar, CalendarsState } from "../../calendars/types.js";
-import type { ShellContext } from "../../types.js";
+import type { Calendar } from "../../calendars/types.js";
+import type { CalendarsState, ShellContext } from "../../types.js";
 import { CalendarsPage } from "./calendars-page.js";
 
 const FAMILY_ID = "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f";

@@ -6,8 +6,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createCalendar } from "../../calendars/calendar-api.js";
-import type { CalendarsState } from "../../calendars/types.js";
-import type { ShellContext } from "../../types.js";
+import type { CalendarsState, ShellContext } from "../../types.js";
 import { CreateCalendarPage } from "./create-calendar-page.js";
 
 vi.mock("../../calendars/calendar-api.js", () => ({ createCalendar: vi.fn() }));

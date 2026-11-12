@@ -4,7 +4,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ListStatus } from "../types.js";
 import { listCalendars } from "./calendar-api.js";
-import type { Calendar, CalendarsState } from "./types.js";
+import type { Calendar } from "./types.js";
+import type { CalendarsState } from "../types.js";
 
 export const useCalendars = (enabled: boolean): CalendarsState => {
   const [calendars, setCalendars] = useState<readonly Calendar[]>([]);
