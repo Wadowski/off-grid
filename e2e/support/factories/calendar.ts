@@ -29,7 +29,7 @@ export const createCalendar = async (
     data: input,
     failOnStatusCode: false,
   });
-  expect(response.status(), `could not create the calendar "${input.name}"`).toBe(201);
+  expect(response.status(), "could not create the calendar").toBe(201);
   return parseCalendar(await response.json());
 };
 
