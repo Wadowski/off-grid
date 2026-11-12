@@ -12,7 +12,7 @@ Feature: Mobile calendar views: agenda, day, week and month
   Scenario: Anna sees her agenda for the seven days from the Monday of the week
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
-    And I have an event "Standup" in "Work" from 2026-11-18 09:00 to 09:30 in UTC
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
     Then I see the week strip from 2026-11-16 to 2026-11-22
     And I see the event "Standup" in the agenda for 2026-11-18
@@ -25,7 +25,7 @@ Feature: Mobile calendar views: agenda, day, week and month
   Scenario: Anna switches from the agenda to the day timeline and sees the events placed by time
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
-    And I have an event "Standup" in "Work" from 2026-11-18 09:00 to 09:30 in UTC
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
     And I switch to the day timeline
     Then I see the event "Standup" placed between 09:00 and 09:30 on the timeline
@@ -60,8 +60,8 @@ Feature: Mobile calendar views: agenda, day, week and month
   Scenario: Anna sees the Monday to Sunday week with her events in their columns at phone width
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
-    And I have an event "Monday review" in "Work" from 2026-11-16 09:00 to 09:30 in UTC
-    And I have an event "Sunday call" in "Work" from 2026-11-22 18:00 to 18:30 in UTC
+    And the event "Monday review" is in "Work" from 2026-11-16 09:00 to 09:30 in UTC
+    And the event "Sunday call" is in "Work" from 2026-11-22 18:00 to 18:30 in UTC
     When I open the week view for 2026-11-18 at a phone width of 375 pixels
     Then I see seven day columns from Monday 2026-11-16 to Sunday 2026-11-22
     And I see the event "Monday review" in the Monday column
@@ -72,7 +72,7 @@ Feature: Mobile calendar views: agenda, day, week and month
   Scenario: Anna sees the days of the month and taps a day to see its events in the sheet
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
-    And I have an event "Standup" in "Work" from 2026-11-18 09:00 to 09:30 in UTC
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the month view for 2026-11-12 at a phone width of 375 pixels
     And I tap the day 2026-11-18
     Then I see the event "Standup" in the day sheet
