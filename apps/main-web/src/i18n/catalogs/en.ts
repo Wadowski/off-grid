@@ -54,6 +54,42 @@ export const en = {
     accept: "Accept invitation & join space",
     decline: "Decline",
   },
+  calendar: {
+    heading: "Calendar",
+    calendars: {
+      heading: "Calendars",
+      create: "New calendar",
+      name: "Calendar name",
+      namePlaceholder: "Enter a calendar name",
+      color: "Calendar color",
+      edit: "Edit calendar",
+      delete: "Delete calendar",
+      deleteConfirm: "Delete this calendar and its events? This cannot be undone.",
+    },
+    views: {
+      agenda: "Agenda",
+      day: "Day",
+      week: "Week",
+      month: "Month",
+      today: "Today",
+    },
+    event: {
+      new: "New event",
+      title: "Title",
+      calendar: "Calendar",
+    },
+    actions: {
+      save: "Save",
+      cancel: "Cancel",
+      close: "Close",
+    },
+    errors: {
+      nameRequired: "Enter a calendar name.",
+      defaultCalendar: "Your default calendar can't be deleted.",
+      notFound: "This calendar is no longer available.",
+      failed: "Something went wrong. Try again.",
+    },
+  },
   families: {
     heading: "Families",
     nameLabel: "Family or Household Name",
