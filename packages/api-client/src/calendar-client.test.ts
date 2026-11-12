@@ -96,3 +96,39 @@ describe("createCalendarClient", () => {
     expect(error).toMatchObject({ status: 409, code: "DEFAULT_CALENDAR" });
   });
 });
+
+describe("createCalendarClient views and time zone", () => {
+  const VIEW = {
+    view: "agenda",
+    startDate: "2026-11-16",
+    endDate: "2026-11-22",
+    days: [{ date: "2026-11-16", events: [] }],
+  };
+
+  it("gets the view for the given kind and date", async () => {
+    const { calendars, transport } = calendarsWith(jsonResponse(VIEW));
+
+    await expect(calendars.getCalendarView("agenda", "2026-11-18")).resolves.toEqual(VIEW);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/calendar/views/agenda?date=2026-11-18`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("rejects a view response that does not match the view contract", async () => {
+    const { calendars } = calendarsWith(jsonResponse({ view: "agenda" }));
+
+    await expect(calendars.getCalendarView("agenda", "2026-11-18")).rejects.toThrow();
+  });
+
+  it("gets the time zone and whether the person has set one", async () => {
+    const body = { timeZone: "Europe/Warsaw", isSet: true };
+    const { calendars, transport } = calendarsWith(jsonResponse(body));
+
+    await expect(calendars.getTimeZone()).resolves.toEqual(body);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/calendar/time-zone`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+});
