@@ -4,8 +4,9 @@
 import type { FastifyInstance } from "fastify";
 import type { ServerRuntime, ModuleDescriptor } from "../types.js";
 import type { Migration } from "@offgrid/db";
-import { readinessChecks } from "../readiness/readiness-checks.js";
 import { moduleContextFor } from "../module-wiring/module-context-for.js";
+import { registerGetHealth } from "./register-get-health.js";
+import { registerGetHealthReady } from "./register-get-health-ready.js";
 import { registerMeRoute } from "./register-me-route.js";
 
 export const registerApiRoutes = async (
@@ -14,13 +15,8 @@ export const registerApiRoutes = async (
   modules: readonly ModuleDescriptor[],
   expectedMigrations: readonly Migration[],
 ): Promise<void> => {
-  api.get("/health", async () => ({ status: "ok" }));
-  api.get("/health/ready", async (_request, reply) => {
-    const checks = await readinessChecks(runtime, expectedMigrations);
-    const ready = Object.values(checks).every((status) => status === "ok");
-    reply.code(ready ? 200 : 503);
-    return { status: ready ? "ok" : "unavailable", checks };
-  });
+  registerGetHealth(api);
+  registerGetHealthReady(api, runtime, expectedMigrations);
   registerMeRoute(api, runtime);
   for (const module of modules) {
     await module.registerRoutes?.(api, moduleContextFor(runtime, module.name));

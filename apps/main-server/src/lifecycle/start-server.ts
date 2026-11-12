@@ -13,6 +13,7 @@ import { shutDown } from "./shut-down.js";
 import { startWorkers } from "../module-wiring/start-workers.js";
 import { baseUrlOf } from "./base-url-of.js";
 import { startErrorRecordPruning } from "../error-log/start-error-record-pruning.js";
+import { startOutboxPruning } from "../outbox/start-outbox-pruning.js";
 
 export const startServer = async (
   config: ServerConfig,
@@ -53,7 +54,16 @@ export const startServer = async (
     await runtime.pool.query("SELECT 1");
     await runtime.eventBus.start();
     runtime.state.publisherRunning = true;
-    stopPruning = startErrorRecordPruning(runtime.errorRecordDb, runtime.logger);
+    const stopErrorRecordPruning = startErrorRecordPruning(runtime.errorRecordDb, runtime.logger);
+    const stopOutboxPruning = startOutboxPruning(
+      runtime.eventBus,
+      config.outbox.retentionDays,
+      runtime.logger,
+    );
+    stopPruning = () => {
+      stopOutboxPruning();
+      stopErrorRecordPruning();
+    };
     await startWorkers(workers);
     await app.listen({ host: config.http.host, port: config.http.port });
   } catch (error) {

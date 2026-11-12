@@ -20,6 +20,7 @@ import { assertModuleName } from "./assert-module-name.js";
 import { defaultRetryDelayMs } from "./default-retry-delay-ms.js";
 import { createDeliveryLoop } from "./create-delivery-loop.js";
 import { deliverAll } from "./deliver-all.js";
+import { lockCursor } from "./lock-cursor.js";
 import { pruneDelivered } from "./prune-delivered.js";
 import { multiDelivery, singleDelivery } from "./to-delivery.js";
 
@@ -76,6 +77,9 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
     prune: async (retentionSeconds) => {
       const client = await settings.pool.connect();
       try {
+        for (const subscription of subscriptions) {
+          await lockCursor(client, subscription.name);
+        }
         return await pruneDelivered(client, retentionSeconds);
       } finally {
         client.release();

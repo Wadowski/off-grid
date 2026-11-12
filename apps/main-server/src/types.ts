@@ -25,6 +25,7 @@ export interface ServerConfig {
   readonly trustedProxies: readonly string[];
   readonly corsOrigins: readonly string[];
   readonly rateLimitPerMinute: number;
+  readonly outbox: { readonly retentionDays: number };
   readonly logLevel: LogLevel;
 }
 
