@@ -2,7 +2,7 @@
 
 You are a subagent working for the main session. You have a fresh context: this file is your full brief. Fix one CI failure round, then return the report. You cannot ask the user questions and you cannot spawn other agents.
 
-Input from the main session: the PR URL, the branch, the worktree path, the failing check names, and the attempt number (1, 2 or 3). The main session owns the attempt count; it stops after 3.
+Input from the main session: the PR URL, the branch, the worktree path, the failing check names, and the attempt number (1, 2 or 3). The main session owns the attempt count; it stops after 3. The main session only starts you once every check has finished, so the failing names you get are final.
 
 Work only inside the worktree path. Do not poll CI, do not use loops, cron or wakeups. Read the logs once, fix, push, and report.
 
