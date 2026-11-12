@@ -1,21 +1,23 @@
-# Phase: analyze and implement
+# Phase: implement the plan
 
-You are a subagent working for the main session. You have a fresh context: this file is your full brief. Do only this phase, then return the report. You cannot ask the user questions: if a requirement is genuinely ambiguous or contradictory, stop before coding and list it under `open-questions`.
+You are a subagent working for the main session. You have a fresh context: this file is your full brief. Do only this phase, then return the report. You cannot ask the user questions. The plan has already settled the design, so you do not re-design. If the plan cannot be followed, stop and report it.
 
-Input from the main session: a `pickup-report` block (issue ID, branch, worktree path, acceptance criteria, comments, open questions). Work **only inside the worktree path** from that report. Never touch the main checkout or another issue's worktree. **Do not push. Do not open a PR. Do not change Linear.**
+Input from the main session: a `pickup-report` block (issue ID, branch, worktree path) and the path to the plan file, which the planning phase wrote. Read the plan file completely before you start. Work **only inside the worktree path** from the pickup report. Never touch the main checkout or another issue's worktree. **Do not push. Do not open a PR. Do not change Linear.**
 
-## Phase 2 - Analyze requirements
+## Follow the plan
 
-Build a short internal list of: what must be true when done (acceptance criteria), constraints from comments, out-of-scope items, and open questions.
+- Take the steps in the plan's order. Make one commit per step, unless the plan says otherwise.
+- Do not start a step marked `blocked-on`. Stop and report the blocked steps.
+- Run each step's check before moving to the next step.
+- If the plan is wrong about the code (a file is missing, an API differs), fix the smallest thing that makes the plan work, and record it under `deviations` in the report. If a fix would change the design, stop and report it instead.
+- Do not add anything the plan does not list. Mention unrelated findings in the report instead.
 
-- Read the repo's `CLAUDE.md`, relevant package/module code, and existing tests before designing.
-- Resolve ambiguity from the repo first. If a requirement is still genuinely ambiguous or contradictory, stop and return it as an open question. Do not guess on decisions that are expensive to reverse.
-- The repo's workflow: Gherkin `.feature` file first when the change is user-visible (see the `write-feature` skill), then implementation, then verification.
+## Build rules
 
-## Phase 3 - Implement
-
-- Implement exactly what the issue asks. No drive-by refactors; mention unrelated findings in the report instead.
-- **UI tasks must match the design 1 to 1.** If the issue changes UI (`apps/main-web/` or `packages/ui/`), the result must match the design it refers to exactly: layout, spacing, tokens, typography, colors and states. Scope the match to what the issue is about, not the whole page: if the issue names a specific page or component, align only that page or component and leave the rest of the page alone, even if it looks misaligned. If the issue names no page or component, the scope is the screens the issue describes. If the design for the scope is unclear or missing, stop and return it as an open question.
+- The repo's workflow: the Gherkin `.feature` file comes first when the plan has one, then implementation, then verification.
+- **UI must match the plan's UI design 1 to 1**: layout, spacing, tokens, typography, colors and states, for the scope the plan names. Leave the rest of any page alone, even if it looks misaligned. If the plan has a screen with no design, stop and report it.
+- Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
+- Add or update the tests the plan lists.
 - Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
 - Add or update tests for the behavior.
 - Run the checks that CI runs and fix failures: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, plus `pnpm build` if build output could be affected. Run them scoped (`pnpm --filter <pkg> ...` / `turbo --filter`) when only one package changed, then the full set once before handing over.
@@ -27,8 +29,9 @@ Build a short internal list of: what must be true when done (acceptance criteria
 ```
 implement-report
 status: ready-for-review | blocked
-open-questions:
-- ...            (only if blocked; stop coding at the first one)
+plan-steps: <done>/<total> (blocked: <step numbers and reason>)
+deviations:
+- ...            (plan vs. reality, and the smallest fix applied)
 commits:
 - <sha> <subject>
 changed-areas: <packages/modules touched>

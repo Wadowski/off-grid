@@ -37,23 +37,31 @@ Launch a `general-purpose` Agent. Prompt: "Read `<repo>/.claude/skills/linear-is
 
 Keep the returned `pickup-report`. If the report says the title is not set or the worktree exists, resolve it with the user before continuing.
 
-### 2. Implement - subagent
+### 2. Plan - subagent
 
-Launch a `general-purpose` Agent. Prompt: "Read `<repo>/.claude/skills/linear-issue/phases/implement.md` and follow it exactly. Input: the pickup-report below. Work only in its worktree. Return the implement-report block." Include the full pickup-report in the prompt.
+Launch a `general-purpose` Agent. Prompt: "Read `<repo>/.claude/skills/linear-issue/phases/planning.md` and follow it exactly. Input: the pickup-report below. Return the planning-report block." Include the full pickup-report in the prompt.
 
-If the report comes back `blocked` with open questions, ask the user with AskUserQuestion in this thread, then launch the implement subagent again with the answers added to the input. Do not decide product questions yourself.
+The plan file path comes back in the planning-report. Keep the path, not the plan text.
 
-### 3. Gate 1 - user review (main session)
+If the report has `status: needs-answers`, ask the user the listed questions with AskUserQuestion in this thread. Put the recommended answer first. Then launch the planning subagent again with the same pickup-report plus an `answers` block with the user's choices. Repeat until the plan is `ready`. Do not decide product questions yourself.
+
+### 3. Implement - subagent
+
+Launch a `general-purpose` Agent. Prompt: "Read `<repo>/.claude/skills/linear-issue/phases/implement.md` and follow it exactly. Input: the pickup-report and the plan file at `<plan-file path>`. Work only in the worktree. Return the implement-report block." Include the pickup-report in the prompt.
+
+If the implement-report comes back `blocked`, read the reason. A blocked step that needs a decision goes back to planning with the question; a blocked step that needs a fix goes to implementation again.
+
+### 4. Gate 1 - user review (main session)
 
 Present the user the implement-report in a few lines: what changed and why, mapped to the acceptance criteria; checks and results; not-verified items; assumptions. Tell them how to see it: `git diff main...HEAD` in the worktree or the diff pane (`mcp__ccd_view__show_pane`).
 
 Then wait. Interpret the reply:
 
 - **Change requests**: launch the implement subagent again with the requests as input and the same worktree. It returns a new implement-report. Repeat Gate 1.
-- **Approval** ("approved", "lgtm", "looks good", "ship it", "create the PR"): continue to step 4.
+- **Approval** ("approved", "lgtm", "looks good", "ship it", "create the PR"): continue to step 5.
 - Anything ambiguous: ask. Do not treat it as approval.
 
-### 4. Verify - main session
+### 5. Verify - main session
 
 Run the [pre-pr-verify](../pre-pr-verify/SKILL.md) skill on the worktree branch. It needs the Agent tool to launch the review agents in `.claude/agents/`, and subagents cannot launch agents, so run it here.
 
@@ -61,13 +69,13 @@ Run the [pre-pr-verify](../pre-pr-verify/SKILL.md) skill on the worktree branch.
 - Do not push until pre-pr-verify passes.
 - Keep a `review-summary` of the final result for the next step.
 
-### 5. Pull request - subagent
+### 6. Pull request - subagent
 
 Launch a `general-purpose` Agent. Prompt: "Read `<repo>/.claude/skills/linear-issue/phases/pull-request.md` and follow it exactly. Input: the pickup-report, the implement-report, and this review-summary. Return the pull-request-report block."
 
 Then bind the PR to the session: `mcp__ccd_pr__get_status`; if it does not report this PR, `mcp__ccd_pr__bind_pr`.
 
-### 6. Monitor CI - main session
+### 7. Monitor CI - main session
 
 Follow CI with the `ccd_pr` tools (`get_status`, `set_monitor`, the app's Auto-fix). Do not poll with `gh`, loops, cron or wakeups.
 
@@ -75,7 +83,7 @@ On a CI failure, launch a `general-purpose` Agent: "Read `<repo>/.claude/skills/
 
 When all required checks are green, tell the user: the PR link, CI green (mention any fixes and what they were), any unresolved review comments on the PR, and that replying **"merge"** merges it and moves the issue to Done.
 
-### 7. Gate 2 - merge
+### 8. Gate 2 - merge
 
 Act only on an explicit **"merge"** in chat. Then launch a `general-purpose` Agent: "Read `<repo>/.claude/skills/linear-issue/phases/merge.md` and follow it exactly. Input: PR URL, issue ID, branch, worktree. The user has said merge." Relay the merge-report to the user: PR merged, issue Done, what was removed, with links.
 
