@@ -5,7 +5,7 @@ import { Text } from "@offgrid/ui";
 import { useState } from "react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { removeCalendar, updateCalendar } from "../../calendars/calendar-api.js";
-import { calendarCardPageStyle } from "../../calendars/styles.js";
+import { narrowCardPageStyle } from "../families-page/styles.js";
 import {
   toCalendarErrorTextId,
   type CalendarErrorTextId,
@@ -56,7 +56,7 @@ export const EditCalendarPage = () => {
 
   if (calendar === undefined) {
     return (
-      <div style={calendarCardPageStyle}>
+      <div style={narrowCardPageStyle}>
         <div style={calendarStateStyle} role="alert">
           <Text variant="error" textId="calendar.errors.notFound" />
           {backLink}
@@ -99,7 +99,7 @@ export const EditCalendarPage = () => {
       : families.find((family) => family.id === calendar.familyId)?.name;
 
   return (
-    <div style={calendarCardPageStyle}>
+    <div style={narrowCardPageStyle}>
       <AccountIntro
         icon="calendar_today"
         pillTextId="calendar.heading"
