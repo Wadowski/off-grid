@@ -7,6 +7,11 @@ import { publishOwnedEvent } from "@offgrid/event-bus";
 
 export const publishCalendarEventRemoved = (
   tx: ModuleTransaction,
-  owner: { readonly familyId: string | null; readonly userId: string | null },
+  owner: {
+    readonly familyId: string | null;
+    readonly userId: string | null;
+    // The version the removed row would have after its removal, so it sorts after the last update.
+    readonly sourceVersion: number;
+  },
   payload: { readonly eventId: string; readonly calendarId: string },
 ): Promise<number> => publishOwnedEvent(rawSqlExecutor(tx), calendarEventRemovedV1, owner, payload);
