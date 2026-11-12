@@ -46,7 +46,8 @@ const ownerOf = (calendar: CalendarRecord): string =>
 
 const instant = (text: string): string => `${text.replace(" ", "T")}:00Z`;
 
-const endInstant = (start: string, endDate: string | undefined, endTime: string): string =>
+// Unmatched optional regex groups arrive as null, so null and undefined both mean absent.
+const endInstant = (start: string, endDate: string | null | undefined, endTime: string): string =>
   instant(`${endDate ?? start.slice(0, 10)} ${endTime}`);
 
 const personNamed = async (
@@ -141,10 +142,16 @@ const createFamilyCalendar = async (
   await ensureFamily(world, family);
   const scenario = state(world);
   const admin = await personNamed(world, adminOf(family));
-  const { id } = await createCalendarNamed(world.api, admin.session, {
-    name,
-    familyId: scenario.families[family]?.id,
-  });
+  // The family creator's membership reaches the calendar module through the event bus, so the
+  // first calendar can be refused until that is applied. Retry the setup call until it is accepted.
+  const { id } = await eventually(
+    () =>
+      createCalendarNamed(world.api, admin.session, {
+        name,
+        familyId: scenario.families[family]?.id,
+      }),
+    { timeout: MEMBER_READY_TIMEOUT_MS, interval: MEMBER_READY_INTERVAL_MS },
+  );
   scenario.calendars.push({ name, id, familyName: family });
   await waitUntilMembersCanRead(world, family, id);
 };
@@ -294,12 +301,13 @@ Given(
     who: string,
     title: string,
     calendarName: string,
-    start: string | undefined,
-    endDate: string | undefined,
-    endTime: string | undefined,
+    startText: string | null | undefined,
+    endDate: string | null | undefined,
+    endTime: string | null | undefined,
   ) => {
     const creator = await personNamed(world, who);
     const calendar = calendarNamed(world, calendarName);
+    const start = startText ?? undefined;
     const startsAt = start === undefined ? instant(DEFAULT_START) : instant(start);
     const endsAt =
       start === undefined ? instant(DEFAULT_END) : endInstant(start, endDate, endTime ?? "");
