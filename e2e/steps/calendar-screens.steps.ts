@@ -6,7 +6,8 @@ import { createBdd } from "playwright-bdd";
 import { blockingViolationDescriptions } from "../support/accessibility.js";
 import { createCalendar, listCalendars } from "../support/factories/calendar.js";
 import { test, type ScenarioWorld } from "../support/fixtures.js";
-import { accountSessionOf, memberSessionOf } from "../support/family-sessions.js";
+import { accountSessionOf, bearer, memberSessionOf } from "../support/family-sessions.js";
+import { eventually } from "../support/eventually.js";
 import { webBaseUrl } from "../support/stack.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -42,6 +43,34 @@ const openEditScreenNamed = async (page: Page, name: string): Promise<void> => {
   await openCalendars(page);
   await rowNamed(page, name).click();
   await expect(page.getByRole("heading", { name: "Edit calendar", exact: true })).toBeVisible();
+};
+
+// The calendar module learns family membership from events, so it can lag a family created a moment
+// ago. Wait until it accepts a family calendar, using a probe calendar that is removed again.
+const waitForFamilyCalendarAccess = async (
+  world: ScenarioWorld,
+  familyName: string,
+): Promise<void> => {
+  const family = world.families.find((created) => created.name === familyName);
+  if (family === undefined) {
+    throw new Error("The family this step refers to was not set up in this scenario.");
+  }
+  const session = memberSessionOf(world);
+  await eventually(
+    async () => {
+      const probe = await createCalendar(world.api, session, {
+        name: "Probe",
+        color: "blue",
+        familyId: family.id,
+      });
+      const removed = await world.api.delete(`/api/calendars/${probe.id}`, {
+        headers: bearer(session),
+        failOnStatusCode: false,
+      });
+      expect(removed.status(), "could not remove the probe calendar").toBe(204);
+    },
+    { timeout: 15_000, interval: 250 },
+  );
 };
 
 const calendarIdOf = (world: ScenarioWorld, name: string): string => {
@@ -91,7 +120,8 @@ Then("I see the calendars list with {string}", async ({ page }, name: string) =>
 
 When(
   "I create a calendar named {string} for the family {string} from the calendar screen",
-  async ({ page }, name: string, family: string) => {
+  async ({ page, world }, name: string, family: string) => {
+    await waitForFamilyCalendarAccess(world, family);
     await openCalendars(page);
     await page.getByTestId("calendars-new").click();
     await fillName(page, name);
