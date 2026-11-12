@@ -26,4 +26,32 @@ describe("AppNav", () => {
     );
     expect(nav.querySelectorAll(".og-app-nav-item-disabled")).toHaveLength(4);
   });
+
+  it.each(["/calendar/agenda", "/calendar/day", "/calendar/calendars"])(
+    "keeps the Calendar item active on %s",
+    (path) => {
+      render(
+        <MemoryRouter initialEntries={[path]}>
+          <AppNav />
+        </MemoryRouter>,
+      );
+
+      const nav = screen.getByRole("navigation", { name: "Main navigation" });
+      expect(within(nav).getByRole("link", { name: "Calendar" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+    },
+  );
+
+  it("does not mark the Family item active on a calendar route", () => {
+    render(
+      <MemoryRouter initialEntries={["/calendar/agenda"]}>
+        <AppNav />
+      </MemoryRouter>,
+    );
+
+    const nav = screen.getByRole("navigation", { name: "Main navigation" });
+    expect(within(nav).getByRole("link", { name: "Family" })).not.toHaveAttribute("aria-current");
+  });
 });

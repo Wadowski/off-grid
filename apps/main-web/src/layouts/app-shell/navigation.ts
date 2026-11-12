@@ -16,6 +16,7 @@ export type AppNavItem = {
   readonly labelTextId: AppNavLabelTextId;
   readonly iconName: string;
   readonly path?: string;
+  readonly matchSubpaths?: boolean;
 };
 
 export const familyNavItem: AppNavItem = {
@@ -27,7 +28,13 @@ export const familyNavItem: AppNavItem = {
 
 export const appNavItems: readonly AppNavItem[] = [
   familyNavItem,
-  { id: "calendar", labelTextId: "nav.calendar", iconName: "calendar_today", path: "/calendar" },
+  {
+    id: "calendar",
+    labelTextId: "nav.calendar",
+    iconName: "calendar_today",
+    path: "/calendar",
+    matchSubpaths: true,
+  },
   { id: "notes", labelTextId: "nav.notes", iconName: "description" },
   { id: "smart-lists", labelTextId: "nav.smartLists", iconName: "checklist" },
   { id: "vault", labelTextId: "nav.vault", iconName: "lock" },

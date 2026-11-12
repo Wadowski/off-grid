@@ -12,7 +12,8 @@ import { webBaseUrl } from "../support/stack.js";
 
 const { Given, When, Then } = createBdd(test);
 
-const CALENDARS_PATH = "/calendar";
+const CALENDARS_PATH = "/calendar/calendars";
+const AGENDA_PATH = "/calendar";
 const NEW_CALENDAR_PATH = "/calendar/new";
 const NAME_PLACEHOLDER = "Enter a calendar name";
 const CALENDAR_ROW = "calendar-row";
@@ -95,7 +96,15 @@ When("I open the calendar from the navigation", async ({ page }) => {
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("link", { name: "Calendar" })
     .click();
-  await expect.poll(() => new URL(page.url()).pathname).toBe(CALENDARS_PATH);
+  await expect.poll(() => new URL(page.url()).pathname).toBe(AGENDA_PATH);
+});
+
+Then("I see the agenda view", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Agenda", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });
 
 Then("I see the calendars list", async ({ page }) => {
