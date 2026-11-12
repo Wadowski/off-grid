@@ -4,6 +4,12 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
+export const calendarSectionStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[2],
+  padding: `${tokens.space[3]} ${tokens.space[4]} 0`,
+};
+
 export const calendarListStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[1],

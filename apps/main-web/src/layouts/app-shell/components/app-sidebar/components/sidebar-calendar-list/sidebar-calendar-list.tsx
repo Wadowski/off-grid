@@ -5,7 +5,13 @@ import { Text } from "@offgrid/ui";
 import { Link } from "react-router-dom";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
 import type { SidebarCalendarListProps } from "./types.js";
-import { calendarListStyle, calendarNameStyle, calendarRowStyle, colorDotStyle } from "./styles.js";
+import {
+  calendarListStyle,
+  calendarNameStyle,
+  calendarRowStyle,
+  calendarSectionStyle,
+  colorDotStyle,
+} from "./styles.js";
 
 export const SidebarCalendarList = ({ calendars }: SidebarCalendarListProps) => {
   if (calendars.length === 0) {
@@ -13,7 +19,11 @@ export const SidebarCalendarList = ({ calendars }: SidebarCalendarListProps) => 
   }
 
   return (
-    <section aria-labelledby="sidebar-calendars-heading" data-testid="sidebar-calendar-list">
+    <section
+      aria-labelledby="sidebar-calendars-heading"
+      data-testid="sidebar-calendar-list"
+      style={calendarSectionStyle}
+    >
       <Text variant="label" id="sidebar-calendars-heading" textId="calendar.calendars.heading" />
       <ul style={calendarListStyle}>
         {calendars.map((calendar) => (
