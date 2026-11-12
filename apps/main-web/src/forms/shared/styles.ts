@@ -37,3 +37,9 @@ export const promptStyle: CSSProperties = {
 export const errorBannerStyle: CSSProperties = {
   marginTop: tokens.space[2],
 };
+
+export const pickerSectionStyle: CSSProperties = {
+  display: "grid",
+  gap: tokens.space[2],
+  textAlign: "left",
+};
