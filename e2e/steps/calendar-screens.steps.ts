@@ -225,7 +225,7 @@ When("I open the calendars list at a phone width of 375 pixels", async ({ page }
 
 Then("the page has no horizontal scroll", async ({ page }) => {
   const overflows = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    "document.documentElement.scrollWidth > document.documentElement.clientWidth",
   );
   expect(overflows).toBe(false);
 });
