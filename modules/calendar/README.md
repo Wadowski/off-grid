@@ -28,7 +28,7 @@ Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migr
 
 `src/events/family-membership` subscribes to `family-member-added-v1` and `family-member-removed-v1` and keeps `calendar.family_membership` in step. That table is how the calendar module knows which family calendars a person may manage. Each family creator also gets a `family-member-added-v1` event, so the creator appears in the table too. Families created before that change have no rows here, so their members cannot manage family calendars until those rows are backfilled.
 
-Each change is applied in the order the family made it. A change that was already applied is ignored. A change that arrives after a skipped one is a gap: the person is denied until their next change is applied, so access never comes back from a guess.
+Each change is applied in the order the family made it. A change that was already applied is ignored. A change that arrives before an earlier change it depends on halts the subscriber until that change arrives. A person whose earlier change was made before this projection existed is denied until their next change applies. The projection starts after the events that existed at migration time, so those old events are never replayed.
 
 Both events go to one subscription, `calendar-family-membership`, so they are applied in the order the family made them, even when a removal and a later rejoin are delivered together. The subscription uses the bus's `halt` failure policy: an event that still fails after its retries stops the subscriber there, rather than being skipped. Later events wait until the failure is fixed, and the error is recorded.
 

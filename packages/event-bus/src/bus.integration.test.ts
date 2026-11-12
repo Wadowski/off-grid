@@ -318,7 +318,7 @@ describe("delivery", () => {
 
   it("halts a subscriber at an event it cannot apply, then resumes once the failure is gone", async () => {
     let failing = true;
-    const applied = new Set<string>();
+    const applied: string[] = [];
     bus.subscribe({
       name: "strict",
       event: familyCreated,
@@ -328,7 +328,7 @@ describe("delivery", () => {
         if (failing && event.payload.name === "Broken") {
           throw new Error("projection unavailable");
         }
-        applied.add(event.payload.name);
+        applied.push(event.payload.name);
       },
     });
     await publishCommitted(family, envelope(1, "Alpha"));
@@ -337,7 +337,7 @@ describe("delivery", () => {
 
     await bus.deliverPending();
 
-    expect([...applied]).toEqual(["Alpha"]);
+    expect(applied).toEqual(["Alpha"]);
     expect(errors.list()).toHaveLength(1);
     const { rows } = await db.admin.query("SELECT count(*)::int AS n FROM outbox.dead_letter");
     expect(rows[0]).toEqual({ n: 0 });
@@ -345,7 +345,9 @@ describe("delivery", () => {
     failing = false;
     await bus.deliverPending();
 
-    expect([...applied]).toEqual(["Alpha", "Broken", "Gamma"]);
+    // Alpha ran again: its cursor move was rolled back with the halted batch, so the
+    // handler must be idempotent.
+    expect(applied).toEqual(["Alpha", "Alpha", "Broken", "Gamma"]);
   });
 
   it("keeps the projection on the newest source version", async () => {

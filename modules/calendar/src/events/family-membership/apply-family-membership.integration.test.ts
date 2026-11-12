@@ -59,10 +59,16 @@ describe("family membership projection", { timeout: 60_000 }, () => {
     expect(await stored()).toEqual({ source_version: 1, is_member: true });
   });
 
-  it("denies the person when an earlier change was never applied", async () => {
-    await apply(1, true);
+  it("denies a person whose earlier change was made before the projection existed", async () => {
     await apply(3, true);
 
     expect(await stored()).toEqual({ source_version: 3, is_member: false });
+  });
+
+  it("refuses a change that arrives before an earlier change it depends on", async () => {
+    await apply(1, true);
+
+    await expect(apply(3, true)).rejects.toThrow("arrived before an earlier change");
+    expect(await stored()).toEqual({ source_version: 1, is_member: true });
   });
 });

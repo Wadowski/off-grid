@@ -43,6 +43,44 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
       publishOwnedEvent(client, familyMemberRemovedV1, { familyId, sourceVersion }, { userId }),
     );
 
+  it("does not apply membership events published before the projection, so a person who left earlier stays denied", async () => {
+    const legacyUser = randomUUID();
+    await withTransaction(db.pool, async (client) => {
+      await publishOwnedEvent(
+        client,
+        familyMemberAddedV1,
+        { familyId, sourceVersion: 1 },
+        { userId: legacyUser, role: "member" },
+      );
+      await publishOwnedEvent(
+        client,
+        familyMemberRemovedV1,
+        { familyId, sourceVersion: 1 },
+        { userId: legacyUser },
+      );
+    });
+    // Same statement as the migration: the subscriber starts after the events that exist now.
+    await db.admin.query(
+      `INSERT INTO outbox.subscriber_cursor (subscriber, last_sequence)
+       SELECT 'calendar-family-membership', COALESCE(max(sequence), 0) FROM outbox.event
+       ON CONFLICT (subscriber) DO NOTHING`,
+    );
+    const bus = createEventBus({
+      pool: db.pool,
+      errorSink: createMemoryErrorSink(),
+      retryDelayMs: () => 0,
+    });
+    registerFamilyMembershipSubscribers(bus);
+
+    await bus.deliverPending();
+
+    const { rows } = await db.admin.query(
+      "SELECT is_member FROM calendar.family_membership WHERE family_id = $1 AND user_id = $2",
+      [familyId, legacyUser],
+    );
+    expect(rows).toEqual([]);
+  });
+
   it("applies a removal and a later rejoin, pending together, in the order the family made them", async () => {
     await publishJoin(1);
     await publishLeave(2);

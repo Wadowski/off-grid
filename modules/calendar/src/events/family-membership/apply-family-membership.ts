@@ -26,6 +26,12 @@ export const applyFamilyMembership = async (
   if (outcome === "duplicate" || outcome === "stale") {
     return;
   }
+  if (outcome === "gap" && stored !== null) {
+    // An earlier change has not arrived yet. Throwing halts the subscriber until it does.
+    throw new Error("membership change arrived before an earlier change");
+  }
+  // With no earlier change on record, the change was made before this projection existed
+  // and will never arrive. The person is denied until their next change applies.
   const isMember = outcome === "apply" && change.isMember;
   await client.query(
     `INSERT INTO calendar.family_membership (family_id, user_id, source_version, is_member)
