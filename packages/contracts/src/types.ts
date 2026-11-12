@@ -18,6 +18,7 @@ import type { userIdSchema } from "./user-id-schema.js";
 import type { createCalendarEventRequestSchema } from "./create-calendar-event-request-schema.js";
 import type { updateCalendarEventRequestSchema } from "./update-calendar-event-request-schema.js";
 import type { calendarTimeZoneSchema } from "./calendar-time-zone-response-schema.js";
+import type { calendarEventSchema } from "./calendar-event-schema.js";
 import type { MAIL_PRESETS, MAIL_PROVIDERS, MAIL_SECURITY } from "./constants.js";
 
 export type FamilyId = z.infer<typeof familyIdSchema>;
@@ -35,6 +36,7 @@ export type InstanceSettingsUpdate = z.infer<typeof instanceSettingsUpdateSchema
 export type NewCalendarEventInput = z.infer<typeof createCalendarEventRequestSchema>;
 export type CalendarEventUpdateInput = z.infer<typeof updateCalendarEventRequestSchema>;
 export type TimeZoneSetting = z.infer<typeof calendarTimeZoneSchema>;
+export type CalendarEventResponse = z.input<typeof calendarEventSchema>;
 
 export type MailProvider = (typeof MAIL_PROVIDERS)[number];
 

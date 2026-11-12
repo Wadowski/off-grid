@@ -27,7 +27,7 @@ import type { CalendarRouteContext } from "../../types.js";
 import { toCalendarEvent } from "./to-calendar-event.js";
 
 // Messages here are fixed text. They never echo request values such as the title.
-const WINDOW_MESSAGE = "endsAt must not be before startsAt";
+const WINDOW_MESSAGE = "The event must not end before it starts";
 
 export const registerCalendarEventRoutes = (
   api: FastifyInstance,

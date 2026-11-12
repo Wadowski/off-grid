@@ -64,7 +64,7 @@ export const localMidnight = (date: string, timeZone: string): Date => {
   return new Date(refined);
 };
 
-export const nextDay = (date: string): string => {
+const nextDay = (date: string): string => {
   const { year, month, day } = parseDay(date);
   return formatDay(Date.UTC(year, month - 1, day + 1));
 };
