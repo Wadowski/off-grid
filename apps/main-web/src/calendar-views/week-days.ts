@@ -48,3 +48,9 @@ export const daysBetween = (from: string, to: string): number => {
 
 export const localDateOf = (now: Date): string =>
   `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+const WEEKDAY = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" });
+
+export const weekDayLabel = (date: string): string => WEEKDAY.format(new Date(`${date}T00:00:00Z`));
+
+export const weekDayNumber = (date: string): number => Number(date.slice(8, 10));

@@ -1,0 +1,64 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { cssVar, tokens } from "@offgrid/ui";
+import type { CSSProperties } from "react";
+
+export const weekStripStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "stretch",
+  gap: tokens.space[1],
+  padding: `${tokens.space[2]} ${tokens.space[1]}`,
+  borderRadius: cssVar("radius-lg"),
+  background: cssVar("color-surface-low"),
+  boxShadow: cssVar("elevation-1"),
+};
+
+const dayBaseStyle: CSSProperties = {
+  flex: "1 1 0",
+  minWidth: 0,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: tokens.space[1],
+  padding: `${tokens.space[2]} 0`,
+  borderWidth: 0,
+  borderRadius: cssVar("radius-lg"),
+  background: "transparent",
+  color: cssVar("color-fg"),
+  cursor: "pointer",
+};
+
+export const weekStripDayStyle = (selected: boolean): CSSProperties =>
+  selected
+    ? {
+        ...dayBaseStyle,
+        background: cssVar("color-primary"),
+        color: cssVar("color-accent-fg"),
+        boxShadow: cssVar("elevation-1"),
+      }
+    : dayBaseStyle;
+
+export const weekStripWeekdayStyle: CSSProperties = {
+  fontFamily: cssVar("font-family-base"),
+  fontSize: cssVar("font-size-label-sm"),
+  lineHeight: cssVar("line-height-label-sm"),
+  letterSpacing: cssVar("letter-spacing-label-sm"),
+  fontWeight: cssVar("font-weight-medium"),
+};
+
+export const weekStripNumberStyle: CSSProperties = {
+  fontFamily: cssVar("font-family-heading"),
+  fontSize: cssVar("font-size-headline-sm"),
+  lineHeight: cssVar("line-height-headline-sm"),
+  letterSpacing: cssVar("letter-spacing-headline-sm"),
+  fontWeight: cssVar("font-weight-semibold"),
+};
+
+export const weekStripTodayDotStyle = (selected: boolean): CSSProperties => ({
+  width: "6px",
+  height: "6px",
+  borderRadius: cssVar("radius-full"),
+  background: selected ? cssVar("color-accent-fg") : cssVar("color-good"),
+});

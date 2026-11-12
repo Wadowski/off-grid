@@ -119,6 +119,8 @@ export const en = {
       allDay: "All day",
       end: "{{time}} End",
       duration: "{{minutes}}m",
+      durationHours: "{{hours}}h",
+      durationHoursMinutes: "{{hours}}h {{minutes}}m",
       gmtOffset: "GMT{{offset}}",
       weekdayMonday: "M",
       weekdayTuesday: "T",

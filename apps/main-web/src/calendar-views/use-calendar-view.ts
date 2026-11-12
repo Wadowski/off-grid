@@ -46,3 +46,5 @@ export const useCalendarView = (view: CalendarViewKind, date: string): CalendarV
 
   return { status, days, retry };
 };
+
+export type CalendarViewEvent = CalendarViewDay["events"][number];

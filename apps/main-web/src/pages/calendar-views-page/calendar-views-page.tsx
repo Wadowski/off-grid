@@ -5,17 +5,24 @@ import { Avatar, Button, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
-import { ALL_CALENDARS, type CalendarFilter } from "../../calendar-views/events-by-calendar.js";
+import {
+  ALL_CALENDARS,
+  type CalendarFilter,
+  filterByCalendar,
+} from "../../calendar-views/events-by-calendar.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
-import { localDateOf } from "../../calendar-views/week-days.js";
+import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
 import { FAMILY_ACCENT_COLORS } from "../../families/family-appearance.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useSession } from "../../session/use-session.js";
 import type { ShellContext } from "../../types.js";
+import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarFilterBar } from "./components/calendar-filter-bar/calendar-filter-bar.js";
+import { DayHeader } from "./components/day-header/day-header.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
+import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
   calendarViewsActionsStyle,
   calendarViewsHeaderStyle,
@@ -43,8 +50,13 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const date = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
   const [filter, setFilter] = useState<CalendarFilter>(ALL_CALENDARS);
-  const { status, retry } = useCalendarView(view, date);
-  useCalendarTimeZone(session.status === "signedIn");
+  const { status, days, retry } = useCalendarView(view, date);
+  const { timeZone } = useCalendarTimeZone(session.status === "signedIn");
+  const today = localDateOf(new Date());
+  const selectedEvents =
+    days
+      .map((day) => ({ ...day, events: filterByCalendar(day.events, filter) }))
+      .find((day) => day.date === date)?.events ?? [];
 
   const activeFamily =
     session.status === "signedIn"
@@ -100,6 +112,20 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
             <Text variant="action" textId="calendar.mobileViews.retry" />
           </Button>
         </div>
+      )}
+      {(view === "agenda" || view === "day") && (
+        <WeekStrip
+          dates={weekDates(mondayOf(date))}
+          selectedDate={date}
+          todayDate={today}
+          onSelect={goToDate}
+        />
+      )}
+      {view === "agenda" && status === "ready" && (
+        <>
+          <DayHeader date={date} scheduledCount={selectedEvents.length} />
+          <AgendaList events={selectedEvents} timeZone={timeZone} />
+        </>
       )}
     </section>
   );
