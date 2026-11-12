@@ -255,16 +255,21 @@ model CalendarFamilyMembership {
 }
 
 model CalendarEvent {
-  eventId    String   @id @map("event_id") @db.Uuid
-  calendarId String   @map("calendar_id") @db.Uuid
-  familyId   String?  @map("family_id") @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
-  title      String   @db.VarChar(200)
-  startsAt   DateTime @map("starts_at") @db.Timestamptz(6)
-  endsAt     DateTime @map("ends_at") @db.Timestamptz(6)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  eventId     String   @id @map("event_id") @db.Uuid
+  calendarId  String   @map("calendar_id") @db.Uuid
+  familyId    String?  @map("family_id") @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  title       String   @db.VarChar(200)
+  location    String?  @db.VarChar(200)
+  description String?  @db.VarChar(2000)
+  isAllDay    Boolean  @default(false) @map("is_all_day")
+  version     Int      @default(1)
+  startsAt    DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt      DateTime @map("ends_at") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([calendarId])
+  @@index([calendarId, startsAt], map: "calendar_event_calendar_starts_idx")
   @@map("calendar_event")
   @@schema("calendar")
 }
