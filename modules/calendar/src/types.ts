@@ -97,3 +97,21 @@ export interface CalendarEventChanges {
   readonly startsAt?: Date;
   readonly endsAt?: Date;
 }
+
+export type NewCalendarEventInput =
+  | {
+      readonly isAllDay: false;
+      readonly title: string;
+      readonly location?: string;
+      readonly description?: string;
+      readonly startsAt: string;
+      readonly endsAt: string;
+    }
+  | {
+      readonly isAllDay: true;
+      readonly title: string;
+      readonly location?: string;
+      readonly description?: string;
+      readonly startDate: string;
+      readonly endDate: string;
+    };
