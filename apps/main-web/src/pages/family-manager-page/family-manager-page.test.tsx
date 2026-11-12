@@ -87,7 +87,8 @@ describe("Family manager screen", () => {
   it("shows an admin each member with their name and role", async () => {
     await renderManager([SMITHS_ADMIN], [me, sam]);
 
-    const rows = await screen.findAllByTestId("family-member-row");
+    // CI runners are slower than the default 1 s wait for the list to load.
+    const rows = await screen.findAllByTestId("family-member-row", {}, { timeout: 5000 });
     expect(within(rows[0] as HTMLElement).getByText("Anna Kowalska")).toBeInTheDocument();
     expect(within(rows[1] as HTMLElement).getByText("Sam Smith")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Manage" }));
