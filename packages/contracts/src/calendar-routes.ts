@@ -4,4 +4,6 @@
 export const calendarRoutes = {
   calendars: "/calendars",
   calendar: "/calendars/:id",
+  calendarView: "/calendar/views/:view",
+  calendarTimeZone: "/calendar/time-zone",
 } as const;
