@@ -3,7 +3,7 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 
-export const findFamilyMembership = async (
+export const isFamilyMember = async (
   tx: ModuleTransaction,
   input: { readonly familyId: string; readonly userId: string },
 ): Promise<boolean> => {

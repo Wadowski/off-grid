@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { withUserContext, type ModuleDatabase } from "@offgrid/db";
+import { withUserContext, type ModuleDatabase, type ModuleTransaction } from "@offgrid/db";
 import type { CalendarColor } from "../../domain/calendar-colors.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { recolorCalendar } from "../../infrastructure/calendars/recolor-calendar.js";
@@ -32,7 +32,7 @@ export const updateCalendar = (
   });
 
 const applyChanges = async (
-  tx: Parameters<typeof renameCalendar>[0],
+  tx: ModuleTransaction,
   calendarId: string,
   input: CalendarChangeInput,
 ): Promise<boolean> => {

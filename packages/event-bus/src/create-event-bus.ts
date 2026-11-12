@@ -55,6 +55,9 @@ export const createEventBus = (options: EventBusOptions): EventBus => {
       subscription: MultiEventSubscription<Ds>,
     ) => {
       assertModuleName(subscription.runAs);
+      if (subscription.events.length === 0) {
+        throw new Error(`subscriber "${subscription.name}" has no events to deliver`);
+      }
       register(multiDelivery(subscription));
     },
     subscribeTransport: ({ name, event, transport }) => {

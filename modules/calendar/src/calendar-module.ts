@@ -10,8 +10,7 @@ import type { CalendarRouteContext } from "./types.js";
 
 export const calendarModule = {
   name: "calendar",
-  registerRoutes: (api: FastifyInstance, context: CalendarRouteContext) =>
-    registerCalendarRoutes(api, context),
+  registerRoutes: registerCalendarRoutes,
   registerSubscribers: (context: { readonly eventBus: EventBus }) => {
     registerDefaultCalendarSubscribers(context.eventBus);
     registerFamilyMembershipSubscribers(context.eventBus);

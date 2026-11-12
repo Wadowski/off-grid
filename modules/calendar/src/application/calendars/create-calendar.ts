@@ -4,7 +4,7 @@
 import { randomUUID } from "node:crypto";
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import type { CalendarColor } from "../../domain/calendar-colors.js";
-import { findFamilyMembership } from "../../infrastructure/family-membership/find-family-membership.js";
+import { isFamilyMember } from "../../infrastructure/family-membership/is-family-member.js";
 import { insertCalendar } from "../../infrastructure/calendars/insert-calendar.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import type { CalendarOutcome, CalendarRecord } from "../../types.js";
@@ -24,7 +24,7 @@ export const createCalendar = (
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
     if (input.familyId !== undefined) {
-      const member = await findFamilyMembership(tx, { familyId: input.familyId, userId });
+      const member = await isFamilyMember(tx, { familyId: input.familyId, userId });
       if (!member) {
         return { outcome: "not-found" };
       }

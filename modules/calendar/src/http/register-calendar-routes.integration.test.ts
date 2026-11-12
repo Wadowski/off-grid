@@ -49,7 +49,11 @@ describe("calendar routes", { timeout: 60_000 }, () => {
       "SELECT calendar_id FROM calendar.calendar WHERE user_id = $1 AND is_default",
       [userId],
     );
-    return rows[0]?.calendar_id ?? "";
+    const calendarId = rows[0]?.calendar_id;
+    if (calendarId === undefined) {
+      throw new Error("the default calendar was not created");
+    }
+    return calendarId;
   };
 
   const insertPersonalCalendar = async (userId: string, name: string) => {
@@ -72,8 +76,10 @@ describe("calendar routes", { timeout: 60_000 }, () => {
       });
 
       expect(response.statusCode).toBe(200);
-      const names = response.json().calendars.map((calendar: { name: string }) => calendar.name);
-      expect(names).toEqual(expect.arrayContaining(["Work"]));
+      const calendars: { name: string; isDefault: boolean }[] = response.json().calendars;
+      expect(calendars.map((calendar) => calendar.name)).toContain("Work");
+      expect(calendars.filter((calendar) => calendar.isDefault)).toHaveLength(1);
+      expect(calendars).toHaveLength(2);
     });
 
     it("answers 401 when no user is signed in", async () => {
