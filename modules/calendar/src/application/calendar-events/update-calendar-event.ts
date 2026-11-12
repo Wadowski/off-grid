@@ -1,7 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { isValidDayWindow, isValidEventWindow } from "@offgrid/contracts";
+import {
+  isValidDayWindow,
+  isValidEventWindow,
+  type CalendarEventUpdateInput,
+} from "@offgrid/contracts";
 import { withUserContext, type ModuleDatabase, type ModuleTransaction } from "@offgrid/db";
 import { EventMoveOwnerMismatchError } from "../errors/event-move-owner-mismatch-error.js";
 import { allDayBounds, lastDayOf, localDate } from "../../domain/all-day-bounds.js";
@@ -11,11 +15,7 @@ import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
 import { updateEvent } from "../../infrastructure/calendar-events/update-event.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
-import type {
-  CalendarEventRecord,
-  CalendarEventUpdateInput,
-  CalendarOutcome,
-} from "../../types.js";
+import type { CalendarEventRecord, CalendarOutcome } from "../../types.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
 
 export type UpdateCalendarEventOutcome =

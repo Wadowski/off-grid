@@ -1,15 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { TimeZoneSetting } from "@offgrid/contracts";
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import { upsertTimeZone } from "../../infrastructure/time-zones/upsert-time-zone.js";
-
-export interface TimeZoneSetting {
-  readonly timeZone: string;
-  readonly isSet: boolean;
-}
 
 export const getTimeZone = (db: ModuleDatabase, userId: string): Promise<TimeZoneSetting> =>
   db.$transaction(async (tx) => {

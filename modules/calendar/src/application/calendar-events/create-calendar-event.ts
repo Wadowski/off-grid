@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import type { NewCalendarEventInput } from "@offgrid/contracts";
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { allDayBounds } from "../../domain/all-day-bounds.js";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
@@ -9,7 +10,7 @@ import { publishCalendarEventCreated } from "../../events/calendar-events/publis
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { insertEvent } from "../../infrastructure/calendar-events/insert-event.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
-import type { CalendarOutcome, NewCalendarEventInput } from "../../types.js";
+import type { CalendarOutcome } from "../../types.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
 
 export const createCalendarEvent = (
