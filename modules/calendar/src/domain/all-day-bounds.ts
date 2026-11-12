@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 interface ZonedParts {
   readonly year: number;
   readonly month: number;
