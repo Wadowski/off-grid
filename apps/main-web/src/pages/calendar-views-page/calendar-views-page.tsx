@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Avatar, Button, Text } from "@offgrid/ui";
+import { Avatar, Button, SegmentedControl, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
@@ -22,6 +22,7 @@ import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarFilterBar } from "./components/calendar-filter-bar/calendar-filter-bar.js";
 import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
+import { ViewSegmentedControl } from "./components/view-segmented-control/view-segmented-control.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
@@ -34,6 +35,7 @@ import {
   familyPillStyle,
 } from "./styles.js";
 import type { CalendarViewsPageProps } from "./types.js";
+import type { CalendarViewKind } from "@offgrid/contracts";
 
 const initialsOf = (displayName: string): string =>
   displayName
@@ -67,6 +69,9 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
 
   const goToDate = (nextDate: string) => setSearchParams({ date: nextDate });
 
+  const goToView = (nextView: CalendarViewKind) =>
+    navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
+
   return (
     <section style={calendarViewsPageStyle}>
       <header style={calendarViewsHeaderStyle}>
@@ -92,6 +97,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
           {signedInName !== null && <Avatar initials={initialsOf(signedInName)} size="2rem" />}
         </div>
       </header>
+      <ViewSegmentedControl value={view} onChange={goToView} />
       <DateNavigator
         label={periodLabel(view, date)}
         onPrevious={() => goToDate(shiftDate(date, view, -1))}
@@ -115,12 +121,23 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {(view === "agenda" || view === "day") && (
-        <WeekStrip
-          dates={weekDates(mondayOf(date))}
-          selectedDate={date}
-          todayDate={today}
-          onSelect={goToDate}
-        />
+        <>
+          <WeekStrip
+            dates={weekDates(mondayOf(date))}
+            selectedDate={date}
+            todayDate={today}
+            onSelect={goToDate}
+          />
+          <SegmentedControl
+            label={t("calendar.mobileViews.viewControl")}
+            options={[
+              { value: "agenda", label: t("calendar.views.agenda") },
+              { value: "day", label: t("calendar.mobileViews.dayTimeline") },
+            ]}
+            value={view}
+            onChange={goToView}
+          />
+        </>
       )}
       {view === "agenda" && status === "ready" && (
         <>

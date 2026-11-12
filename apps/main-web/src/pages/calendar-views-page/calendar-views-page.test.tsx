@@ -148,4 +148,22 @@ describe("CalendarViewsPage", () => {
 
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(viewCalls));
   });
+
+  it("switches to another view from the four-view control and keeps the date", () => {
+    stubApi();
+    renderPage("/calendar/agenda?date=2025-10-23", "agenda");
+
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/calendar/month?date=2025-10-23");
+  });
+
+  it("switches between agenda and day timeline below the week strip", () => {
+    stubApi();
+    renderPage("/calendar/agenda?date=2025-10-23", "agenda");
+
+    fireEvent.click(screen.getByRole("button", { name: "Day Timeline" }));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2025-10-23");
+  });
 });
