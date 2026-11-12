@@ -3,7 +3,6 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 
-// Guests and reminders point at events, so they go first.
 export const deleteEvents = async (
   tx: ModuleTransaction,
   eventIds: readonly string[],

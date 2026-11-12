@@ -345,8 +345,6 @@ describe("delivery", () => {
     failing = false;
     await bus.deliverPending();
 
-    // Alpha ran again: its cursor move was rolled back with the halted batch, so the
-    // handler must be idempotent.
     expect(applied).toEqual(["Alpha", "Alpha", "Broken", "Gamma"]);
   });
 

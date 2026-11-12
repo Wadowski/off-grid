@@ -6,8 +6,6 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-// A module's events are consumed by these modules, so their scenarios can break too.
-// Keep this list in step with the subscribers in each module's events folder.
 export const CONSUMERS = {
   family: ["calendar"],
   identity: ["family"],
@@ -20,8 +18,6 @@ const MODULE_TAG = /@module:([a-z-]+)/g;
 
 const withConsumers = (name) => [name, ...(CONSUMERS[name] ?? [])];
 
-// Decides what to run for a set of changed files. readFeatureModules(path) returns the
-// module names tagged in a feature file, so the planner can be tested without git.
 export const planFor = (changedFiles, readFeatureModules) => {
   const modules = new Set();
   const reasons = [];

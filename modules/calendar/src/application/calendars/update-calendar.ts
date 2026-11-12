@@ -2,19 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { withUserContext, type ModuleDatabase, type ModuleTransaction } from "@offgrid/db";
-import type { CalendarColor } from "../../domain/calendar-colors.js";
+import type { CalendarChangeInput } from "../../types.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { recolorCalendar } from "../../infrastructure/calendars/recolor-calendar.js";
 import { renameCalendar } from "../../infrastructure/calendars/rename-calendar.js";
 import type { CalendarOutcome, CalendarRecord } from "../../types.js";
 
-export interface CalendarChangeInput {
-  readonly name?: string;
-  readonly color?: CalendarColor;
-}
-
-// Row-level security hides calendars the caller cannot manage, so an update to
-// them changes no row and reports not-found.
 export const updateCalendar = (
   db: ModuleDatabase,
   userId: string,

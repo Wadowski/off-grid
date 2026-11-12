@@ -11,9 +11,6 @@ export interface HandlerContext {
   readonly tx: ClientBase;
 }
 
-// "skip" dead-letters an event after its attempts run out and moves on. "halt" stops
-// the subscriber at that event and retries it on later passes, so no later event is
-// applied past it. Use "halt" for projections whose state must not drift.
 export type FailurePolicy = "skip" | "halt";
 
 export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition> {
@@ -24,7 +21,6 @@ export interface Subscription<D extends AnyEventDefinition = AnyEventDefinition>
   handler(event: EventOf<D>, context: HandlerContext): Promise<void>;
 }
 
-// One cursor for several event types, so the handler sees them in publish order.
 export interface MultiEventSubscription<Ds extends readonly AnyEventDefinition[]> {
   readonly name: string;
   readonly events: Ds;
@@ -33,7 +29,6 @@ export interface MultiEventSubscription<Ds extends readonly AnyEventDefinition[]
   handler(event: EventOf<Ds[number]>, context: HandlerContext): Promise<void>;
 }
 
-// What the delivery code works on: every subscription, single or multi, in one shape.
 export interface Delivery {
   readonly name: string;
   readonly events: readonly AnyEventDefinition[];
@@ -145,4 +140,10 @@ export interface DeliveryLoopState {
 export interface DeliveryLoop {
   start(): Promise<void>;
   stop(): Promise<void>;
+}
+
+export interface EventOwner {
+  readonly familyId?: string | null;
+  readonly userId?: string | null;
+  readonly sourceVersion?: number;
 }

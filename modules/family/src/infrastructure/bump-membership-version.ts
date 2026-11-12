@@ -3,8 +3,6 @@
 
 import { rawSqlExecutor, type ModuleTransaction } from "@offgrid/db";
 
-// Counts each change to one person's membership in one family. The row is never
-// deleted, so a rejoin continues the count instead of starting again at 1.
 export const bumpMembershipVersion = async (
   tx: ModuleTransaction,
   familyId: string,

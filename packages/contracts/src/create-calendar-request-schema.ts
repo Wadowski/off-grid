@@ -6,7 +6,6 @@ import { calendarColorSchema } from "./calendar-color-schema.js";
 import { familyIdSchema } from "./family-id-schema.js";
 import { nameSchema } from "./name-schema.js";
 
-// Without a familyId the calendar is personal to the caller.
 export const createCalendarRequestSchema = z.object({
   name: nameSchema,
   color: calendarColorSchema,

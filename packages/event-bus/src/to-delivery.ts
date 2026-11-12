@@ -4,8 +4,6 @@
 import type { AnyEventDefinition } from "@offgrid/contracts";
 import type { Delivery, EventOf, MultiEventSubscription, Subscription } from "./types.js";
 
-// The casts below are safe because deliverOne parses each event with the definition it
-// matched by name before calling the handler.
 export const singleDelivery = <D extends AnyEventDefinition>(
   subscription: Subscription<D>,
 ): Delivery => ({

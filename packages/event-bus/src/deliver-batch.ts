@@ -15,7 +15,6 @@ export const deliverBatch = async (
       deliverLockedBatch(client, subscription, settings),
     );
   } catch (error) {
-    // A halted subscriber has already recorded its error with the event it stopped on.
     if (!(error instanceof SubscriptionHalted)) {
       settings.errorSink.record(error, { subscriber: subscription.name });
     }

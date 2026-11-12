@@ -12,9 +12,6 @@ const requireFamilyId = (familyId: string | null): string => {
   return familyId;
 };
 
-// One subscription for both events, so they are applied in the order the family made
-// them. "halt" keeps a change that cannot be applied from being skipped: access stays
-// as the last applied change left it until the change is fixed and delivered.
 export const registerFamilyMembershipSubscribers = (eventBus: EventBus): void => {
   eventBus.subscribeToEvents({
     name: "calendar-family-membership",

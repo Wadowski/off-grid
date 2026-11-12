@@ -4,18 +4,8 @@
 import { setPgFamilyContext } from "@offgrid/db";
 import { classifySourceVersion } from "@offgrid/event-bus";
 import type { SubscriberClient } from "../../types.js";
+import type { MembershipChange } from "../../types.js";
 
-interface MembershipChange {
-  readonly familyId: string;
-  readonly userId: string;
-  readonly sourceVersion: number;
-  readonly isMember: boolean;
-}
-
-// Applies one membership change in the order the family made it. A repeated or older
-// change is ignored. A missing change leaves the state unknown, so the person is
-// denied until the next change for them is applied. Each statement names the
-// family, so the row-level policy sees the context it needs.
 export const applyFamilyMembership = async (
   client: SubscriberClient,
   change: MembershipChange,
@@ -27,11 +17,8 @@ export const applyFamilyMembership = async (
     return;
   }
   if (outcome === "gap" && stored !== null) {
-    // An earlier change has not arrived yet. Throwing halts the subscriber until it does.
     throw new Error("membership change arrived before an earlier change");
   }
-  // With no earlier change on record, the change was made before this projection existed
-  // and will never arrive. The person is denied until their next change applies.
   const isMember = outcome === "apply" && change.isMember;
   await client.query(
     `INSERT INTO calendar.family_membership (family_id, user_id, source_version, is_member)

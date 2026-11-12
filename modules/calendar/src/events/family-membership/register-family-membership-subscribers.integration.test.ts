@@ -59,7 +59,6 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
         { userId: legacyUser },
       );
     });
-    // Same statement as the migration: the subscriber starts after the events that exist now.
     await db.admin.query(
       `INSERT INTO outbox.subscriber_cursor (subscriber, last_sequence)
        SELECT 'calendar-family-membership', COALESCE(max(sequence), 0) FROM outbox.event

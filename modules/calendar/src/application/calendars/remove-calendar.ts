@@ -7,15 +7,8 @@ import { deleteCalendar } from "../../infrastructure/calendars/delete-calendar.j
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { deleteEvents } from "../../infrastructure/calendar-events/delete-events.js";
 import { listEventIdsOfCalendar } from "../../infrastructure/calendar-events/list-event-ids-of-calendar.js";
-import type { CalendarRecord } from "../../types.js";
+import type { RemoveCalendarOutcome } from "../../types.js";
 
-export type RemoveCalendarOutcome =
-  | { readonly outcome: "found"; readonly value: CalendarRecord }
-  | { readonly outcome: "not-found" }
-  | { readonly outcome: "default-calendar" };
-
-// The events, their guests and reminders, and the calendar go in one transaction,
-// and each removed event is published in the same transaction.
 export const removeCalendar = (
   db: ModuleDatabase,
   userId: string,
@@ -33,7 +26,6 @@ export const removeCalendar = (
     const eventIds = await listEventIdsOfCalendar(tx, calendarId);
     await deleteEvents(tx, eventIds);
     if (!(await deleteCalendar(tx, calendarId))) {
-      // Throwing rolls back the event deletes above, so no removal is published.
       throw new Error("calendar was removed by another request while its events were deleted");
     }
     for (const eventId of eventIds) {

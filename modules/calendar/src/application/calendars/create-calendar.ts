@@ -3,19 +3,12 @@
 
 import { randomUUID } from "node:crypto";
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
-import type { CalendarColor } from "../../domain/calendar-colors.js";
+import type { NewCalendarInput } from "../../types.js";
 import { isFamilyMember } from "../../infrastructure/family-membership/is-family-member.js";
 import { insertCalendar } from "../../infrastructure/calendars/insert-calendar.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import type { CalendarOutcome, CalendarRecord } from "../../types.js";
 
-export interface NewCalendarInput {
-  readonly name: string;
-  readonly color: CalendarColor;
-  readonly familyId?: string;
-}
-
-// A family the caller does not belong to looks the same as a family that does not exist.
 export const createCalendar = (
   db: ModuleDatabase,
   userId: string,

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleTransaction } from "@offgrid/db";
-import type { CalendarColor } from "../../domain/calendar-colors.js";
+import type { CalendarColor } from "../../types.js";
 import { calendarColorSchema } from "../../domain/calendar-schemas.js";
 
 export const recolorCalendar = async (

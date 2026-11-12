@@ -3,6 +3,7 @@
 
 import type { ModuleDatabase } from "@offgrid/db";
 import type { CurrentUserId } from "@offgrid/http";
+import type { CALENDAR_COLORS } from "@offgrid/contracts";
 import type { HandlerContext } from "@offgrid/event-bus";
 
 export type SubscriberClient = HandlerContext["tx"];
@@ -22,4 +23,37 @@ export type CalendarOutcome<Value> =
 export interface CalendarRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+}
+
+export type CalendarColor = (typeof CALENDAR_COLORS)[number];
+
+export interface NewCalendarInput {
+  readonly name: string;
+  readonly color: CalendarColor;
+  readonly familyId?: string;
+}
+
+export interface NewCalendar {
+  readonly calendarId: string;
+  readonly familyId?: string;
+  readonly userId?: string;
+  readonly name: string;
+  readonly color: CalendarColor;
+}
+
+export interface CalendarChangeInput {
+  readonly name?: string;
+  readonly color?: CalendarColor;
+}
+
+export type RemoveCalendarOutcome =
+  | { readonly outcome: "found"; readonly value: CalendarRecord }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "default-calendar" };
+
+export interface MembershipChange {
+  readonly familyId: string;
+  readonly userId: string;
+  readonly sourceVersion: number;
+  readonly isMember: boolean;
 }
