@@ -35,6 +35,10 @@ export async function signInWith(
 }
 
 export async function provisionRunAdmin(api: APIRequestContext): Promise<void> {
+  const existing = await signInWith(api, RUN_ADMIN_EMAIL, STRONG_PASSWORD);
+  if (existing.status === 200) {
+    return;
+  }
   const registration = await registerAccount(api, {
     email: RUN_ADMIN_EMAIL,
     displayName: RUN_ADMIN_NAME,

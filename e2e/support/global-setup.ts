@@ -11,8 +11,19 @@ import {
   waitForReady,
 } from "./stack.js";
 
+async function provisionOnRunningStack(): Promise<void> {
+  await waitForReady(targetBaseUrl());
+  const api = await request.newContext({ baseURL: targetBaseUrl() });
+  try {
+    await provisionRunAdmin(api);
+  } finally {
+    await api.dispose();
+  }
+}
+
 export default async function globalSetup(): Promise<() => Promise<void>> {
   if (process.env.E2E_REUSE_STACK === "1") {
+    await provisionOnRunningStack();
     return async () => {};
   }
 
@@ -21,10 +32,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
 
   try {
     await bringUpStack(project);
-    await waitForReady(targetBaseUrl());
-    const api = await request.newContext({ baseURL: targetBaseUrl() });
-    await provisionRunAdmin(api);
-    await api.dispose();
+    await provisionOnRunningStack();
   } catch (error) {
     await tearDownStack(project);
     throw error;
