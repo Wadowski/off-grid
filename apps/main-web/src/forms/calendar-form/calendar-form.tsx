@@ -26,9 +26,9 @@ export const CalendarForm = (props: CalendarFormProps) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedName = name.trim();
-    const errorTextId = validateCalendarName(trimmedName);
-    setNameErrorTextId(errorTextId);
-    if (errorTextId !== undefined) {
+    const nameError = validateCalendarName(trimmedName);
+    setNameErrorTextId(nameError);
+    if (nameError !== undefined) {
       return;
     }
     await onSubmit({
