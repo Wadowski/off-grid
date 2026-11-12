@@ -73,16 +73,19 @@ When(
   },
 );
 
-When(/^(\w+) steps out of the family "([^"]*)"$/, async ({ world }, who: string, family: string) => {
-  const session = await sessionOf(world, who);
-  const familyId = eventsState(world).families[family]?.id;
-  expect(familyId, `the family "${family}" is not set up`).toBeDefined();
-  const response = await world.api.delete(`/api/families/${familyId}/members/${session.userId}`, {
-    headers: bearer(session),
-    failOnStatusCode: false,
-  });
-  expect(response.status()).toBe(204);
-});
+When(
+  /^(\w+) steps out of the family "([^"]*)"$/,
+  async ({ world }, who: string, family: string) => {
+    const session = await sessionOf(world, who);
+    const familyId = eventsState(world).families[family]?.id;
+    expect(familyId, `the family "${family}" is not set up`).toBeDefined();
+    const response = await world.api.delete(`/api/families/${familyId}/members/${session.userId}`, {
+      headers: bearer(session),
+      failOnStatusCode: false,
+    });
+    expect(response.status()).toBe(204);
+  },
+);
 
 Then(
   /^the (agenda|day|week|month) view starts on (\d{4}-\d{2}-\d{2}) and ends on (\d{4}-\d{2}-\d{2})$/,
