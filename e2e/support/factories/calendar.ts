@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { randomUUID } from "node:crypto";
-import type { ApiClient } from "../api.js";
+import { expect, type APIRequestContext } from "@playwright/test";
+import { bearer } from "../family-sessions.js";
+import type { Session } from "./instance-admin.js";
 
 export type Calendar = {
   id: string;
@@ -13,25 +14,35 @@ export type Calendar = {
 };
 
 export type CreateCalendarInput = {
-  name?: string;
-  color?: string;
+  name: string;
+  color: string;
   familyId?: string;
 };
 
-function uniqueName(prefix: string): string {
-  return `${prefix} ${randomUUID().slice(0, 8)}`;
-}
+export const createCalendar = async (
+  api: APIRequestContext,
+  session: Session,
+  input: CreateCalendarInput,
+): Promise<Calendar> => {
+  const response = await api.post("/api/calendars", {
+    headers: bearer(session),
+    data: input,
+    failOnStatusCode: false,
+  });
+  expect(response.status(), `could not create the calendar "${input.name}"`).toBe(201);
+  return parseCalendar(await response.json());
+};
 
-export async function createCalendar(
-  api: ApiClient,
-  { name = uniqueName("Calendar"), color = "blue", familyId }: CreateCalendarInput = {},
-): Promise<Calendar> {
-  const body = familyId === undefined ? { name, color } : { name, color, familyId };
-  return parseCalendar(await api.request("POST", "/calendars", body));
-}
-
-export async function listCalendars(api: ApiClient): Promise<Calendar[]> {
-  const body: unknown = await api.request("GET", "/calendars");
+export const listCalendars = async (
+  api: APIRequestContext,
+  session: Session,
+): Promise<Calendar[]> => {
+  const response = await api.get("/api/calendars", {
+    headers: bearer(session),
+    failOnStatusCode: false,
+  });
+  expect(response.status(), "could not list the calendars").toBe(200);
+  const body: unknown = await response.json();
   if (
     typeof body === "object" &&
     body !== null &&
@@ -41,9 +52,9 @@ export async function listCalendars(api: ApiClient): Promise<Calendar[]> {
     return body.calendars.map(parseCalendar);
   }
   throw new Error("Response is not a list of calendars.");
-}
+};
 
-function parseCalendar(value: unknown): Calendar {
+const parseCalendar = (value: unknown): Calendar => {
   if (
     typeof value === "object" &&
     value !== null &&
@@ -67,4 +78,4 @@ function parseCalendar(value: unknown): Calendar {
     };
   }
   throw new Error("Response is not a calendar with the expected fields.");
-}
+};
