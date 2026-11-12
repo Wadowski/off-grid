@@ -1,33 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { calendarTimeZoneSchema, updateCalendarTimeZoneRequestSchema } from "@offgrid/contracts";
-import { sendValidationFailed, withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
-import { getTimeZone, setTimeZone } from "../../application/time-zone/time-zone-settings.js";
 import type { CalendarRouteContext } from "../../types.js";
+import { registerGetTimeZone } from "./register-get-time-zone.js";
+import { registerSetTimeZone } from "./register-set-time-zone.js";
 
 export const registerTimeZoneRoutes = (
   api: FastifyInstance,
   context: CalendarRouteContext,
 ): void => {
-  api.get(
-    "/calendar/time-zone",
-    withUser(context.currentUserId, async (_request, reply, userId) => {
-      const setting = await getTimeZone(context.db, userId);
-      return reply.send(calendarTimeZoneSchema.parse(setting));
-    }),
-  );
-
-  api.put(
-    "/calendar/time-zone",
-    withUser(context.currentUserId, async (request, reply, userId) => {
-      const body = updateCalendarTimeZoneRequestSchema.safeParse(request.body);
-      if (!body.success) {
-        return sendValidationFailed(reply, body.error);
-      }
-      const setting = await setTimeZone(context.db, userId, body.data.timeZone);
-      return reply.send(calendarTimeZoneSchema.parse(setting));
-    }),
-  );
+  registerGetTimeZone(api, context);
+  registerSetTimeZone(api, context);
 };
