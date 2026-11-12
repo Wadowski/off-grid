@@ -25,8 +25,8 @@ export const splitAllDay = <Event extends { readonly isAllDay: boolean }>(
 export const distinctCalendarColors = <Event extends { readonly calendarColor: string }>(
   events: readonly Event[],
   limit: number,
-): string[] => {
-  const colors: string[] = [];
+): Event["calendarColor"][] => {
+  const colors: Event["calendarColor"][] = [];
   for (const event of events) {
     if (colors.length >= limit) {
       break;

@@ -22,12 +22,15 @@ import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarFilterBar } from "./components/calendar-filter-bar/calendar-filter-bar.js";
 import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
+import { MonthGrid } from "./components/month-grid/month-grid.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
+import { CalendarFilterSelect } from "./components/calendar-filter-select/calendar-filter-select.js";
 import { ViewSegmentedControl } from "./components/view-segmented-control/view-segmented-control.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
   calendarViewsActionsStyle,
+  calendarViewsFooterStyle,
   calendarViewsHeaderStyle,
   calendarViewsPageStyle,
   calendarViewsStatusStyle,
@@ -106,11 +109,19 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         onNext={() => goToDate(shiftDate(date, view, 1))}
         onToday={() => goToDate(localDateOf(new Date()))}
       />
-      <CalendarFilterBar
-        calendars={shell.calendars.calendars}
-        selected={filter}
-        onSelect={setFilter}
-      />
+      {view === "month" ? (
+        <CalendarFilterSelect
+          calendars={shell.calendars.calendars}
+          selected={filter}
+          onSelect={setFilter}
+        />
+      ) : (
+        <CalendarFilterBar
+          calendars={shell.calendars.calendars}
+          selected={filter}
+          onSelect={setFilter}
+        />
+      )}
       {status === "loading" && (
         <Text variant="status" role="status" textId="calendar.mobileViews.loading" />
       )}
@@ -147,6 +158,16 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
           <AgendaList events={selectedEvents} timeZone={timeZone} />
         </>
       )}
+      {view === "month" && status === "ready" && (
+        <MonthGrid
+          days={visibleDays}
+          selectedDate={date}
+          todayDate={today}
+          timeZone={timeZone}
+          selectedEvents={selectedEvents}
+          onSelect={goToDate}
+        />
+      )}
       {view === "week" && status === "ready" && (
         <WeekGrid
           days={visibleDays}
@@ -162,6 +183,12 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
           <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
         </>
       )}
+      <div style={calendarViewsFooterStyle}>
+        <Button variant="primary" aria-disabled="true">
+          <MaterialIcon name="add" size="20px" color="currentColor" />
+          <Text variant="action" textId="calendar.mobileViews.newEvent" />
+        </Button>
+      </div>
     </section>
   );
 };

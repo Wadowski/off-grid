@@ -66,6 +66,7 @@ export const App = () => {
                   <Route path="agenda" element={<CalendarViewsPage view="agenda" />} />
                   <Route path="day" element={<CalendarViewsPage view="day" />} />
                   <Route path="week" element={<CalendarViewsPage view="week" />} />
+                  <Route path="month" element={<CalendarViewsPage view="month" />} />
                 </Route>
                 <Route path="calendar/calendars" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />

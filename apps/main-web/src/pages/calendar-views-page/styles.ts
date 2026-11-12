@@ -52,6 +52,12 @@ export const familyDotStyle = (background: string): CSSProperties => ({
   background,
 });
 
+export const calendarViewsFooterStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  paddingTop: tokens.space[2],
+};
+
 export const calendarViewsStatusStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
