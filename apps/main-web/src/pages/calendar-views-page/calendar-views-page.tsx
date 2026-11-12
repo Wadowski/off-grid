@@ -21,6 +21,7 @@ import type { ShellContext } from "../../types.js";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarFilterBar } from "./components/calendar-filter-bar/calendar-filter-bar.js";
 import { DayHeader } from "./components/day-header/day-header.js";
+import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
@@ -125,6 +126,12 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         <>
           <DayHeader date={date} scheduledCount={selectedEvents.length} />
           <AgendaList events={selectedEvents} timeZone={timeZone} />
+        </>
+      )}
+      {view === "day" && status === "ready" && (
+        <>
+          <DayHeader date={date} scheduledCount={selectedEvents.length} />
+          <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
         </>
       )}
     </section>
