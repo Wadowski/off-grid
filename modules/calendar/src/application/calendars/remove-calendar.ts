@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
+import { CalendarRemovedConcurrentlyError } from "../errors/calendar-removed-concurrently-error.js";
 import { publishCalendarEventRemoved } from "../../events/calendar-events/publish-calendar-event-removed.js";
 import { deleteCalendar } from "../../infrastructure/calendars/delete-calendar.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
@@ -26,7 +27,7 @@ export const removeCalendar = (
     const eventIds = await listEventIdsOfCalendar(tx, calendarId);
     await deleteEvents(tx, eventIds);
     if (!(await deleteCalendar(tx, calendarId))) {
-      throw new Error("calendar was removed by another request while its events were deleted");
+      throw new CalendarRemovedConcurrentlyError();
     }
     for (const eventId of eventIds) {
       await publishCalendarEventRemoved(

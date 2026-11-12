@@ -3,11 +3,12 @@
 
 import { familyMemberAddedV1, familyMemberRemovedV1 } from "@offgrid/contracts";
 import type { EventBus } from "@offgrid/event-bus";
+import { FamilyMembershipWithoutFamilyError } from "../../application/errors/family-membership-without-family-error.js";
 import { applyFamilyMembership } from "./apply-family-membership.js";
 
 const requireFamilyId = (familyId: string | null): string => {
   if (familyId === null) {
-    throw new Error("family membership event has no family");
+    throw new FamilyMembershipWithoutFamilyError();
   }
   return familyId;
 };

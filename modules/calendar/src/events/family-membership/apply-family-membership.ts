@@ -3,6 +3,7 @@
 
 import { setPgFamilyContext } from "@offgrid/db";
 import { classifySourceVersion } from "@offgrid/event-bus";
+import { MembershipChangeOutOfOrderError } from "../../application/errors/membership-change-out-of-order-error.js";
 import type { SubscriberClient } from "../../types.js";
 import type { MembershipChange } from "../../types.js";
 
@@ -17,7 +18,7 @@ export const applyFamilyMembership = async (
     return;
   }
   if (outcome === "gap" && stored !== null) {
-    throw new Error("membership change arrived before an earlier change");
+    throw new MembershipChangeOutOfOrderError();
   }
   const isMember = outcome === "apply" && change.isMember;
   await client.query(
