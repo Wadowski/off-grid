@@ -17,3 +17,5 @@ export type CalendarsState = {
   readonly listStatus: ListStatus;
   readonly refreshCalendars: () => Promise<void>;
 };
+
+export type CalendarSaveStatus = "idle" | "submitting" | "failed";
