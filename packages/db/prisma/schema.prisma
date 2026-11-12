@@ -299,6 +299,15 @@ model EventReminder {
   @@schema("calendar")
 }
 
+model UserTimeZone {
+  userId    String   @id @map("user_id") @db.Uuid
+  timeZone  String   @map("time_zone") @db.VarChar(64)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("user_time_zone")
+  @@schema("calendar")
+}
+
 model Location {
   locationId String   @id @map("location_id") @db.Uuid
   familyId   String?  @map("family_id") @db.Uuid
