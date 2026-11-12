@@ -33,7 +33,7 @@ describe("registerAccount", { timeout: 60_000 }, () => {
   beforeEach(async () => {
     await db.reset();
     await db.admin.query("UPDATE identity.instance_settings SET registration_open = true");
-  });
+  }, 60_000);
 
   const roleOf = async (email: string): Promise<string | undefined> => {
     const { rows } = await db.admin.query<{ instance_role: string }>(
