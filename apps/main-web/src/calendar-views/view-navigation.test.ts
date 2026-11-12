@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CALENDAR_VIEW,
   isCalendarViewKind,
+  parseDateParam,
   periodLabel,
   requestDateFor,
   shiftDate,
@@ -44,5 +45,12 @@ describe("view navigation", () => {
     expect(periodLabel("agenda", "2025-10-23")).toBe("October 2025");
     expect(periodLabel("day", "2025-10-23")).toBe("October 2025");
     expect(periodLabel("month", "2025-10-23")).toBe("October 2025");
+  });
+
+  it("accepts a real calendar date and rejects anything else", () => {
+    expect(parseDateParam("2025-10-23")).toBe("2025-10-23");
+    expect(parseDateParam("2025-02-30")).toBeNull();
+    expect(parseDateParam("23.10.2025")).toBeNull();
+    expect(parseDateParam(null)).toBeNull();
   });
 });

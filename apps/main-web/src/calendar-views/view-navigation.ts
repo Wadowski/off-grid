@@ -21,6 +21,15 @@ export const shiftDate = (date: string, view: CalendarViewKind, step: 1 | -1): s
   }
 };
 
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+export const parseDateParam = (value: string | null): string | null => {
+  if (value === null || !DATE_PATTERN.test(value)) {
+    return null;
+  }
+  return new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value ? value : null;
+};
+
 export const requestDateFor = (view: CalendarViewKind, date: string): string =>
   view === "agenda" ? mondayOf(date) : date;
 

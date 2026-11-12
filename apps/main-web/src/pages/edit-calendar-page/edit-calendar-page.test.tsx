@@ -60,7 +60,7 @@ const renderEdit = (
       <Routes>
         <Route element={<Outlet context={shell} />}>
           <Route path="calendar/:calendarId" element={<EditCalendarPage />} />
-          <Route path="calendar" element={<p>Calendar list screen</p>} />
+          <Route path="calendar/calendars" element={<p>Calendar list screen</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -154,7 +154,7 @@ describe("EditCalendarPage", () => {
     renderEdit([KITCHEN], "/calendar/0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d");
 
     expect(screen.getByText("This calendar is no longer available.")).toBeInTheDocument();
-    expect(screen.getByTestId("calendar-back")).toHaveAttribute("href", "/calendar");
+    expect(screen.getByTestId("calendar-back")).toHaveAttribute("href", "/calendar/calendars");
   });
 
   it("waits for the calendar list before showing the form", () => {
