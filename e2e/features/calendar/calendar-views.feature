@@ -9,7 +9,6 @@ Feature: Viewing events by agenda, day, week and month
   that spans several days appears on every day it overlaps. A person only
   sees events of the calendars they can access.
 
-  @wip
   Scenario: Anna sees the events of one week in her week view, Monday to Sunday
     Given Anna is signed in
     And she has a personal calendar named "Work"
@@ -22,7 +21,6 @@ Feature: Viewing events by agenda, day, week and month
     And the week view lists "Sunday call"
     And the week view does not list "Last week"
 
-  @wip
   Scenario: Anna sees the agenda for the seven days starting on the given date
     Given Anna is signed in
     And she has a personal calendar named "Work"
@@ -35,7 +33,6 @@ Feature: Viewing events by agenda, day, week and month
     And the agenda view lists "Six days later"
     And the agenda view does not list "Seven days later"
 
-  @wip
   Scenario: Anna sees only the days of her month, without the neighbouring days
     Given Anna is signed in
     And she has a personal calendar named "Work"
@@ -50,7 +47,6 @@ Feature: Viewing events by agenda, day, week and month
     And the month view does not list "Last of October"
     And the month view does not list "First of December"
 
-  @wip
   Scenario: A multi-day event appears on every day it spans
     Given Anna is signed in
     And she has a personal calendar named "Work"
@@ -62,7 +58,6 @@ Feature: Viewing events by agenda, day, week and month
     And the agenda view does not show "Conference" on 2026-11-16
     And the agenda view does not show "Conference" on 2026-11-20
 
-  @wip
   Scenario: A family calendar event appears for a family member and not for an outsider
     Given Anna is signed in
     And Anna and Ben are both members of the family "Home"
@@ -75,7 +70,6 @@ Feature: Viewing events by agenda, day, week and month
     When Carol opens her agenda view for 2026-11-18
     Then the agenda view does not list "Dinner"
 
-  @wip
   Scenario: A person who leaves a family no longer sees its calendar events in their views
     Given Anna is signed in
     And Anna and Ben are both members of the family "Home"
@@ -87,7 +81,6 @@ Feature: Viewing events by agenda, day, week and month
     And Ben opens his agenda view for 2026-11-18
     Then the agenda view does not list "Dinner"
 
-  @wip
   Scenario: An event that ends at local midnight at the start of the range is not listed
     Given Anna is signed in
     And her time zone is "Europe/Warsaw"
@@ -98,7 +91,6 @@ Feature: Viewing events by agenda, day, week and month
     When Anna opens her day view for 2026-11-18
     Then the day view does not list "Late night"
 
-  @wip
   Scenario: The week of the autumn time change in Europe/Warsaw lists each day once
     Given Anna is signed in
     And her time zone is "Europe/Warsaw"
