@@ -56,7 +56,6 @@ Feature: Mobile calendar views: agenda, day, week and month
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
     Then the page has no horizontal scroll
 
-  @wip
   Scenario: Anna sees the Monday to Sunday week with her events in their columns at phone width
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
@@ -68,7 +67,6 @@ Feature: Mobile calendar views: agenda, day, week and month
     And I see the event "Sunday call" in the Sunday column
     And the page has no horizontal scroll
 
-  @wip
   Scenario: Anna sees the days of the month and taps a day to see its events in the sheet
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
