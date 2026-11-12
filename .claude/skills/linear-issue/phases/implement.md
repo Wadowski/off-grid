@@ -16,6 +16,7 @@ Input from the main session: a `pickup-report` block (issue ID, branch, worktree
 
 - The repo's workflow: the Gherkin `.feature` file comes first when the plan has one, then implementation, then verification.
 - **UI must match the plan's UI design 1 to 1**: layout, spacing, tokens, typography, colors and states, for the scope the plan names. Leave the rest of any page alone, even if it looks misaligned. If the plan has a screen with no design, stop and report it.
+- **Compare with screenshots, not just code.** After the UI changes, run the `@ui` scenarios with `E2E_SCREENSHOTS=1` and compare each changed screen's e2e screenshot with its design screenshot from the plan, in light and dark, desktop and mobile. Fix layout, spacing, tokens, typography, colors and states until they match. Where the plan says the implementation is the decision (the design is stale), match the plan, not the design. Ignore differences in naming, texts and logo. Record each comparison in the report.
 - Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
 - Add or update the tests the plan lists.
 - Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
@@ -36,6 +37,8 @@ commits:
 - <sha> <subject>
 changed-areas: <packages/modules touched>
 ui-changed: yes | no          (yes if apps/main-web/ or packages/ui/ changed)
+design-comparison:            (only if ui-changed: yes)
+- <screen>, light/dark, desktop/mobile: matches | differs (what) | matched plan over stale design
 acceptance-criteria:
 - <criterion>: met | not met | not verified, with evidence
 checks:
