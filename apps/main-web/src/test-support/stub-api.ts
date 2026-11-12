@@ -10,8 +10,6 @@ export const stubApi = (responses: readonly FakeResponse[]) => {
   const queue = [...responses];
   const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
     async (input, init) => {
-      // The shell loads the calendar list on every mount. Answer it with an empty list
-      // so tests that do not script calendars keep their own response order.
       if ((init?.method ?? "GET") === "GET" && String(input).endsWith(calendarRoutes.calendars)) {
         return jsonResponse({ status: 200, body: { calendars: [] } });
       }
