@@ -26,5 +26,5 @@ We will refuse a PATCH that would move an event to a calendar with a different o
 - An all-day event keeps its day boundaries after its writer changes zone. A later PATCH that changes only one date recomputes that bound with the caller's zone, so the two bounds may then use different zones. This is accepted for now.
 - Removal events change from `sourceVersion` 1 to `version + 1`. No projection exists yet, so no consumer breaks.
 - The `calendar-event-removed-v1` payload is unchanged, since it is a released version.
-- Event titles, locations and descriptions are copied into outbox rows. Those copies stay until a prune job exists ([ADR 0011](0011-restricted-event-access-and-retention.md)). The privacy statement says so.
-- Follow-up work: a prune job for delivered outbox rows, and a decision on whether a zone change should rewrite all-day bounds.
+- Event titles, locations and descriptions are copied into outbox rows. The server prunes a delivered row once it is older than the retention period, 7 days by default and set by `OFFGRID_OUTBOX_RETENTION_DAYS`, and every registered subscriber has passed it ([ADR 0011](0011-restricted-event-access-and-retention.md)). The prune runs hourly and leaves the calendar tables alone. The privacy statement says so.
+- Follow-up work: a decision on whether a zone change should rewrite all-day bounds.

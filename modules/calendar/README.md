@@ -38,7 +38,7 @@ Decision record: [ADR 0028](../../docs/adr/0028-calendar-event-time-and-versions
 
 ## Events
 
-`calendar-event-created-v1` and `calendar-event-updated-v1` carry the full state of the event after the change, so a projection can upsert it. Their payload holds `title`, `location` and `description`. Their envelope `sourceVersion` is the row's `version`. `calendar-event-removed-v1` carries only `eventId` and `calendarId`, and its `sourceVersion` is the deleted row's `version + 1`. Outbox rows keep these copies until a prune job exists, which is not built yet ([privacy statement](../../docs/privacy.md)).
+`calendar-event-created-v1` and `calendar-event-updated-v1` carry the full state of the event after the change, so a projection can upsert it. Their payload holds `title`, `location` and `description`. Their envelope `sourceVersion` is the row's `version`. `calendar-event-removed-v1` carries only `eventId` and `calendarId`, and its `sourceVersion` is the deleted row's `version + 1`. Outbox rows keep these copies for the retention period, 7 days by default (`OFFGRID_OUTBOX_RETENTION_DAYS`). The server's prune job deletes an outbox row only after it is older than that period and every registered subscriber has passed it. It does not touch the calendar tables ([privacy statement](../../docs/privacy.md)).
 
 `src/events/default-calendar` subscribes to `user-created-v1` (from identity) and creates the user's default calendar. The insert is idempotent, so a repeated event creates nothing.
 
