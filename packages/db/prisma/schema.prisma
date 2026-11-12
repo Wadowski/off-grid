@@ -255,16 +255,22 @@ model CalendarFamilyMembership {
 }
 
 model CalendarEvent {
-  eventId    String   @id @map("event_id") @db.Uuid
-  calendarId String   @map("calendar_id") @db.Uuid
-  familyId   String?  @map("family_id") @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
-  title      String   @db.VarChar(200)
-  startsAt   DateTime @map("starts_at") @db.Timestamptz(6)
-  endsAt     DateTime @map("ends_at") @db.Timestamptz(6)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  eventId     String   @id @map("event_id") @db.Uuid
+  calendarId  String   @map("calendar_id") @db.Uuid
+  familyId    String?  @map("family_id") @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  title       String   @db.VarChar(200)
+  location    String?  @db.VarChar(200)
+  description String?  @db.VarChar(2000)
+  isAllDay    Boolean  @default(false) @map("is_all_day")
+  version     Int      @default(1)
+  startsAt    DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt      DateTime @map("ends_at") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([calendarId])
+  @@index([calendarId, startsAt], map: "calendar_event_calendar_starts_idx")
+  @@index([startsAt, endsAt], map: "calendar_event_range_idx")
   @@map("calendar_event")
   @@schema("calendar")
 }
@@ -291,6 +297,15 @@ model EventReminder {
 
   @@index([eventId])
   @@map("event_reminder")
+  @@schema("calendar")
+}
+
+model UserTimeZone {
+  userId    String   @id @map("user_id") @db.Uuid
+  timeZone  String   @map("time_zone") @db.VarChar(64)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("user_time_zone")
   @@schema("calendar")
 }
 

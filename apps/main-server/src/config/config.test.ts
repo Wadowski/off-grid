@@ -38,8 +38,18 @@ describe("loadConfig", () => {
       trustedProxies: [],
       corsOrigins: [],
       rateLimitPerMinute: 300,
+      outbox: { retentionDays: 7 },
       logLevel: "info",
     });
+  });
+
+  it("reads the outbox retention period in days", () => {
+    const config = loadConfig(
+      { ...requiredEnv, OFFGRID_OUTBOX_RETENTION_DAYS: "30" },
+      secretFiles("x"),
+    );
+
+    expect(config.outbox).toEqual({ retentionDays: 30 });
   });
 
   it("splits the allowed CORS origins and trims each entry", () => {
@@ -107,6 +117,8 @@ describe("loadConfig", () => {
     ["OFFGRID_DATABASE_POOL_MAX", "101"],
     ["OFFGRID_DATABASE_USER", "Outbox-App"],
     ["OFFGRID_RATE_LIMIT_PER_MINUTE", "0"],
+    ["OFFGRID_OUTBOX_RETENTION_DAYS", "0"],
+    ["OFFGRID_OUTBOX_RETENTION_DAYS", "3651"],
     ["OFFGRID_LOG_LEVEL", "trace"],
     ["OFFGRID_CORS_ORIGINS", "not a url"],
     ["OFFGRID_CORS_ORIGINS", "*"],

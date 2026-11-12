@@ -17,6 +17,7 @@ const configFor = (db: TestDatabase): ServerConfig => ({
   trustedProxies: [],
   corsOrigins: [],
   rateLimitPerMinute: 1000,
+  outbox: { retentionDays: 7 },
   logLevel: "error",
 });
 

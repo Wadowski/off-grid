@@ -58,6 +58,7 @@ describe("my account on the real stack", { timeout: 120_000 }, () => {
       trustedProxies: [],
       corsOrigins: [],
       rateLimitPerMinute: 1000,
+      outbox: { retentionDays: 7 },
       logLevel: "error",
     };
   }, 120_000);

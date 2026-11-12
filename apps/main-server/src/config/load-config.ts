@@ -41,6 +41,7 @@ export const loadConfig = (
     trustedProxies: values.OFFGRID_TRUSTED_PROXIES,
     corsOrigins: values.OFFGRID_CORS_ORIGINS,
     rateLimitPerMinute: values.OFFGRID_RATE_LIMIT_PER_MINUTE,
+    outbox: { retentionDays: values.OFFGRID_OUTBOX_RETENTION_DAYS },
     logLevel: values.OFFGRID_LOG_LEVEL,
   };
 };

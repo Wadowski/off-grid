@@ -7,7 +7,7 @@ import { publishCalendarEventRemoved } from "../../events/calendar-events/publis
 import { deleteCalendar } from "../../infrastructure/calendars/delete-calendar.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { deleteEvents } from "../../infrastructure/calendar-events/delete-events.js";
-import { listEventIdsOfCalendar } from "../../infrastructure/calendar-events/list-event-ids-of-calendar.js";
+import { listEventsOfCalendar } from "../../infrastructure/calendar-events/list-events-of-calendar.js";
 import type { RemoveCalendarOutcome } from "../../types.js";
 
 export const removeCalendar = (
@@ -24,16 +24,19 @@ export const removeCalendar = (
     if (calendar.isDefault) {
       return { outcome: "default-calendar" };
     }
-    const eventIds = await listEventIdsOfCalendar(tx, calendarId);
-    await deleteEvents(tx, eventIds);
+    const events = await listEventsOfCalendar(tx, calendarId);
+    await deleteEvents(
+      tx,
+      events.map((event) => event.eventId),
+    );
     if (!(await deleteCalendar(tx, calendarId))) {
       throw new CalendarRemovedConcurrentlyError();
     }
-    for (const eventId of eventIds) {
+    for (const event of events) {
       await publishCalendarEventRemoved(
         tx,
-        { familyId: calendar.familyId, userId: calendar.userId },
-        { eventId, calendarId },
+        { familyId: calendar.familyId, userId: calendar.userId, sourceVersion: event.version + 1 },
+        { eventId: event.eventId, calendarId },
       );
     }
     return { outcome: "found", value: calendar };

@@ -18,10 +18,6 @@ Given(/^Anna's family has a calendar named "[^"]*"$/, () =>
   notImplemented("Anna's family has a calendar named"),
 );
 
-Given(/^Anna has a personal calendar named "[^"]*"$/, () =>
-  notImplemented("Anna has a personal calendar named"),
-);
-
 Given("Ben belongs to a family of his own", () =>
   notImplemented("Ben belongs to a family of his own"),
 );
