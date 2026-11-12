@@ -38,7 +38,9 @@ describe("FilterChip", () => {
   });
 
   it("passes its test id to the button", () => {
-    render(<FilterChip label="Family" selected={false} onToggle={vi.fn()} data-testid="chip-family" />);
+    render(
+      <FilterChip label="Family" selected={false} onToggle={vi.fn()} data-testid="chip-family" />,
+    );
 
     expect(screen.getByTestId("chip-family")).toHaveTextContent("Family");
   });
