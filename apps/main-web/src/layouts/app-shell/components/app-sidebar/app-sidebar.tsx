@@ -4,15 +4,17 @@
 import { AppNav } from "../app-nav/app-nav.js";
 import { UserMenu } from "../user-menu/user-menu.js";
 import { SidebarBrand } from "./components/sidebar-brand/sidebar-brand.js";
+import { SidebarCalendarList } from "./components/sidebar-calendar-list/sidebar-calendar-list.js";
 import { SidebarFamilyCard } from "./components/sidebar-family-card/sidebar-family-card.js";
 import { SidebarSettingsLink } from "./components/sidebar-settings-link/sidebar-settings-link.js";
 import type { AppSidebarProps } from "./types.js";
 
-export const AppSidebar = ({ user, families, onSignOut }: AppSidebarProps) => (
+export const AppSidebar = ({ user, families, calendars, onSignOut }: AppSidebarProps) => (
   <aside className="og-sidebar">
     <SidebarBrand />
     <div className="og-sidebar-divider" aria-hidden="true" />
     <AppNav />
+    <SidebarCalendarList calendars={calendars} />
     <div className="og-sidebar-bottom">
       <SidebarFamilyCard families={families} />
       <UserMenu user={user} onSignOut={onSignOut} />
