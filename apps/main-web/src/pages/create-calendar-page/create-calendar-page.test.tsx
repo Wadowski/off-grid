@@ -128,9 +128,7 @@ describe("CreateCalendarPage", () => {
 
     fillAndSubmit("Studio");
 
-    expect(
-      await screen.findByText("This calendar is no longer available."),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("This calendar is no longer available.")).toBeInTheDocument();
     expect(screen.queryByText("Something went wrong. Try again.")).not.toBeInTheDocument();
     expect(refreshCalendars).not.toHaveBeenCalled();
   });
