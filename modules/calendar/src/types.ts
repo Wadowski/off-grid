@@ -115,3 +115,14 @@ export type NewCalendarEventInput =
       readonly startDate: string;
       readonly endDate: string;
     };
+
+export interface CalendarEventUpdateInput {
+  readonly title?: string;
+  readonly location?: string | null;
+  readonly description?: string | null;
+  readonly calendarId?: string;
+  readonly startsAt?: string;
+  readonly endsAt?: string;
+  readonly startDate?: string;
+  readonly endDate?: string;
+}

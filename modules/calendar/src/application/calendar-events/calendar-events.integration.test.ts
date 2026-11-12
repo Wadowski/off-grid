@@ -13,6 +13,8 @@ import { createCalendarEvent } from "./create-calendar-event.js";
 import { getCalendarEvent } from "./get-calendar-event.js";
 import { listCalendarEvents } from "./list-calendar-events.js";
 import { removeCalendarEvent } from "./remove-calendar-event.js";
+import { updateCalendarEvent } from "./update-calendar-event.js";
+import { EventMoveOwnerMismatchError } from "../errors/event-move-owner-mismatch-error.js";
 import { getTimeZone, setTimeZone } from "../time-zone/time-zone-settings.js";
 
 describe("calendar events use cases", { timeout: 60_000 }, () => {
@@ -212,5 +214,203 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
 
     expect(await storedEvents()).toEqual([]);
     expect(await outboxEvents("calendar-event-created-v1")).toEqual([]);
+  });
+
+  describe("update", () => {
+    const createdEventId = async (userId: string, calendarId: string) => {
+      const created = await createCalendarEvent(db.db, userId, calendarId, timed);
+      if (created.outcome !== "found") {
+        throw new Error("the owner must be able to create the event");
+      }
+      return created.value.eventId;
+    };
+
+    it("changes the title and publishes the full state with the next source version", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      const eventId = await createdEventId(anna, work);
+
+      const outcome = await updateCalendarEvent(db.db, anna, eventId, { title: "Planning" });
+
+      expect(outcome.outcome).toBe("found");
+      const [published] = await outboxEvents("calendar-event-updated-v1");
+      expect(published?.source_version).toBe("2");
+      expect(published?.payload).toMatchObject({
+        eventId,
+        title: "Planning",
+        version: 2,
+        startsAt: "2026-11-20T09:00:00.000Z",
+      });
+      const [stored] = await storedEvents();
+      expect(stored?.version).toBe(2);
+    });
+
+    it("keeps the stored end when only the start is sent", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      const eventId = await createdEventId(anna, work);
+
+      await updateCalendarEvent(db.db, anna, eventId, { startsAt: "2026-11-20T08:00:00Z" });
+
+      const [stored] = await storedEvents();
+      expect(stored?.starts_at.toISOString()).toBe("2026-11-20T08:00:00.000Z");
+      expect(stored?.ends_at.toISOString()).toBe("2026-11-20T09:30:00.000Z");
+    });
+
+    it("refuses a merged window that ends before it starts and writes nothing", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      const eventId = await createdEventId(anna, work);
+
+      const outcome = await updateCalendarEvent(db.db, anna, eventId, {
+        endsAt: "2026-11-20T08:00:00Z",
+      });
+
+      expect(outcome.outcome).toBe("invalid-window");
+      const [stored] = await storedEvents();
+      expect(stored?.version).toBe(1);
+      expect(await outboxEvents("calendar-event-updated-v1")).toEqual([]);
+    });
+
+    it("switches a timed event to all-day in the caller's zone", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      await setTimeZone(db.db, anna, "Europe/Warsaw");
+      const eventId = await createdEventId(anna, work);
+
+      const outcome = await updateCalendarEvent(db.db, anna, eventId, {
+        startDate: "2026-11-20",
+        endDate: "2026-11-21",
+      });
+
+      expect(outcome.outcome).toBe("found");
+      const [stored] = await storedEvents();
+      expect(stored?.starts_at.toISOString()).toBe("2026-11-19T23:00:00.000Z");
+      expect(stored?.ends_at.toISOString()).toBe("2026-11-21T23:00:00.000Z");
+      if (outcome.outcome === "found") {
+        expect(outcome.value).toMatchObject({
+          isAllDay: true,
+          startDate: "2026-11-20",
+          endDate: "2026-11-21",
+        });
+      }
+    });
+
+    it("switches an all-day event to timed and takes the missing bound from the stored event", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      const created = await createCalendarEvent(db.db, anna, work, {
+        title: "Conference",
+        isAllDay: true,
+        startDate: "2026-11-20",
+        endDate: "2026-11-20",
+      });
+      if (created.outcome !== "found") {
+        throw new Error("the owner must be able to create the event");
+      }
+
+      const outcome = await updateCalendarEvent(db.db, anna, created.value.eventId, {
+        startsAt: "2026-11-20T10:00:00Z",
+      });
+
+      expect(outcome.outcome).toBe("found");
+      const [stored] = await storedEvents();
+      expect(stored?.starts_at.toISOString()).toBe("2026-11-20T10:00:00.000Z");
+      expect(stored?.ends_at.toISOString()).toBe("2026-11-21T00:00:00.000Z");
+      if (outcome.outcome === "found") {
+        expect(outcome.value.isAllDay).toBe(false);
+      }
+    });
+
+    it("clears the location when null is sent and keeps it when the field is omitted", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      const created = await createCalendarEvent(db.db, anna, work, {
+        ...timed,
+        location: "Kitchen table",
+      });
+      if (created.outcome !== "found") {
+        throw new Error("the owner must be able to create the event");
+      }
+      const eventId = created.value.eventId;
+
+      await updateCalendarEvent(db.db, anna, eventId, { title: "Still here" });
+      const kept = await getCalendarEvent(db.db, anna, eventId);
+      expect(kept.outcome === "found" ? kept.value.location : null).toBe("Kitchen table");
+
+      await updateCalendarEvent(db.db, anna, eventId, { location: null });
+      const cleared = await getCalendarEvent(db.db, anna, eventId);
+      expect(cleared.outcome === "found" ? cleared.value.location : "unset").toBeNull();
+    });
+
+    it("moves an event to another personal calendar of the same owner", async () => {
+      const anna = randomUUID();
+      const work = await insertPersonalCalendar(anna, "Work");
+      const home = await insertPersonalCalendar(anna, "Home");
+      const eventId = await createdEventId(anna, work);
+
+      const outcome = await updateCalendarEvent(db.db, anna, eventId, { calendarId: home });
+
+      expect(outcome.outcome).toBe("found");
+      const { rows } = await db.admin.query<{ calendar_id: string }>(
+        "SELECT calendar_id FROM calendar.calendar_event WHERE event_id = $1",
+        [eventId],
+      );
+      expect(rows[0]?.calendar_id).toBe(home);
+    });
+
+    it("refuses to move a personal event into a family calendar and writes nothing", async () => {
+      const anna = randomUUID();
+      const home = randomUUID();
+      await joinFamily(home, anna);
+      const kitchen = await insertFamilyCalendar(home, "Kitchen");
+      const work = await insertPersonalCalendar(anna, "Work");
+      const eventId = await createdEventId(anna, work);
+
+      await expect(
+        updateCalendarEvent(db.db, anna, eventId, { calendarId: kitchen, title: "Moved" }),
+      ).rejects.toThrow(EventMoveOwnerMismatchError);
+
+      const [stored] = await storedEvents();
+      expect(stored?.version).toBe(1);
+      const { rows } = await db.admin.query<{ calendar_id: string }>(
+        "SELECT calendar_id FROM calendar.calendar_event WHERE event_id = $1",
+        [eventId],
+      );
+      expect(rows[0]?.calendar_id).toBe(work);
+      expect(await outboxEvents("calendar-event-updated-v1")).toEqual([]);
+    });
+
+    it("answers not-found when a family event targets a personal calendar of a family member", async () => {
+      const anna = randomUUID();
+      const ben = randomUUID();
+      const home = randomUUID();
+      await joinFamily(home, anna);
+      await joinFamily(home, ben);
+      const kitchen = await insertFamilyCalendar(home, "Kitchen");
+      const bensGym = await insertPersonalCalendar(ben, "Gym");
+      const eventId = await createdEventId(anna, kitchen);
+
+      expect(
+        (await updateCalendarEvent(db.db, anna, eventId, { calendarId: bensGym })).outcome,
+      ).toBe("not-found");
+    });
+
+    it("answers not-found for an event or a target calendar the caller cannot see", async () => {
+      const anna = randomUUID();
+      const carol = randomUUID();
+      const gym = await insertPersonalCalendar(carol, "Gym");
+      const carolEventId = await createdEventId(carol, gym);
+      const work = await insertPersonalCalendar(anna, "Work");
+      const hidden = await insertPersonalCalendar(carol, "Hidden");
+
+      expect((await updateCalendarEvent(db.db, anna, carolEventId, { title: "x" })).outcome).toBe(
+        "not-found",
+      );
+      const ownEventId = await createdEventId(anna, work);
+      expect(
+        (await updateCalendarEvent(db.db, anna, ownEventId, { calendarId: hidden })).outcome,
+      ).toBe("not-found");
+    });
   });
 });
