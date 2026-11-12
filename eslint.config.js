@@ -5,6 +5,8 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 
+const calendarAttribute = "JSXAttribute[name.name=/^(label|placeholder|title|error|aria-label)$/]";
+
 export default tseslint.config(
   {
     ignores: [
@@ -46,6 +48,34 @@ export default tseslint.config(
     files: ["**/*.cjs"],
     languageOptions: {
       globals: { module: "readonly" },
+    },
+  },
+  {
+    files: [
+      "apps/main-web/src/**/calendar*/**/*.{ts,tsx}",
+      "apps/main-web/src/**/*calendar*.{ts,tsx}",
+    ],
+    ignores: ["**/*.test.*"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: [
+            "JSXText[value=/\\S/]",
+            "JSXElement > JSXExpressionContainer > Literal[value=/\\S/]",
+          ].join(", "),
+          message: "Use Text with textId for calendar UI text.",
+        },
+        {
+          selector: [
+            `${calendarAttribute} > Literal[value=/\\S/]`,
+            `${calendarAttribute} > JSXExpressionContainer > Literal[value=/\\S/]`,
+            `${calendarAttribute} > JSXExpressionContainer > ConditionalExpression > Literal[value=/\\S/]`,
+            `${calendarAttribute} > JSXExpressionContainer > TemplateLiteral > TemplateElement[value.cooked=/\\S/]`,
+          ].join(", "),
+          message: "Use a catalog key through Text or t().",
+        },
+      ],
     },
   },
   prettier,
