@@ -3,6 +3,8 @@
 
 import { execFile } from "node:child_process";
 import { randomBytes } from "node:crypto";
+import { createServer } from "node:net";
+import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { eventually } from "./eventually.js";
@@ -22,8 +24,17 @@ const READY_PATH = "/api/health/ready";
 const READY_TIMEOUT_MS = 180_000;
 const READY_INTERVAL_MS = 500;
 
+const RUN_PROJECT = /^offgrid-e2e-[0-9a-f]{8}$/;
+const COMPOSE_WORKING_DIR = dirname(COMPOSE_FILE);
+
 export function newComposeProjectName(): string {
   return `offgrid-e2e-${randomBytes(4).toString("hex")}`;
+}
+
+// Only the random names from newComposeProjectName, so a stack started by hand
+// (for example offgrid-e2e-local) is never removed by a test run.
+export function isRunProject(project: string): boolean {
+  return RUN_PROJECT.test(project);
 }
 
 function composeArgs(project: string, args: readonly string[]): string[] {
@@ -65,6 +76,84 @@ export async function bringUpStack(project: string): Promise<void> {
 
 export async function tearDownStack(project: string): Promise<void> {
   await compose(project, ["down", "--volumes", "--remove-orphans"]);
+}
+
+export type ContainerProject = { project: string; workingDir: string };
+
+export function parseContainerProjects(output: string): ContainerProject[] {
+  const projects = new Map<string, ContainerProject>();
+  for (const line of output.split("\n")) {
+    const [project, workingDir] = line.split("\t");
+    if (project && workingDir && !projects.has(project)) {
+      projects.set(project, { project, workingDir });
+    }
+  }
+  return [...projects.values()];
+}
+
+async function listContainerProjects(filters: readonly string[]): Promise<ContainerProject[]> {
+  const format =
+    '{{.Label "com.docker.compose.project"}}\t{{.Label "com.docker.compose.project.working_dir"}}';
+  const { stdout } = await execFileAsync("docker", ["ps", "--all", ...filters, "--format", format]);
+  return parseContainerProjects(stdout);
+}
+
+// Removes run stacks left behind by an earlier run that was killed before its teardown,
+// but only those started from this checkout.
+export async function stopLeftoverRunStacks(): Promise<string[]> {
+  const leftovers = (
+    await listContainerProjects([
+      "--filter",
+      `label=com.docker.compose.project.working_dir=${COMPOSE_WORKING_DIR}`,
+    ])
+  )
+    .map(({ project }) => project)
+    .filter(isRunProject);
+  for (const project of leftovers) {
+    await tearDownStack(project);
+  }
+  return leftovers;
+}
+
+export type PortCheck = { name: string; port: string; envVar: string };
+
+export function e2ePortChecks(): PortCheck[] {
+  return [
+    { name: "server", port: serverPort(), envVar: "E2E_SERVER_PORT" },
+    { name: "web app", port: webPort(), envVar: "E2E_WEB_PORT" },
+    {
+      name: "mail UI",
+      port: process.env.OFFGRID_MAIL_UI_PORT ?? "8025",
+      envVar: "OFFGRID_MAIL_UI_PORT",
+    },
+  ];
+}
+
+export function isPortFree(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const probe = createServer();
+    probe.once("error", () => resolve(false));
+    probe.listen(port, "127.0.0.1", () => probe.close(() => resolve(true)));
+  });
+}
+
+// Fails before a stack is started, naming the stack that holds the port, instead of
+// letting docker compose fail half-way with "port is already allocated".
+export async function assertPortsFree(checks: readonly PortCheck[]): Promise<void> {
+  for (const { name, port, envVar } of checks) {
+    if (await isPortFree(Number(port))) {
+      continue;
+    }
+    const holders = await listContainerProjects(["--filter", `publish=${port}`]);
+    const who = holders.length
+      ? holders
+          .map(({ project, workingDir }) => `${project} (started from ${workingDir})`)
+          .join(", ")
+      : "another process";
+    throw new Error(
+      `Port ${port} for the e2e ${name} is in use by ${who}. Stop that stack, or set ${envVar} to a free port.`,
+    );
+  }
 }
 
 type WaitOptions = {

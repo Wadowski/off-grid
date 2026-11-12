@@ -4,6 +4,7 @@
 
 import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const CONSUMERS = {
@@ -49,8 +50,11 @@ export const planFor = (changedFiles, readFeatureModules) => {
 export const grepFor = (plan) =>
   plan.mode === "tags" ? `@module:(${plan.modules.join("|")})` : null;
 
+// git reports paths from the repo root, but `pnpm --filter @offgrid/e2e` runs this from e2e/.
+const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
+
 const readFeatureModules = (path) => {
-  const tags = readFileSync(path, "utf8")
+  const tags = readFileSync(join(REPO_ROOT, path), "utf8")
     .split("\n")
     .filter((line) => line.trimStart().startsWith("@"));
   return [...tags.join(" ").matchAll(MODULE_TAG)].map((match) => match[1]);

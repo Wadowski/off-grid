@@ -9,6 +9,7 @@ import { registerListCalendars } from "./register-list-calendars.js";
 import { registerRemoveCalendar } from "./register-remove-calendar.js";
 import { registerUpdateCalendar } from "./register-update-calendar.js";
 import { registerTimeZoneRoutes } from "./time-zone/register-time-zone-routes.js";
+import { registerCalendarViewRoutes } from "./views/register-calendar-view-routes.js";
 
 export const registerCalendarRoutes = (
   api: FastifyInstance,
@@ -20,4 +21,5 @@ export const registerCalendarRoutes = (
   registerRemoveCalendar(api, context);
   registerCalendarEventRoutes(api, context);
   registerTimeZoneRoutes(api, context);
+  registerCalendarViewRoutes(api, context);
 };

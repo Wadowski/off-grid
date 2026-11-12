@@ -1,6 +1,6 @@
 # @offgrid/calendar
 
-Purpose: shared and personal calendars and events. Calendars can be listed, created, renamed, recolored and deleted. Events can be listed, created, read, updated, moved between calendars of the same owner, and deleted. Calendar views and recurrence come in later issues.
+Purpose: shared and personal calendars and events. Calendars can be listed, created, renamed, recolored and deleted. Events can be listed, created, read, updated, moved between calendars of the same owner, and deleted. Events can also be read by view (agenda, day, week, month). Recurrence comes in later issues.
 Public API: only what `src/index.ts` exports (`calendarModule`); never import from `src/` internals.
 Owner: module team (calendar)
 
@@ -17,7 +17,7 @@ Owner: module team (calendar)
 - `calendar.family_membership`: which people belong to each family, fed by family membership events. A removed membership stays as a row with `is_member = false` and the newest `source_version` applied, so an older join cannot bring it back.
 - `calendar.location`: named places.
 
-Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init`, `*_calendar_color_and_default`, `*_calendar_family_membership`, `*_calendar_events` and `*_calendar_user_time_zone`.
+Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init`, `*_calendar_color_and_default`, `*_calendar_family_membership`, `*_calendar_events`, `*_calendar_user_time_zone` and `*_calendar_event_range_index`. The last one adds the `(starts_at, ends_at)` index that the view query uses.
 
 ## Routes
 
@@ -35,6 +35,16 @@ Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migr
 - Create, update, move and delete publish their event in the same transaction as the change, so a rollback leaves no row and no outbox row.
 
 Decision record: [ADR 0028](../../docs/adr/0028-calendar-event-time-and-versions.md).
+
+## Views
+
+`GET /calendar/views/:view?date=YYYY-MM-DD`, with `view` one of `agenda`, `day`, `week` or `month`, in `src/http/views/`. The use case is `src/application/views/list-calendar-view.ts`. `date` is required, because the server cannot know the caller's local today without a zone.
+
+- The range is in the caller's local days, from `calendar.user_time_zone` (UTC when unset). `day` is `date`. `agenda` is the 7 days starting on `date`. `week` is the ISO week (Monday to Sunday) that contains `date`. `month` is the days of the calendar month of `date`, and the client builds its own grid. Range bounds come from `localMidnight`, so a 23-hour or 25-hour DST day is kept whole.
+- The response is `{ view, startDate, endDate, days }`, where `days` has one entry per local date in the range, in order. Each event is listed under every day it overlaps, so a multi-day event repeats.
+- An event overlaps the range when it starts before the range ends and either ends after the range starts or starts at or after it. An event that ends exactly at the range start is not listed, and an event that starts exactly at the range end is not listed. A zero-length event is listed on the range that contains its instant.
+- Each event carries `calendarName` and `calendarColor`. The query runs in the caller's user context, so row-level security decides which calendars are visible, and a calendar the caller cannot see is not listed.
+- A bad `view` or `date` answers 400 `VALIDATION_FAILED` with a fixed message.
 
 ## Events
 

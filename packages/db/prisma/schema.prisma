@@ -270,6 +270,7 @@ model CalendarEvent {
 
   @@index([calendarId])
   @@index([calendarId, startsAt], map: "calendar_event_calendar_starts_idx")
+  @@index([startsAt, endsAt], map: "calendar_event_range_idx")
   @@map("calendar_event")
   @@schema("calendar")
 }

@@ -62,9 +62,9 @@ export const localMidnight = (date: string, timeZone: string): Date => {
   return new Date(refined);
 };
 
-const nextDay = (date: string): string => {
+export const addDays = (date: string, days: number): string => {
   const { year, month, day } = parseDay(date);
-  return formatDay(Date.UTC(year, month - 1, day + 1));
+  return formatDay(Date.UTC(year, month - 1, day + days));
 };
 
 export const allDayBounds = (input: {
@@ -73,7 +73,7 @@ export const allDayBounds = (input: {
   readonly timeZone: string;
 }): { readonly startsAt: Date; readonly endsAt: Date } => ({
   startsAt: localMidnight(input.startDate, input.timeZone),
-  endsAt: localMidnight(nextDay(input.endDate), input.timeZone),
+  endsAt: localMidnight(addDays(input.endDate, 1), input.timeZone),
 });
 
 export const localDate = (instant: Date, timeZone: string): string => {
