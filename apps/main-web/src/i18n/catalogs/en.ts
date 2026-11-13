@@ -100,8 +100,6 @@ export const en = {
     eventModal: {
       titlePlaceholder: "Event title",
       allDay: "All day",
-      starts: "Starts",
-      ends: "Ends",
       startDate: "Start date",
       startTime: "Start time",
       endDate: "End date",
@@ -115,6 +113,8 @@ export const en = {
       saving: "Saving",
       titleRequired: "Enter an event title.",
       titleTooLong: "The title must be 200 characters or fewer.",
+      incomplete: "Enter a start and end date and time.",
+      invalid: "Check the event details and try again.",
       saveFailed: "We could not save this event. Try again.",
       endsBeforeStart: "The event must not end before it starts",
     },

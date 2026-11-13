@@ -73,9 +73,7 @@ describe("NewEventModal", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    expect(
-      screen.getByText("The title must be 200 characters or fewer."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("The title must be 200 characters or fewer.")).toBeInTheDocument();
     expect(createCalendarEvent).not.toHaveBeenCalled();
   });
 
@@ -88,6 +86,18 @@ describe("NewEventModal", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     expect(screen.getByText("The event must not end before it starts")).toBeInTheDocument();
+    expect(createCalendarEvent).not.toHaveBeenCalled();
+  });
+
+  it("says the start and end are missing when a time is blank, and saves nothing", () => {
+    renderModal();
+    typeTitle("Studio review");
+    fireEvent.change(screen.getByLabelText("Start time"), { target: { value: "" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Enter a start and end date and time.");
+    expect(screen.queryByText("We could not save this event. Try again.")).not.toBeInTheDocument();
     expect(createCalendarEvent).not.toHaveBeenCalled();
   });
 

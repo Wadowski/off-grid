@@ -30,6 +30,28 @@ import {
 
 const FORM_ID = "new-event-form";
 
+// The alert under the form: a failed save, or an input the form could not turn into a request.
+type FormAlertTextId =
+  | "calendar.eventModal.incomplete"
+  | "calendar.eventModal.invalid"
+  | "calendar.eventModal.saveFailed";
+
+const alertTextIdFor = (
+  errors: EventFormErrors,
+  saveFailed: boolean,
+): FormAlertTextId | undefined => {
+  if (saveFailed) {
+    return "calendar.eventModal.saveFailed";
+  }
+  if (errors.form === "incomplete") {
+    return "calendar.eventModal.incomplete";
+  }
+  if (errors.form === "invalid" || errors.end === "invalid") {
+    return "calendar.eventModal.invalid";
+  }
+  return undefined;
+};
+
 export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEventModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const narrow = useIsNarrow();
@@ -106,7 +128,7 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
     </Button>
   );
 
-  const formError = saveFailed || errors.form !== undefined || errors.end === "invalid";
+  const alertTextId = alertTextIdFor(errors, saveFailed);
 
   return (
     <dialog
@@ -243,9 +265,9 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
             </label>
           </div>
 
-          {formError && (
+          {alertTextId !== undefined && (
             <div role="alert" style={newEventErrorStyle}>
-              <Text variant="error" textId="calendar.eventModal.saveFailed" />
+              <Text variant="error" textId={alertTextId} />
             </div>
           )}
         </form>
