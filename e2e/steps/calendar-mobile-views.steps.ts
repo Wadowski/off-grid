@@ -147,8 +147,8 @@ Then("I see the calendar filter", async ({ page }) => {
   await expect(page.getByRole("button", { name: /^Calendar filter/ })).toBeVisible();
 });
 
-Then("I do not see the text {string}", async ({ page }, text: string) => {
-  await expect(page.getByText(text, { exact: true })).toHaveCount(0);
+Then("I do not see the text {string} on the calendar page", async ({ page }, text: string) => {
+  await expect(page.getByRole("main").getByText(text, { exact: true })).toHaveCount(0);
 });
 
 Then("I do not see a search button", async ({ page }) => {

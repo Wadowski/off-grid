@@ -103,11 +103,9 @@ When("I open the calendar from the navigation", async ({ page }) => {
 
 Then("I see the agenda view", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
-  await expect(
-    page
-      .getByRole("group", { name: "Calendar view", exact: true })
-      .getByRole("button", { name: "Agenda", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toHaveValue(
+    "agenda",
+  );
 });
 
 Then("I see the calendars list", async ({ page }) => {
@@ -200,11 +198,15 @@ Then("the calendar {string} is still listed", async ({ page }, name: string) => 
 });
 
 When("I open the edit screen for my default calendar", async ({ page, world }) => {
-  const calendars = await listCalendars(world.api, memberSessionOf(world));
-  const defaultCalendar = calendars.find((calendar) => calendar.isDefault);
-  if (defaultCalendar === undefined) {
-    throw new Error("The person has no default calendar.");
-  }
+  // The default calendar is created after the user-created event is handled, so it can lag the sign-up.
+  const defaultCalendar = await eventually(async () => {
+    const calendars = await listCalendars(world.api, memberSessionOf(world));
+    const found = calendars.find((calendar) => calendar.isDefault);
+    if (found === undefined) {
+      throw new Error("The person has no default calendar yet.");
+    }
+    return found;
+  });
   await page.goto(`${webBaseUrl()}${CALENDAR_PATH_PREFIX}/${defaultCalendar.id}`);
   await expect(page.getByRole("heading", { name: "Edit calendar", exact: true })).toBeVisible();
 });

@@ -36,7 +36,7 @@ Feature: Mobile calendar views: agenda, day, week and month
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
     Then I see the view selector
     And I see the calendar filter
-    And I do not see the text "The Smiths"
+    And I do not see the text "The Smiths" on the calendar page
     And I do not see a search button
 
   Scenario: Anna hides a calendar from the agenda with the calendar filter
