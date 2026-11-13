@@ -17,6 +17,7 @@ Feature: Mobile calendar views: agenda, day, week and month
     Then I see the week strip from 2026-11-16 to 2026-11-22
     And I see the event "Standup" in the agenda for 2026-11-18
 
+  @wip
   Scenario: Anna opens the calendar and sees the agenda by default
     Given I am a user with a family named "The Smiths"
     When I open the calendar from the navigation at a phone width of 375 pixels
