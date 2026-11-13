@@ -1,127 +1,91 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Avatar, Button, SegmentedControl, Text } from "@offgrid/ui";
-import { useTranslation } from "react-i18next";
+import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 import {
-  ALL_CALENDARS,
-  type CalendarFilter,
   filterByCalendar,
+  type HiddenCalendars,
+  NO_HIDDEN_CALENDARS,
 } from "../../calendar-views/events-by-calendar.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
-import { FAMILY_ACCENT_COLORS } from "../../families/family-appearance.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useSession } from "../../session/use-session.js";
 import type { ShellContext } from "../../types.js";
+import type { CalendarViewKind } from "@offgrid/contracts";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
-import { CalendarFilterBar } from "./components/calendar-filter-bar/calendar-filter-bar.js";
+import { CalendarMultiSelect } from "./components/calendar-multi-select/calendar-multi-select.js";
+import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
+import { ViewSelect } from "./components/view-select/view-select.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
-import { CalendarFilterSelect } from "./components/calendar-filter-select/calendar-filter-select.js";
-import { ViewSegmentedControl } from "./components/view-segmented-control/view-segmented-control.js";
-import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
-  calendarViewsActionsStyle,
+  BLEED_CLASS,
+  calendarViewsControlsStyle,
+  calendarViewsCss,
   calendarViewsFooterStyle,
   calendarViewsHeaderStyle,
   calendarViewsPageStyle,
   calendarViewsStatusStyle,
-  calendarViewsTitleStyle,
-  familyDotStyle,
-  familyPillStyle,
+  FOOTER_CLASS,
+  PAGE_CLASS,
 } from "./styles.js";
 import type { CalendarViewsPageProps } from "./types.js";
-import type { CalendarViewKind } from "@offgrid/contracts";
-
-const initialsOf = (displayName: string): string =>
-  displayName
-    .split(" ")
-    .filter((part) => part.length > 0)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join("");
 
 export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const shell = useOutletContext<ShellContext>();
   const session = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
   const date = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
-  const [filter, setFilter] = useState<CalendarFilter>(ALL_CALENDARS);
+  const [hidden, setHidden] = useState<HiddenCalendars>(NO_HIDDEN_CALENDARS);
   const { status, days, retry } = useCalendarView(view, date);
   const { timeZone } = useCalendarTimeZone(session.status === "signedIn");
   const today = localDateOf(new Date());
   const visibleDays = days.map((day) => ({
     ...day,
-    events: filterByCalendar(day.events, filter),
+    events: filterByCalendar(day.events, hidden),
   }));
   const selectedEvents = visibleDays.find((day) => day.date === date)?.events ?? [];
-
-  const activeFamily =
-    session.status === "signedIn"
-      ? shell.families.find((family) => family.id === session.activeFamilyId)
-      : undefined;
-  const signedInName = session.status === "signedIn" ? session.user.displayName : null;
 
   const goToDate = (nextDate: string) => setSearchParams({ date: nextDate });
 
   const goToView = (nextView: CalendarViewKind) =>
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
 
+  // Week and day grids run edge to edge on a phone; the other content keeps the narrow gutter.
+  const gridWrapperClass = view === "week" || view === "day" ? BLEED_CLASS : undefined;
+
   return (
-    <section style={calendarViewsPageStyle}>
+    <section className={PAGE_CLASS} style={calendarViewsPageStyle}>
+      <style>{calendarViewsCss}</style>
       <header style={calendarViewsHeaderStyle}>
-        <div style={calendarViewsTitleStyle}>
-          {activeFamily !== undefined && (
-            <span style={familyPillStyle}>
-              <span
-                aria-hidden="true"
-                style={familyDotStyle(FAMILY_ACCENT_COLORS[activeFamily.accent].background)}
-              />
-              <Text variant="label" value={activeFamily.name} />
-            </span>
-          )}
-          <Text variant="heading" textId="calendar.heading" />
-        </div>
-        <div style={calendarViewsActionsStyle}>
-          <Button variant="ghost" aria-label={t("calendar.mobileViews.search")} disabled>
-            <MaterialIcon name="search" size="22px" color="currentColor" />
-          </Button>
-          <Button variant="ghost" size="small" onClick={() => navigate("/calendar/calendars")}>
-            <Text variant="action" textId="calendar.mobileViews.calendars" />
-          </Button>
-          {signedInName !== null && <Avatar initials={initialsOf(signedInName)} size="2rem" />}
-        </div>
+        <Text variant="heading" textId="calendar.heading" />
+        <Button variant="ghost" size="small" onClick={() => navigate("/calendar/calendars")}>
+          <Text variant="action" textId="calendar.mobileViews.calendars" />
+        </Button>
       </header>
-      <ViewSegmentedControl value={view} onChange={goToView} />
+      <div style={calendarViewsControlsStyle}>
+        <ViewSelect value={view} onChange={goToView} />
+        <CalendarMultiSelect
+          calendars={shell.calendars.calendars}
+          hidden={hidden}
+          onChange={setHidden}
+        />
+      </div>
       <DateNavigator
         label={periodLabel(view, date)}
         onPrevious={() => goToDate(shiftDate(date, view, -1))}
         onNext={() => goToDate(shiftDate(date, view, 1))}
         onToday={() => goToDate(localDateOf(new Date()))}
       />
-      {view === "month" ? (
-        <CalendarFilterSelect
-          calendars={shell.calendars.calendars}
-          selected={filter}
-          onSelect={setFilter}
-        />
-      ) : (
-        <CalendarFilterBar
-          calendars={shell.calendars.calendars}
-          selected={filter}
-          onSelect={setFilter}
-        />
-      )}
       {status === "loading" && (
         <Text variant="status" role="status" textId="calendar.mobileViews.loading" />
       )}
@@ -134,27 +98,16 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {(view === "agenda" || view === "day") && (
-        <>
-          <WeekStrip
-            dates={weekDates(mondayOf(date))}
-            selectedDate={date}
-            todayDate={today}
-            onSelect={goToDate}
-          />
-          <SegmentedControl
-            label={t("calendar.mobileViews.modeToggle")}
-            options={[
-              { value: "agenda", label: t("calendar.views.agenda") },
-              { value: "day", label: t("calendar.mobileViews.dayTimeline") },
-            ]}
-            value={view}
-            onChange={goToView}
-          />
-        </>
+        <WeekStrip
+          dates={weekDates(mondayOf(date))}
+          selectedDate={date}
+          todayDate={today}
+          onSelect={goToDate}
+        />
       )}
       {view === "agenda" && status === "ready" && (
         <>
-          <DayHeader date={date} scheduledCount={selectedEvents.length} />
+          <DayHeader date={date} />
           <AgendaList events={selectedEvents} timeZone={timeZone} />
         </>
       )}
@@ -169,21 +122,29 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         />
       )}
       {view === "week" && status === "ready" && (
-        <WeekGrid
-          days={visibleDays}
-          selectedDate={date}
-          todayDate={today}
-          timeZone={timeZone}
-          now={new Date()}
-        />
+        <div className={gridWrapperClass}>
+          <WeekGrid
+            days={visibleDays}
+            selectedDate={date}
+            todayDate={today}
+            timeZone={timeZone}
+            now={new Date()}
+          />
+        </div>
       )}
       {view === "day" && status === "ready" && (
         <>
-          <DayHeader date={date} scheduledCount={selectedEvents.length} />
-          <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
+          <DayHeader date={date} />
+          <div className={gridWrapperClass}>
+            <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
+          </div>
         </>
       )}
-      <div style={calendarViewsFooterStyle}>
+      <div
+        className={FOOTER_CLASS}
+        data-testid="calendar-views-footer"
+        style={calendarViewsFooterStyle}
+      >
         <Button variant="primary" aria-disabled="true">
           <MaterialIcon name="add" size="20px" color="currentColor" />
           <Text variant="action" textId="calendar.mobileViews.newEvent" />

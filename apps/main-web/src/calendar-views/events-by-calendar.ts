@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-export const ALL_CALENDARS = "all";
+// The ids of the calendars the person has unticked. Every calendar is shown unless it is listed here,
+// so a calendar added later shows up without changing the filter.
+export type HiddenCalendars = ReadonlySet<string>;
 
-export type CalendarFilter = typeof ALL_CALENDARS | string;
+export const NO_HIDDEN_CALENDARS: HiddenCalendars = new Set<string>();
 
 export const filterByCalendar = <Event extends { readonly calendarId: string }>(
   events: readonly Event[],
-  filter: CalendarFilter,
-): Event[] =>
-  filter === ALL_CALENDARS ? [...events] : events.filter((event) => event.calendarId === filter);
+  hidden: HiddenCalendars,
+): Event[] => events.filter((event) => !hidden.has(event.calendarId));
 
 export const sortByStart = <Event extends { readonly startsAt: string }>(
   events: readonly Event[],

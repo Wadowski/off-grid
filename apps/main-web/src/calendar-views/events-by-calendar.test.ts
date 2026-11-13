@@ -3,8 +3,8 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  ALL_CALENDARS,
   distinctCalendarColors,
+  NO_HIDDEN_CALENDARS,
   filterByCalendar,
   sortByStart,
   splitAllDay,
@@ -50,11 +50,15 @@ const events = [
 
 describe("events by calendar", () => {
   it("keeps every event for the all-calendars filter", () => {
-    expect(filterByCalendar(events, ALL_CALENDARS)).toHaveLength(5);
+    expect(filterByCalendar(events, NO_HIDDEN_CALENDARS)).toHaveLength(5);
   });
 
-  it("keeps only the events of the chosen calendar", () => {
-    expect(filterByCalendar(events, "cal-1").map((event) => event.id)).toEqual(["a", "c"]);
+  it("drops the events of every unticked calendar", () => {
+    expect(filterByCalendar(events, new Set(["cal-2", "cal-3"])).map((event) => event.id)).toEqual([
+      "a",
+      "c",
+      "e",
+    ]);
   });
 
   it("sorts events by start time without changing the input", () => {

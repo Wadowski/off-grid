@@ -1,32 +1,26 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { cssVar, tokens } from "@offgrid/ui";
+import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
+export const DAY_HEADING_CLASS = "og-day-heading";
+
+// The date heading stays on one line and only truncates with an ellipsis when it cannot fit.
+// The text sits in the heading element Text renders, so the rule targets that child.
+export const dayHeadingCss = `
+.${DAY_HEADING_CLASS} {
+  min-width: 0;
+  overflow: hidden;
+}
+.${DAY_HEADING_CLASS} > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+`;
+
 export const dayHeaderStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: tokens.space[2],
   minWidth: 0,
-};
-
-export const dayHeaderTitleStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: tokens.space[2],
-  minWidth: 0,
-};
-
-export const dayHeaderCountStyle: CSSProperties = {
-  flexShrink: 0,
-  padding: `${tokens.space[1]} ${tokens.space[2]}`,
-  borderRadius: cssVar("radius-sm"),
-  background: cssVar("color-good"),
-  color: cssVar("color-accent-fg"),
-  fontFamily: cssVar("font-family-mono"),
-  fontSize: cssVar("font-size-mono-code"),
-  lineHeight: cssVar("line-height-mono-code"),
-  fontWeight: cssVar("font-weight-medium"),
+  paddingTop: tokens.space[1],
 };

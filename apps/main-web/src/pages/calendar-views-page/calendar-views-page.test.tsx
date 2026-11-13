@@ -95,12 +95,12 @@ describe("CalendarViewsPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows the family, the title and the period of the selected week", async () => {
+  it("shows the title and the period of the selected week without the family name", async () => {
     stubApi();
 
     renderPage("/calendar/week?date=2025-10-23", "week");
 
-    expect(screen.getByText("The Miller Family")).toBeInTheDocument();
+    expect(screen.queryByText("The Miller Family")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Calendar" })).toBeInTheDocument();
     expect(screen.getByText("Oct 20 - 26")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole("status")).not.toBeInTheDocument());
@@ -116,17 +116,16 @@ describe("CalendarViewsPage", () => {
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/week?date=2025-10-30");
   });
 
-  it("marks the chosen calendar filter as pressed", async () => {
+  it("hides a calendar's events when the person unticks it in the calendar filter", async () => {
     stubApi();
     renderPage("/calendar/week?date=2025-10-23", "week");
 
-    expect(screen.getByRole("button", { name: "All Calendars" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Studio" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Calendar filter/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Studio" }));
 
-    expect(screen.getByRole("button", { name: "Studio" })).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", { name: "Calendar filter: No calendars" }),
+    ).toBeInTheDocument();
   });
 
   it("opens the calendars list from the Calendars button", async () => {
@@ -149,21 +148,33 @@ describe("CalendarViewsPage", () => {
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(viewCalls));
   });
 
-  it("switches to another view from the four-view control and keeps the date", () => {
+  it("switches to another view from the view selector and keeps the date", () => {
     stubApi();
     renderPage("/calendar/agenda?date=2025-10-23", "agenda");
 
-    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Calendar view" }), {
+      target: { value: "month" },
+    });
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/month?date=2025-10-23");
   });
 
-  it("switches between agenda and day timeline below the week strip", () => {
+  it("switches from the agenda to the day view from the view selector", () => {
     stubApi();
     renderPage("/calendar/agenda?date=2025-10-23", "agenda");
 
-    fireEvent.click(screen.getByRole("button", { name: "Day Timeline" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Calendar view" }), {
+      target: { value: "day" },
+    });
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2025-10-23");
+  });
+
+  it("has no search button, avatar or day scheduled count", () => {
+    stubApi();
+    renderPage("/calendar/agenda?date=2025-10-23", "agenda");
+
+    expect(screen.queryByRole("button", { name: "Search" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Scheduled/)).not.toBeInTheDocument();
   });
 });

@@ -3,5 +3,4 @@
 
 export type DayHeaderProps = {
   readonly date: string;
-  readonly scheduledCount: number;
 };

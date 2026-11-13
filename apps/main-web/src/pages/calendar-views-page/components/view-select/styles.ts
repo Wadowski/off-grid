@@ -4,8 +4,7 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const calendarFilterSelectStyle: CSSProperties = {
-  alignSelf: "flex-start",
+export const viewSelectStyle: CSSProperties = {
   maxWidth: "100%",
   padding: `${tokens.space[1]} ${tokens.space[3]}`,
   borderWidth: "1px",

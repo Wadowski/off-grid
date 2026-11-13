@@ -7,14 +7,14 @@ import { DayHeader } from "./day-header.js";
 
 describe("DayHeader", () => {
   it("shows the weekday and date of the selected day", () => {
-    render(<DayHeader date="2025-10-23" scheduledCount={5} />);
+    render(<DayHeader date="2025-10-23" />);
 
     expect(screen.getByRole("heading", { name: "Thursday, October 23" })).toBeInTheDocument();
   });
 
-  it("shows how many events are scheduled that day", () => {
-    render(<DayHeader date="2025-10-23" scheduledCount={5} />);
+  it("does not show a scheduled count", () => {
+    render(<DayHeader date="2025-10-23" />);
 
-    expect(screen.getByText("5 Scheduled")).toBeInTheDocument();
+    expect(screen.queryByText(/Scheduled/)).not.toBeInTheDocument();
   });
 });
