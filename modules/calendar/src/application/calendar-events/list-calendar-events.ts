@@ -5,9 +5,10 @@ import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { listEventsOfCalendar } from "../../infrastructure/calendar-events/list-events-of-calendar.js";
-import { findGuestEventIds } from "../../infrastructure/event-guests/find-guest-events.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import type { CalendarOutcome } from "../../types.js";
+import { findGuestCalendarFields } from "../event-guests/find-guest-calendar-fields.js";
+import { findReadOnlyEventIds } from "../event-guests/find-read-only-event-ids.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
 
 export const listCalendarEvents = (
@@ -22,19 +23,14 @@ export const listCalendarEvents = (
     }
     const timeZone = (await findTimeZone(tx, userId)) ?? DEFAULT_TIME_ZONE;
     const records = await listEventsOfCalendar(tx, calendarId);
-    const guestEventIds = await findGuestEventIds(tx, {
-      guestUserId: userId,
-      eventIds: records.map((record) => record.eventId),
-    });
-    const calendar = await findCalendar(tx, calendarId);
+    const readOnlyEventIds = await findReadOnlyEventIds(tx, { guestUserId: userId, records });
+    const calendarFields = await findGuestCalendarFields(tx, calendarId);
     return {
       outcome: "found",
       value: records.map((record) => {
-        const readOnly = guestEventIds.has(record.eventId);
+        const readOnly = readOnlyEventIds.has(record.eventId);
         const view = toEventView(record, timeZone, readOnly);
-        return readOnly
-          ? { ...view, calendarName: calendar?.name, calendarColor: calendar?.color }
-          : view;
+        return readOnly ? { ...view, ...calendarFields } : view;
       }),
     };
   });
