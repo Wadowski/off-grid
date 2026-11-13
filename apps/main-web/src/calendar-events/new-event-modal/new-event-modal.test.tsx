@@ -57,16 +57,16 @@ describe("NewEventModal", () => {
   it("shows the new event form with the calendar picked and the save action", () => {
     renderModal();
 
-    expect(screen.getByRole("heading", { name: "New event" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "New Event" })).toBeInTheDocument();
     expect(screen.getByLabelText("Calendar")).toHaveValue(STUDIO.id);
-    expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Create Event" })).toBeEnabled();
     expect(screen.queryByLabelText("Guests")).not.toBeInTheDocument();
   });
 
   it("does not save an event without a title and says so on the title field", () => {
     renderModal();
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
 
     expect(screen.getByText("Enter an event title.")).toBeInTheDocument();
     expect(createCalendarEvent).not.toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe("NewEventModal", () => {
     renderModal();
     typeTitle("a".repeat(201));
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
 
     expect(screen.getByText("The title must be 200 characters or fewer.")).toBeInTheDocument();
     expect(createCalendarEvent).not.toHaveBeenCalled();
@@ -85,10 +85,13 @@ describe("NewEventModal", () => {
   it("refuses an end before the start with the server's message and saves nothing", () => {
     renderModal();
     typeTitle("Studio review");
+    // Both dates are set, so the result does not depend on the time of day the default dates are made.
+    fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2030-05-10" } });
+    fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2030-05-10" } });
     fireEvent.change(screen.getByLabelText("Start time"), { target: { value: "12:00" } });
     fireEvent.change(screen.getByLabelText("End time"), { target: { value: "10:00" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
 
     expect(screen.getByText("The event must not end before it starts")).toBeInTheDocument();
     expect(createCalendarEvent).not.toHaveBeenCalled();
@@ -99,7 +102,7 @@ describe("NewEventModal", () => {
     typeTitle("Studio review");
     fireEvent.change(screen.getByLabelText("Start time"), { target: { value: "" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("Enter a start and end date and time.");
     expect(screen.queryByText("We could not save this event. Try again.")).not.toBeInTheDocument();
@@ -112,7 +115,7 @@ describe("NewEventModal", () => {
     renderModal({ onSaved });
     typeTitle("Studio review");
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
 
     await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
     expect(createCalendarEvent).toHaveBeenCalledWith(
@@ -127,13 +130,13 @@ describe("NewEventModal", () => {
     renderModal({ onSaved });
     typeTitle("Studio review");
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "We could not save this event. Try again.",
     );
     expect(onSaved).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Create Event" })).toBeEnabled();
   });
 
   it("closes without saving when Cancel is pressed, and sends no request", () => {

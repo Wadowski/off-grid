@@ -110,7 +110,7 @@ When(
     await page.evaluate((key) => {
       (globalThis as unknown as Record<string, unknown>)[key] = "kept";
     }, MARKER);
-    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Create Event", exact: true }).click();
     await expect.poll(() => pathOf(page)).toBe(CALENDAR_PATH);
     await expect(modal(page)).toHaveCount(0);
   },
@@ -146,6 +146,6 @@ When(
     await openFromSidebar(page);
     await page.getByLabel("Title", { exact: true }).fill(title);
     await fillTimes(page, { startTime: "12:00", endTime: "10:00" });
-    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Create Event", exact: true }).click();
   },
 );

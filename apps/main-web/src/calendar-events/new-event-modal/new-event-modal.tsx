@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Checkbox, Dialog, Select, Text, TextField, VisuallyHidden } from "@offgrid/ui";
-import type { FormEvent } from "react";
+import { Button, cssVar, Dialog, IconTile, Select, Text, VisuallyHidden } from "@offgrid/ui";
+import type { FormEvent, ReactNode } from "react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
@@ -13,18 +13,34 @@ import { defaultEventForm, toCreateEventRequest, withField } from "../event-form
 import type { NewEventModalProps } from "./types.js";
 import {
   NEW_EVENT_MODAL_CLASS,
+  NEW_EVENT_SWITCH_CLASS,
   newEventActionsStyle,
   newEventBodyStyle,
+  newEventDateInputStyle,
   newEventErrorStyle,
+  newEventFieldRowStyle,
+  newEventFieldStyle,
   newEventFooterStyle,
   newEventFormStyle,
+  newEventGroupHeadStyle,
   newEventGroupStyle,
+  newEventGroupTitleStyle,
+  newEventHeaderActionsStyle,
   newEventHeaderStyle,
   newEventHeadingStyle,
   newEventLabelStyle,
   newEventModalCss,
-  newEventRowStyle,
+  newEventSwitchLabelStyle,
   newEventTextareaStyle,
+  newEventTimeCardStyle,
+  newEventTimeInputStyle,
+  newEventTimeRowStyle,
+  newEventTimesStyle,
+  newEventTitleCardStyle,
+  newEventTitleGroupStyle,
+  newEventTitleInputStyle,
+  newEventTitleLabelStyle,
+  newEventZoneStyle,
 } from "./styles.js";
 
 const FORM_ID = "new-event-form";
@@ -50,6 +66,54 @@ const alertTextIdFor = (
   }
   return undefined;
 };
+
+// A start or end block of the Time & Duration card: a caption, a date and, for a timed event, a time.
+type DateTimeBlockProps = {
+  readonly caption: ReactNode;
+  readonly dateLabel: string;
+  readonly timeLabel: string;
+  readonly date: string;
+  readonly time: string;
+  readonly showTime: boolean;
+  readonly onDate: (value: string) => void;
+  readonly onTime: (value: string) => void;
+  readonly error?: ReactNode;
+};
+
+const DateTimeBlock = ({
+  caption,
+  dateLabel,
+  timeLabel,
+  date,
+  time,
+  showTime,
+  onDate,
+  onTime,
+  error,
+}: DateTimeBlockProps) => (
+  <div style={newEventTimeCardStyle}>
+    {caption}
+    <div style={newEventTimeRowStyle}>
+      <input
+        type="date"
+        aria-label={dateLabel}
+        style={newEventDateInputStyle}
+        value={date}
+        onChange={(event) => onDate(event.target.value)}
+      />
+      {showTime && (
+        <input
+          type="time"
+          aria-label={timeLabel}
+          style={newEventTimeInputStyle}
+          value={time}
+          onChange={(event) => onTime(event.target.value)}
+        />
+      )}
+    </div>
+    {error}
+  </div>
+);
 
 export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEventModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -95,7 +159,8 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
     }
   };
 
-  const saveButton = (
+  // The desktop button reads "Create Event" with a tick; the phone bar reads "Add", as in the designs.
+  const createButton = (
     <Button
       type="submit"
       form={FORM_ID}
@@ -103,9 +168,16 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
       disabled={saving || calendarId === ""}
       aria-busy={saving}
     >
+      {!narrow && <MaterialIcon name="done" size="17px" color="currentColor" />}
       <Text
         variant="action"
-        textId={saving ? "calendar.eventModal.saving" : "calendar.actions.save"}
+        textId={
+          saving
+            ? "calendar.eventModal.saving"
+            : narrow
+              ? "calendar.eventModal.add"
+              : "calendar.eventModal.create"
+        }
       />
     </Button>
   );
@@ -114,6 +186,24 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
     <Button type="button" variant="ghost" onClick={dismiss}>
       <Text variant="action" textId="calendar.actions.cancel" />
     </Button>
+  );
+
+  const calendarPicker = (
+    <Select
+      aria-label={t("calendar.event.calendar")}
+      value={calendarId}
+      onChange={(event) => update("calendarId", event.target.value)}
+      options={calendars.map((calendar) => ({
+        value: calendar.id,
+        label: calendar.name,
+      }))}
+    />
+  );
+
+  const heading = (
+    <div id="new-event-heading" style={newEventHeadingStyle}>
+      <Text variant="subheading" textId="calendar.eventModal.heading" />
+    </div>
   );
 
   const alertTextId = alertTextIdFor(errors, saveFailed);
@@ -130,19 +220,35 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
       <style>{newEventModalCss}</style>
       <div style={newEventFormStyle}>
         <header style={newEventHeaderStyle}>
-          {narrow && cancelButton}
-          <div id="new-event-heading" style={newEventHeadingStyle}>
-            <Text variant="subheading" textId="calendar.event.new" />
-          </div>
           {narrow ? (
-            saveButton
+            <>
+              {cancelButton}
+              {heading}
+              {createButton}
+            </>
           ) : (
-            <Button type="button" variant="ghost" size="small" onClick={dismiss}>
-              <MaterialIcon name="close" size="17px" color="currentColor" />
-              <VisuallyHidden>
-                <Text variant="action" textId="calendar.eventModal.close" />
-              </VisuallyHidden>
-            </Button>
+            <>
+              <div style={newEventTitleGroupStyle}>
+                <IconTile
+                  size="2rem"
+                  shape="rounded"
+                  background={`color-mix(in srgb, ${cssVar("color-primary")} 12%, transparent)`}
+                  color={cssVar("color-primary")}
+                >
+                  <MaterialIcon name="event_note" size="19px" color="currentColor" />
+                </IconTile>
+                {heading}
+              </div>
+              <div style={newEventHeaderActionsStyle}>
+                {calendarPicker}
+                <Button type="button" variant="ghost" size="small" onClick={dismiss}>
+                  <MaterialIcon name="close" size="17px" color="currentColor" />
+                  <VisuallyHidden>
+                    <Text variant="action" textId="calendar.eventModal.close" />
+                  </VisuallyHidden>
+                </Button>
+              </div>
+            </>
           )}
         </header>
 
@@ -152,92 +258,104 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
           onSubmit={(event) => void submit(event)}
           noValidate
         >
-          <TextField
-            label={<Text variant="label" textId="calendar.event.title" />}
-            placeholder={t("calendar.eventModal.titlePlaceholder")}
-            value={values.title}
-            onChange={(event) => update("title", event.target.value)}
-            error={
-              errors.title === undefined ? undefined : (
-                <Text
-                  variant="error"
-                  textId={
-                    errors.title === "titleTooLong"
-                      ? "calendar.eventModal.titleTooLong"
-                      : "calendar.eventModal.titleRequired"
-                  }
-                />
-              )
-            }
-          />
-
-          <div style={newEventGroupStyle}>
+          {narrow && (
             <label style={newEventLabelStyle}>
               <Text variant="label" textId="calendar.event.calendar" />
-              <Select
-                value={calendarId}
-                onChange={(event) => update("calendarId", event.target.value)}
-                options={calendars.map((calendar) => ({
-                  value: calendar.id,
-                  label: calendar.name,
-                }))}
+              {calendarPicker}
+            </label>
+          )}
+
+          <div style={newEventTitleCardStyle}>
+            <label style={newEventTitleLabelStyle}>
+              <Text variant="label" textId="calendar.event.title" />
+              <input
+                type="text"
+                style={newEventTitleInputStyle}
+                placeholder={t("calendar.eventModal.titlePlaceholder")}
+                value={values.title}
+                aria-invalid={errors.title !== undefined}
+                onChange={(event) => update("title", event.target.value)}
               />
             </label>
-            <Checkbox
-              label={<Text variant="body" textId="calendar.eventModal.allDay" />}
-              checked={values.isAllDay}
-              onChange={(event) => update("isAllDay", event.target.checked)}
-            />
-            <div style={newEventRowStyle}>
-              <TextField
-                type="date"
-                label={<Text variant="label" textId="calendar.eventModal.startDate" />}
-                value={values.startDate}
-                onChange={(event) => update("startDate", event.target.value)}
+            {errors.title !== undefined && (
+              <Text
+                variant="error"
+                textId={
+                  errors.title === "titleTooLong"
+                    ? "calendar.eventModal.titleTooLong"
+                    : "calendar.eventModal.titleRequired"
+                }
               />
-              {!values.isAllDay && (
-                <TextField
-                  type="time"
-                  label={<Text variant="label" textId="calendar.eventModal.startTime" />}
-                  value={values.startTime}
-                  onChange={(event) => update("startTime", event.target.value)}
+            )}
+          </div>
+
+          <div style={newEventGroupStyle}>
+            <div style={newEventGroupHeadStyle}>
+              <span style={newEventGroupTitleStyle}>
+                <MaterialIcon name="schedule" size="18px" color={cssVar("color-primary")} />
+                <Text variant="label" textId="calendar.eventModal.timeAndDuration" />
+              </span>
+              <label style={newEventSwitchLabelStyle}>
+                <Text variant="label" textId="calendar.eventModal.allDay" />
+                <input
+                  type="checkbox"
+                  role="switch"
+                  className={NEW_EVENT_SWITCH_CLASS}
+                  checked={values.isAllDay}
+                  onChange={(event) => update("isAllDay", event.target.checked)}
                 />
-              )}
+              </label>
             </div>
-            <div style={newEventRowStyle}>
-              <TextField
-                type="date"
-                label={<Text variant="label" textId="calendar.eventModal.endDate" />}
-                value={values.endDate}
-                onChange={(event) => update("endDate", event.target.value)}
+
+            <div style={newEventTimesStyle}>
+              <DateTimeBlock
+                caption={<Text variant="label" textId="calendar.eventModal.starts" />}
+                dateLabel={t("calendar.eventModal.startDate")}
+                timeLabel={t("calendar.eventModal.startTime")}
+                date={values.startDate}
+                time={values.startTime}
+                showTime={!values.isAllDay}
+                onDate={(value) => update("startDate", value)}
+                onTime={(value) => update("startTime", value)}
+              />
+              <DateTimeBlock
+                caption={<Text variant="label" textId="calendar.eventModal.ends" />}
+                dateLabel={t("calendar.eventModal.endDate")}
+                timeLabel={t("calendar.eventModal.endTime")}
+                date={values.endDate}
+                time={values.endTime}
+                showTime={!values.isAllDay}
+                onDate={(value) => update("endDate", value)}
+                onTime={(value) => update("endTime", value)}
                 error={
                   errors.end === "endsBeforeStart" ? (
                     <Text variant="error" textId="calendar.eventModal.endsBeforeStart" />
                   ) : undefined
                 }
               />
-              {!values.isAllDay && (
-                <TextField
-                  type="time"
-                  label={<Text variant="label" textId="calendar.eventModal.endTime" />}
-                  value={values.endTime}
-                  onChange={(event) => update("endTime", event.target.value)}
-                />
-              )}
             </div>
-            <div style={newEventLabelStyle}>
+
+            <div style={newEventZoneStyle}>
+              <MaterialIcon name="public" size="15px" color="currentColor" />
               <Text variant="label" textId="calendar.eventModal.timeZone" />
               <Text variant="body" value={timeZone} />
             </div>
           </div>
 
           <div style={newEventGroupStyle}>
-            <TextField
-              label={<Text variant="label" textId="calendar.eventModal.location" />}
-              placeholder={t("calendar.eventModal.locationPlaceholder")}
-              value={values.location}
-              onChange={(event) => update("location", event.target.value)}
-            />
+            <div style={newEventFieldRowStyle}>
+              <MaterialIcon name="location_on" size="18px" color={cssVar("color-muted")} />
+              <label style={{ ...newEventLabelStyle, flex: 1, minWidth: 0 }}>
+                <Text variant="label" textId="calendar.eventModal.location" />
+                <input
+                  type="text"
+                  style={newEventFieldStyle}
+                  placeholder={t("calendar.eventModal.locationPlaceholder")}
+                  value={values.location}
+                  onChange={(event) => update("location", event.target.value)}
+                />
+              </label>
+            </div>
             <label style={newEventLabelStyle}>
               <Text variant="label" textId="calendar.eventModal.description" />
               <textarea
@@ -259,7 +377,7 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
         {!narrow && (
           <footer style={newEventFooterStyle}>
             {cancelButton}
-            <div style={newEventActionsStyle}>{saveButton}</div>
+            <div style={newEventActionsStyle}>{createButton}</div>
           </footer>
         )}
       </div>
