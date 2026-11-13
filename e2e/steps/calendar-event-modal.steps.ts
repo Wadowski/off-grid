@@ -77,6 +77,10 @@ Then("I see the new event modal at phone width", async ({ page }) => {
   await expect(modal(page)).toBeVisible();
   const box = await modal(page).boundingBox();
   expect(box?.width ?? 0).toBeGreaterThanOrEqual(PHONE_WIDTH_PX - 1);
+  // The page behind the modal must not scroll sideways at phone width.
+  expect(await page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")).toBe(
+    true,
+  );
 });
 
 When("I type {string} as the event title", async ({ page }, title: string) => {

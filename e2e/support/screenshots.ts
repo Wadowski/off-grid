@@ -43,7 +43,9 @@ const captureTheme = async (
 
   const desktopViewport = page.viewportSize();
   await page.setViewportSize(MOBILE_VIEWPORT);
-  await nextFrame(page);
+  // The layout switches to its narrow form on the media query's change event, which can land after
+  // the next frame. Wait for the page to fit the phone width so the full-page shot is not taken mid-switch.
+  await page.waitForFunction("document.documentElement.scrollWidth <= window.innerWidth");
   await page.screenshot({ path: screenPath(feature, shotName(name, theme, true)), fullPage: true });
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);
