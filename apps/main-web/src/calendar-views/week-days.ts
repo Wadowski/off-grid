@@ -55,6 +55,14 @@ export const weekDayLabel = (date: string): string => WEEKDAY.format(new Date(`$
 
 export const weekDayNumber = (date: string): number => Number(date.slice(8, 10));
 
+// ISO 8601 week number of the week that starts on the given Monday. The week belongs to the year of its Thursday.
+export const isoWeekNumber = (monday: string): number => {
+  const thursday = addDays(monday, 3);
+  const { year } = parseDate(thursday);
+  const dayOfYear = daysBetween(`${year}-01-01`, thursday) + 1;
+  return Math.floor((dayOfYear - 1) / 7) + 1;
+};
+
 export const mondayIndexOf = (date: string): number => {
   const { year, month, day } = parseDate(date);
   return (new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7;

@@ -54,10 +54,17 @@ describe("CalendarSidebar", () => {
     );
   });
 
-  it("renders its children in a slot above the calendar list", () => {
-    renderSidebar([STUDIO], <button type="button">New event</button>);
+  it("renders its children in a slot between the heading and the calendar list", () => {
+    renderSidebar([STUDIO], <button type="button">Pick a day</button>);
 
     const slot = screen.getByTestId("calendar-sidebar-slot");
-    expect(within(slot).getByRole("button", { name: "New event" })).toBeInTheDocument();
+    expect(within(slot).getByRole("button", { name: "Pick a day" })).toBeInTheDocument();
+    const sidebar = screen.getByRole("complementary", { name: "Calendars" });
+    const heading = within(sidebar).getByText("Calendars");
+    expect(heading.compareDocumentPosition(slot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      slot.compareDocumentPosition(screen.getByRole("checkbox", { name: "Studio" })) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

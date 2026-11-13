@@ -37,7 +37,7 @@ const HiddenProbe = () => {
   return (
     <>
       <p data-testid="hidden-probe">{[...hidden].join(",")}</p>
-      <p data-testid="location-probe">{location.pathname}</p>
+      <p data-testid="location-probe">{`${location.pathname}${location.search}`}</p>
     </>
   );
 };
@@ -105,6 +105,26 @@ describe("CalendarLayout", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Studio" }));
 
     expect(screen.getByTestId("hidden-probe")).toHaveTextContent(/^$/);
+  });
+
+  it("moves the selected date to the day picked in the mini month and keeps the view", () => {
+    render(
+      <MemoryRouter initialEntries={["/calendar/week?date=2026-11-18"]}>
+        <Routes>
+          <Route element={<Outlet context={shellContext} />}>
+            <Route path="calendar" element={<CalendarLayout />}>
+              <Route path="week" element={<HiddenProbe />} />
+            </Route>
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByTestId("mini-month-day-2026-11-20"));
+
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/calendar/week?date=2026-11-20",
+    );
   });
 
   it("starts with every calendar shown when nothing was stored", () => {

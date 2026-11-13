@@ -22,12 +22,12 @@ export const CalendarSidebar = ({
     aria-labelledby="calendar-sidebar-heading"
     data-testid="calendar-sidebar"
   >
+    <Text variant="label" id="calendar-sidebar-heading" textId="calendar.calendars.heading" />
     {children !== undefined && (
       <div style={calendarSidebarSlotStyle} data-testid="calendar-sidebar-slot">
         {children}
       </div>
     )}
-    <Text variant="label" id="calendar-sidebar-heading" textId="calendar.calendars.heading" />
     <CalendarSidebarList calendars={calendars} hidden={hidden} onToggle={onToggle} />
     <Link to="/calendar/calendars" className="og-focusable" style={manageCalendarsLinkStyle}>
       <Text variant="link" textId="calendar.desktop.manageCalendars" />

@@ -2,7 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { addDays, addMonths, daysBetween, localDateOf, mondayOf, weekDates } from "./week-days.js";
+import {
+  addDays,
+  addMonths,
+  daysBetween,
+  isoWeekNumber,
+  localDateOf,
+  mondayOf,
+  weekDates,
+} from "./week-days.js";
 
 describe("week days", () => {
   it("finds the Monday of the ISO week for any weekday", () => {
@@ -40,5 +48,12 @@ describe("week days", () => {
 
   it("builds the local calendar date of a Date in the browser zone", () => {
     expect(localDateOf(new Date(2025, 9, 23, 23, 59))).toBe("2025-10-23");
+  });
+
+  it("numbers the weeks by ISO 8601, where a week belongs to the year of its Thursday", () => {
+    expect(isoWeekNumber("2026-11-16")).toBe(47);
+    expect(isoWeekNumber("2024-12-30")).toBe(1);
+    expect(isoWeekNumber("2026-01-05")).toBe(2);
+    expect(isoWeekNumber("2026-12-28")).toBe(53);
   });
 });
