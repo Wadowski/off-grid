@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { withUserContext } from "@offgrid/db";
+import { withUserContext, type ModuleTransaction } from "@offgrid/db";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
@@ -28,8 +28,8 @@ describe("publishCalendarEventGuestInvited", { timeout: 60_000 }, () => {
     await db.admin.query("TRUNCATE outbox.event");
   });
 
-  const publish = (tx: Parameters<typeof withUserContext>[0]) =>
-    publishCalendarEventGuestInvited(tx as never, {
+  const publish = (tx: ModuleTransaction) =>
+    publishCalendarEventGuestInvited(tx, {
       hostUserId: host,
       sourceVersion: 1,
       eventId,

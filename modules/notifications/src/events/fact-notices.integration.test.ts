@@ -7,11 +7,10 @@ import {
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
 } from "@offgrid/contracts";
-import { withUserContext } from "@offgrid/db";
 import { createEventBus, publish, replayEvents } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
 import { createMemoryErrorSink, currentTraceId, resolveTraceId } from "@offgrid/observability";
-import { rawSqlExecutor } from "@offgrid/db";
+import { rawSqlExecutor, withUserContext, type ModuleTransaction } from "@offgrid/db";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { publishFact } from "../../test/publish-fact.js";
 import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
@@ -112,13 +111,13 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
   });
 
   const inviteFact = async (
-    tx: Parameters<typeof withUserContext>[0],
+    tx: ModuleTransaction,
     host: string,
     guest: string,
   ) => {
     const eventId = randomUUID();
     await publish(
-      rawSqlExecutor(tx as never),
+      rawSqlExecutor(tx),
       calendarEventGuestInvitedV1,
       {
         id: randomUUID(),
