@@ -9,6 +9,7 @@ import {
   type HiddenCalendars,
   NO_HIDDEN_CALENDARS,
 } from "../../calendar-views/events-by-calendar.js";
+import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
@@ -41,6 +42,7 @@ import type { CalendarViewsPageProps } from "./types.js";
 
 export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const navigate = useNavigate();
+  const openNewEvent = useOpenNewEvent();
   const shell = useOutletContext<ShellContext>();
   const session = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -144,7 +146,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         data-testid="calendar-views-footer"
         style={calendarViewsFooterStyle}
       >
-        <Button variant="primary" aria-disabled="true">
+        <Button variant="primary" onClick={openNewEvent}>
           <MaterialIcon name="add" size="20px" color="currentColor" />
           <Text variant="action" textId="calendar.mobileViews.newEvent" />
         </Button>
