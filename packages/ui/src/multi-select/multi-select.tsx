@@ -2,14 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { Button } from "../button/button.js";
 import { Checkbox } from "../checkbox/checkbox.js";
 import { Text } from "../text/text.js";
-import {
-  multiSelectAdornmentStyle,
-  multiSelectPanelStyle,
-  multiSelectStyle,
-  multiSelectTriggerStyle,
-} from "./styles.js";
+import { multiSelectAdornmentStyle, multiSelectPanelStyle, multiSelectStyle } from "./styles.js";
 import type { MultiSelectProps } from "./types.js";
 
 export const MultiSelect = ({
@@ -58,19 +54,18 @@ export const MultiSelect = ({
 
   return (
     <div ref={containerRef} style={multiSelectStyle} onKeyDown={closeOnEscape}>
-      <button
+      <Button
         ref={triggerRef}
-        type="button"
-        className="og-focusable"
+        variant="secondary"
+        size="small"
         aria-label={triggerLabel}
         aria-expanded={open}
         aria-controls={panelId}
         data-testid={`${testId}-trigger`}
-        style={multiSelectTriggerStyle}
         onClick={() => setOpen((current) => !current)}
       >
         <Text variant="action" value={summary} />
-      </button>
+      </Button>
       {open && (
         <div
           id={panelId}

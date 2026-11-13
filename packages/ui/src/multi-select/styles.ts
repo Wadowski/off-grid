@@ -10,21 +10,6 @@ export const multiSelectStyle: CSSProperties = {
   maxWidth: "100%",
 };
 
-export const multiSelectTriggerStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: tokens.space[1],
-  maxWidth: "100%",
-  padding: `${tokens.space[1]} ${tokens.space[3]}`,
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: cssVar("color-line"),
-  borderRadius: cssVar("radius-full"),
-  background: cssVar("color-surface"),
-  color: cssVar("color-fg"),
-  cursor: "pointer",
-};
-
 export const multiSelectPanelStyle: CSSProperties = {
   position: "absolute",
   top: `calc(100% + ${tokens.space[1]})`,

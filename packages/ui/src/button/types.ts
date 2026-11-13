@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, Ref } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 
@@ -14,4 +14,5 @@ export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style" 
   readonly size?: ButtonSize;
   readonly align?: ButtonAlign;
   readonly fullWidth?: boolean;
+  readonly ref?: Ref<HTMLButtonElement>;
 };
