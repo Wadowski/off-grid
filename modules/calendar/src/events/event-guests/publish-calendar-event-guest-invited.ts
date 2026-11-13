@@ -12,12 +12,11 @@ export const publishCalendarEventGuestInvited = (
     readonly sourceVersion: number;
     readonly eventId: string;
     readonly guestUserId: string;
-    readonly calendarId: string;
   },
 ): Promise<number> =>
   publishOwnedEvent(
     rawSqlExecutor(tx),
     calendarEventGuestInvitedV1,
     { familyId: null, userId: input.hostUserId, sourceVersion: input.sourceVersion },
-    { eventId: input.eventId, guestUserId: input.guestUserId, calendarId: input.calendarId },
+    { eventId: input.eventId, guestUserId: input.guestUserId },
   );

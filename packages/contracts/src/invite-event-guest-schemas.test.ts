@@ -8,7 +8,6 @@ import { inviteEventGuestRequestSchema } from "./invite-event-guest-request-sche
 const ids = {
   eventId: "5b1d8c2e-6f0a-4a57-9d3e-2a1f0c9b7e10",
   guestUserId: "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
-  calendarId: "1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f",
 };
 
 describe("inviteEventGuestRequestSchema", () => {

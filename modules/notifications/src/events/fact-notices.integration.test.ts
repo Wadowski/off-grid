@@ -123,7 +123,7 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
         traceId: resolveTraceId(currentTraceId()),
         familyId: null,
         sourceVersion: 1,
-        payload: { eventId, guestUserId: guest, calendarId: randomUUID() },
+        payload: { eventId, guestUserId: guest },
       },
       { userId: host },
     );

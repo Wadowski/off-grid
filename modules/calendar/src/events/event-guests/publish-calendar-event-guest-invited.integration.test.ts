@@ -12,7 +12,6 @@ describe("publishCalendarEventGuestInvited", { timeout: 60_000 }, () => {
   let db: CalendarTestDatabase;
   const host = randomUUID();
   const guest = randomUUID();
-  const calendarId = randomUUID();
   const eventId = randomUUID();
 
   beforeAll(async () => {
@@ -34,7 +33,6 @@ describe("publishCalendarEventGuestInvited", { timeout: 60_000 }, () => {
       sourceVersion: 1,
       eventId,
       guestUserId: guest,
-      calendarId,
     });
 
   const outboxTypes = async (): Promise<string[]> => {
@@ -49,6 +47,10 @@ describe("publishCalendarEventGuestInvited", { timeout: 60_000 }, () => {
     });
 
     expect(await outboxTypes()).toEqual(["calendar-event-guest-invited-v1"]);
+    const { rows } = await db.admin.query<{ user_id: string; payload: unknown }>(
+      "SELECT user_id, payload FROM outbox.event",
+    );
+    expect(rows).toEqual([{ user_id: host, payload: { eventId, guestUserId: guest } }]);
   });
 
   it("writes nothing to the outbox when the transaction rolls back", async () => {

@@ -11,6 +11,5 @@ export const calendarEventGuestInvitedV1 = defineEvent({
   schema: z.strictObject({
     eventId: uuidSchema,
     guestUserId: uuidSchema,
-    calendarId: uuidSchema,
   }),
 });

@@ -55,7 +55,6 @@ export const inviteEventGuest = (
       sourceVersion: event.version,
       eventId,
       guestUserId,
-      calendarId: event.calendarId,
     });
     return { outcome: "invited" };
   });
