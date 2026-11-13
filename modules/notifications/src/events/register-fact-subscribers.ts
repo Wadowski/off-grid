@@ -9,7 +9,7 @@ export const registerFactSubscribers = (
   context: NotificationsModuleContext,
   channels: readonly NotificationChannel[],
 ): void => {
-  for (const { event, noticeType } of FACT_NOTICES) {
+  for (const { event, noticeType, recipientKey, dataKeys } of FACT_NOTICES) {
     context.eventBus.subscribe({
       name: `${INBOX_SUBSCRIBER_PREFIX}-${event.name}`,
       event,
@@ -21,12 +21,22 @@ export const registerFactSubscribers = (
           context.logger,
           {
             notificationId: received.id,
-            userId: received.payload.userId,
+            userId: payloadField(received.payload, recipientKey),
             type: noticeType,
-            data: {},
+            data: Object.fromEntries(
+              dataKeys.map((key) => [key, payloadField(received.payload, key)]),
+            ),
           },
           new Date(received.occurredAt),
         ),
     });
   }
+};
+
+const payloadField = (payload: object, key: string): string => {
+  const value = (payload as Record<string, unknown>)[key];
+  if (typeof value !== "string") {
+    throw new Error(`fact payload has no string field "${key}"`);
+  }
+  return value;
 };

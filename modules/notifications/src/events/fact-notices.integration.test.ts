@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
-import { passwordChangedV1, recoveryCodeRegeneratedV1 } from "@offgrid/contracts";
+import {
+  calendarEventGuestInvitedV1,
+  passwordChangedV1,
+  recoveryCodeRegeneratedV1,
+} from "@offgrid/contracts";
 import { withUserContext } from "@offgrid/db";
-import { createEventBus } from "@offgrid/event-bus";
+import { createEventBus, publish } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
-import { createMemoryErrorSink } from "@offgrid/observability";
+import { createMemoryErrorSink, currentTraceId, resolveTraceId } from "@offgrid/observability";
+import { rawSqlExecutor } from "@offgrid/db";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { publishFact } from "../../test/publish-fact.js";
 import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
@@ -104,5 +109,72 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
     ).rejects.toThrow("change failed");
 
     expect(await inboxTypesOf(anna)).toEqual([]);
+  });
+
+  const inviteFact = async (
+    tx: Parameters<typeof withUserContext>[0],
+    host: string,
+    guest: string,
+  ) => {
+    const eventId = randomUUID();
+    await publish(
+      rawSqlExecutor(tx as never),
+      calendarEventGuestInvitedV1,
+      {
+        id: randomUUID(),
+        type: calendarEventGuestInvitedV1.name,
+        version: calendarEventGuestInvitedV1.version,
+        occurredAt: new Date().toISOString(),
+        traceId: resolveTraceId(currentTraceId()),
+        familyId: null,
+        sourceVersion: 1,
+        payload: { eventId, guestUserId: guest, calendarId: randomUUID() },
+      },
+      { userId: host },
+    );
+    return eventId;
+  };
+
+  const inboxRowsOf = async (userId: string) => {
+    const { rows } = await db.admin.query<{ type: string; data: Record<string, string> }>(
+      "SELECT type, data FROM notifications.notification WHERE user_id = $1",
+      [userId],
+    );
+    return rows;
+  };
+
+  it("maps an invite fact to one event-invited item for the guest, carrying the event id", async () => {
+    const host = randomUUID();
+    const guest = randomUUID();
+    let eventId = "";
+
+    await deliverWith(() =>
+      db.db.$transaction(async (tx) => {
+        await withUserContext(tx, host);
+        eventId = await inviteFact(tx, host, guest);
+      }),
+    );
+
+    expect(await inboxRowsOf(guest)).toEqual([
+      expect.objectContaining({ type: "event-invited", data: { eventId } }),
+    ]);
+    expect(await inboxRowsOf(host)).toEqual([]);
+  });
+
+  it("writes no invite item when the invite that published the fact rolls back", async () => {
+    const host = randomUUID();
+    const guest = randomUUID();
+
+    await expect(
+      deliverWith(() =>
+        db.db.$transaction(async (tx) => {
+          await withUserContext(tx, host);
+          await inviteFact(tx, host, guest);
+          throw new Error("invite failed");
+        }),
+      ),
+    ).rejects.toThrow("invite failed");
+
+    expect(await inboxRowsOf(guest)).toEqual([]);
   });
 });
