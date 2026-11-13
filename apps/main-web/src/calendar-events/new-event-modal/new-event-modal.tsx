@@ -16,7 +16,6 @@ import {
   newEventActionsStyle,
   newEventModalCss,
   newEventBodyStyle,
-  newEventCloseStyle,
   newEventErrorStyle,
   newEventFooterStyle,
   newEventFormStyle,
@@ -153,12 +152,12 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
           {narrow ? (
             saveButton
           ) : (
-            <button type="button" style={newEventCloseStyle} onClick={dismiss}>
+            <Button type="button" variant="ghost" size="small" onClick={dismiss}>
               <MaterialIcon name="close" size="17px" color="currentColor" />
               <VisuallyHidden>
                 <Text variant="action" textId="calendar.eventModal.close" />
               </VisuallyHidden>
-            </button>
+            </Button>
           )}
         </header>
 

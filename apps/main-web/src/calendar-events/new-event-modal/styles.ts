@@ -136,17 +136,3 @@ export const newEventActionsStyle: CSSProperties = {
   gap: tokens.space[2],
   marginLeft: "auto",
 };
-
-export const newEventCloseStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "1.75rem",
-  height: "1.75rem",
-  padding: 0,
-  border: "none",
-  borderRadius: tokens.radius.full,
-  background: "transparent",
-  color: cssVar("color-muted"),
-  cursor: "pointer",
-};
