@@ -11,6 +11,7 @@ Feature: New event modal
 
   Scenario: I open the new event modal from the desktop sidebar
     Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Studio" with the color "teal"
     When I open the new event modal from the calendar sidebar on a desktop
     Then I see the new event modal over the calendar
 

@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, cssVar, Dialog, IconTile, Select, Text, VisuallyHidden } from "@offgrid/ui";
+import { Button, cssVar, Dialog, IconTile, Text, VisuallyHidden } from "@offgrid/ui";
 import type { FormEvent, ReactNode } from "react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { calendarAccentColor } from "../../calendars/calendar-accents.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { createCalendarEvent } from "../create-calendar-event.js";
@@ -16,9 +17,10 @@ import {
   NEW_EVENT_SWITCH_CLASS,
   newEventActionsStyle,
   newEventBodyStyle,
+  newEventCalendarSelectStyle,
   newEventDateInputStyle,
   newEventErrorStyle,
-  newEventFieldRowStyle,
+  newEventFieldLabelStyle,
   newEventFieldStyle,
   newEventFooterStyle,
   newEventFormStyle,
@@ -28,6 +30,7 @@ import {
   newEventHeaderActionsStyle,
   newEventHeaderStyle,
   newEventHeadingStyle,
+  newEventLabelRowStyle,
   newEventLabelStyle,
   newEventModalCss,
   newEventSwitchLabelStyle,
@@ -188,16 +191,26 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
     </Button>
   );
 
+  // The picker takes the colour of the calendar it shows, so the calendar is visible at a glance.
+  const selectedCalendar = calendars.find((calendar) => calendar.id === calendarId);
+  const calendarAccent =
+    selectedCalendar === undefined
+      ? { background: cssVar("color-surface-high"), color: cssVar("color-fg") }
+      : calendarAccentColor(selectedCalendar.color);
+
   const calendarPicker = (
-    <Select
+    <select
       aria-label={t("calendar.event.calendar")}
       value={calendarId}
       onChange={(event) => update("calendarId", event.target.value)}
-      options={calendars.map((calendar) => ({
-        value: calendar.id,
-        label: calendar.name,
-      }))}
-    />
+      style={newEventCalendarSelectStyle(calendarAccent)}
+    >
+      {calendars.map((calendar) => (
+        <option key={calendar.id} value={calendar.id}>
+          {calendar.name}
+        </option>
+      ))}
+    </select>
   );
 
   const heading = (
@@ -336,28 +349,31 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
             </div>
 
             <div style={newEventZoneStyle}>
-              <MaterialIcon name="public" size="15px" color="currentColor" />
+              <MaterialIcon name="public" size="15px" color={cssVar("color-muted")} />
               <Text variant="label" textId="calendar.eventModal.timeZone" />
               <Text variant="body" value={timeZone} />
             </div>
           </div>
 
           <div style={newEventGroupStyle}>
-            <div style={newEventFieldRowStyle}>
-              <MaterialIcon name="location_on" size="18px" color={cssVar("color-muted")} />
-              <label style={{ ...newEventLabelStyle, flex: 1, minWidth: 0 }}>
+            <label style={newEventFieldLabelStyle}>
+              <span style={newEventLabelRowStyle}>
+                <MaterialIcon name="location_on" size="16px" color={cssVar("color-primary")} />
                 <Text variant="label" textId="calendar.eventModal.location" />
-                <input
-                  type="text"
-                  style={newEventFieldStyle}
-                  placeholder={t("calendar.eventModal.locationPlaceholder")}
-                  value={values.location}
-                  onChange={(event) => update("location", event.target.value)}
-                />
-              </label>
-            </div>
-            <label style={newEventLabelStyle}>
-              <Text variant="label" textId="calendar.eventModal.description" />
+              </span>
+              <input
+                type="text"
+                style={newEventFieldStyle}
+                placeholder={t("calendar.eventModal.locationPlaceholder")}
+                value={values.location}
+                onChange={(event) => update("location", event.target.value)}
+              />
+            </label>
+            <label style={newEventFieldLabelStyle}>
+              <span style={newEventLabelRowStyle}>
+                <MaterialIcon name="notes" size="16px" color={cssVar("color-primary")} />
+                <Text variant="label" textId="calendar.eventModal.description" />
+              </span>
               <textarea
                 style={newEventTextareaStyle}
                 placeholder={t("calendar.eventModal.descriptionPlaceholder")}

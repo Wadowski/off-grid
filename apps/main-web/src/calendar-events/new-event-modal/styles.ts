@@ -21,16 +21,23 @@ dialog.${NEW_EVENT_MODAL_CLASS} {
   color: ${cssVar("color-fg")};
   box-shadow: ${tokens.elevation[2]};
   overflow: hidden;
+  color-scheme: light;
 }
 dialog.${NEW_EVENT_MODAL_CLASS}::backdrop {
   background: color-mix(in srgb, ${cssVar("color-fg")} 15%, transparent);
   backdrop-filter: blur(4px);
 }
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) dialog.${NEW_EVENT_MODAL_CLASS} {
+    color-scheme: dark;
+  }
   :root:not([data-theme="light"]) dialog.${NEW_EVENT_MODAL_CLASS}::backdrop {
     background: color-mix(in srgb, ${cssVar("color-bg")} 65%, transparent);
     backdrop-filter: blur(12px);
   }
+}
+:root[data-theme="dark"] dialog.${NEW_EVENT_MODAL_CLASS} {
+  color-scheme: dark;
 }
 :root[data-theme="dark"] dialog.${NEW_EVENT_MODAL_CLASS}::backdrop {
   background: color-mix(in srgb, ${cssVar("color-bg")} 65%, transparent);
@@ -268,11 +275,41 @@ export const newEventLabelStyle: CSSProperties = {
   color: cssVar("color-muted"),
 };
 
-export const newEventFieldRowStyle: CSSProperties = {
+// A field with its label on one line, the input underneath it across the full width.
+export const newEventFieldLabelStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[1],
+  width: "100%",
+  minWidth: 0,
+  fontSize: tokens.font.size["label-sm"],
+  lineHeight: tokens.font.lineHeight["label-sm"],
+  color: cssVar("color-muted"),
+};
+
+export const newEventLabelRowStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: tokens.space[2],
+  gap: tokens.space[1],
 };
+
+// The calendar picker is filled with the colour of the calendar it shows.
+export const newEventCalendarSelectStyle = (accent: {
+  readonly background: string;
+  readonly color: string;
+}): CSSProperties => ({
+  padding: `${tokens.space[1]} ${tokens.space[3]}`,
+  border: "none",
+  borderRadius: tokens.radius.md,
+  background: accent.background,
+  color: accent.color,
+  fontFamily: tokens.font.family.base,
+  fontSize: tokens.font.size["label-md"],
+  lineHeight: tokens.font.lineHeight["label-md"],
+  fontWeight: tokens.font.weight.semibold,
+  cursor: "pointer",
+  boxShadow: tokens.elevation[1],
+});
 
 export const newEventFieldStyle: CSSProperties = {
   ...fieldBase,
