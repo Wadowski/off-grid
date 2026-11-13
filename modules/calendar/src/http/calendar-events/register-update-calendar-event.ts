@@ -12,10 +12,10 @@ import { updateCalendarEvent } from "../../application/calendar-events/update-ca
 import { EventGuestWriteDeniedError } from "../../application/errors/event-guest-write-denied-error.js";
 import { EventMoveOwnerMismatchError } from "../../application/errors/event-move-owner-mismatch-error.js";
 import type { CalendarRouteContext } from "../../types.js";
+import { GUEST_WRITE_DENIED_MESSAGE } from "./guest-write-denied-message.js";
 import { toCalendarEvent } from "./to-calendar-event.js";
 
 const WINDOW_MESSAGE = "The event must not end before it starts";
-const GUEST_DENIED_MESSAGE = "A guest of the event may not change it";
 
 export const registerUpdateCalendarEvent = (
   api: FastifyInstance,
@@ -37,7 +37,7 @@ export const registerUpdateCalendarEvent = (
         outcome = await updateCalendarEvent(context.db, userId, params.data.id, body.data);
       } catch (error) {
         if (error instanceof EventGuestWriteDeniedError) {
-          return sendError(reply, 403, "FORBIDDEN", GUEST_DENIED_MESSAGE);
+          return sendError(reply, 403, "FORBIDDEN", GUEST_WRITE_DENIED_MESSAGE);
         }
         if (error instanceof EventMoveOwnerMismatchError) {
           return sendError(

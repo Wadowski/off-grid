@@ -3,17 +3,27 @@
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { publishCalendarEventGuestInvited } from "../../events/event-guests/publish-calendar-event-guest-invited.js";
-import { insertEventGuest } from "../../infrastructure/event-guests/insert-event-guest.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
+import { insertEventGuest } from "../../infrastructure/event-guests/insert-event-guest.js";
 import { sharesFamilyWithCaller } from "../../infrastructure/family-membership/shares-family-with-caller.js";
 import type { CalendarEventRecord } from "../../types.js";
-import { assertNotGuestWrite } from "./assert-not-guest-write.js";
 import { EventGuestInviteRefusedError } from "../errors/event-guest-invite-refused-error.js";
+import { assertNotGuestWrite } from "./assert-not-guest-write.js";
 
 export type InviteEventGuestOutcome =
   | { readonly outcome: "invited" }
   | { readonly outcome: "already-invited" }
   | { readonly outcome: "not-found" };
+
+const assertInvitable = (
+  event: CalendarEventRecord,
+  hostUserId: string,
+  guestUserId: string,
+): void => {
+  if (event.familyId !== null || event.userId !== hostUserId || guestUserId === hostUserId) {
+    throw new EventGuestInviteRefusedError();
+  }
+};
 
 export const inviteEventGuest = (
   db: ModuleDatabase,
@@ -49,13 +59,3 @@ export const inviteEventGuest = (
     });
     return { outcome: "invited" };
   });
-
-const assertInvitable = (
-  event: CalendarEventRecord,
-  hostUserId: string,
-  guestUserId: string,
-): void => {
-  if (event.familyId !== null || event.userId !== hostUserId || guestUserId === hostUserId) {
-    throw new EventGuestInviteRefusedError();
-  }
-};

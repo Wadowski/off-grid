@@ -7,6 +7,7 @@ import type { FastifyInstance } from "fastify";
 import { removeCalendarEvent } from "../../application/calendar-events/remove-calendar-event.js";
 import { EventGuestWriteDeniedError } from "../../application/errors/event-guest-write-denied-error.js";
 import type { CalendarRouteContext } from "../../types.js";
+import { GUEST_WRITE_DENIED_MESSAGE } from "./guest-write-denied-message.js";
 
 export const registerRemoveCalendarEvent = (
   api: FastifyInstance,
@@ -24,7 +25,7 @@ export const registerRemoveCalendarEvent = (
         outcome = await removeCalendarEvent(context.db, userId, params.data.id);
       } catch (error) {
         if (error instanceof EventGuestWriteDeniedError) {
-          return sendError(reply, 403, "FORBIDDEN", "A guest of the event may not change it");
+          return sendError(reply, 403, "FORBIDDEN", GUEST_WRITE_DENIED_MESSAGE);
         }
         throw error;
       }
