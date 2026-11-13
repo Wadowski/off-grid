@@ -142,7 +142,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
             onSelect={goToDate}
           />
           <SegmentedControl
-            label={t("calendar.mobileViews.viewControl")}
+            label={t("calendar.mobileViews.modeToggle")}
             options={[
               { value: "agenda", label: t("calendar.views.agenda") },
               { value: "day", label: t("calendar.mobileViews.dayTimeline") },

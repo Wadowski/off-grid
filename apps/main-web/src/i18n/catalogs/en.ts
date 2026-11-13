@@ -102,6 +102,7 @@ export const en = {
       allCalendars: "All Calendars",
       calendarFilter: "Calendar filter",
       viewControl: "Calendar view",
+      modeToggle: "Agenda or day timeline",
       dateNavigation: "Date navigation",
       previousPeriod: "Previous",
       nextPeriod: "Next",
