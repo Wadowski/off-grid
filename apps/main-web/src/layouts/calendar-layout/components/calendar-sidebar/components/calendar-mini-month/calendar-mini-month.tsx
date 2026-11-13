@@ -75,7 +75,6 @@ export const CalendarMiniMonth = ({
               key={monday}
               weekNumber={weekNumber}
               dates={weekDates(monday)}
-              monthPrefix={monthPrefix}
               selectedDate={selectedDate}
               todayDate={todayDate}
               onSelect={onSelect}
@@ -90,7 +89,6 @@ export const CalendarMiniMonth = ({
 type MiniMonthWeekProps = {
   readonly weekNumber: number;
   readonly dates: readonly string[];
-  readonly monthPrefix: string;
   readonly selectedDate: string;
   readonly todayDate: string;
   readonly onSelect: (date: string) => void;
@@ -99,7 +97,6 @@ type MiniMonthWeekProps = {
 const MiniMonthWeek = ({
   weekNumber,
   dates,
-  monthPrefix,
   selectedDate,
   todayDate,
   onSelect,
@@ -113,9 +110,8 @@ const MiniMonthWeek = ({
       </span>
       {dates.map((date) => {
         const selected = date === selectedDate;
-        const inMonth = date.startsWith(monthPrefix);
         return (
-          <span key={date} style={miniMonthDayStyle(inMonth, date === todayDate)}>
+          <span key={date} style={miniMonthDayStyle(date === todayDate)}>
             <Button
               fullWidth
               size="small"

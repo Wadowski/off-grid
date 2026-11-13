@@ -29,10 +29,10 @@ export const miniMonthWeekNumberStyle: CSSProperties = {
   fontSize: cssVar("font-size-label-sm"),
 };
 
-// Days outside the shown month are dimmed; today gets a ring so it stays visible when not selected.
-export const miniMonthDayStyle = (inMonth: boolean, today: boolean): CSSProperties => ({
+// Today gets a ring so it stays visible when another day is selected. Days of other months are not dimmed:
+// dimming them fails the contrast check.
+export const miniMonthDayStyle = (today: boolean): CSSProperties => ({
   minWidth: 0,
-  opacity: inMonth ? 1 : 0.5,
   borderRadius: tokens.radius.full,
   boxShadow: today ? `inset 0 0 0 1px ${cssVar("color-accent")}` : "none",
 });
