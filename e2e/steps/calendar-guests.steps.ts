@@ -2,6 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { APIRequestContext, APIResponse } from "@playwright/test";
+import {
+  calendarEventListSchema,
+  calendarEventSchema,
+  errorResponseSchema,
+  notificationListSchema,
+} from "@offgrid/contracts";
 import { createBdd } from "playwright-bdd";
 import { accountSessionOf } from "../support/family-sessions.js";
 import type { Session } from "../support/factories/instance-admin.js";
@@ -12,22 +18,18 @@ import {
   type CalendarRecord,
   type EventRecord,
 } from "../support/factories/calendar-events.js";
-import {
-  createEventWithLocation,
-  inviteGuest,
-  type GuestEventBody,
-} from "../support/factories/calendar-guests.js";
+import { createEventWithLocation, inviteGuest } from "../support/factories/calendar-guests.js";
 import {
   listOwnNotifications,
   waitForOwnNotifications,
-  type NotificationItem,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
 
 type Person = { session: Session };
-type InboxItem = NotificationItem & { data: Record<string, string> };
+
+const createdEventSchema = calendarEventSchema.pick({ id: true });
 
 const state = (world: ScenarioWorld): CalendarEventsWorld => {
   world.calendarEvents ??= { people: {}, families: {}, members: {}, calendars: [], events: [] };
@@ -81,7 +83,11 @@ const recordResponse = async (world: ScenarioWorld, response: APIResponse): Prom
   world.response = { status: response.status(), body };
 };
 
-const responseBodyOf = <T>(world: ScenarioWorld): T => world.response?.body as T;
+const errorCodeOf = (world: ScenarioWorld): string =>
+  errorResponseSchema.parse(world.response?.body).code;
+
+const eventTitlesOf = (world: ScenarioWorld): string[] =>
+  calendarEventListSchema.parse(world.response?.body).events.map((event) => event.title);
 
 const instantOfDate = (date: string, time: string): string => instant(`${date} ${time}`);
 
@@ -104,7 +110,7 @@ const createEventFor = async (
     location,
   });
   expect(response.status(), `${creatorName} could not create "${title}"`).toBe(201);
-  const created = (await response.json()) as { id: string };
+  const created = createdEventSchema.parse(await response.json());
   state(world).events.push({ id: created.id, title, creator: creatorName });
 };
 
@@ -221,7 +227,7 @@ When(
 // A guest write is answered as forbidden, with the stable error code.
 Then("Ben is told the change is not allowed", ({ world }) => {
   expect(world.response?.status).toBe(403);
-  expect(responseBodyOf<{ code?: string }>(world)?.code).toBe("FORBIDDEN");
+  expect(errorCodeOf(world)).toBe("FORBIDDEN");
 });
 
 // An invite to an event the host cannot see is answered as not found.
@@ -232,7 +238,7 @@ Then(/^\w+ is told the event is not found$/, ({ world }) => {
 // A refused invite is answered as a validation failure, with one fixed message.
 Then("the invite is refused", ({ world }) => {
   expect(world.response?.status).toBe(400);
-  expect(responseBodyOf<{ code?: string }>(world)?.code).toBe("VALIDATION_FAILED");
+  expect(errorCodeOf(world)).toBe("VALIDATION_FAILED");
 });
 
 Then(/^(\w+) cannot see the event "([^"]*)"$/, ({ world }, _who: string, title: string) => {
@@ -246,7 +252,7 @@ Then(
     const record = eventNamed(world, title);
     const response = await readEvent(world.api, guest.session, record.id);
     expect(response.status(), `${who} cannot read "${title}"`).toBe(200);
-    const body = (await response.json()) as GuestEventBody;
+    const body = calendarEventSchema.parse(await response.json());
     expect(body.title).toBe(title);
     sameInstant(body.startsAt, instantOfDate(date, start));
     sameInstant(body.endsAt, instantOfDate(date, end));
@@ -260,7 +266,7 @@ Then(
     const record = eventNamed(world, title);
     const response = await readEvent(world.api, guest.session, record.id);
     expect(response.status()).toBe(200);
-    const body = (await response.json()) as GuestEventBody;
+    const body = calendarEventSchema.parse(await response.json());
     expect(body.readOnly).toBe(true);
   },
 );
@@ -272,7 +278,7 @@ Then(
     const record = eventNamed(world, title);
     const response = await readEvent(world.api, guest.session, record.id);
     expect(response.status()).toBe(200);
-    const body = (await response.json()) as GuestEventBody;
+    const body = calendarEventSchema.parse(await response.json());
     expect(body.location).toBe(location);
     expect(body.calendarName).toBe(calendarName);
   },
@@ -285,7 +291,7 @@ Then(
     const creator = await sessionFor(world, record.creator);
     const response = await readEvent(world.api, creator.session, record.id);
     expect(response.status(), `"${title}" is no longer stored`).toBe(200);
-    const body = (await response.json()) as GuestEventBody;
+    const body = calendarEventSchema.parse(await response.json());
     expect(body.title).toBe(expectedTitle);
   },
 );
@@ -294,8 +300,7 @@ Then(
   /^the list (does not contain|contains) the event "([^"]*)"$/,
   ({ world }, expectation: string, title: string) => {
     expect(world.response?.status).toBe(200);
-    const body = responseBodyOf<{ events: { title: string }[] }>(world);
-    const titles = body.events.map((event) => event.title);
+    const titles = eventTitlesOf(world);
     if (expectation === "contains") {
       expect(titles).toContain(title);
     } else {
@@ -312,7 +317,9 @@ Then(
     const inbox = await waitForOwnNotifications(world.api, guest.session, (list) =>
       list.notifications.some((item) => item.type === type),
     );
-    const matching = (inbox.body.notifications as InboxItem[]).filter((item) => item.type === type);
+    const matching = notificationListSchema
+      .parse(inbox.body)
+      .notifications.filter((item) => item.type === type);
     expect(matching).toHaveLength(1);
     expect(matching[0]?.data).toEqual({ eventId: record.id });
   },

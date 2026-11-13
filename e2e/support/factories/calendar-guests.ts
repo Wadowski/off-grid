@@ -4,33 +4,9 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { bearer } from "../family-sessions.js";
 import type { Session } from "./instance-admin.js";
-import { CALENDAR_COLOR } from "./calendar-events.js";
-
-export type GuestEventBody = {
-  id: string;
-  calendarId: string;
-  title: string;
-  startsAt: string;
-  endsAt: string;
-  location: string | null;
-  calendarName?: string;
-  readOnly: boolean;
-};
 
 const CALENDARS = "/api/calendars";
 const EVENTS = "/api/events";
-
-export function createCalendarForFamily(
-  api: APIRequestContext,
-  session: Session,
-  input: { name: string; familyId: string },
-): Promise<APIResponse> {
-  return api.post(CALENDARS, {
-    headers: bearer(session),
-    data: { name: input.name, color: CALENDAR_COLOR, familyId: input.familyId },
-    failOnStatusCode: false,
-  });
-}
 
 export function createEventWithLocation(
   api: APIRequestContext,
