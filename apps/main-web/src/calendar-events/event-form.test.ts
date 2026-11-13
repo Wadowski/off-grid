@@ -22,7 +22,7 @@ const timedForm = (overrides: Partial<EventFormValues> = {}): EventFormValues =>
 });
 
 describe("defaultEventForm", () => {
-  it("opens on the next full hour in the person's time zone, lasting one hour", () => {
+  it("opens on the first full hour after now in the person's time zone, lasting one hour", () => {
     const form = defaultEventForm({
       now: new Date("2026-07-01T09:20:00Z"),
       calendarId: CALENDAR_ID,
@@ -38,6 +38,16 @@ describe("defaultEventForm", () => {
       endDate: "2026-07-01",
       endTime: "13:00",
     });
+  });
+
+  it("opens on the following hour when now is exactly on a full hour", () => {
+    const form = defaultEventForm({
+      now: new Date("2026-07-01T10:00:00Z"),
+      calendarId: CALENDAR_ID,
+      timeZone: TIME_ZONE,
+    });
+
+    expect(form).toMatchObject({ startDate: "2026-07-01", startTime: "13:00", endTime: "14:00" });
   });
 
   it("rolls over to the next day when the next full hour is midnight", () => {
@@ -113,10 +123,17 @@ describe("toCreateEventRequest", () => {
     });
   });
 
-  it("reports an incomplete date or time as a form error", () => {
+  it("reports a title over 200 characters as too long, not as missing", () => {
+    expect(toCreateEventRequest(timedForm({ title: "a".repeat(201) }), TIME_ZONE)).toEqual({
+      ok: false,
+      errors: { title: "titleTooLong" },
+    });
+  });
+
+  it("reports an incomplete date or time as an incomplete form", () => {
     expect(toCreateEventRequest(timedForm({ startTime: "" }), TIME_ZONE)).toEqual({
       ok: false,
-      errors: { form: "invalid" },
+      errors: { form: "incomplete" },
     });
   });
 });

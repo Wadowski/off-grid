@@ -152,9 +152,16 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
             value={values.title}
             onChange={(event) => update("title", event.target.value)}
             error={
-              errors.title === "titleRequired" ? (
-                <Text variant="error" textId="calendar.eventModal.titleRequired" />
-              ) : undefined
+              errors.title === undefined ? undefined : (
+                <Text
+                  variant="error"
+                  textId={
+                    errors.title === "titleTooLong"
+                      ? "calendar.eventModal.titleTooLong"
+                      : "calendar.eventModal.titleRequired"
+                  }
+                />
+              )
             }
           />
 

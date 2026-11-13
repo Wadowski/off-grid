@@ -3,11 +3,11 @@
 
 import type { NewCalendarEventInput } from "@offgrid/contracts";
 import { createCalendarEventRequestSchema, zonedLocalToInstant } from "@offgrid/contracts";
+import { toIsoDate } from "../calendar-views/week-days.js";
 import { zonedMomentOf } from "../calendar-views/time-format.js";
 
 const HOUR_MINUTES = 60;
 const HOUR_MS = 60 * 60_000;
-const END_BEFORE_START_MESSAGE = "The event must not end before it starts";
 
 export type EventFormValues = {
   readonly title: string;
@@ -22,9 +22,18 @@ export type EventFormValues = {
 };
 
 export type EventFormErrors = {
-  readonly title?: "titleRequired";
+  readonly title?: "titleRequired" | "titleTooLong";
   readonly end?: "endsBeforeStart" | "invalid";
-  readonly form?: "invalid";
+  readonly form?: "incomplete" | "invalid";
+};
+
+type MutableEventFormErrors = { -readonly [K in keyof EventFormErrors]: EventFormErrors[K] };
+
+// A zod issue as the contract reports it. The end rule is a custom refinement tagged with a reason.
+type ZodIssueLike = {
+  readonly code: string;
+  readonly path: readonly PropertyKey[];
+  readonly params?: Readonly<Record<string, unknown>>;
 };
 
 export type EventFormResult =
@@ -32,12 +41,12 @@ export type EventFormResult =
   | { readonly ok: false; readonly errors: EventFormErrors };
 
 // Splits a wall-clock millisecond value (read as UTC) into a date and a time.
-const splitWallClock = (wallMs: number): { date: string; time: string } => {
-  const iso = new Date(wallMs).toISOString();
-  return { date: iso.slice(0, 10), time: iso.slice(11, 16) };
-};
+const splitWallClock = (wallMs: number): { date: string; time: string } => ({
+  date: toIsoDate(wallMs),
+  time: new Date(wallMs).toISOString().slice(11, 16),
+});
 
-// The form opens on the next full hour in the person's time zone, lasting one hour.
+// The form opens on the first full hour after now in the person's time zone, lasting one hour.
 export const defaultEventForm = (input: {
   readonly now: Date;
   readonly calendarId: string;
@@ -46,7 +55,7 @@ export const defaultEventForm = (input: {
   const moment = zonedMomentOf(input.now, input.timeZone);
   const startWall =
     Date.parse(`${moment.date}T00:00:00Z`) +
-    Math.ceil(moment.minutesOfDay / HOUR_MINUTES) * HOUR_MS;
+    (Math.floor(moment.minutesOfDay / HOUR_MINUTES) + 1) * HOUR_MS;
   const start = splitWallClock(startWall);
   const end = splitWallClock(startWall + HOUR_MS);
   return {
@@ -91,7 +100,7 @@ export const toCreateEventRequest = (
     ? { ...common, isAllDay: true, startDate: values.startDate, endDate: values.endDate }
     : timedCandidate(values, common, timeZone);
   if (candidate === undefined) {
-    return { ok: false, errors: { form: "invalid" } };
+    return { ok: false, errors: { form: "incomplete" } };
   }
 
   const parsed = createCalendarEventRequestSchema.safeParse(candidate);
@@ -119,17 +128,15 @@ const timedCandidate = (
   };
 };
 
-const errorsFrom = (
-  issues: readonly { readonly path: readonly PropertyKey[]; readonly message: string }[],
-): EventFormErrors => {
-  const errors: { title?: "titleRequired"; end?: "endsBeforeStart" | "invalid"; form?: "invalid" } =
-    {};
+const errorsFrom = (issues: readonly ZodIssueLike[]): EventFormErrors => {
+  const errors: MutableEventFormErrors = {};
   for (const issue of issues) {
     const field = String(issue.path[0] ?? "");
     if (field === "title") {
-      errors.title = "titleRequired";
+      errors.title = issue.code === "too_big" ? "titleTooLong" : "titleRequired";
     } else if (field === "endsAt" || field === "endDate") {
-      errors.end = issue.message === END_BEFORE_START_MESSAGE ? "endsBeforeStart" : "invalid";
+      const endsBeforeStart = issue.code === "custom" && issue.params?.reason === "endsBeforeStart";
+      errors.end = endsBeforeStart ? "endsBeforeStart" : "invalid";
     } else {
       errors.form = "invalid";
     }

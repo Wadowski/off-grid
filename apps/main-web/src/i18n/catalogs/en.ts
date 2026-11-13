@@ -114,6 +114,7 @@ export const en = {
       close: "Close",
       saving: "Saving",
       titleRequired: "Enter an event title.",
+      titleTooLong: "The title must be 200 characters or fewer.",
       saveFailed: "We could not save this event. Try again.",
       endsBeforeStart: "The event must not end before it starts",
     },

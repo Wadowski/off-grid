@@ -31,6 +31,7 @@ const timedEventRequestSchema = z
     {
       message: "The event must not end before it starts",
       path: ["endsAt"],
+      params: { reason: "endsBeforeStart" },
     },
   );
 
@@ -44,6 +45,7 @@ const allDayEventRequestSchema = z
   .refine((value) => isValidDayWindow({ startDate: value.startDate, endDate: value.endDate }), {
     message: "The event must not end before it starts",
     path: ["endDate"],
+    params: { reason: "endsBeforeStart" },
   });
 
 export const createCalendarEventRequestSchema = z.discriminatedUnion("isAllDay", [

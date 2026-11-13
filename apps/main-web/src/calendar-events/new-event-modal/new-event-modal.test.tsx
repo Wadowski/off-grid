@@ -67,6 +67,18 @@ describe("NewEventModal", () => {
     expect(createCalendarEvent).not.toHaveBeenCalled();
   });
 
+  it("says a title over 200 characters is too long and saves nothing", () => {
+    renderModal();
+    typeTitle("a".repeat(201));
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(
+      screen.getByText("The title must be 200 characters or fewer."),
+    ).toBeInTheDocument();
+    expect(createCalendarEvent).not.toHaveBeenCalled();
+  });
+
   it("refuses an end before the start with the server's message and saves nothing", () => {
     renderModal();
     typeTitle("Studio review");
