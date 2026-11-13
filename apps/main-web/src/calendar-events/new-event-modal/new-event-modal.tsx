@@ -14,6 +14,7 @@ import type { NewEventModalProps } from "./types.js";
 import {
   NEW_EVENT_MODAL_CLASS,
   newEventActionsStyle,
+  newEventModalCss,
   newEventBodyStyle,
   newEventCloseStyle,
   newEventErrorStyle,
@@ -120,6 +121,7 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
       }}
       data-testid="new-event-modal"
     >
+      <style>{newEventModalCss}</style>
       <div style={newEventFormStyle}>
         <header style={newEventHeaderStyle}>
           {narrow && cancelButton}
