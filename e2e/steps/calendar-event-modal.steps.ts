@@ -112,14 +112,17 @@ When(
   },
 );
 
-Then("I see the event {string} in the agenda", async ({ page }, title: string) => {
-  await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
-  const marker = await page.evaluate(
-    (key) => (globalThis as unknown as Record<string, unknown>)[key],
-    MARKER,
-  );
-  expect(marker).toBe("kept");
-});
+Then(
+  "I see the saved event {string} in the agenda without a reload",
+  async ({ page }, title: string) => {
+    await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
+    const marker = await page.evaluate(
+      (key) => (globalThis as unknown as Record<string, unknown>)[key],
+      MARKER,
+    );
+    expect(marker).toBe("kept");
+  },
+);
 
 When("I open the new event page directly", async ({ page }) => {
   await page.setViewportSize(DESKTOP_VIEWPORT);

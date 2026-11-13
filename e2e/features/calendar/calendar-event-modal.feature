@@ -32,7 +32,7 @@ Feature: New event modal
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I create a timed event named "Studio review" on the calendar "Studio" from the new event modal
-    Then I see the event "Studio review" in the agenda
+    Then I see the saved event "Studio review" in the agenda without a reload
 
   Scenario: I open the new event page directly and see the modal over the agenda
     Given I am a user with a family named "The Smiths"
