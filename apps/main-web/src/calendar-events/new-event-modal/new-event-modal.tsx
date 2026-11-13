@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Checkbox, Select, Text, TextField, VisuallyHidden } from "@offgrid/ui";
+import { Button, Checkbox, Dialog, Select, Text, TextField, VisuallyHidden } from "@offgrid/ui";
 import type { FormEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
@@ -65,23 +65,12 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
   // The picker uses the first calendar until the person chooses another one.
   const calendarId = values.calendarId !== "" ? values.calendarId : (calendars[0]?.id ?? "");
 
-  useEffect(() => {
-    dialogRef.current?.showModal?.();
-  }, []);
-
   const update = <K extends keyof EventFormValues>(field: K, value: EventFormValues[K]) =>
     setValues((current) => withField(current, field, value));
 
   // Closing the native dialog (Cancel, the close button, Escape or the backdrop) dismisses the modal
   // without a request. The entered values go with it.
-  const dismiss = () => {
-    const dialog = dialogRef.current;
-    if (dialog !== null && typeof dialog.close === "function") {
-      dialog.close();
-    } else {
-      onClose();
-    }
-  };
+  const dismiss = () => dialogRef.current?.close();
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -130,17 +119,13 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
   const alertTextId = alertTextIdFor(errors, saveFailed);
 
   return (
-    <dialog
-      ref={dialogRef}
+    <Dialog
+      dialogRef={dialogRef}
       className={NEW_EVENT_MODAL_CLASS}
-      aria-labelledby="new-event-heading"
+      labelledBy="new-event-heading"
       onClose={onClose}
-      onClick={(event) => {
-        if (event.target === dialogRef.current) {
-          dismiss();
-        }
-      }}
-      data-testid="new-event-modal"
+      dismissOnBackdropClick
+      testId="new-event-modal"
     >
       <style>{newEventModalCss}</style>
       <div style={newEventFormStyle}>
@@ -278,6 +263,6 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
           </footer>
         )}
       </div>
-    </dialog>
+    </Dialog>
   );
 };

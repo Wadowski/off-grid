@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { Button, Text } from "@offgrid/ui";
-import { useEffect, useRef, useState } from "react";
+import { Button, Dialog, Text } from "@offgrid/ui";
+import { useRef, useState } from "react";
 import { createFamilyInvitation } from "../create-family-invitation.js";
 import { revokeFamilyInvitation } from "../revoke-family-invitation.js";
 import type { FamilyInviteDialogProps, FamilyInviteErrorTextId } from "./types.js";
@@ -21,10 +21,6 @@ export const FamilyInviteDialog = ({ familyId, onClose }: FamilyInviteDialogProp
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [revoked, setRevoked] = useState(false);
   const [errorTextId, setErrorTextId] = useState<FamilyInviteErrorTextId | undefined>(undefined);
-
-  useEffect(() => {
-    dialogRef.current?.showModal?.();
-  }, []);
 
   const create = async () => {
     setErrorTextId(undefined);
@@ -55,12 +51,12 @@ export const FamilyInviteDialog = ({ familyId, onClose }: FamilyInviteDialogProp
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      aria-labelledby="family-invite-heading"
+    <Dialog
+      dialogRef={dialogRef}
+      labelledBy="family-invite-heading"
       style={familyInviteDialogStyle}
       onClose={onClose}
-      data-testid="family-invite-dialog"
+      testId="family-invite-dialog"
     >
       <div style={familyInviteContentStyle}>
         <h2 id="family-invite-heading">
@@ -97,6 +93,6 @@ export const FamilyInviteDialog = ({ familyId, onClose }: FamilyInviteDialogProp
           </Button>
         </div>
       </div>
-    </dialog>
+    </Dialog>
   );
 };
