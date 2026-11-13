@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { calendarColorSchema, type CalendarEventResponse } from "@offgrid/contracts";
+import type { CalendarEventResponse } from "@offgrid/contracts";
 import type { CalendarEventView } from "../../application/calendar-events/event-view.js";
 
 export const toCalendarEvent = (view: CalendarEventView): CalendarEventResponse => ({
@@ -20,6 +20,6 @@ export const toCalendarEvent = (view: CalendarEventView): CalendarEventResponse 
     ? {}
     : {
         calendarName: view.calendarName,
-        calendarColor: calendarColorSchema.parse(view.calendarColor),
+        calendarColor: view.calendarColor,
       }),
 });

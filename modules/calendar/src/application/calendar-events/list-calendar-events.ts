@@ -7,7 +7,7 @@ import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { listEventsOfCalendar } from "../../infrastructure/calendar-events/list-events-of-calendar.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import type { CalendarOutcome } from "../../types.js";
-import { findGuestCalendarFields } from "../event-guests/find-guest-calendar-fields.js";
+import { guestCalendarFields } from "../event-guests/guest-calendar-fields.js";
 import { findReadOnlyEventIds } from "../event-guests/find-read-only-event-ids.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
 
@@ -18,13 +18,14 @@ export const listCalendarEvents = (
 ): Promise<CalendarOutcome<CalendarEventView[]>> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
-    if ((await findCalendar(tx, calendarId)) === null) {
+    const calendar = await findCalendar(tx, calendarId);
+    if (calendar === null) {
       return { outcome: "not-found" };
     }
     const timeZone = (await findTimeZone(tx, userId)) ?? DEFAULT_TIME_ZONE;
     const records = await listEventsOfCalendar(tx, calendarId);
     const readOnlyEventIds = await findReadOnlyEventIds(tx, { guestUserId: userId, records });
-    const calendarFields = await findGuestCalendarFields(tx, calendarId);
+    const calendarFields = guestCalendarFields(calendar);
     return {
       outcome: "found",
       value: records.map((record) => {

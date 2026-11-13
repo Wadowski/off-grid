@@ -6,3 +6,4 @@ import { z } from "zod";
 export const CALENDAR_COLORS = ["blue", "teal", "green", "amber", "rose", "violet"] as const;
 
 export const calendarColorSchema = z.enum(CALENDAR_COLORS);
+export type CalendarColor = z.infer<typeof calendarColorSchema>;

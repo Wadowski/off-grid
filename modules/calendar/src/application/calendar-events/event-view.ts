@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { CalendarColor } from "@offgrid/contracts";
 import { lastDayOf, localDate } from "../../domain/all-day-bounds.js";
 import type { CalendarEventRecord } from "../../types.js";
 
@@ -9,7 +10,7 @@ export interface CalendarEventView extends CalendarEventRecord {
   readonly endDate: string | null;
   readonly readOnly: boolean;
   readonly calendarName?: string;
-  readonly calendarColor?: string;
+  readonly calendarColor?: CalendarColor;
 }
 
 export const toEventView = (

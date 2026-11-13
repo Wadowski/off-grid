@@ -4,10 +4,11 @@
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
+import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { findEventGuest } from "../../infrastructure/event-guests/find-event-guest.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import type { CalendarOutcome } from "../../types.js";
-import { findGuestCalendarFields } from "../event-guests/find-guest-calendar-fields.js";
+import { guestCalendarFields } from "../event-guests/guest-calendar-fields.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
 
 export const getCalendarEvent = (
@@ -27,8 +28,6 @@ export const getCalendarEvent = (
     if (!readOnly) {
       return { outcome: "found", value: view };
     }
-    return {
-      outcome: "found",
-      value: { ...view, ...(await findGuestCalendarFields(tx, record.calendarId)) },
-    };
+    const calendar = await findCalendar(tx, record.calendarId);
+    return { outcome: "found", value: { ...view, ...guestCalendarFields(calendar) } };
   });
