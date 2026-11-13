@@ -198,22 +198,13 @@ Given(
   },
 );
 
-Given(
-  /^(\w+) has an account in no family shared with (\w+)$/,
-  async ({ world }, name: string, _otherName: string) => {
-    await sessionFor(world, name);
-  },
-);
+Given(/^(\w+) has an account in no family shared with \w+$/, async ({ world }, name: string) => {
+  await sessionFor(world, name);
+});
 
 When(
-  /^(\w+) invites (\w+) to the event "([^"]*)"( again)?$/,
-  async (
-    { world },
-    hostName: string,
-    guestName: string,
-    title: string,
-    _again: string | undefined,
-  ) => {
+  /^(\w+) invites (\w+) to the event "([^"]*)"(?: again)?$/,
+  async ({ world }, hostName: string, guestName: string, title: string) => {
     await inviteAndRecord(world, hostName, guestName, title);
   },
 );
