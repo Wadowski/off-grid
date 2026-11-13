@@ -14,7 +14,6 @@ import type { NewEventModalProps } from "./types.js";
 import {
   NEW_EVENT_MODAL_CLASS,
   newEventActionsStyle,
-  newEventModalCss,
   newEventBodyStyle,
   newEventErrorStyle,
   newEventFooterStyle,
@@ -23,6 +22,7 @@ import {
   newEventHeaderStyle,
   newEventHeadingStyle,
   newEventLabelStyle,
+  newEventModalCss,
   newEventRowStyle,
   newEventTextareaStyle,
 } from "./styles.js";

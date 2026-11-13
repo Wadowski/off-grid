@@ -32,6 +32,9 @@ const renderModal = (handlers: { onClose?: () => void; onSaved?: () => void } = 
 const typeTitle = (title: string) =>
   fireEvent.change(screen.getByLabelText("Title"), { target: { value: title } });
 
+const originalShowModal = HTMLDialogElement.prototype.showModal;
+const originalClose = HTMLDialogElement.prototype.close;
+
 describe("NewEventModal", () => {
   beforeEach(() => {
     vi.mocked(createCalendarEvent).mockReset();
@@ -47,6 +50,8 @@ describe("NewEventModal", () => {
 
   afterEach(() => {
     cleanup();
+    HTMLDialogElement.prototype.showModal = originalShowModal;
+    HTMLDialogElement.prototype.close = originalClose;
   });
 
   it("shows the new event form with the calendar picked and the save action", () => {
