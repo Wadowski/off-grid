@@ -110,11 +110,7 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
     expect(await inboxTypesOf(anna)).toEqual([]);
   });
 
-  const inviteFact = async (
-    tx: ModuleTransaction,
-    host: string,
-    guest: string,
-  ) => {
+  const inviteFact = async (tx: ModuleTransaction, host: string, guest: string) => {
     const eventId = randomUUID();
     await publish(
       rawSqlExecutor(tx),

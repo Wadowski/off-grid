@@ -7,7 +7,10 @@ import { findGuestEventIds } from "../../infrastructure/event-guests/find-guest-
 // The events in the list that the guest may only read, because the guest was invited to them.
 export const findReadOnlyEventIds = (
   tx: ModuleTransaction,
-  input: { readonly guestUserId: string; readonly records: readonly { readonly eventId: string }[] },
+  input: {
+    readonly guestUserId: string;
+    readonly records: readonly { readonly eventId: string }[];
+  },
 ): Promise<Set<string>> =>
   findGuestEventIds(tx, {
     guestUserId: input.guestUserId,
