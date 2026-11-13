@@ -21,7 +21,12 @@ export const AppNav = () => {
             <AppNavLabel item={item} />
           </span>
         ) : (
-          <NavLink key={item.id} to={item.path} end className="og-app-nav-item og-focusable">
+          <NavLink
+            key={item.id}
+            to={item.path}
+            end={item.matchSubpaths !== true}
+            className="og-app-nav-item og-focusable"
+          >
             <AppNavLabel item={item} />
           </NavLink>
         ),

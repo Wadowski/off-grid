@@ -12,7 +12,10 @@ import { webBaseUrl } from "../support/stack.js";
 
 const { Given, When, Then } = createBdd(test);
 
-const CALENDARS_PATH = "/calendar";
+const CALENDARS_PATH = "/calendar/calendars";
+// The edit screen of one calendar lives at /calendar/:calendarId.
+const CALENDAR_PATH_PREFIX = "/calendar";
+const AGENDA_PATH = "/calendar";
 const NEW_CALENDAR_PATH = "/calendar/new";
 const NAME_PLACEHOLDER = "Enter a calendar name";
 const CALENDAR_ROW = "calendar-row";
@@ -95,7 +98,14 @@ When("I open the calendar from the navigation", async ({ page }) => {
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("link", { name: "Calendar" })
     .click();
-  await expect.poll(() => new URL(page.url()).pathname).toBe(CALENDARS_PATH);
+  await expect.poll(() => new URL(page.url()).pathname).toBe(AGENDA_PATH);
+});
+
+Then("I see the agenda view", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toHaveValue(
+    "agenda",
+  );
 });
 
 Then("I see the calendars list", async ({ page }) => {
@@ -188,12 +198,16 @@ Then("the calendar {string} is still listed", async ({ page }, name: string) => 
 });
 
 When("I open the edit screen for my default calendar", async ({ page, world }) => {
-  const calendars = await listCalendars(world.api, memberSessionOf(world));
-  const defaultCalendar = calendars.find((calendar) => calendar.isDefault);
-  if (defaultCalendar === undefined) {
-    throw new Error("The person has no default calendar.");
-  }
-  await page.goto(`${webBaseUrl()}${CALENDARS_PATH}/${defaultCalendar.id}`);
+  // The default calendar is created after the user-created event is handled, so it can lag the sign-up.
+  const defaultCalendar = await eventually(async () => {
+    const calendars = await listCalendars(world.api, memberSessionOf(world));
+    const found = calendars.find((calendar) => calendar.isDefault);
+    if (found === undefined) {
+      throw new Error("The person has no default calendar yet.");
+    }
+    return found;
+  });
+  await page.goto(`${webBaseUrl()}${CALENDAR_PATH_PREFIX}/${defaultCalendar.id}`);
   await expect(page.getByRole("heading", { name: "Edit calendar", exact: true })).toBeVisible();
 });
 
@@ -212,7 +226,7 @@ Given("another person has a personal calendar that I cannot access", async ({ wo
 
 When("I open the edit screen for a calendar I cannot access", async ({ page, world }) => {
   await page.goto(
-    `${webBaseUrl()}${CALENDARS_PATH}/${calendarIdOf(world, OTHER_PERSON_CALENDAR_KEY)}`,
+    `${webBaseUrl()}${CALENDAR_PATH_PREFIX}/${calendarIdOf(world, OTHER_PERSON_CALENDAR_KEY)}`,
   );
 });
 
@@ -232,7 +246,7 @@ When(
   "I check the calendars list, the create calendar screen and the edit calendar screen for accessibility in light and dark theme",
   async ({ page, world }) => {
     const calendarId = calendarIdOf(world, "Studio");
-    const screens = [CALENDARS_PATH, NEW_CALENDAR_PATH, `${CALENDARS_PATH}/${calendarId}`];
+    const screens = [CALENDARS_PATH, NEW_CALENDAR_PATH, `${CALENDAR_PATH_PREFIX}/${calendarId}`];
     const violations: string[] = [];
     for (const scheme of ["light", "dark"] as const) {
       await page.emulateMedia({ colorScheme: scheme });

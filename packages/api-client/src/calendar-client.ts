@@ -1,8 +1,18 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { CreateCalendarRequest, UpdateCalendarRequest } from "@offgrid/contracts";
-import { calendarListSchema, calendarRoutes, calendarSchema } from "@offgrid/contracts";
+import type {
+  CalendarViewKind,
+  CreateCalendarRequest,
+  UpdateCalendarRequest,
+} from "@offgrid/contracts";
+import {
+  calendarListSchema,
+  calendarRoutes,
+  calendarSchema,
+  calendarTimeZoneSchema,
+  calendarViewSchema,
+} from "@offgrid/contracts";
 import type { ApiClient } from "./types.js";
 
 const withCalendarId = (path: string, id: string): string =>
@@ -23,4 +33,15 @@ export const createCalendarClient = (client: ApiClient) => ({
   removeCalendar: async (id: string): Promise<void> => {
     await client.request("DELETE", withCalendarId(calendarRoutes.calendar, id));
   },
+
+  getCalendarView: async (view: CalendarViewKind, date: string) =>
+    calendarViewSchema.parse(
+      await client.request(
+        "GET",
+        `${calendarRoutes.calendarView.replace(":view", view)}?date=${encodeURIComponent(date)}`,
+      ),
+    ),
+
+  getTimeZone: async () =>
+    calendarTimeZoneSchema.parse(await client.request("GET", calendarRoutes.calendarTimeZone)),
 });

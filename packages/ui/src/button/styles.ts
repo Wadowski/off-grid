@@ -65,7 +65,7 @@ export const buttonVariantStyles: Record<ButtonVariant, CSSProperties> = {
     background: "transparent",
     borderWidth: "0",
     borderColor: "transparent",
-    color: cssVar("color-outline"),
+    color: cssVar("color-muted"),
     padding: cssVar("space-1"),
   },
 };

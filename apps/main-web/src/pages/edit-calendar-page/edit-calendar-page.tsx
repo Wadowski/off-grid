@@ -49,7 +49,7 @@ export const EditCalendarPage = () => {
 
   const calendar = calendars.calendars.find((candidate) => candidate.id === calendarId);
   const backLink = (
-    <Link to="/calendar" className="og-focusable" data-testid="calendar-back">
+    <Link to="/calendar/calendars" className="og-focusable" data-testid="calendar-back">
       <Text variant="link" textId="calendar.calendars.backToList" />
     </Link>
   );
@@ -76,7 +76,7 @@ export const EditCalendarPage = () => {
       return;
     }
     await calendars.refreshCalendars();
-    navigate("/calendar");
+    navigate("/calendar/calendars");
   };
 
   const deleteCalendar = async () => {
@@ -90,7 +90,7 @@ export const EditCalendarPage = () => {
       return;
     }
     await calendars.refreshCalendars();
-    navigate("/calendar");
+    navigate("/calendar/calendars");
   };
 
   const ownerFamilyName =

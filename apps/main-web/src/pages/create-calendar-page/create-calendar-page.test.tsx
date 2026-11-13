@@ -39,7 +39,7 @@ const renderPage = () =>
       <Routes>
         <Route element={<Outlet context={shell} />}>
           <Route path="calendar/new" element={<CreateCalendarPage />} />
-          <Route path="calendar" element={<p>Calendar list screen</p>} />
+          <Route path="calendar/calendars" element={<p>Calendar list screen</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,

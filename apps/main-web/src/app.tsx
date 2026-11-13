@@ -23,6 +23,8 @@ import { AdminPage } from "./pages/admin-page/admin-page.js";
 import { AdminEmailPage } from "./pages/admin-email-page/admin-email-page.js";
 import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { CalendarsPage } from "./pages/calendars-page/calendars-page.js";
+import { CalendarViewsPage } from "./pages/calendar-views-page/calendar-views-page.js";
+import { CalendarLayout } from "./layouts/calendar-layout/calendar-layout.js";
 import { CreateCalendarPage } from "./pages/create-calendar-page/create-calendar-page.js";
 import { EditCalendarPage } from "./pages/edit-calendar-page/edit-calendar-page.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
@@ -59,7 +61,14 @@ export const App = () => {
               <Route element={<AppShell />}>
                 <Route index element={<FamiliesPage />} />
                 <Route path="apps" element={<AppsPage />} />
-                <Route path="calendar" element={<CalendarsPage />} />
+                <Route path="calendar" element={<CalendarLayout />}>
+                  <Route index element={<CalendarViewsPage view="agenda" />} />
+                  <Route path="agenda" element={<CalendarViewsPage view="agenda" />} />
+                  <Route path="day" element={<CalendarViewsPage view="day" />} />
+                  <Route path="week" element={<CalendarViewsPage view="week" />} />
+                  <Route path="month" element={<CalendarViewsPage view="month" />} />
+                </Route>
+                <Route path="calendar/calendars" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />
                 <Route path="calendar/:calendarId" element={<EditCalendarPage />} />
                 <Route path="families/new" element={<CreateFamilySpacePage />} />

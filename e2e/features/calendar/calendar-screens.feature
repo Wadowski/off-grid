@@ -9,10 +9,10 @@ Feature: Calendar management screens
   calendar sidebar is kept apart from the main navigation.
 
   @smoke
-  Scenario: The Calendar nav item opens the calendars list
+  Scenario: The Calendar nav item opens the agenda view
     Given I am a user with a family named "The Smiths"
     When I open the calendar from the navigation
-    Then I see the calendars list
+    Then I see the agenda view
 
   Scenario: The calendar sidebar is not part of the main navigation
     Given I am a user with a family named "The Smiths"

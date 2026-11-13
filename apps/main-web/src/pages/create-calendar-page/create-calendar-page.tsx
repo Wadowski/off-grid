@@ -38,7 +38,7 @@ export const CreateCalendarPage = () => {
       return;
     }
     await calendars.refreshCalendars();
-    navigate("/calendar");
+    navigate("/calendar/calendars");
   };
 
   return (
@@ -57,7 +57,7 @@ export const CreateCalendarPage = () => {
         submitTextId="calendar.calendars.create"
         onSubmit={saveCalendar}
         footer={
-          <Link to="/calendar" className="og-focusable" data-testid="calendar-back">
+          <Link to="/calendar/calendars" className="og-focusable" data-testid="calendar-back">
             <Text variant="link" textId="calendar.calendars.backToList" />
           </Link>
         }
