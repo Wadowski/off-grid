@@ -106,7 +106,7 @@ export const en = {
       startTime: "Start time",
       endDate: "End date",
       endTime: "End time",
-      timeZone: "Time zone: {{zone}}",
+      timeZone: "Time zone",
       location: "Location",
       locationPlaceholder: "Add a location",
       description: "Description",
