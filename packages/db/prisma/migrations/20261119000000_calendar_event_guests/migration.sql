@@ -21,6 +21,9 @@ AS $$
   );
 $$;
 
+REVOKE ALL ON FUNCTION calendar.caller_can_see_event(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION calendar.caller_can_see_event(uuid) TO offgrid_app;
+
 CREATE FUNCTION calendar.caller_can_write_calendar(p_calendar_id uuid)
 RETURNS boolean
 LANGUAGE sql
@@ -43,6 +46,9 @@ AS $$
       )
   );
 $$;
+
+REVOKE ALL ON FUNCTION calendar.caller_can_write_calendar(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION calendar.caller_can_write_calendar(uuid) TO offgrid_app;
 
 DROP POLICY calendar_event_scope ON calendar.calendar_event;
 
@@ -77,11 +83,17 @@ AS $$
   );
 $$;
 
+REVOKE ALL ON FUNCTION calendar.shares_family_with_caller(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION calendar.shares_family_with_caller(uuid) TO offgrid_app;
+
+-- A guest reads an event only while the guest still shares a family with the host
+-- who invited them. The host is the owner recorded on the event_guest row.
 CREATE POLICY calendar_event_guest_read ON calendar.calendar_event
   FOR SELECT
   USING (event_id IN (
     SELECT event_id FROM calendar.event_guest
     WHERE guest_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+      AND calendar.shares_family_with_caller(user_id)
   ));
 
 CREATE POLICY calendar_guest_read ON calendar.calendar
@@ -91,12 +103,16 @@ CREATE POLICY calendar_guest_read ON calendar.calendar
     WHERE event_id IN (
       SELECT event_id FROM calendar.event_guest
       WHERE guest_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+        AND calendar.shares_family_with_caller(user_id)
     )
   ));
 
 CREATE POLICY event_guest_own_row ON calendar.event_guest
   FOR SELECT
-  USING (guest_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid);
+  USING (
+    guest_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    AND calendar.shares_family_with_caller(user_id)
+  );
 
 -- The owner and family insert checks on event_guest now also require the event to be
 -- visible to the caller. Guests match no owner or family policy, so their writes return no rows.

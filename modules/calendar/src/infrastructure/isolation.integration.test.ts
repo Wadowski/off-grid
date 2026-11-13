@@ -114,8 +114,8 @@ describe("calendar event guest isolation", { timeout: 60_000 }, () => {
   beforeEach(async () => {
     await db.reset();
     await db.admin.query(
-      "INSERT INTO calendar.family_membership (family_id, user_id, source_version, is_member) VALUES ($1, $2, 1, true), ($1, $3, 1, true)",
-      [familyId, host, familyMember],
+      "INSERT INTO calendar.family_membership (family_id, user_id, source_version, is_member) VALUES ($1, $2, 1, true), ($1, $3, 1, true), ($1, $4, 1, true)",
+      [familyId, host, familyMember, guest],
     );
     await db.db.$transaction(async (tx) => {
       await withUserContext(tx, host);
@@ -233,6 +233,49 @@ describe("calendar event guest isolation", { timeout: 60_000 }, () => {
         });
       }),
     ).rejects.toThrow();
+  });
+
+  it("refuses a guest who invites a third party to the invited event", async () => {
+    const thirdParty = randomUUID();
+
+    await expect(
+      db.db.$transaction(async (tx) => {
+        await withUserContext(tx, guest);
+        await tx.eventGuest.create({
+          data: { eventId: invitedEventId, guestUserId: thirdParty, userId: guest },
+        });
+      }),
+    ).rejects.toThrow();
+    const rows = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, host);
+      return tx.eventGuest.findMany({ where: { eventId: invitedEventId } });
+    });
+
+    expect(rows.map((row) => row.guestUserId)).toEqual([guest]);
+  });
+
+  it("hides the invited event from a guest who has left the host's family", async () => {
+    await db.admin.query(
+      "UPDATE calendar.family_membership SET is_member = false WHERE family_id = $1 AND user_id = $2",
+      [familyId, guest],
+    );
+
+    const events = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, guest);
+      return tx.calendarEvent.findMany();
+    });
+    const calendars = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, guest);
+      return tx.calendar.findMany();
+    });
+    const guestRows = await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, guest);
+      return tx.eventGuest.findMany();
+    });
+
+    expect(events).toEqual([]);
+    expect(calendars).toEqual([]);
+    expect(guestRows).toEqual([]);
   });
 
   it("refuses a family member who invites a guest to a personal event they cannot see", async () => {
