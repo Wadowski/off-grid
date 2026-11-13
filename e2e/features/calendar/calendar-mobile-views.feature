@@ -23,13 +23,49 @@ Feature: Mobile calendar views: agenda, day, week and month
     When I open the calendar from the navigation at a phone width of 375 pixels
     Then I see the agenda view
 
-  Scenario: Anna switches from the agenda to the day timeline and sees the events placed by time
+  Scenario: Anna picks the day view from the view selector and sees the events placed by time
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
-    And I switch to the day timeline
+    And I choose the day view in the view selector
     Then I see the event "Standup" placed between 09:00 and 09:30 on the timeline
+
+  Scenario: Anna sees the view selector and the calendar filter in the top row without the family name, search or avatar
+    Given I am a user with a family named "The Smiths"
+    When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
+    Then I see the view selector
+    And I see the calendar filter
+    And I do not see the text "The Smiths"
+    And I do not see a search button
+
+  Scenario: Anna hides a calendar from the agenda with the calendar filter
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And I have a personal calendar named "Home" with the color "green"
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
+    And the event "Dinner" is in "Home" from 2026-11-18 18:00 to 19:00 in UTC
+    When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
+    And I untick the calendar "Work" in the calendar filter
+    Then I see the event "Dinner" in the agenda
+    And I do not see the event "Standup" in the agenda
+
+  Scenario: The New Event action stays fixed at the bottom of the screen
+    Given I am a user with a family named "The Smiths"
+    When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
+    Then the "New Event" action is fixed at the bottom of the screen
+
+  Scenario: The week grid spans the phone width edge to edge
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    When I open the week view for 2026-11-18 at a phone width of 375 pixels
+    Then the calendar grid spans the phone width edge to edge
+
+  Scenario: The day timeline spans the phone width edge to edge
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    When I open the day view for 2026-11-18 at a phone width of 375 pixels
+    Then the calendar grid spans the phone width edge to edge
 
   Scenario: Anna sees the empty-day text on a day with no events
     Given I am a user with a family named "The Smiths"

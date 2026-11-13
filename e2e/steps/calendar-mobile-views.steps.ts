@@ -119,9 +119,64 @@ Then(
   },
 );
 
-When("I switch to the day timeline", async ({ page }) => {
-  await page.getByRole("button", { name: "Day Timeline" }).click();
+When("I choose the day view in the view selector", async ({ page }) => {
+  await page.getByRole("combobox", { name: "Calendar view" }).selectOption("day");
   await expect.poll(() => new URL(page.url()).pathname).toBe("/calendar/day");
+});
+
+When(
+  "I open the day view for {word} at a phone width of 375 pixels",
+  async ({ page }, date: string) => {
+    await openAt(page, `/calendar/day?date=${date}`);
+  },
+);
+
+When("I untick the calendar {string} in the calendar filter", async ({ page }, name: string) => {
+  await page.getByRole("button", { name: /^Calendar filter/ }).click();
+  await page
+    .getByRole("group", { name: "Calendar filter" })
+    .getByRole("checkbox", { name: name })
+    .uncheck();
+});
+
+Then("I see the view selector", async ({ page }) => {
+  await expect(page.getByRole("combobox", { name: "Calendar view" })).toBeVisible();
+});
+
+Then("I see the calendar filter", async ({ page }) => {
+  await expect(page.getByRole("button", { name: /^Calendar filter/ })).toBeVisible();
+});
+
+Then("I do not see the text {string}", async ({ page }, text: string) => {
+  await expect(page.getByText(text, { exact: true })).toHaveCount(0);
+});
+
+Then("I do not see a search button", async ({ page }) => {
+  await expect(page.getByRole("button", { name: "Search", exact: true })).toHaveCount(0);
+});
+
+Then("I see the event {string} in the agenda", async ({ page }, title: string) => {
+  await expect(eventCard(page, title)).toBeVisible();
+});
+
+Then("I do not see the event {string} in the agenda", async ({ page }, title: string) => {
+  await expect(eventCard(page, title)).toHaveCount(0);
+});
+
+Then("the {string} action is fixed at the bottom of the screen", async ({ page }, name: string) => {
+  const action = page.getByRole("button", { name, exact: true });
+  await expect(action).toBeVisible();
+  const footer = page.getByTestId("calendar-views-footer");
+  await expect(footer).toHaveCSS("position", "fixed");
+});
+
+Then("the calendar grid spans the phone width edge to edge", async ({ page }) => {
+  const grid = page.getByTestId("week-grid").or(page.getByTestId("day-timeline"));
+  await expect(grid).toBeVisible();
+  const box = await grid.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box?.x ?? 1).toBeLessThanOrEqual(0.5);
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeGreaterThanOrEqual(PHONE_WIDTH - 0.5);
 });
 
 Then(
