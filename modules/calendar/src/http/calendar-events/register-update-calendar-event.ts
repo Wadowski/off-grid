@@ -9,8 +9,10 @@ import {
 import { sendError, sendNotFound, sendValidationFailed, withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
 import { updateCalendarEvent } from "../../application/calendar-events/update-calendar-event.js";
+import { EventGuestWriteDeniedError } from "../../application/errors/event-guest-write-denied-error.js";
 import { EventMoveOwnerMismatchError } from "../../application/errors/event-move-owner-mismatch-error.js";
 import type { CalendarRouteContext } from "../../types.js";
+import { GUEST_WRITE_DENIED_MESSAGE } from "./guest-write-denied-message.js";
 import { toCalendarEvent } from "./to-calendar-event.js";
 
 const WINDOW_MESSAGE = "The event must not end before it starts";
@@ -34,6 +36,9 @@ export const registerUpdateCalendarEvent = (
       try {
         outcome = await updateCalendarEvent(context.db, userId, params.data.id, body.data);
       } catch (error) {
+        if (error instanceof EventGuestWriteDeniedError) {
+          return sendError(reply, 403, "FORBIDDEN", GUEST_WRITE_DENIED_MESSAGE);
+        }
         if (error instanceof EventMoveOwnerMismatchError) {
           return sendError(
             reply,

@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { defineEvent } from "./define-event.js";
-import { notificationDataSchema, notificationTypeSchema } from "./notification-type-schema.js";
+import { notificationDataSchema } from "./notification-type-schema.js";
 import { uuidSchema } from "./uuid-schema.js";
 import { userIdSchema } from "./user-id-schema.js";
 
@@ -13,7 +13,7 @@ export const userNotifiedV1 = defineEvent({
   schema: z.object({
     notificationId: uuidSchema,
     userId: userIdSchema,
-    type: notificationTypeSchema,
+    type: z.enum(["password-changed", "recovery-code-regenerated"]),
     data: notificationDataSchema,
   }),
 });

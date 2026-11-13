@@ -36,6 +36,18 @@ Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migr
 
 Decision record: [ADR 0028](../../docs/adr/0028-calendar-event-time-and-versions.md).
 
+## Guests
+
+`POST /events/:id/guests` invites a family member to a personal event the caller hosts, with body `{ guestUserId }`. It answers 201 for a new guest and 200 when the guest is already invited, with the same body in both cases. The use case is `src/application/event-guests/invite-event-guest.ts`, and the route is `src/http/calendar-events/register-invite-event-guest.ts`.
+
+- The invitee must share a family with the host. An event that belongs to a family, the host as invitee, and an invitee who shares no family all answer 400 `VALIDATION_FAILED` with one fixed message.
+- A guest reads the event through `GET /events/:id`, `GET /calendars/:id/events` and the views, with `readOnly: true`, `calendarName` and `calendarColor`. The guest sees only the events they were invited to, never the rest of the host's calendar. The guest's read path is the SELECT-only policies in migration `20261119000000_calendar_event_guests`.
+- A guest who sends `PATCH /events/:id`, `DELETE /events/:id` or an invite answers 403 `FORBIDDEN` with a fixed message, and the stored row is unchanged.
+- Guest removal is not built. A guest keeps access after they leave the family, which is a known gap in [ADR 0029](../../docs/adr/0029-event-guest-access.md).
+- The UI for inviting and for guest read-only details is a follow-up. No screen in this module shows guests yet.
+
+Decision record: [ADR 0029](../../docs/adr/0029-event-guest-access.md).
+
 ## Views
 
 `GET /calendar/views/:view?date=YYYY-MM-DD`, with `view` one of `agenda`, `day`, `week` or `month`, in `src/http/views/`. The use case is `src/application/views/list-calendar-view.ts`. `date` is required, because the server cannot know the caller's local today without a zone.
@@ -48,7 +60,7 @@ Decision record: [ADR 0028](../../docs/adr/0028-calendar-event-time-and-versions
 
 ## Events
 
-`calendar-event-created-v1` and `calendar-event-updated-v1` carry the full state of the event after the change, so a projection can upsert it. Their payload holds `title`, `location` and `description`. Their envelope `sourceVersion` is the row's `version`. `calendar-event-removed-v1` carries only `eventId` and `calendarId`, and its `sourceVersion` is the deleted row's `version + 1`. Outbox rows keep these copies for the retention period, 7 days by default (`OFFGRID_OUTBOX_RETENTION_DAYS`). The server's prune job deletes an outbox row only after it is older than that period and every registered subscriber has passed it. It does not touch the calendar tables ([privacy statement](../../docs/privacy.md)).
+`calendar-event-created-v1` and `calendar-event-updated-v1` carry the full state of the event after the change, so a projection can upsert it. Their payload holds `title`, `location` and `description`. Their envelope `sourceVersion` is the row's `version`. `calendar-event-removed-v1` carries only `eventId` and `calendarId`, and its `sourceVersion` is the deleted row's `version + 1`. `calendar-event-guest-invited-v1` carries `eventId`, `guestUserId` and `calendarId`, and no title or other personal data. Outbox rows keep these copies for the retention period, 7 days by default (`OFFGRID_OUTBOX_RETENTION_DAYS`). The server's prune job deletes an outbox row only after it is older than that period and every registered subscriber has passed it. It does not touch the calendar tables ([privacy statement](../../docs/privacy.md)).
 
 `src/events/default-calendar` subscribes to `user-created-v1` (from identity) and creates the user's default calendar. The insert is idempotent, so a repeated event creates nothing.
 

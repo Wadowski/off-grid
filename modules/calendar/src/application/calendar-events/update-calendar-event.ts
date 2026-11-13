@@ -7,6 +7,7 @@ import {
   type CalendarEventUpdateInput,
 } from "@offgrid/contracts";
 import { withUserContext, type ModuleDatabase, type ModuleTransaction } from "@offgrid/db";
+import { assertNotGuestWrite } from "../event-guests/assert-not-guest-write.js";
 import { EventMoveOwnerMismatchError } from "../errors/event-move-owner-mismatch-error.js";
 import { allDayBounds, lastDayOf, localDate } from "../../domain/all-day-bounds.js";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
@@ -39,6 +40,7 @@ export const updateCalendarEvent = (
     if (current === null) {
       return { outcome: "not-found" };
     }
+    await assertNotGuestWrite(tx, current, userId);
     const calendarId = await resolveTargetCalendar(tx, current, input.calendarId);
     if (calendarId === "not-found") {
       return { outcome: "not-found" };

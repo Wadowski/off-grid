@@ -12,6 +12,7 @@ const event = (id: string): CalendarViewEvent => ({
   calendarId: calendarIdSchema.parse("9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f"),
   calendarName: "Studio",
   calendarColor: "teal",
+  readOnly: false,
   title: `Session ${id}`,
   location: null,
   description: null,

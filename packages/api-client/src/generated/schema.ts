@@ -38,6 +38,23 @@ export interface paths {
         patch: operations["updateCalendar"];
         trace?: never;
     };
+    "/events/{id}/guests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Invite a family member to an event the signed-in person hosts */
+        post: operations["inviteEventGuest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -60,6 +77,10 @@ export interface components {
             accent?: "blue" | "sky" | "teal" | "green" | "lime" | "amber" | "orange" | "red" | "pink" | "purple" | "indigo" | "slate";
             /** @enum {string} */
             purpose?: "household" | "getaway" | "extended";
+        };
+        InviteEventGuestRequest: {
+            /** Format: uuid */
+            guestUserId: string;
         };
         Family: {
             /** Format: uuid */
@@ -296,7 +317,7 @@ export interface components {
                 /** Format: uuid */
                 id: string;
                 /** @enum {string} */
-                type: "password-changed" | "recovery-code-regenerated";
+                type: "password-changed" | "recovery-code-regenerated" | "event-invited";
                 data: {
                     [key: string]: string;
                 };
@@ -503,6 +524,73 @@ export interface operations {
                 };
             };
             /** @description NOT_FOUND: the calendar does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    inviteEventGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteEventGuestRequest"];
+            };
+        };
+        responses: {
+            /** @description The guest was already invited. Nothing changed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The guest was invited. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VALIDATION_FAILED: the body is invalid, the guest is the host, shares no family with the host, or the event belongs to a family. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description UNAUTHENTICATED: the request has no signed-in person. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description FORBIDDEN: a guest of the event may not invite others. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description NOT_FOUND: the event does not exist or the person cannot see it. */
             404: {
                 headers: {
                     [name: string]: unknown;

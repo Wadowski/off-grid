@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
+import { assertNotGuestWrite } from "../event-guests/assert-not-guest-write.js";
 import { publishCalendarEventRemoved } from "../../events/calendar-events/publish-calendar-event-removed.js";
 import { deleteEvents } from "../../infrastructure/calendar-events/delete-events.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
@@ -18,6 +19,7 @@ export const removeCalendarEvent = (
     if (record === null) {
       return { outcome: "not-found" };
     }
+    await assertNotGuestWrite(tx, record, userId);
     await deleteEvents(tx, [record.eventId]);
     await publishCalendarEventRemoved(
       tx,
