@@ -1,6 +1,12 @@
 -- SPDX-FileCopyrightText: 2026 Dominik Wadowski
 -- SPDX-License-Identifier: FSL-1.1-ALv2
 
+-- The helper functions below are SECURITY DEFINER, so they read calendar tables without the
+-- row-level policies. caller_can_write_calendar trusts the app.family_id session setting: it
+-- matches a family calendar when app.family_id names that family, and it does not check that
+-- the caller belongs to it. Callers must therefore run the access check first, and set
+-- app.family_id only to a family the caller is a member of, before they call this function.
+
 CREATE FUNCTION calendar.caller_can_see_event(p_event_id uuid)
 RETURNS boolean
 LANGUAGE sql

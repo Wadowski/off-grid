@@ -1,6 +1,6 @@
 # 0029. Event guests read through row-level security and cannot write
 
-- **Status:** Proposed
+- **Status:** Accepted
 
 ## Context
 

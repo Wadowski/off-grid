@@ -43,4 +43,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0026](0026-notifications-map-domain-facts.md)           | Notifications map domain facts to notices                                                        | Accepted                  |
 | [0027](0027-invitation-preview.md)                       | Invitation preview: a code shows its family before the person joins                              | Proposed                  |
 | [0028](0028-calendar-event-time-and-versions.md)         | Calendar events: UTC bounds fixed at write time, per-user zone, one source version per event row | Proposed                  |
-| [0029](0029-event-guest-access.md)                       | Event guests read through row-level security and cannot write                                    | Proposed                  |
+| [0029](0029-event-guest-access.md)                       | Event guests read through row-level security and cannot write                                    | Accepted                  |
