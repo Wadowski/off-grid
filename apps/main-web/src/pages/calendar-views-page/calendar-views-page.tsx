@@ -29,6 +29,7 @@ import {
   calendarViewsHeaderStyle,
   calendarViewsPageStyle,
   calendarViewsStatusStyle,
+  FILTER_CLASS,
   FOOTER_CLASS,
   PAGE_CLASS,
 } from "./styles.js";
@@ -67,11 +68,13 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
       </header>
       <div style={calendarViewsControlsStyle}>
         <ViewSelect value={view} onChange={goToView} />
-        <CalendarMultiSelect
-          calendars={layout.calendars.calendars}
-          hidden={layout.hidden}
-          onChange={layout.setHidden}
-        />
+        <div className={FILTER_CLASS}>
+          <CalendarMultiSelect
+            calendars={layout.calendars.calendars}
+            hidden={layout.hidden}
+            onChange={layout.setHidden}
+          />
+        </div>
       </div>
       <DateNavigator
         label={periodLabel(view, date)}

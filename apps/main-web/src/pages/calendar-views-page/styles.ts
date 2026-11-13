@@ -6,6 +6,8 @@ import type { CSSProperties } from "react";
 
 const SHELL_SIDEBAR_WIDTH = "16rem";
 const PHONE_MAX_WIDTH = "767px";
+// Matches the narrow breakpoint of the calendar layout (NARROW_MEDIA_QUERY), where the sidebar starts.
+const SIDEBAR_MIN_WIDTH = "640px";
 const SHELL_PHONE_GUTTER = tokens.space[4];
 const BODY_MARGIN = "0.5rem";
 const PAGE_GUTTER = tokens.space[2];
@@ -15,6 +17,8 @@ const TAB_BAR_HEIGHT = "4.5rem";
 export const PAGE_CLASS = "og-calendar-views-page";
 export const BLEED_CLASS = "og-calendar-views-bleed";
 export const FOOTER_CLASS = "og-calendar-views-footer";
+// Wraps the calendar filter for phones. From the width where the calendar sidebar shows, the sidebar's checkboxes replace it.
+export const FILTER_CLASS = "og-calendar-views-filter";
 
 export const calendarViewsCss = `
 .${PAGE_CLASS} {
@@ -23,6 +27,11 @@ export const calendarViewsCss = `
 .${FOOTER_CLASS} {
   left: ${SHELL_SIDEBAR_WIDTH};
   bottom: env(safe-area-inset-bottom);
+}
+@media (min-width: ${SIDEBAR_MIN_WIDTH}) {
+  .${FILTER_CLASS} {
+    display: none;
+  }
 }
 @media (max-width: ${PHONE_MAX_WIDTH}) {
   .${PAGE_CLASS} {
