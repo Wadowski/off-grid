@@ -8,7 +8,7 @@ import {
   recoveryCodeRegeneratedV1,
 } from "@offgrid/contracts";
 import { withUserContext } from "@offgrid/db";
-import { createEventBus, publish } from "@offgrid/event-bus";
+import { createEventBus, publish, replayEvents } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
 import { createMemoryErrorSink, currentTraceId, resolveTraceId } from "@offgrid/observability";
 import { rawSqlExecutor } from "@offgrid/db";
@@ -176,5 +176,43 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
     ).rejects.toThrow("invite failed");
 
     expect(await inboxRowsOf(guest)).toEqual([]);
+  });
+
+  it("writes no second invite item when the same invite fact is redelivered", async () => {
+    const host = randomUUID();
+    const guest = randomUUID();
+    const bus = createEventBus({
+      pool: db.pool,
+      errorSink: createMemoryErrorSink(),
+      retryDelayMs: () => 0,
+    });
+    const subscribe = vi.spyOn(bus, "subscribe");
+    registerFactSubscribers(
+      {
+        eventBus: bus,
+        logger: fakeLogger(),
+        db: db.db,
+        currentUserId: () => null,
+      },
+      [],
+    );
+    const inviteSubscription = subscribe.mock.calls
+      .map(([subscription]) => subscription)
+      .find((subscription) => subscription.event.name === calendarEventGuestInvitedV1.name);
+    if (inviteSubscription === undefined) {
+      throw new Error("the invite fact subscriber is not registered");
+    }
+
+    await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, host);
+      await inviteFact(tx, host, guest);
+    });
+    await bus.deliverPending();
+    const firstDelivery = await inboxRowsOf(guest);
+    expect(firstDelivery).toHaveLength(1);
+
+    expect(await replayEvents(inviteSubscription, { pool: db.pool })).toBe(1);
+
+    expect(await inboxRowsOf(guest)).toEqual(firstDelivery);
   });
 });
