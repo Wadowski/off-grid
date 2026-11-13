@@ -66,6 +66,8 @@ export * from "./calendar-view-event-schema.js";
 export * from "./calendar-view-schema.js";
 export * from "./calendar-event-payload-schema.js";
 export * from "./calendar-event-created-v1.js";
+export * from "./calendar-event-guest-invited-v1.js";
+export * from "./invite-event-guest-request-schema.js";
 export * from "./calendar-event-updated-v1.js";
 export * from "./family-schema.js";
 export * from "./active-family-schema.js";
