@@ -13,6 +13,8 @@ import { webBaseUrl } from "../support/stack.js";
 const { Given, When, Then } = createBdd(test);
 
 const CALENDARS_PATH = "/calendar/calendars";
+// The edit screen of one calendar lives at /calendar/:calendarId.
+const CALENDAR_PATH_PREFIX = "/calendar";
 const AGENDA_PATH = "/calendar";
 const NEW_CALENDAR_PATH = "/calendar/new";
 const NAME_PLACEHOLDER = "Enter a calendar name";
@@ -203,7 +205,7 @@ When("I open the edit screen for my default calendar", async ({ page, world }) =
   if (defaultCalendar === undefined) {
     throw new Error("The person has no default calendar.");
   }
-  await page.goto(`${webBaseUrl()}${CALENDARS_PATH}/${defaultCalendar.id}`);
+  await page.goto(`${webBaseUrl()}${CALENDAR_PATH_PREFIX}/${defaultCalendar.id}`);
   await expect(page.getByRole("heading", { name: "Edit calendar", exact: true })).toBeVisible();
 });
 
@@ -222,7 +224,7 @@ Given("another person has a personal calendar that I cannot access", async ({ wo
 
 When("I open the edit screen for a calendar I cannot access", async ({ page, world }) => {
   await page.goto(
-    `${webBaseUrl()}${CALENDARS_PATH}/${calendarIdOf(world, OTHER_PERSON_CALENDAR_KEY)}`,
+    `${webBaseUrl()}${CALENDAR_PATH_PREFIX}/${calendarIdOf(world, OTHER_PERSON_CALENDAR_KEY)}`,
   );
 });
 
@@ -242,7 +244,7 @@ When(
   "I check the calendars list, the create calendar screen and the edit calendar screen for accessibility in light and dark theme",
   async ({ page, world }) => {
     const calendarId = calendarIdOf(world, "Studio");
-    const screens = [CALENDARS_PATH, NEW_CALENDAR_PATH, `${CALENDARS_PATH}/${calendarId}`];
+    const screens = [CALENDARS_PATH, NEW_CALENDAR_PATH, `${CALENDAR_PATH_PREFIX}/${calendarId}`];
     const violations: string[] = [];
     for (const scheme of ["light", "dark"] as const) {
       await page.emulateMedia({ colorScheme: scheme });

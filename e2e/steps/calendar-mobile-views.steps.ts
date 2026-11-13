@@ -129,8 +129,7 @@ Then(
   async ({ page }, title: string, start: string, end: string) => {
     const block = page.locator("article").filter({ hasText: title });
     await expect(block).toHaveCount(1);
-    const top = await block.evaluate((element: { style: { top: string } }) => element.style.top);
-    expect(top).toBe(`${timelineTopPx(start)}px`);
+    await expect(block).toHaveCSS("top", `${timelineTopPx(start)}px`);
     await expect(block).toContainText(`${clock12(start)} - ${clock12(end)}`);
   },
 );
