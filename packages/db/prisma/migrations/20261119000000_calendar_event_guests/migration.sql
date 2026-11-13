@@ -59,6 +59,24 @@ CREATE POLICY calendar_event_scope ON calendar.calendar_event
     AND calendar.caller_can_write_calendar(calendar_id)
   );
 
+CREATE FUNCTION calendar.shares_family_with_caller(p_user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = calendar, pg_temp
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM calendar.family_membership caller_row
+    JOIN calendar.family_membership other_row ON other_row.family_id = caller_row.family_id
+    WHERE caller_row.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+      AND caller_row.is_member
+      AND other_row.user_id = p_user_id
+      AND other_row.is_member
+  );
+$$;
+
 CREATE POLICY calendar_event_guest_read ON calendar.calendar_event
   FOR SELECT
   USING (event_id IN (
