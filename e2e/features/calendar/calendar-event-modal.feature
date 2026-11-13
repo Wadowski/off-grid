@@ -9,19 +9,16 @@ Feature: New event modal
   can also be opened directly from its own address. Closing the modal
   without saving discards what was entered.
 
-  @wip
   Scenario: I open the new event modal from the desktop sidebar
     Given I am a user with a family named "The Smiths"
     When I open the new event modal from the calendar sidebar on a desktop screen
     Then I see the new event modal over the calendar
 
-  @wip
   Scenario: I open the new event modal from the phone footer
     Given I am a user with a family named "The Smiths"
     When I open the new event modal from the calendar footer at a phone width of 375 pixels
     Then I see the new event modal at phone width
 
-  @wip
   Scenario: I close the new event modal without saving and no event is stored
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -29,20 +26,17 @@ Feature: New event modal
     Then I see the agenda view
     And no event named "Team lunch" is listed
 
-  @wip
   Scenario: I save an event and see it in the agenda without reloading
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I create a timed event named "Studio review" on the calendar "Studio" from the new event modal
     Then I see the event "Studio review" in the agenda without reloading the page
 
-  @wip
   Scenario: Opening the new event address shows the same modal over the agenda
     Given I am a user with a family named "The Smiths"
     When I open the new event address directly
     Then I see the new event modal over the agenda view
 
-  @wip
   Scenario: I cannot save an event that ends before it starts
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
