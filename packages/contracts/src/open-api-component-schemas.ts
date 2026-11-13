@@ -10,6 +10,7 @@ import { accessGroupIdSchema } from "./access-group-id-schema.js";
 import { accountProfileSchema } from "./account-profile-schema.js";
 import { calendarListSchema } from "./calendar-list-schema.js";
 import { calendarSchema } from "./calendar-schema.js";
+import { createCalendarEventRequestSchema } from "./create-calendar-event-request-schema.js";
 import { createCalendarRequestSchema } from "./create-calendar-request-schema.js";
 import { inviteEventGuestRequestSchema } from "./invite-event-guest-request-schema.js";
 import { updateCalendarRequestSchema } from "./update-calendar-request-schema.js";
@@ -65,6 +66,7 @@ export const openApiComponentSchemas = {
   Calendar: calendarSchema,
   CalendarList: calendarListSchema,
   CreateCalendarRequest: createCalendarRequestSchema,
+  CreateCalendarEventRequest: createCalendarEventRequestSchema,
   UpdateCalendarRequest: updateCalendarRequestSchema,
   PasswordResetRequest: passwordResetRequestSchema,
   PasswordRecoveryRequest: passwordRecoveryRequestSchema,

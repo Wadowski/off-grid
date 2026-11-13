@@ -22,6 +22,7 @@ describe("buildOpenApiDocument", () => {
       "CalendarList",
       "ChangePasswordRequest",
       "CreateAccountRequest",
+      "CreateCalendarEventRequest",
       "CreateCalendarRequest",
       "CreateFamilyRequest",
       "EmailCodeRequest",
@@ -62,9 +63,11 @@ describe("buildOpenApiDocument calendar paths", () => {
     expect(Object.keys(paths).sort()).toEqual([
       "/calendars",
       "/calendars/{id}",
+      "/calendars/{id}/events",
       "/events/{id}/guests",
     ]);
     expect(paths["/events/{id}/guests"].post.operationId).toBe("inviteEventGuest");
+    expect(paths["/calendars/{id}/events"].post.operationId).toBe("createCalendarEvent");
     expect(paths["/calendars"].get.operationId).toBe("listCalendars");
     expect(paths["/calendars"].post.operationId).toBe("createCalendar");
     expect(paths["/calendars/{id}"].patch.operationId).toBe("updateCalendar");

@@ -6,6 +6,7 @@ import { ApiError, createApiClient, createCalendarClient } from "./index.js";
 
 const BASE_URL = "http://localhost:3000/api";
 const CALENDAR_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
+const EVENT_ID = "3b8a6f2e-1c4d-4e7a-9b5f-0a1b2c3d4e5f";
 const CALENDAR = {
   id: CALENDAR_ID,
   name: "Studio",
@@ -56,6 +57,48 @@ describe("createCalendarClient", () => {
         body: JSON.stringify({ name: "Studio", color: "teal" }),
       }),
     );
+  });
+
+  it("posts a timed event to the calendar it belongs to", async () => {
+    const event = {
+      id: EVENT_ID,
+      calendarId: CALENDAR_ID,
+      title: "Studio review",
+      location: null,
+      description: null,
+      isAllDay: false,
+      startsAt: "2026-11-16T09:00:00.000Z",
+      endsAt: "2026-11-16T10:00:00.000Z",
+      startDate: null,
+      endDate: null,
+      readOnly: false,
+    };
+    const { calendars, transport } = calendarsWith(jsonResponse(event, 201));
+    const input = {
+      title: "Studio review",
+      isAllDay: false as const,
+      startsAt: "2026-11-16T09:00:00.000Z",
+      endsAt: "2026-11-16T10:00:00.000Z",
+    };
+
+    await expect(calendars.createCalendarEvent(CALENDAR_ID, input)).resolves.toEqual(event);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/calendars/${CALENDAR_ID}/events`,
+      expect.objectContaining({ method: "POST", body: JSON.stringify(input) }),
+    );
+  });
+
+  it("rejects a create-event response that does not match the event contract", async () => {
+    const { calendars } = calendarsWith(jsonResponse({ id: EVENT_ID }, 201));
+
+    await expect(
+      calendars.createCalendarEvent(CALENDAR_ID, {
+        title: "Studio review",
+        isAllDay: false,
+        startsAt: "2026-11-16T09:00:00.000Z",
+        endsAt: "2026-11-16T10:00:00.000Z",
+      }),
+    ).rejects.toThrow();
   });
 
   it("rejects a create response that does not match the calendar contract", async () => {

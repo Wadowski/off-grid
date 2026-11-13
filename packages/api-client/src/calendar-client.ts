@@ -4,9 +4,11 @@
 import type {
   CalendarViewKind,
   CreateCalendarRequest,
+  NewCalendarEventInput,
   UpdateCalendarRequest,
 } from "@offgrid/contracts";
 import {
+  calendarEventSchema,
   calendarListSchema,
   calendarRoutes,
   calendarSchema,
@@ -39,6 +41,15 @@ export const createCalendarClient = (client: ApiClient) => ({
       await client.request(
         "GET",
         `${calendarRoutes.calendarView.replace(":view", view)}?date=${encodeURIComponent(date)}`,
+      ),
+    ),
+
+  createCalendarEvent: async (calendarId: string, input: NewCalendarEventInput) =>
+    calendarEventSchema.parse(
+      await client.request(
+        "POST",
+        withCalendarId(calendarRoutes.calendarEvents, calendarId),
+        input,
       ),
     ),
 
