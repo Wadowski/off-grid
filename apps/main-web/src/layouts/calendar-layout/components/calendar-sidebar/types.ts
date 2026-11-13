@@ -9,6 +9,5 @@ export type CalendarSidebarProps = {
   readonly calendars: readonly Calendar[];
   readonly hidden: HiddenCalendars;
   readonly onToggle: (calendarId: string) => void;
-  // Slot for controls placed under the heading and above the calendar list, such as the mini month.
   readonly children?: ReactNode;
 };

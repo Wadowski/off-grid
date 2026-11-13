@@ -31,7 +31,6 @@ const FULL_DATE = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-// A small month for the calendar sidebar: week numbers, the days of the shown month, and the selected day.
 export const CalendarMiniMonth = ({
   selectedDate,
   todayDate,

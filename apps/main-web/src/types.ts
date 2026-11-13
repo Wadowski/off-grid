@@ -44,7 +44,6 @@ export type ShellContext = FamiliesContext & {
   readonly calendars: CalendarsState;
 };
 
-// Context of the calendar screens: the shell data plus the calendars a person hid on this device.
 export type CalendarLayoutContext = ShellContext & {
   readonly hidden: HiddenCalendars;
   readonly setHidden: (hidden: HiddenCalendars) => void;

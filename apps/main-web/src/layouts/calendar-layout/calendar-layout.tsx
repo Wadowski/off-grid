@@ -13,7 +13,6 @@ import { CalendarMiniMonth } from "./components/calendar-sidebar/components/cale
 import { readHiddenCalendars, writeHiddenCalendars } from "./hidden-calendars-storage.js";
 import { calendarLayoutContentStyle, calendarLayoutStyle } from "./styles.js";
 
-// Places a calendar screen beside the calendar sidebar and owns the calendars a person hid.
 export const CalendarLayout = () => {
   const shellContext = useOutletContext<ShellContext>();
   const narrow = useIsNarrow();

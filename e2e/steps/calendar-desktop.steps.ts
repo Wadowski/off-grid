@@ -22,7 +22,6 @@ const openAt = async (page: Page, path: string, width: number): Promise<void> =>
 };
 
 Given("the browser blocks saved preferences", async ({ page }) => {
-  // Every read and write of the browser storage throws, as in a private window with blocked site data.
   await page.addInitScript(() => {
     const blocked = () => {
       throw new DOMException("Blocked", "SecurityError");
@@ -80,7 +79,6 @@ When("I choose the week view in the view selector", async ({ page }) => {
 });
 
 Then("I do not see the event {string} in the week grid", async ({ page }, title: string) => {
-  // Check the grid is on screen first, so a missing grid cannot pass the absence check.
   await expect(page.getByTestId("week-grid")).toBeVisible();
   await expect(page.getByTestId("week-grid").getByText(title, { exact: true })).toHaveCount(0);
 });

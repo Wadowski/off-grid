@@ -6,7 +6,6 @@ import { calendarAccentColor } from "../../../../../../calendars/calendar-accent
 import type { CalendarSidebarToggleRowProps } from "./types.js";
 import { toggleRowDotStyle, toggleRowNameStyle } from "./styles.js";
 
-// One calendar in the sidebar. Ticking the box shows or hides its events; the name labels the box.
 export const CalendarSidebarToggleRow = ({
   calendar,
   checked,

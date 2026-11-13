@@ -13,5 +13,4 @@ export const WEEKDAY_KEYS = [
   "calendar.mobileViews.weekdaySunday",
 ] as const;
 
-// Monday-first list of translated weekday names, one per column of a week or month grid.
 export const weekdayLetters = (t: TFunction): string[] => WEEKDAY_KEYS.map((key) => t(key));

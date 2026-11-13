@@ -11,7 +11,6 @@ const isCalendarLayoutContext = (value: unknown): value is CalendarLayoutContext
   "hidden" in value &&
   "setHidden" in value;
 
-// Reads the calendar layout context. Throws outside CalendarLayout so a missing provider fails fast.
 export const useCalendarLayout = (): CalendarLayoutContext => {
   const context: unknown = useOutletContext();
   if (!isCalendarLayoutContext(context)) {

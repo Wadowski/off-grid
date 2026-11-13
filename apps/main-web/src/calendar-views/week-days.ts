@@ -55,7 +55,6 @@ export const weekDayLabel = (date: string): string => WEEKDAY.format(new Date(`$
 
 export const weekDayNumber = (date: string): number => Number(date.slice(8, 10));
 
-// ISO 8601 week number of the week that starts on the given Monday. The week belongs to the year of its Thursday.
 export const isoWeekNumber = (monday: string): number => {
   const thursday = addDays(monday, 3);
   const { year } = parseDate(thursday);
