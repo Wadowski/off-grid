@@ -5,6 +5,7 @@ import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { listEventsOfCalendar } from "../../infrastructure/calendar-events/list-events-of-calendar.js";
+import { findGuestEventIds } from "../../infrastructure/event-guests/find-guest-events.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import type { CalendarOutcome } from "../../types.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
@@ -21,5 +22,19 @@ export const listCalendarEvents = (
     }
     const timeZone = (await findTimeZone(tx, userId)) ?? DEFAULT_TIME_ZONE;
     const records = await listEventsOfCalendar(tx, calendarId);
-    return { outcome: "found", value: records.map((record) => toEventView(record, timeZone)) };
+    const guestEventIds = await findGuestEventIds(tx, {
+      guestUserId: userId,
+      eventIds: records.map((record) => record.eventId),
+    });
+    const calendar = await findCalendar(tx, calendarId);
+    return {
+      outcome: "found",
+      value: records.map((record) => {
+        const readOnly = guestEventIds.has(record.eventId);
+        const view = toEventView(record, timeZone, readOnly);
+        return readOnly
+          ? { ...view, calendarName: calendar?.name, calendarColor: calendar?.color }
+          : view;
+      }),
+    };
   });

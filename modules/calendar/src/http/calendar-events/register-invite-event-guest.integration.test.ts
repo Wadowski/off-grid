@@ -21,6 +21,7 @@ describe("POST /events/:id/guests", { timeout: 60_000 }, () => {
   const familyEventId = randomUUID();
   const calendarId = randomUUID();
   const familyCalendarId = randomUUID();
+  const privateEventId = randomUUID();
 
   beforeAll(async () => {
     db = await startCalendarTestDatabase();
@@ -121,5 +122,68 @@ describe("POST /events/:id/guests", { timeout: 60_000 }, () => {
 
     expect(response.statusCode).toBe(403);
     expect(response.json()).toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  describe("a guest of the event", () => {
+    beforeEach(async () => {
+      await invite(anna, eventId, { guestUserId: ben });
+    });
+
+    const as = (
+      userId: string,
+      method: "GET" | "PATCH" | "DELETE",
+      url: string,
+      payload?: unknown,
+    ) =>
+      app.inject({
+        method,
+        url,
+        headers: { "x-user-id": userId },
+        ...(payload === undefined ? {} : { payload: payload as Record<string, unknown> }),
+      });
+
+    it("reads the event read-only with its calendar name", async () => {
+      const response = await as(ben, "GET", `/events/${eventId}`);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({
+        id: eventId,
+        title: "Review",
+        readOnly: true,
+        calendarName: "Work",
+      });
+    });
+
+    it("sees the host's event only and never the host's other events", async () => {
+      await db.admin.query(
+        "INSERT INTO calendar.calendar_event (event_id, calendar_id, user_id, title, starts_at, ends_at) VALUES ($1, $2, $3, 'Private call', '2026-11-20T12:00:00Z', '2026-11-20T13:00:00Z')",
+        [privateEventId, calendarId, anna],
+      );
+
+      const listed = await as(ben, "GET", `/calendars/${calendarId}/events`);
+      const view = await as(ben, "GET", "/calendar/views/day?date=2026-11-20");
+
+      expect(listed.statusCode).toBe(200);
+      expect(listed.json<{ events: { id: string }[] }>().events.map((event) => event.id)).toEqual([
+        eventId,
+      ]);
+      const viewEvents = view
+        .json<{ days: { events: { id: string; readOnly: boolean }[] }[] }>()
+        .days.flatMap((day) => day.events);
+      expect(viewEvents.map((event) => event.id)).not.toContain(privateEventId);
+      expect(viewEvents.find((event) => event.id === eventId)?.readOnly).toBe(true);
+    });
+
+    it("answers 403 FORBIDDEN to PATCH and DELETE and leaves the event unchanged", async () => {
+      const patched = await as(ben, "PATCH", `/events/${eventId}`, { title: "Changed" });
+      const deleted = await as(ben, "DELETE", `/events/${eventId}`);
+      const after = await as(anna, "GET", `/events/${eventId}`);
+
+      expect(patched.statusCode).toBe(403);
+      expect(patched.json()).toMatchObject({ code: "FORBIDDEN" });
+      expect(deleted.statusCode).toBe(403);
+      expect(deleted.json()).toMatchObject({ code: "FORBIDDEN" });
+      expect(after.json()).toMatchObject({ title: "Review", readOnly: false });
+    });
   });
 });

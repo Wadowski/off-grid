@@ -5,10 +5,10 @@ import type { ModuleTransaction } from "@offgrid/db";
 
 export const findGuestEventIds = async (
   tx: ModuleTransaction,
-  eventIds: readonly string[],
+  input: { readonly guestUserId: string; readonly eventIds: readonly string[] },
 ): Promise<Set<string>> => {
   const rows = await tx.eventGuest.findMany({
-    where: { eventId: { in: [...eventIds] } },
+    where: { guestUserId: input.guestUserId, eventId: { in: [...input.eventIds] } },
     select: { eventId: true },
   });
   return new Set(rows.map((row) => row.eventId));

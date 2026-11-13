@@ -6,6 +6,7 @@ import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { viewRange } from "../../domain/view-range.js";
 import { listEventsOverlapping } from "../../infrastructure/calendar-events/list-events-overlapping.js";
+import { findGuestEventIds } from "../../infrastructure/event-guests/find-guest-events.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import { toEventView } from "../calendar-events/event-view.js";
 import { buildViewDays, type ViewDay } from "./build-view-days.js";
@@ -27,8 +28,12 @@ export const listCalendarView = (
     const timeZone = (await findTimeZone(tx, userId)) ?? DEFAULT_TIME_ZONE;
     const range = viewRange({ view: input.view, date: input.date, timeZone });
     const records = await listEventsOverlapping(tx, range);
+    const guestEventIds = await findGuestEventIds(tx, {
+      guestUserId: userId,
+      eventIds: records.map((record) => record.eventId),
+    });
     const events = records.map((record) => ({
-      ...toEventView(record, timeZone),
+      ...toEventView(record, timeZone, guestEventIds.has(record.eventId)),
       calendarName: record.calendarName,
       calendarColor: record.calendarColor,
     }));
