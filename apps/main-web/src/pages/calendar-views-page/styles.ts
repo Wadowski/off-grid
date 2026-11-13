@@ -19,6 +19,8 @@ export const BLEED_CLASS = "og-calendar-views-bleed";
 export const FOOTER_CLASS = "og-calendar-views-footer";
 // Wraps the calendar filter for phones. From the width where the calendar sidebar shows, the sidebar's checkboxes replace it.
 export const FILTER_CLASS = "og-calendar-views-filter";
+// The week strip picks days on phones. On desktop the calendar sidebar's mini month picks them.
+export const WEEK_STRIP_CLASS = "og-calendar-views-week-strip";
 
 export const calendarViewsCss = `
 .${PAGE_CLASS} {
@@ -29,7 +31,8 @@ export const calendarViewsCss = `
   bottom: env(safe-area-inset-bottom);
 }
 @media (min-width: ${SIDEBAR_MIN_WIDTH}) {
-  .${FILTER_CLASS} {
+  .${FILTER_CLASS},
+  .${WEEK_STRIP_CLASS} {
     display: none;
   }
 }

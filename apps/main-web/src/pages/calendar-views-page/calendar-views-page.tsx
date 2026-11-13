@@ -32,6 +32,7 @@ import {
   FILTER_CLASS,
   FOOTER_CLASS,
   PAGE_CLASS,
+  WEEK_STRIP_CLASS,
 } from "./styles.js";
 import type { CalendarViewsPageProps } from "./types.js";
 
@@ -94,12 +95,14 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {(view === "agenda" || view === "day") && (
-        <WeekStrip
-          dates={weekDates(mondayOf(date))}
-          selectedDate={date}
-          todayDate={today}
-          onSelect={goToDate}
-        />
+        <div className={WEEK_STRIP_CLASS}>
+          <WeekStrip
+            dates={weekDates(mondayOf(date))}
+            selectedDate={date}
+            todayDate={today}
+            onSelect={goToDate}
+          />
+        </div>
       )}
       {view === "agenda" && status === "ready" && (
         <>
