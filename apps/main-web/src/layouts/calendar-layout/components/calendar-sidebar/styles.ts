@@ -25,3 +25,10 @@ export const calendarSidebarSlotStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[2],
 };
+
+export const manageCalendarsLinkStyle: CSSProperties = {
+  justifySelf: "start",
+  textDecoration: "none",
+  padding: `${tokens.space[1]} ${tokens.space[2]}`,
+  borderRadius: tokens.radius.md,
+};

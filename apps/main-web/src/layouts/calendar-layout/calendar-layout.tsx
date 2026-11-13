@@ -19,11 +19,29 @@ export const CalendarLayout = () => {
     setHiddenState(next);
     writeHiddenCalendars(next);
   }, []);
+  const toggleCalendar = useCallback(
+    (calendarId: string) => {
+      const next = new Set(hidden);
+      if (next.has(calendarId)) {
+        next.delete(calendarId);
+      } else {
+        next.add(calendarId);
+      }
+      setHidden(next);
+    },
+    [hidden, setHidden],
+  );
   const layoutContext: CalendarLayoutContext = { ...shellContext, hidden, setHidden };
 
   return (
     <div style={calendarLayoutStyle(narrow)}>
-      {!narrow && <CalendarSidebar calendars={shellContext.calendars.calendars} />}
+      {!narrow && (
+        <CalendarSidebar
+          calendars={shellContext.calendars.calendars}
+          hidden={hidden}
+          onToggle={toggleCalendar}
+        />
+      )}
       <div style={calendarLayoutContentStyle}>
         <Outlet context={layoutContext} />
       </div>

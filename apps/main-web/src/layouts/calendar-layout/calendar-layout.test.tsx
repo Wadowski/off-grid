@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { calendarSchema } from "@offgrid/contracts";
-import { cleanup, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ShellContext } from "../../types.js";
 import { CalendarLayout } from "./calendar-layout.js";
@@ -33,7 +33,13 @@ const shellContext: ShellContext = {
 
 const HiddenProbe = () => {
   const { hidden } = useCalendarLayout();
-  return <p data-testid="hidden-probe">{[...hidden].join(",")}</p>;
+  const location = useLocation();
+  return (
+    <>
+      <p data-testid="hidden-probe">{[...hidden].join(",")}</p>
+      <p data-testid="location-probe">{location.pathname}</p>
+    </>
+  );
 };
 
 const renderWithProbe = () =>
@@ -80,6 +86,25 @@ describe("CalendarLayout", () => {
     renderWithProbe();
 
     expect(screen.getByTestId("hidden-probe")).toHaveTextContent(STUDIO.id);
+  });
+
+  it("reports a toggled calendar to the page without changing the route", () => {
+    renderWithProbe();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Studio" }));
+
+    expect(screen.getByTestId("hidden-probe")).toHaveTextContent(STUDIO.id);
+    expect(window.localStorage.getItem(HIDDEN_CALENDARS_KEY)).toBe(JSON.stringify([STUDIO.id]));
+    expect(screen.getByTestId("location-probe")).toHaveTextContent("/calendar");
+  });
+
+  it("shows the calendar again when it is ticked a second time", () => {
+    renderWithProbe();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Studio" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Studio" }));
+
+    expect(screen.getByTestId("hidden-probe")).toHaveTextContent(/^$/);
   });
 
   it("starts with every calendar shown when nothing was stored", () => {
