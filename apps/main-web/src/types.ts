@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FamilyAccent, FamilyPurpose } from "@offgrid/contracts";
+import type { HiddenCalendars } from "./calendar-views/events-by-calendar.js";
 import type { Calendar } from "./calendars/types.js";
 export type FamilySummary = {
   readonly id: string;
@@ -41,6 +42,12 @@ export type CalendarsState = {
 
 export type ShellContext = FamiliesContext & {
   readonly calendars: CalendarsState;
+};
+
+// Context of the calendar screens: the shell data plus the calendars a person hid on this device.
+export type CalendarLayoutContext = ShellContext & {
+  readonly hidden: HiddenCalendars;
+  readonly setHidden: (hidden: HiddenCalendars) => void;
 };
 
 export type CurrentUserRole = "admin" | "member";

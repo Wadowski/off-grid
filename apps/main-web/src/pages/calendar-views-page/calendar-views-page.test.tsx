@@ -8,6 +8,7 @@ import { MemoryRouter, Outlet, Route, Routes, useLocation } from "react-router-d
 import type { Calendar } from "../../calendars/types.js";
 import { jsonResponse } from "../../test-support/json-response.js";
 import type { CalendarsState, ShellContext } from "../../types.js";
+import { CalendarLayout } from "../../layouts/calendar-layout/calendar-layout.js";
 import { CalendarViewsPage } from "./calendar-views-page.js";
 
 const FAMILY_ID = "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f";
@@ -81,8 +82,10 @@ const renderPage = (path: string, view: "agenda" | "day" | "week" | "month") =>
       <LocationProbe />
       <Routes>
         <Route element={<Outlet context={shellWith(readyCalendars([STUDIO]))} />}>
-          <Route path="calendar/week" element={<CalendarViewsPage view={view} />} />
-          <Route path="calendar/agenda" element={<CalendarViewsPage view={view} />} />
+          <Route path="calendar" element={<CalendarLayout />}>
+            <Route path="week" element={<CalendarViewsPage view={view} />} />
+            <Route path="agenda" element={<CalendarViewsPage view={view} />} />
+          </Route>
           <Route path="calendar/calendars" element={<p>Calendars list</p>} />
         </Route>
       </Routes>
@@ -93,6 +96,7 @@ describe("CalendarViewsPage", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    window.localStorage.clear();
   });
 
   it("shows the title and the period of the selected week without the family name", async () => {

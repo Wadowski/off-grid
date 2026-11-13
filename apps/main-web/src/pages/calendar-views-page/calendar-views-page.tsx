@@ -2,20 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
-import { useState } from "react";
-import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
-import {
-  filterByCalendar,
-  type HiddenCalendars,
-  NO_HIDDEN_CALENDARS,
-} from "../../calendar-views/events-by-calendar.js";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
+import { filterByCalendar } from "../../calendar-views/events-by-calendar.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useSession } from "../../session/use-session.js";
-import type { ShellContext } from "../../types.js";
 import type { CalendarViewKind } from "@offgrid/contracts";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarMultiSelect } from "./components/calendar-multi-select/calendar-multi-select.js";
@@ -41,17 +36,16 @@ import type { CalendarViewsPageProps } from "./types.js";
 
 export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const navigate = useNavigate();
-  const shell = useOutletContext<ShellContext>();
+  const layout = useCalendarLayout();
   const session = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
   const date = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
-  const [hidden, setHidden] = useState<HiddenCalendars>(NO_HIDDEN_CALENDARS);
   const { status, days, retry } = useCalendarView(view, date);
   const { timeZone } = useCalendarTimeZone(session.status === "signedIn");
   const today = localDateOf(new Date());
   const visibleDays = days.map((day) => ({
     ...day,
-    events: filterByCalendar(day.events, hidden),
+    events: filterByCalendar(day.events, layout.hidden),
   }));
   const selectedEvents = visibleDays.find((day) => day.date === date)?.events ?? [];
 
@@ -74,9 +68,9 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
       <div style={calendarViewsControlsStyle}>
         <ViewSelect value={view} onChange={goToView} />
         <CalendarMultiSelect
-          calendars={shell.calendars.calendars}
-          hidden={hidden}
-          onChange={setHidden}
+          calendars={layout.calendars.calendars}
+          hidden={layout.hidden}
+          onChange={layout.setHidden}
         />
       </div>
       <DateNavigator
