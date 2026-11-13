@@ -66,7 +66,7 @@ When("I show the calendar {string} in the calendar sidebar", async ({ page }, na
 });
 
 Then(
-  /^the address (?:still )?shows the agenda view for (\d{4}-\d{2}-\d{2})$/,
+  /^the agenda (?:still )?shows the day (\d{4}-\d{2}-\d{2})$/,
   async ({ page }, date: string) => {
     const url = new URL(page.url());
     expect(AGENDA_PATHS).toContain(url.pathname);
@@ -80,6 +80,8 @@ When("I choose the week view in the view selector", async ({ page }) => {
 });
 
 Then("I do not see the event {string} in the week grid", async ({ page }, title: string) => {
+  // Check the grid is on screen first, so a missing grid cannot pass the absence check.
+  await expect(page.getByTestId("week-grid")).toBeVisible();
   await expect(page.getByTestId("week-grid").getByText(title, { exact: true })).toHaveCount(0);
 });
 

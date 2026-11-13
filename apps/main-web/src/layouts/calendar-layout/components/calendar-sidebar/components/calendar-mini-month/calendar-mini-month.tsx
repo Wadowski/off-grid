@@ -13,6 +13,7 @@ import {
   weekDayNumber,
 } from "../../../../../../calendar-views/week-days.js";
 import { periodLabel } from "../../../../../../calendar-views/view-navigation.js";
+import { WEEKDAY_KEYS, weekdayLetters } from "../../../../../../calendar-views/weekday-letters.js";
 import type { CalendarMiniMonthProps } from "./types.js";
 import {
   miniMonthDayStyle,
@@ -21,16 +22,6 @@ import {
   miniMonthWeekdayStyle,
   miniMonthWeekNumberStyle,
 } from "./styles.js";
-
-const WEEKDAY_KEYS = [
-  "calendar.mobileViews.weekdayMonday",
-  "calendar.mobileViews.weekdayTuesday",
-  "calendar.mobileViews.weekdayWednesday",
-  "calendar.mobileViews.weekdayThursday",
-  "calendar.mobileViews.weekdayFriday",
-  "calendar.mobileViews.weekdaySaturday",
-  "calendar.mobileViews.weekdaySunday",
-] as const;
 
 const FULL_DATE = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
@@ -63,9 +54,9 @@ export const CalendarMiniMonth = ({
       <Text variant="label" value={periodLabel("month", firstOfMonth)} />
       <div style={miniMonthGridStyle}>
         <span aria-hidden="true" />
-        {WEEKDAY_KEYS.map((key) => (
-          <span key={key} style={miniMonthWeekdayStyle}>
-            {t(key)}
+        {weekdayLetters(t).map((letter, index) => (
+          <span key={WEEKDAY_KEYS[index]} style={miniMonthWeekdayStyle}>
+            {letter}
           </span>
         ))}
         {weeks.map((monday) => {

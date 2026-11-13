@@ -8,6 +8,7 @@ import { splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { formatGmtOffset, zonedMomentOf } from "../../../../calendar-views/time-format.js";
 import { weekGridRange } from "../../../../calendar-views/week-grid-range.js";
 import { mondayIndexOf } from "../../../../calendar-views/week-days.js";
+import { weekdayLetters } from "../../../../calendar-views/weekday-letters.js";
 import { WeekAllDayRow } from "./components/week-all-day-row/week-all-day-row.js";
 import { WeekDayColumn } from "./components/week-day-column/week-day-column.js";
 import { WeekDayHeader } from "./components/week-day-header/week-day-header.js";
@@ -41,15 +42,7 @@ export const WeekGrid = ({ days, selectedDate, todayDate, timeZone, now }: WeekG
   );
   const scrollTargetPx = Math.max(0, earliestMinute - startHour * 60 - SCROLL_MARGIN_PX);
   const firstDate = dates[0] ?? selectedDate;
-  const dayLetters = [
-    t("calendar.mobileViews.weekdayMonday"),
-    t("calendar.mobileViews.weekdayTuesday"),
-    t("calendar.mobileViews.weekdayWednesday"),
-    t("calendar.mobileViews.weekdayThursday"),
-    t("calendar.mobileViews.weekdayFriday"),
-    t("calendar.mobileViews.weekdaySaturday"),
-    t("calendar.mobileViews.weekdaySunday"),
-  ];
+  const dayLetters = weekdayLetters(t);
 
   useEffect(() => {
     if (scrollRef.current !== null) {

@@ -28,7 +28,7 @@ Feature: Desktop calendar sidebar and agenda
     And I hide the calendar "Work" in the calendar sidebar
     Then I do not see the event "Standup" in the agenda
     And I see the event "Dinner" in the agenda
-    And the address still shows the agenda view for 2026-11-18
+    And the agenda still shows the day 2026-11-18
 
   Scenario: Anna shows a hidden calendar again and its events return
     Given I am a user with a family named "The Smiths"
@@ -69,11 +69,11 @@ Feature: Desktop calendar sidebar and agenda
     When I open the agenda view for 2026-11-18 at a desktop width of 1280 pixels
     And I hide the calendar "Work" in the calendar sidebar
     And I move to the next week in the agenda
-    Then the address shows the agenda view for 2026-11-25
+    Then the agenda shows the day 2026-11-25
     And I see the event "Dinner" in the agenda
     And I do not see the event "Standup" in the agenda
     When I move to the previous week in the agenda
-    Then the address shows the agenda view for 2026-11-18
+    Then the agenda shows the day 2026-11-18
     And the calendar "Work" is unchecked in the calendar sidebar
 
   Scenario: Showing or hiding a calendar does not change the selected date or the view
@@ -82,7 +82,7 @@ Feature: Desktop calendar sidebar and agenda
     When I open the agenda view for 2026-11-18 at a desktop width of 1280 pixels
     And I hide the calendar "Work" in the calendar sidebar
     And I show the calendar "Work" in the calendar sidebar
-    Then the address still shows the agenda view for 2026-11-18
+    Then the agenda still shows the day 2026-11-18
     And I see the agenda view
 
   Scenario: Anna opens the calendar management page from the sidebar
@@ -98,7 +98,7 @@ Feature: Desktop calendar sidebar and agenda
     And the event "Board review" is in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     When I open the agenda view for 2026-11-18 at a desktop width of 1280 pixels
     And I select 2026-11-20 in the mini month
-    Then the address shows the agenda view for 2026-11-20
+    Then the agenda shows the day 2026-11-20
     And I see the event "Board review" in the agenda
 
   @ui
