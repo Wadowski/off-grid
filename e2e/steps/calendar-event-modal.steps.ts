@@ -98,7 +98,7 @@ When(
     await fillTimes(page, { startTime: "09:00", endTime: "10:00" });
     // A page reload would clear this marker, so it shows the agenda updated without one.
     await page.evaluate((key) => {
-      (window as unknown as Record<string, unknown>)[key] = "kept";
+      (globalThis as unknown as Record<string, unknown>)[key] = "kept";
     }, MARKER);
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect.poll(() => pathOf(page)).toBe(CALENDAR_PATH);
@@ -111,7 +111,7 @@ Then(
   async ({ page }, title: string) => {
     await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
     const marker = await page.evaluate(
-      (key) => (window as unknown as Record<string, unknown>)[key],
+      (key) => (globalThis as unknown as Record<string, unknown>)[key],
       MARKER,
     );
     expect(marker).toBe("kept");
