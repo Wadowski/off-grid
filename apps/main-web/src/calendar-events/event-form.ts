@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { NewCalendarEventInput } from "@offgrid/contracts";
-import { createCalendarEventRequestSchema } from "@offgrid/contracts";
+import { createCalendarEventRequestSchema, zonedLocalToInstant } from "@offgrid/contracts";
 import { zonedMomentOf } from "../calendar-views/time-format.js";
-import { localToInstant } from "./local-to-instant.js";
 
 const HOUR_MINUTES = 60;
 const HOUR_MS = 60 * 60_000;
@@ -107,12 +106,17 @@ const timedCandidate = (
   common: { readonly title: string },
   timeZone: string,
 ) => {
-  const startsAt = localToInstant(values.startDate, values.startTime, timeZone);
-  const endsAt = localToInstant(values.endDate, values.endTime, timeZone);
+  const startsAt = zonedLocalToInstant(values.startDate, values.startTime, timeZone);
+  const endsAt = zonedLocalToInstant(values.endDate, values.endTime, timeZone);
   if (startsAt === undefined || endsAt === undefined) {
     return undefined;
   }
-  return { ...common, isAllDay: false, startsAt, endsAt };
+  return {
+    ...common,
+    isAllDay: false,
+    startsAt: startsAt.toISOString(),
+    endsAt: endsAt.toISOString(),
+  };
 };
 
 const errorsFrom = (

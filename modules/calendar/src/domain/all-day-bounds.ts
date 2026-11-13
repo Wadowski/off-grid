@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { zonedLocalToInstant } from "@offgrid/contracts";
+
 interface ZonedParts {
   readonly year: number;
   readonly month: number;
@@ -33,20 +35,6 @@ const zonedParts = (instant: Date, timeZone: string): ZonedParts => {
   };
 };
 
-const offsetAt = (instant: number, timeZone: string): number => {
-  const instantSeconds = Math.floor(instant / 1000) * 1000;
-  const parts = zonedParts(new Date(instantSeconds), timeZone);
-  const asUtc = Date.UTC(
-    parts.year,
-    parts.month - 1,
-    parts.day,
-    parts.hour,
-    parts.minute,
-    parts.second,
-  );
-  return asUtc - instantSeconds;
-};
-
 const parseDay = (date: string): { year: number; month: number; day: number } => {
   const [year, month, day] = date.split("-").map(Number);
   return { year: year ?? 0, month: month ?? 1, day: day ?? 1 };
@@ -54,13 +42,8 @@ const parseDay = (date: string): { year: number; month: number; day: number } =>
 
 const formatDay = (utcMs: number): string => new Date(utcMs).toISOString().slice(0, 10);
 
-export const localMidnight = (date: string, timeZone: string): Date => {
-  const { year, month, day } = parseDay(date);
-  const asUtc = Date.UTC(year, month - 1, day);
-  const firstGuess = asUtc - offsetAt(asUtc, timeZone);
-  const refined = asUtc - offsetAt(firstGuess, timeZone);
-  return new Date(refined);
-};
+export const localMidnight = (date: string, timeZone: string): Date =>
+  zonedLocalToInstant(date, "00:00", timeZone) ?? new Date(Number.NaN);
 
 export const addDays = (date: string, days: number): string => {
   const { year, month, day } = parseDay(date);
