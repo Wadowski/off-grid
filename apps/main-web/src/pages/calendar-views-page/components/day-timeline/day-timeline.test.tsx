@@ -93,6 +93,14 @@ describe("DayTimeline", () => {
     expect(screen.getByText("Cabin Trip")).toBeInTheDocument();
   });
 
+  it("makes the scrolling hours a named region that keyboard users can reach", () => {
+    render(<DayTimeline events={[]} date="2025-10-23" timeZone="UTC" now={NOON_ANOTHER_DAY} />);
+
+    const region = screen.getByRole("region", { name: "Hours" });
+    expect(region).toBe(screen.getByTestId("day-timeline"));
+    expect(region).toHaveAttribute("tabindex", "0");
+  });
+
   it("says nothing is scheduled when the day has no events", () => {
     render(<DayTimeline events={[]} date="2025-10-23" timeZone="UTC" now={NOON_ANOTHER_DAY} />);
 

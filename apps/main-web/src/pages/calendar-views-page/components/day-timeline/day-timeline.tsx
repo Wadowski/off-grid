@@ -50,7 +50,7 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
   }, [date, scrollTargetPx]);
 
   return (
-    <section aria-label={t("calendar.mobileViews.timelineLabel")}>
+    <section>
       {allDay.length > 0 && (
         <ul style={timelineAllDayRowStyle}>
           {allDay.map((event) => (
@@ -67,7 +67,15 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
       {events.length === 0 && (
         <Text variant="body" textId="calendar.mobileViews.nothingScheduled" />
       )}
-      <div ref={scrollRef} style={timelineScrollStyle} data-testid="day-timeline">
+      <div
+        ref={scrollRef}
+        role="region"
+        tabIndex={0}
+        className="og-focusable"
+        aria-label={t("calendar.mobileViews.timelineLabel")}
+        style={timelineScrollStyle}
+        data-testid="day-timeline"
+      >
         <div style={timelineCanvasStyle}>
           {HOURS.map((hour) => (
             <div key={hour} style={timelineHourRowStyle(hour)}>
