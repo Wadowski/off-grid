@@ -58,7 +58,7 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
               <span
                 style={timelineAllDayChipStyle(calendarAccentColor(event.calendarColor).background)}
               >
-                {event.title}
+                <Text variant="label" value={event.title} />
               </span>
             </li>
           ))}

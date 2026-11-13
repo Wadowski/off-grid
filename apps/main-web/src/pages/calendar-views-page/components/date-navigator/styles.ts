@@ -18,20 +18,6 @@ export const dateNavigatorControlsStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const dateNavigatorArrowStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "2.75rem",
-  height: "2.75rem",
-  padding: 0,
-  borderWidth: 0,
-  borderRadius: cssVar("radius-full"),
-  background: "transparent",
-  color: cssVar("color-muted"),
-  cursor: "pointer",
-};
-
 export const dateNavigatorLabelStyle: CSSProperties = {
   minWidth: 0,
   overflow: "hidden",

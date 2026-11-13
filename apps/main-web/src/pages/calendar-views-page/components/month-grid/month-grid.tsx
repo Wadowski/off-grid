@@ -1,25 +1,18 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { calendarAccentColor } from "../../../../calendars/calendar-accents.js";
-import { distinctCalendarColors } from "../../../../calendar-views/events-by-calendar.js";
 import { addDays, mondayIndexOf } from "../../../../calendar-views/week-days.js";
+import { MonthDayCell } from "./components/month-day-cell/month-day-cell.js";
 import { SelectedDaySheet } from "./components/selected-day-sheet/selected-day-sheet.js";
 import {
-  monthDayCellStyle,
-  monthSectionStyle,
-  monthDayNumberStyle,
   monthDaysGridStyle,
-  monthDotRowStyle,
-  monthDotStyle,
   monthGridCardStyle,
+  monthSectionStyle,
   monthWeekdayRowStyle,
 } from "./styles.js";
 import type { MonthGridProps } from "./types.js";
-import type { CalendarViewEvent } from "../../../../calendar-views/use-calendar-view.js";
-
-const MAX_DOTS = 3;
 
 export const MonthGrid = ({
   days,
@@ -51,49 +44,21 @@ export const MonthGrid = ({
       >
         <div style={monthWeekdayRowStyle} aria-hidden="true">
           {dayLetters.map((letter, index) => (
-            <span key={index}>{letter}</span>
+            <Text key={index} variant="caption" value={letter} />
           ))}
         </div>
         <div style={monthDaysGridStyle}>
-          {cells.map((cell) => {
-            const events: readonly CalendarViewEvent[] = eventsByDate.get(cell.date) ?? [];
-            const selected = cell.date === selectedDate;
-            const dots = distinctCalendarColors(events, MAX_DOTS);
-            const content = (
-              <>
-                <span style={monthDayNumberStyle(selected)}>{Number(cell.date.slice(8))}</span>
-                <span style={monthDotRowStyle}>
-                  {dots.map((color) => (
-                    <span
-                      key={color}
-                      style={monthDotStyle(calendarAccentColor(color).background)}
-                    />
-                  ))}
-                </span>
-              </>
-            );
-            if (!cell.inMonth) {
-              return (
-                <span key={cell.date} style={monthDayCellStyle(false)}>
-                  {content}
-                </span>
-              );
-            }
-            return (
-              <button
-                key={cell.date}
-                type="button"
-                className="og-focusable"
-                aria-current={cell.date === todayDate ? "date" : undefined}
-                aria-pressed={selected}
-                data-testid={`month-day-${cell.date}`}
-                style={monthDayCellStyle(true)}
-                onClick={() => onSelect(cell.date)}
-              >
-                {content}
-              </button>
-            );
-          })}
+          {cells.map((cell) => (
+            <MonthDayCell
+              key={cell.date}
+              date={cell.date}
+              inMonth={cell.inMonth}
+              events={eventsByDate.get(cell.date) ?? []}
+              selected={cell.date === selectedDate}
+              today={cell.date === todayDate}
+              onSelect={onSelect}
+            />
+          ))}
         </div>
       </div>
       <SelectedDaySheet date={selectedDate} events={selectedEvents} timeZone={timeZone} />

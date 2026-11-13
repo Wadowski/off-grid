@@ -60,7 +60,6 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const goToView = (nextView: CalendarViewKind) =>
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
 
-  // Week and day grids run edge to edge on a phone; the other content keeps the narrow gutter.
   const gridWrapperClass = view === "week" || view === "day" ? BLEED_CLASS : undefined;
 
   return (

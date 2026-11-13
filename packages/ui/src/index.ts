@@ -14,6 +14,8 @@ export { Tag } from "./tag/tag.js";
 export { SegmentedControl } from "./segmented-control/segmented-control.js";
 export type { SegmentedControlOption } from "./segmented-control/types.js";
 export { FilterChip } from "./filter-chip/filter-chip.js";
+export { MultiSelect } from "./multi-select/multi-select.js";
+export type { MultiSelectOption, MultiSelectProps } from "./multi-select/types.js";
 export { Avatar } from "./avatar/avatar.js";
 export { Text } from "./text/text.js";
 export { IconTile } from "./icon-tile/icon-tile.js";

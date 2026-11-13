@@ -77,7 +77,9 @@ describe("MonthGrid", () => {
       }),
     );
 
-    const dots = screen.getByTestId("month-day-2025-10-06").querySelectorAll("span > span");
+    const dots = screen
+      .getByTestId("month-day-2025-10-06")
+      .querySelectorAll('[data-testid="month-day-dot"]');
     expect(dots).toHaveLength(3);
   });
 

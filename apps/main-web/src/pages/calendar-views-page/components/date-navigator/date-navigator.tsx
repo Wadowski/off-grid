@@ -5,7 +5,6 @@ import { Button, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import {
-  dateNavigatorArrowStyle,
   dateNavigatorControlsStyle,
   dateNavigatorLabelStyle,
   dateNavigatorStyle,
@@ -22,27 +21,19 @@ export const DateNavigator = ({ label, onPrevious, onNext, onToday }: DateNaviga
       aria-label={t("calendar.mobileViews.dateNavigation")}
     >
       <div style={dateNavigatorControlsStyle}>
-        <button
-          type="button"
-          className="og-focusable"
+        <Button
+          variant="ghost"
           aria-label={t("calendar.mobileViews.previousPeriod")}
-          style={dateNavigatorArrowStyle}
           onClick={onPrevious}
         >
           <MaterialIcon name="chevron_left" size="22px" color="currentColor" />
-        </button>
+        </Button>
         <span style={dateNavigatorLabelStyle}>
           <Text variant="subheading" value={label} />
         </span>
-        <button
-          type="button"
-          className="og-focusable"
-          aria-label={t("calendar.mobileViews.nextPeriod")}
-          style={dateNavigatorArrowStyle}
-          onClick={onNext}
-        >
+        <Button variant="ghost" aria-label={t("calendar.mobileViews.nextPeriod")} onClick={onNext}>
           <MaterialIcon name="chevron_right" size="22px" color="currentColor" />
-        </button>
+        </Button>
       </div>
       <Button variant="secondary" size="small" onClick={onToday}>
         <Text variant="action" textId="calendar.views.today" />

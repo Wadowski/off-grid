@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { Button } from "@offgrid/ui";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { weekDayLabel, weekDayNumber } from "../../../../calendar-views/week-days.js";
 import {
-  weekStripDayStyle,
+  weekStripDayContentStyle,
   weekStripNumberStyle,
   weekStripStyle,
   weekStripTodayDotStyle,
@@ -25,19 +26,20 @@ export const WeekStrip = ({ dates, selectedDate, todayDate, onSelect }: WeekStri
       {labels.map(({ date, weekday, day }) => {
         const selected = date === selectedDate;
         return (
-          <button
+          <Button
             key={date}
-            type="button"
-            className="og-focusable"
+            variant={selected ? "primary" : "ghost"}
+            fullWidth
             aria-current={selected ? "date" : undefined}
             data-testid={`week-strip-${date}`}
-            style={weekStripDayStyle(selected)}
             onClick={() => onSelect(date)}
           >
-            <span style={weekStripWeekdayStyle}>{weekday}</span>{" "}
-            <span style={weekStripNumberStyle}>{day}</span>
-            {date === todayDate ? <span style={weekStripTodayDotStyle(selected)} /> : null}
-          </button>
+            <span style={weekStripDayContentStyle(selected)}>
+              <span style={weekStripWeekdayStyle}>{weekday}</span>{" "}
+              <span style={weekStripNumberStyle}>{day}</span>
+              {date === todayDate ? <span style={weekStripTodayDotStyle(selected)} /> : null}
+            </span>
+          </Button>
         );
       })}
     </div>

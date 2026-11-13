@@ -4,25 +4,18 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-// The shell pads its main area by 1rem on phones and 1.5rem above that. The calendar page
-// narrows that gutter on phones so more of the width goes to content.
 const SHELL_SIDEBAR_WIDTH = "16rem";
 const PHONE_MAX_WIDTH = "767px";
-// The shell pads its main area by 1rem on phones, and nothing resets the browser's 0.5rem body margin
-// around it, so the visible edge sits 1.5rem in from the viewport edge.
 const SHELL_PHONE_GUTTER = tokens.space[4];
 const BODY_MARGIN = "0.5rem";
 const PAGE_GUTTER = tokens.space[2];
 export const NEW_EVENT_BAR_HEIGHT = "4rem";
-// The shell's bottom tab bar on phones, which the New Event bar sits above.
 const TAB_BAR_HEIGHT = "4.5rem";
 
 export const PAGE_CLASS = "og-calendar-views-page";
 export const BLEED_CLASS = "og-calendar-views-bleed";
 export const FOOTER_CLASS = "og-calendar-views-footer";
 
-// The page rules depend on the same breakpoint as the shell's gutter and tab bar, so they live in
-// a stylesheet rather than inline styles.
 export const calendarViewsCss = `
 .${PAGE_CLASS} {
   box-sizing: border-box;

@@ -23,7 +23,10 @@ export const SelectedDaySheet = ({ date, events, timeZone }: SelectedDaySheetPro
       <div style={selectedDaySheetHeaderStyle}>
         <Text variant="subheading" value={formatDayHeading(date)} />
         <span style={selectedDaySheetCountStyle}>
-          {t("calendar.mobileViews.events", { count: events.length })}
+          <Text
+            variant="label"
+            value={t("calendar.mobileViews.events", { count: events.length })}
+          />
         </span>
       </div>
       <div style={selectedDaySheetBodyStyle}>

@@ -14,31 +14,13 @@ export const weekStripStyle: CSSProperties = {
   boxShadow: cssVar("elevation-1"),
 };
 
-const dayBaseStyle: CSSProperties = {
-  flex: "1 1 0",
-  minWidth: 0,
+export const weekStripDayContentStyle = (selected: boolean): CSSProperties => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  justifyContent: "center",
   gap: tokens.space[1],
-  padding: `${tokens.space[2]} 0`,
-  borderWidth: 0,
-  borderRadius: cssVar("radius-lg"),
-  background: "transparent",
-  color: cssVar("color-fg"),
-  cursor: "pointer",
-};
-
-export const weekStripDayStyle = (selected: boolean): CSSProperties =>
-  selected
-    ? {
-        ...dayBaseStyle,
-        background: cssVar("color-primary"),
-        color: cssVar("color-accent-fg"),
-        boxShadow: cssVar("elevation-1"),
-      }
-    : dayBaseStyle;
+  color: selected ? cssVar("color-accent-fg") : cssVar("color-fg"),
+});
 
 export const weekStripWeekdayStyle: CSSProperties = {
   fontFamily: cssVar("font-family-base"),
