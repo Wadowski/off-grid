@@ -92,7 +92,9 @@ export const calendarOpenApiPaths = {
         "201": { description: "The created event." },
         "400": errorResponse("VALIDATION_FAILED: the body does not match the request schema."),
         "401": unauthenticated,
-        "404": errorResponse("NOT_FOUND: the calendar does not exist or the person cannot access it."),
+        "404": errorResponse(
+          "NOT_FOUND: the calendar does not exist or the person cannot access it.",
+        ),
       },
     },
   },
