@@ -30,12 +30,11 @@ export const WeekStrip = ({ dates, selectedDate, todayDate, onSelect }: WeekStri
             type="button"
             className="og-focusable"
             aria-current={selected ? "date" : undefined}
-            aria-label={`${weekday} ${day}`}
             data-testid={`week-strip-${date}`}
             style={weekStripDayStyle(selected)}
             onClick={() => onSelect(date)}
           >
-            <span style={weekStripWeekdayStyle}>{weekday}</span>
+            <span style={weekStripWeekdayStyle}>{weekday}</span>{" "}
             <span style={weekStripNumberStyle}>{day}</span>
             {date === todayDate ? <span style={weekStripTodayDotStyle(selected)} /> : null}
           </button>

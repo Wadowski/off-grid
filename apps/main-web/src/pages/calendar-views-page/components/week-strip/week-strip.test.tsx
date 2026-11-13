@@ -31,6 +31,21 @@ describe("WeekStrip", () => {
     expect(screen.getByTestId("week-strip-2025-10-26")).toHaveTextContent("26");
   });
 
+  it("names each day by its visible weekday and number", () => {
+    render(
+      <WeekStrip
+        dates={DATES}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        onSelect={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Mon 20" })).toBe(
+      screen.getByTestId("week-strip-2025-10-20"),
+    );
+  });
+
   it("marks the selected day as the current date", () => {
     render(
       <WeekStrip
