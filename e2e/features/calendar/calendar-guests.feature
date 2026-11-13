@@ -15,9 +15,17 @@ Feature: Event guests
     And Anna has a personal calendar named "Work"
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC at "Room 4"
     When Anna invites Ben to the event "Review"
-    Then Ben can read the event "Review" with the start 2026-11-20T10:00:00Z and the end 2026-11-20T11:00:00Z
+    Then Ben can read the event "Review" from 10:00 to 11:00 UTC on 2026-11-20
     And the event "Review" is read-only for Ben
     And the event "Review" shows the location "Room 4" and the calendar name "Work" to Ben
+
+  Scenario: An uninvited family member cannot read the event
+    Given Anna is signed in
+    And Anna and Ben are both members of the family "Home"
+    And Anna has a personal calendar named "Work"
+    And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
+    When Ben reads the event "Review"
+    Then Ben cannot see the event "Review"
 
   Scenario: A guest cannot edit the invited event
     Given Anna is signed in
@@ -26,7 +34,7 @@ Feature: Event guests
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     And Anna has invited Ben to the event "Review"
     When Ben renames the event "Review" to "Changed"
-    Then the change is refused with status 403 and code "FORBIDDEN"
+    Then Ben is told the change is not allowed
     And the event "Review" is still stored with the title "Review"
 
   Scenario: A guest cannot delete the invited event
@@ -36,8 +44,8 @@ Feature: Event guests
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     And Anna has invited Ben to the event "Review"
     When Ben deletes the event "Review"
-    Then the change is refused with status 403 and code "FORBIDDEN"
-    And the event "Review" is still stored
+    Then Ben is told the change is not allowed
+    And the event "Review" is still stored with the title "Review"
 
   Scenario: A guest cannot invite another guest to the event
     Given Anna is signed in
@@ -47,7 +55,7 @@ Feature: Event guests
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     And Anna has invited Ben to the event "Review"
     When Ben invites Cara to the event "Review"
-    Then the change is refused with status 403 and code "FORBIDDEN"
+    Then Ben is told the change is not allowed
 
   Scenario: A guest sees only the invited event from the host's calendar
     Given Anna is signed in
@@ -66,7 +74,7 @@ Feature: Event guests
     And Anna has a personal calendar named "Work"
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     When Anna invites Ben to the event "Review"
-    Then Ben has one inbox item of type "event-invited" with the data of the event "Review"
+    Then Ben has one inbox item of type "event-invited" that names the event "Review"
 
   Scenario: A repeated invite creates no second inbox item
     Given Anna is signed in
@@ -75,7 +83,7 @@ Feature: Event guests
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     And Anna has invited Ben to the event "Review"
     When Anna invites Ben to the event "Review" again
-    Then Ben has one inbox item of type "event-invited" with the data of the event "Review"
+    Then Ben has one inbox item of type "event-invited" that names the event "Review"
 
   Scenario: Anna cannot invite a user who shares no family with her
     Given Anna is signed in
@@ -83,7 +91,7 @@ Feature: Event guests
     And Anna has an event "Review" in "Work" from 2026-11-20 10:00 to 11:00 in UTC
     And Dana has an account in no family shared with Anna
     When Anna invites Dana to the event "Review"
-    Then the change is refused with status 400 and code "VALIDATION_FAILED"
+    Then the invite is refused
     And Dana has no inbox item of type "event-invited"
 
   Scenario: Anna cannot invite a family member to a family event
@@ -92,4 +100,12 @@ Feature: Event guests
     And the family "Home" has a calendar named "Kitchen"
     And the family "Home" has an event "Dinner" in "Kitchen" from 2026-11-20 18:00 to 19:00 in UTC
     When Anna invites Ben to the event "Dinner"
-    Then the change is refused with status 400 and code "VALIDATION_FAILED"
+    Then the invite is refused
+
+  Scenario: Anna cannot invite a guest to an event she cannot see
+    Given Anna is signed in
+    And Anna and Ben are both members of the family "Home"
+    And Ben has a personal calendar named "Personal"
+    And Ben has an event "Private call" in "Personal" from 2026-11-20 12:00 to 13:00 in UTC
+    When Anna invites Ben to the event "Private call"
+    Then Anna is told the event is not found

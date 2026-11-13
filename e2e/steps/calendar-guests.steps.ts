@@ -83,6 +83,8 @@ const recordResponse = async (world: ScenarioWorld, response: APIResponse): Prom
 
 const responseBodyOf = <T>(world: ScenarioWorld): T => world.response?.body as T;
 
+const instantOfDate = (date: string, time: string): string => instant(`${date} ${time}`);
+
 const createEventFor = async (
   world: ScenarioWorld,
   creatorName: string,
@@ -109,9 +111,6 @@ const createEventFor = async (
 const INVITE_SETTLE_TIMEOUT_MS = 5_000;
 const INVITE_SETTLE_INTERVAL_MS = 200;
 
-// A family join reaches the calendar's membership projection a moment later, so a
-// new member can be refused until it lands. Retry refusals briefly, as the family
-// steps do for calendar reads; a refusal that stays is still returned to the scenario.
 const inviteSettled = async (
   api: APIRequestContext,
   session: Session,
@@ -219,25 +218,38 @@ When(
   },
 );
 
-Then(
-  "the change is refused with status {int} and code {string}",
-  ({ world }, status: number, code: string) => {
-    expect(world.response?.status).toBe(status);
-    expect(responseBodyOf<{ code?: string }>(world)?.code).toBe(code);
-  },
-);
+// A guest write is answered as forbidden, with the stable error code.
+Then("Ben is told the change is not allowed", ({ world }) => {
+  expect(world.response?.status).toBe(403);
+  expect(responseBodyOf<{ code?: string }>(world)?.code).toBe("FORBIDDEN");
+});
+
+// An invite to an event the host cannot see is answered as not found.
+Then(/^\w+ is told the event is not found$/, ({ world }) => {
+  expect(world.response?.status).toBe(404);
+});
+
+// A refused invite is answered as a validation failure, with one fixed message.
+Then("the invite is refused", ({ world }) => {
+  expect(world.response?.status).toBe(400);
+  expect(responseBodyOf<{ code?: string }>(world)?.code).toBe("VALIDATION_FAILED");
+});
+
+Then(/^(\w+) cannot see the event "([^"]*)"$/, ({ world }, _who: string, title: string) => {
+  expect(world.response?.status, `"${title}" is visible`).toBe(404);
+});
 
 Then(
-  /^(\w+) can read the event "([^"]*)" with the start (\S+) and the end (\S+)$/,
-  async ({ world }, who: string, title: string, start: string, end: string) => {
+  /^(\w+) can read the event "([^"]*)" from (\d{2}:\d{2}) to (\d{2}:\d{2}) UTC on (\d{4}-\d{2}-\d{2})$/,
+  async ({ world }, who: string, title: string, start: string, end: string, date: string) => {
     const guest = await sessionFor(world, who);
     const record = eventNamed(world, title);
     const response = await readEvent(world.api, guest.session, record.id);
     expect(response.status(), `${who} cannot read "${title}"`).toBe(200);
     const body = (await response.json()) as GuestEventBody;
     expect(body.title).toBe(title);
-    sameInstant(body.startsAt, start);
-    sameInstant(body.endsAt, end);
+    sameInstant(body.startsAt, instantOfDate(date, start));
+    sameInstant(body.endsAt, instantOfDate(date, end));
   },
 );
 
@@ -267,14 +279,14 @@ Then(
 );
 
 Then(
-  /^the event "([^"]*)" is still stored(?: with the title "([^"]*)")?$/,
-  async ({ world }, title: string, expectedTitle: string | undefined) => {
+  /^the event "([^"]*)" is still stored with the title "([^"]*)"$/,
+  async ({ world }, title: string, expectedTitle: string) => {
     const record = eventNamed(world, title);
     const creator = await sessionFor(world, record.creator);
     const response = await readEvent(world.api, creator.session, record.id);
     expect(response.status(), `"${title}" is no longer stored`).toBe(200);
     const body = (await response.json()) as GuestEventBody;
-    expect(body.title).toBe(expectedTitle ?? title);
+    expect(body.title).toBe(expectedTitle);
   },
 );
 
@@ -293,7 +305,7 @@ Then(
 );
 
 Then(
-  /^(\w+) has one inbox item of type "([^"]*)" with the data of the event "([^"]*)"$/,
+  /^(\w+) has one inbox item of type "([^"]*)" that names the event "([^"]*)"$/,
   async ({ world }, who: string, type: string, title: string) => {
     const guest = await sessionFor(world, who);
     const record = eventNamed(world, title);
