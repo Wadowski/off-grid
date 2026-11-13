@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { z } from "zod";
 import { FACT_NOTICES, INBOX_SUBSCRIBER_PREFIX, NOTIFICATIONS_MODULE_NAME } from "../constants.js";
 import { handleFactNotice } from "./handle-fact-notice.js";
 import type { NotificationChannel, NotificationsModuleContext } from "../types.js";
@@ -9,7 +10,7 @@ export const registerFactSubscribers = (
   context: NotificationsModuleContext,
   channels: readonly NotificationChannel[],
 ): void => {
-  for (const { event, noticeType } of FACT_NOTICES) {
+  for (const { event, noticeType, recipientKey, dataKeys } of FACT_NOTICES) {
     context.eventBus.subscribe({
       name: `${INBOX_SUBSCRIBER_PREFIX}-${event.name}`,
       event,
@@ -21,12 +22,24 @@ export const registerFactSubscribers = (
           context.logger,
           {
             notificationId: received.id,
-            userId: received.payload.userId,
+            userId: payloadField(received.payload, recipientKey),
             type: noticeType,
-            data: {},
+            data: Object.fromEntries(
+              dataKeys.map((key) => [key, payloadField(received.payload, key)]),
+            ),
           },
           new Date(received.occurredAt),
         ),
     });
   }
+};
+
+const payloadRecord = z.record(z.string(), z.unknown());
+
+const payloadField = (payload: unknown, key: string): string => {
+  const value = payloadRecord.parse(payload)[key];
+  if (typeof value !== "string") {
+    throw new Error(`fact payload has no string field "${key}"`);
+  }
+  return value;
 };

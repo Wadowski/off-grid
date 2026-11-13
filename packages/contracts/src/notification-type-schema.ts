@@ -3,7 +3,11 @@
 
 import { z } from "zod";
 
-export const NOTIFICATION_TYPES = ["password-changed", "recovery-code-regenerated"] as const;
+export const NOTIFICATION_TYPES = [
+  "password-changed",
+  "recovery-code-regenerated",
+  "event-invited",
+] as const;
 
 export const notificationTypeSchema = z.enum(NOTIFICATION_TYPES);
 

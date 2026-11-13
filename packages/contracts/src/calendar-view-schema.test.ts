@@ -18,6 +18,7 @@ const event = {
   endsAt: "2026-11-20T09:30:00Z",
   startDate: null,
   endDate: null,
+  readOnly: false,
 };
 
 describe("calendarViewParamsSchema", () => {

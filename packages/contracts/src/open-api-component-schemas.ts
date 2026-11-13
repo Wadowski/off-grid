@@ -11,6 +11,7 @@ import { accountProfileSchema } from "./account-profile-schema.js";
 import { calendarListSchema } from "./calendar-list-schema.js";
 import { calendarSchema } from "./calendar-schema.js";
 import { createCalendarRequestSchema } from "./create-calendar-request-schema.js";
+import { inviteEventGuestRequestSchema } from "./invite-event-guest-request-schema.js";
 import { updateCalendarRequestSchema } from "./update-calendar-request-schema.js";
 import { changePasswordRequestSchema } from "./change-password-request-schema.js";
 import { passwordConfirmationRequestSchema } from "./password-confirmation-request-schema.js";
@@ -48,6 +49,7 @@ export const openApiComponentSchemas = {
   Timestamp: timestampSchema,
   ErrorResponse: errorResponseSchema,
   CreateFamilyRequest: createFamilyRequestSchema,
+  InviteEventGuestRequest: inviteEventGuestRequestSchema,
   Family: familySchema,
   ActiveFamily: activeFamilySchema,
   SelectActiveFamilyRequest: selectActiveFamilyRequestSchema,

@@ -15,4 +15,11 @@ export const toCalendarEvent = (view: CalendarEventView): CalendarEventResponse 
   endsAt: view.endsAt.toISOString(),
   startDate: view.startDate,
   endDate: view.endDate,
+  readOnly: view.readOnly,
+  ...(view.calendarName === undefined
+    ? {}
+    : {
+        calendarName: view.calendarName,
+        calendarColor: view.calendarColor,
+      }),
 });

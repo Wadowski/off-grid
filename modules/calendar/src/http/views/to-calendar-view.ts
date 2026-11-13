@@ -17,6 +17,7 @@ const toCalendarViewEvent = (view: CalendarViewEventView) => ({
   endsAt: view.endsAt.toISOString(),
   startDate: view.startDate,
   endDate: view.endDate,
+  readOnly: view.readOnly,
 });
 
 export const toCalendarView = (result: CalendarViewResult) => ({

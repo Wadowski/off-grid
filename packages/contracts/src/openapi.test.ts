@@ -31,6 +31,7 @@ describe("buildOpenApiDocument", () => {
       "FamilyList",
       "InstanceSettings",
       "InstanceSettingsUpdate",
+      "InviteEventGuestRequest",
       "MailSettings",
       "MailSettingsRequest",
       "NotificationList",
@@ -58,7 +59,12 @@ describe("buildOpenApiDocument calendar paths", () => {
   it("publishes the calendar routes with their operation ids", () => {
     const { paths } = buildOpenApiDocument();
 
-    expect(Object.keys(paths).sort()).toEqual(["/calendars", "/calendars/{id}"]);
+    expect(Object.keys(paths).sort()).toEqual([
+      "/calendars",
+      "/calendars/{id}",
+      "/events/{id}/guests",
+    ]);
+    expect(paths["/events/{id}/guests"].post.operationId).toBe("inviteEventGuest");
     expect(paths["/calendars"].get.operationId).toBe("listCalendars");
     expect(paths["/calendars"].post.operationId).toBe("createCalendar");
     expect(paths["/calendars/{id}"].patch.operationId).toBe("updateCalendar");
