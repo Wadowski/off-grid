@@ -34,11 +34,10 @@ export const timelineFillScrollStyle: CSSProperties = {
 
 // Phone: no inner scroll area; the hours take their full height and the page scrolls around them.
 export const timelinePhoneScrollStyle: CSSProperties = {
-  position: "relative",
+  ...timelineScrollStyle,
   height: "auto",
   overflowY: "visible",
   borderRadius: 0,
-  background: cssVar("color-surface-low"),
 };
 
 export const timelineCanvasStyle: CSSProperties = {

@@ -9,7 +9,13 @@ import { splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { layoutTimedEvents, nowMinutesOnDate } from "../../../../calendar-views/timeline-layout.js";
 import { formatClockTime } from "../../../../calendar-views/time-format.js";
 import { useIsNarrow } from "../../../../media/use-is-narrow.js";
-import { HOUR_HEIGHT_PX, HOURS_PER_DAY, MIN_TIMELINE_BLOCK_PX, minutesToPx } from "./constants.js";
+import {
+  HOUR_HEIGHT_PX,
+  HOURS_PER_DAY,
+  MIN_TIMELINE_BLOCK_PX,
+  minutesToPx,
+  PHONE_STICKY_CLEARANCE_PX,
+} from "./constants.js";
 import { TimelineEventBlock } from "./components/timeline-event-block/timeline-event-block.js";
 import {
   timelineAllDayChipStyle,
@@ -31,8 +37,6 @@ import type { DayTimelineProps } from "./types.js";
 
 const FIRST_SCROLL_HOUR = 8;
 const SCROLL_MARGIN_PX = 24;
-// On phone the window scrolls to the first event; this keeps it clear of the app header and the sticky days row.
-const PHONE_STICKY_CLEARANCE_PX = 160;
 const HOURS = Array.from({ length: HOURS_PER_DAY }, (_, hour) => hour);
 
 const hourLabel = (hour: number): string => `${String(hour).padStart(2, "0")}:00`;
@@ -122,6 +126,7 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
               )}
               column={block.column}
               columnCount={block.columnCount}
+              desktop={!narrow}
             />
           ))}
         </div>

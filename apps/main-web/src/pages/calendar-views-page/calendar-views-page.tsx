@@ -20,6 +20,7 @@ import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarMultiSelect } from "./components/calendar-multi-select/calendar-multi-select.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
+import { timelineFillSectionStyle } from "./components/day-timeline/styles.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
 import { ViewTabs } from "./components/view-tabs/view-tabs.js";
@@ -27,7 +28,6 @@ import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
   BLEED_CLASS,
   calendarViewsDayCommandStyle,
-  calendarViewsDayFillStyle,
   calendarViewsDayPageStyle,
   calendarViewsCss,
   calendarViewsFooterButtonStyle,
@@ -160,10 +160,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {view === "day" && status === "ready" && (
-        <div
-          className={gridWrapperClass}
-          style={desktopDay ? calendarViewsDayFillStyle : undefined}
-        >
+        <div className={gridWrapperClass} style={desktopDay ? timelineFillSectionStyle : undefined}>
           <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
         </div>
       )}

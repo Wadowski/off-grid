@@ -10,4 +10,5 @@ export type TimelineEventBlockProps = {
   readonly heightPx: number;
   readonly column: number;
   readonly columnCount: number;
+  readonly desktop: boolean;
 };

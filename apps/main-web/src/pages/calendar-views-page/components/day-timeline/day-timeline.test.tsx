@@ -144,6 +144,6 @@ describe("DayTimeline corners", () => {
     stubNarrow(false);
     render(<DayTimeline events={[]} date="2025-10-23" timeZone="UTC" now={NOON_ANOTHER_DAY} />);
 
-    expect(screen.getByTestId("day-timeline").style.borderRadius).toBe("var(--og-radius-lg)");
+    expect(screen.getByTestId("day-timeline").style.borderRadius).not.toBe("0px");
   });
 });

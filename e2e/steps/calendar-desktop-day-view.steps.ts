@@ -65,8 +65,12 @@ Then("the day timeline is shown", async ({ page }) => {
 Then(
   "I see the event {string} as a block with the calendar colour {string}",
   async ({ page }, title: string, colour: string) => {
+    const expected = ACCENT_BACKGROUND[colour];
+    if (expected === undefined) {
+      throw new Error(`No accent colour is mapped for the calendar colour "${colour}".`);
+    }
     const accent = eventBlock(page, title).locator('span[aria-hidden="true"]').first();
-    await expect(accent).toHaveCSS("background-color", ACCENT_BACKGROUND[colour] ?? colour);
+    await expect(accent).toHaveCSS("background-color", expected);
   },
 );
 
@@ -132,8 +136,12 @@ When(
 Then("the day timeline fills the window down to the New Event bar", async ({ page }) => {
   const box = await page.getByTestId("day-timeline").boundingBox();
   const viewport = page.viewportSize();
-  expect(box, "the day timeline is not on the page").not.toBeNull();
-  expect(viewport, "the viewport is not set").not.toBeNull();
+  if (box === null) {
+    throw new Error("The day timeline is not on the page.");
+  }
+  if (viewport === null) {
+    throw new Error("The viewport is not set.");
+  }
   // The New Event bar and the page bottom padding take about 90px; the timeline must reach down to them.
-  expect((box?.y ?? 0) + (box?.height ?? 0)).toBeGreaterThan((viewport?.height ?? 0) - 120);
+  expect(box.y + box.height).toBeGreaterThan(viewport.height - 120);
 });

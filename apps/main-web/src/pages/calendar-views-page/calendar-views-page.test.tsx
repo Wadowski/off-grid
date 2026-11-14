@@ -172,9 +172,10 @@ describe("CalendarViewsPage", () => {
     expect(within(row).getByRole("button", { name: "Today" })).toBeInTheDocument();
     expect(within(row).queryByRole("group", { name: "Calendar view" })).not.toBeInTheDocument();
     const header = screen.getByRole("heading", { name: "Calendar" }).closest("header");
-    expect(
-      within(header as HTMLElement).getByRole("group", { name: "Calendar view" }),
-    ).toBeInTheDocument();
+    if (header === null) {
+      throw new Error("The calendar heading is not inside the page header.");
+    }
+    expect(within(header).getByRole("group", { name: "Calendar view" })).toBeInTheDocument();
     expect(screen.queryByRole("combobox", { name: "Calendar view" })).not.toBeInTheDocument();
     expect(screen.getAllByText("Thursday, October 23")).toHaveLength(1);
     expect(screen.getByTestId("calendar-views-footer")).toBeInTheDocument();

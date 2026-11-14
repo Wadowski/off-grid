@@ -102,13 +102,6 @@ export const calendarViewsDayPageStyle: CSSProperties = {
   minHeight: `calc(100vh - ${APP_SHELL_TOP_PADDING} - ${APP_SHELL_BOTTOM_PADDING} - 2 * ${BODY_MARGIN})`,
 };
 
-export const calendarViewsDayFillStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  flex: 1,
-  minHeight: 0,
-};
-
 export const calendarViewsDayCommandStyle: CSSProperties = {
   ...calendarViewsControlsStyle,
   flexWrap: "wrap",
