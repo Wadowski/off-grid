@@ -6,13 +6,13 @@ import { TEXT_VARIANT_ELEMENTS } from "../constants.js";
 import { textVariantStyles } from "./styles.js";
 import type { TextProps } from "./types.js";
 
-export const Text = ({ variant, textId, value, ...rest }: TextProps) => {
+export const Text = ({ variant, textId, value, values, style, ...rest }: TextProps) => {
   const { t } = useTranslation();
   const Element = TEXT_VARIANT_ELEMENTS[variant];
-  const content = textId === undefined ? value : t(textId);
+  const content = textId === undefined ? value : t(textId, values);
 
   return (
-    <Element style={textVariantStyles[variant]} {...rest}>
+    <Element style={{ ...textVariantStyles[variant], ...style }} {...rest}>
       {content}
     </Element>
   );

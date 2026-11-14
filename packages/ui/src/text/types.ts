@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ParseKeys } from "i18next";
-import type { HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes } from "react";
 
 export type TextVariant =
   | "brand"
@@ -18,16 +18,22 @@ export type TextVariant =
 
 type TextId = ParseKeys;
 
+type TextValues = Readonly<Record<string, string | number>>;
+
 type StaticTextContent = {
   readonly textId: TextId;
+  readonly values?: TextValues;
   readonly value?: never;
 };
 
 type DynamicTextContent = {
   readonly value: string;
   readonly textId?: never;
+  readonly values?: never;
 };
 
 export type TextProps = Omit<HTMLAttributes<HTMLElement>, "children" | "style" | "className"> & {
   readonly variant: TextVariant;
+  // Extra styles, merged over the variant's styles for this one use.
+  readonly style?: CSSProperties;
 } & (StaticTextContent | DynamicTextContent);
