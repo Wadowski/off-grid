@@ -20,26 +20,39 @@ export const desktopMonthScrollStyle: CSSProperties = {
   flex: "1 1 auto",
   minHeight: 0,
   overflowY: "auto",
+  padding: `0 ${tokens.space[3]} ${tokens.space[3]}`,
 };
 
+// The header is a band over the day tiles. It shares the grid's column gap so each label sits over
+// its tile.
 export const desktopMonthWeekdayRowStyle: CSSProperties = {
   ...monthWeekdayRowStyle,
-  textAlign: "left",
-  borderBottom: `1px solid ${cssVar("color-line")}`,
+  gap: tokens.space[2],
+  margin: `${tokens.space[3]} ${tokens.space[3]} ${tokens.space[2]}`,
+  padding: `${tokens.space[2]} 0`,
+  borderRadius: cssVar("radius-md"),
+  background: cssVar("color-surface-high"),
   letterSpacing: "0.05em",
   textTransform: "uppercase",
 };
 
 export const desktopMonthWeekdayCellStyle: CSSProperties = {
-  padding: `${tokens.space[2]} ${tokens.space[3]}`,
+  padding: `0 ${tokens.space[1]}`,
 };
 
 export const desktopMonthDaysGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  gap: tokens.space[2],
 };
 
-export const desktopMonthCellStyle = (inMonth: boolean): CSSProperties => ({
+// A day is a separate tile: rounded, with a soft border and a subtle elevation. Days outside the
+// month sit on the dimmer surface. Today is tinted, and the selected day gets an inset ring.
+export const desktopMonthCellStyle = (
+  inMonth: boolean,
+  today = false,
+  selected = false,
+): CSSProperties => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "stretch",
@@ -47,18 +60,45 @@ export const desktopMonthCellStyle = (inMonth: boolean): CSSProperties => ({
   minWidth: 0,
   minHeight: "6.5rem",
   padding: tokens.space[2],
-  borderBottom: `1px solid ${cssVar("color-line")}`,
-  borderRight: `1px solid ${cssVar("color-line")}`,
-  background: inMonth ? cssVar("color-surface") : cssVar("color-surface-low"),
+  borderRadius: cssVar("radius-md"),
+  border: `1px solid ${cssVar("color-surface-high")}`,
+  boxShadow: selected
+    ? `inset 0 0 0 2px ${cssVar("color-primary")}, ${cssVar("elevation-1")}`
+    : cssVar("elevation-1"),
+  background: today
+    ? cssVar("color-accent-soft")
+    : inMonth
+      ? cssVar("color-surface")
+      : cssVar("color-surface-low"),
   color: inMonth ? cssVar("color-fg") : cssVar("color-muted"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-md"),
 });
 
+// The day number is a pill. Today is filled with the primary colour; the selected day gets a
+// softer pill so the two stay apart.
+export const desktopMonthDayNumberStyle = (selected: boolean, today: boolean): CSSProperties => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  alignSelf: "flex-start",
+  minWidth: "1.75rem",
+  height: "1.75rem",
+  padding: `0 ${tokens.space[1]}`,
+  borderRadius: cssVar("radius-full"),
+  background: today
+    ? cssVar("color-primary")
+    : selected
+      ? cssVar("color-accent-soft")
+      : "transparent",
+  color: today ? cssVar("color-accent-fg") : selected ? cssVar("color-primary") : "inherit",
+  fontWeight: selected || today ? cssVar("font-weight-semibold") : cssVar("font-weight-medium"),
+});
+
 export const desktopMonthChipListStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: "2px",
+  gap: tokens.space[1],
   minWidth: 0,
 };
 

@@ -5,11 +5,11 @@ import { Button } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { formatDayHeading } from "../../../../../../calendar-views/time-format.js";
 import { weekDayNumber } from "../../../../../../calendar-views/week-days.js";
-import { monthDayNumberStyle } from "../../../month-grid/styles.js";
 import { MonthEventChip } from "../month-event-chip/month-event-chip.js";
 import {
   desktopMonthCellStyle,
   desktopMonthChipListStyle,
+  desktopMonthDayNumberStyle,
   desktopMonthMoreTextStyle,
 } from "../../styles.js";
 import type { MonthDayCellDesktopProps } from "./types.js";
@@ -36,7 +36,7 @@ export const MonthDayCellDesktop = ({
       role="group"
       aria-label={formatDayHeading(date)}
       data-testid={`month-desktop-cell-${date}`}
-      style={desktopMonthCellStyle(inMonth)}
+      style={desktopMonthCellStyle(inMonth, today, selected)}
     >
       {inMonth ? (
         <Button
@@ -48,10 +48,10 @@ export const MonthDayCellDesktop = ({
           data-testid={`month-desktop-day-${date}`}
           onClick={() => onOpenDay(date)}
         >
-          <span style={monthDayNumberStyle(selected, today)}>{weekDayNumber(date)}</span>
+          <span style={desktopMonthDayNumberStyle(selected, today)}>{weekDayNumber(date)}</span>
         </Button>
       ) : (
-        <span style={monthDayNumberStyle(false)}>{weekDayNumber(date)}</span>
+        <span style={desktopMonthDayNumberStyle(false, false)}>{weekDayNumber(date)}</span>
       )}
       {inMonth && (
         <div style={desktopMonthChipListStyle}>
