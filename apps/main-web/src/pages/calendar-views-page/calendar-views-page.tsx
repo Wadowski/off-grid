@@ -21,12 +21,11 @@ import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
-import { ViewSelect } from "./components/view-select/view-select.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
+import { ViewTabs } from "./components/view-tabs/view-tabs.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
   BLEED_CLASS,
-  calendarViewsControlsStyle,
   calendarViewsDayCommandStyle,
   calendarViewsCss,
   calendarViewsFooterButtonStyle,
@@ -34,6 +33,7 @@ import {
   calendarViewsHeaderStyle,
   calendarViewsPageStyle,
   calendarViewsStatusStyle,
+  calendarViewsTabsRowStyle,
   FILTER_CLASS,
   FOOTER_CLASS,
   PAGE_CLASS,
@@ -70,34 +70,31 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
 
   const gridWrapperClass = view === "week" || view === "day" ? BLEED_CLASS : undefined;
-  // Desktop day view: one command row holds the navigator, the full date and the view selector.
+  // Desktop day view: one command row holds the navigator and the full date. The view tabs sit in the header.
   const desktopDay = view === "day" && !narrow;
+  const viewTabs = <ViewTabs value={view} onChange={goToView} />;
 
   return (
     <section className={PAGE_CLASS} style={calendarViewsPageStyle}>
       <style>{calendarViewsCss}</style>
       <header style={calendarViewsHeaderStyle}>
         <Text variant="heading" textId="calendar.heading" />
+        <div className={FILTER_CLASS}>
+          <CalendarMultiSelect
+            calendars={layout.calendars.calendars}
+            hidden={layout.hidden}
+            onChange={layout.setHidden}
+          />
+        </div>
+        {!narrow && viewTabs}
       </header>
+      {narrow && <div style={calendarViewsTabsRowStyle}>{viewTabs}</div>}
       {desktopDay ? (
         <div data-testid="day-command-row" style={calendarViewsDayCommandStyle}>
           <DateNavigator label={formatDayHeading(date)} {...navigatorHandlers} />
-          <ViewSelect value={view} onChange={goToView} />
         </div>
       ) : (
-        <>
-          <div style={calendarViewsControlsStyle}>
-            <ViewSelect value={view} onChange={goToView} />
-            <div className={FILTER_CLASS}>
-              <CalendarMultiSelect
-                calendars={layout.calendars.calendars}
-                hidden={layout.hidden}
-                onChange={layout.setHidden}
-              />
-            </div>
-          </div>
-          <DateNavigator label={periodLabel(view, date)} {...navigatorHandlers} />
-        </>
+        <DateNavigator label={periodLabel(view, date)} {...navigatorHandlers} />
       )}
       {status === "loading" && (
         <Text variant="status" role="status" textId="calendar.mobileViews.loading" />

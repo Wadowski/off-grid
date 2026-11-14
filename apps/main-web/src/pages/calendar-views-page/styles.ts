@@ -73,6 +73,10 @@ export const calendarViewsControlsStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const calendarViewsTabsRowStyle: CSSProperties = {
+  minWidth: 0,
+};
+
 export const calendarViewsDayCommandStyle: CSSProperties = {
   ...calendarViewsControlsStyle,
   flexWrap: "wrap",

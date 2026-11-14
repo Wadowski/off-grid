@@ -3,7 +3,7 @@
 
 import type { CalendarViewKind } from "@offgrid/contracts";
 
-export type ViewSelectProps = {
+export type ViewTabsProps = {
   readonly value: CalendarViewKind;
   readonly onChange: (view: CalendarViewKind) => void;
 };

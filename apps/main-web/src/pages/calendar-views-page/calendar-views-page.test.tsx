@@ -145,36 +145,37 @@ describe("CalendarViewsPage", () => {
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(viewCalls));
   });
 
-  it("switches to another view from the view selector and keeps the date", () => {
+  it("switches to another view from the view tabs and keeps the date", () => {
     stubApi();
     renderPage("/calendar/agenda?date=2025-10-23", "agenda");
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Calendar view" }), {
-      target: { value: "month" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/month?date=2025-10-23");
   });
 
-  it("switches from the agenda to the day view from the view selector", () => {
+  it("switches from the agenda to the day view from the view tabs", () => {
     stubApi();
     renderPage("/calendar/agenda?date=2025-10-23", "agenda");
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Calendar view" }), {
-      target: { value: "day" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2025-10-23");
   });
 
-  it("puts the full date, the day navigator and the view selector in one row on desktop", () => {
+  it("puts the full date and the day navigator in one row and the view tabs in the header row on desktop", () => {
     stubApi();
     renderPage("/calendar/day?date=2025-10-23", "day");
 
     const row = screen.getByTestId("day-command-row");
     expect(within(row).getByRole("heading", { name: "Thursday, October 23" })).toBeInTheDocument();
     expect(within(row).getByRole("button", { name: "Today" })).toBeInTheDocument();
-    expect(within(row).getByRole("combobox", { name: "Calendar view" })).toBeInTheDocument();
+    expect(within(row).queryByRole("group", { name: "Calendar view" })).not.toBeInTheDocument();
+    const header = screen.getByRole("heading", { name: "Calendar" }).closest("header");
+    expect(
+      within(header as HTMLElement).getByRole("group", { name: "Calendar view" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Calendar view" })).not.toBeInTheDocument();
     expect(screen.getAllByText("Thursday, October 23")).toHaveLength(1);
     expect(screen.getByTestId("calendar-views-footer")).toBeInTheDocument();
   });

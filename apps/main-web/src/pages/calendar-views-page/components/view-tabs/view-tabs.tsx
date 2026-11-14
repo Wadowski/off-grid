@@ -1,20 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Select } from "@offgrid/ui";
+import { SegmentedControl } from "@offgrid/ui";
 import type { CalendarViewKind } from "@offgrid/contracts";
 import { useTranslation } from "react-i18next";
-import type { ViewSelectProps } from "./types.js";
+import type { ViewTabsProps } from "./types.js";
 
-export const ViewSelect = ({ value, onChange }: ViewSelectProps) => {
+export const ViewTabs = ({ value, onChange }: ViewTabsProps) => {
   const { t } = useTranslation();
 
   return (
-    <Select
-      aria-label={t("calendar.mobileViews.viewControl")}
-      data-testid="calendar-view-select"
+    <SegmentedControl<CalendarViewKind>
+      label={t("calendar.mobileViews.viewControl")}
       value={value}
-      onChange={(event) => onChange(event.target.value as CalendarViewKind)}
+      onChange={onChange}
       options={[
         { value: "agenda", label: t("calendar.views.agenda") },
         { value: "day", label: t("calendar.views.day") },
