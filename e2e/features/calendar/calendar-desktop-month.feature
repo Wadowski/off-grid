@@ -52,6 +52,13 @@ Feature: Desktop calendar month view
     When I open the month view for 2026-11-18 at a desktop width of 1280 pixels
     Then the event "Standup" in the month grid is named "Standup, 09:00 AM"
 
+  Scenario: The desktop month grid shows from 768 pixels and the mobile month grid below it
+    Given I am a user with a family named "The Smiths"
+    When I open the month view for 2026-11-18 at a width of 768 pixels
+    Then I see the desktop month grid
+    When I open the month view for 2026-11-18 at a width of 767 pixels
+    Then I see the mobile month grid
+
   Scenario: The desktop month view has no horizontal scroll at 1280 pixels
     Given I am a user with a family named "The Smiths"
     When I open the month view for 2026-11-18 at a desktop width of 1280 pixels

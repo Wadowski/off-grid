@@ -18,6 +18,8 @@ export const BLEED_CLASS = "og-calendar-views-bleed";
 export const FOOTER_CLASS = "og-calendar-views-footer";
 export const FILTER_CLASS = "og-calendar-views-filter";
 export const WEEK_STRIP_CLASS = "og-calendar-views-week-strip";
+export const MOBILE_MONTH_CLASS = "og-calendar-views-month-mobile";
+export const DESKTOP_MONTH_CLASS = "og-calendar-views-month-desktop";
 
 export const calendarViewsCss = `
 .${PAGE_CLASS} {
@@ -34,6 +36,9 @@ export const calendarViewsCss = `
   }
 }
 @media (max-width: ${PHONE_MAX_WIDTH}) {
+  .${DESKTOP_MONTH_CLASS} {
+    display: none;
+  }
   .${PAGE_CLASS} {
     margin-left: calc(-1 * (${SHELL_PHONE_GUTTER} + ${BODY_MARGIN} - ${PAGE_GUTTER}));
     margin-right: calc(-1 * (${SHELL_PHONE_GUTTER} + ${BODY_MARGIN} - ${PAGE_GUTTER}));
@@ -45,6 +50,11 @@ export const calendarViewsCss = `
   .${FOOTER_CLASS} {
     left: 0;
     bottom: calc(${TAB_BAR_HEIGHT} + env(safe-area-inset-bottom));
+  }
+}
+@media (min-width: 768px) {
+  .${MOBILE_MONTH_CLASS} {
+    display: none;
   }
 }
 `;
