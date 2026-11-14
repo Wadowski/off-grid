@@ -45,13 +45,12 @@ Feature: Desktop calendar month view
     When I choose "+2 more events" on 2026-11-18
     Then I see the day view for 2026-11-18
 
-  Scenario: Clicking an event chip opens the event
+  Scenario: Each event chip is named by its title and start time
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the month view for 2026-11-18 at a desktop width of 1280 pixels
-    And I choose the event "Standup" in the month grid
-    Then I see the event details for "Standup"
+    Then the event "Standup" in the month grid is named "Standup, 09:00 AM"
 
   Scenario: The desktop month view has no horizontal scroll at 1280 pixels
     Given I am a user with a family named "The Smiths"
