@@ -4,7 +4,7 @@
 import { calendarIdSchema } from "@offgrid/contracts";
 import { render, screen, within } from "@testing-library/react";
 import axe from "axe-core";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import type { CalendarViewEvent } from "../../../../calendar-views/use-calendar-view.js";
 import { DayTimeline } from "./day-timeline.js";
 
@@ -118,4 +118,32 @@ describe("DayTimeline", () => {
 
     expect(results.violations).toEqual([]);
   }, 30_000);
+});
+
+describe("DayTimeline corners", () => {
+  const original = window.matchMedia;
+  afterEach(() => {
+    window.matchMedia = original;
+  });
+
+  const stubNarrow = (narrow: boolean) => {
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: narrow && query.includes("max-width"),
+    });
+  };
+
+  it("has square corners on phone width", () => {
+    stubNarrow(true);
+    render(<DayTimeline events={[]} date="2025-10-23" timeZone="UTC" now={NOON_ANOTHER_DAY} />);
+
+    expect(screen.getByTestId("day-timeline").style.borderRadius).toBe("0px");
+  });
+
+  it("keeps the large radius on desktop width", () => {
+    stubNarrow(false);
+    render(<DayTimeline events={[]} date="2025-10-23" timeZone="UTC" now={NOON_ANOTHER_DAY} />);
+
+    expect(screen.getByTestId("day-timeline").style.borderRadius).toBe("var(--og-radius-lg)");
+  });
 });

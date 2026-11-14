@@ -8,6 +8,7 @@ import { calendarAccentColor } from "../../../../calendars/calendar-accents.js";
 import { splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { layoutTimedEvents, nowMinutesOnDate } from "../../../../calendar-views/timeline-layout.js";
 import { formatClockTime } from "../../../../calendar-views/time-format.js";
+import { useIsNarrow } from "../../../../media/use-is-narrow.js";
 import { HOUR_HEIGHT_PX, HOURS_PER_DAY, MIN_TIMELINE_BLOCK_PX, minutesToPx } from "./constants.js";
 import { TimelineEventBlock } from "./components/timeline-event-block/timeline-event-block.js";
 import {
@@ -33,6 +34,7 @@ const hourLabel = (hour: number): string => `${String(hour).padStart(2, "0")}:00
 
 export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) => {
   const { t } = useTranslation();
+  const narrow = useIsNarrow();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { allDay, timed } = splitAllDay(events);
   const blocks = layoutTimedEvents(timed, date, timeZone);
@@ -70,7 +72,7 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
         tabIndex={0}
         className="og-focusable"
         aria-label={t("calendar.mobileViews.timelineLabel")}
-        style={timelineScrollStyle}
+        style={narrow ? { ...timelineScrollStyle, borderRadius: 0 } : timelineScrollStyle}
         data-testid="day-timeline"
       >
         <div style={timelineCanvasStyle}>
