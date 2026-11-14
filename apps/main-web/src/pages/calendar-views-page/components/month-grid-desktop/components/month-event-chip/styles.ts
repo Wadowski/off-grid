@@ -8,9 +8,9 @@ import { calendarTintBackground } from "../../../../../../calendars/calendar-acc
 export const monthEventChipStyle = (color: string): CSSProperties => ({
   display: "block",
   maxWidth: "100%",
-  padding: `0 ${tokens.space[1]}`,
-  borderLeft: `3px solid ${color}`,
-  borderRadius: cssVar("radius-sm"),
+  padding: `2px ${tokens.space[2]}`,
+  borderLeft: `4px solid ${color}`,
+  borderRadius: cssVar("radius-md"),
   background: calendarTintBackground(color),
   color: cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
