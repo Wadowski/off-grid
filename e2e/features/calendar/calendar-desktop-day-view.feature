@@ -57,3 +57,9 @@ Feature: Desktop calendar day view
     Given I am a user with a family named "The Smiths"
     When I open the day view for 2026-11-18 at a desktop width of 1280 pixels
     Then the "New Event" action is fixed at the bottom of the screen
+
+  Scenario: The desktop day timeline reaches the bottom of the window above the New Event bar
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    When I open the day view for 2026-11-18 at a desktop width of 1280 pixels
+    Then the day timeline fills the window down to the New Event bar

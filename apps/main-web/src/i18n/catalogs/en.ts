@@ -130,6 +130,7 @@ export const en = {
       calendarFilterSummary: "Calendar filter: {{summary}}",
       calendarFilter: "Calendar filter",
       viewControl: "Calendar view",
+      manageCalendars: "Manage calendars",
       dateNavigation: "Date navigation",
       previousPeriod: "Previous",
       nextPeriod: "Next",

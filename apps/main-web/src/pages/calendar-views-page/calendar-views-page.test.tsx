@@ -191,7 +191,7 @@ describe("CalendarViewsPage", () => {
     expect(footer.style.pointerEvents).toBe("none");
   });
 
-  it("keeps the phone day view with the day header and no command row below 640px", async () => {
+  it("shows the phone day view without a date heading or command row below 640px", async () => {
     const original = window.matchMedia;
     window.matchMedia = (query: string) => ({
       ...original(query),
@@ -202,8 +202,10 @@ describe("CalendarViewsPage", () => {
       renderPage("/calendar/day?date=2025-10-23", "day");
 
       expect(screen.queryByTestId("day-command-row")).not.toBeInTheDocument();
-      await waitFor(() => expect(screen.getByText("Thursday, October 23")).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByTestId("day-timeline")).toBeInTheDocument());
+      expect(screen.queryByText("Thursday, October 23")).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: /^Calendar filter/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Manage calendars" })).toBeInTheDocument();
     } finally {
       window.matchMedia = original;
     }

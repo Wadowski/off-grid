@@ -128,3 +128,12 @@ When(
     world.accessibilityViolations = violations;
   },
 );
+
+Then("the day timeline fills the window down to the New Event bar", async ({ page }) => {
+  const box = await page.getByTestId("day-timeline").boundingBox();
+  const viewport = page.viewportSize();
+  expect(box, "the day timeline is not on the page").not.toBeNull();
+  expect(viewport, "the viewport is not set").not.toBeNull();
+  // The New Event bar and the page bottom padding take about 90px; the timeline must reach down to them.
+  expect((box?.y ?? 0) + (box?.height ?? 0)).toBeGreaterThan((viewport?.height ?? 0) - 120);
+});

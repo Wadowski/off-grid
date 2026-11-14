@@ -18,6 +18,29 @@ export const timelineScrollStyle: CSSProperties = {
   background: cssVar("color-surface-low"),
 };
 
+// Desktop: the section and its scroll area take the height the day page gives them.
+export const timelineFillSectionStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  minHeight: 0,
+};
+
+export const timelineFillScrollStyle: CSSProperties = {
+  flex: 1,
+  height: "auto",
+  minHeight: 0,
+};
+
+// Phone: no inner scroll area; the hours take their full height and the page scrolls around them.
+export const timelinePhoneScrollStyle: CSSProperties = {
+  position: "relative",
+  height: "auto",
+  overflowY: "visible",
+  borderRadius: 0,
+  background: cssVar("color-surface-low"),
+};
+
 export const timelineCanvasStyle: CSSProperties = {
   position: "relative",
   height: `${HOUR_HEIGHT_PX * HOURS_PER_DAY + TIMELINE_TOP_OFFSET_PX * 2}px`,

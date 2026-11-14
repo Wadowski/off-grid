@@ -15,6 +15,8 @@ import {
   timelineAllDayChipStyle,
   timelineAllDayRowStyle,
   timelineCanvasStyle,
+  timelineFillScrollStyle,
+  timelineFillSectionStyle,
   timelineHourLabelStyle,
   timelineHourLineStyle,
   timelineHourRowStyle,
@@ -22,12 +24,15 @@ import {
   timelineNowDotStyle,
   timelineNowLineStyle,
   timelineNowStyle,
+  timelinePhoneScrollStyle,
   timelineScrollStyle,
 } from "./styles.js";
 import type { DayTimelineProps } from "./types.js";
 
 const FIRST_SCROLL_HOUR = 8;
 const SCROLL_MARGIN_PX = 24;
+// On phone the window scrolls to the first event; this keeps it clear of the app header and the sticky days row.
+const PHONE_STICKY_CLEARANCE_PX = 160;
 const HOURS = Array.from({ length: HOURS_PER_DAY }, (_, hour) => hour);
 
 const hourLabel = (hour: number): string => `${String(hour).padStart(2, "0")}:00`;
@@ -46,13 +51,27 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
   const scrollTargetPx = Math.max(0, minutesToPx(earliestMinute) - SCROLL_MARGIN_PX);
 
   useEffect(() => {
-    if (scrollRef.current !== null) {
-      scrollRef.current.scrollTop = scrollTargetPx;
+    const region = scrollRef.current;
+    if (region === null) {
+      return;
     }
-  }, [date, scrollTargetPx]);
+    if (narrow) {
+      // On phone the hours flow with the page, so the window moves to the first event.
+      const regionTop = region.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, regionTop + scrollTargetPx - PHONE_STICKY_CLEARANCE_PX) });
+    } else {
+      region.scrollTop = scrollTargetPx;
+    }
+  }, [date, narrow, scrollTargetPx]);
+
+  // Desktop fills the height the page gives it and scrolls inside it; phone lets the page scroll.
+  const sectionStyle = narrow ? undefined : timelineFillSectionStyle;
+  const scrollStyle = narrow
+    ? timelinePhoneScrollStyle
+    : { ...timelineScrollStyle, ...timelineFillScrollStyle };
 
   return (
-    <section>
+    <section style={sectionStyle}>
       {allDay.length > 0 && (
         <ul style={timelineAllDayRowStyle}>
           {allDay.map((event) => (
@@ -72,7 +91,7 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
         tabIndex={0}
         className="og-focusable"
         aria-label={t("calendar.mobileViews.timelineLabel")}
-        style={narrow ? { ...timelineScrollStyle, borderRadius: 0 } : timelineScrollStyle}
+        style={scrollStyle}
         data-testid="day-timeline"
       >
         <div style={timelineCanvasStyle}>

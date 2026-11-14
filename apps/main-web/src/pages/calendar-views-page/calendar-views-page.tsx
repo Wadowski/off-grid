@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
 import { filterByCalendar } from "../../calendar-views/events-by-calendar.js";
@@ -18,7 +19,6 @@ import type { CalendarViewKind } from "@offgrid/contracts";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
 import { CalendarMultiSelect } from "./components/calendar-multi-select/calendar-multi-select.js";
 import { DateNavigator } from "./components/date-navigator/date-navigator.js";
-import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
@@ -27,6 +27,8 @@ import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
   BLEED_CLASS,
   calendarViewsDayCommandStyle,
+  calendarViewsDayFillStyle,
+  calendarViewsDayPageStyle,
   calendarViewsCss,
   calendarViewsFooterButtonStyle,
   calendarViewsFooterStyle,
@@ -34,6 +36,7 @@ import {
   calendarViewsPageStyle,
   calendarViewsStatusStyle,
   calendarViewsTabsRowStyle,
+  calendarViewsTitleStyle,
   FILTER_CLASS,
   FOOTER_CLASS,
   PAGE_CLASS,
@@ -42,6 +45,7 @@ import {
 import type { CalendarViewsPageProps } from "./types.js";
 
 export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const openNewEvent = useOpenNewEvent();
   const layout = useCalendarLayout();
@@ -75,10 +79,24 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const viewTabs = <ViewTabs value={view} onChange={goToView} />;
 
   return (
-    <section className={PAGE_CLASS} style={calendarViewsPageStyle}>
+    <section
+      className={PAGE_CLASS}
+      style={desktopDay ? calendarViewsDayPageStyle : calendarViewsPageStyle}
+    >
       <style>{calendarViewsCss}</style>
       <header style={calendarViewsHeaderStyle}>
-        <Text variant="heading" textId="calendar.heading" />
+        <div style={calendarViewsTitleStyle}>
+          <Text variant="heading" textId="calendar.heading" />
+          {narrow && (
+            <Button
+              variant="ghost"
+              aria-label={t("calendar.mobileViews.manageCalendars")}
+              onClick={() => navigate("/calendar/calendars")}
+            >
+              <MaterialIcon name="edit_calendar" size="24px" color="currentColor" />
+            </Button>
+          )}
+        </div>
         <div className={FILTER_CLASS}>
           <CalendarMultiSelect
             calendars={layout.calendars.calendars}
@@ -118,10 +136,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {view === "agenda" && status === "ready" && (
-        <>
-          <DayHeader date={date} />
-          <AgendaList events={selectedEvents} timeZone={timeZone} />
-        </>
+        <AgendaList events={selectedEvents} timeZone={timeZone} />
       )}
       {view === "month" && status === "ready" && (
         <MonthGrid
@@ -145,12 +160,12 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {view === "day" && status === "ready" && (
-        <>
-          {!desktopDay && <DayHeader date={date} />}
-          <div className={gridWrapperClass}>
-            <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
-          </div>
-        </>
+        <div
+          className={gridWrapperClass}
+          style={desktopDay ? calendarViewsDayFillStyle : undefined}
+        >
+          <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
+        </div>
       )}
       <div
         className={FOOTER_CLASS}

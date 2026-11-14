@@ -12,6 +12,10 @@ const BODY_MARGIN = "0.5rem";
 const PAGE_GUTTER = tokens.space[2];
 export const NEW_EVENT_BAR_HEIGHT = "4rem";
 const TAB_BAR_HEIGHT = "4.5rem";
+// Must match the app shell: the fixed header height, and the main padding around the page.
+const APP_HEADER_HEIGHT = "3.5rem";
+const APP_SHELL_TOP_PADDING = `calc(${APP_HEADER_HEIGHT} + ${tokens.space[4]})`;
+const APP_SHELL_BOTTOM_PADDING = tokens.space[6];
 
 export const PAGE_CLASS = "og-calendar-views-page";
 export const BLEED_CLASS = "og-calendar-views-bleed";
@@ -46,6 +50,14 @@ export const calendarViewsCss = `
     left: 0;
     bottom: calc(${TAB_BAR_HEIGHT} + env(safe-area-inset-bottom));
   }
+  .${WEEK_STRIP_CLASS} {
+    position: sticky;
+    top: ${APP_HEADER_HEIGHT};
+    z-index: 30;
+    background: var(--og-color-bg);
+    padding-bottom: ${tokens.space[3]};
+    margin-bottom: -${tokens.space[3]};
+  }
 }
 `;
 
@@ -73,8 +85,28 @@ export const calendarViewsControlsStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const calendarViewsTitleStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: tokens.space[2],
+  minWidth: 0,
+};
+
 export const calendarViewsTabsRowStyle: CSSProperties = {
   minWidth: 0,
+};
+
+// Desktop day view: the page fills the window height so the timeline can reach the footer bar.
+export const calendarViewsDayPageStyle: CSSProperties = {
+  ...calendarViewsPageStyle,
+  minHeight: `calc(100vh - ${APP_SHELL_TOP_PADDING} - ${APP_SHELL_BOTTOM_PADDING} - 2 * ${BODY_MARGIN})`,
+};
+
+export const calendarViewsDayFillStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  minHeight: 0,
 };
 
 export const calendarViewsDayCommandStyle: CSSProperties = {

@@ -111,3 +111,23 @@ Feature: Mobile calendar views: agenda, day, week and month
     When I open the month view for 2026-11-12 at a phone width of 375 pixels
     And I tap the day 2026-11-18
     Then I see the event "Standup" in the day sheet
+
+  Scenario: Anna opens the calendar management page from the icon next to the calendar heading
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
+    And I choose "Manage calendars" next to the calendar heading
+    Then I see the calendars list with "Work"
+
+  Scenario: Anna keeps the days row at the top of the screen while the day page scrolls
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
+    When I open the day view for 2026-11-18 at a phone width of 375 pixels
+    And I scroll the page down
+    Then the days row stays right below the app header
+
+  Scenario: Anna sees no date heading above the timeline on the phone
+    Given I am a user with a family named "The Smiths"
+    When I open the day view for 2026-11-18 at a phone width of 375 pixels
+    Then I do not see the text "Wednesday, November 18" on the calendar page

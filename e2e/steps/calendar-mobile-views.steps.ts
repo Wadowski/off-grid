@@ -13,6 +13,7 @@ const { Given, When, Then } = createBdd(test);
 
 const PHONE_WIDTH = 375;
 const PHONE_HEIGHT = 812;
+const WEEK_STRIP_WRAPPER_CLASS = "og-calendar-views-week-strip";
 const VIEWS_API = "**/api/calendar/views/**";
 // The day timeline places an event at a 12px offset plus 88px per hour (see day-timeline/constants.ts).
 const TIMELINE_OFFSET_PX = 12;
@@ -262,4 +263,26 @@ When("I tap the day {word}", async ({ page }, date: string) => {
 Then("I see the event {string} in the day sheet", async ({ page }, title: string) => {
   const sheet = page.getByRole("region", { name: "Selected day" });
   await expect(sheet.getByText(title)).toBeVisible();
+});
+
+When("I choose {string} next to the calendar heading", async ({ page }, name: string) => {
+  await page.getByRole("main").getByRole("button", { name, exact: true }).click();
+});
+
+When("I scroll the page down", async ({ page }) => {
+  await page.evaluate("window.scrollTo(0, 300)");
+  await expect.poll(() => page.evaluate<number>("window.scrollY")).toBeGreaterThan(0);
+});
+
+Then("the days row stays right below the app header", async ({ page }) => {
+  const gapBelowHeader = async (): Promise<number> => {
+    const header = await page.locator(".og-header").boundingBox();
+    const strip = await page.locator(`.${WEEK_STRIP_WRAPPER_CLASS}`).boundingBox();
+    if (header === null || strip === null) {
+      return Number.NaN;
+    }
+    return Math.round(strip.y - (header.y + header.height));
+  };
+  await expect.poll(gapBelowHeader).toBeGreaterThanOrEqual(-1);
+  await expect.poll(gapBelowHeader).toBeLessThanOrEqual(1);
 });
