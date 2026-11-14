@@ -54,7 +54,11 @@ describe("Dialog", () => {
       </Dialog>,
     );
 
-    (screen.getByTestId("dialog") as HTMLDialogElement).close();
+    const element = screen.getByTestId("dialog");
+    if (!(element instanceof HTMLDialogElement)) {
+      throw new Error("expected the dialog element");
+    }
+    element.close();
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

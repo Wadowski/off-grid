@@ -109,7 +109,7 @@ describe("NewEventModal", () => {
 
   it("saves the event to the picked calendar and reports it saved", async () => {
     const onSaved = vi.fn();
-    vi.mocked(createCalendarEvent).mockResolvedValue({} as never);
+    vi.mocked(createCalendarEvent).mockResolvedValue(undefined);
     renderModal({ onSaved });
     typeTitle("Studio review");
 

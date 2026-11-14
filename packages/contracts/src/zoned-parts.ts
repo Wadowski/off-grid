@@ -1,14 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-export type ZonedParts = {
-  readonly year: number;
-  readonly month: number;
-  readonly day: number;
-  readonly hour: number;
-  readonly minute: number;
-  readonly second: number;
-};
+import type { ZonedParts } from "./types.js";
 
 export const zonedParts = (instant: Date, timeZone: string): ZonedParts => {
   const parts = new Intl.DateTimeFormat("en-US", {

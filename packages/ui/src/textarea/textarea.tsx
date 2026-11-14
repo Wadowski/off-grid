@@ -2,40 +2,24 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { useId } from "react";
-import {
-  textFieldErrorStyle,
-  textFieldLabelRowStyle,
-  textFieldStyle,
-} from "../text-field/styles.js";
+import { TextFieldFrame } from "../text-field/text-field-frame.js";
 import type { TextareaProps } from "./types.js";
 
 export const Textarea = ({ label, error, id, ...rest }: TextareaProps) => {
   const generatedId = useId();
   const inputId = id ?? generatedId;
-  const errorId = `${inputId}-error`;
-  const hasError = error !== undefined;
 
   return (
-    <div style={textFieldStyle}>
-      <div style={textFieldLabelRowStyle}>
-        <label htmlFor={inputId}>{label}</label>
-      </div>
-      <div
-        className={hasError ? "og-text-field-shell og-text-field-invalid" : "og-text-field-shell"}
-      >
+    <TextFieldFrame label={label} inputId={inputId} error={error}>
+      {({ errorId, invalid }) => (
         <textarea
           id={inputId}
           className="og-input og-textarea"
-          aria-invalid={hasError}
-          aria-describedby={hasError ? errorId : undefined}
+          aria-invalid={invalid}
+          aria-describedby={errorId}
           {...rest}
         />
-      </div>
-      {hasError && (
-        <div id={errorId} style={textFieldErrorStyle}>
-          {error}
-        </div>
       )}
-    </div>
+    </TextFieldFrame>
   );
 };

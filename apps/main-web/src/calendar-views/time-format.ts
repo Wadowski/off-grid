@@ -1,37 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { zonedParts } from "@offgrid/contracts";
+
 export const UTC_TIME_ZONE = "UTC";
 
 export type ZonedMoment = { readonly date: string; readonly minutesOfDay: number };
 
-const zonedFormatters = new Map<string, Intl.DateTimeFormat>();
-
-const zonedFormatter = (timeZone: string): Intl.DateTimeFormat => {
-  const cached = zonedFormatters.get(timeZone);
-  if (cached !== undefined) {
-    return cached;
-  }
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  });
-  zonedFormatters.set(timeZone, formatter);
-  return formatter;
-};
+const twoDigits = (value: number): string => String(value).padStart(2, "0");
 
 export const zonedMomentOf = (instant: string | Date, timeZone: string): ZonedMoment => {
-  const parts = zonedFormatter(timeZone).formatToParts(new Date(instant));
-  const part = (type: Intl.DateTimeFormatPartTypes): string =>
-    parts.find((entry) => entry.type === type)?.value ?? "0";
+  const parts = zonedParts(new Date(instant), timeZone);
   return {
-    date: `${part("year")}-${part("month")}-${part("day")}`,
-    minutesOfDay: Number(part("hour")) * 60 + Number(part("minute")),
+    date: `${parts.year}-${twoDigits(parts.month)}-${twoDigits(parts.day)}`,
+    minutesOfDay: parts.hour * 60 + parts.minute,
   };
 };
 

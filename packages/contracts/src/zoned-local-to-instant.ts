@@ -1,12 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { type ZonedParts, zonedParts } from "./zoned-parts.js";
-
-const SECOND_MS = 1000;
-const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
-const TIME_PATTERN = /^(\d{2}):(\d{2})$/;
-const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
+import { DATE_PATTERN, MONTH_DAYS, SECOND_MS, TIME_PATTERN } from "./constants.js";
+import { zonedParts } from "./zoned-parts.js";
+import type { ZonedParts } from "./types.js";
 
 const offsetAt = (instant: number, timeZone: string): number => {
   const instantSeconds = Math.floor(instant / SECOND_MS) * SECOND_MS;
