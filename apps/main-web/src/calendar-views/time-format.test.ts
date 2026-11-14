@@ -4,6 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   durationMinutes,
+  formatClockRange,
   formatClockTime,
   formatDayHeading,
   formatGmtOffset,
@@ -41,5 +42,20 @@ describe("time format", () => {
     expect(formatGmtOffset("2025-10-23", "America/Los_Angeles")).toBe("-7");
     expect(formatGmtOffset("2025-10-23", "Asia/Kolkata")).toBe("+5:30");
     expect(formatGmtOffset("2025-10-23", "UTC")).toBe("+0");
+  });
+
+  it("writes a time range in one zone with a 24-hour clock and an en dash", () => {
+    expect(formatClockRange("2025-10-23T13:05:00Z", "2025-10-23T14:30:00Z", "UTC")).toBe(
+      "13:05 \u2013 14:30",
+    );
+    expect(formatClockRange("2025-10-23T09:00:00Z", "2025-10-23T09:30:00Z", "UTC")).toBe(
+      "09:00 \u2013 09:30",
+    );
+  });
+
+  it("writes a time range in the caller's zone rather than UTC", () => {
+    expect(formatClockRange("2025-10-23T08:00:00Z", "2025-10-23T09:30:00Z", "Europe/Warsaw")).toBe(
+      "10:00 \u2013 11:30",
+    );
   });
 });

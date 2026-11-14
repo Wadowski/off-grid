@@ -5,9 +5,10 @@ import { expect, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { blockingViolationDescriptions } from "../support/accessibility.js";
 import { createTimedEvent } from "../support/factories/calendar-events.js";
-import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { test } from "../support/fixtures.js";
 import { memberSessionOf } from "../support/family-sessions.js";
 import { webBaseUrl } from "../support/stack.js";
+import { calendarIdOf } from "../support/world-calendar-id.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -17,14 +18,6 @@ const VIEWS_API = "**/api/calendar/views/**";
 // The day timeline places an event at a 12px offset plus 88px per hour (see day-timeline/constants.ts).
 const TIMELINE_OFFSET_PX = 12;
 const TIMELINE_HOUR_PX = 88;
-
-const calendarIdOf = (world: ScenarioWorld, name: string): string => {
-  const id = world.calendarIds?.[name];
-  if (id === undefined) {
-    throw new Error(`The calendar "${name}" was not set up in this scenario.`);
-  }
-  return id;
-};
 
 const minutesOf = (time: string): number => {
   const [hours = 0, minutes = 0] = time.split(":").map(Number);
@@ -51,20 +44,21 @@ const eventCard = (page: Page, title: string) =>
   page.getByRole("listitem").filter({ hasText: title });
 
 Given(
-  /^the event "([^"]+)" is in "([^"]+)" from (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) to (\d{2}:\d{2}) in UTC$/,
+  /^the event "([^"]+)" is in "([^"]+)" from (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) (?:to|until) (?:(\d{4}-\d{2}-\d{2}) )?(\d{2}:\d{2}) in UTC$/,
   async (
     { world },
     title: string,
     calendarName: string,
     date: string,
     start: string,
+    endDate: string | undefined,
     end: string,
   ) => {
     const response = await createTimedEvent(
       world.api,
       memberSessionOf(world),
       calendarIdOf(world, calendarName),
-      { title, startsAt: `${date}T${start}:00Z`, endsAt: `${date}T${end}:00Z` },
+      { title, startsAt: `${date}T${start}:00Z`, endsAt: `${endDate ?? date}T${end}:00Z` },
     );
     expect(response.status(), `could not create the event "${title}"`).toBe(201);
   },

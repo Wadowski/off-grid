@@ -12,7 +12,7 @@ import { weekdayLetters } from "../../../../calendar-views/weekday-letters.js";
 import { WeekAllDayRow } from "./components/week-all-day-row/week-all-day-row.js";
 import { WeekDayColumn } from "./components/week-day-column/week-day-column.js";
 import { WeekDayHeader } from "./components/week-day-header/week-day-header.js";
-import { PHONE_WEEK_SIZE } from "./constants.js";
+import { MINUTES_PER_HOUR, PHONE_WEEK_SIZE } from "./constants.js";
 import {
   weekBodyStyle,
   weekGridScrollStyle,
@@ -23,8 +23,7 @@ import {
 } from "./styles.js";
 import type { WeekGridProps } from "./types.js";
 
-const SCROLL_MARGIN_PX = 24;
-const MINUTES_PER_HOUR = 60;
+const SCROLL_MARGIN_MINUTES = 24;
 
 const hourLabel = (hour: number): string => `${String(hour).padStart(2, "0")}:00`;
 
@@ -50,7 +49,7 @@ export const WeekGrid = ({
   );
   const scrollTargetPx = Math.max(
     0,
-    ((earliestMinute - startHour * 60 - SCROLL_MARGIN_PX) * size.hourPx) / MINUTES_PER_HOUR,
+    ((earliestMinute - startHour * 60 - SCROLL_MARGIN_MINUTES) * size.hourPx) / MINUTES_PER_HOUR,
   );
   const firstDate = dates[0] ?? selectedDate;
   const dayLetters = weekdayLetters(t);

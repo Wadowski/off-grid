@@ -5,6 +5,8 @@ import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 import type { WeekGridSize } from "./constants.js";
 
+type WeekAccent = { readonly background: string; readonly color: string };
+
 export const weekGridScrollStyle = (scrollHeight: string): CSSProperties => ({
   height: scrollHeight,
   overflowY: "auto",
@@ -166,7 +168,7 @@ export const weekDetailedBlockStyle = (
   heightPx: number,
   column: number,
   columnCount: number,
-  accent: { readonly background: string; readonly color: string },
+  accent: WeekAccent,
 ): CSSProperties => ({
   ...weekBlockStyle(topPx, heightPx, column, columnCount, accent.background),
   display: "flex",
@@ -184,7 +186,7 @@ export const weekDetailedShortBlockStyle = (
   heightPx: number,
   column: number,
   columnCount: number,
-  accent: { readonly background: string; readonly color: string },
+  accent: WeekAccent,
 ): CSSProperties => ({
   ...weekBlockStyle(topPx, heightPx, column, columnCount, accent.background),
   display: "flex",
@@ -227,10 +229,7 @@ export const weekDetailedRangeStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-export const weekLocationChipStyle = (accent: {
-  readonly background: string;
-  readonly color: string;
-}): CSSProperties => ({
+export const weekLocationChipStyle = (accent: WeekAccent): CSSProperties => ({
   alignSelf: "flex-start",
   maxWidth: "100%",
   padding: `0 ${tokens.space[2]}`,

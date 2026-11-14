@@ -8,7 +8,11 @@ import {
   layoutTimedEvents,
   nowMinutesOnDate,
 } from "../../../../../../calendar-views/timeline-layout.js";
-import { WEEK_DETAILED_STACKED_MIN_BLOCK_PX, WEEK_MIN_BLOCK_PX } from "../../constants.js";
+import {
+  MINUTES_PER_HOUR,
+  WEEK_DETAILED_STACKED_MIN_BLOCK_PX,
+  WEEK_MIN_BLOCK_PX,
+} from "../../constants.js";
 import {
   weekBlockStyle,
   weekBlockTimeStyle,
@@ -26,8 +30,6 @@ import {
   weekNowStyle,
 } from "../../styles.js";
 import type { WeekDayColumnProps } from "./types.js";
-
-const MINUTES_PER_HOUR = 60;
 
 export const WeekDayColumn = ({
   date,
@@ -79,7 +81,7 @@ export const WeekDayColumn = ({
               <div style={weekDetailedRangeStyle}>
                 {formatClockRange(block.item.startsAt, block.item.endsAt, timeZone)}
               </div>
-              {block.item.location !== null && block.item.location !== "" && (
+              {block.item.location && (
                 <span style={weekLocationChipStyle(accent)} data-testid="week-event-location">
                   {block.item.location}
                 </span>

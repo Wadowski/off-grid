@@ -172,11 +172,19 @@ describe("WeekGrid", () => {
     );
 
     const columns = screen.getAllByTestId("week-day-column");
-    expect(within(columns[1] ?? document.body).getByTestId("week-event-conf")).toBeInTheDocument();
-    expect(within(columns[2] ?? document.body).getByTestId("week-event-conf")).toBeInTheDocument();
-    expect(within(columns[3] ?? document.body).getByTestId("week-event-conf")).toBeInTheDocument();
-    expect(columns[0]?.querySelector('[data-testid="week-event-conf"]')).toBeNull();
-    expect(columns[4]?.querySelector('[data-testid="week-event-conf"]')).toBeNull();
+    expect(columns).toHaveLength(7);
+    const columnAt = (index: number): HTMLElement => {
+      const column = columns[index];
+      if (column === undefined) {
+        throw new Error(`week day column ${index} is missing`);
+      }
+      return column;
+    };
+    expect(within(columnAt(1)).getByTestId("week-event-conf")).toBeInTheDocument();
+    expect(within(columnAt(2)).getByTestId("week-event-conf")).toBeInTheDocument();
+    expect(within(columnAt(3)).getByTestId("week-event-conf")).toBeInTheDocument();
+    expect(columnAt(0).querySelector('[data-testid="week-event-conf"]')).toBeNull();
+    expect(columnAt(4).querySelector('[data-testid="week-event-conf"]')).toBeNull();
   });
 
   it("shows a multi-day all-day event once as one bar", () => {
@@ -293,6 +301,7 @@ describe("WeekGrid", () => {
     expect(within(card).queryByTestId("week-event-location")).toBeNull();
     expect(within(card).queryByText("10:00 \u2013 11:00")).toBeNull();
     expect(within(card).getByText("Studio session")).toBeInTheDocument();
+    expect(within(card).getByText("10:00 AM")).toBeInTheDocument();
   });
 
   it("shows the title and the full time range of a 30-minute desktop event inside its card", () => {

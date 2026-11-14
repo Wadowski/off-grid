@@ -4,24 +4,17 @@
 import { expect, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { blockingViolationDescriptions } from "../support/accessibility.js";
-import { createAllDayEvent, createTimedEvent } from "../support/factories/calendar-events.js";
-import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { createAllDayEvent } from "../support/factories/calendar-events.js";
+import { test } from "../support/fixtures.js";
 import { memberSessionOf } from "../support/family-sessions.js";
 import { webBaseUrl } from "../support/stack.js";
+import { calendarIdOf } from "../support/world-calendar-id.js";
 
 const { When, Then, Given } = createBdd(test);
 
 const DESKTOP_HEIGHT = 900;
 const SIDEBAR = "calendar-sidebar";
 const AGENDA_PATHS = ["/calendar", "/calendar/agenda"];
-
-const calendarIdOf = (world: ScenarioWorld, name: string): string => {
-  const id = world.calendarIds?.[name];
-  if (id === undefined) {
-    throw new Error(`The calendar "${name}" was not set up in this scenario.`);
-  }
-  return id;
-};
 
 // Monday is column 0, Sunday is column 6.
 const weekColumnOf = (date: string): number => {
@@ -140,27 +133,6 @@ Given(
       { title, startDate, endDate },
     );
     expect(response.status(), `could not create the all-day event "${title}"`).toBe(201);
-  },
-);
-
-Given(
-  /^the event "([^"]+)" is in "([^"]+)" from (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) to (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) in UTC$/,
-  async (
-    { world },
-    title: string,
-    calendarName: string,
-    startDate: string,
-    startTime: string,
-    endDate: string,
-    endTime: string,
-  ) => {
-    const response = await createTimedEvent(
-      world.api,
-      memberSessionOf(world),
-      calendarIdOf(world, calendarName),
-      { title, startsAt: `${startDate}T${startTime}:00Z`, endsAt: `${endDate}T${endTime}:00Z` },
-    );
-    expect(response.status(), `could not create the event "${title}"`).toBe(201);
   },
 );
 

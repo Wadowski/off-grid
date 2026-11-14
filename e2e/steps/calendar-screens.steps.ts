@@ -9,6 +9,7 @@ import { test, type ScenarioWorld } from "../support/fixtures.js";
 import { accountSessionOf, bearer, memberSessionOf } from "../support/family-sessions.js";
 import { eventually } from "../support/eventually.js";
 import { webBaseUrl } from "../support/stack.js";
+import { calendarIdOf } from "../support/world-calendar-id.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -74,14 +75,6 @@ const waitForFamilyCalendarAccess = async (
     },
     { timeout: 15_000, interval: 250 },
   );
-};
-
-const calendarIdOf = (world: ScenarioWorld, name: string): string => {
-  const id = world.calendarIds?.[name];
-  if (id === undefined) {
-    throw new Error("The calendar this step refers to was not set up in this scenario.");
-  }
-  return id;
 };
 
 Given(
