@@ -13,8 +13,6 @@ import {
 } from "./styles.js";
 import type { MonthGridDesktopProps } from "./types.js";
 
-// The desktop header shows three-letter names. The mobile single letters in weekday-letters.ts do
-// not fit this design.
 const WEEKDAY_SHORT_KEYS = [
   "calendar.desktop.weekdayShortMonday",
   "calendar.desktop.weekdayShortTuesday",
@@ -34,7 +32,6 @@ export const MonthGridDesktop = ({
 }: MonthGridDesktopProps) => {
   const { t } = useTranslation();
   const cells = monthCells(days.map((day) => day.date));
-  // The calendar views API already lists a multi-day event on each day it covers.
   const eventsByDate = new Map(days.map((day) => [day.date, day.events]));
 
   return (

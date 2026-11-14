@@ -5,9 +5,6 @@ import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 import { monthGridCardStyle, monthWeekdayRowStyle } from "../month-grid/styles.js";
 
-// The card never grows past the window: the day rows scroll inside it, so the footer bar cannot
-// cover the last week. 19rem is the height above the grid (page header, navigation) plus the
-// footer bar and the page's bottom padding.
 export const desktopMonthCardStyle: CSSProperties = {
   ...monthGridCardStyle,
   gap: 0,
@@ -23,8 +20,6 @@ export const desktopMonthScrollStyle: CSSProperties = {
   padding: `0 ${tokens.space[3]} ${tokens.space[3]}`,
 };
 
-// The header is a band over the day tiles. It shares the grid's column gap so each label sits over
-// its tile.
 export const desktopMonthWeekdayRowStyle: CSSProperties = {
   ...monthWeekdayRowStyle,
   gap: tokens.space[2],
@@ -46,8 +41,6 @@ export const desktopMonthDaysGridStyle: CSSProperties = {
   gap: tokens.space[2],
 };
 
-// A day is a separate tile: rounded, with a soft border and a subtle elevation. Days outside the
-// month sit on the dimmer surface. Today is tinted, and the selected day gets an inset ring.
 export const desktopMonthCellStyle = (
   inMonth: boolean,
   today = false,
@@ -75,8 +68,6 @@ export const desktopMonthCellStyle = (
   fontSize: cssVar("font-size-label-md"),
 });
 
-// The day number is a pill. Today is filled with the primary colour; the selected day gets a
-// softer pill so the two stay apart.
 export const desktopMonthDayNumberStyle = (selected: boolean, today: boolean): CSSProperties => ({
   display: "flex",
   alignItems: "center",

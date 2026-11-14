@@ -14,8 +14,6 @@ import {
 } from "../../styles.js";
 import type { MonthDayCellDesktopProps } from "./types.js";
 
-// The design shows up to two chips in a day cell. Any further events are summarised by a
-// "+N more events" control that opens the day.
 const MAX_CHIPS_PER_DAY = 2;
 
 export const MonthDayCellDesktop = ({
