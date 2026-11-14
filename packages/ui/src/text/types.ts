@@ -18,7 +18,7 @@ export type TextVariant =
 
 type TextId = ParseKeys;
 
-type TextValues = Readonly<Record<string, string | number>>;
+export type TextValues = Readonly<Record<string, string | number>>;
 
 type StaticTextContent = {
   readonly textId: TextId;
