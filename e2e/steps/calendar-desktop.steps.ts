@@ -144,7 +144,7 @@ Given(
 );
 
 Given(
-  /^the event "([^"]+)" is in "([^"]+)" from (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) until (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) in UTC$/,
+  /^the event "([^"]+)" is in "([^"]+)" from (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) to (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) in UTC$/,
   async (
     { world },
     title: string,

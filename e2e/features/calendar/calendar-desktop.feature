@@ -140,7 +140,7 @@ Feature: Desktop calendar sidebar and agenda
   Scenario: Anna sees a multi-day timed event in every day column it spans in the desktop week view
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
-    And the event "Offsite" is in "Work" from 2026-11-17 09:00 until 2026-11-19 17:00 in UTC
+    And the event "Offsite" is in "Work" from 2026-11-17 09:00 to 2026-11-19 17:00 in UTC
     When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
     Then I see the event "Offsite" in the week column for 2026-11-17
     And I see the event "Offsite" in the week column for 2026-11-18
@@ -158,7 +158,7 @@ Feature: Desktop calendar sidebar and agenda
   Scenario: Anna sees the time range of a timed event on its card in the desktop week view
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
-    And the event "Standup" is in "Work" from 2026-11-18 09:00 until 2026-11-18 09:30 in UTC
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 2026-11-18 09:30 in UTC
     When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
     Then I see the time range "09:00 – 09:30" on the week event "Standup"
 
@@ -172,10 +172,15 @@ Feature: Desktop calendar sidebar and agenda
     And the page has no serious accessibility violations in the dark theme
 
   @ui
-  Scenario: The desktop week view has no horizontal scroll at 1280 pixels and at 375 pixels
+  Scenario: The desktop week view has no horizontal scroll at 1280 pixels
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
     Then the page has no horizontal scroll
+
+  @ui
+  Scenario: The desktop week view has no horizontal scroll at 375 pixels
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
     When I open the week view for 2026-11-18 at a phone width of 375 pixels
     Then the page has no horizontal scroll
