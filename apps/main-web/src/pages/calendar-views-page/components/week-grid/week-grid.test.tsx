@@ -232,4 +232,66 @@ describe("WeekGrid", () => {
 
     expect(screen.getByTestId("week-event-a")).toHaveStyle({ top: "136px", height: "68px" });
   });
+  it("shows the bold title, the time range and the location chip on a desktop event card", () => {
+    render(
+      <WeekGrid
+        days={weekWith({
+          "2025-10-23": [
+            event("studio", {
+              title: "Studio session",
+              startsAt: "2025-10-23T10:00:00Z",
+              endsAt: "2025-10-23T11:15:00Z",
+              location: "Hayes Valley",
+            }),
+          ],
+        })}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-20"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    const card = screen.getByTestId("week-event-studio");
+    expect(within(card).getByText("Studio session")).toBeInTheDocument();
+    expect(within(card).getByText("10:00 \u2013 11:15")).toBeInTheDocument();
+    expect(within(card).getByTestId("week-event-location")).toHaveTextContent("Hayes Valley");
+  });
+
+  it("hides the location chip on a desktop event card when the event has no location", () => {
+    render(
+      <WeekGrid
+        days={weekWith({ "2025-10-23": [event("plain", { location: null })] })}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-20"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    const card = screen.getByTestId("week-event-plain");
+    expect(within(card).getByText("10:00 \u2013 11:00")).toBeInTheDocument();
+    expect(within(card).queryByTestId("week-event-location")).toBeNull();
+  });
+
+  it("keeps the phone event card to the title and start time, without a location chip", () => {
+    render(
+      <WeekGrid
+        days={weekWith({
+          "2025-10-23": [event("phone", { location: "Hayes Valley" })],
+        })}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-20"
+        timeZone="UTC"
+        now={NOON_WED}
+      />,
+    );
+
+    const card = screen.getByTestId("week-event-phone");
+    expect(within(card).queryByTestId("week-event-location")).toBeNull();
+    expect(within(card).queryByText("10:00 \u2013 11:00")).toBeNull();
+    expect(within(card).getByText("Studio session")).toBeInTheDocument();
+  });
 });

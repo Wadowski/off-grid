@@ -183,6 +183,14 @@ Then(
 );
 
 Then(
+  "I see the time range {string} on the week event {string}",
+  async ({ page }, range: string, title: string) => {
+    const card = page.getByTestId(/^week-event-/).filter({ hasText: title });
+    await expect(card.getByText(range, { exact: true })).toBeVisible();
+  },
+);
+
+Then(
   "I do not see the event {string} in the week column for {word}",
   async ({ page }, title: string, date: string) => {
     await expect(weekColumn(page, date).getByText(title, { exact: true })).toHaveCount(0);

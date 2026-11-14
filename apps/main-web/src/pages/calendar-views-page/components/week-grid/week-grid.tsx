@@ -121,6 +121,7 @@ export const WeekGrid = ({
               timeZone={timeZone}
               now={now}
               hourPx={size.hourPx}
+              card={size.card}
             />
           ))}
         </div>

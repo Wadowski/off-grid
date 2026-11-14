@@ -5,11 +5,14 @@ export const WEEK_HOUR_PX = 60;
 export const WEEK_GUTTER = "2.25rem";
 export const WEEK_MIN_BLOCK_PX = 22;
 
+export type WeekCardStyle = "compact" | "detailed";
+
 export type WeekGridSize = {
   readonly hourPx: number;
   readonly gutter: string;
   readonly scrollHeight: string;
   readonly scrollFocusable: boolean;
+  readonly card: WeekCardStyle;
 };
 
 export const PHONE_WEEK_SIZE: WeekGridSize = {
@@ -17,6 +20,7 @@ export const PHONE_WEEK_SIZE: WeekGridSize = {
   gutter: WEEK_GUTTER,
   scrollHeight: "32rem",
   scrollFocusable: false,
+  card: "compact",
 };
 
 export const DESKTOP_WEEK_SIZE: WeekGridSize = {
@@ -24,4 +28,5 @@ export const DESKTOP_WEEK_SIZE: WeekGridSize = {
   gutter: "3.5rem",
   scrollHeight: "40rem",
   scrollFocusable: true,
+  card: "detailed",
 };

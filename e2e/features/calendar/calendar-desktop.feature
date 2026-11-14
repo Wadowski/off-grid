@@ -155,6 +155,13 @@ Feature: Desktop calendar sidebar and agenda
     When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
     Then I see one all-day bar "Cabin trip" across the week columns from 2026-11-17 to 2026-11-19
 
+  Scenario: Anna sees the time range of a timed event on its card in the desktop week view
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 until 2026-11-18 09:30 in UTC
+    When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
+    Then I see the time range "09:00 – 09:30" on the week event "Standup"
+
   @a11y @ui
   Scenario: The desktop week view has no serious accessibility violations in light and dark theme
     Given I am a user with a family named "The Smiths"

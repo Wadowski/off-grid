@@ -3,7 +3,7 @@
 
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
 import { splitAllDay } from "../../../../../../calendar-views/events-by-calendar.js";
-import { formatClockTime } from "../../../../../../calendar-views/time-format.js";
+import { formatClockRange, formatClockTime } from "../../../../../../calendar-views/time-format.js";
 import {
   layoutTimedEvents,
   nowMinutesOnDate,
@@ -14,6 +14,10 @@ import {
   weekBlockTimeStyle,
   weekBlockTitleStyle,
   weekColumnStyle,
+  weekDetailedBlockStyle,
+  weekDetailedRangeStyle,
+  weekDetailedTitleStyle,
+  weekLocationChipStyle,
   weekNowDotStyle,
   weekNowLineStyle,
   weekNowStyle,
@@ -29,6 +33,7 @@ export const WeekDayColumn = ({
   timeZone,
   now,
   hourPx,
+  card,
 }: WeekDayColumnProps) => {
   const pxPerMinute = hourPx / MINUTES_PER_HOUR;
   const nowMinute = nowMinutesOnDate(now, date, timeZone);
@@ -36,22 +41,40 @@ export const WeekDayColumn = ({
 
   return (
     <div data-testid="week-day-column" style={weekColumnStyle}>
-      {blocks.map((block) => (
-        <div
-          key={block.item.id}
-          data-testid={`week-event-${block.item.id}`}
-          style={weekBlockStyle(
-            (block.topMinutes - startHour * 60) * pxPerMinute,
-            Math.max(block.heightMinutes * pxPerMinute, WEEK_MIN_BLOCK_PX),
-            block.column,
-            block.columnCount,
-            calendarAccentColor(block.item.calendarColor).background,
-          )}
-        >
-          <div style={weekBlockTitleStyle}>{block.item.title}</div>
-          <div style={weekBlockTimeStyle}>{formatClockTime(block.item.startsAt, timeZone)}</div>
-        </div>
-      ))}
+      {blocks.map((block) => {
+        const top = (block.topMinutes - startHour * 60) * pxPerMinute;
+        const height = Math.max(block.heightMinutes * pxPerMinute, WEEK_MIN_BLOCK_PX);
+        const accent = calendarAccentColor(block.item.calendarColor);
+        if (card === "detailed") {
+          return (
+            <div
+              key={block.item.id}
+              data-testid={`week-event-${block.item.id}`}
+              style={weekDetailedBlockStyle(top, height, block.column, block.columnCount, accent)}
+            >
+              <div style={weekDetailedTitleStyle}>{block.item.title}</div>
+              <div style={weekDetailedRangeStyle}>
+                {formatClockRange(block.item.startsAt, block.item.endsAt, timeZone)}
+              </div>
+              {block.item.location !== null && block.item.location !== "" && (
+                <span style={weekLocationChipStyle(accent)} data-testid="week-event-location">
+                  {block.item.location}
+                </span>
+              )}
+            </div>
+          );
+        }
+        return (
+          <div
+            key={block.item.id}
+            data-testid={`week-event-${block.item.id}`}
+            style={weekBlockStyle(top, height, block.column, block.columnCount, accent.background)}
+          >
+            <div style={weekBlockTitleStyle}>{block.item.title}</div>
+            <div style={weekBlockTimeStyle}>{formatClockTime(block.item.startsAt, timeZone)}</div>
+          </div>
+        );
+      })}
       {nowMinute !== null && (
         <div
           data-testid="week-now"

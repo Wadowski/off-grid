@@ -161,6 +161,56 @@ export const weekBlockTimeStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
+export const weekDetailedBlockStyle = (
+  topPx: number,
+  heightPx: number,
+  column: number,
+  columnCount: number,
+  accent: { readonly background: string; readonly color: string },
+): CSSProperties => ({
+  ...weekBlockStyle(topPx, heightPx, column, columnCount, accent.background),
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[1],
+  padding: tokens.space[2],
+  color: cssVar("color-fg"),
+  fontSize: tokens.font.size["body-sm"],
+  lineHeight: tokens.font.lineHeight["body-sm"],
+  letterSpacing: tokens.font.letterSpacing["body-sm"],
+});
+
+export const weekDetailedTitleStyle: CSSProperties = {
+  fontWeight: cssVar("font-weight-semibold"),
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+export const weekDetailedRangeStyle: CSSProperties = {
+  fontFamily: cssVar("font-family-mono"),
+  fontSize: tokens.font.size["label-md"],
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+export const weekLocationChipStyle = (accent: {
+  readonly background: string;
+  readonly color: string;
+}): CSSProperties => ({
+  alignSelf: "flex-start",
+  maxWidth: "100%",
+  padding: `0 ${tokens.space[2]}`,
+  borderRadius: cssVar("radius-sm"),
+  background: `${accent.background}66`,
+  color: cssVar("color-fg"),
+  fontSize: tokens.font.size["label-md"],
+  fontWeight: cssVar("font-weight-semibold"),
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+});
+
 export const weekNowDotStyle: CSSProperties = {
   width: "8px",
   height: "8px",
