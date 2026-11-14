@@ -7,6 +7,7 @@ import { createAllDayEvent, createTimedEvent } from "../support/factories/calend
 import { test, type ScenarioWorld } from "../support/fixtures.js";
 import { memberSessionOf } from "../support/family-sessions.js";
 import { webBaseUrl } from "../support/stack.js";
+import { captureScreen } from "../support/screenshots.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -15,6 +16,8 @@ const MONTH_PREFIX = "2026-11-";
 // Upper bound for Tab presses when walking to a target. The sidebar, the mini month and the
 // header come before the grid, so the bound is generous.
 const MAX_TAB_PRESSES = 300;
+// The folder of the feature in e2e/artifacts/screens (the feature title as a slug).
+const FEATURE_SCREENS = "desktop-calendar-month-view";
 
 const calendarIdOf = (world: ScenarioWorld, name: string): string => {
   const id = world.calendarIds?.[name];
@@ -108,7 +111,12 @@ When(
 );
 
 When("I move the focus with the Tab key to the day {word}", async ({ page }, date: string) => {
-  await tabUntilFocused(page, page.getByTestId(`month-desktop-day-${date}`), `the day ${date}`);
+  const day = page.getByTestId(`month-desktop-day-${date}`);
+  await tabUntilFocused(page, day, `the day ${date}`);
+  // The keyboard focus state, captured for the design review when screenshots are enabled.
+  await captureScreen(page, "keyboard focus on a day", FEATURE_SCREENS);
+  // The capture resizes the viewport, which drops focus; focus the same day again.
+  await day.focus();
 });
 
 When("I press Enter", async ({ page }) => {
@@ -137,6 +145,7 @@ Then("I do not see the event {string} on {word}", async ({ page }, title: string
 
 Then("I see the text {string} on {word}", async ({ page }, text: string, date: string) => {
   await expect(dayCell(page, date).getByRole("button", { name: text, exact: true })).toBeVisible();
+  await captureScreen(page, `${text} visible on ${date}`, FEATURE_SCREENS);
 });
 
 Then("I see the day view for {word}", async ({ page }, date: string) => {
@@ -154,6 +163,7 @@ Then(
 
 Then("I see the desktop month grid", async ({ page }) => {
   await expect(desktopGrid(page)).toBeVisible();
+  await captureScreen(page, "desktop month grid shown", FEATURE_SCREENS);
 });
 
 Then("I see the mobile month grid", async ({ page }) => {
@@ -161,6 +171,8 @@ Then("I see the mobile month grid", async ({ page }) => {
 });
 
 Then("the page does not scroll horizontally", async ({ page }) => {
+  // Measure only once the grid has rendered; the loading state has no grid to measure.
+  await expect(desktopGrid(page)).toBeVisible();
   const overflows = await page.evaluate(
     "document.documentElement.scrollWidth > document.documentElement.clientWidth",
   );
