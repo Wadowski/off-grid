@@ -33,6 +33,8 @@ export const desktopMonthWeekdayRowStyle: CSSProperties = {
 
 export const desktopMonthWeekdayCellStyle: CSSProperties = {
   padding: `0 ${tokens.space[1]}`,
+  fontWeight: cssVar("font-weight-semibold"),
+  letterSpacing: "inherit",
 };
 
 export const desktopMonthDaysGridStyle: CSSProperties = {
@@ -99,4 +101,5 @@ export const desktopMonthMoreTextStyle: CSSProperties = {
   lineHeight: cssVar("line-height-label-sm"),
   fontWeight: cssVar("font-weight-medium"),
   color: cssVar("color-primary"),
+  letterSpacing: "normal",
 };

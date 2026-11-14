@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button } from "@offgrid/ui";
-import { useTranslation } from "react-i18next";
+import { Button, Text } from "@offgrid/ui";
 import { formatDayHeading } from "../../../../../../calendar-views/time-format.js";
 import { weekDayNumber } from "../../../../../../calendar-views/week-days.js";
 import { MonthEventChip } from "../month-event-chip/month-event-chip.js";
@@ -25,7 +24,6 @@ export const MonthDayCellDesktop = ({
   timeZone,
   onOpenDay,
 }: MonthDayCellDesktopProps) => {
-  const { t } = useTranslation();
   const visible = events.slice(0, MAX_CHIPS_PER_DAY);
   const hidden = events.length - visible.length;
 
@@ -64,9 +62,12 @@ export const MonthDayCellDesktop = ({
               fullWidth
               onClick={() => onOpenDay(date)}
             >
-              <span style={desktopMonthMoreTextStyle}>
-                {t("calendar.desktop.moreEvents", { count: hidden })}
-              </span>
+              <Text
+                variant="caption"
+                textId="calendar.desktop.moreEvents"
+                values={{ count: hidden }}
+                style={desktopMonthMoreTextStyle}
+              />
             </Button>
           )}
         </div>
