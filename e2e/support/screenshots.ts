@@ -23,7 +23,7 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
 type Theme = "light" | "dark";
 
 const nextFrame = (page: Page): Promise<void> =>
-  page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  page.evaluate("new Promise((resolve) => requestAnimationFrame(() => resolve()))");
 
 const shotName = (name: string, theme: Theme, mobile: boolean): string =>
   [name, theme === "dark" ? "dark" : undefined, mobile ? "mobile" : undefined]

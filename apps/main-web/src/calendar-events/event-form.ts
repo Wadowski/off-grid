@@ -1,7 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { createCalendarEventRequestSchema, zonedLocalToInstant } from "@offgrid/contracts";
+import {
+  createCalendarEventRequestSchema,
+  END_BEFORE_START_REASON,
+  zonedLocalToInstant,
+} from "@offgrid/contracts";
 import { zonedMomentOf } from "../calendar-views/time-format.js";
 import { toIsoDate } from "../calendar-views/week-days.js";
 import type {
@@ -106,7 +110,8 @@ const errorsFrom = (issues: readonly ZodIssueLike[]): EventFormErrors => {
     if (field === "title") {
       errors.title = issue.code === "too_big" ? "titleTooLong" : "titleRequired";
     } else if (field === "endsAt" || field === "endDate") {
-      const endsBeforeStart = issue.code === "custom" && issue.params?.reason === "endsBeforeStart";
+      const endsBeforeStart =
+        issue.code === "custom" && issue.params?.reason === END_BEFORE_START_REASON;
       errors.end = endsBeforeStart ? "endsBeforeStart" : "invalid";
     } else {
       errors.form = "invalid";

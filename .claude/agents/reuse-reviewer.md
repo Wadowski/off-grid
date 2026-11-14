@@ -45,40 +45,33 @@ When the duplicate is hidden like this, the finding is a plan for extraction, no
 - **Both call sites.** Name the private or inline copy to delete and the line that imports the shared version in its place.
 - **The test.** A unit test beside the new function, following the testing rules. Do not export the private helper only to test it.
 
-Mark every hidden duplicate **Blocking**, including a one-liner.
+Mark hidden duplicates **Blocking** when the logic is business, validation, security, access or formatting logic, or when it is more than a few lines. Mark a trivial one-liner **Advisory**.
 
 The reviewer only reports. The fix for each Blocking extraction is applied in the verification step that runs this reviewer, which then re-runs the checks.
 
 ## What counts as a finding
 
-Every finding in this review is **Blocking**. Do not report anything as Advisory, except a copy that the search cannot settle, which you report as Advisory with what would need checking.
-
-- **Shared UI components are mandatory (web).** Every button, input, select or dropdown, text input, label, link, heading, card, and every other visual element in `apps/main-web` must use the component from `packages/ui` when one exists. This includes custom selectors built from a `div` or a `ul` in place of a `Select`, and a native `<select>`, `<textarea>` or `<input type="...">` in place of `TextField` or its shared equivalent. Search `packages/ui/src` for each element the diff renders before accepting it. Blocking.
-- **Shared text is mandatory (web).** Every user-facing string renders through `Text` from `packages/ui`, with `textId` for a static string and `value` for a dynamic one (frontend rule). Text placed between tags, in a prop such as `label`, `placeholder` or `error`, or in a hand-written `<p>`, `<span>` or `<h1>` is Blocking.
-- **Static text is passed as `textId`, never through a function.** A static text prop must receive a catalog key in `textId`. Blocking when the diff passes a static string through `t(...)`, a helper, an arrow function, a template literal or a ternary before handing it to a prop. Use `t` only for attributes that `Text` cannot render, such as `aria-label`.
-- **Styling is a class, never an inline style or a style tag (web).** A `<style>` element, a `style={{...}}` attribute, or a style object applied directly to a JSX element is Blocking. Styling must be applied as a class from the component's `styles.ts`, or a token-based class from `packages/ui`. Search the diff for `<style`, `style={`, and `style:` on JSX elements.
-- **Shared statuses, types and kinds are reused.** Where an enum or const for a status, type, kind or mode already exists in `constants.ts` or `types.ts` of its package or module, every use must import it. A literal such as `"pending"` written where that enum exists is Blocking. Also Blocking: a new hard-coded set of values that an existing enum already covers, even under a different name.
 - **A native element where a shared component exists (web).** A raw `<button>`, `<input>`, `<label>` or similar in `apps/main-web` when `packages/ui` has a component that fits (frontend rule). Blocking.
-- **A copied helper.** Logic duplicated from another module or package, or from elsewhere in the change, that should be imported from the shared package (shared-code rule). Blocking, whether or not it crosses a module or package boundary.
+- **A copied helper.** Logic duplicated from another module or package, or from elsewhere in the change, that should be imported from the shared package (shared-code rule). Blocking when it crosses a module or package boundary. Advisory when it stays inside one folder.
 - **A new component or variant that duplicates an existing one.** Including a new style object that repeats a token pattern already in `styles.ts` or in `packages/ui`. Blocking when the frontend rule applies.
 - **A backend copy of a shared helper.** Auth, validation-error, read-outcome, cookie or error-mapper code in a module that already exists in `packages/http`, or family and access checks written inline instead of through `packages/access-control`. Blocking (shared-code rule).
 - **A second repository or query helper.** A module function that repeats a database helper or transaction wrapper from `packages/db`, or an RLS or ownership check that `packages/db` already exposes. Blocking when it skips the shared check.
 - **A hand-written schema that duplicates a contract.** A zod schema, event payload type or API type in a module or route that repeats one in `packages/contracts`, or a second copy of an event type. Blocking when it is an event or API shape (contracts are the single source).
 - **A hand-rolled event or outbox path.** Code that writes the outbox or publishes an event without the `packages/event-bus` helper, or a consumer that re-implements the source-version check or idempotency. Blocking.
-- **A duplicate error class or error mapper.** An error that repeats one in the module's `application/errors/`, or a `send-*-error` mapper copied rather than shared. Blocking.
+- **A duplicate error class or error mapper.** An error that repeats one in the module's `application/errors/`, or a `send-*-error` mapper copied rather than shared. Advisory unless it crosses modules (Blocking then).
 - **Logging or tracing code outside `packages/observability`.** Blocking when it writes trace ids or structured logs by hand.
-- **A hard-coded value that a token or existing constant already covers.** Colours, spacing, radii, font sizes, durations, or literal strings already defined in `packages/ui` tokens, `constants.ts`, or i18n catalogs. Blocking.
-- **A type that repeats an existing type or schema.** A new props or DTO shape that matches one in `packages/contracts`, `packages/ui` or `api-client`, or a type in another `types.ts` of the repo. Blocking.
-- **Inline logic that an existing function already does.** Mark it with the existing function's path. Blocking.
+- **A hard-coded value that a token or existing constant already covers.** Colours, spacing, radii, font sizes, durations, or literal strings already defined in `packages/ui` tokens, `constants.ts`, or i18n catalogs. Blocking for colours and spacing (frontend rule). Advisory otherwise.
+- **A type that repeats an existing type or schema.** A new props or DTO shape that matches one in `packages/contracts`, `packages/ui` or `api-client`. Advisory unless it duplicates a contract (then Blocking).
+- **Inline logic that an existing function already does.** Mark it with the existing function's path.
 
-Do not flag a copy that is intentionally different: say so only if the difference is clear from the code. If you cannot tell whether the existing function fits, report it as Advisory and say what would need checking. Otherwise it is Blocking.
+Do not flag a copy that is intentionally different: say so only if the difference is clear from the code. If you cannot tell whether the existing function fits, report it as Advisory and say what would need checking.
 
 ## Output
 
 Mark every place, not only the first few. Return findings in two groups, most severe first:
 
-- **Blocking**: every finding in this review. That includes an existing function, component, token, enum or text key that fits, a repo rule that requires the existing code, and a hidden duplicate that needs the extraction plan above.
-- **Advisory**: only a copy the search could not settle, with what would need checking to decide.
+- **Blocking**: a repo rule says the existing code must be used, the copy crosses a module or package boundary, or a hidden duplicate needs the extraction plan above.
+- **Advisory**: an existing function, component or token would fit, but the change could reasonably keep its version.
 
 Each finding gives:
 

@@ -12,5 +12,4 @@ export type DateTimeBlockProps = {
   readonly showTime: boolean;
   readonly onDate: (value: string) => void;
   readonly onTime: (value: string) => void;
-  readonly error?: ReactNode;
 };

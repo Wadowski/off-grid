@@ -14,11 +14,10 @@ export const DateTimeBlock = ({
   showTime,
   onDate,
   onTime,
-  error,
 }: DateTimeBlockProps) => (
   <div style={dateTimeBlockCardStyle}>
     {caption}
-    <div style={dateTimeBlockRowStyle(showTime)}>
+    <div style={dateTimeBlockRowStyle}>
       <TextField
         type="date"
         label={dateLabel}
@@ -34,6 +33,5 @@ export const DateTimeBlock = ({
         />
       )}
     </div>
-    {error}
   </div>
 );

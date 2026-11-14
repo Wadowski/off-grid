@@ -3,7 +3,8 @@
 
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { NEW_EVENT_PATH, newEventTarget } from "./new-event-route.js";
+import { NEW_EVENT_PATH } from "./constants.js";
+import { newEventTarget } from "./new-event-route.js";
 
 export const useOpenNewEvent = (): (() => void) => {
   const location = useLocation();

@@ -3,11 +3,8 @@
 
 import type { CalendarViewKind } from "@offgrid/contracts";
 import { DEFAULT_CALENDAR_VIEW, isCalendarViewKind } from "../calendar-views/view-navigation.js";
+import { CALENDAR_PATH_PREFIX, NEW_EVENT_PATH } from "./constants.js";
 import type { LocationParts } from "./types.js";
-
-export const NEW_EVENT_PATH = "/calendar/event/new";
-
-export const DEFAULT_EVENT_BACKGROUND = "/calendar/agenda";
 
 const backgroundOf = ({ pathname, search }: LocationParts): string => `${pathname}${search}`;
 
@@ -16,13 +13,14 @@ export const readBackground = (state: unknown): string | undefined => {
     return undefined;
   }
   const background = state.background;
-  return typeof background === "string" && background.startsWith("/calendar")
+  return typeof background === "string" && background.startsWith(CALENDAR_PATH_PREFIX)
     ? background
     : undefined;
 };
 
 export const viewOfBackground = (background: string | undefined): CalendarViewKind => {
-  const segment = background?.split("?")[0]?.split("/")[2];
+  const pathname = background?.split("?")[0] ?? "";
+  const [, , segment] = pathname.split("/");
   return isCalendarViewKind(segment) ? segment : DEFAULT_CALENDAR_VIEW;
 };
 

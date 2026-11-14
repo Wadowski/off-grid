@@ -11,6 +11,8 @@ export const TIME_PATTERN = /^(\d{2}):(\d{2})$/;
 
 export const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
 
+export const END_BEFORE_START_REASON = "endsBeforeStart";
+
 export const MAIL_PROVIDERS = ["gmail", "icloud", "fastmail", "other"] as const;
 
 export const MAIL_SECURITY = ["tls", "starttls", "none"] as const;

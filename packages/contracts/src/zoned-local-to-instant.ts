@@ -45,6 +45,12 @@ const parseWall = (date: string, time: string): Omit<ZonedParts, "second"> | und
   return { year, month, day, hour, minute };
 };
 
+const convertWall = (wall: Omit<ZonedParts, "second">, timeZone: string): Date => {
+  const asUtc = Date.UTC(wall.year, wall.month - 1, wall.day, wall.hour, wall.minute);
+  const firstGuess = asUtc - offsetAt(asUtc, timeZone);
+  return new Date(asUtc - offsetAt(firstGuess, timeZone));
+};
+
 export const zonedLocalToInstant = (
   date: string,
   time: string,
@@ -54,7 +60,12 @@ export const zonedLocalToInstant = (
   if (wall === undefined) {
     return undefined;
   }
-  const asUtc = Date.UTC(wall.year, wall.month - 1, wall.day, wall.hour, wall.minute);
-  const firstGuess = asUtc - offsetAt(asUtc, timeZone);
-  return new Date(asUtc - offsetAt(firstGuess, timeZone));
+  try {
+    return convertWall(wall, timeZone);
+  } catch (error) {
+    if (error instanceof RangeError) {
+      return undefined;
+    }
+    throw error;
+  }
 };

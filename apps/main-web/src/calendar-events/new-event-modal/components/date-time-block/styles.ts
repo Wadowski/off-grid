@@ -14,8 +14,9 @@ export const dateTimeBlockCardStyle: CSSProperties = {
   boxShadow: tokens.elevation[1],
 };
 
-export const dateTimeBlockRowStyle = (showTime: boolean): CSSProperties => ({
-  display: "grid",
-  gridTemplateColumns: showTime ? "minmax(0, 1fr) 6rem" : "minmax(0, 1fr)",
+export const dateTimeBlockRowStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
   gap: tokens.space[2],
-});
+  minWidth: 0,
+};

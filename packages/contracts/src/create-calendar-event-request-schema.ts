@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { z } from "zod";
+import { END_BEFORE_START_REASON } from "./constants.js";
 import {
   eventDateSchema,
   eventDescriptionSchema,
@@ -31,7 +32,7 @@ const timedEventRequestSchema = z
     {
       message: "The event must not end before it starts",
       path: ["endsAt"],
-      params: { reason: "endsBeforeStart" },
+      params: { reason: END_BEFORE_START_REASON },
     },
   );
 
@@ -45,7 +46,7 @@ const allDayEventRequestSchema = z
   .refine((value) => isValidDayWindow({ startDate: value.startDate, endDate: value.endDate }), {
     message: "The event must not end before it starts",
     path: ["endDate"],
-    params: { reason: "endsBeforeStart" },
+    params: { reason: END_BEFORE_START_REASON },
   });
 
 export const createCalendarEventRequestSchema = z.discriminatedUnion("isAllDay", [
