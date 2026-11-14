@@ -43,7 +43,7 @@ describe("TimelineEventBlock", () => {
     const block = screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f");
     expect(block).toHaveTextContent("Standup");
     expect(block).toHaveTextContent("09:00 AM - 09:30 AM");
-    expect(block).toHaveTextContent("30");
+    expect(block).toHaveTextContent("30m");
   });
 
   it("shows the location when the event has one", () => {
