@@ -134,15 +134,6 @@ describe("CalendarViewsPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("opens the calendars list from the Calendars button", async () => {
-    stubApi();
-    renderPage("/calendar/week?date=2025-10-23", "week");
-
-    fireEvent.click(screen.getByRole("button", { name: "Calendars" }));
-
-    expect(await screen.findByText("Calendars list")).toBeInTheDocument();
-  });
-
   it("shows the error text and retries the same view when it fails", async () => {
     const fetchMock = stubApi(500);
     renderPage("/calendar/week?date=2025-10-23", "week");

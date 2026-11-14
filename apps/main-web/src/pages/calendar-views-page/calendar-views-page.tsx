@@ -78,9 +78,6 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
       <style>{calendarViewsCss}</style>
       <header style={calendarViewsHeaderStyle}>
         <Text variant="heading" textId="calendar.heading" />
-        <Button variant="ghost" size="small" onClick={() => navigate("/calendar/calendars")}>
-          <Text variant="action" textId="calendar.mobileViews.calendars" />
-        </Button>
       </header>
       {desktopDay ? (
         <div data-testid="day-command-row" style={calendarViewsDayCommandStyle}>

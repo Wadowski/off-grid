@@ -124,7 +124,6 @@ export const en = {
       endsBeforeStart: "The event must not end before it starts",
     },
     mobileViews: {
-      calendars: "Calendars",
       allCalendars: "All Calendars",
       noCalendarsSelected: "No calendars",
       calendarsSelected: "{{selected}} of {{total}} calendars",
