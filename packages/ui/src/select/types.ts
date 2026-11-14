@@ -8,9 +8,15 @@ export type SelectOption = {
   readonly label: string;
 };
 
+export type SelectAccent = {
+  readonly background: string;
+  readonly color: string;
+};
+
 export type SelectProps = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   "style" | "className" | "children"
 > & {
   readonly options: readonly SelectOption[];
+  readonly accent?: SelectAccent;
 };

@@ -10,7 +10,6 @@ export const familyInviteDialogStyle: CSSProperties = {
   border: `1px solid ${cssVar("color-line")}`,
   borderRadius: tokens.radius.lg,
   background: cssVar("color-surface"),
-  color: cssVar("color-fg"),
 };
 
 export const familyInviteContentStyle: CSSProperties = {
@@ -20,7 +19,7 @@ export const familyInviteContentStyle: CSSProperties = {
 };
 
 export const familyInviteCodeStyle: CSSProperties = {
-  fontFamily: "monospace",
+  fontFamily: cssVar("font-family-mono"),
   fontSize: "1.25rem",
   letterSpacing: "0.08em",
   wordBreak: "break-all",

@@ -82,6 +82,22 @@ export const calendarOpenApiPaths = {
       },
     },
   },
+  "/calendars/{id}/events": {
+    post: {
+      operationId: "createCalendarEvent",
+      summary: "Create an event in a calendar the signed-in person can access",
+      parameters: [calendarIdParameter],
+      requestBody: { required: true, content: jsonContent("CreateCalendarEventRequest") },
+      responses: {
+        "201": { description: "The created event." },
+        "400": errorResponse("VALIDATION_FAILED: the body does not match the request schema."),
+        "401": unauthenticated,
+        "404": errorResponse(
+          "NOT_FOUND: the calendar does not exist or the person cannot access it.",
+        ),
+      },
+    },
+  },
   "/events/{id}/guests": {
     post: {
       operationId: "inviteEventGuest",

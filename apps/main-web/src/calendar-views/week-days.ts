@@ -8,7 +8,7 @@ const parseDate = (date: string): { year: number; month: number; day: number } =
   return { year, month, day };
 };
 
-const toIsoDate = (time: number): string => new Date(time).toISOString().slice(0, 10);
+export const toIsoDate = (time: number): string => new Date(time).toISOString().slice(0, 10);
 
 export const addDays = (date: string, days: number): string => {
   const { year, month, day } = parseDate(date);

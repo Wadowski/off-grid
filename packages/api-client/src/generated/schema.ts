@@ -38,6 +38,23 @@ export interface paths {
         patch: operations["updateCalendar"];
         trace?: never;
     };
+    "/calendars/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an event in a calendar the signed-in person can access */
+        post: operations["createCalendarEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{id}/guests": {
         parameters: {
             query?: never;
@@ -208,6 +225,27 @@ export interface components {
             color: "blue" | "teal" | "green" | "amber" | "rose" | "violet";
             /** Format: uuid */
             familyId?: string;
+        };
+        CreateCalendarEventRequest: {
+            title: string;
+            location?: string;
+            description?: string;
+            /** @constant */
+            isAllDay: false;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+        } | {
+            title: string;
+            location?: string;
+            description?: string;
+            /** @constant */
+            isAllDay: true;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
         };
         UpdateCalendarRequest: {
             name?: string;
@@ -524,6 +562,57 @@ export interface operations {
                 };
             };
             /** @description NOT_FOUND: the calendar does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createCalendarEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCalendarEventRequest"];
+            };
+        };
+        responses: {
+            /** @description The created event. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VALIDATION_FAILED: the body does not match the request schema. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description UNAUTHENTICATED: the request has no signed-in person. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description NOT_FOUND: the calendar does not exist or the person cannot access it. */
             404: {
                 headers: {
                     [name: string]: unknown;

@@ -1,51 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-interface ZonedParts {
-  readonly year: number;
-  readonly month: number;
-  readonly day: number;
-  readonly hour: number;
-  readonly minute: number;
-  readonly second: number;
-}
-
-const zonedParts = (instant: Date, timeZone: string): ZonedParts => {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).formatToParts(instant);
-  const value = (type: string): number =>
-    Number(parts.find((part) => part.type === type)?.value ?? "0");
-  return {
-    year: value("year"),
-    month: value("month"),
-    day: value("day"),
-    hour: value("hour"),
-    minute: value("minute"),
-    second: value("second"),
-  };
-};
-
-const offsetAt = (instant: number, timeZone: string): number => {
-  const instantSeconds = Math.floor(instant / 1000) * 1000;
-  const parts = zonedParts(new Date(instantSeconds), timeZone);
-  const asUtc = Date.UTC(
-    parts.year,
-    parts.month - 1,
-    parts.day,
-    parts.hour,
-    parts.minute,
-    parts.second,
-  );
-  return asUtc - instantSeconds;
-};
+import { zonedLocalToInstant, zonedParts } from "@offgrid/contracts";
 
 const parseDay = (date: string): { year: number; month: number; day: number } => {
   const [year, month, day] = date.split("-").map(Number);
@@ -54,13 +10,8 @@ const parseDay = (date: string): { year: number; month: number; day: number } =>
 
 const formatDay = (utcMs: number): string => new Date(utcMs).toISOString().slice(0, 10);
 
-export const localMidnight = (date: string, timeZone: string): Date => {
-  const { year, month, day } = parseDay(date);
-  const asUtc = Date.UTC(year, month - 1, day);
-  const firstGuess = asUtc - offsetAt(asUtc, timeZone);
-  const refined = asUtc - offsetAt(firstGuess, timeZone);
-  return new Date(refined);
-};
+export const localMidnight = (date: string, timeZone: string): Date =>
+  zonedLocalToInstant(date, "00:00", timeZone) ?? new Date(Number.NaN);
 
 export const addDays = (date: string, days: number): string => {
   const { year, month, day } = parseDay(date);

@@ -31,6 +31,15 @@ export type ErrorResponse = z.infer<typeof errorResponseSchema>;
 export type PasswordRecoveryRequest = z.infer<typeof passwordRecoveryRequestSchema>;
 export type PasswordResetRequest = z.infer<typeof passwordResetRequestSchema>;
 export type EmailCodeRequest = z.infer<typeof emailCodeRequestSchema>;
+
+export type ZonedParts = {
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+  readonly hour: number;
+  readonly minute: number;
+  readonly second: number;
+};
 export type PasswordRecoveryOptions = z.infer<typeof passwordRecoveryOptionsSchema>;
 export type AdminUser = z.infer<typeof adminUserSchema>;
 export type MailSettingsRequest = z.infer<typeof mailSettingsRequestSchema>;

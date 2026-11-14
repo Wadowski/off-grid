@@ -4,11 +4,15 @@
 import { checkboxInputStyle, checkboxLabelStyle } from "./styles.js";
 import type { CheckboxProps } from "./types.js";
 
-export const Checkbox = ({ label, ...rest }: CheckboxProps) => {
-  return (
-    <label style={checkboxLabelStyle}>
-      <input type="checkbox" className="og-focusable" style={checkboxInputStyle} {...rest} />
-      {label}
-    </label>
-  );
-};
+export const Checkbox = ({ label, variant = "checkbox", ...rest }: CheckboxProps) => (
+  <label style={checkboxLabelStyle}>
+    <input
+      type="checkbox"
+      role={variant === "switch" ? "switch" : undefined}
+      className={variant === "switch" ? "og-focusable og-switch" : "og-focusable"}
+      style={checkboxInputStyle}
+      {...rest}
+    />
+    {label}
+  </label>
+);

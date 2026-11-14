@@ -23,7 +23,7 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
 type Theme = "light" | "dark";
 
 const nextFrame = (page: Page): Promise<void> =>
-  page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  page.evaluate("new Promise((resolve) => requestAnimationFrame(() => resolve()))");
 
 const shotName = (name: string, theme: Theme, mobile: boolean): string =>
   [name, theme === "dark" ? "dark" : undefined, mobile ? "mobile" : undefined]
@@ -43,7 +43,7 @@ const captureTheme = async (
 
   const desktopViewport = page.viewportSize();
   await page.setViewportSize(MOBILE_VIEWPORT);
-  await nextFrame(page);
+  await page.waitForFunction("document.documentElement.scrollWidth <= window.innerWidth");
   await page.screenshot({ path: screenPath(feature, shotName(name, theme, true)), fullPage: true });
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);

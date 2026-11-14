@@ -3,6 +3,7 @@
 
 import type { CSSProperties } from "react";
 import { cssVar } from "../css-var.js";
+import type { SelectAccent } from "./types.js";
 
 export const selectStyle: CSSProperties = {
   padding: `${cssVar("space-1")} ${cssVar("space-2")}`,
@@ -13,3 +14,13 @@ export const selectStyle: CSSProperties = {
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-md"),
 };
+
+export const selectAccentStyle = (accent: SelectAccent | undefined): CSSProperties =>
+  accent === undefined
+    ? {}
+    : {
+        border: "none",
+        background: accent.background,
+        color: accent.color,
+        fontWeight: cssVar("font-weight-semibold"),
+      };

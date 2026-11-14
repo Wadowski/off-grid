@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { Button, Text } from "@offgrid/ui";
 import { useCallback, useState } from "react";
 import { Outlet, useOutletContext, useSearchParams } from "react-router-dom";
+import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
 import type { HiddenCalendars } from "../../calendar-views/events-by-calendar.js";
 import { parseDateParam } from "../../calendar-views/view-navigation.js";
 import { localDateOf } from "../../calendar-views/week-days.js";
@@ -16,6 +18,7 @@ import { calendarLayoutContentStyle, calendarLayoutStyle } from "./styles.js";
 export const CalendarLayout = () => {
   const shellContext = useOutletContext<ShellContext>();
   const narrow = useIsNarrow();
+  const openNewEvent = useOpenNewEvent();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedDate = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
   const today = localDateOf(new Date());
@@ -46,6 +49,9 @@ export const CalendarLayout = () => {
           hidden={hidden}
           onToggle={toggleCalendar}
         >
+          <Button variant="primary" onClick={openNewEvent}>
+            <Text variant="action" textId="calendar.event.new" />
+          </Button>
           <CalendarMiniMonth
             selectedDate={selectedDate}
             todayDate={today}

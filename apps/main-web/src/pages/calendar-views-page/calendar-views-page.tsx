@@ -3,13 +3,14 @@
 
 import { Button, Text } from "@offgrid/ui";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
+import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
 import { filterByCalendar } from "../../calendar-views/events-by-calendar.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
+import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
 import { useSession } from "../../session/use-session.js";
 import type { CalendarViewKind } from "@offgrid/contracts";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
@@ -38,6 +39,7 @@ import type { CalendarViewsPageProps } from "./types.js";
 
 export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const navigate = useNavigate();
+  const openNewEvent = useOpenNewEvent();
   const layout = useCalendarLayout();
   const session = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -144,7 +146,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         data-testid="calendar-views-footer"
         style={calendarViewsFooterStyle}
       >
-        <Button variant="primary" aria-disabled="true">
+        <Button variant="primary" onClick={openNewEvent}>
           <MaterialIcon name="add" size="20px" color="currentColor" />
           <Text variant="action" textId="calendar.mobileViews.newEvent" />
         </Button>

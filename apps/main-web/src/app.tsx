@@ -27,6 +27,7 @@ import { CalendarViewsPage } from "./pages/calendar-views-page/calendar-views-pa
 import { CalendarLayout } from "./layouts/calendar-layout/calendar-layout.js";
 import { CreateCalendarPage } from "./pages/create-calendar-page/create-calendar-page.js";
 import { EditCalendarPage } from "./pages/edit-calendar-page/edit-calendar-page.js";
+import { NewCalendarEventPage } from "./pages/new-calendar-event-page/new-calendar-event-page.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
 import { FamilyDataLayout } from "./families/family-data-layout/family-data-layout.js";
 import { FamilyOnboardingGate } from "./families/family-onboarding-gate/family-onboarding-gate.js";
@@ -67,6 +68,7 @@ export const App = () => {
                   <Route path="day" element={<CalendarViewsPage view="day" />} />
                   <Route path="week" element={<CalendarViewsPage view="week" />} />
                   <Route path="month" element={<CalendarViewsPage view="month" />} />
+                  <Route path="event/new" element={<NewCalendarEventPage />} />
                 </Route>
                 <Route path="calendar/calendars" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />
