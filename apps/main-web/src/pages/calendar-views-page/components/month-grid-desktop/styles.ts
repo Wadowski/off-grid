@@ -5,11 +5,21 @@ import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 import { monthGridCardStyle, monthWeekdayRowStyle } from "../month-grid/styles.js";
 
+// The card never grows past the window: the day rows scroll inside it, so the footer bar cannot
+// cover the last week. 19rem is the height above the grid (page header, navigation) plus the
+// footer bar and the page's bottom padding.
 export const desktopMonthCardStyle: CSSProperties = {
   ...monthGridCardStyle,
   gap: 0,
   padding: 0,
+  maxHeight: "calc(100vh - 19rem)",
   overflow: "hidden",
+};
+
+export const desktopMonthScrollStyle: CSSProperties = {
+  flex: "1 1 auto",
+  minHeight: 0,
+  overflowY: "auto",
 };
 
 export const desktopMonthWeekdayRowStyle: CSSProperties = {
@@ -35,7 +45,7 @@ export const desktopMonthCellStyle = (inMonth: boolean): CSSProperties => ({
   alignItems: "stretch",
   gap: tokens.space[1],
   minWidth: 0,
-  minHeight: "7.5rem",
+  minHeight: "6.5rem",
   padding: tokens.space[2],
   borderBottom: `1px solid ${cssVar("color-line")}`,
   borderRight: `1px solid ${cssVar("color-line")}`,

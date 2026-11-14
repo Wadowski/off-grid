@@ -7,6 +7,7 @@ import { MonthDayCellDesktop } from "./components/month-day-cell-desktop/month-d
 import {
   desktopMonthCardStyle,
   desktopMonthDaysGridStyle,
+  desktopMonthScrollStyle,
   desktopMonthWeekdayCellStyle,
   desktopMonthWeekdayRowStyle,
 } from "./styles.js";
@@ -49,19 +50,21 @@ export const MonthGridDesktop = ({
           </span>
         ))}
       </div>
-      <div style={desktopMonthDaysGridStyle}>
-        {cells.map((cell) => (
-          <MonthDayCellDesktop
-            key={cell.date}
-            date={cell.date}
-            inMonth={cell.inMonth}
-            events={eventsByDate.get(cell.date) ?? []}
-            selected={cell.date === selectedDate}
-            today={cell.date === todayDate}
-            timeZone={timeZone}
-            onOpenDay={onOpenDay}
-          />
-        ))}
+      <div style={desktopMonthScrollStyle}>
+        <div style={desktopMonthDaysGridStyle}>
+          {cells.map((cell) => (
+            <MonthDayCellDesktop
+              key={cell.date}
+              date={cell.date}
+              inMonth={cell.inMonth}
+              events={eventsByDate.get(cell.date) ?? []}
+              selected={cell.date === selectedDate}
+              today={cell.date === todayDate}
+              timeZone={timeZone}
+              onOpenDay={onOpenDay}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
