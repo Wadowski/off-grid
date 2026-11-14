@@ -19,7 +19,7 @@ export const MonthEventChip = ({ event, timeZone }: MonthEventChipProps) => {
   return (
     <span
       tabIndex={0}
-      aria-label={`${event.title}, ${time}`}
+      aria-label={t("calendar.desktop.eventChipLabel", { title: event.title, time })}
       data-testid={`month-event-chip-${event.id}`}
       style={monthEventChipStyle(accent)}
     >
