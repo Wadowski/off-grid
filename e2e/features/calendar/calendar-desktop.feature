@@ -129,3 +129,46 @@ Feature: Desktop calendar sidebar and agenda
     Then the calendar "Work" is checked in the calendar sidebar
     And the calendar "Home" is checked in the calendar sidebar
     And I see the event "Standup" in the agenda
+
+  Scenario: Anna sees the Monday to Sunday week beside her calendar sidebar at desktop width
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
+    Then I see "Work" in the calendar sidebar with a checked show checkbox
+    And I see seven day columns from Monday 2026-11-16 to Sunday 2026-11-22
+
+  Scenario: Anna sees a multi-day timed event in every day column it spans in the desktop week view
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And the event "Offsite" is in "Work" from 2026-11-17 09:00 until 2026-11-19 17:00 in UTC
+    When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
+    Then I see the event "Offsite" in the week column for 2026-11-17
+    And I see the event "Offsite" in the week column for 2026-11-18
+    And I see the event "Offsite" in the week column for 2026-11-19
+    And I do not see the event "Offsite" in the week column for 2026-11-16
+    And I do not see the event "Offsite" in the week column for 2026-11-20
+
+  Scenario: Anna sees a multi-day all-day event as one bar across the days it spans in the desktop week view
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And the all-day event "Cabin trip" is in "Work" from 2026-11-17 to 2026-11-19 in UTC
+    When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
+    Then I see one all-day bar "Cabin trip" across the week columns from 2026-11-17 to 2026-11-19
+
+  @a11y @ui
+  Scenario: The desktop week view has no serious accessibility violations in light and dark theme
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
+    When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
+    Then the page has no serious accessibility violations in the light theme
+    And the page has no serious accessibility violations in the dark theme
+
+  @ui
+  Scenario: The desktop week view has no horizontal scroll at 1280 pixels and at 375 pixels
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    When I open the week view for 2026-11-18 at a desktop width of 1280 pixels
+    Then the page has no horizontal scroll
+    When I open the week view for 2026-11-18 at a phone width of 375 pixels
+    Then the page has no horizontal scroll
