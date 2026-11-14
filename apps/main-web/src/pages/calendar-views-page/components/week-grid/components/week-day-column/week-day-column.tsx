@@ -45,7 +45,7 @@ export const WeekDayColumn = ({
   const blocks = layoutTimedEvents(splitAllDay(events).timed, date, timeZone);
 
   return (
-    <div data-testid="week-day-column" style={weekColumnStyle}>
+    <div data-testid="week-day-column" style={weekColumnStyle(card)}>
       {blocks.map((block) => {
         const top = (block.topMinutes - startHour * 60) * pxPerMinute;
         const height = Math.max(block.heightMinutes * pxPerMinute, WEEK_MIN_BLOCK_PX);

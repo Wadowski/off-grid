@@ -3,7 +3,7 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
-import type { WeekGridSize } from "./constants.js";
+import type { WeekCardStyle, WeekGridSize } from "./constants.js";
 
 type WeekAccent = { readonly background: string; readonly color: string };
 
@@ -117,11 +117,36 @@ export const weekHourLineStyle = (hourIndex: number, size: WeekGridSize): CSSPro
   opacity: 0.5,
 });
 
-export const weekColumnStyle: CSSProperties = {
+const phoneWeekColumnStyle: CSSProperties = {
   position: "relative",
   borderLeft: `1px solid ${cssVar("color-line")}`,
   minWidth: 0,
 };
+
+const desktopWeekColumnStyle: CSSProperties = {
+  position: "relative",
+  zIndex: 1,
+  minWidth: 0,
+  margin: "0 3px",
+  borderRadius: cssVar("radius-md"),
+  background: cssVar("color-surface"),
+  boxShadow: cssVar("elevation-1"),
+};
+
+export const weekColumnStyle = (card: WeekCardStyle): CSSProperties =>
+  card === "detailed" ? desktopWeekColumnStyle : phoneWeekColumnStyle;
+
+export const weekDesktopDayCellStyle = (selected: boolean): CSSProperties => ({
+  minWidth: 0,
+  margin: "0 3px",
+  padding: `${tokens.space[2]} ${tokens.space[2]} ${tokens.space[1]}`,
+  borderRadius: cssVar("radius-md"),
+  background: selected ? cssVar("color-surface-high") : "transparent",
+  color: cssVar("color-fg"),
+  display: "flex",
+  alignItems: "center",
+  gap: tokens.space[1],
+});
 
 export const weekBlockStyle = (
   topPx: number,
@@ -175,6 +200,10 @@ export const weekDetailedBlockStyle = (
   flexDirection: "column",
   gap: tokens.space[1],
   padding: tokens.space[2],
+  background: `${accent.background}33`,
+  borderLeft: `3px solid ${accent.background}`,
+  borderRadius: cssVar("radius-md"),
+  boxShadow: cssVar("elevation-1"),
   color: cssVar("color-fg"),
   fontSize: tokens.font.size["body-sm"],
   lineHeight: tokens.font.lineHeight["body-sm"],
@@ -192,7 +221,11 @@ export const weekDetailedShortBlockStyle = (
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  padding: "2px 3px",
+  padding: "2px 6px",
+  background: `${accent.background}33`,
+  borderLeft: `3px solid ${accent.background}`,
+  borderRadius: cssVar("radius-md"),
+  boxShadow: cssVar("elevation-1"),
   color: cssVar("color-fg"),
   fontSize: tokens.font.size["body-sm"],
   lineHeight: "14px",

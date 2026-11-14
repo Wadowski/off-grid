@@ -333,3 +333,54 @@ describe("WeekGrid", () => {
     expect(within(card).queryByTestId("week-event-location")).toBeNull();
   });
 });
+
+describe("WeekGrid desktop day row", () => {
+  it("shows the weekday letter and day number for each of the seven desktop columns", () => {
+    render(
+      <WeekGrid
+        days={weekWith({})}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    expect(screen.getByText("W")).toBeInTheDocument();
+    expect(screen.getByText("23")).toBeInTheDocument();
+    expect(screen.getAllByTestId("week-day-column")).toHaveLength(7);
+  });
+
+  it("keeps the phone day row as single-letter weekday labels", () => {
+    render(
+      <WeekGrid
+        days={weekWith({})}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        timeZone="UTC"
+        now={NOON_WED}
+      />,
+    );
+
+    expect(screen.getByText("W")).toBeInTheDocument();
+    expect(screen.getByText("23")).toBeInTheDocument();
+  });
+
+  it("has no axe violations with the desktop day row", async () => {
+    const { container } = render(
+      <WeekGrid
+        days={weekWith({ "2025-10-23": [event("a", { location: "Hayes Valley" })] })}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
+
+    expect(results.violations).toEqual([]);
+  }, 30_000);
+});

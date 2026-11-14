@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Text } from "@offgrid/ui";
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { formatGmtOffset, zonedMomentOf } from "../../../../calendar-views/time-format.js";
@@ -15,6 +15,7 @@ import { WeekDayHeader } from "./components/week-day-header/week-day-header.js";
 import { MINUTES_PER_HOUR, PHONE_WEEK_SIZE } from "./constants.js";
 import {
   weekBodyStyle,
+  weekDesktopDayCellStyle,
   weekGridScrollStyle,
   weekGutterLabelStyle,
   weekHeaderRowStyle,
@@ -77,15 +78,23 @@ export const WeekGrid = ({
               })}
             />
           </div>
-          {days.map((day) => (
-            <WeekDayHeader
-              key={day.date}
-              date={day.date}
-              label={dayLetters[mondayIndexOf(day.date)] ?? ""}
-              selected={day.date === selectedDate}
-              today={day.date === todayDate}
-            />
-          ))}
+          {days.map((day) => {
+            const header = (
+              <WeekDayHeader
+                date={day.date}
+                label={dayLetters[mondayIndexOf(day.date)] ?? ""}
+                selected={day.date === selectedDate}
+                today={day.date === todayDate}
+              />
+            );
+            return size.card === "detailed" ? (
+              <div key={day.date} style={weekDesktopDayCellStyle(day.date === selectedDate)}>
+                {header}
+              </div>
+            ) : (
+              <Fragment key={day.date}>{header}</Fragment>
+            );
+          })}
         </div>
         {allDay.length > 0 && (
           <div>
