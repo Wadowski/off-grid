@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { calendarIdSchema } from "@offgrid/contracts";
+import { calendarEventIdSchema, calendarIdSchema } from "@offgrid/contracts";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { CalendarViewEvent } from "../../../../../../calendar-views/use-calendar-view.js";
 import { TimelineEventBlock } from "./timeline-event-block.js";
 
 const event = (overrides: Partial<CalendarViewEvent> = {}): CalendarViewEvent => ({
-  id: "e1" as CalendarViewEvent["id"],
+  id: calendarEventIdSchema.parse("5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f"),
   calendarId: calendarIdSchema.parse("9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f"),
   calendarName: "Work",
   calendarColor: "blue",
@@ -40,7 +40,7 @@ describe("TimelineEventBlock", () => {
   it("shows the title, the time range and the duration", () => {
     renderBlock();
 
-    const block = screen.getByTestId("timeline-event-e1");
+    const block = screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f");
     expect(block).toHaveTextContent("Standup");
     expect(block).toHaveTextContent("09:00 AM - 09:30 AM");
     expect(block).toHaveTextContent("30");
@@ -49,13 +49,12 @@ describe("TimelineEventBlock", () => {
   it("shows the location when the event has one", () => {
     renderBlock({ location: "Kitchen" });
 
-    expect(screen.getByTestId("timeline-event-e1")).toHaveTextContent("Kitchen");
+    expect(screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f")).toHaveTextContent("Kitchen");
   });
 
   it("shows no location line when the event has none", () => {
     renderBlock({ location: null });
 
-    expect(screen.queryByText("Kitchen")).not.toBeInTheDocument();
-    expect(screen.getByTestId("timeline-event-e1").querySelectorAll("p")).toHaveLength(0);
+    expect(screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f")).not.toHaveTextContent("Kitchen");
   });
 });

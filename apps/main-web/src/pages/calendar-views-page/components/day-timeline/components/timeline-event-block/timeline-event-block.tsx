@@ -34,7 +34,7 @@ export const TimelineEventBlock = ({
   return (
     <article
       data-testid={`timeline-event-${event.id}`}
-      style={timelineBlockStyle(topPx, heightPx, column, columnCount, desktop)}
+      style={timelineBlockStyle(topPx, heightPx, column, columnCount, { desktop })}
     >
       <span aria-hidden="true" style={timelineBlockAccentStyle(accent)} />
       <div style={timelineBlockHeaderStyle}>
