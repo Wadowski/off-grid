@@ -32,10 +32,10 @@ describe("SelectedDaySheet", () => {
     expect(screen.getByText("Session a")).toBeInTheDocument();
   });
 
-  it("says nothing is scheduled on a day with no events", () => {
+  it("shows no empty-day text on a day with no events", () => {
     render(<SelectedDaySheet date="2025-10-23" events={[]} timeZone="UTC" />);
 
     expect(screen.getByText("0 Events")).toBeInTheDocument();
-    expect(screen.getByText("Nothing scheduled for this day.")).toBeInTheDocument();
+    expect(screen.queryByText("Nothing scheduled for this day.")).not.toBeInTheDocument();
   });
 });

@@ -137,7 +137,6 @@ export const en = {
       newEvent: "New Event",
       events_one: "{{count}} Event",
       events_other: "{{count}} Events",
-      nothingScheduled: "Nothing scheduled for this day.",
       loading: "Loading events",
       loadFailed: "We could not load this view.",
       retry: "Try again",

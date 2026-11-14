@@ -102,10 +102,11 @@ describe("DayTimeline", () => {
     expect(region).toHaveAttribute("tabindex", "0");
   });
 
-  it("says nothing is scheduled when the day has no events", () => {
+  it("shows no empty-day text when the day has no events and keeps the hours", () => {
     render(<DayTimeline events={[]} date="2025-10-23" timeZone="UTC" now={NOON_ANOTHER_DAY} />);
 
-    expect(screen.getByText("Nothing scheduled for this day.")).toBeInTheDocument();
+    expect(screen.queryByText("Nothing scheduled for this day.")).not.toBeInTheDocument();
+    expect(screen.getByText("08:00")).toBeInTheDocument();
   });
 
   it("has no axe violations", async () => {

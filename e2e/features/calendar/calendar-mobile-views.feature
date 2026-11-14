@@ -67,10 +67,10 @@ Feature: Mobile calendar views: agenda, day, week and month
     When I open the day view for 2026-11-18 at a phone width of 375 pixels
     Then the calendar grid spans the phone width edge to edge
 
-  Scenario: Anna sees the empty-day text on a day with no events
+  Scenario: Anna sees no empty-day text on a day with no events
     Given I am a user with a family named "The Smiths"
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
-    Then I see the text "Nothing scheduled for this day."
+    Then I do not see the text "Nothing scheduled for this day." on the calendar page
 
   Scenario: A view that fails to load shows the error text and a retry action
     Given I am a user with a family named "The Smiths"

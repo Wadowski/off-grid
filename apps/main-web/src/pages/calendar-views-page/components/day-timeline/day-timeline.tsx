@@ -64,9 +64,6 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
           ))}
         </ul>
       )}
-      {events.length === 0 && (
-        <Text variant="body" textId="calendar.mobileViews.nothingScheduled" />
-      )}
       <div
         ref={scrollRef}
         role="region"
