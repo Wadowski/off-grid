@@ -60,7 +60,7 @@ When("I open the new event modal from the calendar sidebar on a desktop", async 
 
 Then("I see the new event modal over the calendar", async ({ page }) => {
   await expect(modal(page)).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Calendar view", exact: true })).toBeVisible();
   await captureScreen(page, "new event", FEATURE);
 });
 
@@ -91,7 +91,7 @@ When("I close the new event modal without saving", async ({ page }) => {
 });
 
 Then("no event named {string} is listed", async ({ page }, title: string) => {
-  await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Calendar view", exact: true })).toBeVisible();
   await page.waitForLoadState("networkidle");
   await expect(page.getByText(title, { exact: true })).toHaveCount(0);
 });
@@ -128,9 +128,11 @@ When("I open the new event page directly", async ({ page }) => {
 
 Then("I see the new event modal over the agenda view", async ({ page }) => {
   await expect(modal(page)).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toHaveValue(
-    "agenda",
-  );
+  await expect(
+    page
+      .getByRole("group", { name: "Calendar view", exact: true })
+      .getByRole("button", { name: "Agenda", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
 Then("I see the guest field in the new event modal", async ({ page }) => {

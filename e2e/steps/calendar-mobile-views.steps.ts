@@ -119,8 +119,11 @@ Then(
   },
 );
 
-When("I choose the day view in the view selector", async ({ page }) => {
-  await page.getByRole("combobox", { name: "Calendar view" }).selectOption("day");
+When("I choose the day view in the view tabs", async ({ page }) => {
+  await page
+    .getByRole("group", { name: "Calendar view" })
+    .getByRole("button", { name: "Day", exact: true })
+    .click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/calendar/day");
 });
 
@@ -139,8 +142,8 @@ When("I untick the calendar {string} in the calendar filter", async ({ page }, n
     .uncheck();
 });
 
-Then("I see the view selector", async ({ page }) => {
-  await expect(page.getByRole("combobox", { name: "Calendar view" })).toBeVisible();
+Then("I see the view tabs", async ({ page }) => {
+  await expect(page.getByRole("group", { name: "Calendar view" })).toBeVisible();
 });
 
 Then("I see the calendar filter", async ({ page }) => {

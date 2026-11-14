@@ -10,13 +10,13 @@ Feature: Desktop calendar day view
   in the bar at the bottom of the screen.
 
   @smoke
-  Scenario: Anna sees the full date, the previous, Today and next controls and the view selector at desktop width
+  Scenario: Anna sees the full date, the previous, Today and next controls and the view tabs at desktop width
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     When I open the day view for 2026-11-18 at a desktop width of 1280 pixels
     Then I see the day heading "Wednesday, November 18"
     And I see the controls "Previous", "Today" and "Next" in the day command row
-    And I see the view selector in the day command row
+    And I see the view tabs in the header row
 
   Scenario: Anna moves to the next and previous day and the heading follows
     Given I am a user with a family named "The Smiths"

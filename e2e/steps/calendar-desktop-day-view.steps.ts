@@ -100,8 +100,9 @@ Then(
   },
 );
 
-Then("I see the view selector in the day command row", async ({ page }) => {
-  await expect(commandRow(page).getByRole("combobox", { name: "Calendar view" })).toBeVisible();
+Then("I see the view tabs in the header row", async ({ page }) => {
+  await expect(page.getByRole("group", { name: "Calendar view" })).toBeVisible();
+  await expect(commandRow(page).getByRole("group", { name: "Calendar view" })).toHaveCount(0);
 });
 
 When("I choose the next period in the day command row", async ({ page }) => {

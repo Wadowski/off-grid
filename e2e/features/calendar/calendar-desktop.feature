@@ -46,7 +46,7 @@ Feature: Desktop calendar sidebar and agenda
     And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the agenda view for 2026-11-18 at a desktop width of 1280 pixels
     And I hide the calendar "Work" in the calendar sidebar
-    And I choose the week view in the view selector
+    And I choose the week view in the view tabs
     Then the calendar "Work" is unchecked in the calendar sidebar
     And I do not see the event "Standup" in the week grid
 

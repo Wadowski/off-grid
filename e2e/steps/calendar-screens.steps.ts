@@ -103,9 +103,11 @@ When("I open the calendar from the navigation", async ({ page }) => {
 
 Then("I see the agenda view", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toHaveValue(
-    "agenda",
-  );
+  await expect(
+    page
+      .getByRole("group", { name: "Calendar view", exact: true })
+      .getByRole("button", { name: "Agenda", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
 Then("I see the calendars list", async ({ page }) => {

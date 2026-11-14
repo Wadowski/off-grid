@@ -23,18 +23,18 @@ Feature: Mobile calendar views: agenda, day, week and month
     When I open the calendar from the navigation at a phone width of 375 pixels
     Then I see the agenda view
 
-  Scenario: Anna picks the day view from the view selector and sees the events placed by time
+  Scenario: Anna picks the day view from the view tabs and sees the events placed by time
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
-    And I choose the day view in the view selector
+    And I choose the day view in the view tabs
     Then I see the event "Standup" placed between 09:00 and 09:30 on the timeline
 
-  Scenario: Anna sees the view selector and the calendar filter in the top row without the family name, search or avatar
+  Scenario: Anna sees the view tabs and the calendar filter in the top row without the family name, search or avatar
     Given I am a user with a family named "The Smiths"
     When I open the agenda view for 2026-11-18 at a phone width of 375 pixels
-    Then I see the view selector
+    Then I see the view tabs
     And I see the calendar filter
     And I do not see the text "The Smiths" on the calendar page
     And I do not see a search button

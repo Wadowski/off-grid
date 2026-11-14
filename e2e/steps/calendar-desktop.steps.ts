@@ -73,8 +73,11 @@ Then(
   },
 );
 
-When("I choose the week view in the view selector", async ({ page }) => {
-  await page.getByRole("combobox", { name: "Calendar view" }).selectOption("week");
+When("I choose the week view in the view tabs", async ({ page }) => {
+  await page
+    .getByRole("group", { name: "Calendar view" })
+    .getByRole("button", { name: "Week", exact: true })
+    .click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/calendar/week");
 });
 
