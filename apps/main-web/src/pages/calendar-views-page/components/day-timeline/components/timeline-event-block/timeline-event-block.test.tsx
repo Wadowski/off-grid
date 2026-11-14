@@ -49,12 +49,16 @@ describe("TimelineEventBlock", () => {
   it("shows the location when the event has one", () => {
     renderBlock({ location: "Kitchen" });
 
-    expect(screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f")).toHaveTextContent("Kitchen");
+    expect(
+      screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f"),
+    ).toHaveTextContent("Kitchen");
   });
 
   it("shows no location line when the event has none", () => {
     renderBlock({ location: null });
 
-    expect(screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f")).not.toHaveTextContent("Kitchen");
+    expect(
+      screen.getByTestId("timeline-event-5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f"),
+    ).not.toHaveTextContent("Kitchen");
   });
 });
