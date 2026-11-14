@@ -6,6 +6,8 @@ import type { CSSProperties } from "react";
 
 const SHELL_SIDEBAR_WIDTH = "16rem";
 const PHONE_MAX_WIDTH = "767px";
+// The desktop month grid starts one pixel above the phone range, so 767 px is always the mobile grid.
+const DESKTOP_MONTH_MIN_WIDTH = "768px";
 const SIDEBAR_MIN_WIDTH = "640px";
 const SHELL_PHONE_GUTTER = tokens.space[4];
 const BODY_MARGIN = "0.5rem";
@@ -52,7 +54,7 @@ export const calendarViewsCss = `
     bottom: calc(${TAB_BAR_HEIGHT} + env(safe-area-inset-bottom));
   }
 }
-@media (min-width: 768px) {
+@media (min-width: ${DESKTOP_MONTH_MIN_WIDTH}) {
   .${MOBILE_MONTH_CLASS} {
     display: none;
   }

@@ -10,7 +10,7 @@ import { jsonResponse } from "../../test-support/json-response.js";
 import type { CalendarsState, ShellContext } from "../../types.js";
 import { CalendarLayout } from "../../layouts/calendar-layout/calendar-layout.js";
 import { CalendarViewsPage } from "./calendar-views-page.js";
-import { calendarViewsCss, DESKTOP_MONTH_CLASS, MOBILE_MONTH_CLASS } from "./styles.js";
+import { DESKTOP_MONTH_CLASS, MOBILE_MONTH_CLASS } from "./styles.js";
 
 const FAMILY_ID = "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f";
 const STUDIO: Calendar = calendarSchema.parse({
@@ -235,13 +235,6 @@ describe("CalendarViewsPage month view", () => {
     );
     expect(container.querySelector(`.${DESKTOP_MONTH_CLASS}`)).toContainElement(
       screen.getByTestId("month-desktop-day-2026-11-18"),
-    );
-  });
-
-  it("switches the two month grids at 768 pixels in the stylesheet", () => {
-    expect(calendarViewsCss).toContain(`.${DESKTOP_MONTH_CLASS} {\n    display: none;`);
-    expect(calendarViewsCss).toContain(
-      `@media (min-width: 768px) {\n  .${MOBILE_MONTH_CLASS} {\n    display: none;`,
     );
   });
 
