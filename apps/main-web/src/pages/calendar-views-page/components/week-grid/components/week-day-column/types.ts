@@ -9,4 +9,5 @@ export type WeekDayColumnProps = {
   readonly startHour: number;
   readonly timeZone: string;
   readonly now: Date;
+  readonly hourPx: number;
 };

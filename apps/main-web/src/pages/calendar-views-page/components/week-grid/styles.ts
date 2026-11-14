@@ -3,25 +3,25 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
-import { WEEK_GUTTER, WEEK_HOUR_PX } from "./constants.js";
+import type { WeekGridSize } from "./constants.js";
 
-export const weekGridScrollStyle: CSSProperties = {
-  height: "32rem",
+export const weekGridScrollStyle = (scrollHeight: string): CSSProperties => ({
+  height: scrollHeight,
   overflowY: "auto",
   overflowX: "hidden",
   borderRadius: cssVar("radius-lg"),
   background: cssVar("color-surface-low"),
-};
+});
 
-export const weekHeaderRowStyle: CSSProperties = {
+export const weekHeaderRowStyle = (gutter: string): CSSProperties => ({
   display: "grid",
-  gridTemplateColumns: `${WEEK_GUTTER} repeat(7, minmax(0, 1fr))`,
+  gridTemplateColumns: `${gutter} repeat(7, minmax(0, 1fr))`,
   alignItems: "stretch",
   position: "sticky",
   top: 0,
   zIndex: 2,
   background: cssVar("color-surface"),
-};
+});
 
 export const weekGutterLabelStyle: CSSProperties = {
   display: "flex",
@@ -66,12 +66,12 @@ export const weekTodayDotStyle: CSSProperties = {
   background: cssVar("color-good"),
 };
 
-export const weekAllDayRowStyle: CSSProperties = {
+export const weekAllDayRowStyle = (gutter: string): CSSProperties => ({
   display: "grid",
-  gridTemplateColumns: `${WEEK_GUTTER} repeat(7, minmax(0, 1fr))`,
+  gridTemplateColumns: `${gutter} repeat(7, minmax(0, 1fr))`,
   gap: "2px 0",
   padding: `${tokens.space[1]} 0`,
-};
+});
 
 export const weekAllDayBarStyle = (color: string): CSSProperties => ({
   minWidth: 0,
@@ -89,27 +89,27 @@ export const weekAllDayBarStyle = (color: string): CSSProperties => ({
   whiteSpace: "nowrap",
 });
 
-export const weekBodyStyle = (heightPx: number): CSSProperties => ({
+export const weekBodyStyle = (heightPx: number, gutter: string): CSSProperties => ({
   position: "relative",
   display: "grid",
-  gridTemplateColumns: `${WEEK_GUTTER} repeat(7, minmax(0, 1fr))`,
+  gridTemplateColumns: `${gutter} repeat(7, minmax(0, 1fr))`,
   height: `${heightPx}px`,
 });
 
-export const weekHourLabelStyle = (hourIndex: number): CSSProperties => ({
+export const weekHourLabelStyle = (hourIndex: number, hourPx: number): CSSProperties => ({
   position: "absolute",
-  top: `${hourIndex * WEEK_HOUR_PX - 6}px`,
+  top: `${hourIndex * hourPx - 6}px`,
   right: tokens.space[1],
   fontFamily: cssVar("font-family-mono"),
   fontSize: "9px",
   color: cssVar("color-muted"),
 });
 
-export const weekHourLineStyle = (hourIndex: number): CSSProperties => ({
+export const weekHourLineStyle = (hourIndex: number, size: WeekGridSize): CSSProperties => ({
   position: "absolute",
-  left: WEEK_GUTTER,
+  left: size.gutter,
   right: 0,
-  top: `${hourIndex * WEEK_HOUR_PX}px`,
+  top: `${hourIndex * size.hourPx}px`,
   height: "1px",
   background: cssVar("color-line"),
   opacity: 0.5,

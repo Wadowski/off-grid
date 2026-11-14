@@ -4,3 +4,24 @@
 export const WEEK_HOUR_PX = 60;
 export const WEEK_GUTTER = "2.25rem";
 export const WEEK_MIN_BLOCK_PX = 22;
+
+export type WeekGridSize = {
+  readonly hourPx: number;
+  readonly gutter: string;
+  readonly scrollHeight: string;
+  readonly scrollFocusable: boolean;
+};
+
+export const PHONE_WEEK_SIZE: WeekGridSize = {
+  hourPx: WEEK_HOUR_PX,
+  gutter: WEEK_GUTTER,
+  scrollHeight: "32rem",
+  scrollFocusable: false,
+};
+
+export const DESKTOP_WEEK_SIZE: WeekGridSize = {
+  hourPx: 68,
+  gutter: "3.5rem",
+  scrollHeight: "40rem",
+  scrollFocusable: true,
+};

@@ -20,7 +20,17 @@ import {
 } from "../../styles.js";
 import type { WeekDayColumnProps } from "./types.js";
 
-export const WeekDayColumn = ({ date, events, startHour, timeZone, now }: WeekDayColumnProps) => {
+const MINUTES_PER_HOUR = 60;
+
+export const WeekDayColumn = ({
+  date,
+  events,
+  startHour,
+  timeZone,
+  now,
+  hourPx,
+}: WeekDayColumnProps) => {
+  const pxPerMinute = hourPx / MINUTES_PER_HOUR;
   const nowMinute = nowMinutesOnDate(now, date, timeZone);
   const blocks = layoutTimedEvents(splitAllDay(events).timed, date, timeZone);
 
@@ -31,8 +41,8 @@ export const WeekDayColumn = ({ date, events, startHour, timeZone, now }: WeekDa
           key={block.item.id}
           data-testid={`week-event-${block.item.id}`}
           style={weekBlockStyle(
-            block.topMinutes - startHour * 60,
-            Math.max(block.heightMinutes, WEEK_MIN_BLOCK_PX),
+            (block.topMinutes - startHour * 60) * pxPerMinute,
+            Math.max(block.heightMinutes * pxPerMinute, WEEK_MIN_BLOCK_PX),
             block.column,
             block.columnCount,
             calendarAccentColor(block.item.calendarColor).background,
@@ -43,7 +53,10 @@ export const WeekDayColumn = ({ date, events, startHour, timeZone, now }: WeekDa
         </div>
       ))}
       {nowMinute !== null && (
-        <div data-testid="week-now" style={weekNowStyle(nowMinute - startHour * 60)}>
+        <div
+          data-testid="week-now"
+          style={weekNowStyle((nowMinute - startHour * 60) * pxPerMinute)}
+        >
           <span style={weekNowDotStyle} />
           <span style={weekNowLineStyle} />
         </div>

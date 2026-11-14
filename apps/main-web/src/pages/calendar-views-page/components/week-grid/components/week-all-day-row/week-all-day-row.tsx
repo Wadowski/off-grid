@@ -7,7 +7,7 @@ import { zonedMomentOf } from "../../../../../../calendar-views/time-format.js";
 import { weekAllDayBarStyle, weekAllDayRowStyle } from "../../styles.js";
 import type { WeekAllDayRowProps } from "./types.js";
 
-export const WeekAllDayRow = ({ event, dates, timeZone }: WeekAllDayRowProps) => {
+export const WeekAllDayRow = ({ event, dates, timeZone, gutter }: WeekAllDayRowProps) => {
   const span = columnSpanInWeek(
     event.startDate ?? zonedMomentOf(event.startsAt, timeZone).date,
     event.endDate ?? zonedMomentOf(event.endsAt, timeZone).date,
@@ -17,7 +17,7 @@ export const WeekAllDayRow = ({ event, dates, timeZone }: WeekAllDayRowProps) =>
     return null;
   }
   return (
-    <div style={weekAllDayRowStyle}>
+    <div style={weekAllDayRowStyle(gutter)}>
       <span />
       <div
         style={{

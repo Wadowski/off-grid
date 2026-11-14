@@ -7,4 +7,5 @@ export type WeekAllDayRowProps = {
   readonly event: CalendarViewEvent;
   readonly dates: readonly string[];
   readonly timeZone: string;
+  readonly gutter: string;
 };

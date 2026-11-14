@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { CalendarViewDay } from "../../../../calendar-views/use-calendar-view.js";
+import type { WeekGridSize } from "./constants.js";
 
 export type WeekGridProps = {
   readonly days: readonly CalendarViewDay[];
@@ -9,4 +10,5 @@ export type WeekGridProps = {
   readonly todayDate: string;
   readonly timeZone: string;
   readonly now: Date;
+  readonly size?: WeekGridSize;
 };

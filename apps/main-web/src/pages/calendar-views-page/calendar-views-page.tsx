@@ -10,6 +10,7 @@ import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
+import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
 import { useSession } from "../../session/use-session.js";
 import type { CalendarViewKind } from "@offgrid/contracts";
@@ -20,6 +21,7 @@ import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
 import { ViewSelect } from "./components/view-select/view-select.js";
+import { DESKTOP_WEEK_SIZE, PHONE_WEEK_SIZE } from "./components/week-grid/constants.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
@@ -41,6 +43,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const navigate = useNavigate();
   const openNewEvent = useOpenNewEvent();
   const layout = useCalendarLayout();
+  const narrow = useIsNarrow();
   const session = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
   const date = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
@@ -58,7 +61,8 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const goToView = (nextView: CalendarViewKind) =>
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
 
-  const gridWrapperClass = view === "week" || view === "day" ? BLEED_CLASS : undefined;
+  const weekIsPhone = view === "week" && narrow;
+  const gridWrapperClass = weekIsPhone || view === "day" ? BLEED_CLASS : undefined;
 
   return (
     <section className={PAGE_CLASS} style={calendarViewsPageStyle}>
@@ -130,6 +134,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
             todayDate={today}
             timeZone={timeZone}
             now={new Date()}
+            size={narrow ? PHONE_WEEK_SIZE : DESKTOP_WEEK_SIZE}
           />
         </div>
       )}

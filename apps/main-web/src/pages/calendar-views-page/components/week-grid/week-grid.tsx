@@ -12,7 +12,7 @@ import { weekdayLetters } from "../../../../calendar-views/weekday-letters.js";
 import { WeekAllDayRow } from "./components/week-all-day-row/week-all-day-row.js";
 import { WeekDayColumn } from "./components/week-day-column/week-day-column.js";
 import { WeekDayHeader } from "./components/week-day-header/week-day-header.js";
-import { WEEK_HOUR_PX } from "./constants.js";
+import { PHONE_WEEK_SIZE } from "./constants.js";
 import {
   weekBodyStyle,
   weekGridScrollStyle,
@@ -24,10 +24,18 @@ import {
 import type { WeekGridProps } from "./types.js";
 
 const SCROLL_MARGIN_PX = 24;
+const MINUTES_PER_HOUR = 60;
 
 const hourLabel = (hour: number): string => `${String(hour).padStart(2, "0")}:00`;
 
-export const WeekGrid = ({ days, selectedDate, todayDate, timeZone, now }: WeekGridProps) => {
+export const WeekGrid = ({
+  days,
+  selectedDate,
+  todayDate,
+  timeZone,
+  now,
+  size = PHONE_WEEK_SIZE,
+}: WeekGridProps) => {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const dates = days.map((day) => day.date);
@@ -35,12 +43,15 @@ export const WeekGrid = ({ days, selectedDate, todayDate, timeZone, now }: WeekG
   const allDay = dedupeById(days.flatMap((day) => splitAllDay(day.events).allDay));
   const { startHour, endHour } = weekGridRange(allTimed, timeZone);
   const hourCount = endHour - startHour;
-  const bodyHeight = hourCount * WEEK_HOUR_PX;
+  const bodyHeight = hourCount * size.hourPx;
   const earliestMinute = allTimed.reduce(
     (earliest, event) => Math.min(earliest, zonedMomentOf(event.startsAt, timeZone).minutesOfDay),
     startHour * 60,
   );
-  const scrollTargetPx = Math.max(0, earliestMinute - startHour * 60 - SCROLL_MARGIN_PX);
+  const scrollTargetPx = Math.max(
+    0,
+    ((earliestMinute - startHour * 60 - SCROLL_MARGIN_PX) * size.hourPx) / MINUTES_PER_HOUR,
+  );
   const firstDate = dates[0] ?? selectedDate;
   const dayLetters = weekdayLetters(t);
 
@@ -52,8 +63,13 @@ export const WeekGrid = ({ days, selectedDate, todayDate, timeZone, now }: WeekG
 
   return (
     <section aria-label={t("calendar.mobileViews.weekGridLabel")}>
-      <div ref={scrollRef} style={weekGridScrollStyle} data-testid="week-grid">
-        <div style={weekHeaderRowStyle}>
+      <div
+        ref={scrollRef}
+        style={weekGridScrollStyle(size.scrollHeight)}
+        tabIndex={size.scrollFocusable ? 0 : undefined}
+        data-testid="week-grid"
+      >
+        <div style={weekHeaderRowStyle(size.gutter)}>
           <div style={weekGutterLabelStyle}>
             <Text
               variant="caption"
@@ -75,20 +91,26 @@ export const WeekGrid = ({ days, selectedDate, todayDate, timeZone, now }: WeekG
         {allDay.length > 0 && (
           <div>
             {allDay.map((event) => (
-              <WeekAllDayRow key={event.id} event={event} dates={dates} timeZone={timeZone} />
+              <WeekAllDayRow
+                key={event.id}
+                event={event}
+                dates={dates}
+                timeZone={timeZone}
+                gutter={size.gutter}
+              />
             ))}
           </div>
         )}
-        <div style={weekBodyStyle(bodyHeight)}>
+        <div style={weekBodyStyle(bodyHeight, size.gutter)}>
           <div style={{ position: "relative" }}>
             {Array.from({ length: hourCount }, (_, index) => (
-              <span key={index} style={weekHourLabelStyle(index)}>
+              <span key={index} style={weekHourLabelStyle(index, size.hourPx)}>
                 {hourLabel(startHour + index)}
               </span>
             ))}
           </div>
           {Array.from({ length: hourCount }, (_, index) => (
-            <span key={`line-${index}`} style={weekHourLineStyle(index)} />
+            <span key={`line-${index}`} style={weekHourLineStyle(index, size)} />
           ))}
           {days.map((day) => (
             <WeekDayColumn
@@ -98,6 +120,7 @@ export const WeekGrid = ({ days, selectedDate, todayDate, timeZone, now }: WeekG
               startHour={startHour}
               timeZone={timeZone}
               now={now}
+              hourPx={size.hourPx}
             />
           ))}
         </div>
