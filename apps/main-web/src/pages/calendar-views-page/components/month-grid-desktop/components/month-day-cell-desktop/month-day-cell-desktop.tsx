@@ -1,0 +1,78 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { Button } from "@offgrid/ui";
+import { useTranslation } from "react-i18next";
+import { formatDayHeading } from "../../../../../../calendar-views/time-format.js";
+import { weekDayNumber } from "../../../../../../calendar-views/week-days.js";
+import { monthDayNumberStyle } from "../../../month-grid/styles.js";
+import { MonthEventChip } from "../month-event-chip/month-event-chip.js";
+import {
+  desktopMonthCellStyle,
+  desktopMonthChipListStyle,
+  desktopMonthMoreTextStyle,
+} from "../../styles.js";
+import type { MonthDayCellDesktopProps } from "./types.js";
+
+// The design shows up to two chips in a day cell. Any further events are summarised by a
+// "+N more events" control that opens the day.
+const MAX_CHIPS_PER_DAY = 2;
+
+export const MonthDayCellDesktop = ({
+  date,
+  inMonth,
+  events,
+  selected,
+  today,
+  timeZone,
+  onOpenDay,
+}: MonthDayCellDesktopProps) => {
+  const { t } = useTranslation();
+  const visible = events.slice(0, MAX_CHIPS_PER_DAY);
+  const hidden = events.length - visible.length;
+
+  return (
+    <div
+      role="group"
+      aria-label={formatDayHeading(date)}
+      data-testid={`month-desktop-cell-${date}`}
+      style={desktopMonthCellStyle(inMonth)}
+    >
+      {inMonth ? (
+        <Button
+          variant="ghost"
+          size="small"
+          align="start"
+          aria-current={today ? "date" : undefined}
+          data-selected={selected}
+          data-testid={`month-desktop-day-${date}`}
+          onClick={() => onOpenDay(date)}
+        >
+          <span style={monthDayNumberStyle(selected, today)}>{weekDayNumber(date)}</span>
+        </Button>
+      ) : (
+        <span style={monthDayNumberStyle(false)}>{weekDayNumber(date)}</span>
+      )}
+      {inMonth && (
+        <div style={desktopMonthChipListStyle}>
+          {visible.map((event) => (
+            <MonthEventChip key={event.id} event={event} timeZone={timeZone} />
+          ))}
+          {hidden > 0 && (
+            <Button
+              variant="ghost"
+              size="small"
+              align="start"
+              fullWidth
+              onClick={() => onOpenDay(date)}
+            >
+              <span style={desktopMonthMoreTextStyle}>
+                {t("calendar.desktop.moreEvents", { count: hidden })}
+              </span>
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

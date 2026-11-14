@@ -3,27 +3,21 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import { monthGridCardStyle, monthWeekdayRowStyle } from "../month-grid/styles.js";
 
 export const desktopMonthCardStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  borderRadius: cssVar("radius-lg"),
-  background: cssVar("color-surface"),
-  boxShadow: cssVar("elevation-1"),
+  ...monthGridCardStyle,
+  gap: 0,
+  padding: 0,
   overflow: "hidden",
 };
 
 export const desktopMonthWeekdayRowStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  ...monthWeekdayRowStyle,
+  textAlign: "left",
   borderBottom: `1px solid ${cssVar("color-line")}`,
-  fontFamily: cssVar("font-family-base"),
-  fontSize: cssVar("font-size-label-sm"),
-  lineHeight: cssVar("line-height-label-sm"),
-  fontWeight: cssVar("font-weight-semibold"),
   letterSpacing: "0.05em",
   textTransform: "uppercase",
-  color: cssVar("color-muted"),
 };
 
 export const desktopMonthWeekdayCellStyle: CSSProperties = {
@@ -51,24 +45,6 @@ export const desktopMonthCellStyle = (inMonth: boolean): CSSProperties => ({
   fontSize: cssVar("font-size-label-md"),
 });
 
-export const desktopMonthDayNumberStyle = (selected: boolean, today: boolean): CSSProperties => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  alignSelf: "flex-start",
-  width: "1.75rem",
-  height: "1.75rem",
-  padding: 0,
-  borderWidth: 0,
-  borderRadius: cssVar("radius-full"),
-  background: selected ? cssVar("color-primary") : "transparent",
-  color: selected ? cssVar("color-accent-fg") : "inherit",
-  fontFamily: "inherit",
-  fontSize: "inherit",
-  fontWeight: today || selected ? cssVar("font-weight-semibold") : cssVar("font-weight-medium"),
-  cursor: "pointer",
-});
-
 export const desktopMonthChipListStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -76,15 +52,10 @@ export const desktopMonthChipListStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const desktopMonthMoreStyle: CSSProperties = {
-  padding: 0,
-  borderWidth: 0,
-  background: "transparent",
-  textAlign: "left",
+export const desktopMonthMoreTextStyle: CSSProperties = {
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),
   lineHeight: cssVar("line-height-label-sm"),
   fontWeight: cssVar("font-weight-medium"),
   color: cssVar("color-primary"),
-  cursor: "pointer",
 };

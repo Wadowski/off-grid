@@ -20,3 +20,6 @@ export const calendarAccentColor = (
   color: CalendarColor,
 ): (typeof FAMILY_ACCENT_COLORS)[FamilyAccent] =>
   FAMILY_ACCENT_COLORS[CALENDAR_COLOR_ACCENT[color]];
+
+// The soft background behind a block or pill in a calendar's colour (a 15 % alpha tint).
+export const calendarTintBackground = (color: string): string => `${color}26`;

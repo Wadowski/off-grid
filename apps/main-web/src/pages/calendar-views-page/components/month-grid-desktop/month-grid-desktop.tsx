@@ -3,24 +3,17 @@
 
 import { useTranslation } from "react-i18next";
 import { monthCells } from "../../../../calendar-views/month-cells.js";
-import { formatDayHeading } from "../../../../calendar-views/time-format.js";
-import { MonthEventChip } from "./components/month-event-chip/month-event-chip.js";
+import { MonthDayCellDesktop } from "./components/month-day-cell-desktop/month-day-cell-desktop.js";
 import {
   desktopMonthCardStyle,
-  desktopMonthCellStyle,
-  desktopMonthChipListStyle,
-  desktopMonthDayNumberStyle,
   desktopMonthDaysGridStyle,
-  desktopMonthMoreStyle,
   desktopMonthWeekdayCellStyle,
   desktopMonthWeekdayRowStyle,
 } from "./styles.js";
 import type { MonthGridDesktopProps } from "./types.js";
 
-// The design shows up to two chips in a day cell. Any further events are summarised by a
-// "+N more events" control that opens the day.
-const MAX_CHIPS_PER_DAY = 2;
-
+// The desktop header shows three-letter names. The mobile single letters in weekday-letters.ts do
+// not fit this design.
 const WEEKDAY_SHORT_KEYS = [
   "calendar.desktop.weekdayShortMonday",
   "calendar.desktop.weekdayShortTuesday",
@@ -41,7 +34,7 @@ export const MonthGridDesktop = ({
   const { t } = useTranslation();
   const cells = monthCells(days.map((day) => day.date));
   // The calendar views API already lists a multi-day event on each day it covers.
-  const eventsOnDay = new Map(days.map((day) => [day.date, day.events]));
+  const eventsByDate = new Map(days.map((day) => [day.date, day.events]));
 
   return (
     <div
@@ -57,55 +50,18 @@ export const MonthGridDesktop = ({
         ))}
       </div>
       <div style={desktopMonthDaysGridStyle}>
-        {cells.map((cell) => {
-          const events = eventsOnDay.get(cell.date) ?? [];
-          const visible = events.slice(0, MAX_CHIPS_PER_DAY);
-          const hidden = events.length - visible.length;
-          const selected = cell.date === selectedDate;
-          const today = cell.date === todayDate;
-          const dayNumber = Number(cell.date.slice(8));
-
-          return (
-            <div
-              key={cell.date}
-              role="group"
-              aria-label={formatDayHeading(cell.date)}
-              data-testid={`month-desktop-cell-${cell.date}`}
-              style={desktopMonthCellStyle(cell.inMonth)}
-            >
-              {cell.inMonth ? (
-                <button
-                  type="button"
-                  aria-current={today ? "date" : undefined}
-                  data-selected={selected}
-                  data-testid={`month-desktop-day-${cell.date}`}
-                  style={desktopMonthDayNumberStyle(selected, today)}
-                  onClick={() => onOpenDay(cell.date)}
-                >
-                  {dayNumber}
-                </button>
-              ) : (
-                <span style={desktopMonthDayNumberStyle(false, false)}>{dayNumber}</span>
-              )}
-              {cell.inMonth && (
-                <div style={desktopMonthChipListStyle}>
-                  {visible.map((event) => (
-                    <MonthEventChip key={event.id} event={event} timeZone={timeZone} />
-                  ))}
-                  {hidden > 0 && (
-                    <button
-                      type="button"
-                      style={desktopMonthMoreStyle}
-                      onClick={() => onOpenDay(cell.date)}
-                    >
-                      {t("calendar.desktop.moreEvents", { count: hidden })}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {cells.map((cell) => (
+          <MonthDayCellDesktop
+            key={cell.date}
+            date={cell.date}
+            inMonth={cell.inMonth}
+            events={eventsByDate.get(cell.date) ?? []}
+            selected={cell.date === selectedDate}
+            today={cell.date === todayDate}
+            timeZone={timeZone}
+            onOpenDay={onOpenDay}
+          />
+        ))}
       </div>
     </div>
   );
