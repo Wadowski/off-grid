@@ -95,6 +95,14 @@ describe("MonthGridDesktop", () => {
     ).toBeNull();
   });
 
+  it("shows a multi-day event once on each day it spans", () => {
+    renderGrid(
+      monthDays({ "2026-11-10": [retreat], "2026-11-11": [retreat], "2026-11-12": [retreat] }),
+    );
+
+    expect(screen.getAllByText("Retreat")).toHaveLength(3);
+  });
+
   it("shows at most two chips and a '+N more events' control for the rest", () => {
     const busy = [event("a"), event("b"), event("c"), event("d")];
     renderGrid(monthDays({ "2026-11-18": busy }));

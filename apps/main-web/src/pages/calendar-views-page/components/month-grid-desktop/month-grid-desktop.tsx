@@ -4,8 +4,6 @@
 import { useTranslation } from "react-i18next";
 import { monthCells } from "../../../../calendar-views/month-cells.js";
 import { formatDayHeading } from "../../../../calendar-views/time-format.js";
-import { eventsByDay } from "../../../../calendar-views/events-by-day.js";
-import type { CalendarViewEvent } from "../../../../calendar-views/use-calendar-view.js";
 import { MonthEventChip } from "./components/month-event-chip/month-event-chip.js";
 import {
   desktopMonthCardStyle,
@@ -41,9 +39,9 @@ export const MonthGridDesktop = ({
   onOpenDay,
 }: MonthGridDesktopProps) => {
   const { t } = useTranslation();
-  const dates = days.map((day) => day.date);
-  const cells = monthCells(dates);
-  const eventsOnDay = eventsByDay(uniqueEvents(days), dates, timeZone);
+  const cells = monthCells(days.map((day) => day.date));
+  // The calendar views API already lists a multi-day event on each day it covers.
+  const eventsOnDay = new Map(days.map((day) => [day.date, day.events]));
 
   return (
     <div
@@ -111,16 +109,4 @@ export const MonthGridDesktop = ({
       </div>
     </div>
   );
-};
-
-// A multi-day event is returned once per day by the API. It is listed once here and then placed
-// on each day it spans by `eventsByDay`.
-const uniqueEvents = (days: MonthGridDesktopProps["days"]): CalendarViewEvent[] => {
-  const byId = new Map<string, CalendarViewEvent>();
-  for (const day of days) {
-    for (const event of day.events) {
-      byId.set(event.id, event);
-    }
-  }
-  return [...byId.values()];
 };
