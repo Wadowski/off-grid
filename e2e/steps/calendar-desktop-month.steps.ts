@@ -83,7 +83,7 @@ Given(
         world.api,
         memberSessionOf(world),
         calendarIdOf(world, calendarName),
-        { title, startsAt: `${date}T${hour}:00Z`, endsAt: `${date}T${hour}:30Z` },
+        { title, startsAt: `${date}T${hour}:00:00Z`, endsAt: `${date}T${hour}:30:00Z` },
       );
       expect(response.status(), `could not create the event "${title}"`).toBe(201);
     }
@@ -164,7 +164,7 @@ Then("I see the desktop month grid", async ({ page }) => {
 });
 
 Then("I see the mobile month grid", async ({ page }) => {
-  await expect(page.getByRole("region", { name: "Month days", exact: true })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Month days", exact: true })).toBeVisible();
 });
 
 Then("the page does not scroll horizontally", async ({ page }) => {
