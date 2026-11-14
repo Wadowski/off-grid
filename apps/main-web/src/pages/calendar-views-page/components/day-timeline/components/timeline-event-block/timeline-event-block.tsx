@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
 import { formatDuration } from "../../../../../../calendar-views/format-duration.js";
 import { durationMinutes, formatClockTime } from "../../../../../../calendar-views/time-format.js";
+import { useIsNarrow } from "../../../../../../media/use-is-narrow.js";
 import {
   timelineBlockAccentStyle,
   timelineBlockDurationStyle,
@@ -26,13 +27,14 @@ export const TimelineEventBlock = ({
   columnCount,
 }: TimelineEventBlockProps) => {
   const { t } = useTranslation();
+  const desktop = !useIsNarrow();
   const accent = calendarAccentColor(event.calendarColor).background;
   const range = `${formatClockTime(event.startsAt, timeZone)} - ${formatClockTime(event.endsAt, timeZone)}`;
 
   return (
     <article
       data-testid={`timeline-event-${event.id}`}
-      style={timelineBlockStyle(topPx, heightPx, column, columnCount)}
+      style={timelineBlockStyle(topPx, heightPx, column, columnCount, desktop)}
     >
       <span aria-hidden="true" style={timelineBlockAccentStyle(accent)} />
       <div style={timelineBlockHeaderStyle}>
