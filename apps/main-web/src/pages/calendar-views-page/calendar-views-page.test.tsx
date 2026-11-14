@@ -85,6 +85,7 @@ const renderPage = (path: string, view: "agenda" | "day" | "week" | "month") =>
           <Route path="calendar" element={<CalendarLayout />}>
             <Route path="week" element={<CalendarViewsPage view={view} />} />
             <Route path="agenda" element={<CalendarViewsPage view={view} />} />
+            <Route path="day" element={<CalendarViewsPage view={view} />} />
           </Route>
           <Route path="calendar/calendars" element={<p>Calendars list</p>} />
         </Route>
@@ -173,6 +174,36 @@ describe("CalendarViewsPage", () => {
     });
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2025-10-23");
+  });
+
+  it("puts the full date, the day navigator and the view selector in one row on desktop", () => {
+    stubApi();
+    renderPage("/calendar/day?date=2025-10-23", "day");
+
+    const row = screen.getByTestId("day-command-row");
+    expect(within(row).getByRole("heading", { name: "Thursday, October 23" })).toBeInTheDocument();
+    expect(within(row).getByRole("button", { name: "Today" })).toBeInTheDocument();
+    expect(within(row).getByRole("combobox", { name: "Calendar view" })).toBeInTheDocument();
+    expect(screen.getAllByText("Thursday, October 23")).toHaveLength(1);
+    expect(screen.getByTestId("calendar-views-footer")).toBeInTheDocument();
+  });
+
+  it("keeps the phone day view with the day header and no command row below 640px", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: query.includes("max-width"),
+    });
+    try {
+      stubApi();
+      renderPage("/calendar/day?date=2025-10-23", "day");
+
+      expect(screen.queryByTestId("day-command-row")).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText("Thursday, October 23")).toBeInTheDocument());
+      expect(screen.getByRole("button", { name: /^Calendar filter/ })).toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
   });
 
   it("has no search button, avatar or day scheduled count", () => {

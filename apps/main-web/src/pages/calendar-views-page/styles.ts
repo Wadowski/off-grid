@@ -73,6 +73,15 @@ export const calendarViewsControlsStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const calendarViewsDayCommandStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: tokens.space[3],
+  minWidth: 0,
+};
+
 export const calendarViewsFooterStyle: CSSProperties = {
   position: "fixed",
   right: 0,
