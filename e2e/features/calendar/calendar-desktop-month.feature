@@ -72,14 +72,11 @@ Feature: Desktop calendar month view
     When I open the month view for 2026-11-18 at a desktop width of 1280 pixels in the dark theme
     Then the page has no serious accessibility violations
 
-  Scenario: Anna reaches each day and each event with the keyboard and opens a day with Enter
+  Scenario: Anna reaches a day with the keyboard and opens it with Enter
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     And the event "Standup" is in "Work" from 2026-11-18 09:00 to 09:30 in UTC
     When I open the month view for 2026-11-18 at a desktop width of 1280 pixels
     And I move the focus with the Tab key to the day 2026-11-18
-    And I move the focus with the Tab key to the event "Standup" in the month grid
-    Then the event "Standup" in the month grid has focus
-    When I move the focus with the Tab key to the day 2026-11-18
     And I press Enter
     Then I see the day view for 2026-11-18

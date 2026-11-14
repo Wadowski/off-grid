@@ -30,8 +30,11 @@ const desktopGrid = (page: Page): Locator =>
 const dayCell = (page: Page, date: string): Locator =>
   page.getByTestId(`month-desktop-cell-${date}`);
 
-const chipNamed = (page: Page, title: string): Locator =>
-  page.locator('[data-testid^="month-event-chip-"]').filter({ hasText: title });
+// The chip's text is its exact title; the name (title and time) is read through getByRole.
+const chipTitled = (page: Page, title: string): Locator =>
+  page
+    .locator('[data-testid^="month-event-chip-"]')
+    .filter({ has: page.getByText(title, { exact: true }) });
 
 const openMonthAt = async (
   page: Page,
@@ -108,13 +111,6 @@ When("I move the focus with the Tab key to the day {word}", async ({ page }, dat
   await tabUntilFocused(page, page.getByTestId(`month-desktop-day-${date}`), `the day ${date}`);
 });
 
-When(
-  "I move the focus with the Tab key to the event {string} in the month grid",
-  async ({ page }, title: string) => {
-    await tabUntilFocused(page, chipNamed(page, title), `the event "${title}"`);
-  },
-);
-
 When("I press Enter", async ({ page }) => {
   await page.keyboard.press("Enter");
 });
@@ -128,12 +124,8 @@ Then("I see the days of November 2026 in the month grid", async ({ page }) => {
   await expect(page.locator(`[data-testid^="month-desktop-day-${MONTH_PREFIX}"]`)).toHaveCount(30);
 });
 
-Then("I see the event {string} on {word}", async ({ page }, title: string, date: string) => {
-  await expect(dayCell(page, date).getByText(title, { exact: true })).toBeVisible();
-});
-
 Then(
-  "I see the event {string} on {word} in the month grid",
+  /^I see the event "([^"]+)" on (\d{4}-\d{2}-\d{2})(?: in the month grid)?$/,
   async ({ page }, title: string, date: string) => {
     await expect(dayCell(page, date).getByText(title, { exact: true })).toBeVisible();
   },
@@ -155,7 +147,8 @@ Then("I see the day view for {word}", async ({ page }, date: string) => {
 Then(
   "the event {string} in the month grid is named {string}",
   async ({ page }, title: string, name: string) => {
-    await expect(chipNamed(page, title)).toHaveAttribute("aria-label", name);
+    await expect(chipTitled(page, title)).toHaveCount(1);
+    await expect(page.getByRole("img", { name, exact: true })).toBeVisible();
   },
 );
 
@@ -172,8 +165,4 @@ Then("the page does not scroll horizontally", async ({ page }) => {
     "document.documentElement.scrollWidth > document.documentElement.clientWidth",
   );
   expect(overflows).toBe(false);
-});
-
-Then("the event {string} in the month grid has focus", async ({ page }, title: string) => {
-  await expect(chipNamed(page, title)).toBeFocused();
 });

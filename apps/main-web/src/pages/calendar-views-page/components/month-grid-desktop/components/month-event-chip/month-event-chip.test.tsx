@@ -26,12 +26,12 @@ const event = (overrides: Partial<CalendarViewEvent> = {}): CalendarViewEvent =>
 });
 
 describe("MonthEventChip", () => {
-  it("is focusable and its accessible name contains the title and the start time", () => {
+  it("is named by its title and the start time and is not a tab stop", () => {
     render(<MonthEventChip event={event()} timeZone="UTC" />);
 
-    const chip = screen.getByLabelText("Standup, 09:30 AM");
-    expect(chip).toHaveAttribute("tabindex", "0");
+    const chip = screen.getByRole("img", { name: "Standup, 09:30 AM" });
     expect(chip).toHaveTextContent("Standup");
+    expect(chip).not.toHaveAttribute("tabindex");
   });
 
   it("names an all-day event by its title and the all-day label", () => {
@@ -47,7 +47,7 @@ describe("MonthEventChip", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Retreat, All day")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Retreat, All day" })).toBeInTheDocument();
   });
 
   it("has no serious accessibility violations", async () => {

@@ -7,8 +7,9 @@ import { formatClockTime } from "../../../../../../calendar-views/time-format.js
 import { monthEventChipStyle } from "./styles.js";
 import type { MonthEventChipProps } from "./types.js";
 
-// A chip is focusable and named by its title and time. Clicking it does nothing: event details
-// open from the agenda and the event modal, not from the month grid.
+// A chip is read-only: it has no action and so no tab stop. Its name (title and time) is exposed as
+// an image name, because a span with aria-label has no role and exposes no name. The day's
+// number and "+N more events" control are the keyboard entries into the month.
 export const MonthEventChip = ({ event, timeZone }: MonthEventChipProps) => {
   const { t } = useTranslation();
   const accent = calendarAccentColor(event.calendarColor).background;
@@ -18,7 +19,7 @@ export const MonthEventChip = ({ event, timeZone }: MonthEventChipProps) => {
 
   return (
     <span
-      tabIndex={0}
+      role="img"
       aria-label={t("calendar.desktop.eventChipLabel", { title: event.title, time })}
       data-testid={`month-event-chip-${event.id}`}
       style={monthEventChipStyle(accent)}

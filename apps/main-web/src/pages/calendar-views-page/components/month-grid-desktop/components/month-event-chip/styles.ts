@@ -3,6 +3,7 @@
 
 import { cssVar } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import { calendarTintBackground } from "../../../../../../calendars/calendar-accents.js";
 
 export const monthEventChipStyle = (color: string): CSSProperties => ({
   display: "block",
@@ -10,7 +11,7 @@ export const monthEventChipStyle = (color: string): CSSProperties => ({
   padding: "0 4px",
   borderLeft: `3px solid ${color}`,
   borderRadius: cssVar("radius-sm"),
-  background: `${color}26`,
+  background: calendarTintBackground(color),
   color: cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),
