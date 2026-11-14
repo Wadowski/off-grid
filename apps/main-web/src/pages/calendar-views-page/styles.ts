@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 
 const SHELL_SIDEBAR_WIDTH = "16rem";
 const PHONE_MAX_WIDTH = "767px";
+const SIDEBAR_MIN_WIDTH = "640px";
 const SHELL_PHONE_GUTTER = tokens.space[4];
 const BODY_MARGIN = "0.5rem";
 const PAGE_GUTTER = tokens.space[2];
@@ -15,6 +16,8 @@ const TAB_BAR_HEIGHT = "4.5rem";
 export const PAGE_CLASS = "og-calendar-views-page";
 export const BLEED_CLASS = "og-calendar-views-bleed";
 export const FOOTER_CLASS = "og-calendar-views-footer";
+export const FILTER_CLASS = "og-calendar-views-filter";
+export const WEEK_STRIP_CLASS = "og-calendar-views-week-strip";
 
 export const calendarViewsCss = `
 .${PAGE_CLASS} {
@@ -23,6 +26,12 @@ export const calendarViewsCss = `
 .${FOOTER_CLASS} {
   left: ${SHELL_SIDEBAR_WIDTH};
   bottom: env(safe-area-inset-bottom);
+}
+@media (min-width: ${SIDEBAR_MIN_WIDTH}) {
+  .${FILTER_CLASS},
+  .${WEEK_STRIP_CLASS} {
+    display: none;
+  }
 }
 @media (max-width: ${PHONE_MAX_WIDTH}) {
   .${PAGE_CLASS} {

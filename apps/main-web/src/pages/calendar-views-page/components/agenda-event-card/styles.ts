@@ -34,7 +34,7 @@ export const agendaMeridiemStyle: CSSProperties = {
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),
   lineHeight: cssVar("line-height-label-sm"),
-  color: cssVar("color-outline"),
+  color: cssVar("color-muted"),
 };
 
 export const agendaCardStyle: CSSProperties = {
@@ -73,7 +73,7 @@ export const agendaCalendarPillStyle = (color: string): CSSProperties => ({
   padding: `${tokens.space[1]} ${tokens.space[2]}`,
   borderRadius: cssVar("radius-full"),
   background: `${color}26`,
-  color,
+  color: cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),
   lineHeight: cssVar("line-height-label-sm"),
@@ -88,7 +88,7 @@ export const agendaDurationStyle: CSSProperties = {
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),
   lineHeight: cssVar("line-height-label-sm"),
-  color: cssVar("color-outline"),
+  color: cssVar("color-muted"),
 };
 
 export const agendaCardBodyStyle: CSSProperties = {
