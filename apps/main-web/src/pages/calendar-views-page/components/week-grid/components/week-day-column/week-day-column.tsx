@@ -8,7 +8,7 @@ import {
   layoutTimedEvents,
   nowMinutesOnDate,
 } from "../../../../../../calendar-views/timeline-layout.js";
-import { WEEK_MIN_BLOCK_PX } from "../../constants.js";
+import { WEEK_DETAILED_STACKED_MIN_BLOCK_PX, WEEK_MIN_BLOCK_PX } from "../../constants.js";
 import {
   weekBlockStyle,
   weekBlockTimeStyle,
@@ -16,6 +16,9 @@ import {
   weekColumnStyle,
   weekDetailedBlockStyle,
   weekDetailedRangeStyle,
+  weekDetailedShortBlockStyle,
+  weekDetailedShortRangeStyle,
+  weekDetailedShortTitleStyle,
   weekDetailedTitleStyle,
   weekLocationChipStyle,
   weekNowDotStyle,
@@ -45,6 +48,26 @@ export const WeekDayColumn = ({
         const top = (block.topMinutes - startHour * 60) * pxPerMinute;
         const height = Math.max(block.heightMinutes * pxPerMinute, WEEK_MIN_BLOCK_PX);
         const accent = calendarAccentColor(block.item.calendarColor);
+        if (card === "detailed" && height < WEEK_DETAILED_STACKED_MIN_BLOCK_PX) {
+          return (
+            <div
+              key={block.item.id}
+              data-testid={`week-event-${block.item.id}`}
+              style={weekDetailedShortBlockStyle(
+                top,
+                height,
+                block.column,
+                block.columnCount,
+                accent,
+              )}
+            >
+              <div style={weekDetailedShortTitleStyle}>{block.item.title}</div>
+              <div style={weekDetailedShortRangeStyle}>
+                {formatClockRange(block.item.startsAt, block.item.endsAt, timeZone)}
+              </div>
+            </div>
+          );
+        }
         if (card === "detailed") {
           return (
             <div

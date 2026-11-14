@@ -4,6 +4,8 @@
 export const WEEK_HOUR_PX = 60;
 export const WEEK_GUTTER = "2.25rem";
 export const WEEK_MIN_BLOCK_PX = 22;
+// Desktop cards shorter than this show the title and time range on one line.
+export const WEEK_DETAILED_STACKED_MIN_BLOCK_PX = 56;
 
 export type WeekCardStyle = "compact" | "detailed";
 

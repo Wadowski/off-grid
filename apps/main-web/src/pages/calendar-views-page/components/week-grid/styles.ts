@@ -179,6 +179,39 @@ export const weekDetailedBlockStyle = (
   letterSpacing: tokens.font.letterSpacing["body-sm"],
 });
 
+export const weekDetailedShortBlockStyle = (
+  topPx: number,
+  heightPx: number,
+  column: number,
+  columnCount: number,
+  accent: { readonly background: string; readonly color: string },
+): CSSProperties => ({
+  ...weekBlockStyle(topPx, heightPx, column, columnCount, accent.background),
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  padding: "2px 3px",
+  color: cssVar("color-fg"),
+  fontSize: tokens.font.size["body-sm"],
+  lineHeight: "14px",
+});
+
+export const weekDetailedShortTitleStyle: CSSProperties = {
+  fontWeight: cssVar("font-weight-semibold"),
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+export const weekDetailedShortRangeStyle: CSSProperties = {
+  fontFamily: cssVar("font-family-mono"),
+  fontSize: "10px",
+  lineHeight: "14px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
 export const weekDetailedTitleStyle: CSSProperties = {
   fontWeight: cssVar("font-weight-semibold"),
   overflow: "hidden",

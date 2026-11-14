@@ -294,4 +294,33 @@ describe("WeekGrid", () => {
     expect(within(card).queryByText("10:00 \u2013 11:00")).toBeNull();
     expect(within(card).getByText("Studio session")).toBeInTheDocument();
   });
+
+  it("shows the title and the full time range of a 30-minute desktop event inside its card", () => {
+    render(
+      <WeekGrid
+        days={weekWith({
+          "2025-10-23": [
+            event("short", {
+              title: "Standup",
+              startsAt: "2025-10-23T09:00:00Z",
+              endsAt: "2025-10-23T09:30:00Z",
+            }),
+          ],
+        })}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-20"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    const card = screen.getByTestId("week-event-short");
+    expect(card).toHaveStyle({ height: "34px" });
+    const title = within(card).getByText("Standup");
+    const range = within(card).getByText("09:00 \u2013 09:30");
+    expect(title.parentElement).toBe(card);
+    expect(range.parentElement).toBe(card);
+    expect(within(card).queryByTestId("week-event-location")).toBeNull();
+  });
 });
