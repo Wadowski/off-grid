@@ -5,12 +5,14 @@ import { Button, Text } from "@offgrid/ui";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
 import { filterByCalendar } from "../../calendar-views/events-by-calendar.js";
+import { formatDayHeading } from "../../calendar-views/time-format.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
+import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { useSession } from "../../session/use-session.js";
 import type { CalendarViewKind } from "@offgrid/contracts";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
@@ -25,6 +27,7 @@ import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
   BLEED_CLASS,
   calendarViewsControlsStyle,
+  calendarViewsDayCommandStyle,
   calendarViewsCss,
   calendarViewsFooterStyle,
   calendarViewsHeaderStyle,
@@ -42,6 +45,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const openNewEvent = useOpenNewEvent();
   const layout = useCalendarLayout();
   const session = useSession();
+  const narrow = useIsNarrow();
   const [searchParams, setSearchParams] = useSearchParams();
   const date = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
   const { status, days, retry } = useCalendarView(view, date);
@@ -55,10 +59,18 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
 
   const goToDate = (nextDate: string) => setSearchParams({ date: nextDate });
 
+  const navigatorHandlers = {
+    onPrevious: () => goToDate(shiftDate(date, view, -1)),
+    onNext: () => goToDate(shiftDate(date, view, 1)),
+    onToday: () => goToDate(localDateOf(new Date())),
+  };
+
   const goToView = (nextView: CalendarViewKind) =>
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
 
   const gridWrapperClass = view === "week" || view === "day" ? BLEED_CLASS : undefined;
+  // Desktop day view: one command row holds the navigator, the full date and the view selector.
+  const desktopDay = view === "day" && !narrow;
 
   return (
     <section className={PAGE_CLASS} style={calendarViewsPageStyle}>
@@ -69,22 +81,26 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
           <Text variant="action" textId="calendar.mobileViews.calendars" />
         </Button>
       </header>
-      <div style={calendarViewsControlsStyle}>
-        <ViewSelect value={view} onChange={goToView} />
-        <div className={FILTER_CLASS}>
-          <CalendarMultiSelect
-            calendars={layout.calendars.calendars}
-            hidden={layout.hidden}
-            onChange={layout.setHidden}
-          />
+      {desktopDay ? (
+        <div data-testid="day-command-row" style={calendarViewsDayCommandStyle}>
+          <DateNavigator label={formatDayHeading(date)} {...navigatorHandlers} />
+          <ViewSelect value={view} onChange={goToView} />
         </div>
-      </div>
-      <DateNavigator
-        label={periodLabel(view, date)}
-        onPrevious={() => goToDate(shiftDate(date, view, -1))}
-        onNext={() => goToDate(shiftDate(date, view, 1))}
-        onToday={() => goToDate(localDateOf(new Date()))}
-      />
+      ) : (
+        <>
+          <div style={calendarViewsControlsStyle}>
+            <ViewSelect value={view} onChange={goToView} />
+            <div className={FILTER_CLASS}>
+              <CalendarMultiSelect
+                calendars={layout.calendars.calendars}
+                hidden={layout.hidden}
+                onChange={layout.setHidden}
+              />
+            </div>
+          </div>
+          <DateNavigator label={periodLabel(view, date)} {...navigatorHandlers} />
+        </>
+      )}
       {status === "loading" && (
         <Text variant="status" role="status" textId="calendar.mobileViews.loading" />
       )}
@@ -135,7 +151,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
       )}
       {view === "day" && status === "ready" && (
         <>
-          <DayHeader date={date} />
+          {!desktopDay && <DayHeader date={date} />}
           <div className={gridWrapperClass}>
             <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
           </div>

@@ -70,11 +70,17 @@ export function createTimedEvent(
   api: APIRequestContext,
   session: Session,
   calendarId: string,
-  input: { title: string; startsAt: string; endsAt: string },
+  input: { title: string; startsAt: string; endsAt: string; location?: string },
 ): Promise<APIResponse> {
   return api.post(`${CALENDARS}/${calendarId}/events`, {
     headers: bearer(session),
-    data: { title: input.title, isAllDay: false, startsAt: input.startsAt, endsAt: input.endsAt },
+    data: {
+      title: input.title,
+      isAllDay: false,
+      startsAt: input.startsAt,
+      endsAt: input.endsAt,
+      ...(input.location === undefined ? {} : { location: input.location }),
+    },
     failOnStatusCode: false,
   });
 }

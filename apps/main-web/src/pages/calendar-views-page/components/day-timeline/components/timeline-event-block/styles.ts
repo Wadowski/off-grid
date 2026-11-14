@@ -10,6 +10,7 @@ export const timelineBlockStyle = (
   heightPx: number,
   column: number,
   columnCount: number,
+  options: { readonly desktop: boolean },
 ): CSSProperties => ({
   position: "absolute",
   top: `${topPx}px`,
@@ -25,6 +26,7 @@ export const timelineBlockStyle = (
   borderRadius: cssVar("radius-lg"),
   background: cssVar("color-surface"),
   boxShadow: cssVar("elevation-1"),
+  border: options.desktop ? `1px solid ${cssVar("color-line")}` : undefined,
   overflow: "hidden",
 });
 
