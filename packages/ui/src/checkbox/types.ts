@@ -8,4 +8,5 @@ export type CheckboxProps = Omit<
   "style" | "className" | "type"
 > & {
   readonly label: ReactNode;
+  readonly variant?: "checkbox" | "switch";
 };

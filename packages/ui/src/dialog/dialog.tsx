@@ -5,14 +5,20 @@ import { useEffect, useRef } from "react";
 import { dialogBaseStyle } from "./styles.js";
 import type { DialogProps } from "./types.js";
 
-// A modal dialog that opens as soon as it is shown. The browser's native dialog provides focus
-// trapping, Escape and the backdrop; this component adds the open on mount and the backdrop dismissal.
+const dialogClassName = (glossy: boolean, className: string | undefined): string | undefined => {
+  if (!glossy) {
+    return className;
+  }
+  return className === undefined ? "og-dialog-glossy" : `og-dialog-glossy ${className}`;
+};
+
 export const Dialog = ({
   labelledBy,
   onClose,
   dialogRef,
   className,
   style,
+  backdrop = "plain",
   dismissOnBackdropClick = false,
   testId,
   children,
@@ -21,14 +27,14 @@ export const Dialog = ({
   const ref = dialogRef ?? ownRef;
 
   useEffect(() => {
-    ref.current?.showModal?.();
+    ref.current?.showModal();
   }, [ref]);
 
   return (
     <dialog
       ref={ref}
       aria-labelledby={labelledBy}
-      className={className}
+      className={dialogClassName(backdrop === "glossy", className)}
       style={{ ...dialogBaseStyle, ...style }}
       onClose={onClose}
       onClick={

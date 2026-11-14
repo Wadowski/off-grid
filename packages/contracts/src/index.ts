@@ -102,6 +102,7 @@ export * from "./timestamp-schema.js";
 export * from "./is-valid-day-window.js";
 export * from "./is-valid-event-window.js";
 export * from "./zoned-local-to-instant.js";
+export * from "./zoned-parts.js";
 export * from "./types.js";
 export * from "./user-created-v1.js";
 export * from "./user-profile-updated-v1.js";

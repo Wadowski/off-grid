@@ -11,4 +11,5 @@ export type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "style"
   readonly labelAside?: ReactNode;
   readonly footer?: ReactNode;
   readonly mono?: boolean;
+  readonly variant?: "default" | "title";
 };

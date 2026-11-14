@@ -1,44 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { type ZonedParts, zonedParts } from "./zoned-parts.js";
+
 const SECOND_MS = 1000;
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME_PATTERN = /^(\d{2}):(\d{2})$/;
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
 
-interface ZonedParts {
-  readonly year: number;
-  readonly month: number;
-  readonly day: number;
-  readonly hour: number;
-  readonly minute: number;
-  readonly second: number;
-}
-
-const zonedParts = (instant: Date, timeZone: string): ZonedParts => {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).formatToParts(instant);
-  const value = (type: string): number =>
-    Number(parts.find((part) => part.type === type)?.value ?? "0");
-  return {
-    year: value("year"),
-    month: value("month"),
-    day: value("day"),
-    hour: value("hour"),
-    minute: value("minute"),
-    second: value("second"),
-  };
-};
-
-// The offset of a time zone at an instant, in milliseconds (wall clock minus instant).
 const offsetAt = (instant: number, timeZone: string): number => {
   const instantSeconds = Math.floor(instant / SECOND_MS) * SECOND_MS;
   const parts = zonedParts(new Date(instantSeconds), timeZone);
@@ -59,12 +28,7 @@ const isLeapYear = (year: number): boolean =>
 const daysIn = (year: number, month: number): number =>
   month === 2 && isLeapYear(year) ? 29 : (MONTH_DAYS[month - 1] ?? 0);
 
-// Reads a strict "YYYY-MM-DD" date and "HH:mm" time. Returns undefined for anything else, including
-// impossible dates such as 2026-02-30 or times such as 24:00.
-const parseWall = (
-  date: string,
-  time: string,
-): { year: number; month: number; day: number; hour: number; minute: number } | undefined => {
+const parseWall = (date: string, time: string): Omit<ZonedParts, "second"> | undefined => {
   const dateMatch = DATE_PATTERN.exec(date);
   const timeMatch = TIME_PATTERN.exec(time);
   if (dateMatch === null || timeMatch === null) {
@@ -84,9 +48,6 @@ const parseWall = (
   return { year, month, day, hour, minute };
 };
 
-// Converts a local date ("YYYY-MM-DD") and time ("HH:mm") in an IANA time zone to the instant they
-// name. Returns undefined when the date or time is malformed or impossible. Two passes handle a
-// wall clock on which the zone's offset changes, such as a daylight-saving switch.
 export const zonedLocalToInstant = (
   date: string,
   time: string,

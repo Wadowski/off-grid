@@ -115,7 +115,6 @@ export const en = {
       descriptionPlaceholder: "Add details, instructions, or gear lists...",
       create: "Create Event",
       add: "Add",
-      close: "Close",
       saving: "Saving",
       titleRequired: "Enter an event title.",
       titleTooLong: "The title must be 200 characters or fewer.",

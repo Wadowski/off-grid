@@ -21,7 +21,6 @@ const pathOf = (page: Page): string => new URL(page.url()).pathname;
 
 const modal = (page: Page) => page.getByTestId("new-event-modal");
 
-// The modal shows the zone the app uses for this person, and the typed date must be today in that zone.
 const shownTimeZone = (page: Page): Promise<string> =>
   modal(page)
     .getByText("Time zone", { exact: true })
@@ -36,7 +35,6 @@ const todayIsoIn = (timeZone: string): string =>
     day: "2-digit",
   }).format(new Date());
 
-// Opens the modal from the desktop calendar sidebar, the way a person does.
 const openFromSidebar = async (page: Page): Promise<void> => {
   await page.setViewportSize(DESKTOP_VIEWPORT);
   await page.goto(`${webBaseUrl()}${CALENDAR_PATH}`);
@@ -77,7 +75,6 @@ Then("I see the new event modal at phone width", async ({ page }) => {
   await expect(modal(page)).toBeVisible();
   const box = await modal(page).boundingBox();
   expect(box?.width ?? 0).toBeGreaterThanOrEqual(PHONE_WIDTH_PX - 1);
-  // The page behind the modal must not scroll sideways at phone width.
   expect(await page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")).toBe(
     true,
   );
@@ -106,9 +103,8 @@ When(
     await page.getByLabel("Title", { exact: true }).fill(title);
     await modal(page).locator("select").selectOption({ label: calendarName });
     await fillTimes(page, { startTime: "09:00", endTime: "10:00" });
-    // A page reload would clear this marker, so it shows the agenda updated without one.
     await page.evaluate((key) => {
-      (globalThis as unknown as Record<string, unknown>)[key] = "kept";
+      Object.assign(globalThis, { [key]: "kept" });
     }, MARKER);
     await page.getByRole("button", { name: "Create Event", exact: true }).click();
     await expect.poll(() => pathOf(page)).toBe(CALENDAR_PATH);
@@ -120,10 +116,7 @@ Then(
   "I see the saved event {string} in the agenda without a reload",
   async ({ page }, title: string) => {
     await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
-    const marker = await page.evaluate(
-      (key) => (globalThis as unknown as Record<string, unknown>)[key],
-      MARKER,
-    );
+    const marker = await page.evaluate((key) => Reflect.get(globalThis, key), MARKER);
     expect(marker).toBe("kept");
   },
 );
@@ -138,6 +131,11 @@ Then("I see the new event modal over the agenda view", async ({ page }) => {
   await expect(page.getByRole("combobox", { name: "Calendar view", exact: true })).toHaveValue(
     "agenda",
   );
+});
+
+When("I try to save an event without a title", async ({ page }) => {
+  await openFromSidebar(page);
+  await page.getByRole("button", { name: "Create Event", exact: true }).click();
 });
 
 When(

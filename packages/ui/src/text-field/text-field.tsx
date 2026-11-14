@@ -15,8 +15,10 @@ const shellClassName = (invalid: boolean, hasLeading: boolean, hasTrailing: bool
     .filter((className): className is string => typeof className === "string")
     .join(" ");
 
-const inputClassName = (mono: boolean): string =>
-  mono ? "og-input og-text-field-mono" : "og-input";
+const inputClassName = (mono: boolean, variant: "default" | "title"): string =>
+  ["og-input", mono && "og-text-field-mono", variant === "title" && "og-text-field-title"]
+    .filter((className): className is string => typeof className === "string")
+    .join(" ");
 
 export const TextField = ({
   label,
@@ -27,6 +29,7 @@ export const TextField = ({
   labelAside,
   footer,
   mono = false,
+  variant = "default",
   ...rest
 }: TextFieldProps) => {
   const generatedId = useId();
@@ -44,7 +47,7 @@ export const TextField = ({
         {leading !== undefined && <span className="og-text-field-leading">{leading}</span>}
         <input
           id={inputId}
-          className={inputClassName(mono)}
+          className={inputClassName(mono, variant)}
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : undefined}
           {...rest}

@@ -5,7 +5,6 @@ import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NEW_EVENT_PATH, newEventTarget } from "./new-event-route.js";
 
-// Opens the new event modal over the calendar screen the person is on.
 export const useOpenNewEvent = (): (() => void) => {
   const location = useLocation();
   const navigate = useNavigate();

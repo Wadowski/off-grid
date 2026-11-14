@@ -6,6 +6,7 @@ export { tokensStylesheet } from "./tokens-stylesheet.js";
 export { cssVar } from "./css-var.js";
 export { Button } from "./button/button.js";
 export { TextField } from "./text-field/text-field.js";
+export { Textarea } from "./textarea/textarea.js";
 export { Card } from "./card/card.js";
 export { Checkbox } from "./checkbox/checkbox.js";
 export { Radio } from "./radio/radio.js";

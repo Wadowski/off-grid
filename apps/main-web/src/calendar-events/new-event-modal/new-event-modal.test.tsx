@@ -38,7 +38,6 @@ const originalClose = HTMLDialogElement.prototype.close;
 describe("NewEventModal", () => {
   beforeEach(() => {
     vi.mocked(createCalendarEvent).mockReset();
-    // jsdom has no modal dialog: open the dialog as a browser does, and fire its close event on close.
     HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
       this.setAttribute("open", "");
     };

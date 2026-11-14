@@ -12,8 +12,6 @@ import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone
 import type { ShellContext } from "../../types.js";
 import { CalendarViewsPage } from "../calendar-views-page/calendar-views-page.js";
 
-// Shows the calendar screen the person was on, with the new event modal over it. A deep link to the
-// address shows the default agenda behind the modal. Closing or saving returns to that screen.
 export const NewCalendarEventPage = () => {
   const location = useLocation();
   const navigate = useNavigate();

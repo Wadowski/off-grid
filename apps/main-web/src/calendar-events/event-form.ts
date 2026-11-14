@@ -1,52 +1,25 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { NewCalendarEventInput } from "@offgrid/contracts";
 import { createCalendarEventRequestSchema, zonedLocalToInstant } from "@offgrid/contracts";
-import { toIsoDate } from "../calendar-views/week-days.js";
 import { zonedMomentOf } from "../calendar-views/time-format.js";
+import { toIsoDate } from "../calendar-views/week-days.js";
+import type {
+  EventFormErrors,
+  EventFormResult,
+  EventFormValues,
+  MutableEventFormErrors,
+  ZodIssueLike,
+} from "./types.js";
 
 const HOUR_MINUTES = 60;
 const HOUR_MS = 60 * 60_000;
 
-export type EventFormValues = {
-  readonly title: string;
-  readonly calendarId: string;
-  readonly isAllDay: boolean;
-  readonly startDate: string;
-  readonly startTime: string;
-  readonly endDate: string;
-  readonly endTime: string;
-  readonly location: string;
-  readonly description: string;
-};
-
-export type EventFormErrors = {
-  readonly title?: "titleRequired" | "titleTooLong";
-  readonly end?: "endsBeforeStart" | "invalid";
-  readonly form?: "incomplete" | "invalid";
-};
-
-type MutableEventFormErrors = { -readonly [K in keyof EventFormErrors]: EventFormErrors[K] };
-
-// A zod issue as the contract reports it. The end rule is a custom refinement tagged with a reason.
-type ZodIssueLike = {
-  readonly code: string;
-  readonly path: readonly PropertyKey[];
-  readonly params?: Readonly<Record<string, unknown>>;
-};
-
-export type EventFormResult =
-  | { readonly ok: true; readonly request: NewCalendarEventInput }
-  | { readonly ok: false; readonly errors: EventFormErrors };
-
-// Splits a wall-clock millisecond value (read as UTC) into a date and a time.
 const splitWallClock = (wallMs: number): { date: string; time: string } => ({
   date: toIsoDate(wallMs),
   time: new Date(wallMs).toISOString().slice(11, 16),
 });
 
-// The form opens on the first full hour after now in the person's time zone, lasting one hour.
 export const defaultEventForm = (input: {
   readonly now: Date;
   readonly calendarId: string;
@@ -82,8 +55,6 @@ const optionalText = (value: string): string | undefined => {
   return trimmed === "" ? undefined : trimmed;
 };
 
-// Builds the create request from the form, using the same contract schema as the server.
-// Times are converted from the person's time zone to UTC instants; all-day events keep dates.
 export const toCreateEventRequest = (
   values: EventFormValues,
   timeZone: string,

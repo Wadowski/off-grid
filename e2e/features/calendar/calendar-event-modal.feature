@@ -17,6 +17,7 @@ Feature: New event modal
 
   Scenario: I open the new event modal from the phone footer
     Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Studio" with the color "teal"
     When I open the new event modal from the calendar footer on a phone
     Then I see the new event modal at phone width
 
@@ -46,3 +47,9 @@ Feature: New event modal
     When I try to save an event named "Studio review" that ends before it starts
     Then I see the message "The event must not end before it starts"
     And no event named "Studio review" is listed
+
+  Scenario: I cannot save an event without a title
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Studio" with the color "teal"
+    When I try to save an event without a title
+    Then I see the message "Enter an event title."

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import type { EventFormValues } from "./event-form.js";
 import { defaultEventForm, toCreateEventRequest, withField } from "./event-form.js";
+import type { EventFormValues } from "./types.js";
 
 const TIME_ZONE = "Europe/Warsaw";
 const CALENDAR_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";

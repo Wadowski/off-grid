@@ -6,7 +6,6 @@ import { useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Dialog } from "./dialog.js";
 
-// jsdom has no modal dialog: open and close it the way a browser does, firing the close event.
 const originalShowModal = HTMLDialogElement.prototype.showModal;
 const originalClose = HTMLDialogElement.prototype.close;
 
