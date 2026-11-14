@@ -32,9 +32,19 @@ Feature: Desktop calendar day view
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Work" with the color "blue"
     When I open the day view for 2026-11-18 at a desktop width of 1280 pixels
-    Then the page has no horizontal scroll
+    Then the day timeline is shown
+    And the page has no horizontal scroll
     When I open the day view for 2026-11-18 at a phone width of 375 pixels
-    Then the page has no horizontal scroll
+    Then the day timeline is shown
+    And the page has no horizontal scroll
+
+  Scenario: Anna sees the event "Standup" as a block with its calendar colour, its time range and its location
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Work" with the color "blue"
+    And the event "Standup" is in "Work" at "Kitchen" from 2026-11-18 09:00 to 09:30 in UTC
+    When I open the day view for 2026-11-18 at a desktop width of 1280 pixels
+    Then I see the event "Standup" as a block with the calendar colour "blue"
+    And I see the time range "09:00 AM - 09:30 AM" and the location "Kitchen" on the event "Standup"
 
   @a11y
   Scenario: The desktop day view has no serious accessibility violations in light and dark theme
