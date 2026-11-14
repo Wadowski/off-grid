@@ -162,6 +162,11 @@ export const en = {
       weekGridLabel: "Week days",
       agendaListLabel: "Events for the selected day",
     },
+    desktop: {
+      manageCalendars: "Manage",
+      weekNumber: "Week {{number}}",
+      miniMonthLabel: "Mini month",
+    },
     actions: {
       save: "Save",
       cancel: "Cancel",

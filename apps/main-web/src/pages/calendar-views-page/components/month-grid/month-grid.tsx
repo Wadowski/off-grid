@@ -4,6 +4,7 @@
 import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { addDays, mondayIndexOf } from "../../../../calendar-views/week-days.js";
+import { weekdayLetters } from "../../../../calendar-views/weekday-letters.js";
 import { MonthDayCell } from "./components/month-day-cell/month-day-cell.js";
 import { SelectedDaySheet } from "./components/selected-day-sheet/selected-day-sheet.js";
 import {
@@ -23,15 +24,7 @@ export const MonthGrid = ({
   onSelect,
 }: MonthGridProps) => {
   const { t } = useTranslation();
-  const dayLetters = [
-    t("calendar.mobileViews.weekdayMonday"),
-    t("calendar.mobileViews.weekdayTuesday"),
-    t("calendar.mobileViews.weekdayWednesday"),
-    t("calendar.mobileViews.weekdayThursday"),
-    t("calendar.mobileViews.weekdayFriday"),
-    t("calendar.mobileViews.weekdaySaturday"),
-    t("calendar.mobileViews.weekdaySunday"),
-  ];
+  const dayLetters = weekdayLetters(t);
   const cells = monthCells(days.map((day) => day.date));
   const eventsByDate = new Map(days.map((day) => [day.date, day.events]));
 

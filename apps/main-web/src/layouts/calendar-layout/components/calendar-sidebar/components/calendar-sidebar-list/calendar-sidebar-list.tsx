@@ -1,13 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
-import { NavLink } from "react-router-dom";
-import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
+import { CalendarSidebarToggleRow } from "../calendar-sidebar-toggle-row/calendar-sidebar-toggle-row.js";
 import type { CalendarSidebarListProps } from "./types.js";
-import { calendarListStyle, calendarNameStyle, calendarRowStyle, colorDotStyle } from "./styles.js";
+import { calendarListStyle } from "./styles.js";
 
-export const CalendarSidebarList = ({ calendars }: CalendarSidebarListProps) => {
+export const CalendarSidebarList = ({ calendars, hidden, onToggle }: CalendarSidebarListProps) => {
   if (calendars.length === 0) {
     return null;
   }
@@ -16,21 +14,11 @@ export const CalendarSidebarList = ({ calendars }: CalendarSidebarListProps) => 
     <ul style={calendarListStyle} data-testid="sidebar-calendar-list">
       {calendars.map((calendar) => (
         <li key={calendar.id}>
-          <NavLink
-            to={`/calendar/${calendar.id}`}
-            end
-            className="og-focusable"
-            style={({ isActive }) => calendarRowStyle(isActive)}
-            data-testid="sidebar-calendar-row"
-          >
-            <span
-              aria-hidden="true"
-              style={colorDotStyle(calendarAccentColor(calendar.color).background)}
-            />
-            <span style={calendarNameStyle}>
-              <Text variant="body" value={calendar.name} />
-            </span>
-          </NavLink>
+          <CalendarSidebarToggleRow
+            calendar={calendar}
+            checked={!hidden.has(calendar.id)}
+            onToggle={onToggle}
+          />
         </li>
       ))}
     </ul>

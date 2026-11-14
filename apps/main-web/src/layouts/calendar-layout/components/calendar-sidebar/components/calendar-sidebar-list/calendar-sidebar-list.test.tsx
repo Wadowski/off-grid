@@ -3,8 +3,8 @@
 
 import { calendarSchema } from "@offgrid/contracts";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { NO_HIDDEN_CALENDARS } from "../../../../../../calendar-views/events-by-calendar.js";
 import { CalendarSidebarList } from "./calendar-sidebar-list.js";
 
 const STUDIO = calendarSchema.parse({
@@ -14,6 +14,7 @@ const STUDIO = calendarSchema.parse({
   familyId: null,
   isDefault: false,
 });
+
 const KITCHEN = calendarSchema.parse({
   id: "2b7d4e6f-1a2b-4c3d-8e9f-0a1b2c3d4e5f",
   name: "Kitchen",
@@ -22,44 +23,47 @@ const KITCHEN = calendarSchema.parse({
   isDefault: false,
 });
 
-const dotOf = (row: HTMLElement): HTMLElement => {
-  const dot = row.querySelector<HTMLElement>("span[aria-hidden='true']");
-  if (dot === null) {
-    throw new Error("Calendar row has no color dot.");
-  }
-  return dot;
-};
-
-const renderList = (calendars: (typeof STUDIO)[], path = "/calendar") =>
-  render(
-    <MemoryRouter initialEntries={[path]}>
-      <CalendarSidebarList calendars={calendars} />
-    </MemoryRouter>,
-  );
+const renderList = (
+  calendars: (typeof STUDIO)[],
+  hidden: ReadonlySet<string> = NO_HIDDEN_CALENDARS,
+  onToggle = vi.fn(),
+) => render(<CalendarSidebarList calendars={calendars} hidden={hidden} onToggle={onToggle} />);
 
 describe("CalendarSidebarList", () => {
   afterEach(() => {
     cleanup();
   });
 
-  it("lists each calendar with its color dot and a link to its edit screen", () => {
+  it("lists one show checkbox per calendar, all checked by default", () => {
     renderList([STUDIO, KITCHEN]);
 
     const list = screen.getByTestId("sidebar-calendar-list");
     const rows = within(list).getAllByTestId("sidebar-calendar-row");
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toHaveAttribute("href", `/calendar/${STUDIO.id}`);
-    expect(within(rows[0]!).getByText("Studio")).toBeInTheDocument();
-    expect(dotOf(rows[0]!).style.background).toBe("rgb(15, 148, 136)");
-    expect(dotOf(rows[1]!).style.background).toBe("rgb(211, 138, 14)");
+    expect(screen.getByRole("checkbox", { name: "Studio" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Kitchen" })).toBeChecked();
   });
 
-  it("marks the row of the open calendar as the current page", () => {
-    renderList([STUDIO, KITCHEN], `/calendar/${KITCHEN.id}`);
+  it("does not navigate: no row is a link", () => {
+    renderList([STUDIO]);
 
-    const rows = screen.getAllByTestId("sidebar-calendar-row");
-    expect(rows[0]).not.toHaveAttribute("aria-current");
-    expect(rows[1]).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByRole("link", { name: "Studio" })).not.toBeInTheDocument();
+  });
+
+  it("unchecks the calendars that are hidden", () => {
+    renderList([STUDIO, KITCHEN], new Set([KITCHEN.id]));
+
+    expect(screen.getByRole("checkbox", { name: "Studio" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Kitchen" })).not.toBeChecked();
+  });
+
+  it("reports the calendar id of the row that was ticked", () => {
+    const onToggle = vi.fn();
+    renderList([STUDIO, KITCHEN], NO_HIDDEN_CALENDARS, onToggle);
+
+    screen.getByRole("checkbox", { name: "Kitchen" }).click();
+
+    expect(onToggle).toHaveBeenCalledExactlyOnceWith(KITCHEN.id);
   });
 
   it("renders nothing when there are no calendars", () => {
