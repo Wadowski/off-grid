@@ -14,7 +14,14 @@ Review `git diff main...HEAD` and the files it touches. Use only read-only comma
 
 Do not check module boundaries, privacy, or Gherkin scenarios. Other reviewers cover those.
 
+Every finding in this review is **Blocking**. Do not report anything as Advisory.
+
 Check for:
+
+- **Comments.** Any comment in a changed file is Blocking and must be removed. The only permitted non-code lines are the SPDX license header that REUSE requires, the shebang line, REUSE-Ignore markers, and type annotations such as `/** @type {...} */` that TypeScript or the editor reads. Every `//`, `/* */`, `/** */`, `*` or `#` comment line outside those is a finding, including comments that explain intent, warn, label sections or mark TODOs. See [.claude/rules/code-style.md](../rules/code-style.md).
+- **Types in their own file.** Any `interface`, `type` alias or `enum` declared in a file that also holds logic, a component, a route, a handler or a service is Blocking. Move it to the `types.ts` of its package, module or component folder and import it. `types.ts` holds no runtime code. Duplicated shapes are Blocking too: import the type or extend it with a named alias in `types.ts`. See [.claude/rules/types.md](../rules/types.md) and [.claude/rules/frontend.md](../rules/frontend.md).
+- **Nested UI components.** A component that renders another component defined in the same file is Blocking, and so is a file that declares more than one component. When a part of a component is hard to read on its own, it must become its own component in a `components/<name>/` folder inside the parent's folder, with its own `types.ts` and `styles.ts` when it has any. Inline render helpers that return JSX (for example `const renderRow = () => <li>...</li>`) count as nested components and are Blocking.
+- **Hard-coded statuses, types and kinds.** A status, type, kind, role or mode written as a literal string in the code (for example `"pending"`, `"family"`, `"active"`) is Blocking. Each set of values must be an enum or a `const` object declared once in `constants.ts` or `types.ts` of its package or module, and every comparison, switch, map key and render must use that enum or const. Also Blocking: a literal that repeats a value an existing enum or const already defines. The same literal used in a second file is a finding even if it appears once in each file. Literal strings that are user-facing text are not covered here; the reuse reviewer checks those.
 
 - **Readability and naming.** Unclear names, functions or modules that are too large, deep nesting, and comments that restate the code.
 - **Duplication and dead code.** Logic copied within the change or from existing code, unused exports, and unreachable branches.
@@ -28,7 +35,7 @@ Check for:
 
 Return findings in two groups, with the most severe first:
 
-- **Blocking**: a defect or a clear breach of a project rule that would mislead the next reader or hide a bug.
-- **Advisory**: a maintainability or style point that should be considered.
+- **Blocking**: every finding in this review, including the comment, type placement, nested component and hard-coded value checks above, plus any defect that would mislead the next reader or hide a bug.
+- **Advisory**: none.
 
 Each finding gives `file:line`, what is wrong, and why it matters. If there are no findings, say so in one line and say what you checked.
