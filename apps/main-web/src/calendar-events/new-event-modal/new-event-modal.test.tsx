@@ -84,7 +84,6 @@ describe("NewEventModal", () => {
   it("refuses an end before the start with the server's message and saves nothing", () => {
     renderModal();
     typeTitle("Studio review");
-    // Both dates are set, so the result does not depend on the time of day the default dates are made.
     fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2030-05-10" } });
     fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2030-05-10" } });
     fireEvent.change(screen.getByLabelText("Start time"), { target: { value: "12:00" } });
