@@ -29,6 +29,7 @@ import {
   calendarViewsControlsStyle,
   calendarViewsDayCommandStyle,
   calendarViewsCss,
+  calendarViewsFooterButtonStyle,
   calendarViewsFooterStyle,
   calendarViewsHeaderStyle,
   calendarViewsPageStyle,
@@ -162,10 +163,12 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         data-testid="calendar-views-footer"
         style={calendarViewsFooterStyle}
       >
-        <Button variant="primary" onClick={openNewEvent}>
-          <MaterialIcon name="add" size="20px" color="currentColor" />
-          <Text variant="action" textId="calendar.mobileViews.newEvent" />
-        </Button>
+        <div style={calendarViewsFooterButtonStyle}>
+          <Button variant="primary" onClick={openNewEvent}>
+            <MaterialIcon name="add" size="20px" color="currentColor" />
+            <Text variant="action" textId="calendar.mobileViews.newEvent" />
+          </Button>
+        </div>
       </div>
     </section>
   );

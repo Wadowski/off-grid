@@ -188,6 +188,17 @@ describe("CalendarViewsPage", () => {
     expect(screen.getByTestId("calendar-views-footer")).toBeInTheDocument();
   });
 
+  it("shows the New Event button in a footer with no bar background or border", () => {
+    stubApi();
+    renderPage("/calendar/day?date=2025-10-23", "day");
+
+    const footer = screen.getByTestId("calendar-views-footer");
+    expect(within(footer).getByRole("button", { name: "New Event" })).toBeInTheDocument();
+    expect(footer.style.background).toBe("");
+    expect(footer.style.borderTop).toBe("");
+    expect(footer.style.pointerEvents).toBe("none");
+  });
+
   it("keeps the phone day view with the day header and no command row below 640px", async () => {
     const original = window.matchMedia;
     window.matchMedia = (query: string) => ({

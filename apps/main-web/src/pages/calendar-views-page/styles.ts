@@ -89,8 +89,15 @@ export const calendarViewsFooterStyle: CSSProperties = {
   boxSizing: "border-box",
   height: NEW_EVENT_BAR_HEIGHT,
   padding: `0 ${tokens.space[4]}`,
-  borderTop: `1px solid ${cssVar("color-surface-high")}`,
-  background: cssVar("color-surface"),
+  pointerEvents: "none",
+};
+
+// The bar is see-through: only the button takes taps, so the content behind it stays usable.
+export const calendarViewsFooterButtonStyle: CSSProperties = {
+  pointerEvents: "auto",
+  display: "flex",
+  borderRadius: cssVar("radius-md"),
+  boxShadow: cssVar("elevation-2"),
 };
 
 export const calendarViewsStatusStyle: CSSProperties = {
