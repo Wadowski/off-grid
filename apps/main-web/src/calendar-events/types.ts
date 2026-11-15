@@ -14,6 +14,7 @@ export type EventFormValues = {
   readonly endTime: string;
   readonly location: string;
   readonly description: string;
+  readonly reminderOffsetsMinutes: readonly number[];
 };
 
 export type EventFormErrors = {
@@ -67,4 +68,19 @@ export type EventFormSource = {
   readonly endsAt: string;
   readonly startDate: string | null;
   readonly endDate: string | null;
+  readonly reminderOffsetsMinutes?: readonly number[];
 };
+
+export type ReminderUnit = "minute" | "hour" | "day" | "week";
+
+export type ReminderDraft = {
+  readonly key: number;
+  readonly amount: string;
+  readonly unit: ReminderUnit;
+};
+
+export type ReminderErrorCode = "empty" | "notWhole" | "negative" | "tooLarge" | "duplicate";
+
+export type ReminderOffsetResult =
+  | { readonly ok: true; readonly minutes: number }
+  | { readonly ok: false; readonly error: ReminderErrorCode };
