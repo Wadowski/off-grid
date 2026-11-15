@@ -3,6 +3,7 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import { calendarTintBackground } from "../../../../calendars/calendar-accents.js";
 import { WEEK_GUTTER, WEEK_HOUR_PX } from "./constants.js";
 
 export const weekGridScrollStyle: CSSProperties = {
@@ -138,7 +139,7 @@ export const weekBlockStyle = (
   overflow: "hidden",
   borderRadius: cssVar("radius-sm"),
   borderLeft: `2px solid ${color}`,
-  background: `${color}26`,
+  background: calendarTintBackground(color),
   color: cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
   fontSize: "9px",

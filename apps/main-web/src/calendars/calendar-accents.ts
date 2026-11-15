@@ -20,3 +20,5 @@ export const calendarAccentColor = (
   color: CalendarColor,
 ): (typeof FAMILY_ACCENT_COLORS)[FamilyAccent] =>
   FAMILY_ACCENT_COLORS[CALENDAR_COLOR_ACCENT[color]];
+
+export const calendarTintBackground = (color: string): string => `${color}26`;

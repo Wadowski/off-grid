@@ -4,15 +4,18 @@
 import { useTranslation } from "react-i18next";
 import { TEXT_VARIANT_ELEMENTS } from "../constants.js";
 import { textVariantStyles } from "./styles.js";
-import type { TextProps } from "./types.js";
+import type { TextProps, TextValues } from "./types.js";
 
-export const Text = ({ variant, textId, value, ...rest }: TextProps) => {
+type Translate = (key: string, values?: TextValues) => string;
+
+export const Text = ({ variant, textId, value, values, style, ...rest }: TextProps) => {
   const { t } = useTranslation();
+  const translate = t as unknown as Translate;
   const Element = TEXT_VARIANT_ELEMENTS[variant];
-  const content = textId === undefined ? value : t(textId);
+  const content = textId === undefined ? value : translate(textId, values);
 
   return (
-    <Element style={textVariantStyles[variant]} {...rest}>
+    <Element style={{ ...textVariantStyles[variant], ...style }} {...rest}>
       {content}
     </Element>
   );
