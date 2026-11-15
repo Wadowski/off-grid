@@ -12,7 +12,8 @@ ALTER TABLE calendar.event_reminder
   ADD COLUMN offset_minutes integer NOT NULL CHECK (offset_minutes BETWEEN 0 AND 40320),
   ADD COLUMN fired_at timestamptz NULL,
   ADD COLUMN skipped_at timestamptz NULL,
-  ADD CONSTRAINT event_reminder_fired_xor_skipped CHECK (fired_at IS NULL OR skipped_at IS NULL);
+  ADD CONSTRAINT event_reminder_fired_xor_skipped CHECK (fired_at IS NULL OR skipped_at IS NULL),
+  ADD CONSTRAINT event_reminder_single_owner CHECK (num_nonnulls(family_id, user_id) = 1);
 
 CREATE UNIQUE INDEX event_reminder_event_user_offset_key
   ON calendar.event_reminder (event_id, user_id, offset_minutes);
