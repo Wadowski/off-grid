@@ -5,7 +5,7 @@ This page describes how work moves from a Linear issue to a merged pull request.
 ## Branches and commits
 
 - Branch names are the Linear `gitBranchName`, for example `dwadoch/og-24-add-pr-template-issue-conventions-and-agent-workflow-doc`. Create the branch from an up-to-date `main`.
-- Commit messages use Conventional Commits: `type(scope): imperative summary`, with the issue key at the end, for example `docs: add PR template and workflow guide (OG-24)`. Use `git log` to match the style of recent commits.
+- Commit messages are an imperative summary with the issue key at the end, for example `Add PR template and workflow guide (OG-24)`. Use `git log` to match the style of recent commits.
 - Every commit is signed off with `git commit -s` ([CONTRIBUTING.md](../CONTRIBUTING.md)). Check the range with `pnpm dco:check`.
 - Agents never push to `main` and never force-push. Changes reach `main` through a pull request.
 
@@ -32,9 +32,9 @@ Changes with no user-visible behaviour, such as documentation or tooling, may sk
 
 ## Pull requests
 
-- The title starts with the Linear key, for example `OG-24 Add PR template, issue conventions and agent workflow doc`.
+- The title is the issue title followed by the Linear key, for example `Add PR template, issue conventions and agent workflow doc (OG-24)`.
 - The body follows [`.github/pull_request_template.md`](../.github/pull_request_template.md). It links the issue with `Closes OG-NN`, which the Linear GitHub integration uses to attach the pull request.
-- Run every gate in [pre-pr-verify](../.claude/skills/pre-pr-verify/SKILL.md) before creating the pull request, not after. That includes the review agents in [.claude/agents](../.claude/agents/): architecture, privacy, code quality, and Gherkin when the diff has feature files. Each Blocking finding is fixed before the pull request is opened. The required checks are listed in [docs/ci.md](ci.md).
+- Run every gate in [pre-pr-verify](../.claude/skills/pre-pr-verify/SKILL.md) before creating the pull request, not after. The gates are `pnpm verify` (all local checks, in parallel, cached per tree), `pnpm e2e:changed` (the feature files the branch changed), and the review agents in [.claude/agents](../.claude/agents/): `design-reviewer` (architecture, privacy and security), `quality-reviewer` (code quality and reuse), `gherkin-reviewer` when the diff has feature files, and `ui-screenshot-reviewer` for UI changes. Each Blocking finding is fixed before the pull request is opened. CI runs the affected end-to-end scenarios across modules. The required checks are listed in [docs/ci.md](ci.md).
 - The owner reviews every change ([CODEOWNERS](../.github/CODEOWNERS)).
 
 ### Sample pull request description
@@ -78,6 +78,17 @@ None.
 
 None.
 ```
+
+## Agent flow
+
+The [linear-issue](../.claude/skills/linear-issue/SKILL.md) skill runs the whole path from a Linear issue to a merged pull request:
+
+1. A planning subagent picks up the issue, creates the branch and worktree, and writes a plan that includes the rules that apply (`pnpm rules:for`). You approve the plan.
+2. An implementation subagent follows the plan and ends with `pnpm verify` and `pnpm e2e:changed`.
+3. The main session runs the reviewers once in parallel, fixes all Blocking findings in one pass, and opens the pull request. UI screenshots are captured once (`pnpm ui:screens`) and uploaded to the issue as one contact sheet per screen.
+4. CI failures are fixed by Auto-fix. You reply "merge", and `pnpm wt:cleanup <branch>` removes the worktree and branch afterwards.
+
+Rules marked `[lint]` in [.claude/rules](../.claude/rules/) are enforced by `pnpm check:rules`, which compares the lines your branch adds with `origin/main`. The other rules are checked by the reviewers.
 
 ## Owner steps
 
