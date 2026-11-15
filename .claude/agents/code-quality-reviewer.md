@@ -19,7 +19,7 @@ Check for:
 - **Project rules, checked line by line.** Read [.claude/rules/code-style.md](../rules/code-style.md) and check every rule against the changed code. Treat each of these as Blocking:
   - Any comment in a touched file, other than the SPDX header lines, a shebang, REUSE-Ignore markers, and `/** @type */` annotations. Search every touched file for `//`, `/*`, `*` and `#` comment lines, including files the change edits but whose comments predate it.
   - An export that no other file in the repo imports.
-  Also read every other file in `.claude/rules/` whose `paths` match a touched file, and check its DO and DON'T lines.
+    Also read every other file in `.claude/rules/` whose `paths` match a touched file, and check its DO and DON'T lines.
 - **Readability and naming.** Unclear names, functions or modules that are too large, deep nesting.
 - **Duplication and dead code.** Logic copied within the change or from existing code, unused exports, and unreachable branches.
 - **Unnecessary complexity.** Abstractions with one caller, speculative options, and patterns used where a plain function would do.

@@ -35,6 +35,16 @@ export const formatClockTime = (instant: string, timeZone: string): string =>
 export const formatHourLabel = (hour: number): string =>
   CLOCK.format(new Date(Date.UTC(2000, 0, 1, hour)));
 
+export const formatClockRange = (startsAt: string, endsAt: string, timeZone: string): string => {
+  const clock = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  });
+  return `${clock.format(new Date(startsAt))} \u2013 ${clock.format(new Date(endsAt))}`;
+};
+
 export const durationMinutes = (startsAt: string, endsAt: string): number =>
   Math.round((new Date(endsAt).getTime() - new Date(startsAt).getTime()) / 60_000);
 

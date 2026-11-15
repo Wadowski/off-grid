@@ -14,3 +14,16 @@ export const WEEKDAY_KEYS = [
 ] as const;
 
 export const weekdayLetters = (t: TFunction): string[] => WEEKDAY_KEYS.map((key) => t(key));
+
+export const WEEKDAY_SHORT_KEYS = [
+  "calendar.mobileViews.weekdayShortMonday",
+  "calendar.mobileViews.weekdayShortTuesday",
+  "calendar.mobileViews.weekdayShortWednesday",
+  "calendar.mobileViews.weekdayShortThursday",
+  "calendar.mobileViews.weekdayShortFriday",
+  "calendar.mobileViews.weekdayShortSaturday",
+  "calendar.mobileViews.weekdayShortSunday",
+] as const;
+
+export const weekdayShortLabels = (t: TFunction): string[] =>
+  WEEKDAY_SHORT_KEYS.map((key) => t(key));

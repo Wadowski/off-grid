@@ -24,6 +24,8 @@ import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { timelineFillSectionStyle } from "./components/day-timeline/styles.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
+import { MonthGridDesktop } from "./components/month-grid-desktop/month-grid-desktop.js";
+import { DESKTOP_WEEK_SIZE, PHONE_WEEK_SIZE } from "./components/week-grid/constants.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
 import { ViewTabs } from "./components/view-tabs/view-tabs.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
@@ -64,6 +66,9 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const selectedEvents = visibleDays.find((day) => day.date === date)?.events ?? [];
 
   const goToDate = (nextDate: string) => setSearchParams({ date: nextDate });
+
+  const goToDay = (nextDate: string) =>
+    navigate({ pathname: "/calendar/day", search: `?date=${nextDate}` });
 
   const navigatorHandlers = {
     onPrevious: () => goToDate(shiftDate(date, view, -1)),
@@ -134,16 +139,26 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
       {view === "agenda" && status === "ready" && (
         <AgendaList events={selectedEvents} timeZone={timeZone} />
       )}
-      {view === "month" && status === "ready" && (
-        <MonthGrid
-          days={visibleDays}
-          selectedDate={date}
-          todayDate={today}
-          timeZone={timeZone}
-          selectedEvents={selectedEvents}
-          onSelect={goToDate}
-        />
-      )}
+      {view === "month" &&
+        status === "ready" &&
+        (phone ? (
+          <MonthGrid
+            days={visibleDays}
+            selectedDate={date}
+            todayDate={today}
+            timeZone={timeZone}
+            selectedEvents={selectedEvents}
+            onSelect={goToDate}
+          />
+        ) : (
+          <MonthGridDesktop
+            days={visibleDays}
+            selectedDate={date}
+            todayDate={today}
+            timeZone={timeZone}
+            onOpenDay={goToDay}
+          />
+        ))}
       {view === "week" && status === "ready" && (
         <div style={bleedStyle}>
           <WeekGrid
@@ -152,6 +167,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
             todayDate={today}
             timeZone={timeZone}
             now={new Date()}
+            size={narrow ? PHONE_WEEK_SIZE : DESKTOP_WEEK_SIZE}
           />
         </div>
       )}

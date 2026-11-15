@@ -229,3 +229,76 @@ describe("CalendarViewsPage", () => {
     expect(screen.queryByText(/Scheduled/)).not.toBeInTheDocument();
   });
 });
+
+const NOVEMBER_BODY = {
+  view: "month",
+  startDate: "2026-11-01",
+  endDate: "2026-11-30",
+  days: Array.from({ length: 30 }, (_, index) => ({
+    date: `2026-11-${String(index + 1).padStart(2, "0")}`,
+    events: [],
+  })),
+};
+
+const renderMonthPage = () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url.includes("time-zone")
+        ? jsonResponse({ status: 200, body: { timeZone: "UTC", isSet: false } })
+        : jsonResponse({ status: 200, body: NOVEMBER_BODY }),
+    ),
+  );
+  return render(
+    <MemoryRouter initialEntries={["/calendar/month?date=2026-11-18"]}>
+      <LocationProbe />
+      <Routes>
+        <Route element={<Outlet context={shellWith(readyCalendars([STUDIO]))} />}>
+          <Route path="calendar" element={<CalendarLayout />}>
+            <Route path="month" element={<CalendarViewsPage view="month" />} />
+          </Route>
+          <Route path="calendar/day" element={<p>Day view</p>} />
+        </Route>
+      </Routes>
+    </MemoryRouter>,
+  );
+};
+
+describe("CalendarViewsPage month view", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    window.localStorage.clear();
+  });
+
+  it("renders the desktop month grid above 767 pixels and no mobile grid", async () => {
+    renderMonthPage();
+
+    expect(await screen.findByTestId("month-desktop-cell-2026-11-18")).toBeInTheDocument();
+    expect(screen.queryByTestId("month-day-2026-11-18")).not.toBeInTheDocument();
+  });
+
+  it("renders the mobile month grid at 767 pixels or less and no desktop grid", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: query.includes("max-width"),
+    });
+    try {
+      renderMonthPage();
+
+      expect(await screen.findByTestId("month-day-2026-11-18")).toBeInTheDocument();
+      expect(screen.queryByTestId("month-desktop-cell-2026-11-18")).not.toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
+  it("opens the day view when a desktop day number is clicked", async () => {
+    renderMonthPage();
+
+    fireEvent.click(await screen.findByTestId("month-desktop-day-2026-11-05"));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2026-11-05");
+  });
+});
