@@ -23,14 +23,22 @@ export const useOpenEventRoute = (): OpenEvent => {
 };
 
 // Event cards are plain buttons when a calendar view provides the opener, and static otherwise.
-export const useEventOpenProps = (eventId: string) => {
+export type EventOpenProps = {
+  readonly role?: "button";
+  readonly tabIndex?: 0;
+  readonly "aria-haspopup"?: "dialog";
+  readonly onClick?: () => void;
+  readonly onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
+};
+
+export const useEventOpenProps = (eventId: string): EventOpenProps => {
   const openEvent = useContext(EventOpenContext);
   if (openEvent === undefined) {
     return {};
   }
   return {
-    role: "button",
-    tabIndex: 0,
+    role: "button" as const,
+    tabIndex: 0 as const,
     "aria-haspopup": "dialog" as const,
     onClick: () => openEvent(eventId),
     onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
