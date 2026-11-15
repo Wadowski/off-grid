@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type {
+  CalendarEventUpdateInput,
   CalendarViewKind,
   CreateCalendarRequest,
   NewCalendarEventInput,
@@ -52,6 +53,20 @@ export const createCalendarClient = (client: ApiClient) => ({
         input,
       ),
     ),
+
+  getCalendarEvent: async (eventId: string) =>
+    calendarEventSchema.parse(
+      await client.request("GET", withCalendarId(calendarRoutes.calendarEvent, eventId)),
+    ),
+
+  updateCalendarEvent: async (eventId: string, input: CalendarEventUpdateInput) =>
+    calendarEventSchema.parse(
+      await client.request("PATCH", withCalendarId(calendarRoutes.calendarEvent, eventId), input),
+    ),
+
+  removeCalendarEvent: async (eventId: string): Promise<void> => {
+    await client.request("DELETE", withCalendarId(calendarRoutes.calendarEvent, eventId));
+  },
 
   getTimeZone: async () =>
     calendarTimeZoneSchema.parse(await client.request("GET", calendarRoutes.calendarTimeZone)),

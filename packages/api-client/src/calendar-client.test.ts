@@ -140,6 +140,62 @@ describe("createCalendarClient", () => {
   });
 });
 
+describe("createCalendarClient single event", () => {
+  const EVENT = {
+    id: EVENT_ID,
+    calendarId: CALENDAR_ID,
+    title: "Studio review",
+    location: null,
+    description: null,
+    isAllDay: false,
+    startsAt: "2026-11-16T09:00:00.000Z",
+    endsAt: "2026-11-16T10:00:00.000Z",
+    startDate: null,
+    endDate: null,
+    readOnly: false,
+  };
+
+  it("gets one event at its id", async () => {
+    const { calendars, transport } = calendarsWith(jsonResponse(EVENT));
+
+    await expect(calendars.getCalendarEvent(EVENT_ID)).resolves.toEqual(EVENT);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/events/${EVENT_ID}`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("rejects an event response that does not match the event contract", async () => {
+    const { calendars } = calendarsWith(jsonResponse({ id: EVENT_ID }));
+
+    await expect(calendars.getCalendarEvent(EVENT_ID)).rejects.toThrow();
+  });
+
+  it("patches an event with only the changed fields", async () => {
+    const { calendars, transport } = calendarsWith(
+      jsonResponse({ ...EVENT, title: "Studio retro" }),
+    );
+
+    await expect(
+      calendars.updateCalendarEvent(EVENT_ID, { title: "Studio retro" }),
+    ).resolves.toMatchObject({ title: "Studio retro" });
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/events/${EVENT_ID}`,
+      expect.objectContaining({ method: "PATCH", body: '{"title":"Studio retro"}' }),
+    );
+  });
+
+  it("deletes an event at its id", async () => {
+    const { calendars, transport } = calendarsWith(new Response(null, { status: 204 }));
+
+    await expect(calendars.removeCalendarEvent(EVENT_ID)).resolves.toBeUndefined();
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/events/${EVENT_ID}`,
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+});
+
 describe("createCalendarClient views and time zone", () => {
   const VIEW = {
     view: "agenda",
