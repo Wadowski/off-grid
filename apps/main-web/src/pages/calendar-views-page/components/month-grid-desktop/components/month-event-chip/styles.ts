@@ -16,6 +16,7 @@ export const monthEventChipStyle = (color: string): CSSProperties => ({
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),
   lineHeight: cssVar("line-height-label-sm"),
+  fontWeight: cssVar("font-weight-medium"),
   textAlign: "left",
   overflow: "hidden",
   textOverflow: "ellipsis",
