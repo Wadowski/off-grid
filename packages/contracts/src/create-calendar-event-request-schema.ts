@@ -12,11 +12,13 @@ import {
 } from "./calendar-event-fields-schema.js";
 import { isValidDayWindow } from "./is-valid-day-window.js";
 import { isValidEventWindow } from "./is-valid-event-window.js";
+import { reminderOffsetsSchema } from "./reminder-offsets-schema.js";
 
 const commonFields = {
   title: eventTitleSchema,
   location: eventLocationSchema.optional(),
   description: eventDescriptionSchema.optional(),
+  reminderOffsetsMinutes: reminderOffsetsSchema.optional(),
 };
 
 const timedEventRequestSchema = z

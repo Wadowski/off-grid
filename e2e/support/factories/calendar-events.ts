@@ -35,6 +35,7 @@ export type EventBody = {
   title: string;
   startsAt: string;
   endsAt: string;
+  reminderOffsetsMinutes?: number[];
 };
 
 export const CALENDAR_COLOR = "blue";
@@ -155,7 +156,7 @@ export function changeEvent(
   api: APIRequestContext,
   session: Session,
   eventId: string,
-  change: Record<string, string>,
+  change: Record<string, unknown>,
 ): Promise<APIResponse> {
   return api.patch(`${EVENTS}/${eventId}`, {
     headers: bearer(session),

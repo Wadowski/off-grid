@@ -4,7 +4,10 @@
 import { registerDefaultCalendarSubscribers } from "./events/default-calendar/register-default-calendar-subscribers.js";
 import { registerFamilyMembershipSubscribers } from "./events/family-membership/register-family-membership-subscribers.js";
 import { registerCalendarRoutes } from "./http/register-calendar-routes.js";
-import type { CalendarSubscriberContext } from "./types.js";
+import { createReminderDispatchWorker } from "./workers/reminder-dispatch/create-reminder-dispatch-worker.js";
+import type { CalendarSubscriberContext, CalendarWorkerContext } from "./types.js";
+
+const REMINDER_POLL_INTERVAL_MS = 30_000;
 
 export const calendarModule = {
   name: "calendar",
@@ -13,4 +16,12 @@ export const calendarModule = {
     registerDefaultCalendarSubscribers(context);
     registerFamilyMembershipSubscribers(context);
   },
+  workers: (context: CalendarWorkerContext) => [
+    createReminderDispatchWorker({
+      db: context.db,
+      logger: context.logger,
+      now: () => new Date(),
+      intervalMs: REMINDER_POLL_INTERVAL_MS,
+    }),
+  ],
 };

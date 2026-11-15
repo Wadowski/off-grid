@@ -3,6 +3,7 @@
 
 import {
   calendarEventGuestInvitedV1,
+  calendarReminderDueV1,
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
   type EventDefinition,
@@ -15,7 +16,6 @@ export const INBOX_SUBSCRIBER_PREFIX = "notifications-inbox";
 
 type FactEvent = EventDefinition<string, number, z.ZodObject>;
 
-// The keys of an event's payload, so that a misspelt recipient or data key fails to compile.
 type PayloadKey<Event extends FactEvent> = keyof z.infer<Event["schema"]> & string;
 
 interface FactNotice<Event extends FactEvent> {
@@ -45,6 +45,12 @@ export const FACT_NOTICES = [
     event: calendarEventGuestInvitedV1,
     noticeType: "event-invited",
     recipientKey: "guestUserId",
+    dataKeys: ["eventId"],
+  }),
+  factNotice({
+    event: calendarReminderDueV1,
+    noticeType: "event-reminder",
+    recipientKey: "userId",
     dataKeys: ["eventId"],
   }),
 ] as const;

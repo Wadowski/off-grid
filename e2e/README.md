@@ -30,6 +30,7 @@ The stack is `infra/compose/docker-compose.yml`, limited to the `db`, `init` and
 
 - `E2E_SERVER_PORT` is the host port the stack publishes the server on (default `3000`). Set it when another stack already uses 3000, for example `E2E_SERVER_PORT=3100 pnpm e2e`.
 - `BASE_URL` overrides the URL the tests target (default `http://127.0.0.1:<E2E_SERVER_PORT>`).
+- The e2e stack builds the server from the same `runtime` image as production. It has no test-only routes or switches.
 - `E2E_REUSE_STACK=1` skips bring-up and teardown and tests a stack that is already running on the target URL. Use it for a fast local loop, for example `E2E_REUSE_STACK=1 pnpm e2e:smoke`.
 
 To keep a stack running while you iterate, start and stop it by hand:

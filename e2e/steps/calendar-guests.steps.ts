@@ -24,6 +24,7 @@ import {
   waitForOwnNotifications,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
+import { instantOfDate } from "../support/timing.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -88,8 +89,6 @@ const errorCodeOf = (world: ScenarioWorld): string =>
 
 const eventTitlesOf = (world: ScenarioWorld): string[] =>
   calendarEventListSchema.parse(world.response?.body).events.map((event) => event.title);
-
-const instantOfDate = (date: string, time: string): string => instant(`${date} ${time}`);
 
 const createEventFor = async (
   world: ScenarioWorld,
@@ -224,18 +223,15 @@ When(
   },
 );
 
-// A guest write is answered as forbidden, with the stable error code.
 Then("Ben is told the change is not allowed", ({ world }) => {
   expect(world.response?.status).toBe(403);
   expect(errorCodeOf(world)).toBe("FORBIDDEN");
 });
 
-// An invite to an event the host cannot see is answered as not found.
 Then(/^\w+ is told the event is not found$/, ({ world }) => {
   expect(world.response?.status).toBe(404);
 });
 
-// A refused invite is answered as a validation failure, with one fixed message.
 Then("the invite is refused", ({ world }) => {
   expect(world.response?.status).toBe(400);
   expect(errorCodeOf(world)).toBe("VALIDATION_FAILED");

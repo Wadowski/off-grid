@@ -7,6 +7,7 @@ export const NOTIFICATION_TYPES = [
   "password-changed",
   "recovery-code-regenerated",
   "event-invited",
+  "event-reminder",
 ] as const;
 
 export const notificationTypeSchema = z.enum(NOTIFICATION_TYPES);

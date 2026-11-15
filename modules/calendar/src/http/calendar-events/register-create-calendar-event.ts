@@ -27,7 +27,13 @@ export const registerCreateCalendarEvent = (
       if (!body.success) {
         return sendValidationFailed(reply, body.error);
       }
-      const outcome = await createCalendarEvent(context.db, userId, params.data.id, body.data);
+      const outcome = await createCalendarEvent(
+        context.db,
+        userId,
+        params.data.id,
+        body.data,
+        new Date(),
+      );
       if (outcome.outcome !== "found") {
         return sendNotFound(reply);
       }

@@ -17,8 +17,9 @@ The module consumes domain facts and maps each one to a notice. The mapping is o
 - `password-changed-v1` → `password-changed`
 - `recovery-code-regenerated-v1` → `recovery-code-regenerated`
 - `calendar-event-guest-invited-v1` → `event-invited`, for the invited guest, with `data = { eventId }`
+- `calendar-reminder-due-v1` → `event-reminder`, for the creator of the reminder, with `data = { eventId }`
 
-Each subscriber writes the inbox item in its own transaction. The item's id is the event id, so a redelivered event leaves one item. The producer publishes the fact in the same transaction as the change, so a rolled-back change leaves no item. A producer never names a notice type. See [ADR 0026](../../docs/adr/0026-notifications-map-domain-facts.md).
+Each subscriber writes the inbox item in its own transaction. The item's id is the id of the fact itself, so a redelivered fact leaves one item and two reminders of one event leave two items. The producer publishes the fact in the same transaction as the change, so a rolled-back change leaves no item. A producer never names a notice type. See [ADR 0026](../../docs/adr/0026-notifications-map-domain-facts.md).
 
 `user-notified-v1` is retired. It stays in the contracts because it is a released event, and no module publishes it.
 

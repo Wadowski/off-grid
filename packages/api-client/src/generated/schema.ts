@@ -230,6 +230,7 @@ export interface components {
             title: string;
             location?: string;
             description?: string;
+            reminderOffsetsMinutes?: number[];
             /** @constant */
             isAllDay: false;
             /** Format: date-time */
@@ -240,6 +241,7 @@ export interface components {
             title: string;
             location?: string;
             description?: string;
+            reminderOffsetsMinutes?: number[];
             /** @constant */
             isAllDay: true;
             /** Format: date */
@@ -355,7 +357,7 @@ export interface components {
                 /** Format: uuid */
                 id: string;
                 /** @enum {string} */
-                type: "password-changed" | "recovery-code-regenerated" | "event-invited";
+                type: "password-changed" | "recovery-code-regenerated" | "event-invited" | "event-reminder";
                 data: {
                     [key: string]: string;
                 };

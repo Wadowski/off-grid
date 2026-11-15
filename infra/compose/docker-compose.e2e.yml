@@ -1,10 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-# Test-only override for the e2e stack. The scenarios share one server, so each one
-# sends its own X-Forwarded-For address. The published port is bound to loopback, so
-# only this machine can reach the stack, and the forwarded header is trusted only from
-# loopback and the Docker bridge range. Never use this file for a real install.
 name: offgrid
 
 services:
