@@ -10,5 +10,8 @@ export type NewEventFieldsProps = {
   readonly timeZone: string;
   readonly narrow: boolean;
   readonly calendarPicker: ReactNode;
+  readonly saving: boolean;
+  readonly reminderSubmitAttempt: number;
+  readonly onRemindersChange: (offsets: readonly number[], valid: boolean) => void;
   readonly update: <K extends keyof EventFormValues>(field: K, value: EventFormValues[K]) => void;
 };

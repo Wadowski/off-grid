@@ -4,12 +4,20 @@
 import { calendarSchema } from "@offgrid/contracts";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { webCalendarClient } from "../../api/web-api-client.js";
 import { createCalendarEvent } from "../create-calendar-event.js";
+import { defaultEventForm } from "../event-form.js";
 import { NewEventModal } from "./new-event-modal.js";
 
 vi.mock("../create-calendar-event.js", () => ({
   createCalendarEvent: vi.fn(),
 }));
+
+vi.mock("../../api/web-api-client.js", () => ({
+  webCalendarClient: { updateCalendarEvent: vi.fn() },
+}));
+
+const EVENT_ID = "3b8a6f2e-1c4d-4e7a-9b5f-0a1b2c3d4e5f";
 
 const STUDIO = calendarSchema.parse({
   id: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
@@ -29,6 +37,31 @@ const renderModal = (handlers: { onClose?: () => void; onSaved?: () => void } = 
     />,
   );
 
+const renderEditModal = (
+  reminderOffsetsMinutes: readonly number[],
+  onSaved: () => void = vi.fn(),
+) =>
+  render(
+    <NewEventModal
+      calendars={[STUDIO]}
+      timeZone="Europe/Warsaw"
+      onClose={vi.fn()}
+      onSaved={onSaved}
+      editing={{
+        eventId: EVENT_ID,
+        initialValues: {
+          ...defaultEventForm({
+            now: new Date("2026-07-01T09:20:00Z"),
+            calendarId: STUDIO.id,
+            timeZone: "Europe/Warsaw",
+          }),
+          title: "Studio review",
+          reminderOffsetsMinutes,
+        },
+      }}
+    />,
+  );
+
 const typeTitle = (title: string) =>
   fireEvent.change(screen.getByLabelText("Title"), { target: { value: title } });
 
@@ -38,6 +71,7 @@ const originalClose = HTMLDialogElement.prototype.close;
 describe("NewEventModal", () => {
   beforeEach(() => {
     vi.mocked(createCalendarEvent).mockReset();
+    vi.mocked(webCalendarClient.updateCalendarEvent).mockReset();
     HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
       this.setAttribute("open", "");
     };
@@ -146,5 +180,111 @@ describe("NewEventModal", () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(createCalendarEvent).not.toHaveBeenCalled();
+  });
+
+  it("creates the event with its reminders converted to minutes", async () => {
+    const onSaved = vi.fn();
+    vi.mocked(createCalendarEvent).mockResolvedValue(undefined);
+    renderModal({ onSaved });
+    typeTitle("Studio review");
+    fireEvent.click(screen.getByTestId("reminder-add"));
+    fireEvent.change(screen.getByTestId("reminder-amount-0"), { target: { value: "2" } });
+    fireEvent.change(screen.getByTestId("reminder-unit-0"), { target: { value: "hour" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    expect(createCalendarEvent).toHaveBeenCalledWith(
+      STUDIO.id,
+      expect.objectContaining({ reminderOffsetsMinutes: [120] }),
+    );
+  });
+
+  it("creates the event without reminder offsets when there are none", async () => {
+    vi.mocked(createCalendarEvent).mockResolvedValue(undefined);
+    const onSaved = vi.fn();
+    renderModal({ onSaved });
+    typeTitle("Studio review");
+
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    expect(createCalendarEvent).toHaveBeenCalledWith(
+      STUDIO.id,
+      expect.not.objectContaining({ reminderOffsetsMinutes: expect.anything() }),
+    );
+  });
+
+  it("blocks the save and focuses the first invalid reminder", () => {
+    renderModal();
+    typeTitle("Studio review");
+    fireEvent.click(screen.getByTestId("reminder-add"));
+    fireEvent.click(screen.getByTestId("reminder-add"));
+    fireEvent.change(screen.getByTestId("reminder-amount-1"), { target: { value: "15" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Create Event" }));
+
+    expect(createCalendarEvent).not.toHaveBeenCalled();
+    expect(screen.getByTestId("reminder-amount-1")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByTestId("reminder-amount-1")).toHaveFocus();
+  });
+
+  it("fills the edit form with the reminders of the event", () => {
+    renderEditModal([90, 120]);
+
+    expect(screen.getByTestId("reminder-amount-0")).toHaveValue(90);
+    expect(screen.getByTestId("reminder-amount-1")).toHaveValue(2);
+    expect(screen.getByTestId("reminder-unit-1")).toHaveValue("hour");
+  });
+
+  it("saves a reminder-only change as the only field of the update", async () => {
+    const onSaved = vi.fn();
+    vi.mocked(webCalendarClient.updateCalendarEvent).mockResolvedValue(undefined as never);
+    renderEditModal([15], onSaved);
+    fireEvent.change(screen.getByTestId("reminder-amount-0"), { target: { value: "1" } });
+    fireEvent.change(screen.getByTestId("reminder-unit-0"), { target: { value: "day" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    expect(webCalendarClient.updateCalendarEvent).toHaveBeenCalledWith(EVENT_ID, {
+      reminderOffsetsMinutes: [1440],
+    });
+  });
+
+  it("sends an empty list when every reminder was removed", async () => {
+    const onSaved = vi.fn();
+    vi.mocked(webCalendarClient.updateCalendarEvent).mockResolvedValue(undefined as never);
+    renderEditModal([15], onSaved);
+    fireEvent.click(screen.getByTestId("reminder-remove-0"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    expect(webCalendarClient.updateCalendarEvent).toHaveBeenCalledWith(EVENT_ID, {
+      reminderOffsetsMinutes: [],
+    });
+  });
+
+  it("sends no request when the edit form is saved unchanged", async () => {
+    const onSaved = vi.fn();
+    renderEditModal([15, 60], onSaved);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    expect(webCalendarClient.updateCalendarEvent).not.toHaveBeenCalled();
+  });
+
+  it("keeps the edit form open with the save-failed alert when the update fails", async () => {
+    vi.mocked(webCalendarClient.updateCalendarEvent).mockRejectedValue(new Error("down"));
+    renderEditModal([15]);
+    fireEvent.click(screen.getByTestId("reminder-remove-0"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We could not save this event. Try again.",
+    );
   });
 });

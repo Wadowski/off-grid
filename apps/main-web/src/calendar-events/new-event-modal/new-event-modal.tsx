@@ -57,11 +57,26 @@ export const NewEventModal = ({
   const [errors, setErrors] = useState<EventFormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [remindersValid, setRemindersValid] = useState(true);
+  const [reminderSubmitAttempt, setReminderSubmitAttempt] = useState(0);
 
   const calendarId = values.calendarId !== "" ? values.calendarId : defaultCalendarId;
 
   const update = <K extends keyof EventFormValues>(field: K, value: EventFormValues[K]) =>
     setValues((current) => withField(current, field, value));
+
+  const changeReminders = (offsets: readonly number[], valid: boolean) => {
+    update("reminderOffsetsMinutes", offsets);
+    setRemindersValid(valid);
+  };
+
+  const blockOnInvalidReminders = (): boolean => {
+    if (remindersValid) {
+      return false;
+    }
+    setReminderSubmitAttempt((attempt) => attempt + 1);
+    return true;
+  };
 
   const dismiss = () => dialogRef.current?.close();
 
@@ -81,6 +96,9 @@ export const NewEventModal = ({
       setSaveFailed(false);
       return;
     }
+    if (blockOnInvalidReminders()) {
+      return;
+    }
     setErrors({});
     setSaveFailed(false);
     setSaving(true);
@@ -98,6 +116,9 @@ export const NewEventModal = ({
     if (!result.ok) {
       setErrors(result.errors);
       setSaveFailed(false);
+      return;
+    }
+    if (blockOnInvalidReminders()) {
       return;
     }
     setErrors({});
@@ -214,7 +235,10 @@ export const NewEventModal = ({
             timeZone={timeZone}
             narrow={narrow}
             calendarPicker={calendarPicker}
+            saving={saving}
+            reminderSubmitAttempt={reminderSubmitAttempt}
             update={update}
+            onRemindersChange={changeReminders}
           />
 
           {alertTextId !== undefined && (

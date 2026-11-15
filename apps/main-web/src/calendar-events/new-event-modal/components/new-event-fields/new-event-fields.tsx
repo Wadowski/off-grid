@@ -4,6 +4,7 @@
 import { cssVar, Checkbox, Text, TextField, Textarea, VisuallyHidden } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import { ReminderGroup } from "../../../reminder-group/reminder-group.js";
 import { DateTimeBlock } from "../date-time-block/date-time-block.js";
 import {
   newEventColumnStyle,
@@ -24,7 +25,10 @@ export const NewEventFields = ({
   timeZone,
   narrow,
   calendarPicker,
+  saving,
+  reminderSubmitAttempt,
   update,
+  onRemindersChange,
 }: NewEventFieldsProps) => {
   const { t } = useTranslation();
 
@@ -151,6 +155,13 @@ export const NewEventFields = ({
           onChange={(event) => update("description", event.target.value)}
         />
       </div>
+
+      <ReminderGroup
+        offsets={values.reminderOffsetsMinutes}
+        disabled={saving}
+        submitAttempt={reminderSubmitAttempt}
+        onChange={onRemindersChange}
+      />
     </>
   );
 };
