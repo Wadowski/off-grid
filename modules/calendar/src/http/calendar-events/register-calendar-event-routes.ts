@@ -7,6 +7,8 @@ import { registerCreateCalendarEvent } from "./register-create-calendar-event.js
 import { registerGetCalendarEvent } from "./register-get-calendar-event.js";
 import { registerInviteEventGuest } from "./register-invite-event-guest.js";
 import { registerListCalendarEvents } from "./register-list-calendar-events.js";
+import { registerListEventGuests } from "./register-list-event-guests.js";
+import { registerRemoveEventGuest } from "./register-remove-event-guest.js";
 import { registerRemoveCalendarEvent } from "./register-remove-calendar-event.js";
 import { registerUpdateCalendarEvent } from "./register-update-calendar-event.js";
 
@@ -20,4 +22,6 @@ export const registerCalendarEventRoutes = (
   registerUpdateCalendarEvent(api, context);
   registerRemoveCalendarEvent(api, context);
   registerInviteEventGuest(api, context);
+  registerListEventGuests(api, context);
+  registerRemoveEventGuest(api, context);
 };
