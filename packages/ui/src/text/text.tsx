@@ -6,8 +6,6 @@ import { TEXT_VARIANT_ELEMENTS } from "../constants.js";
 import { textVariantStyles } from "./styles.js";
 import type { TextProps, TextValues } from "./types.js";
 
-// The typed translate function cannot take interpolation values for a key known only at run time,
-// so the call is typed here. The key itself is still typed by TextProps.
 type Translate = (key: string, values?: TextValues) => string;
 
 export const Text = ({ variant, textId, value, values, style, ...rest }: TextProps) => {
