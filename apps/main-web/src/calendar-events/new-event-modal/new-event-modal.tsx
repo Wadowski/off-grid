@@ -72,6 +72,7 @@ export const NewEventModal = ({
   const [savedEventId, setSavedEventId] = useState<string | undefined>(undefined);
   const [pendingGuests, setPendingGuests] = useState<GuestChanges | undefined>(undefined);
   const [guestsFailed, setGuestsFailed] = useState(false);
+  const [guestsSeeded, setGuestsSeeded] = useState(false);
   const [baselineGuestIds, setBaselineGuestIds] = useState<readonly string[]>([]);
   const existingGuests = useEventGuests(editing?.eventId);
   const selfUserId = session.status === "signedIn" ? session.user.id : "";
@@ -83,13 +84,14 @@ export const NewEventModal = ({
   const guestsLoaded = editing === undefined || existingGuests.status === "ready";
 
   useEffect(() => {
-    if (editing === undefined || existingGuests.status !== "ready") {
+    if (editing === undefined || guestsSeeded || existingGuests.status !== "ready") {
       return;
     }
     const guestIds = existingGuests.guests.map((guest) => guest.userId);
     setBaselineGuestIds(guestIds);
     setValues((current) => withField(current, "guestUserIds", guestIds));
-  }, [editing, existingGuests.status, existingGuests.guests]);
+    setGuestsSeeded(true);
+  }, [editing, guestsSeeded, existingGuests.status, existingGuests.guests]);
 
   const update = <K extends keyof EventFormValues>(field: K, value: EventFormValues[K]) =>
     setValues((current) => withField(current, field, value));
