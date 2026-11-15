@@ -3,7 +3,7 @@
 
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { bearer, joinFamilyWithInvitation } from "../support/family-sessions.js";
+import { bearer, joinFamilyWithInvitation, leaveFamily } from "../support/family-sessions.js";
 import { familyIdNamed, sessionOf } from "../support/factories/calendar-events.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
@@ -53,13 +53,7 @@ When(
 When(
   /^(\w+) steps out of the family "([^"]*)"$/,
   async ({ world }, who: string, family: string) => {
-    const session = await sessionOf(world, who);
-    const familyId = familyIdNamed(world, family);
-    const response = await world.api.delete(`/api/families/${familyId}/members/${session.userId}`, {
-      headers: bearer(session),
-      failOnStatusCode: false,
-    });
-    expect(response.status()).toBe(204);
+    await leaveFamily(world.api, await sessionOf(world, who), familyIdNamed(world, family));
   },
 );
 

@@ -55,3 +55,15 @@ export const joinFamilyWithInvitation = async (
   });
   expect(joined.status(), "the invitation was not accepted").toBe(201);
 };
+
+export const leaveFamily = async (
+  api: APIRequestContext,
+  session: Session,
+  familyId: string,
+): Promise<void> => {
+  const response = await api.delete(`/api/families/${familyId}/members/${session.userId}`, {
+    headers: bearer(session),
+    failOnStatusCode: false,
+  });
+  expect(response.status()).toBe(204);
+};

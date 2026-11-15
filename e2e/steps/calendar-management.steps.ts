@@ -3,7 +3,7 @@
 
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { bearer } from "../support/family-sessions.js";
+import { bearer, leaveFamily } from "../support/family-sessions.js";
 import {
   CALENDAR_COLOR,
   eventsState,
@@ -171,12 +171,7 @@ Then(/^Ben gets not-found for the family "([^"]*)"$/, ({ world }, family: string
 });
 
 When(/^Ben leaves the family "([^"]*)"$/, async ({ world }, family: string) => {
-  const session = await sessionOf(world, "Ben");
-  const response = await world.api.delete(
-    `/api/families/${familyIdNamed(world, family)}/members/${session.userId}`,
-    { headers: bearer(session), failOnStatusCode: false },
-  );
-  expect(response.status()).toBe(204);
+  await leaveFamily(world.api, await sessionOf(world, "Ben"), familyIdNamed(world, family));
 });
 
 Then(/^Ben does not see "([^"]*)"$/, async ({ world }, name: string) => {
