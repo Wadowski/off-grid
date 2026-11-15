@@ -12,30 +12,30 @@ export const reminderRowStyle: CSSProperties = {
 
 export const reminderRowControlsStyle: CSSProperties = {
   display: "flex",
-  flexWrap: "wrap",
   alignItems: "flex-start",
   gap: tokens.space[2],
 };
 
 export const reminderAmountCellStyle: CSSProperties = {
-  flex: "1 1 5rem",
-  maxWidth: "8rem",
-  minWidth: "4.5rem",
+  flex: "0 0 6rem",
+  minWidth: 0,
+};
+
+const centeredCellStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  minHeight: "3rem",
 };
 
 export const reminderUnitCellStyle: CSSProperties = {
-  flex: "1 1 7rem",
-  minWidth: "6rem",
-  paddingTop: tokens.space[5],
-};
-
-export const reminderSuffixStyle: CSSProperties = {
-  paddingTop: tokens.space[5],
-  color: cssVar("color-muted"),
+  ...centeredCellStyle,
+  flex: "1 1 0",
+  minWidth: 0,
 };
 
 export const reminderRemoveCellStyle: CSSProperties = {
-  paddingTop: tokens.space[4],
+  ...centeredCellStyle,
+  flex: "0 0 auto",
 };
 
 export const reminderZeroHelperStyle: CSSProperties = {

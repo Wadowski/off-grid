@@ -14,7 +14,6 @@ import {
   reminderRemoveCellStyle,
   reminderRowControlsStyle,
   reminderRowStyle,
-  reminderSuffixStyle,
   reminderUnitCellStyle,
   reminderZeroHelperStyle,
 } from "./styles.js";
@@ -88,9 +87,6 @@ export const ReminderRow = ({
             }}
             options={unitOptions}
           />
-        </div>
-        <div style={reminderSuffixStyle}>
-          <Text variant="caption" textId="calendar.eventModal.reminders.suffix" />
         </div>
         <div style={reminderRemoveCellStyle}>
           <Button

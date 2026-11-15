@@ -135,6 +135,9 @@ export const ReminderGroup = ({
               onRemove={() => remove(index)}
             />
           ))}
+          <div style={reminderMutedStyle}>
+            <Text variant="caption" textId="calendar.eventModal.reminders.suffix" />
+          </div>
         </div>
       )}
 
