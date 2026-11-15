@@ -3,9 +3,8 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import type { WeekAccent } from "./components/week-event-block/types.js";
 import type { WeekCardStyle, WeekGridSize } from "./constants.js";
-
-type WeekAccent = { readonly background: string; readonly color: string };
 
 export const weekGridScrollStyle = (scrollHeight: string): CSSProperties => ({
   height: scrollHeight,
@@ -35,29 +34,31 @@ export const weekGutterLabelStyle: CSSProperties = {
   color: cssVar("color-muted"),
 };
 
-export const weekDayHeaderStyle = (today: boolean): CSSProperties => ({
+export const weekDayHeaderStyle = (today: boolean, desktop = false): CSSProperties => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: "2px",
-  padding: `${tokens.space[1]} 0`,
+  gap: desktop ? tokens.space[1] : "2px",
+  padding: desktop ? `${tokens.space[2]} 0 ${tokens.space[1]}` : `${tokens.space[1]} 0`,
   color: today ? cssVar("color-primary") : cssVar("color-muted"),
   fontFamily: cssVar("font-family-base"),
-  fontSize: "10px",
+  fontSize: desktop ? "11px" : "10px",
   fontWeight: cssVar("font-weight-medium"),
+  letterSpacing: desktop ? "0.08em" : undefined,
+  textTransform: desktop ? "uppercase" : undefined,
 });
 
-export const weekDayNumberStyle = (selected: boolean): CSSProperties => ({
+export const weekDayNumberStyle = (selected: boolean, desktop = false): CSSProperties => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "1.5rem",
-  height: "1.5rem",
+  width: desktop ? "1.75rem" : "1.5rem",
+  height: desktop ? "1.75rem" : "1.5rem",
   borderRadius: cssVar("radius-full"),
   background: selected ? cssVar("color-primary") : "transparent",
   color: selected ? cssVar("color-accent-fg") : cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
-  fontSize: "13px",
+  fontSize: desktop ? "16px" : "13px",
   fontWeight: cssVar("font-weight-semibold"),
 });
 
@@ -98,12 +99,16 @@ export const weekBodyStyle = (heightPx: number, gutter: string): CSSProperties =
   height: `${heightPx}px`,
 });
 
-export const weekHourLabelStyle = (hourIndex: number, hourPx: number): CSSProperties => ({
+export const weekHourLabelStyle = (
+  hourIndex: number,
+  hourPx: number,
+  desktop = false,
+): CSSProperties => ({
   position: "absolute",
   top: `${hourIndex * hourPx - 6}px`,
   right: tokens.space[1],
   fontFamily: cssVar("font-family-mono"),
-  fontSize: "9px",
+  fontSize: desktop ? "11px" : "9px",
   color: cssVar("color-muted"),
 });
 
@@ -266,9 +271,9 @@ export const weekLocationChipStyle = (accent: WeekAccent): CSSProperties => ({
   alignSelf: "flex-start",
   maxWidth: "100%",
   padding: `0 ${tokens.space[2]}`,
-  borderRadius: cssVar("radius-sm"),
+  borderRadius: cssVar("radius-full"),
   background: `${accent.background}66`,
-  color: cssVar("color-fg"),
+  color: accent.color,
   fontSize: tokens.font.size["label-md"],
   fontWeight: cssVar("font-weight-semibold"),
   overflow: "hidden",
@@ -288,6 +293,18 @@ export const weekNowLineStyle: CSSProperties = {
   flex: 1,
   height: "2px",
   background: cssVar("color-danger"),
+};
+
+export const weekNowBadgeStyle: CSSProperties = {
+  flexShrink: 0,
+  padding: "1px 4px",
+  borderRadius: cssVar("radius-sm"),
+  background: cssVar("color-danger"),
+  color: cssVar("color-accent-fg"),
+  fontFamily: cssVar("font-family-base"),
+  fontSize: "10px",
+  fontWeight: cssVar("font-weight-semibold"),
+  whiteSpace: "nowrap",
 };
 
 export const weekNowStyle = (topPx: number): CSSProperties => ({

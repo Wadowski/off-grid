@@ -7,7 +7,14 @@ import {
   nowMinutesOnDate,
 } from "../../../../../../calendar-views/timeline-layout.js";
 import { MINUTES_PER_HOUR } from "../../constants.js";
-import { weekColumnStyle, weekNowDotStyle, weekNowLineStyle, weekNowStyle } from "../../styles.js";
+import { formatClockTime } from "../../../../../../calendar-views/time-format.js";
+import {
+  weekColumnStyle,
+  weekNowBadgeStyle,
+  weekNowDotStyle,
+  weekNowLineStyle,
+  weekNowStyle,
+} from "../../styles.js";
 import { WeekEventBlock } from "../week-event-block/week-event-block.js";
 import type { WeekDayColumnProps } from "./types.js";
 
@@ -39,10 +46,15 @@ export const WeekDayColumn = ({
       {nowMinute !== null && (
         <div
           data-testid="week-now"
-          style={weekNowStyle((nowMinute - startHour * 60) * pxPerMinute)}
+          style={weekNowStyle((nowMinute - startHour * MINUTES_PER_HOUR) * pxPerMinute)}
         >
           <span style={weekNowDotStyle} />
           <span style={weekNowLineStyle} />
+          {card === "detailed" && (
+            <span style={weekNowBadgeStyle} data-testid="week-now-time">
+              {formatClockTime(now.toISOString(), timeZone)}
+            </span>
+          )}
         </div>
       )}
     </div>

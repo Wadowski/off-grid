@@ -44,13 +44,15 @@ export const WeekGrid = ({
   const { startHour, endHour } = weekGridRange(allTimed, timeZone);
   const hourCount = endHour - startHour;
   const bodyHeight = hourCount * size.hourPx;
+  const desktop = size.card === "detailed";
+  const rangeStartMinute = startHour * MINUTES_PER_HOUR;
   const earliestMinute = allTimed.reduce(
     (earliest, event) => Math.min(earliest, zonedMomentOf(event.startsAt, timeZone).minutesOfDay),
-    startHour * 60,
+    rangeStartMinute,
   );
   const scrollTargetPx = Math.max(
     0,
-    ((earliestMinute - startHour * 60 - SCROLL_MARGIN_MINUTES) * size.hourPx) / MINUTES_PER_HOUR,
+    ((earliestMinute - rangeStartMinute - SCROLL_MARGIN_MINUTES) * size.hourPx) / MINUTES_PER_HOUR,
   );
   const firstDate = dates[0] ?? selectedDate;
   const dayLetters = weekdayLetters(t);
@@ -85,6 +87,7 @@ export const WeekGrid = ({
                 label={dayLetters[mondayIndexOf(day.date)] ?? ""}
                 selected={day.date === selectedDate}
                 today={day.date === todayDate}
+                desktop={desktop}
               />
             );
             return size.card === "detailed" ? (
@@ -112,7 +115,7 @@ export const WeekGrid = ({
         <div style={weekBodyStyle(bodyHeight, size.gutter)}>
           <div style={{ position: "relative" }}>
             {Array.from({ length: hourCount }, (_, index) => (
-              <span key={index} style={weekHourLabelStyle(index, size.hourPx)}>
+              <span key={index} style={weekHourLabelStyle(index, size.hourPx, desktop)}>
                 {hourLabel(startHour + index)}
               </span>
             ))}

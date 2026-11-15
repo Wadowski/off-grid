@@ -384,3 +384,35 @@ describe("WeekGrid desktop day row", () => {
     expect(results.violations).toEqual([]);
   }, 30_000);
 });
+
+describe("WeekGrid now line", () => {
+  it("shows the current time on a badge at the end of the now line on desktop", () => {
+    render(
+      <WeekGrid
+        days={weekWith({})}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    expect(screen.getByTestId("week-now-time")).toHaveTextContent("12:00 PM");
+  });
+
+  it("does not show the now-line time badge on the phone week", () => {
+    render(
+      <WeekGrid
+        days={weekWith({})}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        timeZone="UTC"
+        now={NOON_WED}
+      />,
+    );
+
+    expect(screen.getAllByTestId("week-now")).toHaveLength(1);
+    expect(screen.queryByTestId("week-now-time")).toBeNull();
+  });
+});
