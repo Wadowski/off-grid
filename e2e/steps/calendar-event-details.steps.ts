@@ -337,5 +337,6 @@ Then("I see the event details at phone width without horizontal scroll", async (
   expect(await page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")).toBe(
     true,
   );
+  await page.setViewportSize(DESKTOP_VIEWPORT);
   await captureScreen(page, "details page", FEATURE);
 });
