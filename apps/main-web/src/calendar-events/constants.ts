@@ -5,6 +5,8 @@ export const FORM_ID = "new-event-form";
 
 export const NEW_EVENT_PATH = "/calendar/event/new";
 
+export const EVENT_DETAILS_ROUTE = "event/:eventId";
+
 export const DEFAULT_EVENT_BACKGROUND = "/calendar/agenda";
 
 export const CALENDAR_PATH_PREFIX = "/calendar";

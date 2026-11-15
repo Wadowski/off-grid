@@ -3,7 +3,7 @@
 
 import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
-import { dividerColor } from "../../styles.js";
+import { dividerColor } from "../../../dialog-styles.js";
 
 export const newEventHeaderStyle: CSSProperties = {
   display: "flex",

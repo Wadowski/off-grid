@@ -8,6 +8,7 @@ import {
 } from "@offgrid/contracts";
 import { zonedMomentOf } from "../calendar-views/time-format.js";
 import { toIsoDate } from "../calendar-views/week-days.js";
+import { optionalText } from "./optional-text.js";
 import type {
   EventFormErrors,
   EventFormResult,
@@ -53,11 +54,6 @@ export const withField = <K extends keyof EventFormValues>(
   field: K,
   value: EventFormValues[K],
 ): EventFormValues => ({ ...values, [field]: value });
-
-const optionalText = (value: string): string | undefined => {
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
-};
 
 export const toCreateEventRequest = (
   values: EventFormValues,

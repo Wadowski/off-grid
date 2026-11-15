@@ -44,7 +44,7 @@ Decision record: [ADR 0028](../../docs/adr/0028-calendar-event-time-and-versions
 - A guest reads the event through `GET /events/:id`, `GET /calendars/:id/events` and the views, with `readOnly: true`, `calendarName` and `calendarColor`. The guest sees only the events they were invited to, never the rest of the host's calendar. The guest's read path is the SELECT-only policies in migration `20261119000000_calendar_event_guests`.
 - A guest who sends `PATCH /events/:id`, `DELETE /events/:id` or an invite answers 403 `FORBIDDEN` with a fixed message, and the stored row is unchanged.
 - Guest removal is not built. A guest keeps access after they leave the family, which is a known gap in [ADR 0029](../../docs/adr/0029-event-guest-access.md).
-- The UI for inviting and for guest read-only details is a follow-up. No screen in this module shows guests yet.
+- The UI for inviting guests is a follow-up. The event details screen shows a guest the event read-only: the edit and delete controls are not rendered when `readOnly` is true. The server still enforces every write.
 
 Decision record: [ADR 0029](../../docs/adr/0029-event-guest-access.md).
 

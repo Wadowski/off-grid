@@ -13,9 +13,12 @@ export const appShellStyle: CSSProperties = {
 
 const SIDEBAR_WIDTH = "16rem";
 const HEADER_HEIGHT = "3.5rem";
+const PHONE_TAB_BAR_RESERVE = "6rem";
 const FLOATING_SHADOW = "0 1px 8px color-mix(in srgb, var(--og-color-fg) 4%, transparent)";
 const TRANSLUCENT_SURFACE = "color-mix(in srgb, var(--og-color-surface) 75%, transparent)";
 const TRANSLUCENT_SIDEBAR = "color-mix(in srgb, var(--og-color-surface-low) 70%, transparent)";
+
+export const SHELL_PHONE_CONTENT_HEIGHT = `calc(100dvh - ${HEADER_HEIGHT} - ${tokens.space[4]} - ${PHONE_TAB_BAR_RESERVE})`;
 
 export const appShellCss = `
 .og-sidebar {
@@ -321,7 +324,7 @@ export const appShellCss = `
 
   .og-shell-main {
     margin-left: 0;
-    padding: calc(${HEADER_HEIGHT} + ${tokens.space[4]}) ${tokens.space[4]} 6rem;
+    padding: calc(${HEADER_HEIGHT} + ${tokens.space[4]}) ${tokens.space[4]} ${PHONE_TAB_BAR_RESERVE};
   }
 }
 `;

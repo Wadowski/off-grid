@@ -22,3 +22,14 @@ export const monthEventChipStyle = (color: string): CSSProperties => ({
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
 });
+
+export const monthEventChipButtonStyle: CSSProperties = {
+  display: "block",
+  maxWidth: "100%",
+  padding: 0,
+  border: 0,
+  background: "none",
+  font: "inherit",
+  textAlign: "left",
+  cursor: "pointer",
+};
