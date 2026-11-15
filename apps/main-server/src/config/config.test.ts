@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
+import { ConfigError } from "./config-error.js";
 import { loadConfig } from "./load-config.js";
 
 const DATABASE_SECRET_PATH = "/run/secrets/db_password";
@@ -40,7 +41,17 @@ describe("loadConfig", () => {
       rateLimitPerMinute: 300,
       outbox: { retentionDays: 7 },
       logLevel: "info",
+      e2eClock: false,
     });
+  });
+
+  it("turns the e2e clock on only when OFFGRID_E2E_CLOCK is on", () => {
+    expect(
+      loadConfig({ ...requiredEnv, OFFGRID_E2E_CLOCK: "on" }, secretFiles("s3cret")).e2eClock,
+    ).toBe(true);
+    expect(() =>
+      loadConfig({ ...requiredEnv, OFFGRID_E2E_CLOCK: "yes" }, secretFiles("s3cret")),
+    ).toThrow(ConfigError);
   });
 
   it("reads the outbox retention period in days", () => {

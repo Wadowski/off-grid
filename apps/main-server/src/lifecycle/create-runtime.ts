@@ -8,6 +8,7 @@ import { Pool } from "pg";
 import { CONNECTION_TIMEOUT_MS } from "../constants.js";
 import { createEventBus } from "@offgrid/event-bus";
 import { persistErrorRecord } from "../error-log/persist-error-record.js";
+import { createServerClock } from "../clock/server-clock.js";
 
 export const createRuntime = (config: ServerConfig): ServerRuntime => {
   const logger = createLogger({ level: config.logLevel, bindings: { module: "server" } });
@@ -32,6 +33,7 @@ export const createRuntime = (config: ServerConfig): ServerRuntime => {
     errorSink,
     errorRecordDb,
     logger,
+    clock: createServerClock({ controlled: config.e2eClock }),
     moduleDatabases: new Map(),
     state: { publisherRunning: false, draining: false },
   };

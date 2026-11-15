@@ -8,6 +8,7 @@ import { moduleContextFor } from "../module-wiring/module-context-for.js";
 import { registerGetHealth } from "./register-get-health.js";
 import { registerGetHealthReady } from "./register-get-health-ready.js";
 import { registerMeRoute } from "./register-me-route.js";
+import { registerE2eClockRoutes } from "./register-e2e-clock-routes.js";
 
 export const registerApiRoutes = async (
   api: FastifyInstance,
@@ -18,6 +19,7 @@ export const registerApiRoutes = async (
   registerGetHealth(api);
   registerGetHealthReady(api, runtime, expectedMigrations);
   registerMeRoute(api, runtime);
+  registerE2eClockRoutes(api, runtime);
   for (const module of modules) {
     await module.registerRoutes?.(api, moduleContextFor(runtime, module.name));
   }

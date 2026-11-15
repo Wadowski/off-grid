@@ -7,8 +7,6 @@ import { registerCalendarRoutes } from "./http/register-calendar-routes.js";
 import { createReminderDispatchWorker } from "./workers/reminder-dispatch/create-reminder-dispatch-worker.js";
 import type { CalendarSubscriberContext, CalendarWorkerContext } from "./types.js";
 
-const REMINDER_TICK_INTERVAL_MS = 30_000;
-
 export const calendarModule = {
   name: "calendar",
   registerRoutes: registerCalendarRoutes,
@@ -20,8 +18,8 @@ export const calendarModule = {
     createReminderDispatchWorker({
       db: context.db,
       logger: context.logger,
-      now: () => new Date(),
-      intervalMs: REMINDER_TICK_INTERVAL_MS,
+      now: () => context.clock.now(),
+      intervalMs: context.clock.pollIntervalMs,
     }),
   ],
 };
