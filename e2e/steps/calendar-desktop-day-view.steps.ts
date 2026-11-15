@@ -11,7 +11,6 @@ import { webBaseUrl } from "../support/stack.js";
 
 const { Given, When, Then } = createBdd(test);
 
-// The accent colour of each calendar colour, as the day timeline paints it (calendar-accents.ts).
 const ACCENT_BACKGROUND: Record<string, string> = {
   blue: "rgb(59, 111, 212)",
 };
@@ -142,6 +141,5 @@ Then("the day timeline fills the window down to the New Event bar", async ({ pag
   if (viewport === null) {
     throw new Error("The viewport is not set.");
   }
-  // The New Event bar and the page bottom padding take about 90px; the timeline must reach down to them.
   expect(box.y + box.height).toBeGreaterThan(viewport.height - 120);
 });

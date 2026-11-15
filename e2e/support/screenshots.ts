@@ -24,12 +24,8 @@ type Theme = "light" | "dark";
 
 const SCREEN_TAG = "@screen:";
 
-// A screen is the page route without its query (so a date in the query does not
-// split one screen). A `@screen:<name>` tag overrides the route when one route
-// has several states, for example a sign-in error.
 const UUID_SEGMENT = /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\/|$)/gi;
 
-// Record ids in the path (a calendar's uuid) do not make a new screen.
 export const screenNameFor = (url: string, tags: readonly string[]): string => {
   const screenTag = tags.find((tag) => tag.startsWith(SCREEN_TAG));
   if (screenTag !== undefined) {
@@ -38,10 +34,8 @@ export const screenNameFor = (url: string, tags: readonly string[]): string => {
   return new URL(url).pathname.replace(UUID_SEGMENT, "/:id");
 };
 
-// A page that never navigated (about:blank) shows no screen.
 export const isScreenUrl = (url: string): boolean => url.startsWith("http");
 
-// One key per (feature, screen). Theme and width are added by captureScreen.
 export const screenKey = (feature: string, screen: string): string =>
   `${slug(feature)}/${slug(screen)}`;
 
@@ -50,7 +44,6 @@ export const shotName = (name: string, theme: Theme, mobile: boolean): string =>
     .filter((part): part is string => part !== undefined)
     .join(" ");
 
-// Keys captured in this run. The e2e run uses one worker, so this is per run.
 const captured = new Set<string>();
 
 const nextFrame = (page: Page): Promise<void> =>

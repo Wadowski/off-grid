@@ -13,13 +13,11 @@ import { webBaseUrl } from "../support/stack.js";
 const { Given, When, Then } = createBdd(test);
 
 const CALENDARS_PATH = "/calendar/calendars";
-// The edit screen of one calendar lives at /calendar/:calendarId.
 const CALENDAR_PATH_PREFIX = "/calendar";
 const AGENDA_PATH = "/calendar";
 const NEW_CALENDAR_PATH = "/calendar/new";
 const NAME_PLACEHOLDER = "Enter a calendar name";
 const CALENDAR_ROW = "calendar-row";
-// World key for the calendar owned by another person, which the signed-in person cannot access.
 const OTHER_PERSON_CALENDAR_KEY = "other-person-calendar";
 
 const openCalendars = async (page: Page): Promise<void> => {
@@ -48,8 +46,6 @@ const openEditScreenNamed = async (page: Page, name: string): Promise<void> => {
   await expect(page.getByRole("heading", { name: "Edit calendar", exact: true })).toBeVisible();
 };
 
-// The calendar module learns family membership from events, so it can lag a family created a moment
-// ago. Wait until it accepts a family calendar, using a probe calendar that is removed again.
 const waitForFamilyCalendarAccess = async (
   world: ScenarioWorld,
   familyName: string,
@@ -200,7 +196,6 @@ Then("the calendar {string} is still listed", async ({ page }, name: string) => 
 });
 
 When("I open the edit screen for my default calendar", async ({ page, world }) => {
-  // The default calendar is created after the user-created event is handled, so it can lag the sign-up.
   const defaultCalendar = await eventually(async () => {
     const calendars = await listCalendars(world.api, memberSessionOf(world));
     const found = calendars.find((calendar) => calendar.isDefault);

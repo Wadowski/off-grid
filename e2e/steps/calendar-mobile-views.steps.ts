@@ -15,7 +15,6 @@ const PHONE_WIDTH = 375;
 const PHONE_HEIGHT = 812;
 const WEEK_STRIP_WRAPPER_CLASS = "og-calendar-views-week-strip";
 const VIEWS_API = "**/api/calendar/views/**";
-// The day timeline places an event at a 12px offset plus 88px per hour (see day-timeline/constants.ts).
 const TIMELINE_OFFSET_PX = 12;
 const TIMELINE_HOUR_PX = 88;
 
@@ -35,7 +34,6 @@ const minutesOf = (time: string): number => {
 const timelineTopPx = (time: string): number =>
   TIMELINE_OFFSET_PX + (minutesOf(time) * TIMELINE_HOUR_PX) / 60;
 
-// Formats a 24-hour time the way the timeline shows it, for example 09:30 as "09:30 AM".
 const clock12 = (time: string): string => {
   const [hours = 0, minutes = 0] = time.split(":").map(Number);
   const meridiem = hours < 12 ? "AM" : "PM";

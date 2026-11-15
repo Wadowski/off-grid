@@ -8,7 +8,7 @@ const SHELL_SIDEBAR_WIDTH = "16rem";
 const SHELL_PHONE_GUTTER = tokens.space[4];
 const BODY_MARGIN = "0.5rem";
 const PAGE_GUTTER = tokens.space[2];
-export const NEW_EVENT_BAR_HEIGHT = "4rem";
+const NEW_EVENT_BAR_HEIGHT = "4rem";
 const TAB_BAR_HEIGHT = "4.5rem";
 const APP_HEADER_HEIGHT = "3.5rem";
 const APP_SHELL_TOP_PADDING = `calc(${APP_HEADER_HEIGHT} + ${tokens.space[4]})`;
@@ -16,7 +16,6 @@ const APP_SHELL_BOTTOM_PADDING = tokens.space[6];
 const PHONE_PAGE_MARGIN = `calc(-1 * (${SHELL_PHONE_GUTTER} + ${BODY_MARGIN} - ${PAGE_GUTTER}))`;
 
 export const PAGE_CLASS = "og-calendar-views-page";
-export const FILTER_CLASS = "og-calendar-views-filter";
 export const WEEK_STRIP_CLASS = "og-calendar-views-week-strip";
 
 export const calendarViewsPageStyle = (phone: boolean, desktopDay: boolean): CSSProperties => ({
@@ -60,7 +59,7 @@ export const calendarViewsHeaderStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const calendarViewsControlsStyle: CSSProperties = {
+const calendarViewsControlsStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
