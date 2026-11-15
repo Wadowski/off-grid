@@ -8,7 +8,7 @@ import { withTransaction } from "./with-transaction.js";
 
 export const readBatch = async (
   pool: Pool,
-  type: string,
+  type: string | null,
   after: number,
   batchSize: number,
 ): Promise<StoredEvent[]> =>
