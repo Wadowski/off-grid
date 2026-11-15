@@ -7,5 +7,6 @@ export const calendarRoutes = {
   calendarView: "/calendar/views/:view",
   calendarTimeZone: "/calendar/time-zone",
   calendarEvents: "/calendars/:id/events",
+  calendarEvent: "/events/:id",
   eventGuests: "/events/:id/guests",
 } as const;
