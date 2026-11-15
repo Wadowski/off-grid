@@ -8,3 +8,8 @@ import type { familyCreated } from "./family-created.js";
 export type TestDatabase = SharedTestDatabase;
 
 export type FamilyCreated = EventOf<typeof familyCreated>;
+
+export interface Seen {
+  readonly type: string;
+  readonly sourceVersion: number;
+}

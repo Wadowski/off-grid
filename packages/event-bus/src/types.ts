@@ -76,6 +76,9 @@ export interface DeliverySettings {
   readonly pollIntervalMs: number;
 }
 
+export type ReplaySubscription = Pick<Delivery, "runAs" | "handler"> &
+  ({ readonly event: AnyEventDefinition } | { readonly events: readonly AnyEventDefinition[] });
+
 export interface ReplayOptions extends Pick<EventBusOptions, "pool"> {
   readonly fromSequence?: number;
   readonly batchSize?: number;

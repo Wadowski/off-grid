@@ -99,4 +99,32 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
     );
     expect(rows[0]).toEqual({ source_version: 3, is_member: true });
   });
+
+  it("follows a join, a leave and a rejoin delivered one at a time", async () => {
+    const bus = createEventBus({
+      pool: db.pool,
+      errorSink: createMemoryErrorSink(),
+      retryDelayMs: () => 0,
+    });
+    registerFamilyMembershipSubscribers({ eventBus: bus, db: db.db });
+    const row = async () => {
+      const { rows } = await db.admin.query<{ source_version: number; is_member: boolean }>(
+        "SELECT source_version, is_member FROM calendar.family_membership WHERE family_id = $1 AND user_id = $2",
+        [familyId, userId],
+      );
+      return rows[0];
+    };
+
+    await publishJoin(1);
+    await bus.deliverPending();
+    expect(await row()).toEqual({ source_version: 1, is_member: true });
+
+    await publishLeave(2);
+    await bus.deliverPending();
+    expect(await row()).toEqual({ source_version: 2, is_member: false });
+
+    await publishJoin(3);
+    await bus.deliverPending();
+    expect(await row()).toEqual({ source_version: 3, is_member: true });
+  });
 });

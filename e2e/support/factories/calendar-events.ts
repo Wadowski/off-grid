@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { expect, type APIRequestContext, type APIResponse } from "@playwright/test";
-import { bearer } from "../family-sessions.js";
+import { accountSessionOf, bearer } from "../family-sessions.js";
+import type { ScenarioWorld } from "../fixtures.js";
 import type { Session } from "./instance-admin.js";
 
 export type CalendarRecord = {
@@ -25,6 +26,7 @@ export type CalendarEventsWorld = {
   members: Record<string, string[]>;
   calendars: CalendarRecord[];
   events: EventRecord[];
+  lastStatus?: number;
 };
 
 export type EventBody = {
@@ -36,6 +38,33 @@ export type EventBody = {
 };
 
 export const CALENDAR_COLOR = "blue";
+
+const PRONOUNS = ["she", "he"];
+
+export const eventsState = (world: ScenarioWorld): CalendarEventsWorld => {
+  world.calendarEvents ??= { people: {}, families: {}, members: {}, calendars: [], events: [] };
+  return world.calendarEvents;
+};
+
+export const sessionOf = async (world: ScenarioWorld, who: string): Promise<Session> => {
+  const scenario = eventsState(world);
+  const name = PRONOUNS.includes(who) ? (scenario.actor ?? "Anna") : who;
+  let session = scenario.people[name];
+  if (session === undefined) {
+    session =
+      name === "Anna" && world.people?.anna !== undefined
+        ? world.people.anna.session
+        : (await accountSessionOf(world.api, name)).session;
+    scenario.people[name] = session;
+  }
+  return session;
+};
+
+export const familyIdNamed = (world: ScenarioWorld, family: string): string => {
+  const familyId = eventsState(world).families[family]?.id;
+  expect(familyId, `the family "${family}" is not set up`).toBeDefined();
+  return familyId ?? "";
+};
 
 const CALENDARS = "/api/calendars";
 const EVENTS = "/api/events";

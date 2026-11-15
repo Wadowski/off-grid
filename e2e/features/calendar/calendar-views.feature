@@ -81,6 +81,15 @@ Feature: Viewing events by agenda, day, week and month
     And Ben opens his agenda view for 2026-11-18
     Then the agenda view does not list "Dinner"
 
+  Scenario: A person who rejoins a family sees its calendar events again
+    Given Anna and Ben are both members of the family "Home"
+    And the family "Home" has a calendar named "Kitchen"
+    And Ben has an event "Dinner" in "Kitchen" from 2026-11-18 18:00 to 19:00 in UTC
+    When Ben steps out of the family "Home"
+    And Ben rejoins the family "Home" with the invitation code
+    And Ben opens his agenda view for 2026-11-18
+    Then the agenda view lists "Dinner"
+
   Scenario: An event that ends at local midnight at the start of the range is not listed
     Given Anna is signed in
     And her time zone is "Europe/Warsaw"

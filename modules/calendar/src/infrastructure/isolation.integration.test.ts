@@ -4,6 +4,7 @@
 import { randomUUID } from "node:crypto";
 import { withFamilyContext, withUserContext } from "@offgrid/db";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { applyFamilyMembership } from "../events/family-membership/apply-family-membership.js";
 import { startCalendarTestDatabase } from "../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../test/types.js";
 
@@ -294,5 +295,93 @@ describe("calendar event guest isolation", { timeout: 60_000 }, () => {
     });
 
     expect(rows).toEqual([]);
+  });
+});
+
+describe("family membership isolation", { timeout: 60_000 }, () => {
+  let db: CalendarTestDatabase;
+  const familyA = randomUUID();
+  const familyB = randomUUID();
+  const calendarA = randomUUID();
+  const calendarB = randomUUID();
+  const eventA = randomUUID();
+  const eventB = randomUUID();
+  const onlyA = randomUUID();
+  const onlyB = randomUUID();
+  const inBoth = randomUUID();
+  const outsider = randomUUID();
+  const startsAt = new Date("2026-11-20T10:00:00Z");
+  const endsAt = new Date("2026-11-20T11:00:00Z");
+
+  beforeAll(async () => {
+    db = await startCalendarTestDatabase();
+  }, 120_000);
+
+  afterAll(async () => {
+    await db.stop();
+  }, 120_000);
+
+  const setMembership = (
+    familyId: string,
+    userId: string,
+    sourceVersion: number,
+    isMember: boolean,
+  ) =>
+    db.db.$transaction((tx) =>
+      applyFamilyMembership(tx, { familyId, userId, sourceVersion, isMember }),
+    );
+
+  const visibleTo = (userId: string) =>
+    db.db.$transaction(async (tx) => {
+      await withUserContext(tx, userId);
+      const calendars = await tx.calendar.findMany();
+      const events = await tx.calendarEvent.findMany();
+      return {
+        calendars: calendars.map((row) => row.calendarId).sort(),
+        events: events.map((row) => row.eventId).sort(),
+      };
+    });
+
+  beforeEach(async () => {
+    await db.reset();
+    await db.admin.query(
+      "INSERT INTO calendar.calendar (calendar_id, family_id, name, color) VALUES ($1, $2, 'Kitchen', 'green'), ($3, $4, 'Garage', 'amber')",
+      [calendarA, familyA, calendarB, familyB],
+    );
+    await db.admin.query(
+      "INSERT INTO calendar.calendar_event (event_id, calendar_id, family_id, title, starts_at, ends_at) VALUES ($1, $2, $3, 'Dinner', $4, $5), ($6, $7, $8, 'Repair', $4, $5)",
+      [eventA, calendarA, familyA, startsAt, endsAt, eventB, calendarB, familyB],
+    );
+    await setMembership(familyA, onlyA, 1, true);
+    await setMembership(familyB, onlyB, 1, true);
+    await setMembership(familyA, inBoth, 1, true);
+    await setMembership(familyB, inBoth, 1, true);
+  });
+
+  it("shows no family calendar or event to a person outside both families", async () => {
+    expect(await visibleTo(outsider)).toEqual({ calendars: [], events: [] });
+  });
+
+  it("shows each family's calendars and events separately to a person in both families", async () => {
+    expect(await visibleTo(inBoth)).toEqual({
+      calendars: [calendarA, calendarB].sort(),
+      events: [eventA, eventB].sort(),
+    });
+    expect(await visibleTo(onlyA)).toEqual({ calendars: [calendarA], events: [eventA] });
+    expect(await visibleTo(onlyB)).toEqual({ calendars: [calendarB], events: [eventB] });
+  });
+
+  it("hides a family from a person who left it, keeps the other family, and restores it on rejoin", async () => {
+    await setMembership(familyA, inBoth, 2, false);
+
+    expect(await visibleTo(inBoth)).toEqual({ calendars: [calendarB], events: [eventB] });
+    expect(await visibleTo(onlyA)).toEqual({ calendars: [calendarA], events: [eventA] });
+
+    await setMembership(familyA, inBoth, 3, true);
+
+    expect(await visibleTo(inBoth)).toEqual({
+      calendars: [calendarA, calendarB].sort(),
+      events: [eventA, eventB].sort(),
+    });
   });
 });
