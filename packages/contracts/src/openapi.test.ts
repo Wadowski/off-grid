@@ -27,6 +27,7 @@ describe("buildOpenApiDocument", () => {
       "CreateFamilyRequest",
       "EmailCodeRequest",
       "ErrorResponse",
+      "EventGuestList",
       "Family",
       "FamilyId",
       "FamilyList",
@@ -65,8 +66,11 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/calendars/{id}",
       "/calendars/{id}/events",
       "/events/{id}/guests",
+      "/events/{id}/guests/{guestUserId}",
     ]);
     expect(paths["/events/{id}/guests"].post.operationId).toBe("inviteEventGuest");
+    expect(paths["/events/{id}/guests"].get.operationId).toBe("listEventGuests");
+    expect(paths["/events/{id}/guests/{guestUserId}"].delete.operationId).toBe("removeEventGuest");
     expect(paths["/calendars/{id}/events"].post.operationId).toBe("createCalendarEvent");
     expect(paths["/calendars"].get.operationId).toBe("listCalendars");
     expect(paths["/calendars"].post.operationId).toBe("createCalendar");

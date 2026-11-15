@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { calendarParamsSchema } from "./calendar-params-schema.js";
 import { calendarEventParamsSchema } from "./calendar-event-params-schema.js";
+import { eventGuestParamsSchema } from "./event-guest-params-schema.js";
 
 const jsonContent = (schemaName: string) => ({
   "application/json": { schema: { $ref: `#/components/schemas/${schemaName}` } },
@@ -112,6 +113,38 @@ export const calendarOpenApiPaths = {
         ),
         "401": unauthenticated,
         "403": errorResponse("FORBIDDEN: a guest of the event may not invite others."),
+        "404": errorResponse("NOT_FOUND: the event does not exist or the person cannot see it."),
+      },
+    },
+
+    get: {
+      operationId: "listEventGuests",
+      summary: "List the guests of an event the signed-in person can see",
+      parameters: [eventIdParameter],
+      responses: {
+        "200": { description: "The guests of the event.", content: jsonContent("EventGuestList") },
+        "401": unauthenticated,
+        "404": errorResponse("NOT_FOUND: the event does not exist or the person cannot see it."),
+      },
+    },
+  },
+  "/events/{id}/guests/{guestUserId}": {
+    delete: {
+      operationId: "removeEventGuest",
+      summary: "Remove a guest from an event the signed-in person hosts",
+      parameters: [
+        eventIdParameter,
+        {
+          name: "guestUserId",
+          in: "path",
+          required: true,
+          schema: z.toJSONSchema(eventGuestParamsSchema.shape.guestUserId),
+        },
+      ],
+      responses: {
+        "204": { description: "The guest was removed, or was not invited." },
+        "401": unauthenticated,
+        "403": errorResponse("FORBIDDEN: a guest of the event may not remove guests."),
         "404": errorResponse("NOT_FOUND: the event does not exist or the person cannot see it."),
       },
     },

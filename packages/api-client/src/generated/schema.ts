@@ -62,11 +62,29 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List the guests of an event the signed-in person can see */
+        get: operations["listEventGuests"];
         put?: never;
         /** Invite a family member to an event the signed-in person hosts */
         post: operations["inviteEventGuest"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/guests/{guestUserId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a guest from an event the signed-in person hosts */
+        delete: operations["removeEventGuest"];
         options?: never;
         head?: never;
         patch?: never;
@@ -98,6 +116,14 @@ export interface components {
         InviteEventGuestRequest: {
             /** Format: uuid */
             guestUserId: string;
+        };
+        EventGuestList: {
+            guests: {
+                /** Format: uuid */
+                userId: string;
+                /** Format: date-time */
+                invitedAt: string;
+            }[];
         };
         Family: {
             /** Format: uuid */
@@ -625,6 +651,46 @@ export interface operations {
             };
         };
     };
+    listEventGuests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The guests of the event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventGuestList"];
+                };
+            };
+            /** @description UNAUTHENTICATED: the request has no signed-in person. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description NOT_FOUND: the event does not exist or the person cannot see it. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     inviteEventGuest: {
         parameters: {
             query?: never;
@@ -673,6 +739,54 @@ export interface operations {
                 };
             };
             /** @description FORBIDDEN: a guest of the event may not invite others. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description NOT_FOUND: the event does not exist or the person cannot see it. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeEventGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                guestUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The guest was removed, or was not invited. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description UNAUTHENTICATED: the request has no signed-in person. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description FORBIDDEN: a guest of the event may not remove guests. */
             403: {
                 headers: {
                     [name: string]: unknown;

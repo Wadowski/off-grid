@@ -69,6 +69,8 @@ export * from "./calendar-event-created-v1.js";
 export * from "./calendar-event-guest-invited-v1.js";
 export * from "./calendar-reminder-due-v1.js";
 export * from "./invite-event-guest-request-schema.js";
+export * from "./event-guest-list-schema.js";
+export * from "./event-guest-params-schema.js";
 export * from "./calendar-event-updated-v1.js";
 export * from "./family-schema.js";
 export * from "./active-family-schema.js";
