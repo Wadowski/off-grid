@@ -6,7 +6,7 @@ Feature: Desktop calendar day view
 
   On a desktop screen the day view opens with the full date above the
   timeline, beside the controls to move between days and the view
-  selector. The calendar sidebar stays beside it, and New Event stays
+  tabs. The calendar sidebar stays beside it, and New Event stays
   in the bar at the bottom of the screen.
 
   @smoke

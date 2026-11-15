@@ -11,7 +11,9 @@ import { Text } from "./text.js";
 const i18n = i18next.createInstance();
 await i18n.init({
   lng: "en",
-  resources: { en: { translation: { "greeting.hello": "Hello there" } } },
+  resources: {
+    en: { translation: { "greeting.hello": "Hello there", "items.more": "+{{count}} more" } },
+  },
 });
 
 const renderWithI18n = (element: ReactElement) =>
@@ -58,5 +60,21 @@ describe("Text", () => {
       "style",
       expect.stringContaining("var(--og-font-size-body-sm)"),
     );
+  });
+
+  it("fills the values of a translation with the given fields", () => {
+    renderWithI18n(<Text variant="caption" textId="items.more" values={{ count: 2 }} />);
+
+    expect(screen.getByText("+2 more")).toBeInTheDocument();
+  });
+
+  it("merges extra styles over the variant styles", () => {
+    renderWithI18n(
+      <Text variant="caption" value="Lakeside" data-testid="caption" style={{ color: "red" }} />,
+    );
+
+    const style = screen.getByTestId("caption").getAttribute("style") ?? "";
+    expect(style).toContain("color: red");
+    expect(style).toContain("var(--og-font-size-label-sm)");
   });
 });

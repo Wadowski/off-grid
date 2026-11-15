@@ -2,14 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import {
-  isScreenUrl,
-  screenKey,
-  screenNameFor,
-  screenPath,
-  shotName,
-  slug,
-} from "./screenshots.js";
+import { isScreenUrl, screenNameFor, screenPath, slug } from "./screenshots.js";
 
 describe("screenshots", () => {
   it("turns titles into file-safe slugs", () => {
@@ -45,17 +38,10 @@ describe("screenshots", () => {
     expect(isScreenUrl("http://127.0.0.1:5173/calendar/day")).toBe(true);
   });
 
-  it("gives one key to one route with different dates", () => {
-    const feature = "Calendar desktop day view";
-    const first = screenKey(
-      feature,
+  it("gives one name to one route with different dates", () => {
+    expect(screenNameFor("http://127.0.0.1:3000/calendar/day?date=2026-03-03", ["@ui"])).toBe(
       screenNameFor("http://127.0.0.1:3000/calendar/day?date=2026-03-02", []),
     );
-    const second = screenKey(
-      feature,
-      screenNameFor("http://127.0.0.1:3000/calendar/day?date=2026-03-03", ["@ui"]),
-    );
-    expect(second).toBe(first);
   });
 
   it("lets a @screen tag override the route", () => {
@@ -69,12 +55,11 @@ describe("screenshots", () => {
 
   it("keeps theme and width in the file path", () => {
     const feature = "Calendar views";
-    const name = "/calendar/day";
     const paths = [
-      screenPath(feature, shotName(name, "light", false)),
-      screenPath(feature, shotName(name, "light", true)),
-      screenPath(feature, shotName(name, "dark", false)),
-      screenPath(feature, shotName(name, "dark", true)),
+      screenPath(feature, "/calendar/day"),
+      screenPath(feature, "/calendar/day mobile"),
+      screenPath(feature, "/calendar/day dark"),
+      screenPath(feature, "/calendar/day dark mobile"),
     ];
     expect(new Set(paths).size).toBe(4);
     expect(paths[3]).toMatch(/calendar-views\/calendar-day-dark-mobile\.png$/);

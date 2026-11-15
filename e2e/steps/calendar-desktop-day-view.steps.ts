@@ -5,22 +5,15 @@ import { expect, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { blockingViolationDescriptions } from "../support/accessibility.js";
 import { createTimedEvent } from "../support/factories/calendar-events.js";
-import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { test } from "../support/fixtures.js";
 import { memberSessionOf } from "../support/family-sessions.js";
 import { webBaseUrl } from "../support/stack.js";
+import { calendarIdOf } from "../support/world-calendar-id.js";
 
 const { Given, When, Then } = createBdd(test);
 
 const ACCENT_BACKGROUND: Record<string, string> = {
   blue: "rgb(59, 111, 212)",
-};
-
-const calendarIdOf = (world: ScenarioWorld, name: string): string => {
-  const id = world.calendarIds?.[name];
-  if (id === undefined) {
-    throw new Error(`The calendar "${name}" was not set up in this scenario.`);
-  }
-  return id;
 };
 
 const eventBlock = (page: Page, title: string) =>

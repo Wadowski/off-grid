@@ -16,7 +16,6 @@ const DESKTOP_HEIGHT = 900;
 const SIDEBAR = "calendar-sidebar";
 const AGENDA_PATHS = ["/calendar", "/calendar/agenda"];
 
-// Monday is column 0, Sunday is column 6.
 const weekColumnOf = (date: string): number => {
   const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
   return (weekday + 6) % 7;

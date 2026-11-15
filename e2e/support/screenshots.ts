@@ -36,10 +36,9 @@ export const screenNameFor = (url: string, tags: readonly string[]): string => {
 
 export const isScreenUrl = (url: string): boolean => url.startsWith("http");
 
-export const screenKey = (feature: string, screen: string): string =>
-  `${slug(feature)}/${slug(screen)}`;
+const screenKey = (feature: string, screen: string): string => `${slug(feature)}/${slug(screen)}`;
 
-export const shotName = (name: string, theme: Theme, mobile: boolean): string =>
+const shotName = (name: string, theme: Theme, mobile: boolean): string =>
   [name, theme === "dark" ? "dark" : undefined, mobile ? "mobile" : undefined]
     .filter((part): part is string => part !== undefined)
     .join(" ");

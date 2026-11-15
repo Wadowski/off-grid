@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { monthCells } from "../../../../calendar-views/month-cells.js";
 import { MonthDayCellDesktop } from "./components/month-day-cell-desktop/month-day-cell-desktop.js";
@@ -45,16 +46,16 @@ export const MonthGridDesktop = ({
     >
       <div style={desktopMonthWeekdayRowStyle} aria-hidden="true">
         {WEEKDAY_SHORT_KEYS.map((key, index) => (
-          <span
+          <Text
             key={key}
+            variant="caption"
+            textId={key}
             style={
               index >= WEEKEND_START_INDEX
                 ? { ...desktopMonthWeekdayCellStyle, ...desktopMonthWeekendWeekdayStyle }
                 : desktopMonthWeekdayCellStyle
             }
-          >
-            {t(key)}
-          </span>
+          />
         ))}
       </div>
       <div style={desktopMonthScrollStyle}>
