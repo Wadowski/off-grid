@@ -13,13 +13,7 @@ import { assertModuleName } from "./assert-module-name.js";
 import { readBatch } from "./read-batch.js";
 import { toTypedEvent } from "./to-typed-event.js";
 import { runHandler } from "./run-handler.js";
-
-const definitionsOf = (
-  subscription: ReplaySubscription,
-): ReadonlyMap<string, AnyEventDefinition> => {
-  const events = "events" in subscription ? subscription.events : [subscription.event];
-  return new Map(events.map((definition) => [definition.name, definition]));
-};
+import { definitionsOf } from "./definitions-of.js";
 
 export function replayEvents<D extends AnyEventDefinition>(
   subscription: Pick<Subscription<D>, "event" | "runAs" | "handler">,
