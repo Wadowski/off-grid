@@ -44,7 +44,7 @@ pnpm e2e                 # added later by the e2e framework issue (OG-33)
 pnpm e2e:smoke           # added later by the e2e framework issue (OG-33)
 ```
 
-Starting the Docker Compose stack: not available yet (`infra/compose/` is still empty).
+Starting the Docker Compose stack: `pnpm e2e:stack:up` and `pnpm e2e:stack:down` (Compose files in `infra/compose/`). The e2e run starts and stops its own stack; ports can be set with `E2E_SERVER_PORT` and `E2E_WEB_PORT`.
 
 ## Non-negotiables
 
