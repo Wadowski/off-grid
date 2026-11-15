@@ -6,17 +6,16 @@ This folder configures Claude Code for this repository. The written rules in `ru
 
 ## Permissions (`settings.json`)
 
-**Allowed without a prompt:** `pnpm` commands, read-only git commands (`status`, `diff`, `log`, `show`, `branch`, `rev-parse`), `docker compose`, and the file tools (`Read`, `Glob`, `Grep`, `Edit`, `Write`). The file tools are still checked by the hooks below.
+**Allowed without a prompt:** `Bash` and the file tools (`Read`, `Glob`, `Grep`, `Edit`, `Write`). The file tools are still checked by the hooks below.
 
 **Denied:**
 
 - Reading `.env*`, anything under `data/`, and anything under a `secrets/` directory.
-- `rm -rf` and `rm -fr`. Build output is removed by the build tooling, not by hand.
-- Force pushes, `git reset --hard`, and pushing directly to `main`.
+- Pushing directly to `main`.
 - Piping a download into a shell.
 - Global package installs.
 
-Deny rules win over allow rules. A denied command needs a human to run it.
+Deny rules win over allow rules. A denied command needs a human to run it. Force pushes and `git reset --hard` are forbidden by [docs/workflow.md](../docs/workflow.md) and the skills, but `settings.json` does not deny them mechanically yet.
 
 ## Hooks (`hooks/`)
 
@@ -46,6 +45,21 @@ OFFGRID_ALLOW_PROTECTED_EDITS=1 claude
 ```
 
 Do not set the override to get past a block you were not asked to cross. If a guardrail itself needs to change, edit the hook or `settings.json` in a reviewed PR, and say why in the description.
+
+## Workflow tooling
+
+The agent workflow lives in `skills/linear-issue` and `skills/pre-pr-verify`. It leans on repo scripts, not on prose, so the same result comes back whichever model runs it:
+
+| Command            | What it does                                                                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm verify`      | Runs every local gate in parallel (heavy ones alone), prints only failures, and caches passes per tree in the git common directory.                 |
+| `pnpm check:rules` | Checks the `[lint]` rules on the lines the branch adds: comments, arrow functions, types placement, route per file, fetch, colours, unused exports. |
+| `pnpm rules:for`   | Prints the rules in `rules/` whose `paths` match the changed files. The plan embeds it and reviewers receive it.                                    |
+| `pnpm e2e:changed` | Runs the feature files this branch changed. CI runs the affected set.                                                                               |
+| `pnpm ui:screens`  | Captures the `@ui` scenarios once and builds a contact sheet per screen; reused while the tree is unchanged.                                        |
+| `pnpm wt:cleanup`  | After merge, removes the worktree and branch and updates `main`.                                                                                    |
+
+Reviewers in `agents/` (`design-reviewer`, `quality-reviewer`, `gherkin-reviewer`, `ui-screenshot-reviewer`) only report. A rule bullet ending in `[lint]` is enforced by `check:rules`, so reviewers skip it. When you add a mechanical check, tag the rule `[lint]`.
 
 ## Adding or changing a guardrail
 

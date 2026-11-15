@@ -7,7 +7,7 @@ paths:
 
 # Function rules
 
-- DO write every named function as an arrow function: `export const createFamily = async (...) => { ... }`. Don't use `function` declarations or function expressions.
+- DO write every named function as an arrow function: `export const createFamily = async (...) => { ... }`. Don't use `function` declarations or function expressions. [lint]
 - DO keep one function per file. The file is named after the function in kebab-case: `createFamily` lives in `create-family.ts`.
 - DO give a helper its own file too, even when only one other function uses it.
 - DO keep a file that combines several functions to wiring only: imports, then a plain object or a registration call. A route registry or a module descriptor is an example.

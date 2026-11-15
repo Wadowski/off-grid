@@ -1,52 +1,52 @@
 # Phase: implement the plan
 
-You are a subagent working for the main session. You have a fresh context: this file is your full brief. Do only this phase, then return the report. You cannot ask the user questions. The plan has already settled the design, so you do not re-design. If the plan cannot be followed, stop and report it.
+You are a subagent working for the main session. You have a fresh context: this file is your full brief. Do only this phase, then return the report. You cannot ask the user questions. The plan has settled the design, so you do not re-design. If the plan cannot be followed, stop and report it.
 
-Input from the main session: a `pickup-report` block (issue ID, branch, worktree path) and the path to the plan file, which the planning phase wrote. Read the plan file completely before you start. Work **only inside the worktree path** from the pickup report. Never touch the main checkout or another issue's worktree. **Do not push. Do not open a PR. Do not change Linear.**
+Input: the `plan-report` (issue, branch, worktree) and the plan file path. Read the plan file completely first. Work **only inside the worktree**. Never touch the main checkout or another issue's worktree. **Do not push, do not open a PR, do not change Linear.**
+
+## Bound by the rules
+
+The plan's "Rules that apply" section is a checklist, and every line binds you. At the start, run `pnpm rules:for` in the worktree to refresh it for the files you will touch. Before you report, run it again and `pnpm check:rules`, and fix every finding; `[lint]` rules are checked mechanically, the rest are your job.
 
 ## Follow the plan
 
-- Take the steps in the plan's order. Make one commit per step, unless the plan says otherwise.
-- Do not start a step marked `blocked-on`. Stop and report the blocked steps.
-- Run each step's check before moving to the next step.
-- If the plan is wrong about the code (a file is missing, an API differs), fix the smallest thing that makes the plan work, and record it under `deviations` in the report. If a fix would change the design, stop and report it instead.
-- Do not add anything the plan does not list. Mention unrelated findings in the report instead.
+- Take the steps in order, one commit per step unless the plan says otherwise. Do not start a step marked `blocked-on`; stop and report it.
+- The Gherkin `.feature` file comes first when the plan has one, tagged `@wip` until it passes.
+- Run each step's scoped check before moving on.
+- If the plan is wrong about the code (a file is missing, an API differs), make the smallest fix that works and record it under `deviations`. If a fix changes the design, stop and report it.
+- Add nothing the plan does not list. Report unrelated findings instead.
+- This is a pnpm + turbo monorepo: use `pnpm`. Follow surrounding conventions. Add a changeset (`pnpm changeset`) if a published package changed.
+- Commit with `git commit -s`, imperative messages in `git log` style ending with the issue key, for example `Add desktop day view (OG-96)`. No attribution or co-author lines. Never `--no-verify`.
 
-## Build rules
+## UI
 
-- The repo's workflow: the Gherkin `.feature` file comes first when the plan has one, then implementation, then verification.
-- **UI must match the plan's UI design 1 to 1**: layout, spacing, tokens, typography, colors and states, for the scope the plan names. Leave the rest of any page alone, even if it looks misaligned. If the plan has a screen with no design, stop and report it.
-- **Compare with screenshots, not just code.** After the UI changes, run the `@ui` scenarios with `E2E_SCREENSHOTS=1` and compare each changed screen's e2e screenshot with its design screenshot from the plan, in light and dark, desktop and mobile. Fix layout, spacing, tokens, typography, colors and states until they match. Where the plan says the implementation is the decision (the design is stale), match the plan, not the design. Ignore differences in naming, texts and logo. Record each comparison in the report.
-- Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
-- Add or update the tests the plan lists.
-- Follow surrounding code conventions. This is a pnpm + turbo monorepo: use `pnpm`, not npm/yarn.
-- Add or update tests for the behavior.
-- Run the checks that CI runs and fix failures: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, plus `pnpm build` if build output could be affected. Run `BASE_REF=origin/main pnpm e2e:affected` for the scenarios the change touches; the full e2e suite is not run on a branch. Run them scoped (`pnpm --filter <pkg> ...` / `turbo --filter`) when only one package changed, then the full set once before handing over.
-- If the change affects a published package, add a changeset (`pnpm changeset`) the way existing ones in `.changeset/` look.
-- Commit in logical commits on the branch: `git commit -s` (DCO sign-off, see CONTRIBUTING.md). Messages: imperative, reference the issue (`... (OG-16)`), matching `git log` style. Do not add attribution or co-author lines. Never use `--no-verify`.
+UI must match the plan's UI design 1 to 1 for the scope the plan names; leave the rest of any page alone. If the plan has a screen with no design, stop and report it. After the UI changes, follow [screenshots.md](screenshots.md): run `pnpm ui:screens`, compare each changed screen with its design, and fix until they match. Record each comparison in the report.
+
+## Before you report
+
+1. `pnpm verify`. It runs every gate CI runs, in parallel, caches by tree, and prints only failures. Fix and re-run until it passes; a passing result is cached, so the verify step that follows is free if you change nothing.
+2. `pnpm e2e:changed`: the scenarios of the feature files this branch changed. Do not run the full suite or `e2e:affected`; CI runs the affected set.
+3. Commit everything. `pnpm verify` fingerprints the working tree, so commit before the final run if you changed anything.
 
 ## Report
 
 ```
 implement-report
 status: ready-for-review | blocked
-plan-steps: <done>/<total> (blocked: <step numbers and reason>)
+plan-steps: <done>/<total> (blocked: <numbers and reason>)
 deviations:
-- ...            (plan vs. reality, and the smallest fix applied)
+- ...
 commits:
 - <sha> <subject>
 changed-areas: <packages/modules touched>
-ui-changed: yes | no          (yes if apps/main-web/ or packages/ui/ changed)
+ui-changed: yes | no
 design-comparison:            (only if ui-changed: yes)
 - <screen>, light/dark, desktop/mobile: matches | differs (what) | matched plan over stale design
 acceptance-criteria:
 - <criterion>: met | not met | not verified, with evidence
 checks:
-- pnpm typecheck: pass | fail | not run (reason)
-- pnpm lint: ...
-- pnpm format:check: ...
-- pnpm test: ...
-- pnpm build: ... (or "not needed: why")
+- pnpm verify: pass | fail (failing checks)
+- pnpm e2e:changed: pass | fail | nothing to run
 not-verified:
 - ...
 assumptions:
@@ -55,4 +55,4 @@ unrelated-findings:
 - ...
 ```
 
-Report failing tests and skipped checks as they are. Do not mark a criterion met without evidence.
+Report failing checks and skipped steps as they are. Do not mark a criterion met without evidence.

@@ -17,8 +17,10 @@ paths:
 - DON'T declare a props type or any other type in a component file. Put it in `types.ts` in the same folder and import it.
 - DO give interactive elements stable `data-testid` names in kebab-case.
 - DO write React components as arrow functions assigned to a `const`, such as `export const Button = (...) => {...}`. DON'T use `function` declarations for components.
-- DO talk to the server only through `packages/contracts` and `packages/api-client`.
-- DON'T hard-code colours or spacing values.
+- DO make every server call through a typed method in `packages/api-client`, and call that method from `apps/main-web`. If the method does not exist yet, add it to `packages/api-client` first (and to the OpenAPI in `packages/contracts` when the route is new), then use it in the app.
+- DON'T write API calls in `apps/main-web`. That means no `fetch`, no request path such as `"/calendars"` or `` `/families/${id}` ``, no HTTP method strings, and no direct use of a generic request helper for a route. A feature folder such as `calendars/` or `families/` holds the screens and hooks only, never the request code. [lint]
+- DON'T parse a server response in `apps/main-web` with a contracts schema that the api-client method has not already applied. The method returns the parsed, typed result.
+- DON'T hard-code colours or spacing values. [lint]
 - DON'T import from `modules/` or from `packages/` other than `contracts`, `api-client` and `ui`. `web-allowed-imports` enforces this ([boundaries.md](../../docs/architecture/boundaries.md)).
-- DO upload the screenshots of every changed screen to the linked Linear issue each time a UI change is pushed, using the UI screenshots step in [linear-issue](../skills/linear-issue/SKILL.md). The issue must always show the current UI.
+- DO upload the screenshots of every changed screen to the linked Linear issue each time a UI change is pushed, following [screenshots.md](../skills/linear-issue/phases/screenshots.md). The issue must always show the current UI.
 - DON'T rely on immediate consistency. Events are eventually consistent, so screens must tolerate a short delay after a change ([ADR 0002](../../docs/adr/0002-outbox-events-and-projections.md)).

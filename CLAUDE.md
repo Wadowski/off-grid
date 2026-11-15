@@ -29,6 +29,12 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm test:scripts
+pnpm verify              # every local gate in parallel, cached per tree; use before a PR
+pnpm check:rules         # mechanical code rules on the lines this branch adds
+pnpm rules:for           # the .claude/rules that apply to the changed files
+pnpm e2e:changed         # scenarios of the feature files this branch changed
+pnpm ui:screens          # capture @ui screenshots once (contact sheet per screen)
+pnpm wt:cleanup <branch> # after merge: remove worktree and branch
 pnpm format:check        # pnpm format fixes formatting
 pnpm license:headers:check
 pnpm reuse:lint

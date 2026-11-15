@@ -1,50 +1,44 @@
 ---
 name: pre-pr-verify
-description: Run every verification gate before opening a pull request - repo checks, e2e, the no-@wip rule, the review subagents and the PR template. Use before creating or marking a PR ready, or when the user asks to verify the branch before review or merge.
+description: Run every verification gate before opening a pull request - pnpm verify, the changed feature scenarios, the no-@wip rule, the review subagents and the PR template. Use before creating or marking a PR ready, or when the user asks to verify the branch before review or merge.
 ---
 
 # pre-pr-verify
 
-The Definition of Done is in [CLAUDE.md](../../../CLAUDE.md). This skill runs it in the order that fails fastest. Stop at the first failing step, fix it, and start again from the top.
+The Definition of Done is in [CLAUDE.md](../../../CLAUDE.md). Run this from the main session, because the reviewers are agents and subagents cannot launch agents. Do not re-run a step that already passed on the same tree.
 
 ## Steps
 
-1. **Confirm the branch is current.** The branch must be based on an up-to-date `main`, with no uncommitted changes.
-   Verify: `git status --short` prints nothing, and `git log --oneline main..HEAD` lists only this branch's commits.
+1. **Clean tree.** `git status --short` prints nothing and `git log --oneline origin/main..HEAD` lists only this branch's commits. Commit first if not: the next step fingerprints the tree.
 
-2. **Lint and typecheck.**
-   Verify: `pnpm lint && pnpm typecheck` both exit 0.
+2. **`pnpm verify`.** One command runs lint, typecheck, format, tests, boundaries, agent config, telemetry, licence headers, DCO, `@wip` tags, `check:rules`, and `lint:features`, `check:contracts` and `build` when they apply. It runs in parallel and prints only failures. If the implement step already passed on this exact tree the result is cached and costs nothing.
+   Verify: it prints `verify: pass`. A failure names the check; fix and re-run. Only failed checks run again.
 
-3. **Format, headers and licences.**
-   Verify: `pnpm format:check && pnpm license:headers:check && pnpm reuse:lint` all exit 0.
+3. **Changed scenarios.** `pnpm e2e:changed` runs the feature files this branch changed. The affected set across modules is CI's job (`e2e-smoke`); do not run `pnpm e2e` or `pnpm e2e:affected` here.
+   Verify: it exits 0, or says no feature file changed.
 
-4. **Tests.** Run the unit and integration tests.
-   Verify: `pnpm test && pnpm test:scripts` both exit 0.
+4. **No `@wip` on finished work.** `pnpm check:wip-tags` (part of verify) fails on a changed feature with `@wip` that the PR body does not list. List each open `@wip` scenario in the PR body with the reason.
 
-5. **Boundaries and agent config.** Module boundaries and the `.claude/` configuration.
-   Verify: `pnpm check:boundaries && pnpm check:agent-config` both exit 0.
+5. **UI screens, when the diff touches `apps/main-web/` or `packages/ui/`.** `pnpm ui:screens` captures once (or reuses the implement step's capture). Upload happens at PR time, per [screenshots.md](../linear-issue/phases/screenshots.md).
+   Verify: `e2e/artifacts/screens/manifest.json` lists every changed screen.
 
-6. **Build, if output could change.** Run the build when a package's build output could be affected.
-   Verify: `pnpm build` exits 0.
+6. **Review, once, in parallel.** Get the inputs once:
+   - `BASE=origin/main` (run `git fetch origin main` first) and `git diff --stat $BASE...HEAD`
+   - `pnpm rules:for --review-only` for the changed files
 
-7. **End-to-end, affected scenarios only.** Run `BASE_REF=origin/main pnpm e2e:affected`. The script diffs the branch against the base, then runs the `@module:` tags of the changed modules and the modules that consume their events. A change to shared code (`packages/`, `apps/`, `e2e/` outside features, `scripts/`, CI) runs the full suite, and a path it does not recognise also runs the full suite. Do not run `pnpm e2e` on a branch; the full suite runs on `main` in CI.
-   Verify: the command exits 0, and the report states the mode it printed (`full`, `tags` with the module list, or `none`). For `none` the report says no scenario was affected and why. Never report this step as passing if the script did not run.
+   Then launch these in one message, passing the base, the changed-file list and (to `quality-reviewer`) the rules output:
+   - `design-reviewer` always
+   - `quality-reviewer` always
+   - `gherkin-reviewer` when the diff has `.feature` files
+   - `ui-screenshot-reviewer` when step 5 applies
 
-7a. **UI screenshots, mandatory when the diff touches `apps/main-web/` or `packages/ui/`.** Run the `@ui` scenarios of every feature the diff changes with `E2E_SCREENSHOTS=1`, for example `E2E_SCREENSHOTS=1 pnpm --filter @offgrid/e2e exec playwright test --grep "<feature title>"`. Screenshots are off by default, so a run without that variable produces none and does not satisfy this step. Then upload them to the linked Linear issue as the linear-issue skill describes, in one comment per push.
-Verify: `e2e/artifacts/screens/<feature>/` holds a PNG for each changed screen, each variant the reviewer lists is present, and the Linear issue has the comment with a link to the upload. If any of these is missing, the step has not passed and the PR must not be opened.
+   They only report.
 
-8. **No `@wip` on finished work.** Every feature file for behaviour that now works must have its `@wip` tag removed.
-   Verify: `grep -rn "@wip" e2e/features` shows only scenarios that are still unfinished, and each one is listed in the PR body.
+7. **Fix in one pass.** Collect every Blocking finding and fix them together (the implement subagent with all findings as input, or directly for a trivial one). Fix each Advisory finding or keep a one-line reason for it. Then `pnpm verify` again. Re-review only the reviewers whose area the fixes touched, and only the changed files. Stop after two rounds and report what remains.
+   Verify: no Blocking finding is left.
 
-9. **Sign-off on commits.** Every commit needs a DCO sign-off ([CONTRIBUTING.md](../../../CONTRIBUTING.md)).
-   Verify: `pnpm dco:check` exits 0.
+8. **PR body.** Fill [.github/pull_request_template.md](../../../.github/pull_request_template.md): linked issue, summary, decisions, feature files, checklist, open `@wip` scenarios, how it was tested, risks and privacy impact, plus the Advisory findings kept with their reasons.
 
-10. **Review subagents.** Run the five reviewers in [.claude/agents/](../../agents/) on `git diff main...HEAD`: `architecture-boundary-reviewer`, `privacy-security-reviewer`, `code-quality-reviewer`, `reuse-reviewer` (which marks code that could use an existing function, component, token or helper), and `gherkin-reviewer` (the last only when the diff has `.feature` files). When the diff touches `apps/main-web/` or `packages/ui/`, also run `ui-screenshot-reviewer`, which screenshots every changed screen through the `@ui` e2e scenarios. When the branch is linked to a Linear issue, upload the screenshots to it as described in the linear-issue skill instead of listing them in chat. They only report and never edit. Fix each Blocking finding, and list each Advisory finding as fixed or with a reason.
-    Verify: no Blocking finding is left, and each Advisory finding is either fixed or listed in the PR body with a reason.
+## Report (`review-summary`)
 
-11. **Fill in the PR template.** Use the repo PR template once OG-24 adds it. Until then, include: summary, decisions, how it was tested, the Linear link (`Closes OG-NN`), and the list of `@wip` scenarios still open.
-    Verify: the PR body has every heading above.
-
-## Report
-
-State each gate's result. A gate that was skipped or is not yet possible is reported as skipped, with the reason. Never report a gate as passing if it did not run.
+State each gate's result: `verify`, `e2e:changed` (or none), screens captured, each reviewer's Blocking and Advisory outcome, and rounds used. A gate that was skipped is reported as skipped with the reason. Never report a gate as passing if it did not run.
