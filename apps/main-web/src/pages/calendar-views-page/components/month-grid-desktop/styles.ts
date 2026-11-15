@@ -3,13 +3,16 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
-import { monthGridCardStyle, monthWeekdayRowStyle } from "../month-grid/styles.js";
 
 export const desktopMonthCardStyle: CSSProperties = {
-  ...monthGridCardStyle,
-  gap: 0,
-  padding: 0,
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[2],
+  padding: tokens.space[3],
   maxHeight: "calc(100vh - 19rem)",
+  borderRadius: cssVar("radius-lg"),
+  background: cssVar("color-surface"),
+  boxShadow: cssVar("elevation-1"),
   overflow: "hidden",
 };
 
@@ -17,30 +20,34 @@ export const desktopMonthScrollStyle: CSSProperties = {
   flex: "1 1 auto",
   minHeight: 0,
   overflowY: "auto",
-  padding: `0 ${tokens.space[3]} ${tokens.space[3]}`,
 };
 
 export const desktopMonthWeekdayRowStyle: CSSProperties = {
-  ...monthWeekdayRowStyle,
-  gap: tokens.space[2],
-  margin: `${tokens.space[3]} ${tokens.space[3]} ${tokens.space[2]}`,
-  padding: `${tokens.space[2]} 0`,
-  borderRadius: cssVar("radius-md"),
-  background: cssVar("color-surface-high"),
-  letterSpacing: "0.05em",
-  textTransform: "uppercase",
+  display: "grid",
+  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  gap: tokens.space[1],
+  padding: `${tokens.space[2]} ${tokens.space[1]}`,
+  borderRadius: cssVar("radius-lg"),
+  background: cssVar("color-surface-low"),
 };
 
 export const desktopMonthWeekdayCellStyle: CSSProperties = {
-  padding: `0 ${tokens.space[1]}`,
+  display: "block",
+  textAlign: "center",
   fontWeight: cssVar("font-weight-semibold"),
-  letterSpacing: "inherit",
+  letterSpacing: "0.05em",
+  textTransform: "uppercase",
+  color: cssVar("color-muted"),
+};
+
+export const desktopMonthWeekendWeekdayStyle: CSSProperties = {
+  color: cssVar("color-primary"),
 };
 
 export const desktopMonthDaysGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-  gap: tokens.space[2],
+  gap: "0.375rem",
 };
 
 export const desktopMonthCellStyle = (
@@ -51,33 +58,52 @@ export const desktopMonthCellStyle = (
   display: "flex",
   flexDirection: "column",
   alignItems: "stretch",
+  justifyContent: "space-between",
   gap: tokens.space[1],
   minWidth: 0,
-  minHeight: "6.5rem",
+  minHeight: "110px",
   padding: tokens.space[2],
-  borderRadius: cssVar("radius-md"),
-  border: `1px solid ${cssVar("color-surface-high")}`,
-  boxShadow: selected
-    ? `inset 0 0 0 2px ${cssVar("color-primary")}, ${cssVar("elevation-1")}`
-    : cssVar("elevation-1"),
-  background: today
-    ? cssVar("color-accent-soft")
-    : inMonth
-      ? cssVar("color-surface")
-      : cssVar("color-surface-low"),
+  borderRadius: cssVar("radius-lg"),
+  border: "none",
+  boxShadow:
+    today || selected
+      ? `inset 0 0 0 2px ${cssVar("color-primary")}, ${cssVar("elevation-1")}`
+      : inMonth
+        ? cssVar("elevation-1")
+        : "none",
+  background: inMonth ? cssVar("color-surface") : cssVar("color-surface-low"),
+  opacity: inMonth ? 1 : 0.5,
   color: inMonth ? cssVar("color-fg") : cssVar("color-muted"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-md"),
 });
 
-export const desktopMonthDayNumberStyle = (selected: boolean, today: boolean): CSSProperties => ({
+export const desktopMonthDayHeaderStyle: CSSProperties = {
   display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: tokens.space[1],
+  minWidth: 0,
+};
+
+export const desktopMonthDotStyle: CSSProperties = {
+  flexShrink: 0,
+  width: "6px",
+  height: "6px",
+  marginTop: "0.25rem",
+  borderRadius: cssVar("radius-full"),
+  background: cssVar("color-primary"),
+};
+
+export const desktopMonthDayNumberStyle = (selected: boolean, today: boolean): CSSProperties => ({
+  display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
+  gap: tokens.space[1],
   alignSelf: "flex-start",
-  minWidth: "1.75rem",
-  height: "1.75rem",
-  padding: `0 ${tokens.space[1]}`,
+  minWidth: today ? "auto" : "1.75rem",
+  height: today ? "1.5rem" : "1.75rem",
+  padding: today ? `0 ${tokens.space[2]}` : `0 ${tokens.space[1]}`,
   borderRadius: cssVar("radius-full"),
   background: today
     ? cssVar("color-primary")
@@ -87,6 +113,13 @@ export const desktopMonthDayNumberStyle = (selected: boolean, today: boolean): C
   color: today ? cssVar("color-accent-fg") : selected ? cssVar("color-primary") : "inherit",
   fontWeight: selected || today ? cssVar("font-weight-semibold") : cssVar("font-weight-medium"),
 });
+
+export const desktopMonthTodayLabelStyle: CSSProperties = {
+  fontSize: cssVar("font-size-label-sm"),
+  fontWeight: cssVar("font-weight-semibold"),
+  letterSpacing: "0.05em",
+  textTransform: "uppercase",
+};
 
 export const desktopMonthChipListStyle: CSSProperties = {
   display: "flex",
@@ -100,6 +133,6 @@ export const desktopMonthMoreTextStyle: CSSProperties = {
   fontSize: cssVar("font-size-label-sm"),
   lineHeight: cssVar("line-height-label-sm"),
   fontWeight: cssVar("font-weight-medium"),
-  color: cssVar("color-primary"),
+  color: cssVar("color-muted"),
   letterSpacing: "normal",
 };

@@ -11,6 +11,7 @@ import {
   desktopMonthScrollStyle,
   desktopMonthWeekdayCellStyle,
   desktopMonthWeekdayRowStyle,
+  desktopMonthWeekendWeekdayStyle,
 } from "./styles.js";
 import type { MonthGridDesktopProps } from "./types.js";
 
@@ -23,6 +24,8 @@ const WEEKDAY_SHORT_KEYS = [
   "calendar.desktop.weekdayShortSaturday",
   "calendar.desktop.weekdayShortSunday",
 ] as const;
+
+const WEEKEND_START_INDEX = 5;
 
 export const MonthGridDesktop = ({
   days,
@@ -42,8 +45,17 @@ export const MonthGridDesktop = ({
       aria-label={t("calendar.desktop.monthGridLabel")}
     >
       <div style={desktopMonthWeekdayRowStyle} aria-hidden="true">
-        {WEEKDAY_SHORT_KEYS.map((key) => (
-          <Text key={key} variant="caption" textId={key} style={desktopMonthWeekdayCellStyle} />
+        {WEEKDAY_SHORT_KEYS.map((key, index) => (
+          <Text
+            key={key}
+            variant="caption"
+            textId={key}
+            style={
+              index >= WEEKEND_START_INDEX
+                ? { ...desktopMonthWeekdayCellStyle, ...desktopMonthWeekendWeekdayStyle }
+                : desktopMonthWeekdayCellStyle
+            }
+          />
         ))}
       </div>
       <div style={desktopMonthScrollStyle}>

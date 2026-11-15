@@ -8,8 +8,11 @@ import { MonthEventChip } from "../month-event-chip/month-event-chip.js";
 import {
   desktopMonthCellStyle,
   desktopMonthChipListStyle,
+  desktopMonthDayHeaderStyle,
   desktopMonthDayNumberStyle,
+  desktopMonthDotStyle,
   desktopMonthMoreTextStyle,
+  desktopMonthTodayLabelStyle,
 } from "../../styles.js";
 import type { MonthDayCellDesktopProps } from "./types.js";
 
@@ -34,21 +37,31 @@ export const MonthDayCellDesktop = ({
       data-testid={`month-desktop-cell-${date}`}
       style={desktopMonthCellStyle(inMonth, today, selected)}
     >
-      {inMonth ? (
-        <Button
-          variant="ghost"
-          size="small"
-          align="start"
-          aria-current={today ? "date" : undefined}
-          data-selected={selected}
-          data-testid={`month-desktop-day-${date}`}
-          onClick={() => onOpenDay(date)}
-        >
-          <span style={desktopMonthDayNumberStyle(selected, today)}>{weekDayNumber(date)}</span>
-        </Button>
-      ) : (
-        <span style={desktopMonthDayNumberStyle(false, false)}>{weekDayNumber(date)}</span>
-      )}
+      <div style={desktopMonthDayHeaderStyle}>
+        {inMonth ? (
+          <Button
+            variant="ghost"
+            size="small"
+            align="start"
+            aria-current={today ? "date" : undefined}
+            data-selected={selected}
+            data-testid={`month-desktop-day-${date}`}
+            onClick={() => onOpenDay(date)}
+          >
+            <span style={desktopMonthDayNumberStyle(selected, today)}>
+              {today && (
+                <span aria-hidden="true" style={desktopMonthTodayLabelStyle}>
+                  <Text variant="caption" textId="calendar.views.today" />
+                </span>
+              )}
+              {weekDayNumber(date)}
+            </span>
+          </Button>
+        ) : (
+          <span style={desktopMonthDayNumberStyle(false, false)}>{weekDayNumber(date)}</span>
+        )}
+        {inMonth && events.length > 0 && <span aria-hidden="true" style={desktopMonthDotStyle} />}
+      </div>
       {inMonth && (
         <div style={desktopMonthChipListStyle}>
           {visible.map((event) => (
