@@ -9,6 +9,7 @@ import {
   weekLocationChipStyle,
 } from "../../styles.js";
 import type { WeekEventCardProps } from "../week-event-block/types.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
 
 export const WeekDetailedEventCard = ({
   event,
@@ -18,19 +19,23 @@ export const WeekDetailedEventCard = ({
   columnCount,
   accent,
   timeZone,
-}: WeekEventCardProps) => (
-  <div
-    data-testid={`week-event-${event.id}`}
-    style={weekDetailedBlockStyle(top, height, column, columnCount, accent)}
-  >
-    <div style={weekDetailedTitleStyle}>{event.title}</div>
-    <div style={weekDetailedRangeStyle}>
-      {formatClockRange(event.startsAt, event.endsAt, timeZone)}
+}: WeekEventCardProps) => {
+  const open = useEventOpenProps(event.id);
+  return (
+    <div
+      {...open}
+      data-testid={`week-event-${event.id}`}
+      style={weekDetailedBlockStyle(top, height, column, columnCount, accent)}
+    >
+      <div style={weekDetailedTitleStyle}>{event.title}</div>
+      <div style={weekDetailedRangeStyle}>
+        {formatClockRange(event.startsAt, event.endsAt, timeZone)}
+      </div>
+      {event.location && (
+        <span style={weekLocationChipStyle(accent)} data-testid="week-event-location">
+          {event.location}
+        </span>
+      )}
     </div>
-    {event.location && (
-      <span style={weekLocationChipStyle(accent)} data-testid="week-event-location">
-        {event.location}
-      </span>
-    )}
-  </div>
-);
+  );
+};

@@ -4,6 +4,7 @@
 import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../../../calendars/calendar-accents.js";
+import { useEventOpenProps } from "../../../../calendar-events/use-open-event.js";
 import { durationMinutes, formatClockTime } from "../../../../calendar-views/time-format.js";
 import { formatDuration } from "../../../../calendar-views/format-duration.js";
 import {
@@ -24,6 +25,7 @@ import type { AgendaEventCardProps } from "./types.js";
 
 export const AgendaEventCard = ({ event, timeZone }: AgendaEventCardProps) => {
   const { t } = useTranslation();
+  const open = useEventOpenProps(event.id);
   const accent = calendarAccentColor(event.calendarColor).background;
   const duration = formatDuration(durationMinutes(event.startsAt, event.endsAt), t);
 
@@ -36,7 +38,7 @@ export const AgendaEventCard = ({ event, timeZone }: AgendaEventCardProps) => {
           <TimeOfDay instant={event.startsAt} timeZone={timeZone} />
         )}
       </div>
-      <article style={agendaCardStyle}>
+      <article style={agendaCardStyle} {...open}>
         <span aria-hidden="true" style={agendaAccentBarStyle(accent)} />
         <div style={agendaCardHeaderStyle}>
           <span style={agendaCalendarPillStyle(accent)}>{event.calendarName}</span>

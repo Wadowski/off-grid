@@ -1,0 +1,81 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { cssVar, Text } from "@offgrid/ui";
+import { useTranslation } from "react-i18next";
+import { calendarAccentColor } from "../../calendars/calendar-accents.js";
+import { formatDuration } from "../../calendar-views/format-duration.js";
+import {
+  durationMinutes,
+  formatClockRange,
+  formatDayHeading,
+  zonedMomentOf,
+} from "../../calendar-views/time-format.js";
+import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
+import {
+  detailsBodyStyle,
+  detailsCardStyle,
+  detailsNotesStyle,
+  detailsRowStyle,
+} from "./styles.js";
+import type { CalendarEventDetails } from "./use-calendar-event.js";
+
+export const eventAccentOf = (event: CalendarEventDetails): string | undefined =>
+  event.calendarColor === undefined
+    ? undefined
+    : calendarAccentColor(event.calendarColor).background;
+
+export const EventDetailsBody = ({
+  event,
+  timeZone,
+}: {
+  readonly event: CalendarEventDetails;
+  readonly timeZone: string;
+}) => {
+  const { t } = useTranslation();
+  const dateLine = event.isAllDay
+    ? formatDayHeading(event.startDate ?? "")
+    : formatDayHeading(zonedMomentOf(event.startsAt, timeZone).date);
+  const timeLine = event.isAllDay
+    ? t("calendar.mobileViews.allDay")
+    : `${formatClockRange(event.startsAt, event.endsAt, timeZone)} · ${formatDuration(
+        durationMinutes(event.startsAt, event.endsAt),
+        t,
+      )}`;
+
+  return (
+    <div style={detailsBodyStyle}>
+      <Text variant="heading" value={event.title} />
+      <div style={detailsCardStyle}>
+        <div style={detailsRowStyle}>
+          <MaterialIcon name="calendar_month" size="18px" color={cssVar("color-primary")} />
+          <Text variant="subheading" value={dateLine} />
+        </div>
+        <div style={detailsRowStyle}>
+          <Text variant="body" value={timeLine} />
+        </div>
+      </div>
+      {event.location !== null && (
+        <div style={detailsCardStyle}>
+          <div style={detailsRowStyle}>
+            <MaterialIcon name="location_on" size="18px" color={cssVar("color-primary")} />
+            <Text variant="body" value={event.location} />
+          </div>
+        </div>
+      )}
+      {event.description !== null && (
+        <div style={detailsCardStyle}>
+          <Text variant="label" textId="calendar.eventDetails.notes" />
+          <div style={detailsNotesStyle}>
+            <Text variant="body" value={event.description} />
+          </div>
+        </div>
+      )}
+      {event.readOnly && (
+        <div role="note" style={detailsCardStyle}>
+          <Text variant="body" textId="calendar.eventDetails.readOnly" />
+        </div>
+      )}
+    </div>
+  );
+};

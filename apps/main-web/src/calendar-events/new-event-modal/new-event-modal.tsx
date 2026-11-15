@@ -8,9 +8,16 @@ import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../calendars/calendar-accents.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
+import { webCalendarClient } from "../../api/web-api-client.js";
 import { createCalendarEvent } from "../create-calendar-event.js";
 import { FORM_ID } from "../constants.js";
-import { defaultEventForm, toCreateEventRequest, withField } from "../event-form.js";
+import { notifyEventsChanged } from "../event-changes.js";
+import {
+  defaultEventForm,
+  toCreateEventRequest,
+  toUpdateEventRequest,
+  withField,
+} from "../event-form.js";
 import type { EventFormErrors, EventFormValues } from "../types.js";
 import { NewEventFields } from "./components/new-event-fields/new-event-fields.js";
 import { NewEventFooter } from "./components/new-event-footer/new-event-footer.js";
@@ -22,7 +29,7 @@ import {
   newEventFormStyle,
   newEventHeadingStyle,
 } from "./styles.js";
-import type { FormAlertTextId, NewEventModalProps } from "./types.js";
+import type { EditingEvent, FormAlertTextId, NewEventModalProps } from "./types.js";
 
 const alertTextIdFor = (
   errors: EventFormErrors,
@@ -40,13 +47,21 @@ const alertTextIdFor = (
   return undefined;
 };
 
-export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEventModalProps) => {
+export const NewEventModal = ({
+  calendars,
+  timeZone,
+  onClose,
+  onSaved,
+  editing,
+}: NewEventModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const narrow = useIsNarrow();
   const { t } = useTranslation();
   const defaultCalendarId = calendars[0]?.id ?? "";
-  const [values, setValues] = useState<EventFormValues>(() =>
-    defaultEventForm({ now: new Date(), calendarId: defaultCalendarId, timeZone }),
+  const [values, setValues] = useState<EventFormValues>(
+    () =>
+      editing?.initialValues ??
+      defaultEventForm({ now: new Date(), calendarId: defaultCalendarId, timeZone }),
   );
   const [errors, setErrors] = useState<EventFormErrors>({});
   const [saving, setSaving] = useState(false);
@@ -64,7 +79,12 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
     if (saving) {
       return;
     }
-    const result = toCreateEventRequest(withField(values, "calendarId", calendarId), timeZone);
+    const current = withField(values, "calendarId", calendarId);
+    if (editing !== undefined) {
+      await saveChanges(editing, current);
+      return;
+    }
+    const result = toCreateEventRequest(current, timeZone);
     if (!result.ok) {
       setErrors(result.errors);
       setSaveFailed(false);
@@ -75,6 +95,30 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
     setSaving(true);
     try {
       await createCalendarEvent(calendarId, result.request);
+      onSaved();
+    } catch {
+      setSaving(false);
+      setSaveFailed(true);
+    }
+  };
+
+  const saveChanges = async (target: EditingEvent, current: EventFormValues) => {
+    const result = toUpdateEventRequest(target.initialValues, current, timeZone);
+    if (!result.ok) {
+      setErrors(result.errors);
+      setSaveFailed(false);
+      return;
+    }
+    setErrors({});
+    setSaveFailed(false);
+    if (result.request === undefined) {
+      onSaved();
+      return;
+    }
+    setSaving(true);
+    try {
+      await webCalendarClient.updateCalendarEvent(target.eventId, result.request);
+      notifyEventsChanged();
       onSaved();
     } catch {
       setSaving(false);
@@ -96,9 +140,11 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
         textId={
           saving
             ? "calendar.eventModal.saving"
-            : narrow
-              ? "calendar.eventModal.add"
-              : "calendar.eventModal.create"
+            : editing !== undefined
+              ? "calendar.eventModal.save"
+              : narrow
+                ? "calendar.eventModal.add"
+                : "calendar.eventModal.create"
         }
       />
     </Button>
@@ -134,7 +180,12 @@ export const NewEventModal = ({ calendars, timeZone, onClose, onSaved }: NewEven
 
   const heading = (
     <div id="new-event-heading" style={newEventHeadingStyle}>
-      <Text variant="subheading" textId="calendar.eventModal.heading" />
+      <Text
+        variant="subheading"
+        textId={
+          editing === undefined ? "calendar.eventModal.heading" : "calendar.eventModal.editHeading"
+        }
+      />
     </div>
   );
 

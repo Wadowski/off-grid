@@ -8,6 +8,7 @@ import {
   weekDetailedShortTitleStyle,
 } from "../../styles.js";
 import type { WeekEventCardProps } from "../week-event-block/types.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
 
 export const WeekDetailedShortEventCard = ({
   event,
@@ -17,14 +18,18 @@ export const WeekDetailedShortEventCard = ({
   columnCount,
   accent,
   timeZone,
-}: WeekEventCardProps) => (
-  <div
-    data-testid={`week-event-${event.id}`}
-    style={weekDetailedShortBlockStyle(top, height, column, columnCount, accent)}
-  >
-    <div style={weekDetailedShortTitleStyle}>{event.title}</div>
-    <div style={weekDetailedShortRangeStyle}>
-      {formatClockRange(event.startsAt, event.endsAt, timeZone)}
+}: WeekEventCardProps) => {
+  const open = useEventOpenProps(event.id);
+  return (
+    <div
+      {...open}
+      data-testid={`week-event-${event.id}`}
+      style={weekDetailedShortBlockStyle(top, height, column, columnCount, accent)}
+    >
+      <div style={weekDetailedShortTitleStyle}>{event.title}</div>
+      <div style={weekDetailedShortRangeStyle}>
+        {formatClockRange(event.startsAt, event.endsAt, timeZone)}
+      </div>
     </div>
-  </div>
-);
+  );
+};

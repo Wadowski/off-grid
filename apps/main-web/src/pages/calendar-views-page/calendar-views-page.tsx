@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
+import { EventOpenContext, useOpenEventRoute } from "../../calendar-events/use-open-event.js";
 import { filterByCalendar } from "../../calendar-views/events-by-calendar.js";
 import { formatDayHeading } from "../../calendar-views/time-format.js";
 import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone.js";
@@ -50,6 +51,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const openNewEvent = useOpenNewEvent();
+  const openEvent = useOpenEventRoute();
   const layout = useCalendarLayout();
   const session = useSession();
   const narrow = useIsNarrow();
@@ -84,106 +86,108 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const viewTabs = <ViewTabs value={view} onChange={goToView} />;
 
   return (
-    <section className={PAGE_CLASS} style={calendarViewsPageStyle(phone, desktopDay)}>
-      <header style={calendarViewsHeaderStyle}>
-        <div style={calendarViewsTitleStyle}>
-          <Text variant="heading" textId="calendar.heading" />
-          {narrow && (
-            <Button
-              variant="ghost"
-              aria-label={t("calendar.mobileViews.manageCalendars")}
-              onClick={() => navigate("/calendar/calendars")}
-            >
-              <MaterialIcon name="edit_calendar" size="24px" color="currentColor" />
-            </Button>
-          )}
-        </div>
-        <div style={calendarViewsFilterStyle(narrow)}>
-          <CalendarMultiSelect
-            calendars={layout.calendars.calendars}
-            hidden={layout.hidden}
-            onChange={layout.setHidden}
-          />
-        </div>
-        {!narrow && viewTabs}
-      </header>
-      {narrow && <div style={calendarViewsTabsRowStyle}>{viewTabs}</div>}
-      {desktopDay ? (
-        <div data-testid="day-command-row" style={calendarViewsDayCommandStyle}>
-          <DateNavigator label={formatDayHeading(date)} {...navigatorHandlers} />
-        </div>
-      ) : (
-        <DateNavigator label={periodLabel(view, date)} {...navigatorHandlers} />
-      )}
-      {status === "loading" && (
-        <Text variant="status" role="status" textId="calendar.mobileViews.loading" />
-      )}
-      {status === "failed" && (
-        <div role="alert" style={calendarViewsStatusStyle}>
-          <Text variant="error" textId="calendar.mobileViews.loadFailed" />
-          <Button variant="secondary" size="small" onClick={retry}>
-            <Text variant="action" textId="calendar.mobileViews.retry" />
-          </Button>
-        </div>
-      )}
-      {(view === "agenda" || view === "day") && (
-        <div className={WEEK_STRIP_CLASS} style={calendarViewsWeekStripStyle(narrow)}>
-          <WeekStrip
-            dates={weekDates(mondayOf(date))}
-            selectedDate={date}
-            todayDate={today}
-            onSelect={goToDate}
-          />
-        </div>
-      )}
-      {view === "agenda" && status === "ready" && (
-        <AgendaList events={selectedEvents} timeZone={timeZone} />
-      )}
-      {view === "month" &&
-        status === "ready" &&
-        (phone ? (
-          <MonthGrid
-            days={visibleDays}
-            selectedDate={date}
-            todayDate={today}
-            timeZone={timeZone}
-            selectedEvents={selectedEvents}
-            onSelect={goToDate}
-          />
+    <EventOpenContext.Provider value={openEvent}>
+      <section className={PAGE_CLASS} style={calendarViewsPageStyle(phone, desktopDay)}>
+        <header style={calendarViewsHeaderStyle}>
+          <div style={calendarViewsTitleStyle}>
+            <Text variant="heading" textId="calendar.heading" />
+            {narrow && (
+              <Button
+                variant="ghost"
+                aria-label={t("calendar.mobileViews.manageCalendars")}
+                onClick={() => navigate("/calendar/calendars")}
+              >
+                <MaterialIcon name="edit_calendar" size="24px" color="currentColor" />
+              </Button>
+            )}
+          </div>
+          <div style={calendarViewsFilterStyle(narrow)}>
+            <CalendarMultiSelect
+              calendars={layout.calendars.calendars}
+              hidden={layout.hidden}
+              onChange={layout.setHidden}
+            />
+          </div>
+          {!narrow && viewTabs}
+        </header>
+        {narrow && <div style={calendarViewsTabsRowStyle}>{viewTabs}</div>}
+        {desktopDay ? (
+          <div data-testid="day-command-row" style={calendarViewsDayCommandStyle}>
+            <DateNavigator label={formatDayHeading(date)} {...navigatorHandlers} />
+          </div>
         ) : (
-          <MonthGridDesktop
-            days={visibleDays}
-            selectedDate={date}
-            todayDate={today}
-            timeZone={timeZone}
-            onOpenDay={goToDay}
-          />
-        ))}
-      {view === "week" && status === "ready" && (
-        <div style={bleedStyle}>
-          <WeekGrid
-            days={visibleDays}
-            selectedDate={date}
-            todayDate={today}
-            timeZone={timeZone}
-            now={new Date()}
-            size={narrow ? PHONE_WEEK_SIZE : DESKTOP_WEEK_SIZE}
-          />
+          <DateNavigator label={periodLabel(view, date)} {...navigatorHandlers} />
+        )}
+        {status === "loading" && (
+          <Text variant="status" role="status" textId="calendar.mobileViews.loading" />
+        )}
+        {status === "failed" && (
+          <div role="alert" style={calendarViewsStatusStyle}>
+            <Text variant="error" textId="calendar.mobileViews.loadFailed" />
+            <Button variant="secondary" size="small" onClick={retry}>
+              <Text variant="action" textId="calendar.mobileViews.retry" />
+            </Button>
+          </div>
+        )}
+        {(view === "agenda" || view === "day") && (
+          <div className={WEEK_STRIP_CLASS} style={calendarViewsWeekStripStyle(narrow)}>
+            <WeekStrip
+              dates={weekDates(mondayOf(date))}
+              selectedDate={date}
+              todayDate={today}
+              onSelect={goToDate}
+            />
+          </div>
+        )}
+        {view === "agenda" && status === "ready" && (
+          <AgendaList events={selectedEvents} timeZone={timeZone} />
+        )}
+        {view === "month" &&
+          status === "ready" &&
+          (phone ? (
+            <MonthGrid
+              days={visibleDays}
+              selectedDate={date}
+              todayDate={today}
+              timeZone={timeZone}
+              selectedEvents={selectedEvents}
+              onSelect={goToDate}
+            />
+          ) : (
+            <MonthGridDesktop
+              days={visibleDays}
+              selectedDate={date}
+              todayDate={today}
+              timeZone={timeZone}
+              onOpenDay={goToDay}
+            />
+          ))}
+        {view === "week" && status === "ready" && (
+          <div style={bleedStyle}>
+            <WeekGrid
+              days={visibleDays}
+              selectedDate={date}
+              todayDate={today}
+              timeZone={timeZone}
+              now={new Date()}
+              size={narrow ? PHONE_WEEK_SIZE : DESKTOP_WEEK_SIZE}
+            />
+          </div>
+        )}
+        {view === "day" && status === "ready" && (
+          <div style={desktopDay ? timelineFillSectionStyle : bleedStyle}>
+            <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
+          </div>
+        )}
+        <div data-testid="calendar-views-footer" style={calendarViewsFooterStyle(phone)}>
+          <div style={calendarViewsFooterButtonStyle}>
+            <Button variant="primary" onClick={openNewEvent}>
+              <MaterialIcon name="add" size="20px" color="currentColor" />
+              <Text variant="action" textId="calendar.mobileViews.newEvent" />
+            </Button>
+          </div>
         </div>
-      )}
-      {view === "day" && status === "ready" && (
-        <div style={desktopDay ? timelineFillSectionStyle : bleedStyle}>
-          <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
-        </div>
-      )}
-      <div data-testid="calendar-views-footer" style={calendarViewsFooterStyle(phone)}>
-        <div style={calendarViewsFooterButtonStyle}>
-          <Button variant="primary" onClick={openNewEvent}>
-            <MaterialIcon name="add" size="20px" color="currentColor" />
-            <Text variant="action" textId="calendar.mobileViews.newEvent" />
-          </Button>
-        </div>
-      </div>
-    </section>
+      </section>
+    </EventOpenContext.Provider>
   );
 };

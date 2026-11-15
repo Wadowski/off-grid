@@ -4,6 +4,7 @@
 import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
 import { formatDuration } from "../../../../../../calendar-views/format-duration.js";
 import { durationMinutes, formatClockTime } from "../../../../../../calendar-views/time-format.js";
 import {
@@ -27,11 +28,13 @@ export const TimelineEventBlock = ({
   desktop,
 }: TimelineEventBlockProps) => {
   const { t } = useTranslation();
+  const open = useEventOpenProps(event.id);
   const accent = calendarAccentColor(event.calendarColor).background;
   const range = `${formatClockTime(event.startsAt, timeZone)} - ${formatClockTime(event.endsAt, timeZone)}`;
 
   return (
     <article
+      {...open}
       data-testid={`timeline-event-${event.id}`}
       style={timelineBlockStyle(topPx, heightPx, column, columnCount, desktop)}
     >
