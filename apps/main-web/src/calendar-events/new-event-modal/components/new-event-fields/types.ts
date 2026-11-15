@@ -10,5 +10,6 @@ export type NewEventFieldsProps = {
   readonly timeZone: string;
   readonly narrow: boolean;
   readonly calendarPicker: ReactNode;
+  readonly guestField: ReactNode;
   readonly update: <K extends keyof EventFormValues>(field: K, value: EventFormValues[K]) => void;
 };

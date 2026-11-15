@@ -119,7 +119,6 @@ export const calendarOpenApiPaths = {
 
     get: {
       operationId: "listEventGuests",
-      summary: "List the guests of an event the signed-in person can see",
       parameters: [eventIdParameter],
       responses: {
         "200": { description: "The guests of the event.", content: jsonContent("EventGuestList") },
@@ -131,7 +130,6 @@ export const calendarOpenApiPaths = {
   "/events/{id}/guests/{guestUserId}": {
     delete: {
       operationId: "removeEventGuest",
-      summary: "Remove a guest from an event the signed-in person hosts",
       parameters: [
         eventIdParameter,
         {

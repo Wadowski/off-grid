@@ -374,7 +374,6 @@
       },
       "get": {
         "operationId": "listEventGuests",
-        "summary": "List the guests of an event the signed-in person can see",
         "parameters": [
           {
             "name": "id",
@@ -425,7 +424,6 @@
     "/events/{id}/guests/{guestUserId}": {
       "delete": {
         "operationId": "removeEventGuest",
-        "summary": "Remove a guest from an event the signed-in person hosts",
         "parameters": [
           {
             "name": "id",

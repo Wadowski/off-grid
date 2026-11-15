@@ -24,6 +24,7 @@ export const NewEventFields = ({
   timeZone,
   narrow,
   calendarPicker,
+  guestField,
   update,
 }: NewEventFieldsProps) => {
   const { t } = useTranslation();
@@ -126,6 +127,8 @@ export const NewEventFields = ({
           <Text variant="body" value={timeZone} />
         </div>
       </div>
+
+      {guestField}
 
       <div style={newEventGroupStyle}>
         <TextField

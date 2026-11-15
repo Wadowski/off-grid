@@ -62,7 +62,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List the guests of an event the signed-in person can see */
         get: operations["listEventGuests"];
         put?: never;
         /** Invite a family member to an event the signed-in person hosts */
@@ -83,7 +82,6 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Remove a guest from an event the signed-in person hosts */
         delete: operations["removeEventGuest"];
         options?: never;
         head?: never;
