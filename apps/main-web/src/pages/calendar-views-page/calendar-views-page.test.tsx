@@ -122,16 +122,25 @@ describe("CalendarViewsPage", () => {
   });
 
   it("hides a calendar's events when the person unticks it in the calendar filter", async () => {
-    stubApi();
-    renderPage("/calendar/week?date=2025-10-23", "week");
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: query.includes("max-width"),
+    });
+    try {
+      stubApi();
+      renderPage("/calendar/week?date=2025-10-23", "week");
 
-    fireEvent.click(screen.getByRole("button", { name: /^Calendar filter/ }));
-    const filter = screen.getByRole("group", { name: "Calendar filter" });
-    fireEvent.click(within(filter).getByRole("checkbox", { name: "Studio" }));
+      fireEvent.click(screen.getByRole("button", { name: /^Calendar filter/ }));
+      const filter = screen.getByRole("group", { name: "Calendar filter" });
+      fireEvent.click(within(filter).getByRole("checkbox", { name: "Studio" }));
 
-    expect(
-      screen.getByRole("button", { name: "Calendar filter: No calendars" }),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Calendar filter: No calendars" }),
+      ).toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
   });
 
   it("shows the error text and retries the same view when it fails", async () => {

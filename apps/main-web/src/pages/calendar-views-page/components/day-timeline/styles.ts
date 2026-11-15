@@ -18,7 +18,6 @@ export const timelineScrollStyle: CSSProperties = {
   background: cssVar("color-surface-low"),
 };
 
-// Desktop: the section and its scroll area take the height the day page gives them.
 export const timelineFillSectionStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -32,7 +31,6 @@ export const timelineFillScrollStyle: CSSProperties = {
   minHeight: 0,
 };
 
-// Phone: no inner scroll area; the hours take their full height and the page scrolls around them.
 export const timelinePhoneScrollStyle: CSSProperties = {
   ...timelineScrollStyle,
   height: "auto",

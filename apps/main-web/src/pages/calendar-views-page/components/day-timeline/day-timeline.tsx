@@ -60,7 +60,6 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
       return;
     }
     if (narrow) {
-      // On phone the hours flow with the page, so the window moves to the first event.
       const regionTop = region.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top: Math.max(0, regionTop + scrollTargetPx - PHONE_STICKY_CLEARANCE_PX) });
     } else {
@@ -68,7 +67,6 @@ export const DayTimeline = ({ events, date, timeZone, now }: DayTimelineProps) =
     }
   }, [date, narrow, scrollTargetPx]);
 
-  // Desktop fills the height the page gives it and scrolls inside it; phone lets the page scroll.
   const sectionStyle = narrow ? undefined : timelineFillSectionStyle;
   const scrollStyle = narrow
     ? timelinePhoneScrollStyle

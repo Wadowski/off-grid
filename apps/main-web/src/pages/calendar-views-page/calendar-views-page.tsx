@@ -4,6 +4,7 @@
 import { Button, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { useOpenNewEvent } from "../../calendar-events/use-open-new-event.js";
 import { filterByCalendar } from "../../calendar-views/events-by-calendar.js";
 import { formatDayHeading } from "../../calendar-views/time-format.js";
@@ -14,6 +15,7 @@ import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/vie
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
+import { useMediaQuery } from "../../media/use-media-query.js";
 import { useSession } from "../../session/use-session.js";
 import type { CalendarViewKind } from "@offgrid/contracts";
 import { AgendaList } from "./components/agenda-list/agenda-list.js";
@@ -26,10 +28,9 @@ import { WeekGrid } from "./components/week-grid/week-grid.js";
 import { ViewTabs } from "./components/view-tabs/view-tabs.js";
 import { WeekStrip } from "./components/week-strip/week-strip.js";
 import {
-  BLEED_CLASS,
+  calendarViewsBleedStyle,
   calendarViewsDayCommandStyle,
-  calendarViewsDayPageStyle,
-  calendarViewsCss,
+  calendarViewsFilterStyle,
   calendarViewsFooterButtonStyle,
   calendarViewsFooterStyle,
   calendarViewsHeaderStyle,
@@ -37,8 +38,7 @@ import {
   calendarViewsStatusStyle,
   calendarViewsTabsRowStyle,
   calendarViewsTitleStyle,
-  FILTER_CLASS,
-  FOOTER_CLASS,
+  calendarViewsWeekStripStyle,
   PAGE_CLASS,
   WEEK_STRIP_CLASS,
 } from "./styles.js";
@@ -51,6 +51,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const layout = useCalendarLayout();
   const session = useSession();
   const narrow = useIsNarrow();
+  const phone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);
   const [searchParams, setSearchParams] = useSearchParams();
   const date = parseDateParam(searchParams.get("date")) ?? localDateOf(new Date());
   const { status, days, retry } = useCalendarView(view, date);
@@ -73,17 +74,12 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const goToView = (nextView: CalendarViewKind) =>
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
 
-  const gridWrapperClass = view === "week" || view === "day" ? BLEED_CLASS : undefined;
-  // Desktop day view: one command row holds the navigator and the full date. The view tabs sit in the header.
+  const bleedStyle = view === "week" || view === "day" ? calendarViewsBleedStyle(phone) : undefined;
   const desktopDay = view === "day" && !narrow;
   const viewTabs = <ViewTabs value={view} onChange={goToView} />;
 
   return (
-    <section
-      className={PAGE_CLASS}
-      style={desktopDay ? calendarViewsDayPageStyle : calendarViewsPageStyle}
-    >
-      <style>{calendarViewsCss}</style>
+    <section className={PAGE_CLASS} style={calendarViewsPageStyle(phone, desktopDay)}>
       <header style={calendarViewsHeaderStyle}>
         <div style={calendarViewsTitleStyle}>
           <Text variant="heading" textId="calendar.heading" />
@@ -97,7 +93,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
             </Button>
           )}
         </div>
-        <div className={FILTER_CLASS}>
+        <div style={calendarViewsFilterStyle(narrow)}>
           <CalendarMultiSelect
             calendars={layout.calendars.calendars}
             hidden={layout.hidden}
@@ -126,7 +122,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {(view === "agenda" || view === "day") && (
-        <div className={WEEK_STRIP_CLASS}>
+        <div className={WEEK_STRIP_CLASS} style={calendarViewsWeekStripStyle(narrow)}>
           <WeekStrip
             dates={weekDates(mondayOf(date))}
             selectedDate={date}
@@ -149,7 +145,7 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         />
       )}
       {view === "week" && status === "ready" && (
-        <div className={gridWrapperClass}>
+        <div style={bleedStyle}>
           <WeekGrid
             days={visibleDays}
             selectedDate={date}
@@ -160,15 +156,11 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </div>
       )}
       {view === "day" && status === "ready" && (
-        <div className={gridWrapperClass} style={desktopDay ? timelineFillSectionStyle : undefined}>
+        <div style={desktopDay ? timelineFillSectionStyle : bleedStyle}>
           <DayTimeline events={selectedEvents} date={date} timeZone={timeZone} now={new Date()} />
         </div>
       )}
-      <div
-        className={FOOTER_CLASS}
-        data-testid="calendar-views-footer"
-        style={calendarViewsFooterStyle}
-      >
+      <div data-testid="calendar-views-footer" style={calendarViewsFooterStyle(phone)}>
         <div style={calendarViewsFooterButtonStyle}>
           <Button variant="primary" onClick={openNewEvent}>
             <MaterialIcon name="add" size="20px" color="currentColor" />

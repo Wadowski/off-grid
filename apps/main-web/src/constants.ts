@@ -9,6 +9,8 @@ import type {
 
 export const NARROW_MEDIA_QUERY = "(max-width: 639px)";
 
+export const PHONE_CHROME_MEDIA_QUERY = "(max-width: 767px)";
+
 export const API_PATH = "/api";
 
 export const API_PORT = 3000;
