@@ -81,7 +81,6 @@ Feature: Viewing events by agenda, day, week and month
     And Ben opens his agenda view for 2026-11-18
     Then the agenda view does not list "Dinner"
 
-  @wip
   Scenario: A person who rejoins a family sees its calendar events again
     Given Anna and Ben are both members of the family "Home"
     And the family "Home" has a calendar named "Kitchen"

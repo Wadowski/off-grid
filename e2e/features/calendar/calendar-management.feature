@@ -61,7 +61,6 @@ Feature: Managing calendars
     When Ben deletes the calendar "Work"
     Then the calendar "Work" still exists
 
-  @wip
   Scenario: A person outside a family cannot change its calendars
     Given the family "Home" has a calendar named "Kitchen"
     And Ben does not belong to the family "Home"
@@ -70,7 +69,6 @@ Feature: Managing calendars
     When Ben creates a calendar named "Garden" in the family "Home"
     Then Ben cannot use the family "Home"
 
-  @wip
   Scenario: A removed family member loses access to the family calendars
     Given Anna and Ben are both members of the family "Home"
     And the family "Home" has a calendar named "Kitchen"
