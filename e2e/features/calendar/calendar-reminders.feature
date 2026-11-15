@@ -9,17 +9,15 @@ Feature: Event reminders
   person's inbox. Changing the event moves the reminder, and deleting the event
   removes it. A reminder whose time has already passed is skipped.
 
-  @wip
   Scenario: Anna gets one inbox item for each reminder of an event
     Given Anna is signed in
     And Anna has a personal event "Standup" at 09:00 UTC on 2026-11-20
     When Anna sets reminders 15 and 60 minutes before "Standup"
-    And the clock reaches 08:45 UTC on 2026-11-20
+    And the clock reaches 08:00 UTC on 2026-11-20
     Then Anna has one inbox item of type "event-reminder" that names the event "Standup"
-    When the clock reaches 08:00 UTC on 2026-11-20
+    When the clock reaches 08:45 UTC on 2026-11-20
     Then Anna has two inbox items of type "event-reminder" that name the event "Standup"
 
-  @wip
   Scenario: A reminder that already fired does not arrive again on a later tick
     Given Anna is signed in
     And Anna has a personal event "Standup" at 09:00 UTC on 2026-11-20
@@ -28,7 +26,6 @@ Feature: Event reminders
     And the clock reaches 08:50 UTC on 2026-11-20
     Then Anna has one inbox item of type "event-reminder" that names the event "Standup"
 
-  @wip
   Scenario: Moving the event moves the reminder
     Given Anna is signed in
     And Anna has a personal event "Standup" at 09:00 UTC on 2026-11-20
@@ -39,7 +36,6 @@ Feature: Event reminders
     When the clock reaches 09:45 UTC on 2026-11-20
     Then Anna has one inbox item of type "event-reminder" that names the event "Standup"
 
-  @wip
   Scenario: Deleting the event removes its reminders
     Given Anna is signed in
     And Anna has a personal event "Standup" at 09:00 UTC on 2026-11-20
@@ -48,7 +44,6 @@ Feature: Event reminders
     And the clock reaches 08:45 UTC on 2026-11-20
     Then Anna has no inbox item of type "event-reminder"
 
-  @wip
   Scenario: A reminder whose time has already passed is skipped
     Given Anna is signed in
     And Anna has a personal event "Standup" starting in 5 minutes
@@ -56,7 +51,6 @@ Feature: Event reminders
     And the clock reaches the start of "Standup"
     Then Anna has no inbox item of type "event-reminder"
 
-  @wip
   Scenario: A family member does not see Anna's reminders on a shared event
     Given Anna is signed in
     And Tom is a member of Anna's family
