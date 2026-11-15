@@ -9,7 +9,6 @@ Feature: Event reminders
   the start of the event. Nobody sees another person's reminders. A guest, who
   cannot edit the event, sets their own reminders from the event details.
 
-  @wip
   Scenario: I add a reminder when I create an event
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -17,7 +16,6 @@ Feature: Event reminders
     And I open the event "Studio review" for editing from the agenda
     Then I see the reminder "15 minutes" in the event form
 
-  @wip
   Scenario: I set a reminder in hours and it is saved
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -25,7 +23,6 @@ Feature: Event reminders
     And I open the event "Studio review" for editing from the agenda
     Then I see the reminder "2 hours" in the event form
 
-  @wip
   Scenario: I change a reminder of an existing event
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -35,7 +32,6 @@ Feature: Event reminders
     And I open the event "Studio review" for editing from the agenda
     Then I see the reminder "1 day" in the event form
 
-  @wip
   Scenario: I remove a reminder from an existing event
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -45,14 +41,12 @@ Feature: Event reminders
     And I open the event "Studio review" for editing from the agenda
     Then I see no reminders in the event form
 
-  @wip
   Scenario: I cannot add a sixth reminder
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
     When I open the new event modal and add 5 reminders
     Then I cannot add another reminder
 
-  @wip
   Scenario: I cannot save two reminders at the same time
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -60,7 +54,6 @@ Feature: Event reminders
     Then I see the message "You already have a reminder at this time."
     And no event named "Studio review" is listed
 
-  @wip
   Scenario: I cannot save a reminder longer than 4 weeks before the event
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -68,7 +61,6 @@ Feature: Event reminders
     Then I see the message "Use at most 4 weeks (40320 minutes)."
     And no event named "Studio review" is listed
 
-  @wip
   Scenario: I do not see a reminder that another person set on the same event
     Given I am a user with a family named "The Smiths"
     And Ben joins the family "The Smiths" as a guest
@@ -80,7 +72,6 @@ Feature: Event reminders
     Then I see the reminder "15 minutes" in the event form
     And I do not see the reminder "30 minutes" in the event form
 
-  @wip
   Scenario: As a read-only guest I set my own reminder from the event details
     Given I am a user with a family named "The Smiths"
     And Ben joins the family "The Smiths" as a guest
@@ -92,7 +83,6 @@ Feature: Event reminders
     And I open the event "Picnic" from the agenda
     Then I see the reminder "30 minutes" in the event details
 
-  @wip
   Scenario: The reminder controls fit at phone width
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
