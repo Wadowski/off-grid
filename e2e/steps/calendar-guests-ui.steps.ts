@@ -157,6 +157,12 @@ Given(
   },
 );
 
+Given("the guest invitations will fail", async ({ page }) => {
+  await page.route("**/api/events/*/guests", (route) =>
+    route.fulfill({ status: 500, contentType: "text/plain", body: "" }),
+  );
+});
+
 When(
   "I create a timed event named {string} on the calendar {string} inviting Ben from the new event modal",
   async ({ page, world }, title: string, calendarName: string) => {
@@ -164,22 +170,17 @@ When(
     await waitUntilInvitable(world, calendarName, benOf(world));
     await fillNewEvent(page, title, calendarName, benOf(world));
     await page.getByRole("button", { name: "Create Event", exact: true }).click();
-    await expect.poll(() => pathOf(page)).toBe(CALENDAR_PATH);
-    await expect(modal(page)).toHaveCount(0);
-    rememberEvent(world, title, await savedIdOf(world, title, calendarName));
-  },
-);
-
-When(
-  "I create a timed event named {string} on the calendar {string} inviting Ben while the invite fails",
-  async ({ page, world }, title: string, calendarName: string) => {
-    await waitForNameOf(world, benOf(world));
-    await page.route("**/api/events/*/guests", (route) =>
-      route.fulfill({ status: 500, contentType: "text/plain", body: "" }),
-    );
-    await fillNewEvent(page, title, calendarName, benOf(world));
-    await page.getByRole("button", { name: "Create Event", exact: true }).click();
-    await expect(modal(page).getByRole("alert")).toBeVisible();
+    await expect
+      .poll(async () => {
+        if (pathOf(page) === CALENDAR_PATH) {
+          return "saved";
+        }
+        return (await modal(page).getByRole("alert").count()) > 0 ? "alert" : "pending";
+      })
+      .not.toBe("pending");
+    if (pathOf(page) === CALENDAR_PATH) {
+      await expect(modal(page)).toHaveCount(0);
+    }
     rememberEvent(world, title, await savedIdOf(world, title, calendarName));
   },
 );
@@ -252,6 +253,30 @@ Then(
     await expect(modal(page).getByTestId("guest-field-add")).toHaveCount(0);
   },
 );
+
+const expectGuestCannotSee = async (world: ScenarioWorld, title: string): Promise<void> => {
+  const guest = world.eventDetails?.guest;
+  expect(guest, "Ben must be set up in this scenario").toBeDefined();
+  const response = await world.api.get(`/api/events/${eventIdOf(world, title)}`, {
+    headers: bearer(guest?.session ?? { userId: "", accessToken: "" }),
+    failOnStatusCode: false,
+  });
+  expect(response.status()).toBe(404);
+};
+
+const eventIdOf = (world: ScenarioWorld, title: string): string => {
+  const id = world.eventDetails?.eventIds[title];
+  expect(id, `the event "${title}" must be set up first`).toBeDefined();
+  return id ?? "";
+};
+
+Then("Ben does not see the event {string}", async ({ world }, title: string) => {
+  await expectGuestCannotSee(world, title);
+});
+
+Then("Ben can no longer see the event {string}", async ({ world }, title: string) => {
+  await expectGuestCannotSee(world, title);
+});
 
 Then(
   "the event {string} is saved on the calendar {string}",

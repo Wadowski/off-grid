@@ -8,7 +8,7 @@ Feature: Event guests in the calendar screens
   and edit event modals. A guest sees the event read-only in the details
   view, with the other guests listed, and cannot change them.
 
-  Scenario: Anna invites Ben from the new event modal and Ben sees the event read-only
+  Scenario: I invite Ben from the new event modal and Ben sees the event read-only
     Given I am a user with a family named "The Smiths"
     And Ben joins the family "The Smiths" as a guest
     And I have a personal calendar named "Studio" with the color "teal"
@@ -19,7 +19,7 @@ Feature: Event guests in the calendar screens
     And I see the guests section listing Ben
     And I see no edit or delete control for the event
 
-  Scenario: Anna adds and removes a guest from the edit form
+  Scenario: I remove a guest from the edit form
     Given I am a user with a family named "The Smiths"
     And Ben joins the family "The Smiths" as a guest
     And I have a personal calendar named "Studio" with the color "teal"
@@ -29,6 +29,7 @@ Feature: Event guests in the calendar screens
     Then I see Ben selected as a guest
     When I remove Ben from the guests and save the event
     Then I see the guests section without Ben
+    And Ben can no longer see the event "Studio review"
 
   Scenario: The guest field is unavailable for a family calendar
     Given I am a user with a family named "The Smiths"
@@ -48,10 +49,12 @@ Feature: Event guests in the calendar screens
     Then I see the guests section listing Cara
     And I see no edit or delete control for the event
 
-  Scenario: Anna sees an error when a guest cannot be invited
+  Scenario: I see an error when a guest cannot be invited
     Given I am a user with a family named "The Smiths"
     And Ben joins the family "The Smiths" as a guest
     And I have a personal calendar named "Studio" with the color "teal"
-    When I create a timed event named "Studio review" on the calendar "Studio" inviting Ben while the invite fails
+    And the guest invitations will fail
+    When I create a timed event named "Studio review" on the calendar "Studio" inviting Ben from the new event modal
     Then I see the message "Event saved, but some guests could not be invited. Try again."
     And the event "Studio review" is saved on the calendar "Studio"
+    And Ben does not see the event "Studio review"
