@@ -3,6 +3,7 @@
 
 import {
   calendarEventGuestInvitedV1,
+  calendarReminderDueV1,
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
   type EventDefinition,
@@ -45,6 +46,12 @@ export const FACT_NOTICES = [
     event: calendarEventGuestInvitedV1,
     noticeType: "event-invited",
     recipientKey: "guestUserId",
+    dataKeys: ["eventId"],
+  }),
+  factNotice({
+    event: calendarReminderDueV1,
+    noticeType: "event-reminder",
+    recipientKey: "userId",
     dataKeys: ["eventId"],
   }),
 ] as const;

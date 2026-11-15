@@ -44,9 +44,9 @@ describe("reminder offsets on event requests", () => {
         reminderOffsetsMinutes: [15, 60],
       }).success,
     ).toBe(true);
-    expect(
-      updateCalendarEventRequestSchema.safeParse({ reminderOffsetsMinutes: [] }).success,
-    ).toBe(true);
+    expect(updateCalendarEventRequestSchema.safeParse({ reminderOffsetsMinutes: [] }).success).toBe(
+      true,
+    );
   });
 
   it("refuses an invalid offset on update", () => {

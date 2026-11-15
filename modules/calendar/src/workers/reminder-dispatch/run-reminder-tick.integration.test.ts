@@ -45,7 +45,13 @@ describe("reminder dispatch tick with a fake clock", { timeout: 60_000 }, () => 
       db.db,
       userId,
       calendarId,
-      { title, isAllDay: false, startsAt: starts, endsAt: "2026-11-20T09:30:00Z", reminderOffsetsMinutes: offsets },
+      {
+        title,
+        isAllDay: false,
+        startsAt: starts,
+        endsAt: "2026-11-20T09:30:00Z",
+        reminderOffsetsMinutes: offsets,
+      },
       seededAt,
     );
     if (outcome.outcome !== "found") {
@@ -54,7 +60,8 @@ describe("reminder dispatch tick with a fake clock", { timeout: 60_000 }, () => 
     return outcome.value.eventId;
   };
 
-  const tick = (now: string, batch = BATCH) => runReminderTick(db.db, { now: new Date(now), batch });
+  const tick = (now: string, batch = BATCH) =>
+    runReminderTick(db.db, { now: new Date(now), batch });
 
   const factCount = async () => {
     const { rows } = await db.admin.query(
@@ -105,10 +112,7 @@ describe("reminder dispatch tick with a fake clock", { timeout: 60_000 }, () => 
   it("produces one fact per reminder when two ticks run at the same time", async () => {
     await addStandup([15]);
     await addStandup([15], "Review");
-    const counts = await Promise.all([
-      tick("2026-11-20T08:45:00Z"),
-      tick("2026-11-20T08:45:00Z"),
-    ]);
+    const counts = await Promise.all([tick("2026-11-20T08:45:00Z"), tick("2026-11-20T08:45:00Z")]);
     expect(counts[0] + counts[1]).toBe(2);
     expect(await factCount()).toBe(2);
   });
@@ -135,7 +139,13 @@ describe("reminder dispatch tick with a fake clock", { timeout: 60_000 }, () => 
       db.db,
       userId,
       calendarId,
-      { title: "Soon", isAllDay: false, startsAt: "2026-11-15T08:05:00Z", endsAt: "2026-11-15T08:30:00Z", reminderOffsetsMinutes: [15] },
+      {
+        title: "Soon",
+        isAllDay: false,
+        startsAt: "2026-11-15T08:05:00Z",
+        endsAt: "2026-11-15T08:30:00Z",
+        reminderOffsetsMinutes: [15],
+      },
       new Date("2026-11-15T08:00:00Z"),
     );
     expect(await tick("2026-11-15T08:10:00Z")).toBe(0);

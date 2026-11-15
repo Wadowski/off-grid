@@ -67,7 +67,12 @@ describe("calendar event reminders", { timeout: 60_000 }, () => {
     const guest = randomUUID();
     await db.db.$transaction(async (tx) => {
       await applyFamilyMembership(tx, { familyId, userId: host, sourceVersion: 1, isMember: true });
-      await applyFamilyMembership(tx, { familyId, userId: guest, sourceVersion: 1, isMember: true });
+      await applyFamilyMembership(tx, {
+        familyId,
+        userId: guest,
+        sourceVersion: 1,
+        isMember: true,
+      });
     });
     return guest;
   };
@@ -91,13 +96,7 @@ describe("calendar event reminders", { timeout: 60_000 }, () => {
 
   it("returns the caller's own offsets with the event", async () => {
     const eventId = await createStandup([60, 15]);
-    const outcome = await updateCalendarEvent(
-      db.db,
-      userId,
-      eventId,
-      { title: "Standup 2" },
-      now,
-    );
+    const outcome = await updateCalendarEvent(db.db, userId, eventId, { title: "Standup 2" }, now);
     expect(outcome.outcome === "found" && outcome.value.reminderOffsetsMinutes).toEqual([15, 60]);
   });
 

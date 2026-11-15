@@ -4,6 +4,7 @@
 import { randomUUID } from "node:crypto";
 import {
   calendarEventGuestInvitedV1,
+  calendarReminderDueV1,
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
 } from "@offgrid/contracts";
@@ -154,6 +155,54 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
       expect.objectContaining({ type: "event-invited", data: { eventId } }),
     ]);
     expect(await inboxRowsOf(host)).toEqual([]);
+  });
+
+  const reminderFact = async (tx: ModuleTransaction, userId: string, eventId: string) =>
+    publish(
+      rawSqlExecutor(tx),
+      calendarReminderDueV1,
+      {
+        id: randomUUID(),
+        type: calendarReminderDueV1.name,
+        version: calendarReminderDueV1.version,
+        occurredAt: new Date().toISOString(),
+        traceId: resolveTraceId(currentTraceId()),
+        familyId: null,
+        sourceVersion: 1,
+        payload: { eventId, userId },
+      },
+      { userId },
+    );
+
+  it("maps a reminder fact to one event-reminder item for its creator, carrying the event id", async () => {
+    const anna = randomUUID();
+    const eventId = randomUUID();
+
+    await deliverWith(() =>
+      db.db.$transaction(async (tx) => {
+        await withUserContext(tx, anna);
+        await reminderFact(tx, anna, eventId);
+      }),
+    );
+
+    expect(await inboxRowsOf(anna)).toEqual([
+      expect.objectContaining({ type: "event-reminder", data: { eventId } }),
+    ]);
+  });
+
+  it("keeps one inbox item per reminder when two offsets of one event fire", async () => {
+    const anna = randomUUID();
+    const eventId = randomUUID();
+
+    await deliverWith(() =>
+      db.db.$transaction(async (tx) => {
+        await withUserContext(tx, anna);
+        await reminderFact(tx, anna, eventId);
+        await reminderFact(tx, anna, eventId);
+      }),
+    );
+
+    expect(await inboxRowsOf(anna)).toHaveLength(2);
   });
 
   it("writes no invite item when the invite that published the fact rolls back", async () => {

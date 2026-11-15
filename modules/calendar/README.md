@@ -9,11 +9,11 @@ Owner: module team (calendar)
 - Schema `calendar`, owned by the migration role `offgrid_migrator`. The runtime role `offgrid_app` has DML on its tables ([ADR 0017](../../docs/adr/0017-shared-database-roles-and-prisma-migrate.md)). The schema is created by the init scripts in `infra/init/sql`.
 - Every table uses the `family-or-user` scope ([ADR 0009](../../docs/adr/0009-table-ownership-scopes.md)): each row has exactly one of `family_id` or `user_id`, and RLS keys on `app.family_id` or `app.user_id`.
 - `calendar.calendar`: named calendars with a `color` from the palette in `src/domain/calendar-colors.ts`. Each user has one default calendar (`is_default`, created when the user is created and never deleted). Users created before this change have no default calendar.
-- Family calendars can be created, renamed, recolored and deleted by any family member, as ADR 0021 gives members rights over family-shared entities. Policies on `calendar.calendar`, `calendar.calendar_event`, `calendar.event_guest` and `calendar.event_reminder` check `calendar.family_membership`.
+- Family calendars can be created, renamed, recolored and deleted by any family member, as ADR 0021 gives members rights over family-shared entities. Policies on `calendar.calendar`, `calendar.calendar_event` and `calendar.event_guest` check `calendar.family_membership`. `calendar.event_reminder` is private to its creator instead ([ADR 0030](../../docs/adr/0030-calendar-reminder-dispatch.md)).
 - `calendar.calendar_event`: events in one calendar, with `starts_at` and `ends_at` (UTC), `is_all_day`, `title`, `location` and `description` (both nullable), and `version`, which starts at 1 and is incremented on every change.
 - `calendar.user_time_zone`: the IANA time zone each user set, with scope `user`. A user with no row is treated as UTC, and `GET /calendar/time-zone` reports `isSet: false`.
 - `calendar.event_guest`: guests invited to an event, keyed by `(event_id, guest_user_id)`.
-- `calendar.event_reminder`: reminders of an event.
+- `calendar.event_reminder`: one row per reminder, for an event, its creator and an offset in minutes. Holds `fired_at` and `skipped_at`. See Reminders below.
 - `calendar.family_membership`: which people belong to each family, fed by family membership events. A removed membership stays as a row with `is_member = false` and the newest `source_version` applied, so an older join cannot bring it back.
 - `calendar.location`: named places.
 
@@ -33,6 +33,7 @@ Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migr
 - `location` and `description` accept `null` to clear the field. Omitting the field keeps it.
 - A PATCH with `calendarId` moves the event only to a calendar of the same owner. A different owner answers 409 `EVENT_MOVE_OWNER_MISMATCH` and nothing is written. A target calendar the caller cannot see answers 404.
 - Create, update, move and delete publish their event in the same transaction as the change, so a rollback leaves no row and no outbox row.
+- `reminderOffsetsMinutes` on create and PATCH sets the caller's own reminders: up to 5 distinct whole offsets from 0 to 40320 minutes. `[]` clears them, and omitting it keeps them. The response carries the caller's offsets (`reminderOffsetsMinutes`). A PATCH that sends only `reminderOffsetsMinutes` changes no event field and publishes nothing, so a guest may use it for their own reminders.
 
 Decision record: [ADR 0028](../../docs/adr/0028-calendar-event-time-and-versions.md).
 
@@ -60,7 +61,7 @@ Decision record: [ADR 0029](../../docs/adr/0029-event-guest-access.md).
 
 ## Events
 
-`calendar-event-created-v1` and `calendar-event-updated-v1` carry the full state of the event after the change, so a projection can upsert it. Their payload holds `title`, `location` and `description`. Their envelope `sourceVersion` is the row's `version`. `calendar-event-removed-v1` carries only `eventId` and `calendarId`, and its `sourceVersion` is the deleted row's `version + 1`. `calendar-event-guest-invited-v1` carries `eventId`, `guestUserId` and `calendarId`, and no title or other personal data. Outbox rows keep these copies for the retention period, 7 days by default (`OFFGRID_OUTBOX_RETENTION_DAYS`). The server's prune job deletes an outbox row only after it is older than that period and every registered subscriber has passed it. It does not touch the calendar tables ([privacy statement](../../docs/privacy.md)).
+`calendar-event-created-v1` and `calendar-event-updated-v1` carry the full state of the event after the change, so a projection can upsert it. Their payload holds `title`, `location` and `description`. Their envelope `sourceVersion` is the row's `version`. `calendar-event-removed-v1` carries only `eventId` and `calendarId`, and its `sourceVersion` is the deleted row's `version + 1`. `calendar-event-guest-invited-v1` carries `eventId`, `guestUserId` and `calendarId`, and no title or other personal data. `calendar-reminder-due-v1` carries `eventId` and `userId` only, and no offset or time. Outbox rows keep these copies for the retention period, 7 days by default (`OFFGRID_OUTBOX_RETENTION_DAYS`). The server's prune job deletes an outbox row only after it is older than that period and every registered subscriber has passed it. It does not touch the calendar tables ([privacy statement](../../docs/privacy.md)).
 
 `src/events/default-calendar` subscribes to `user-created-v1` (from identity) and creates the user's default calendar. The insert is idempotent, so a repeated event creates nothing.
 
@@ -71,6 +72,19 @@ Each change is applied in the order the family made it. A change that was alread
 Both events go to one subscription, `calendar-family-membership`, so they are applied in the order the family made them, even when a removal and a later rejoin are delivered together. The subscription uses the bus's `halt` failure policy: an event that still fails after its retries stops the subscriber there, rather than being skipped. Later events wait until the failure is fixed, and the error is recorded.
 
 Known gap: while the subscriber is halted, the stored state stays as the last applied change left it. If that change was a join that was never followed by its removal, the person keeps access until the failure is fixed. Denying access while the projection is halted needs a health signal that the policies can check, and it is not built yet.
+
+## Reminders
+
+A reminder fires a fixed number of minutes before the event's start. Each person may set up to five per event, and each is one row for (event, creator, offset). Rows are private to their creator: no other family member and no guest sees them.
+
+- A row is due at `remind_at = startsAt - offset`, inclusive. Setting or moving a reminder into the past sets `skipped_at`, so it never fires. A reminder that becomes due while the server is down fires once, at the next tick.
+- A change to the event's start, end or all-day window reschedules the editing user's rows, keeping `fired_at` only when the time is unchanged. Moving a reminder into the future after it fired fires it again at the new time. Clearing or adding offsets adds or removes rows.
+- Deleting an event removes all its reminder rows, including guests' rows, so none fires after the event is gone.
+- The worker (`src/workers/reminder-dispatch/`) runs every 30 seconds in the server process. Each tick claims due rows with `calendar.claim_due_reminders` and publishes `calendar-reminder-due-v1` for each, in one transaction. The claim is row-locked, so two server instances never fire the same row, and it skips rows whose owner can no longer see the event.
+- `calendar-reminder-due-v1` carries `eventId` and `userId` only. Notifications maps it to an `event-reminder` inbox item for its creator. The fact is not delivered through a calendar-specific channel.
+- Known gaps: an event move reschedules only the editing user's rows, so a guest's reminders keep their old times until they set them again. Reminder controls in the event screen are not built (API only).
+
+Decision record: [ADR 0030](../../docs/adr/0030-calendar-reminder-dispatch.md).
 
 ## Tests
 
