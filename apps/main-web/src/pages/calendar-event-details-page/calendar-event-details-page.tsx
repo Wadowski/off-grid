@@ -48,8 +48,20 @@ export const CalendarEventDetailsPage = () => {
     }
   };
 
+  const calendar = shellContext.calendars.calendars.find(
+    (candidate) => candidate.id === event?.calendarId,
+  );
+  const shownEvent =
+    event === undefined
+      ? undefined
+      : {
+          ...event,
+          calendarName: event.calendarName ?? calendar?.name,
+          calendarColor: event.calendarColor ?? calendar?.color,
+        };
+
   const shell = {
-    event,
+    event: shownEvent,
     status,
     retry,
     timeZone,

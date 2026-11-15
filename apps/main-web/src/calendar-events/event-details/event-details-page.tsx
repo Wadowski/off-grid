@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, cssVar, Text } from "@offgrid/ui";
+import { Button, cssVar, Text, VisuallyHidden } from "@offgrid/ui";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { EventDetailsBody } from "./event-details-body.js";
 import { EventDetailsState } from "./event-details-state.js";
@@ -47,7 +47,9 @@ export const EventDetailsPage = ({
           </Button>
           <Button type="button" variant="secondary" onClick={onDelete}>
             <MaterialIcon name="delete" size="18px" color={cssVar("color-danger")} />
-            <Text variant="error" textId="calendar.eventDetails.delete" />
+            <VisuallyHidden>
+              <Text variant="error" textId="calendar.eventDetails.delete" />
+            </VisuallyHidden>
           </Button>
         </div>
       )}

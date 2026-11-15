@@ -13,6 +13,7 @@ import type { JsonResponse, Member, Session } from "./factories/instance-admin.j
 import type { SignedInPerson } from "./factories/notifications.js";
 import type { CalendarEventsWorld } from "./factories/calendar-events.js";
 import type { CalendarViewsWorld } from "./factories/calendar-views.js";
+import type { EventDetailsWorld } from "./factories/calendar-event-details.js";
 
 export type ScenarioWorld = {
   api: APIRequestContext;
@@ -62,6 +63,7 @@ export type ScenarioWorld = {
   };
   calendarEvents?: CalendarEventsWorld;
   calendarViews?: CalendarViewsWorld;
+  eventDetails?: EventDetailsWorld;
 };
 
 export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({
