@@ -34,11 +34,20 @@ export async function createCalendarWithColor(
   session: Session,
   input: { name: string; color: string; familyId?: string },
 ): Promise<string> {
-  const response = await api.post(CALENDARS, {
-    headers: bearer(session),
-    data: { name: input.name, color: input.color, familyId: input.familyId },
-    failOnStatusCode: false,
-  });
+  const response = await eventually(
+    async () => {
+      const created = await api.post(CALENDARS, {
+        headers: bearer(session),
+        data: { name: input.name, color: input.color, familyId: input.familyId },
+        failOnStatusCode: false,
+      });
+      if (created.status() === 404) {
+        throw new Error(`the family of "${input.name}" is not visible yet`);
+      }
+      return created;
+    },
+    { timeout: 15_000, interval: 250 },
+  );
   expect(response.status(), `could not create the calendar "${input.name}"`).toBe(201);
   return ((await response.json()) as { id: string }).id;
 }
