@@ -6,4 +6,5 @@ import type { CalendarEventDetails } from "../types.js";
 export type EventDetailsBodyProps = {
   readonly event: CalendarEventDetails;
   readonly timeZone: string;
+  readonly onSaveReminders: (offsets: readonly number[]) => Promise<void>;
 };

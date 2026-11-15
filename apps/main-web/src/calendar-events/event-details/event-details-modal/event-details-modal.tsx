@@ -28,6 +28,7 @@ export const EventDetailsModal = ({
   onClose,
   onEdit,
   onDelete,
+  onSaveReminders,
 }: EventDetailsModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const accent = event === undefined ? undefined : eventAccentOf(event);
@@ -72,7 +73,7 @@ export const EventDetailsModal = ({
           </div>
         </div>
         {event !== undefined && status === "ready" ? (
-          <EventDetailsBody event={event} timeZone={timeZone} />
+          <EventDetailsBody event={event} timeZone={timeZone} onSaveReminders={onSaveReminders} />
         ) : (
           <EventDetailsState status={status === "ready" ? "failed" : status} retry={retry} />
         )}

@@ -21,6 +21,7 @@ export const EventDetailsPage = ({
   onBack,
   onEdit,
   onDelete,
+  onSaveReminders,
 }: EventDetailsPageProps) => {
   const editable = event !== undefined && !event.readOnly;
   return (
@@ -34,7 +35,7 @@ export const EventDetailsPage = ({
       </header>
       <div style={detailsPhoneBodyStyle}>
         {event !== undefined && status === "ready" ? (
-          <EventDetailsBody event={event} timeZone={timeZone} />
+          <EventDetailsBody event={event} timeZone={timeZone} onSaveReminders={onSaveReminders} />
         ) : (
           <EventDetailsState status={status === "ready" ? "failed" : status} retry={retry} />
         )}

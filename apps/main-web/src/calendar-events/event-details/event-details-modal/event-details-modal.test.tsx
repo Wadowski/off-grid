@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { calendarEventSchema } from "@offgrid/contracts";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CalendarEventDetails } from "../types.js";
 import { EventDetailsModal } from "./event-details-modal.js";
@@ -39,6 +39,7 @@ const handlers = () => ({
   onClose: vi.fn(),
   onEdit: vi.fn(),
   onDelete: vi.fn(),
+  onSaveReminders: vi.fn().mockResolvedValue(undefined),
   retry: vi.fn(),
 });
 
@@ -66,6 +67,32 @@ describe("EventDetailsModal", () => {
     expect(screen.queryByRole("button", { name: "Edit Event" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Delete event" })).not.toBeInTheDocument();
     expect(screen.getByRole("note")).toBeInTheDocument();
+  });
+
+  it("gives a guest a reminders card that saves only their own reminders", async () => {
+    const props = handlers();
+    render(
+      <EventDetailsModal
+        event={{ ...EVENT, readOnly: true, reminderOffsetsMinutes: [30] }}
+        status="ready"
+        timeZone="UTC"
+        {...props}
+      />,
+    );
+
+    expect(screen.getByRole("group", { name: "Reminders" })).toBeInTheDocument();
+    expect(screen.getByTestId("reminder-amount-0")).toHaveValue(30);
+    fireEvent.click(screen.getByTestId("reminder-add"));
+    fireEvent.click(screen.getByRole("button", { name: "Save reminders" }));
+
+    await waitFor(() => expect(props.onSaveReminders).toHaveBeenCalledWith([30, 15]));
+  });
+
+  it("gives an owner or editor no reminders card", () => {
+    render(<EventDetailsModal event={EVENT} status="ready" timeZone="UTC" {...handlers()} />);
+
+    expect(screen.queryByRole("group", { name: "Reminders" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save reminders" })).not.toBeInTheDocument();
   });
 
   it("shows the not-found text when the event no longer exists", () => {
