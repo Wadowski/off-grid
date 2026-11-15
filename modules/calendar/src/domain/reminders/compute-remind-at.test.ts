@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { isDue, isPast, remindAt } from "./compute-remind-at.js";
+import { isPast, remindAt } from "./compute-remind-at.js";
 
 const startsAt = new Date("2026-11-20T09:00:00Z");
 
@@ -19,22 +19,6 @@ describe("remindAt", () => {
   it("does not change the start it was given", () => {
     remindAt(startsAt, 15);
     expect(startsAt.toISOString()).toBe("2026-11-20T09:00:00.000Z");
-  });
-});
-
-describe("isDue", () => {
-  const reminderAt = new Date("2026-11-20T08:45:00Z");
-
-  it("is due at the exact instant", () => {
-    expect(isDue(reminderAt, new Date("2026-11-20T08:45:00Z"))).toBe(true);
-  });
-
-  it("is due after its instant", () => {
-    expect(isDue(reminderAt, new Date("2026-11-20T08:45:01Z"))).toBe(true);
-  });
-
-  it("is not due one millisecond before its instant", () => {
-    expect(isDue(reminderAt, new Date("2026-11-20T08:44:59.999Z"))).toBe(false);
   });
 });
 

@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import type { ModuleTransaction } from "@offgrid/db";
 import { isPast, remindAt } from "../../domain/reminders/compute-remind-at.js";
 
-export interface ReplaceEventRemindersInput {
+interface ReplaceEventRemindersInput {
   readonly eventId: string;
   readonly userId: string;
   readonly startsAt: Date;
@@ -13,9 +13,6 @@ export interface ReplaceEventRemindersInput {
   readonly now: Date;
 }
 
-// Reconciles the caller's reminder rows for one event with the offsets they now want. Runs in
-// the same transaction as the event change. Reminders are user-owned, so only the caller's rows
-// are touched; a row whose time did not change keeps its fired or skipped state.
 export const replaceEventReminders = async (
   tx: ModuleTransaction,
   input: ReplaceEventRemindersInput,
@@ -25,8 +22,8 @@ export const replaceEventReminders = async (
   const byOffset = new Map(existing.map((row) => [row.offsetMinutes, row]));
 
   for (const offsetMinutes of offsetsMinutes) {
-    const at = remindAt(startsAt, offsetMinutes);
-    const skippedAt = isPast(at, now) ? now : null;
+    const reminderAt = remindAt(startsAt, offsetMinutes);
+    const skippedAt = isPast(reminderAt, now) ? now : null;
     const row = byOffset.get(offsetMinutes);
     if (row === undefined) {
       await tx.eventReminder.create({
@@ -35,14 +32,14 @@ export const replaceEventReminders = async (
           eventId,
           userId,
           offsetMinutes,
-          remindAt: at,
+          remindAt: reminderAt,
           skippedAt,
         },
       });
-    } else if (row.remindAt.getTime() !== at.getTime()) {
+    } else if (row.remindAt.getTime() !== reminderAt.getTime()) {
       await tx.eventReminder.update({
         where: { reminderId: row.reminderId },
-        data: { remindAt: at, firedAt: null, skippedAt },
+        data: { remindAt: reminderAt, firedAt: null, skippedAt },
       });
     }
   }

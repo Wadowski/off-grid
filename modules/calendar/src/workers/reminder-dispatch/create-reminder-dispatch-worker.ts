@@ -6,7 +6,7 @@ import type { Logger } from "@offgrid/observability";
 import type { CalendarWorker } from "../../types.js";
 import { runReminderTick } from "./run-reminder-tick.js";
 
-export interface ReminderDispatchOptions {
+interface ReminderDispatchOptions {
   readonly db: ModuleDatabase;
   readonly logger: Logger;
   readonly now: () => Date;
@@ -16,14 +16,12 @@ export interface ReminderDispatchOptions {
 
 const DEFAULT_BATCH = 50;
 
-// Runs a tick every intervalMs. It runs in the server process and needs no client connection,
-// so reminders do not depend on the tunnel (ADR 0030).
 export const createReminderDispatchWorker = (options: ReminderDispatchOptions): CalendarWorker => {
   const batch = options.batch ?? DEFAULT_BATCH;
   let timer: ReturnType<typeof setInterval> | undefined;
-  let inFlight: Promise<void> = Promise.resolve();
+  let running: Promise<void> | undefined;
 
-  const tick = async (): Promise<void> => {
+  const dispatchOnce = async (): Promise<void> => {
     try {
       const count = await runReminderTick(options.db, { now: options.now(), batch });
       if (count > 0) {
@@ -36,22 +34,29 @@ export const createReminderDispatchWorker = (options: ReminderDispatchOptions): 
     }
   };
 
+  const tickUnlessRunning = (): void => {
+    if (running !== undefined) {
+      return;
+    }
+    running = dispatchOnce().finally(() => {
+      running = undefined;
+    });
+  };
+
   return {
     name: "calendar-reminder-dispatch",
     start: async () => {
       if (timer !== undefined) {
         return;
       }
-      timer = setInterval(() => {
-        inFlight = inFlight.then(tick);
-      }, options.intervalMs);
+      timer = setInterval(tickUnlessRunning, options.intervalMs);
     },
     stop: async () => {
       if (timer !== undefined) {
         clearInterval(timer);
         timer = undefined;
       }
-      await inFlight;
+      await running;
     },
   };
 };
