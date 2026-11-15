@@ -4,6 +4,7 @@
 import { calendarIdSchema, type CalendarEventUpdateInput } from "@offgrid/contracts";
 import { optionalText } from "./optional-text.js";
 import { toCreateEventRequest } from "./event-form.js";
+import { sameReminderOffsets } from "./same-reminder-offsets.js";
 import type { EventFormValues, EventUpdateResult } from "./types.js";
 
 export const toUpdateEventRequest = (
@@ -37,6 +38,9 @@ export const toUpdateEventRequest = (
       return { ok: false, errors: { form: "invalid" } };
     }
     update.calendarId = calendarId.data;
+  }
+  if (!sameReminderOffsets(values.reminderOffsetsMinutes, initial.reminderOffsetsMinutes)) {
+    update.reminderOffsetsMinutes = [...values.reminderOffsetsMinutes];
   }
   const request = next.request;
   if (request.isAllDay !== previous.request.isAllDay) {
