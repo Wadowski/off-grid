@@ -18,8 +18,7 @@ import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import type { ShellContext } from "../../types.js";
 import { CalendarViewsPage } from "../calendar-views-page/calendar-views-page.js";
-
-type DetailsMode = "view" | "edit" | "confirmDelete";
+import type { DetailsMode } from "./types.js";
 
 export const CalendarEventDetailsPage = () => {
   const { eventId = "" } = useParams();

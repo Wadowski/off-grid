@@ -77,10 +77,12 @@ export async function createGuestAccount(
   const registration = await registerAccount(api, { email, displayName });
   expect(registration.status, `could not create ${displayName}`).toBe(201);
   const { session } = await signInWith(api, email, STRONG_PASSWORD);
-  expect(session, `${displayName} cannot sign in`).toBeDefined();
+  if (session === undefined) {
+    throw new Error(`${displayName} cannot sign in`);
+  }
   return {
     account: { email, password: STRONG_PASSWORD, displayName },
-    session: session as Session,
+    session,
   };
 }
 

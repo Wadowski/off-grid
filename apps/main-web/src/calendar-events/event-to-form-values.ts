@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { formatMinutesOfDay, zonedMomentOf } from "../calendar-views/time-format.js";
+import { formatMinutesOfDay } from "../calendar-views/format-minutes-of-day.js";
+import { zonedMomentOf } from "../calendar-views/time-format.js";
 import type { EventFormSource, EventFormValues } from "./types.js";
 
 export const eventToFormValues = (event: EventFormSource, timeZone: string): EventFormValues => {

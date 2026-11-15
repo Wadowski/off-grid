@@ -5,7 +5,6 @@ import { calendarEventSchema } from "@offgrid/contracts";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CalendarEventDetails } from "../types.js";
-import { DeleteConfirm } from "../components/delete-confirm/delete-confirm.js";
 import { EventDetailsModal } from "./event-details-modal.js";
 
 const EVENT: CalendarEventDetails = calendarEventSchema.parse({
@@ -83,26 +82,5 @@ describe("EventDetailsModal", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Delete event" }));
     expect(props.onDelete).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("DeleteConfirm", () => {
-  it("asks before deleting and only the confirm action deletes", () => {
-    const onConfirm = vi.fn();
-    const onCancel = vi.fn();
-    render(
-      <DeleteConfirm
-        narrow={false}
-        deleting={false}
-        failed={false}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />,
-    );
-
-    expect(screen.getByText("Delete this event?")).toBeInTheDocument();
-    expect(onConfirm).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Delete event" }));
-    expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 });

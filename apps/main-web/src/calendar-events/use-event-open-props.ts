@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { KeyboardEvent } from "react";
-import { useContext } from "react";
+import { useContext, type KeyboardEvent } from "react";
 import { EventOpenContext } from "./event-open-context.js";
 import type { EventOpenProps } from "./types.js";
 
