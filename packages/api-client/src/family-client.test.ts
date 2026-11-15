@@ -14,14 +14,12 @@ const MEMBER = {
 };
 
 const familiesWith = (body: unknown) => {
-  const transport = vi
-    .fn<typeof fetch>()
-    .mockResolvedValue(
-      new Response(JSON.stringify(body), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      }),
-    );
+  const transport = vi.fn<typeof fetch>().mockResolvedValue(
+    new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }),
+  );
   const client = createApiClient({ baseUrl: BASE_URL, fetch: transport });
   return { families: createFamilyClient(client), transport };
 };
