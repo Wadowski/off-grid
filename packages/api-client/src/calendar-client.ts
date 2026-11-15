@@ -15,11 +15,17 @@ import {
   calendarSchema,
   calendarTimeZoneSchema,
   calendarViewSchema,
+  eventGuestListSchema,
 } from "@offgrid/contracts";
 import type { ApiClient } from "./types.js";
 
 const withCalendarId = (path: string, id: string): string =>
   path.replace(":id", encodeURIComponent(id));
+
+const withEventGuest = (eventId: string, guestUserId: string): string =>
+  calendarRoutes.eventGuest
+    .replace(":id", encodeURIComponent(eventId))
+    .replace(":guestUserId", encodeURIComponent(guestUserId));
 
 export const createCalendarClient = (client: ApiClient) => ({
   listCalendars: async () =>
@@ -66,6 +72,21 @@ export const createCalendarClient = (client: ApiClient) => ({
 
   removeCalendarEvent: async (eventId: string): Promise<void> => {
     await client.request("DELETE", withCalendarId(calendarRoutes.calendarEvent, eventId));
+  },
+
+  inviteEventGuest: async (eventId: string, guestUserId: string): Promise<void> => {
+    await client.request("POST", withCalendarId(calendarRoutes.eventGuests, eventId), {
+      guestUserId,
+    });
+  },
+
+  listEventGuests: async (eventId: string) =>
+    eventGuestListSchema.parse(
+      await client.request("GET", withCalendarId(calendarRoutes.eventGuests, eventId)),
+    ).guests,
+
+  removeEventGuest: async (eventId: string, guestUserId: string): Promise<void> => {
+    await client.request("DELETE", withEventGuest(eventId, guestUserId));
   },
 
   getTimeZone: async () =>
