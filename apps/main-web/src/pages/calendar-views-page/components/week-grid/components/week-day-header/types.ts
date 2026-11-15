@@ -6,4 +6,5 @@ export type WeekDayHeaderProps = {
   readonly label: string;
   readonly selected: boolean;
   readonly today: boolean;
+  readonly desktop: boolean;
 };
