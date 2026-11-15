@@ -25,6 +25,7 @@ export type CalendarEventsWorld = {
   members: Record<string, string[]>;
   calendars: CalendarRecord[];
   events: EventRecord[];
+  lastStatus?: number;
 };
 
 export type EventBody = {
