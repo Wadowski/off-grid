@@ -1,13 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { AnyEventDefinition } from "@offgrid/contracts";
-import type {
-  MultiEventSubscription,
-  ReplaySubscription,
-  ReplayOptions,
-  Subscription,
-} from "./types.js";
+import type { ReplaySubscription, ReplayOptions } from "./types.js";
 import { DEFAULT_REPLAY_BATCH_SIZE } from "./constants.js";
 import { assertModuleName } from "./assert-module-name.js";
 import { readBatch } from "./read-batch.js";
@@ -15,18 +9,10 @@ import { toTypedEvent } from "./to-typed-event.js";
 import { runHandler } from "./run-handler.js";
 import { definitionsOf } from "./definitions-of.js";
 
-export function replayEvents<D extends AnyEventDefinition>(
-  subscription: Pick<Subscription<D>, "event" | "runAs" | "handler">,
-  options: ReplayOptions,
-): Promise<number>;
-export function replayEvents<const Ds extends readonly AnyEventDefinition[]>(
-  subscription: Pick<MultiEventSubscription<Ds>, "events" | "runAs" | "handler">,
-  options: ReplayOptions,
-): Promise<number>;
-export async function replayEvents(
+export const replayEvents = async (
   subscription: ReplaySubscription,
   options: ReplayOptions,
-): Promise<number> {
+): Promise<number> => {
   assertModuleName(subscription.runAs);
   const definitions = definitionsOf(subscription);
   const batchSize = options.batchSize ?? DEFAULT_REPLAY_BATCH_SIZE;
@@ -46,4 +32,4 @@ export async function replayEvents(
     hasMore = stored.length === batchSize;
   }
   return delivered;
-}
+};
