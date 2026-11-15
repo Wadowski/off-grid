@@ -3,7 +3,7 @@
 
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { bearer } from "../support/family-sessions.js";
+import { bearer, joinFamilyWithInvitation } from "../support/family-sessions.js";
 import { familyIdNamed, sessionOf } from "../support/factories/calendar-events.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
@@ -68,19 +68,8 @@ When(
   async ({ world }, who: string, family: string) => {
     const familyId = familyIdNamed(world, family);
     const admin = await sessionOf(world, `${family} admin`);
-    const invitation = await world.api.post(`/api/families/${familyId}/invitations`, {
-      headers: bearer(admin),
-      failOnStatusCode: false,
-    });
-    expect(invitation.status(), `could not invite ${who} back to "${family}"`).toBe(201);
-    const { code } = (await invitation.json()) as { code: string };
     const session = await sessionOf(world, who);
-    const joined = await world.api.post("/api/families/join", {
-      headers: bearer(session),
-      data: { code },
-      failOnStatusCode: false,
-    });
-    expect(joined.status(), `${who} could not rejoin "${family}"`).toBe(201);
+    await joinFamilyWithInvitation(world.api, admin, session, familyId);
   },
 );
 

@@ -4,7 +4,7 @@
 import type { APIResponse } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { accountSessionOf, bearer } from "../support/family-sessions.js";
+import { accountSessionOf, bearer, joinFamilyWithInvitation } from "../support/family-sessions.js";
 import {
   changeEvent,
   createAllDayEvent,
@@ -95,18 +95,12 @@ const joinFamily = async (world: ScenarioWorld, who: string, family: string): Pr
     return;
   }
   const admin = await personNamed(world, adminOf(family));
-  const invitation = await world.api.post(
-    `/api/families/${scenario.families[family]?.id ?? ""}/invitations`,
-    { headers: bearer(admin.session), failOnStatusCode: false },
+  await joinFamilyWithInvitation(
+    world.api,
+    admin.session,
+    person.session,
+    scenario.families[family]?.id ?? "",
   );
-  expect(invitation.status(), `could not invite ${person.name}`).toBe(201);
-  const { code } = (await invitation.json()) as { code: string };
-  const joined = await world.api.post("/api/families/join", {
-    headers: bearer(person.session),
-    data: { code },
-    failOnStatusCode: false,
-  });
-  expect(joined.status(), `${person.name} could not join "${family}"`).toBe(201);
   scenario.members[family] = [...(scenario.members[family] ?? []), person.name];
 };
 

@@ -5,7 +5,12 @@ import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
 import type { Session } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
-import { bearer, memberSessionOf, sessionOf } from "../support/family-sessions.js";
+import {
+  bearer,
+  joinFamilyWithInvitation,
+  memberSessionOf,
+  sessionOf,
+} from "../support/family-sessions.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -52,18 +57,12 @@ Given(
   "another user with the display name {string} joins {string} as a member",
   async ({ world }, displayName: string, familyName: string) => {
     const person = await sessionOf(world.api, displayName);
-    const invitation = await world.api.post(
-      `/api/families/${familyIdNamed(world, familyName)}/invitations`,
-      { headers: bearer(memberSessionOf(world)), failOnStatusCode: false },
+    await joinFamilyWithInvitation(
+      world.api,
+      memberSessionOf(world),
+      person,
+      familyIdNamed(world, familyName),
     );
-    expect(invitation.status()).toBe(201);
-    const { code } = (await invitation.json()) as { code: string };
-    const joined = await world.api.post("/api/families/join", {
-      headers: bearer(person),
-      data: { code },
-      failOnStatusCode: false,
-    });
-    expect(joined.status()).toBe(201);
     rememberPerson(world, displayName, person);
   },
 );

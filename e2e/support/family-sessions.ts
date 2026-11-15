@@ -35,3 +35,23 @@ export const memberSessionOf = (world: ScenarioWorld): Session => {
   }
   return { userId: world.userId, accessToken: world.memberAccessToken };
 };
+
+export const joinFamilyWithInvitation = async (
+  api: APIRequestContext,
+  admin: Session,
+  joiner: Session,
+  familyId: string,
+): Promise<void> => {
+  const invitation = await api.post(`/api/families/${familyId}/invitations`, {
+    headers: bearer(admin),
+    failOnStatusCode: false,
+  });
+  expect(invitation.status(), "the invitation was not created").toBe(201);
+  const { code } = (await invitation.json()) as { code: string };
+  const joined = await api.post("/api/families/join", {
+    headers: bearer(joiner),
+    data: { code },
+    failOnStatusCode: false,
+  });
+  expect(joined.status(), "the invitation was not accepted").toBe(201);
+};
