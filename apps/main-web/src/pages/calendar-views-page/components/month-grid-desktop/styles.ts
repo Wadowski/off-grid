@@ -71,8 +71,9 @@ export const desktopMonthCellStyle = (
       : inMonth
         ? cssVar("elevation-1")
         : "none",
-  background: inMonth ? cssVar("color-surface") : cssVar("color-surface-low"),
-  opacity: inMonth ? 1 : 0.5,
+  background: inMonth
+    ? cssVar("color-surface")
+    : `color-mix(in srgb, ${cssVar("color-surface-low")} 50%, transparent)`,
   color: inMonth ? cssVar("color-fg") : cssVar("color-muted"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-md"),
