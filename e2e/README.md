@@ -30,7 +30,7 @@ The stack is `infra/compose/docker-compose.yml`, limited to the `db`, `init` and
 
 - `E2E_SERVER_PORT` is the host port the stack publishes the server on (default `3000`). Set it when another stack already uses 3000, for example `E2E_SERVER_PORT=3100 pnpm e2e`.
 - `BASE_URL` overrides the URL the tests target (default `http://127.0.0.1:<E2E_SERVER_PORT>`).
-- The e2e stack sets `OFFGRID_E2E_CLOCK=on` (in `infra/compose/docker-compose.e2e.yml`). It turns on the test-only clock routes, `PUT` and `DELETE /api/e2e/clock`, which freeze the time the reminder worker reads. They change no rows. Steps use them through `support/factories/calendar-reminders.ts`, and an `After` hook releases the clock. Never set this switch on a real install.
+- The e2e stack builds the server from the `e2e` stage of `apps/main-server/Dockerfile` (`src/main-e2e.ts`). Only that image has the test-only clock routes, `PUT` and `DELETE /api/e2e/clock`, which freeze the time the reminder worker reads. The production image has neither the routes nor the switch. They change no rows. Steps use them through `support/factories/calendar-reminders.ts`, and an `After` hook releases the clock. Never set this switch on a real install.
 - `E2E_REUSE_STACK=1` skips bring-up and teardown and tests a stack that is already running on the target URL. Use it for a fast local loop, for example `E2E_REUSE_STACK=1 pnpm e2e:smoke`.
 
 To keep a stack running while you iterate, start and stop it by hand:
