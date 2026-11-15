@@ -1,7 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { CalendarEventDetails, CalendarEventStatus } from "./use-calendar-event.js";
+import type { calendarEventSchema } from "@offgrid/contracts";
+
+export type CalendarEventDetails = ReturnType<typeof calendarEventSchema.parse>;
+
+export type CalendarEventStatus = "loading" | "ready" | "notFound" | "failed";
+
+export type CalendarEventState = {
+  readonly status: CalendarEventStatus;
+  readonly event: CalendarEventDetails | undefined;
+  readonly retry: () => void;
+};
 
 export type EventDetailsShellProps = {
   readonly event: CalendarEventDetails | undefined;
@@ -10,12 +20,4 @@ export type EventDetailsShellProps = {
   readonly timeZone: string;
   readonly onEdit: () => void;
   readonly onDelete: () => void;
-};
-
-export type EventDetailsModalProps = EventDetailsShellProps & {
-  readonly onClose: () => void;
-};
-
-export type EventDetailsPageProps = EventDetailsShellProps & {
-  readonly onBack: () => void;
 };

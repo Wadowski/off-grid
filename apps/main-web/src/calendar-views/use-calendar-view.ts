@@ -4,7 +4,7 @@
 import type { CalendarViewKind, calendarViewSchema } from "@offgrid/contracts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { webCalendarClient } from "../api/web-api-client.js";
-import { subscribeEventsChanged } from "../calendar-events/event-changes.js";
+import { subscribeEventsChanged } from "../calendar-events/subscribe-events-changed.js";
 import type { ListStatus } from "../types.js";
 import { requestDateFor } from "./view-navigation.js";
 

@@ -28,6 +28,7 @@ import { CalendarLayout } from "./layouts/calendar-layout/calendar-layout.js";
 import { CreateCalendarPage } from "./pages/create-calendar-page/create-calendar-page.js";
 import { EditCalendarPage } from "./pages/edit-calendar-page/edit-calendar-page.js";
 import { NewCalendarEventPage } from "./pages/new-calendar-event-page/new-calendar-event-page.js";
+import { EVENT_DETAILS_ROUTE } from "./calendar-events/constants.js";
 import { CalendarEventDetailsPage } from "./pages/calendar-event-details-page/calendar-event-details-page.js";
 import { AuthLayout } from "./layouts/auth-layout/auth-layout.js";
 import { FamilyDataLayout } from "./families/family-data-layout/family-data-layout.js";
@@ -70,7 +71,7 @@ export const App = () => {
                   <Route path="week" element={<CalendarViewsPage view="week" />} />
                   <Route path="month" element={<CalendarViewsPage view="month" />} />
                   <Route path="event/new" element={<NewCalendarEventPage />} />
-                  <Route path="event/:eventId" element={<CalendarEventDetailsPage />} />
+                  <Route path={EVENT_DETAILS_ROUTE} element={<CalendarEventDetailsPage />} />
                 </Route>
                 <Route path="calendar/calendars" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />

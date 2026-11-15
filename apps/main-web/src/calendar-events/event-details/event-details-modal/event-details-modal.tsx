@@ -3,17 +3,20 @@
 
 import { Button, Dialog, Text, VisuallyHidden } from "@offgrid/ui";
 import { useRef } from "react";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
-import { EventDetailsBody, eventAccentOf } from "./event-details-body.js";
-import { EventDetailsState } from "./event-details-state.js";
+import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
+import {
+  eventDialogFooterStyle,
+  eventDialogShellStyle,
+  eventDialogStyle,
+} from "../../dialog-styles.js";
+import { EventDetailsBody } from "../event-details-body/event-details-body.js";
+import { eventAccentOf } from "../event-accent-of.js";
+import { EventDetailsState } from "../event-details-state/event-details-state.js";
 import {
   detailsActionsStyle,
   detailsCalendarChipStyle,
-  detailsDialogStyle,
   detailsDotStyle,
-  detailsFooterStyle,
   detailsHeaderStyle,
-  detailsShellStyle,
 } from "./styles.js";
 import type { EventDetailsModalProps } from "./types.js";
 
@@ -33,14 +36,14 @@ export const EventDetailsModal = ({
   return (
     <Dialog
       dialogRef={dialogRef}
-      style={detailsDialogStyle(false)}
+      style={eventDialogStyle(false)}
       backdrop="glossy"
       labelledBy="event-details-heading"
       onClose={onClose}
       dismissOnBackdropClick
       testId="event-details-modal"
     >
-      <div style={detailsShellStyle}>
+      <div style={eventDialogShellStyle}>
         <div style={detailsHeaderStyle}>
           <span id="event-details-heading" style={detailsCalendarChipStyle(accent)}>
             <span aria-hidden="true" style={detailsDotStyle(accent)} />
@@ -74,7 +77,7 @@ export const EventDetailsModal = ({
           <EventDetailsState status={status === "ready" ? "failed" : status} retry={retry} />
         )}
         {editable && (
-          <div style={detailsFooterStyle}>
+          <div style={eventDialogFooterStyle}>
             <Button type="button" variant="ghost" onClick={onDelete}>
               <Text variant="error" textId="calendar.eventDetails.delete" />
             </Button>

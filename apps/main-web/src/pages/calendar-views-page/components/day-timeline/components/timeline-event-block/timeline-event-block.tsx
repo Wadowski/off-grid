@@ -4,7 +4,7 @@
 import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
-import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-event-open-props.js";
 import { formatDuration } from "../../../../../../calendar-views/format-duration.js";
 import { durationMinutes, formatClockTime } from "../../../../../../calendar-views/time-format.js";
 import {

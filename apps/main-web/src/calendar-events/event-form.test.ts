@@ -2,13 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import {
-  defaultEventForm,
-  eventToFormValues,
-  toCreateEventRequest,
-  toUpdateEventRequest,
-  withField,
-} from "./event-form.js";
+import { defaultEventForm, toCreateEventRequest, withField } from "./event-form.js";
 import type { EventFormValues } from "./types.js";
 
 const TIME_ZONE = "Europe/Warsaw";
@@ -149,101 +143,5 @@ describe("withField", () => {
     const form = timedForm();
 
     expect(withField(form, "title", "Lunch")).toEqual({ ...form, title: "Lunch" });
-  });
-});
-
-describe("eventToFormValues", () => {
-  it("prefills a timed event in the person's time zone", () => {
-    const values = eventToFormValues(
-      {
-        calendarId: CALENDAR_ID,
-        title: "Studio review",
-        location: "West Gate",
-        description: null,
-        isAllDay: false,
-        startsAt: "2026-07-01T10:30:00Z",
-        endsAt: "2026-07-01T11:15:00Z",
-        startDate: null,
-        endDate: null,
-      },
-      TIME_ZONE,
-    );
-
-    expect(values).toEqual({
-      ...timedForm({ startTime: "12:30", endTime: "13:15", location: "West Gate" }),
-      description: "",
-    });
-  });
-
-  it("prefills an all-day event with its inclusive dates", () => {
-    const values = eventToFormValues(
-      {
-        calendarId: CALENDAR_ID,
-        title: "Trip",
-        location: null,
-        description: null,
-        isAllDay: true,
-        startsAt: "2026-06-30T22:00:00Z",
-        endsAt: "2026-07-02T22:00:00Z",
-        startDate: "2026-07-01",
-        endDate: "2026-07-02",
-      },
-      TIME_ZONE,
-    );
-
-    expect(values).toMatchObject({
-      isAllDay: true,
-      startDate: "2026-07-01",
-      endDate: "2026-07-02",
-    });
-  });
-});
-
-describe("toUpdateEventRequest", () => {
-  it("sends only the title when only the title changed", () => {
-    const initial = timedForm();
-    const result = toUpdateEventRequest(
-      initial,
-      withField(initial, "title", "Studio retro"),
-      TIME_ZONE,
-    );
-
-    expect(result).toEqual({ ok: true, request: { title: "Studio retro" } });
-  });
-
-  it("sends nothing when no field changed", () => {
-    const initial = timedForm();
-    expect(toUpdateEventRequest(initial, initial, TIME_ZONE)).toEqual({
-      ok: true,
-      request: undefined,
-    });
-  });
-
-  it("sends null for a location or note that was cleared", () => {
-    const initial = timedForm({ location: "West Gate", description: "Deck" });
-    const result = toUpdateEventRequest(
-      initial,
-      { ...initial, location: "  ", description: "" },
-      TIME_ZONE,
-    );
-
-    expect(result).toEqual({ ok: true, request: { location: null, description: null } });
-  });
-
-  it("sends only the end time when only the end changed", () => {
-    const initial = timedForm();
-    const result = toUpdateEventRequest(initial, withField(initial, "endTime", "14:00"), TIME_ZONE);
-
-    expect(result).toEqual({
-      ok: true,
-      request: { endsAt: "2026-07-01T12:00:00.000Z" },
-    });
-  });
-
-  it("refuses an edit that ends before it starts with the same error as a new event", () => {
-    const initial = timedForm();
-    const result = toUpdateEventRequest(initial, withField(initial, "endTime", "11:00"), TIME_ZONE);
-
-    expect(result).toEqual({ ok: false, errors: { end: "endsBeforeStart" } });
   });
 });

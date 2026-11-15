@@ -2,16 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
-import type { CalendarEventStatus } from "./use-calendar-event.js";
 import { detailsStatusStyle } from "./styles.js";
+import type { EventDetailsStateProps } from "./types.js";
 
-export const EventDetailsState = ({
-  status,
-  retry,
-}: {
-  readonly status: Exclude<CalendarEventStatus, "ready">;
-  readonly retry: () => void;
-}) => {
+export const EventDetailsState = ({ status, retry }: EventDetailsStateProps) => {
   if (status === "loading") {
     return <Text variant="status" role="status" textId="calendar.eventDetails.loading" />;
   }

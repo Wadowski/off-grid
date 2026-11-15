@@ -9,6 +9,9 @@ export type ZonedMoment = { readonly date: string; readonly minutesOfDay: number
 
 const twoDigits = (value: number): string => String(value).padStart(2, "0");
 
+export const formatMinutesOfDay = (minutesOfDay: number): string =>
+  `${twoDigits(Math.floor(minutesOfDay / 60))}:${twoDigits(minutesOfDay % 60)}`;
+
 export const zonedMomentOf = (instant: string | Date, timeZone: string): ZonedMoment => {
   const parts = zonedParts(new Date(instant), timeZone);
   return {

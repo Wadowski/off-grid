@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { calendarEventSchema } from "@offgrid/contracts";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CalendarEventDetails } from "./use-calendar-event.js";
+import type { CalendarEventDetails } from "../types.js";
+import { DeleteConfirm } from "../components/delete-confirm/delete-confirm.js";
 import { EventDetailsModal } from "./event-details-modal.js";
-import { DeleteConfirm } from "./components/delete-confirm/delete-confirm.js";
 
-const EVENT = {
+const EVENT: CalendarEventDetails = calendarEventSchema.parse({
   id: "3b8a6f2e-1c4d-4e7a-9b5f-0a1b2c3d4e5f",
   calendarId: "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f",
   calendarName: "Studio",
@@ -21,7 +22,7 @@ const EVENT = {
   startDate: null,
   endDate: null,
   readOnly: false,
-} as unknown as CalendarEventDetails;
+});
 
 const originalShowModal = HTMLDialogElement.prototype.showModal;
 

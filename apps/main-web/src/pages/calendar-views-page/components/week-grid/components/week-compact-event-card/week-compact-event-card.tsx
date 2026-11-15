@@ -4,7 +4,7 @@
 import { formatClockTime } from "../../../../../../calendar-views/time-format.js";
 import { weekBlockStyle, weekBlockTimeStyle, weekBlockTitleStyle } from "../../styles.js";
 import type { WeekEventCardProps } from "../week-event-block/types.js";
-import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-event-open-props.js";
 
 export const WeekCompactEventCard = ({
   event,

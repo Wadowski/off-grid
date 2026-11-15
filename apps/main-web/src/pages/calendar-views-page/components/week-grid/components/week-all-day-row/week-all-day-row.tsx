@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-event-open-props.js";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
 import { columnSpanInWeek } from "../../../../../../calendar-views/week-grid-range.js";
 import { zonedMomentOf } from "../../../../../../calendar-views/time-format.js";

@@ -4,17 +4,8 @@
 import { ApiError } from "@offgrid/api-client";
 import { useCallback, useEffect, useState } from "react";
 import { webCalendarClient } from "../../api/web-api-client.js";
-import { subscribeEventsChanged } from "../event-changes.js";
-
-export type CalendarEventDetails = Awaited<ReturnType<typeof webCalendarClient.getCalendarEvent>>;
-
-export type CalendarEventStatus = "loading" | "ready" | "notFound" | "failed";
-
-export type CalendarEventState = {
-  readonly status: CalendarEventStatus;
-  readonly event: CalendarEventDetails | undefined;
-  readonly retry: () => void;
-};
+import { subscribeEventsChanged } from "../subscribe-events-changed.js";
+import type { CalendarEventDetails, CalendarEventState, CalendarEventStatus } from "./types.js";
 
 export const useCalendarEvent = (eventId: string): CalendarEventState => {
   const [event, setEvent] = useState<CalendarEventDetails | undefined>(undefined);
@@ -23,7 +14,6 @@ export const useCalendarEvent = (eventId: string): CalendarEventState => {
 
   useEffect(() => {
     let current = true;
-    setStatus("loading");
     webCalendarClient
       .getCalendarEvent(eventId)
       .then((response) => {
@@ -45,7 +35,10 @@ export const useCalendarEvent = (eventId: string): CalendarEventState => {
 
   useEffect(() => subscribeEventsChanged(() => setAttempt((count) => count + 1)), []);
 
-  const retry = useCallback(() => setAttempt((count) => count + 1), []);
+  const retry = useCallback(() => {
+    setStatus("loading");
+    setAttempt((count) => count + 1);
+  }, []);
 
   return { status, event, retry };
 };

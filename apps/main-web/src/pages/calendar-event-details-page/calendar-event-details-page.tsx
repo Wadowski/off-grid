@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { ApiError } from "@offgrid/api-client";
 import { useState } from "react";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { webCalendarClient } from "../../api/web-api-client.js";
 import { DEFAULT_EVENT_BACKGROUND } from "../../calendar-events/constants.js";
-import { notifyEventsChanged } from "../../calendar-events/event-changes.js";
-import { eventToFormValues } from "../../calendar-events/event-form.js";
+import { notifyEventsChanged } from "../../calendar-events/notify-events-changed.js";
+import { eventToFormValues } from "../../calendar-events/event-to-form-values.js";
 import { DeleteConfirm } from "../../calendar-events/event-details/components/delete-confirm/delete-confirm.js";
-import { EventDetailsModal } from "../../calendar-events/event-details/event-details-modal.js";
-import { EventDetailsPage } from "../../calendar-events/event-details/event-details-page.js";
+import { EventDetailsModal } from "../../calendar-events/event-details/event-details-modal/event-details-modal.js";
+import { EventDetailsPage } from "../../calendar-events/event-details/event-details-page/event-details-page.js";
 import { useCalendarEvent } from "../../calendar-events/event-details/use-calendar-event.js";
 import { NewEventModal } from "../../calendar-events/new-event-modal/new-event-modal.js";
 import { readBackground, viewOfBackground } from "../../calendar-events/new-event-route.js";
@@ -42,7 +43,12 @@ export const CalendarEventDetailsPage = () => {
       await webCalendarClient.removeCalendarEvent(eventId);
       notifyEventsChanged();
       leave();
-    } catch {
+    } catch (error: unknown) {
+      if (error instanceof ApiError && error.status === 404) {
+        notifyEventsChanged();
+        leave();
+        return;
+      }
       setDeleting(false);
       setDeleteFailed(true);
     }

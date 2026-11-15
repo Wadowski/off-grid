@@ -4,11 +4,11 @@
 import { Button, Dialog, Text } from "@offgrid/ui";
 import { useRef } from "react";
 import {
-  deleteConfirmTextStyle,
-  detailsDialogStyle,
-  detailsFooterStyle,
-  detailsShellStyle,
-} from "../../styles.js";
+  eventDialogFooterStyle,
+  eventDialogShellStyle,
+  eventDialogStyle,
+} from "../../../dialog-styles.js";
+import { deleteConfirmTextStyle } from "./styles.js";
 import type { DeleteConfirmProps } from "./types.js";
 
 export const DeleteConfirm = ({
@@ -22,13 +22,13 @@ export const DeleteConfirm = ({
   return (
     <Dialog
       dialogRef={dialogRef}
-      style={detailsDialogStyle(narrow)}
+      style={eventDialogStyle(narrow)}
       backdrop="glossy"
       labelledBy="delete-event-heading"
       onClose={onCancel}
       testId="delete-event-confirm"
     >
-      <div style={detailsShellStyle}>
+      <div style={eventDialogShellStyle}>
         <div style={deleteConfirmTextStyle}>
           <div id="delete-event-heading">
             <Text variant="subheading" textId="calendar.eventDetails.deleteTitle" />
@@ -40,7 +40,7 @@ export const DeleteConfirm = ({
             <Text variant="error" textId="calendar.eventDetails.deleteFailed" />
           </div>
         )}
-        <div style={detailsFooterStyle}>
+        <div style={eventDialogFooterStyle}>
           <Button type="button" variant="ghost" onClick={() => dialogRef.current?.close()}>
             <Text variant="action" textId="calendar.actions.cancel" />
           </Button>

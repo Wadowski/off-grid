@@ -11,24 +11,15 @@ import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { webCalendarClient } from "../../api/web-api-client.js";
 import { createCalendarEvent } from "../create-calendar-event.js";
 import { FORM_ID } from "../constants.js";
-import { notifyEventsChanged } from "../event-changes.js";
-import {
-  defaultEventForm,
-  toCreateEventRequest,
-  toUpdateEventRequest,
-  withField,
-} from "../event-form.js";
+import { eventDialogShellStyle, eventDialogStyle } from "../dialog-styles.js";
+import { notifyEventsChanged } from "../notify-events-changed.js";
+import { defaultEventForm, toCreateEventRequest, withField } from "../event-form.js";
+import { toUpdateEventRequest } from "../to-update-event-request.js";
 import type { EventFormErrors, EventFormValues } from "../types.js";
 import { NewEventFields } from "./components/new-event-fields/new-event-fields.js";
 import { NewEventFooter } from "./components/new-event-footer/new-event-footer.js";
 import { NewEventHeader } from "./components/new-event-header/new-event-header.js";
-import {
-  newEventBodyStyle,
-  newEventDialogStyle,
-  newEventErrorStyle,
-  newEventFormStyle,
-  newEventHeadingStyle,
-} from "./styles.js";
+import { newEventBodyStyle, newEventErrorStyle, newEventHeadingStyle } from "./styles.js";
 import type { EditingEvent, FormAlertTextId, NewEventModalProps } from "./types.js";
 
 const alertTextIdFor = (
@@ -194,14 +185,14 @@ export const NewEventModal = ({
   return (
     <Dialog
       dialogRef={dialogRef}
-      style={newEventDialogStyle(narrow)}
+      style={eventDialogStyle(narrow)}
       backdrop="glossy"
       labelledBy="new-event-heading"
       onClose={onClose}
       dismissOnBackdropClick
       testId="new-event-modal"
     >
-      <div style={newEventFormStyle}>
+      <div style={eventDialogShellStyle}>
         <NewEventHeader
           narrow={narrow}
           heading={heading}

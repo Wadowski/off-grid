@@ -5,7 +5,7 @@ import { Text } from "@offgrid/ui";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../../../calendars/calendar-accents.js";
-import { useEventOpenProps } from "../../../../calendar-events/use-open-event.js";
+import { useEventOpenProps } from "../../../../calendar-events/use-event-open-props.js";
 import type { CalendarViewEvent } from "../../../../calendar-views/use-calendar-view.js";
 import { splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { layoutTimedEvents, nowMinutesOnDate } from "../../../../calendar-views/timeline-layout.js";

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useEventOpenProps } from "../../../../../../calendar-events/use-open-event.js";
+import { useEventOpenProps } from "../../../../../../calendar-events/use-event-open-props.js";
 import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../../../../../calendars/calendar-accents.js";
 import { formatClockTime } from "../../../../../../calendar-views/time-format.js";

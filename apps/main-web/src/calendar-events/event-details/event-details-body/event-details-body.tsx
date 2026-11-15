@@ -3,35 +3,23 @@
 
 import { cssVar, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { calendarAccentColor } from "../../calendars/calendar-accents.js";
-import { formatDuration } from "../../calendar-views/format-duration.js";
+import { formatDuration } from "../../../calendar-views/format-duration.js";
 import {
   durationMinutes,
   formatClockRange,
   formatDayHeading,
   zonedMomentOf,
-} from "../../calendar-views/time-format.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
+} from "../../../calendar-views/time-format.js";
+import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
 import {
   detailsBodyStyle,
   detailsCardStyle,
   detailsNotesStyle,
   detailsRowStyle,
 } from "./styles.js";
-import type { CalendarEventDetails } from "./use-calendar-event.js";
+import type { EventDetailsBodyProps } from "./types.js";
 
-export const eventAccentOf = (event: CalendarEventDetails): string | undefined =>
-  event.calendarColor === undefined
-    ? undefined
-    : calendarAccentColor(event.calendarColor).background;
-
-export const EventDetailsBody = ({
-  event,
-  timeZone,
-}: {
-  readonly event: CalendarEventDetails;
-  readonly timeZone: string;
-}) => {
+export const EventDetailsBody = ({ event, timeZone }: EventDetailsBodyProps) => {
   const { t } = useTranslation();
   const dateLine = event.isAllDay
     ? formatDayHeading(event.startDate ?? "")
