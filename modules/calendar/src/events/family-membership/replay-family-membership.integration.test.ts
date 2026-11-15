@@ -13,10 +13,8 @@ import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
-import {
-  familyMembershipHandler,
-  registerFamilyMembershipSubscribers,
-} from "./register-family-membership-subscribers.js";
+import { familyMembershipHandler } from "./family-membership-handler.js";
+import { registerFamilyMembershipSubscribers } from "./register-family-membership-subscribers.js";
 
 describe("family membership replay", { timeout: 60_000 }, () => {
   let db: CalendarTestDatabase;
@@ -56,7 +54,7 @@ describe("family membership replay", { timeout: 60_000 }, () => {
       {
         events: [familyMemberAddedV1, familyMemberRemovedV1],
         runAs: "calendar",
-        handler: familyMembershipHandler(db.db),
+        handler: (event) => familyMembershipHandler(db.db, event),
       },
       { pool: db.pool },
     );
