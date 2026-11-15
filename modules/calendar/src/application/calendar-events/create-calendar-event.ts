@@ -20,7 +20,7 @@ export const createCalendarEvent = (
   userId: string,
   calendarId: string,
   input: NewCalendarEventInput,
-  now: Date = new Date(),
+  now: Date,
 ): Promise<CalendarOutcome<CalendarEventView>> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);

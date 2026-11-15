@@ -34,7 +34,13 @@ export const registerUpdateCalendarEvent = (
       }
       let outcome;
       try {
-        outcome = await updateCalendarEvent(context.db, userId, params.data.id, body.data);
+        outcome = await updateCalendarEvent(
+          context.db,
+          userId,
+          params.data.id,
+          body.data,
+          context.clock.now(),
+        );
       } catch (error) {
         if (error instanceof EventGuestWriteDeniedError) {
           return sendError(reply, 403, "FORBIDDEN", GUEST_WRITE_DENIED_MESSAGE);

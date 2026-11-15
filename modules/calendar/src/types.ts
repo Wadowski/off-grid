@@ -12,7 +12,6 @@ export interface CalendarSubscriberContext {
   readonly db: ModuleDatabase;
 }
 
-// Same shape as the server's Worker. The calendar module does not import the server.
 export interface CalendarWorker {
   readonly name: string;
   start(): Promise<void>;
@@ -38,6 +37,7 @@ export type CalendarOutcome<Value> =
   { readonly outcome: "found"; readonly value: Value } | { readonly outcome: "not-found" };
 
 export interface CalendarRouteContext {
+  readonly clock: { now(): Date };
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
 }

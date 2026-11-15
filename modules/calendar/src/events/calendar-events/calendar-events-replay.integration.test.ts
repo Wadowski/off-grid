@@ -17,6 +17,8 @@ import { updateCalendarEvent } from "../../application/calendar-events/update-ca
 import { EventMoveOwnerMismatchError } from "../../application/errors/event-move-owner-mismatch-error.js";
 import { applyFamilyMembership } from "../family-membership/apply-family-membership.js";
 
+const NOW = new Date("2026-11-15T12:00:00Z");
+
 interface Replayed {
   readonly type: string;
   readonly eventId: string;
@@ -82,19 +84,25 @@ describe("calendar event replay", { timeout: 60_000 }, () => {
     const anna = randomUUID();
     const work = await insertPersonalCalendar(anna, "Work");
     const home = await insertPersonalCalendar(anna, "Home");
-    const created = await createCalendarEvent(db.db, anna, work, {
-      title: "Standup",
-      isAllDay: false,
-      startsAt: "2026-11-20T09:00:00Z",
-      endsAt: "2026-11-20T09:30:00Z",
-    });
+    const created = await createCalendarEvent(
+      db.db,
+      anna,
+      work,
+      {
+        title: "Standup",
+        isAllDay: false,
+        startsAt: "2026-11-20T09:00:00Z",
+        endsAt: "2026-11-20T09:30:00Z",
+      },
+      NOW,
+    );
     if (created.outcome !== "found") {
       throw new Error("the owner must be able to create the event");
     }
     const eventId = created.value.eventId;
-    await updateCalendarEvent(db.db, anna, eventId, { title: "Standup, moved" });
-    await updateCalendarEvent(db.db, anna, eventId, { calendarId: home });
-    await updateCalendarEvent(db.db, anna, eventId, { location: "Kitchen" });
+    await updateCalendarEvent(db.db, anna, eventId, { title: "Standup, moved" }, NOW);
+    await updateCalendarEvent(db.db, anna, eventId, { calendarId: home }, NOW);
+    await updateCalendarEvent(db.db, anna, eventId, { location: "Kitchen" }, NOW);
     await removeCalendarEvent(db.db, anna, eventId);
 
     expect(await outboxOrder()).toEqual([
@@ -129,19 +137,25 @@ describe("calendar event replay", { timeout: 60_000 }, () => {
       [kitchen, home],
     );
     const work = await insertPersonalCalendar(anna, "Work");
-    const created = await createCalendarEvent(db.db, anna, work, {
-      title: "Standup",
-      isAllDay: false,
-      startsAt: "2026-11-20T09:00:00Z",
-      endsAt: "2026-11-20T09:30:00Z",
-    });
+    const created = await createCalendarEvent(
+      db.db,
+      anna,
+      work,
+      {
+        title: "Standup",
+        isAllDay: false,
+        startsAt: "2026-11-20T09:00:00Z",
+        endsAt: "2026-11-20T09:30:00Z",
+      },
+      NOW,
+    );
     if (created.outcome !== "found") {
       throw new Error("the owner must be able to create the event");
     }
     const before = await outboxOrder();
 
     await expect(
-      updateCalendarEvent(db.db, anna, created.value.eventId, { calendarId: kitchen }),
+      updateCalendarEvent(db.db, anna, created.value.eventId, { calendarId: kitchen }, NOW),
     ).rejects.toThrow(EventMoveOwnerMismatchError);
 
     expect(await outboxOrder()).toEqual(before);

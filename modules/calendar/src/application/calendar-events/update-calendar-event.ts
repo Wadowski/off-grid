@@ -36,7 +36,7 @@ export const updateCalendarEvent = (
   userId: string,
   eventId: string,
   input: CalendarEventUpdateInput,
-  now: Date = new Date(),
+  now: Date,
 ): Promise<UpdateCalendarEventOutcome> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
@@ -85,8 +85,6 @@ export const updateCalendarEvent = (
     };
   });
 
-// Reminders belong to the user who sets them, so a guest may change only their own reminders.
-// Those changes touch no event field, so they publish nothing.
 const isReminderOnly = (input: CalendarEventUpdateInput): boolean =>
   input.reminderOffsetsMinutes !== undefined &&
   Object.entries(input).every(

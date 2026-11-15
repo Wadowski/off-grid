@@ -10,6 +10,8 @@ import { startCalendarTestDatabase } from "../../../test/start-calendar-test-dat
 import type { CalendarTestDatabase } from "../../../test/types.js";
 import { createCalendarEvent } from "../../application/calendar-events/create-calendar-event.js";
 
+const NOW = new Date("2026-11-15T12:00:00Z");
+
 const SEVEN_DAYS_IN_SECONDS = 7 * 24 * 60 * 60;
 
 describe("calendar event retention", { timeout: 60_000 }, () => {
@@ -36,12 +38,18 @@ describe("calendar event retention", { timeout: 60_000 }, () => {
       [calendarId, anna],
     );
     const createEvent = async (title: string): Promise<string> => {
-      const outcome = await createCalendarEvent(db.db, anna, calendarId, {
-        title,
-        isAllDay: false,
-        startsAt: "2026-11-20T09:00:00Z",
-        endsAt: "2026-11-20T09:30:00Z",
-      });
+      const outcome = await createCalendarEvent(
+        db.db,
+        anna,
+        calendarId,
+        {
+          title,
+          isAllDay: false,
+          startsAt: "2026-11-20T09:00:00Z",
+          endsAt: "2026-11-20T09:30:00Z",
+        },
+        NOW,
+      );
       if (outcome.outcome !== "found") {
         throw new Error("the owner must be able to create the event");
       }

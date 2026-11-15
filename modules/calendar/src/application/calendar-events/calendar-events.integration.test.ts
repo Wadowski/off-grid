@@ -17,6 +17,8 @@ import { updateCalendarEvent } from "./update-calendar-event.js";
 import { EventMoveOwnerMismatchError } from "../errors/event-move-owner-mismatch-error.js";
 import { getTimeZone, setTimeZone } from "../time-zone/time-zone-settings.js";
 
+const NOW = new Date("2026-11-15T12:00:00Z");
+
 describe("calendar events use cases", { timeout: 60_000 }, () => {
   let db: CalendarTestDatabase;
 
@@ -88,7 +90,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
     const anna = randomUUID();
     const work = await insertPersonalCalendar(anna, "Work");
 
-    const outcome = await createCalendarEvent(db.db, anna, work, timed);
+    const outcome = await createCalendarEvent(db.db, anna, work, timed, NOW);
 
     expect(outcome.outcome).toBe("found");
     const [stored] = await storedEvents();
@@ -105,12 +107,18 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
     const work = await insertPersonalCalendar(anna, "Work");
     await setTimeZone(db.db, anna, "Europe/Warsaw");
 
-    const outcome = await createCalendarEvent(db.db, anna, work, {
-      title: "Conference",
-      isAllDay: true,
-      startDate: "2026-11-20",
-      endDate: "2026-11-20",
-    });
+    const outcome = await createCalendarEvent(
+      db.db,
+      anna,
+      work,
+      {
+        title: "Conference",
+        isAllDay: true,
+        startDate: "2026-11-20",
+        endDate: "2026-11-20",
+      },
+      NOW,
+    );
 
     expect(outcome.outcome).toBe("found");
     const [stored] = await storedEvents();
@@ -144,7 +152,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
     await joinFamily(home, ben);
     const kitchen = await insertFamilyCalendar(home, "Kitchen");
 
-    await createCalendarEvent(db.db, ben, kitchen, { ...timed, title: "Dinner" });
+    await createCalendarEvent(db.db, ben, kitchen, { ...timed, title: "Dinner" }, NOW);
     const seen = await listCalendarEvents(db.db, anna, kitchen);
 
     expect(seen.outcome === "found" ? seen.value.map((event) => event.title) : []).toEqual([
@@ -159,14 +167,14 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
     await joinFamily(home, anna);
     const kitchen = await insertFamilyCalendar(home, "Kitchen");
     const gym = await insertPersonalCalendar(carol, "Gym");
-    const created = await createCalendarEvent(db.db, carol, gym, timed);
+    const created = await createCalendarEvent(db.db, carol, gym, timed, NOW);
     if (created.outcome !== "found") {
       throw new Error("the owner must be able to create the event");
     }
     const eventId = created.value.eventId;
 
     expect((await listCalendarEvents(db.db, anna, gym)).outcome).toBe("not-found");
-    expect((await createCalendarEvent(db.db, anna, gym, timed)).outcome).toBe("not-found");
+    expect((await createCalendarEvent(db.db, anna, gym, timed, NOW)).outcome).toBe("not-found");
     expect((await getCalendarEvent(db.db, anna, eventId)).outcome).toBe("not-found");
     expect((await removeCalendarEvent(db.db, anna, eventId)).outcome).toBe("not-found");
     expect((await listCalendarEvents(db.db, anna, kitchen)).outcome).toBe("found");
@@ -176,7 +184,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
   it("removes an event and publishes it with the next source version", async () => {
     const anna = randomUUID();
     const work = await insertPersonalCalendar(anna, "Work");
-    const created = await createCalendarEvent(db.db, anna, work, timed);
+    const created = await createCalendarEvent(db.db, anna, work, timed, NOW);
     if (created.outcome !== "found") {
       throw new Error("the owner must be able to create the event");
     }
@@ -218,7 +226,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
 
   describe("update", () => {
     const createdEventId = async (userId: string, calendarId: string) => {
-      const created = await createCalendarEvent(db.db, userId, calendarId, timed);
+      const created = await createCalendarEvent(db.db, userId, calendarId, timed, NOW);
       if (created.outcome !== "found") {
         throw new Error("the owner must be able to create the event");
       }
@@ -230,7 +238,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const work = await insertPersonalCalendar(anna, "Work");
       const eventId = await createdEventId(anna, work);
 
-      const outcome = await updateCalendarEvent(db.db, anna, eventId, { title: "Planning" });
+      const outcome = await updateCalendarEvent(db.db, anna, eventId, { title: "Planning" }, NOW);
 
       expect(outcome.outcome).toBe("found");
       const [published] = await outboxEvents("calendar-event-updated-v1");
@@ -250,7 +258,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const work = await insertPersonalCalendar(anna, "Work");
       const eventId = await createdEventId(anna, work);
 
-      await updateCalendarEvent(db.db, anna, eventId, { startsAt: "2026-11-20T08:00:00Z" });
+      await updateCalendarEvent(db.db, anna, eventId, { startsAt: "2026-11-20T08:00:00Z" }, NOW);
 
       const [stored] = await storedEvents();
       expect(stored?.starts_at.toISOString()).toBe("2026-11-20T08:00:00.000Z");
@@ -262,9 +270,15 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const work = await insertPersonalCalendar(anna, "Work");
       const eventId = await createdEventId(anna, work);
 
-      const outcome = await updateCalendarEvent(db.db, anna, eventId, {
-        endsAt: "2026-11-20T08:00:00Z",
-      });
+      const outcome = await updateCalendarEvent(
+        db.db,
+        anna,
+        eventId,
+        {
+          endsAt: "2026-11-20T08:00:00Z",
+        },
+        NOW,
+      );
 
       expect(outcome.outcome).toBe("invalid-window");
       const [stored] = await storedEvents();
@@ -278,10 +292,16 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       await setTimeZone(db.db, anna, "Europe/Warsaw");
       const eventId = await createdEventId(anna, work);
 
-      const outcome = await updateCalendarEvent(db.db, anna, eventId, {
-        startDate: "2026-11-20",
-        endDate: "2026-11-21",
-      });
+      const outcome = await updateCalendarEvent(
+        db.db,
+        anna,
+        eventId,
+        {
+          startDate: "2026-11-20",
+          endDate: "2026-11-21",
+        },
+        NOW,
+      );
 
       expect(outcome.outcome).toBe("found");
       const [stored] = await storedEvents();
@@ -299,19 +319,31 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
     it("switches an all-day event to timed and takes the missing bound from the stored event", async () => {
       const anna = randomUUID();
       const work = await insertPersonalCalendar(anna, "Work");
-      const created = await createCalendarEvent(db.db, anna, work, {
-        title: "Conference",
-        isAllDay: true,
-        startDate: "2026-11-20",
-        endDate: "2026-11-20",
-      });
+      const created = await createCalendarEvent(
+        db.db,
+        anna,
+        work,
+        {
+          title: "Conference",
+          isAllDay: true,
+          startDate: "2026-11-20",
+          endDate: "2026-11-20",
+        },
+        NOW,
+      );
       if (created.outcome !== "found") {
         throw new Error("the owner must be able to create the event");
       }
 
-      const outcome = await updateCalendarEvent(db.db, anna, created.value.eventId, {
-        startsAt: "2026-11-20T10:00:00Z",
-      });
+      const outcome = await updateCalendarEvent(
+        db.db,
+        anna,
+        created.value.eventId,
+        {
+          startsAt: "2026-11-20T10:00:00Z",
+        },
+        NOW,
+      );
 
       expect(outcome.outcome).toBe("found");
       const [stored] = await storedEvents();
@@ -325,20 +357,26 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
     it("clears the location when null is sent and keeps it when the field is omitted", async () => {
       const anna = randomUUID();
       const work = await insertPersonalCalendar(anna, "Work");
-      const created = await createCalendarEvent(db.db, anna, work, {
-        ...timed,
-        location: "Kitchen table",
-      });
+      const created = await createCalendarEvent(
+        db.db,
+        anna,
+        work,
+        {
+          ...timed,
+          location: "Kitchen table",
+        },
+        NOW,
+      );
       if (created.outcome !== "found") {
         throw new Error("the owner must be able to create the event");
       }
       const eventId = created.value.eventId;
 
-      await updateCalendarEvent(db.db, anna, eventId, { title: "Still here" });
+      await updateCalendarEvent(db.db, anna, eventId, { title: "Still here" }, NOW);
       const kept = await getCalendarEvent(db.db, anna, eventId);
       expect(kept.outcome === "found" ? kept.value.location : null).toBe("Kitchen table");
 
-      await updateCalendarEvent(db.db, anna, eventId, { location: null });
+      await updateCalendarEvent(db.db, anna, eventId, { location: null }, NOW);
       const cleared = await getCalendarEvent(db.db, anna, eventId);
       expect(cleared.outcome === "found" ? cleared.value.location : "unset").toBeNull();
     });
@@ -349,7 +387,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const home = await insertPersonalCalendar(anna, "Home");
       const eventId = await createdEventId(anna, work);
 
-      const outcome = await updateCalendarEvent(db.db, anna, eventId, { calendarId: home });
+      const outcome = await updateCalendarEvent(db.db, anna, eventId, { calendarId: home }, NOW);
 
       expect(outcome.outcome).toBe("found");
       const { rows } = await db.admin.query<{ calendar_id: string }>(
@@ -368,7 +406,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const eventId = await createdEventId(anna, work);
 
       await expect(
-        updateCalendarEvent(db.db, anna, eventId, { calendarId: kitchen, title: "Moved" }),
+        updateCalendarEvent(db.db, anna, eventId, { calendarId: kitchen, title: "Moved" }, NOW),
       ).rejects.toThrow(EventMoveOwnerMismatchError);
 
       const [stored] = await storedEvents();
@@ -392,7 +430,7 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const eventId = await createdEventId(anna, kitchen);
 
       expect(
-        (await updateCalendarEvent(db.db, anna, eventId, { calendarId: bensGym })).outcome,
+        (await updateCalendarEvent(db.db, anna, eventId, { calendarId: bensGym }, NOW)).outcome,
       ).toBe("not-found");
     });
 
@@ -404,12 +442,12 @@ describe("calendar events use cases", { timeout: 60_000 }, () => {
       const work = await insertPersonalCalendar(anna, "Work");
       const hidden = await insertPersonalCalendar(carol, "Hidden");
 
-      expect((await updateCalendarEvent(db.db, anna, carolEventId, { title: "x" })).outcome).toBe(
-        "not-found",
-      );
+      expect(
+        (await updateCalendarEvent(db.db, anna, carolEventId, { title: "x" }, NOW)).outcome,
+      ).toBe("not-found");
       const ownEventId = await createdEventId(anna, work);
       expect(
-        (await updateCalendarEvent(db.db, anna, ownEventId, { calendarId: hidden })).outcome,
+        (await updateCalendarEvent(db.db, anna, ownEventId, { calendarId: hidden }, NOW)).outcome,
       ).toBe("not-found");
     });
   });

@@ -61,7 +61,6 @@ describe("calendar event reminders", { timeout: 60_000 }, () => {
     return outcome.value.eventId;
   };
 
-  // A guest can read a host's event only when they share a family with the host.
   const shareFamilyWith = async (host: string) => {
     const familyId = randomUUID();
     const guest = randomUUID();
