@@ -5,7 +5,6 @@ import { z } from "zod";
 import { defineEvent } from "./define-event.js";
 import { uuidSchema } from "./uuid-schema.js";
 
-// Ids only: the fact stays in the outbox for seven days, so it carries no title, time or location.
 export const calendarReminderDueV1 = defineEvent({
   name: "calendar-reminder-due-v1",
   version: 1,

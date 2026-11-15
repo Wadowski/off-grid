@@ -3,7 +3,6 @@
 
 import { z } from "zod";
 
-// Minutes before an event's start. Four weeks is the longest offset; five is the most per event.
 export const MAX_REMINDER_OFFSET_MINUTES = 40320;
 export const MAX_REMINDERS_PER_EVENT = 5;
 

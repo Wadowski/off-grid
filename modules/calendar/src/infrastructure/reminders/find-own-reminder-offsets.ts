@@ -3,7 +3,6 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 
-// The user's reminder offsets for one event, skipped and fired ones included.
 export const findOwnReminderOffsets = async (
   tx: ModuleTransaction,
   eventId: string,

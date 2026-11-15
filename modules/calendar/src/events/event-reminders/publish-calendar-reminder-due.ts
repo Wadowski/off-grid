@@ -5,8 +5,6 @@ import { calendarReminderDueV1 } from "@offgrid/contracts";
 import { rawSqlExecutor, type ModuleTransaction } from "@offgrid/db";
 import { publishOwnedEvent } from "@offgrid/event-bus";
 
-// The reminder belongs to its creator, so the fact is owned by that user alone. The payload
-// carries ids only.
 export const publishCalendarReminderDue = (
   tx: ModuleTransaction,
   input: { readonly eventId: string; readonly userId: string },
