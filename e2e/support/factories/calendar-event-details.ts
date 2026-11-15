@@ -16,13 +16,16 @@ export type EventDetailsWorld = {
 const CALENDARS = "/api/calendars";
 const EVENTS = "/api/events";
 
-// Noon UTC on the current UTC day keeps the event on today's agenda in any zone within twelve hours.
-export const todayAtUtc = (hour: number): { startsAt: string; endsAt: string } => {
+const pad = (value: number): string => String(value).padStart(2, "0");
+
+const todayAtUtc = (hour: number, minutes = 60): { startsAt: string; endsAt: string } => {
   const day = new Date().toISOString().slice(0, 10);
-  const pad = (value: number) => String(value).padStart(2, "0");
+  const startMinutes = hour * 60;
+  const endMinutes = startMinutes + minutes;
+  const clock = (total: number) => `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
   return {
-    startsAt: `${day}T${pad(hour)}:00:00.000Z`,
-    endsAt: `${day}T${pad(hour + 1)}:00:00.000Z`,
+    startsAt: `${day}T${clock(startMinutes)}:00.000Z`,
+    endsAt: `${day}T${clock(endMinutes)}:00.000Z`,
   };
 };
 
@@ -45,8 +48,9 @@ export async function createTodayEvent(
   session: Session,
   calendarId: string,
   title: string,
+  slot: { hour: number; minutes?: number } = { hour: 12 },
 ): Promise<string> {
-  const { startsAt, endsAt } = todayAtUtc(12);
+  const { startsAt, endsAt } = todayAtUtc(slot.hour, slot.minutes);
   const response = await api.post(`${CALENDARS}/${calendarId}/events`, {
     headers: bearer(session),
     data: { title, isAllDay: false, startsAt, endsAt },
@@ -71,14 +75,32 @@ export async function createGuestAccount(
   };
 }
 
+export async function joinFamilyAsGuest(
+  api: APIRequestContext,
+  host: Session,
+  familyId: string,
+  guest: Session,
+): Promise<void> {
+  const invitation = await api.post(`/api/families/${familyId}/invitations`, {
+    headers: bearer(host),
+    failOnStatusCode: false,
+  });
+  expect(invitation.status(), "the family invitation was not created").toBe(201);
+  const { code } = (await invitation.json()) as { code: string };
+  const joined = await api.post("/api/families/join", {
+    headers: bearer(guest),
+    data: { code },
+    failOnStatusCode: false,
+  });
+  expect(joined.status(), "the guest could not join the family").toBeLessThan(300);
+}
+
 export async function inviteGuestToEvent(
   api: APIRequestContext,
   session: Session,
   eventId: string,
   guestUserId: string,
 ): Promise<void> {
-  // The guest must share a family with the host as the calendar projection sees it, which
-  // catches up asynchronously after the family join, so the invite is retried until it is accepted.
   await eventually(
     async () => {
       const response = await api.post(`${EVENTS}/${eventId}/guests`, {

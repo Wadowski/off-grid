@@ -8,18 +8,19 @@ import {
   createGuestAccount,
   createTodayEvent,
   inviteGuestToEvent,
+  joinFamilyAsGuest,
 } from "../support/factories/calendar-event-details.js";
-import { test } from "../support/fixtures.js";
-import { bearer, memberSessionOf } from "../support/family-sessions.js";
+import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { memberSessionOf } from "../support/family-sessions.js";
 import { captureScreen } from "../support/screenshots.js";
 import { webBaseUrl } from "../support/stack.js";
 import { calendarIdOf } from "../support/world-calendar-id.js";
 import { signInThroughUi } from "../support/web-session.js";
-import type { ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
 
 const FEATURE = "calendar-event-details";
+const VIEWS_FEATURE = "calendar-views";
 const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 const PHONE_VIEWPORT = { width: 390, height: 844 };
 const AGENDA_PATH = "/calendar/agenda";
@@ -49,9 +50,16 @@ const rememberEvent = (world: ScenarioWorld, title: string, id: string): void =>
   };
 };
 
-const openDesktopAt = async (page: Page, path: string): Promise<void> => {
-  await page.setViewportSize(DESKTOP_VIEWPORT);
+const openAt = async (page: Page, path: string, viewport = DESKTOP_VIEWPORT): Promise<void> => {
+  await page.setViewportSize(viewport);
   await page.goto(`${webBaseUrl()}${path}`);
+};
+
+type CalendarVisit = {
+  readonly name: string;
+  readonly viewport: { readonly width: number; readonly height: number };
+  readonly path: string;
+  readonly card: (id: string) => Locator;
 };
 
 const agendaCardOf = (page: Page, id: string): Locator => page.getByTestId(`agenda-event-${id}`);
@@ -60,6 +68,12 @@ const openFromAgenda = async (page: Page, id: string): Promise<void> => {
   await expect(agendaCardOf(page, id)).toBeVisible();
   await agendaCardOf(page, id).click();
   await expect.poll(() => pathOf(page)).toBe(`${EVENT_PREFIX}${id}`);
+};
+
+const clearBrowserSession = async (page: Page): Promise<void> => {
+  await page.context().clearCookies();
+  await page.goto(`${webBaseUrl()}/sign-in`);
+  await page.evaluate(() => globalThis.localStorage?.clear());
 };
 
 Given(
@@ -90,6 +104,20 @@ Given(
 );
 
 Given(
+  "I have a 30-minute timed event named {string} on the calendar {string}",
+  async ({ world }, title: string, calendarName: string) => {
+    const id = await createTodayEvent(
+      world.api,
+      memberSessionOf(world),
+      calendarIdOf(world, calendarName),
+      title,
+      { hour: 14, minutes: 30 },
+    );
+    rememberEvent(world, title, id);
+  },
+);
+
+Given(
   "the family has a timed event named {string} on the calendar {string}",
   async ({ world }, title: string, calendarName: string) => {
     const id = await createTodayEvent(
@@ -102,52 +130,46 @@ Given(
   },
 );
 
+Given("Ben joins the family {string} as a guest", async ({ world }, familyName: string) => {
+  const family = world.families.find((candidate) => candidate.name === familyName);
+  expect(family, `the family "${familyName}" must be set up first`).toBeDefined();
+  const guest = await createGuestAccount(world.api, "Ben");
+  await joinFamilyAsGuest(world.api, memberSessionOf(world), family?.id ?? "", guest.session);
+  world.eventDetails = {
+    ...world.eventDetails,
+    guest,
+    eventIds: world.eventDetails?.eventIds ?? {},
+  };
+});
+
 Given(
   "Ben is invited as a guest to a timed event named {string} on the calendar {string}",
   async ({ world }, title: string, calendarName: string) => {
     const owner = memberSessionOf(world);
-    const family = world.families[0];
-    expect(family, "the family must be set up first").toBeDefined();
-    const guest = await createGuestAccount(world.api, "Ben");
-    // A guest must share a family with the host, so Ben joins the host's family first.
-    const invitation = await world.api.post(`/api/families/${family?.id}/invitations`, {
-      headers: bearer(owner),
-      failOnStatusCode: false,
-    });
-    expect(invitation.status(), "the family invitation was not created").toBe(201);
-    const { code } = (await invitation.json()) as { code: string };
-    const joined = await world.api.post("/api/families/join", {
-      headers: bearer(guest.session),
-      data: { code },
-      failOnStatusCode: false,
-    });
-    expect(joined.status(), "Ben could not join the family").toBeLessThan(300);
+    const guest = world.eventDetails?.guest;
+    expect(guest, "Ben must join the family before he is invited").toBeDefined();
     const id = await createTodayEvent(world.api, owner, calendarIdOf(world, calendarName), title);
-    await inviteGuestToEvent(world.api, owner, id, guest.session.userId);
-    world.eventDetails = { ...world.eventDetails, guest, eventIds: {} };
+    await inviteGuestToEvent(world.api, owner, id, guest?.session.userId ?? "");
     rememberEvent(world, title, id);
   },
 );
 
-Given("I am Ben", async ({ page, world }) => {
+Given("I sign in as Ben", async ({ page, world }) => {
   const guest = world.eventDetails?.guest;
-  expect(guest, "Ben must be invited in this scenario").toBeDefined();
-  // Anna's browser session would redirect the sign-in page, so it is cleared first.
-  await page.context().clearCookies();
-  await page.goto(`${webBaseUrl()}/sign-in`);
-  await page.evaluate(() => globalThis.localStorage?.clear());
+  expect(guest, "Ben must be set up in this scenario").toBeDefined();
+  await clearBrowserSession(page);
   await signInThroughUi(page, guest?.account ?? { email: "", password: "", displayName: "Ben" });
 });
 
 When("I open the event {string} from the agenda", async ({ page, world }, title: string) => {
-  await openDesktopAt(page, AGENDA_PATH);
+  await openAt(page, AGENDA_PATH);
   await openFromAgenda(page, eventIdOf(world, title));
 });
 
 When(
   "I open the event {string} from the agenda on a desktop",
   async ({ page, world }, title: string) => {
-    await openDesktopAt(page, AGENDA_PATH);
+    await openAt(page, AGENDA_PATH);
     await openFromAgenda(page, eventIdOf(world, title));
   },
 );
@@ -155,35 +177,129 @@ When(
 When(
   "I open the event {string} from the agenda on a phone",
   async ({ page, world }, title: string) => {
-    await page.setViewportSize(PHONE_VIEWPORT);
-    await page.goto(`${webBaseUrl()}${AGENDA_PATH}`);
+    await openAt(page, AGENDA_PATH, PHONE_VIEWPORT);
     await openFromAgenda(page, eventIdOf(world, title));
   },
 );
 
 When("I open the event {string} from the day view", async ({ page, world }, title: string) => {
   const id = eventIdOf(world, title);
-  await openDesktopAt(page, DAY_PATH);
+  await openAt(page, DAY_PATH);
   await page.getByTestId(`timeline-event-${id}`).click();
   await expect.poll(() => pathOf(page)).toBe(`${EVENT_PREFIX}${id}`);
 });
 
 When("I open the event {string} from the week view", async ({ page, world }, title: string) => {
   const id = eventIdOf(world, title);
-  await openDesktopAt(page, WEEK_PATH);
+  await openAt(page, WEEK_PATH);
   await page.getByTestId(`week-event-${id}`).first().click();
   await expect.poll(() => pathOf(page)).toBe(`${EVENT_PREFIX}${id}`);
 });
 
 When("I open the event {string} from the month view", async ({ page, world }, title: string) => {
   const id = eventIdOf(world, title);
-  await openDesktopAt(page, MONTH_PATH);
+  await openAt(page, MONTH_PATH);
   await page.getByTestId(`month-event-chip-${id}`).click();
   await expect.poll(() => pathOf(page)).toBe(`${EVENT_PREFIX}${id}`);
 });
 
 When("I open an event that no longer exists", async ({ page }) => {
-  await openDesktopAt(page, `${EVENT_PREFIX}${MISSING_EVENT_ID}`);
+  await openAt(page, `${EVENT_PREFIX}${MISSING_EVENT_ID}`);
+});
+
+When("I change the title of the event to {string}", async ({ page, world }, title: string) => {
+  const id = pathOf(page).split("/").pop() ?? "";
+  await detailsOf(page).getByRole("button", { name: "Edit Event", exact: true }).click();
+  const form = page.getByTestId("new-event-modal");
+  await expect(form).toBeVisible();
+  await form.getByLabel("Title", { exact: true }).fill(title);
+  await form.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(form).toHaveCount(0);
+  rememberEvent(world, title, id);
+});
+
+When("I set the end time before the start time", async ({ page }) => {
+  await detailsOf(page).getByRole("button", { name: "Edit Event", exact: true }).click();
+  const form = page.getByTestId("new-event-modal");
+  await expect(form).toBeVisible();
+  await form.getByLabel("End time", { exact: true }).fill("00:01");
+  await form.getByRole("button", { name: "Save", exact: true }).click();
+});
+
+When("I delete the event after confirming", async ({ page }) => {
+  await detailsOf(page).getByRole("button", { name: "Delete event", exact: true }).click();
+  const confirm = page.getByTestId("delete-event-confirm");
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole("button", { name: "Delete event", exact: true }).click();
+  await expect.poll(() => pathOf(page)).toBe(AGENDA_PATH);
+  await page.waitForLoadState("networkidle");
+});
+
+When("I cancel the delete confirmation", async ({ page }) => {
+  await detailsOf(page).getByRole("button", { name: "Delete event", exact: true }).click();
+  const confirm = page.getByTestId("delete-event-confirm");
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(confirm).toHaveCount(0);
+});
+
+When("I close the event details", async ({ page }) => {
+  const back = page.getByRole("button", { name: "Back", exact: true });
+  if (await back.isVisible()) {
+    await back.click();
+  } else {
+    await detailsOf(page).getByRole("button", { name: "Close", exact: true }).click();
+  }
+  await expect.poll(() => pathOf(page).startsWith(EVENT_PREFIX)).toBe(false);
+});
+
+When("I look at the calendar in every view", async ({ page, world }) => {
+  const ids = ["Studio review", "Quick sync"].map((title) => eventIdOf(world, title));
+  const visits: CalendarVisit[] = [
+    {
+      name: "day",
+      viewport: DESKTOP_VIEWPORT,
+      path: DAY_PATH,
+      card: (id) => page.getByTestId(`timeline-event-${id}`),
+    },
+    {
+      name: "week",
+      viewport: DESKTOP_VIEWPORT,
+      path: WEEK_PATH,
+      card: (id) => page.getByTestId(`week-event-${id}`).first(),
+    },
+    {
+      name: "month",
+      viewport: DESKTOP_VIEWPORT,
+      path: MONTH_PATH,
+      card: (id) => page.getByTestId(`month-event-chip-${id}`),
+    },
+    {
+      name: "agenda phone",
+      viewport: PHONE_VIEWPORT,
+      path: AGENDA_PATH,
+      card: (id) => page.getByTestId(`agenda-event-${id}`),
+    },
+    {
+      name: "week phone",
+      viewport: PHONE_VIEWPORT,
+      path: WEEK_PATH,
+      card: (id) => page.getByTestId(`week-event-${id}`).first(),
+    },
+    {
+      name: "agenda",
+      viewport: DESKTOP_VIEWPORT,
+      path: AGENDA_PATH,
+      card: (id) => page.getByTestId(`agenda-event-${id}`),
+    },
+  ];
+  for (const visit of visits) {
+    await openAt(page, visit.path, visit.viewport);
+    for (const id of ids) {
+      await expect(visit.card(id)).toBeVisible();
+    }
+    await captureScreen(page, `${visit.name} event cards`, VIEWS_FEATURE);
+  }
 });
 
 Then("I see the details of the event {string}", async ({ page, world }, title: string) => {
@@ -204,51 +320,6 @@ Then("I see no edit or delete control for the event", async ({ page }) => {
   await expect(
     detailsOf(page).getByRole("button", { name: "Delete event", exact: true }),
   ).toHaveCount(0);
-});
-
-When("I change the title of the event to {string}", async ({ page, world }, title: string) => {
-  const id = pathOf(page).split("/").pop() ?? "";
-  await detailsOf(page).getByRole("button", { name: "Edit Event", exact: true }).click();
-  const form = page.getByTestId("new-event-modal");
-  await expect(form).toBeVisible();
-  await form.getByLabel("Title", { exact: true }).fill(title);
-  await form.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(form).toHaveCount(0);
-  rememberEvent(world, title, id);
-});
-
-When("I edit the event so that it ends before it starts", async ({ page }) => {
-  await detailsOf(page).getByRole("button", { name: "Edit Event", exact: true }).click();
-  const form = page.getByTestId("new-event-modal");
-  await expect(form).toBeVisible();
-  await form.getByLabel("End time", { exact: true }).fill("00:01");
-  await form.getByRole("button", { name: "Save", exact: true }).click();
-});
-
-When("I delete the event after confirming", async ({ page }) => {
-  await detailsOf(page).getByRole("button", { name: "Delete event", exact: true }).click();
-  const confirm = page.getByTestId("delete-event-confirm");
-  await expect(confirm).toBeVisible();
-  await confirm.getByRole("button", { name: "Delete event", exact: true }).click();
-  await expect.poll(() => pathOf(page)).toBe(AGENDA_PATH);
-});
-
-When("I cancel the delete confirmation", async ({ page }) => {
-  await detailsOf(page).getByRole("button", { name: "Delete event", exact: true }).click();
-  const confirm = page.getByTestId("delete-event-confirm");
-  await expect(confirm).toBeVisible();
-  await confirm.getByRole("button", { name: "Cancel", exact: true }).click();
-  await expect(confirm).toHaveCount(0);
-});
-
-When("I close the event details", async ({ page }) => {
-  const back = page.getByRole("button", { name: "Back", exact: true });
-  if (await back.isVisible()) {
-    await back.click();
-  } else {
-    await detailsOf(page).getByRole("button", { name: "Close", exact: true }).click();
-  }
-  await expect.poll(() => pathOf(page).startsWith(EVENT_PREFIX)).toBe(false);
 });
 
 Then("I see the event details as a dialog over the calendar", async ({ page }) => {
