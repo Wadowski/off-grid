@@ -1,5 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": { "outDir": "dist-e2e" },
-  "exclude": ["src/**/*.test.ts"]
-}

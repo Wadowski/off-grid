@@ -10,7 +10,6 @@ export const createCalendarTestApp = async (db: CalendarTestDatabase): Promise<F
   await app.register(async (api) =>
     registerCalendarRoutes(api, {
       db: db.db,
-      clock: { now: () => new Date() },
       currentUserId: (request) => request.headers["x-user-id"]?.toString() ?? null,
     }),
   );

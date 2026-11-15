@@ -39,7 +39,7 @@ export const registerUpdateCalendarEvent = (
           userId,
           params.data.id,
           body.data,
-          context.clock.now(),
+          new Date(),
         );
       } catch (error) {
         if (error instanceof EventGuestWriteDeniedError) {

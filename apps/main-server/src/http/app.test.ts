@@ -9,7 +9,6 @@ import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/ob
 import { afterEach, describe, expect, it } from "vitest";
 import type { StubOptions } from "../../test/types.js";
 import { buildApp } from "./build-app.js";
-import { createServerClock } from "../clock/server-clock.js";
 import type { IdentityResolver, ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
 import { userIdSchema } from "@offgrid/contracts";
 
@@ -58,7 +57,6 @@ const stubRuntime = ({
     eventBus: unusedEventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
-    clock: createServerClock(),
     moduleDatabases: new Map(),
     state: { publisherRunning, draining: false },
   };

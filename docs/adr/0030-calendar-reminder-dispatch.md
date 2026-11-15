@@ -16,8 +16,7 @@ Row-level security ([ADR 0029](0029-event-guest-access.md)) lets each user read 
 - We will run the claim and the publish of `calendar-reminder-due-v1` in one transaction per tick. A rollback leaves no fired marker and no fact, so the next tick retries.
 - We will publish the fact owned by the creator, with payload `{ eventId, userId }` only. Notifications maps it to an `event-reminder` item for that user.
 - We will run the worker as an interval loop in the server process. It does not use the client connection, so reminders do not depend on the tunnel.
-- We will build the test-only clock into a separate e2e image only. The routes `PUT /api/e2e/clock` and `DELETE /api/e2e/clock` live in `apps/main-server/src/e2e/`, and the entry point `src/main-e2e.ts` is the only code that registers them. The production image removes `src/e2e` and `src/main-e2e.ts` before it is used, and the production build (`tsconfig.json`) excludes them. The e2e image is built from the `e2e` target of the same Dockerfile, used only by the e2e compose override. Production config has no clock switch.
-- The two e2e clock routes are not in `packages/contracts` or the generated client. The contract is shared by the production build, and adding a test-only route there would publish it in every build. This is a reviewed exemption from the rule that each route is described in the contract. The routes are documented here instead, and the e2e clock is time-only: it changes what the worker reads and writes no rows.
+- The worker reads the real time at each tick and every event write uses the real time at the request. There is no server clock abstraction and no test-only clock route, switch or image. Timing is tested with explicit times in the tick and worker tests.
 
 ## Consequences
 
@@ -25,4 +24,5 @@ Row-level security ([ADR 0029](0029-event-guest-access.md)) lets each user read 
 - Harder: the claim function is a documented exception to the owner policy and must be reviewed with each change to the reminder tables. Its visibility check repeats the event-visibility rules in SQL, so a change to those rules must update `calendar.user_can_see_event` too.
 - Known gap: when an event moves, only the editing user's reminders are rescheduled. A guest's reminders on that event keep their old times until the guest sets them again. Rescheduling them needs a second cross-user write, which is not included.
 - Known gap: removing a family member does not delete their reminder rows. The claim skips them, so they never fire, but the rows remain until the event or the member is removed.
+- Known gap: reminder timing is not covered by an end-to-end scenario, because the e2e stack cannot advance the server clock. The tick integration tests and worker unit tests cover the claim, skip and retry rules.
 - Follow-up: the reminder controls in the event modal need a design before they are built (OG-90 is API only).

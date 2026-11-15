@@ -7,7 +7,6 @@ import { moduleDatabaseFor } from "./module-database-for.js";
 export const moduleContextFor = (runtime: ServerRuntime, moduleName: string): ModuleContext => {
   return {
     eventBus: runtime.eventBus,
-    clock: runtime.clock,
     logger: runtime.logger.child({ module: moduleName }),
     get db() {
       return moduleDatabaseFor(runtime, moduleName);

@@ -32,7 +32,7 @@ export const registerCreateCalendarEvent = (
         userId,
         params.data.id,
         body.data,
-        context.clock.now(),
+        new Date(),
       );
       if (outcome.outcome !== "found") {
         return sendNotFound(reply);

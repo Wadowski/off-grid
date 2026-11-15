@@ -14,7 +14,7 @@ const seededAt = new Date("2026-11-20T07:00:00Z");
 const starts = "2026-11-20T09:00:00Z";
 const BATCH = 50;
 
-describe("reminder dispatch tick with a fake clock", { timeout: 60_000 }, () => {
+describe("reminder dispatch tick at explicit times", { timeout: 60_000 }, () => {
   let db: CalendarTestDatabase;
   let userId: string;
   let calendarId: string;

@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ServerConfig, ModuleDescriptor, RunningServer, ServerOptions } from "../types.js";
-import { createServerClock } from "../clock/server-clock.js";
+import type { ServerConfig, ModuleDescriptor, RunningServer } from "../types.js";
 import { assertValidModules } from "../module-wiring/assert-valid-modules.js";
 import { createRuntime } from "./create-runtime.js";
 import { resolveRequestIdentity } from "../request-identity/resolve-request-identity.js";
@@ -19,10 +18,9 @@ import { startOutboxPruning } from "../outbox/start-outbox-pruning.js";
 export const startServer = async (
   config: ServerConfig,
   modules: readonly ModuleDescriptor[],
-  options: ServerOptions = {},
 ): Promise<RunningServer> => {
   assertValidModules(modules);
-  const runtime = createRuntime(config, options.clock ?? createServerClock());
+  const runtime = createRuntime(config);
   const workers = registerSubscribersAndCollectWorkers(modules, runtime);
 
   let app: FastifyInstance;
@@ -32,7 +30,6 @@ export const startServer = async (
       runtime,
       modules,
       identity: (request) => resolveRequestIdentity(runtime, request),
-      extraRoutes: options.extraRoutes,
     });
   } catch (error) {
     await Promise.all([

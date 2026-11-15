@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ServerClock } from "../clock/server-clock.js";
 import type { ServerConfig, ServerRuntime } from "../types.js";
 import { createLogger, createMemoryErrorSink } from "@offgrid/observability";
 import { createModuleDb } from "@offgrid/db";
@@ -10,7 +9,7 @@ import { CONNECTION_TIMEOUT_MS } from "../constants.js";
 import { createEventBus } from "@offgrid/event-bus";
 import { persistErrorRecord } from "../error-log/persist-error-record.js";
 
-export const createRuntime = (config: ServerConfig, clock: ServerClock): ServerRuntime => {
+export const createRuntime = (config: ServerConfig): ServerRuntime => {
   const logger = createLogger({ level: config.logLevel, bindings: { module: "server" } });
   const pool = new Pool({
     host: config.database.host,
@@ -33,7 +32,6 @@ export const createRuntime = (config: ServerConfig, clock: ServerClock): ServerR
     errorSink,
     errorRecordDb,
     logger,
-    clock,
     moduleDatabases: new Map(),
     state: { publisherRunning: false, draining: false },
   };

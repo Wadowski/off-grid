@@ -21,7 +21,6 @@ export interface CalendarWorker {
 export interface CalendarWorkerContext {
   readonly db: ModuleDatabase;
   readonly logger: Logger;
-  readonly clock: { now(): Date; readonly pollIntervalMs: number };
 }
 
 export interface CalendarRecord {
@@ -37,7 +36,6 @@ export type CalendarOutcome<Value> =
   { readonly outcome: "found"; readonly value: Value } | { readonly outcome: "not-found" };
 
 export interface CalendarRouteContext {
-  readonly clock: { now(): Date };
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
 }

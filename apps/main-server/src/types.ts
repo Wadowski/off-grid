@@ -7,7 +7,6 @@ import type { Migration, ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { ErrorSink, LogLevel, Logger } from "@offgrid/observability";
 import type { Pool } from "pg";
-import type { ServerClock } from "./clock/server-clock.js";
 import type { accessGroupIdSchema, familyIdSchema, userIdSchema } from "@offgrid/contracts";
 
 export interface DatabaseConnection {
@@ -38,7 +37,6 @@ export interface ModuleContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: (request: FastifyRequest) => string | null;
   readonly currentSessionId: (request: FastifyRequest) => string | null;
-  readonly clock: ServerClock;
 }
 
 export interface Worker {
@@ -66,7 +64,6 @@ export interface ServerRuntime {
   readonly errorSink: ErrorSink;
   readonly errorRecordDb: ModuleDatabase;
   readonly logger: Logger;
-  readonly clock: ServerClock;
   readonly state: RuntimeState;
 }
 
@@ -77,20 +74,12 @@ export type FamilyMembershipLister = (
   userId: string,
 ) => Promise<readonly { readonly id: string }[]>;
 
-export type ExtraRoutes = (api: FastifyInstance) => void;
-
-export interface ServerOptions {
-  readonly clock?: ServerClock;
-  readonly extraRoutes?: ExtraRoutes;
-}
-
 export interface AppOptions {
   readonly config: ServerConfig;
   readonly runtime: ServerRuntime;
   readonly modules: readonly ModuleDescriptor[];
   readonly identity?: IdentityResolver;
   readonly migrations?: readonly Migration[];
-  readonly extraRoutes?: ExtraRoutes;
 }
 
 export interface AppliedMigrationRow {
