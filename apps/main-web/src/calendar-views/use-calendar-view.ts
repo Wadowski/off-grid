@@ -4,6 +4,7 @@
 import type { CalendarViewKind, calendarViewSchema } from "@offgrid/contracts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { webCalendarClient } from "../api/web-api-client.js";
+import { subscribeEventsChanged } from "../calendar-events/event-changes.js";
 import type { ListStatus } from "../types.js";
 import { requestDateFor } from "./view-navigation.js";
 
@@ -41,6 +42,8 @@ export const useCalendarView = (view: CalendarViewKind, date: string): CalendarV
         }
       });
   }, [view, date, attempt]);
+
+  useEffect(() => subscribeEventsChanged(() => setAttempt((count) => count + 1)), []);
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 

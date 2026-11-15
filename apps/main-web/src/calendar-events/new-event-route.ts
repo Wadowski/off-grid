@@ -6,7 +6,7 @@ import { DEFAULT_CALENDAR_VIEW, isCalendarViewKind } from "../calendar-views/vie
 import { CALENDAR_PATH_PREFIX, NEW_EVENT_PATH } from "./constants.js";
 import type { LocationParts } from "./types.js";
 
-const backgroundOf = ({ pathname, search }: LocationParts): string => `${pathname}${search}`;
+export const backgroundOf = ({ pathname, search }: LocationParts): string => `${pathname}${search}`;
 
 export const readBackground = (state: unknown): string | undefined => {
   if (typeof state !== "object" || state === null || !("background" in state)) {
