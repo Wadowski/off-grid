@@ -292,9 +292,13 @@ model EventReminder {
   eventId    String   @map("event_id") @db.Uuid
   familyId   String?  @map("family_id") @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
-  remindAt   DateTime @map("remind_at") @db.Timestamptz(6)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  remindAt      DateTime  @map("remind_at") @db.Timestamptz(6)
+  offsetMinutes Int       @map("offset_minutes")
+  firedAt       DateTime? @map("fired_at") @db.Timestamptz(6)
+  skippedAt     DateTime? @map("skipped_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  @@unique([eventId, userId, offsetMinutes], map: "event_reminder_event_user_offset_key")
   @@index([eventId])
   @@map("event_reminder")
   @@schema("calendar")
