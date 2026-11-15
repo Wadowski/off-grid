@@ -6,12 +6,16 @@ import type { CSSProperties } from "react";
 import type { WeekAccent } from "./components/week-event-block/types.js";
 import type { WeekCardStyle, WeekGridSize } from "./constants.js";
 
-export const weekGridScrollStyle = (scrollHeight: string): CSSProperties => ({
+// Room past the last day column for the desktop now-line time badge.
+const DESKTOP_NOW_BADGE_GUTTER = "4.25rem";
+
+export const weekGridScrollStyle = (scrollHeight: string, desktop = false): CSSProperties => ({
   height: scrollHeight,
   overflowY: "auto",
   overflowX: "hidden",
   borderRadius: cssVar("radius-lg"),
-  background: cssVar("color-surface-low"),
+  background: desktop ? cssVar("color-surface") : cssVar("color-surface-low"),
+  paddingRight: desktop ? DESKTOP_NOW_BADGE_GUTTER : undefined,
 });
 
 export const weekHeaderRowStyle = (gutter: string): CSSProperties => ({
@@ -42,7 +46,7 @@ export const weekDayHeaderStyle = (today: boolean, desktop = false): CSSProperti
   padding: desktop ? `${tokens.space[2]} 0 ${tokens.space[1]}` : `${tokens.space[1]} 0`,
   color: today ? cssVar("color-primary") : cssVar("color-muted"),
   fontFamily: cssVar("font-family-base"),
-  fontSize: desktop ? "11px" : "10px",
+  fontSize: desktop ? tokens.font.size["label-sm"] : "10px",
   fontWeight: cssVar("font-weight-medium"),
   letterSpacing: desktop ? "0.08em" : undefined,
   textTransform: desktop ? "uppercase" : undefined,
@@ -58,7 +62,7 @@ export const weekDayNumberStyle = (selected: boolean, desktop = false): CSSPrope
   background: selected ? cssVar("color-primary") : "transparent",
   color: selected ? cssVar("color-accent-fg") : cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
-  fontSize: desktop ? "16px" : "13px",
+  fontSize: desktop ? tokens.font.size["headline-sm"] : "13px",
   fontWeight: cssVar("font-weight-semibold"),
 });
 
@@ -108,7 +112,7 @@ export const weekHourLabelStyle = (
   top: `${hourIndex * hourPx - 6}px`,
   right: tokens.space[1],
   fontFamily: cssVar("font-family-mono"),
-  fontSize: desktop ? "11px" : "9px",
+  fontSize: desktop ? tokens.font.size["label-sm"] : "9px",
   color: cssVar("color-muted"),
 });
 
@@ -128,30 +132,27 @@ const phoneWeekColumnStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const desktopWeekColumnStyle: CSSProperties = {
+// Desktop columns share one panel; only faint separators and today's tint are drawn.
+const desktopWeekColumnStyle = (today: boolean): CSSProperties => ({
   position: "relative",
-  zIndex: 1,
   minWidth: 0,
-  margin: "0 3px",
-  borderRadius: cssVar("radius-md"),
-  background: cssVar("color-surface"),
-  boxShadow: cssVar("elevation-1"),
-};
+  borderLeft: `1px solid ${cssVar("color-surface-high")}`,
+  background: today
+    ? `color-mix(in srgb, ${cssVar("color-accent")} 8%, ${cssVar("color-surface")})`
+    : undefined,
+});
 
-export const weekColumnStyle = (card: WeekCardStyle): CSSProperties =>
-  card === "detailed" ? desktopWeekColumnStyle : phoneWeekColumnStyle;
+export const weekColumnStyle = (card: WeekCardStyle, today = false): CSSProperties =>
+  card === "detailed" ? desktopWeekColumnStyle(today) : phoneWeekColumnStyle;
 
-export const weekDesktopDayCellStyle = (selected: boolean): CSSProperties => ({
+export const weekDesktopDayCellStyle: CSSProperties = {
   minWidth: 0,
-  margin: "0 3px",
   padding: `${tokens.space[2]} ${tokens.space[2]} ${tokens.space[1]}`,
-  borderRadius: cssVar("radius-md"),
-  background: selected ? cssVar("color-surface-high") : "transparent",
   color: cssVar("color-fg"),
   display: "flex",
   alignItems: "center",
   gap: tokens.space[1],
-});
+};
 
 export const weekBlockStyle = (
   topPx: number,
@@ -232,8 +233,8 @@ export const weekDetailedShortBlockStyle = (
   borderRadius: cssVar("radius-md"),
   boxShadow: cssVar("elevation-1"),
   color: cssVar("color-fg"),
-  fontSize: tokens.font.size["body-sm"],
-  lineHeight: "14px",
+  fontSize: tokens.font.size["body-md"],
+  lineHeight: tokens.font.lineHeight["label-md"],
 });
 
 export const weekDetailedShortTitleStyle: CSSProperties = {
@@ -245,14 +246,16 @@ export const weekDetailedShortTitleStyle: CSSProperties = {
 
 export const weekDetailedShortRangeStyle: CSSProperties = {
   fontFamily: cssVar("font-family-mono"),
-  fontSize: "10px",
-  lineHeight: "14px",
+  fontSize: tokens.font.size["label-sm"],
+  lineHeight: tokens.font.lineHeight["label-sm"],
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
 };
 
 export const weekDetailedTitleStyle: CSSProperties = {
+  fontSize: tokens.font.size["body-md"],
+  lineHeight: tokens.font.lineHeight["body-md"],
   fontWeight: cssVar("font-weight-semibold"),
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -261,7 +264,8 @@ export const weekDetailedTitleStyle: CSSProperties = {
 
 export const weekDetailedRangeStyle: CSSProperties = {
   fontFamily: cssVar("font-family-mono"),
-  fontSize: tokens.font.size["label-md"],
+  fontSize: tokens.font.size["label-sm"],
+  lineHeight: tokens.font.lineHeight["label-sm"],
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
@@ -317,3 +321,27 @@ export const weekNowStyle = (topPx: number): CSSProperties => ({
   alignItems: "center",
   pointerEvents: "none",
 });
+
+// Desktop: one line across all day columns, starting at the gutter dot.
+// The height is zero so the flex children are centred on the line.
+export const weekNowOverlayStyle = (topPx: number): CSSProperties => ({
+  ...weekNowStyle(topPx),
+  height: 0,
+});
+
+export const weekNowGutterStyle = (gutter: string): CSSProperties => ({
+  flexShrink: 0,
+  width: gutter,
+});
+
+// Sits just past the right edge of the last day column, centred on the line.
+export const weekNowOverlayBadgeStyle: CSSProperties = {
+  ...weekNowBadgeStyle,
+  position: "absolute",
+  left: "100%",
+  top: "50%",
+  marginLeft: tokens.space[1],
+  transform: "translateY(-50%)",
+  fontFamily: cssVar("font-family-base"),
+  fontSize: tokens.font.size["label-sm"],
+};

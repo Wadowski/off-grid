@@ -12,4 +12,5 @@ export type WeekDayColumnProps = {
   readonly now: Date;
   readonly hourPx: number;
   readonly card: WeekCardStyle;
+  readonly today: boolean;
 };

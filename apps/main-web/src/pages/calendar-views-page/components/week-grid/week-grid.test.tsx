@@ -10,6 +10,7 @@ import type {
   CalendarViewEvent,
 } from "../../../../calendar-views/use-calendar-view.js";
 import { DESKTOP_WEEK_SIZE } from "./constants.js";
+import { weekColumnStyle } from "./styles.js";
 import { WeekGrid } from "./week-grid.js";
 
 const WEEK = [
@@ -335,7 +336,7 @@ describe("WeekGrid", () => {
 });
 
 describe("WeekGrid desktop day row", () => {
-  it("shows the weekday letter and day number for each of the seven desktop columns", () => {
+  it("shows the weekday abbreviation and day number for each of the seven desktop columns", () => {
     render(
       <WeekGrid
         days={weekWith({})}
@@ -347,7 +348,9 @@ describe("WeekGrid desktop day row", () => {
       />,
     );
 
-    expect(screen.getByText("W")).toBeInTheDocument();
+    expect(screen.getByText("WED")).toBeInTheDocument();
+    expect(screen.getByText("MON")).toBeInTheDocument();
+    expect(screen.getByText("SUN")).toBeInTheDocument();
     expect(screen.getByText("23")).toBeInTheDocument();
     expect(screen.getAllByTestId("week-day-column")).toHaveLength(7);
   });
@@ -414,5 +417,46 @@ describe("WeekGrid now line", () => {
 
     expect(screen.getAllByTestId("week-now")).toHaveLength(1);
     expect(screen.queryByTestId("week-now-time")).toBeNull();
+  });
+});
+
+describe("WeekGrid desktop now line across the week", () => {
+  it("draws the now-line once across the grid, not inside a day column", () => {
+    render(
+      <WeekGrid
+        days={weekWith({})}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-23"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    const nowLines = screen.getAllByTestId("week-now");
+    expect(nowLines).toHaveLength(1);
+    screen.getAllByTestId("week-day-column").forEach((column) => {
+      expect(within(column).queryByTestId("week-now")).toBeNull();
+    });
+  });
+
+  it("does not draw the now-line when today is outside the shown week", () => {
+    render(
+      <WeekGrid
+        days={weekWith({})}
+        selectedDate="2025-10-23"
+        todayDate="2025-10-30"
+        timeZone="UTC"
+        now={NOON_WED}
+        size={DESKTOP_WEEK_SIZE}
+      />,
+    );
+
+    expect(screen.queryByTestId("week-now")).toBeNull();
+  });
+
+  it("tints only today's desktop column from the accent token", () => {
+    expect(weekColumnStyle("detailed", true).background).toContain("var(--og-color-accent)");
+    expect(weekColumnStyle("detailed", false).background).toBeUndefined();
   });
 });

@@ -8,10 +8,12 @@ import { splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { formatGmtOffset, zonedMomentOf } from "../../../../calendar-views/time-format.js";
 import { weekGridRange } from "../../../../calendar-views/week-grid-range.js";
 import { mondayIndexOf } from "../../../../calendar-views/week-days.js";
-import { weekdayLetters } from "../../../../calendar-views/weekday-letters.js";
+import { nowMinutesOnDate } from "../../../../calendar-views/timeline-layout.js";
+import { weekdayLetters, weekdayShortLabels } from "../../../../calendar-views/weekday-letters.js";
 import { WeekAllDayRow } from "./components/week-all-day-row/week-all-day-row.js";
 import { WeekDayColumn } from "./components/week-day-column/week-day-column.js";
 import { WeekDayHeader } from "./components/week-day-header/week-day-header.js";
+import { WeekNowLine } from "./components/week-now-line/week-now-line.js";
 import { MINUTES_PER_HOUR, PHONE_WEEK_SIZE } from "./constants.js";
 import {
   weekBodyStyle,
@@ -55,7 +57,9 @@ export const WeekGrid = ({
     ((earliestMinute - rangeStartMinute - SCROLL_MARGIN_MINUTES) * size.hourPx) / MINUTES_PER_HOUR,
   );
   const firstDate = dates[0] ?? selectedDate;
-  const dayLetters = weekdayLetters(t);
+  const dayLetters = desktop ? weekdayShortLabels(t) : weekdayLetters(t);
+  const todayMinute =
+    desktop && dates.includes(todayDate) ? nowMinutesOnDate(now, todayDate, timeZone) : null;
 
   useEffect(() => {
     if (scrollRef.current !== null) {
@@ -67,7 +71,7 @@ export const WeekGrid = ({
     <section aria-label={t("calendar.mobileViews.weekGridLabel")}>
       <div
         ref={scrollRef}
-        style={weekGridScrollStyle(size.scrollHeight)}
+        style={weekGridScrollStyle(size.scrollHeight, desktop)}
         tabIndex={size.scrollFocusable ? 0 : undefined}
         data-testid="week-grid"
       >
@@ -91,7 +95,7 @@ export const WeekGrid = ({
               />
             );
             return size.card === "detailed" ? (
-              <div key={day.date} style={weekDesktopDayCellStyle(day.date === selectedDate)}>
+              <div key={day.date} style={weekDesktopDayCellStyle}>
                 {header}
               </div>
             ) : (
@@ -120,9 +124,10 @@ export const WeekGrid = ({
               </span>
             ))}
           </div>
-          {Array.from({ length: hourCount }, (_, index) => (
-            <span key={`line-${index}`} style={weekHourLineStyle(index, size)} />
-          ))}
+          {!desktop &&
+            Array.from({ length: hourCount }, (_, index) => (
+              <span key={`line-${index}`} style={weekHourLineStyle(index, size)} />
+            ))}
           {days.map((day) => (
             <WeekDayColumn
               key={day.date}
@@ -133,8 +138,19 @@ export const WeekGrid = ({
               now={now}
               hourPx={size.hourPx}
               card={size.card}
+              today={day.date === todayDate}
             />
           ))}
+          {todayMinute !== null && (
+            <WeekNowLine
+              topPx={
+                (todayMinute - startHour * MINUTES_PER_HOUR) * (size.hourPx / MINUTES_PER_HOUR)
+              }
+              gutter={size.gutter}
+              now={now}
+              timeZone={timeZone}
+            />
+          )}
         </div>
       </div>
     </section>

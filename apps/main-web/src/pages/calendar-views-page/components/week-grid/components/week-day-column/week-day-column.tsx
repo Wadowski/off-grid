@@ -7,14 +7,7 @@ import {
   nowMinutesOnDate,
 } from "../../../../../../calendar-views/timeline-layout.js";
 import { MINUTES_PER_HOUR } from "../../constants.js";
-import { formatClockTime } from "../../../../../../calendar-views/time-format.js";
-import {
-  weekColumnStyle,
-  weekNowBadgeStyle,
-  weekNowDotStyle,
-  weekNowLineStyle,
-  weekNowStyle,
-} from "../../styles.js";
+import { weekColumnStyle, weekNowDotStyle, weekNowLineStyle, weekNowStyle } from "../../styles.js";
 import { WeekEventBlock } from "../week-event-block/week-event-block.js";
 import type { WeekDayColumnProps } from "./types.js";
 
@@ -26,13 +19,15 @@ export const WeekDayColumn = ({
   now,
   hourPx,
   card,
+  today,
 }: WeekDayColumnProps) => {
   const pxPerMinute = hourPx / MINUTES_PER_HOUR;
-  const nowMinute = nowMinutesOnDate(now, date, timeZone);
+  // The desktop week draws one now-line across all columns (see WeekNowLine).
+  const nowMinute = card === "compact" ? nowMinutesOnDate(now, date, timeZone) : null;
   const blocks = layoutTimedEvents(splitAllDay(events).timed, date, timeZone);
 
   return (
-    <div data-testid="week-day-column" style={weekColumnStyle(card)}>
+    <div data-testid="week-day-column" style={weekColumnStyle(card, today)}>
       {blocks.map((block) => (
         <WeekEventBlock
           key={block.item.id}
@@ -50,11 +45,6 @@ export const WeekDayColumn = ({
         >
           <span style={weekNowDotStyle} />
           <span style={weekNowLineStyle} />
-          {card === "detailed" && (
-            <span style={weekNowBadgeStyle} data-testid="week-now-time">
-              {formatClockTime(now.toISOString(), timeZone)}
-            </span>
-          )}
         </div>
       )}
     </div>
