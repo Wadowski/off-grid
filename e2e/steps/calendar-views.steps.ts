@@ -3,37 +3,14 @@
 
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { accountSessionOf, bearer } from "../support/family-sessions.js";
-import type { CalendarEventsWorld } from "../support/factories/calendar-events.js";
+import { bearer } from "../support/family-sessions.js";
+import { familyIdNamed, sessionOf } from "../support/factories/calendar-events.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { When, Then } = createBdd(test);
 
-const PRONOUNS = ["she", "he"];
-
-type Session = CalendarEventsWorld["people"][string];
-
 type ViewDayBody = { date: string; events: { title: string }[] };
 type ViewBody = { view: string; startDate: string; endDate: string; days: ViewDayBody[] };
-
-const eventsState = (world: ScenarioWorld): CalendarEventsWorld => {
-  world.calendarEvents ??= { people: {}, families: {}, members: {}, calendars: [], events: [] };
-  return world.calendarEvents;
-};
-
-const sessionOf = async (world: ScenarioWorld, who: string): Promise<Session> => {
-  const scenario = eventsState(world);
-  const name = PRONOUNS.includes(who) ? (scenario.actor ?? "Anna") : who;
-  let session = scenario.people[name];
-  if (session === undefined) {
-    session =
-      name === "Anna" && world.people?.anna !== undefined
-        ? world.people.anna.session
-        : (await accountSessionOf(world.api, name)).session;
-    scenario.people[name] = session;
-  }
-  return session;
-};
 
 const fetchView = async (
   world: ScenarioWorld,
@@ -77,8 +54,7 @@ When(
   /^(\w+) steps out of the family "([^"]*)"$/,
   async ({ world }, who: string, family: string) => {
     const session = await sessionOf(world, who);
-    const familyId = eventsState(world).families[family]?.id;
-    expect(familyId, `the family "${family}" is not set up`).toBeDefined();
+    const familyId = familyIdNamed(world, family);
     const response = await world.api.delete(`/api/families/${familyId}/members/${session.userId}`, {
       headers: bearer(session),
       failOnStatusCode: false,
@@ -90,9 +66,7 @@ When(
 When(
   /^(\w+) rejoins the family "([^"]*)" with the invitation code$/,
   async ({ world }, who: string, family: string) => {
-    const scenario = eventsState(world);
-    const familyId = scenario.families[family]?.id;
-    expect(familyId, `the family "${family}" is not set up`).toBeDefined();
+    const familyId = familyIdNamed(world, family);
     const admin = await sessionOf(world, `${family} admin`);
     const invitation = await world.api.post(`/api/families/${familyId}/invitations`, {
       headers: bearer(admin),

@@ -3,10 +3,12 @@
 
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
-import { accountSessionOf, bearer } from "../support/family-sessions.js";
+import { bearer } from "../support/family-sessions.js";
 import {
   CALENDAR_COLOR,
-  type CalendarEventsWorld,
+  eventsState,
+  familyIdNamed,
+  sessionOf,
   type CalendarRecord,
 } from "../support/factories/calendar-events.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
@@ -17,27 +19,7 @@ const notImplemented = (step: string): never => {
   throw new Error(`Step not implemented yet (OG-78 follow-up): ${step}`);
 };
 
-type Session = CalendarEventsWorld["people"][string];
-
 type ListedCalendar = { id: string; name: string };
-
-const eventsState = (world: ScenarioWorld): CalendarEventsWorld => {
-  world.calendarEvents ??= { people: {}, families: {}, members: {}, calendars: [], events: [] };
-  return world.calendarEvents;
-};
-
-const sessionOf = async (world: ScenarioWorld, name: string): Promise<Session> => {
-  const scenario = eventsState(world);
-  let session = scenario.people[name];
-  if (session === undefined) {
-    session =
-      name === "Anna" && world.people?.anna !== undefined
-        ? world.people.anna.session
-        : (await accountSessionOf(world.api, name)).session;
-    scenario.people[name] = session;
-  }
-  return session;
-};
 
 const calendarNamed = (world: ScenarioWorld, name: string): CalendarRecord => {
   const record = eventsState(world).calendars.find((item) => item.name === name);
@@ -45,12 +27,6 @@ const calendarNamed = (world: ScenarioWorld, name: string): CalendarRecord => {
     throw new Error(`The calendar "${name}" is not set up in this scenario.`);
   }
   return record;
-};
-
-const familyIdNamed = (world: ScenarioWorld, family: string): string => {
-  const familyId = eventsState(world).families[family]?.id;
-  expect(familyId, `the family "${family}" is not set up`).toBeDefined();
-  return familyId ?? "";
 };
 
 const listedCalendarsOf = async (world: ScenarioWorld, who: string): Promise<ListedCalendar[]> => {
