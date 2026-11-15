@@ -8,6 +8,7 @@ import type { CalendarTestDatabase } from "../../../test/types.js";
 import { createCalendarEvent } from "./create-calendar-event.js";
 import { removeCalendarEvent } from "./remove-calendar-event.js";
 import { updateCalendarEvent } from "./update-calendar-event.js";
+import { applyFamilyMembership } from "../../events/family-membership/apply-family-membership.js";
 
 describe("calendar event reminders", { timeout: 60_000 }, () => {
   let db: CalendarTestDatabase;
@@ -58,6 +59,17 @@ describe("calendar event reminders", { timeout: 60_000 }, () => {
       throw new Error("event was not created");
     }
     return outcome.value.eventId;
+  };
+
+  // A guest can read a host's event only when they share a family with the host.
+  const shareFamilyWith = async (host: string) => {
+    const familyId = randomUUID();
+    const guest = randomUUID();
+    await db.db.$transaction(async (tx) => {
+      await applyFamilyMembership(tx, { familyId, userId: host, sourceVersion: 1, isMember: true });
+      await applyFamilyMembership(tx, { familyId, userId: guest, sourceVersion: 1, isMember: true });
+    });
+    return guest;
   };
 
   const reminderRows = async (eventId: string) => {
@@ -128,6 +140,40 @@ describe("calendar event reminders", { timeout: 60_000 }, () => {
     await updateCalendarEvent(db.db, userId, eventId, { calendarId: otherCalendarId }, now);
     const [row] = await reminderRows(eventId);
     expect(row.remind_at.toISOString()).toBe("2026-11-20T08:45:00.000Z");
+  });
+
+  it("lets a guest set their own reminders on the host's event without changing the event", async () => {
+    const eventId = await createStandup();
+    const guestId = await shareFamilyWith(userId);
+    await db.admin.query(
+      "INSERT INTO calendar.event_guest (event_id, guest_user_id, user_id) VALUES ($1, $2, $3)",
+      [eventId, guestId, userId],
+    );
+    const outcome = await updateCalendarEvent(
+      db.db,
+      guestId,
+      eventId,
+      { reminderOffsetsMinutes: [30] },
+      now,
+    );
+    expect(outcome.outcome === "found" && outcome.value.reminderOffsetsMinutes).toEqual([30]);
+    const { rows } = await db.admin.query<{ user_id: string }>(
+      "SELECT user_id FROM calendar.event_reminder WHERE event_id = $1",
+      [eventId],
+    );
+    expect(rows).toEqual([{ user_id: guestId }]);
+  });
+
+  it("refuses a guest's change to the event fields", async () => {
+    const eventId = await createStandup();
+    const guestId = await shareFamilyWith(userId);
+    await db.admin.query(
+      "INSERT INTO calendar.event_guest (event_id, guest_user_id, user_id) VALUES ($1, $2, $3)",
+      [eventId, guestId, userId],
+    );
+    await expect(
+      updateCalendarEvent(db.db, guestId, eventId, { title: "Changed" }, now),
+    ).rejects.toThrow();
   });
 
   it("removes the rows when the event is deleted", async () => {

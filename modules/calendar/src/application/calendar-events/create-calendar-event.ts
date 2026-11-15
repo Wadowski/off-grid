@@ -47,7 +47,6 @@ export const createCalendarEvent = (
     if (input.reminderOffsetsMinutes !== undefined) {
       await replaceEventReminders(tx, {
         eventId: record.eventId,
-        familyId: record.familyId,
         userId,
         startsAt: record.startsAt,
         offsetsMinutes: input.reminderOffsetsMinutes,

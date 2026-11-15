@@ -5,10 +5,23 @@ import type { ModuleDatabase } from "@offgrid/db";
 import type { CurrentUserId } from "@offgrid/http";
 import type { CALENDAR_COLORS } from "@offgrid/contracts";
 import type { EventBus } from "@offgrid/event-bus";
+import type { Logger } from "@offgrid/observability";
 
 export interface CalendarSubscriberContext {
   readonly eventBus: EventBus;
   readonly db: ModuleDatabase;
+}
+
+// Same shape as the server's Worker. The calendar module does not import the server.
+export interface CalendarWorker {
+  readonly name: string;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+}
+
+export interface CalendarWorkerContext {
+  readonly db: ModuleDatabase;
+  readonly logger: Logger;
 }
 
 export interface CalendarRecord {

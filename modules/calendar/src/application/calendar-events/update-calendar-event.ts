@@ -14,6 +14,7 @@ import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { publishCalendarEventUpdated } from "../../events/calendar-events/publish-calendar-event-updated.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
+import { findEventGuest } from "../../infrastructure/event-guests/find-event-guest.js";
 import { updateEvent } from "../../infrastructure/calendar-events/update-event.js";
 import { findOwnReminderOffsets } from "../../infrastructure/reminders/find-own-reminder-offsets.js";
 import { replaceEventReminders } from "../../infrastructure/reminders/replace-event-reminders.js";
@@ -43,6 +44,9 @@ export const updateCalendarEvent = (
     if (current === null) {
       return { outcome: "not-found" };
     }
+    if (isReminderOnly(input)) {
+      return setOwnReminders(tx, current, userId, input.reminderOffsetsMinutes ?? [], now);
+    }
     await assertNotGuestWrite(tx, current, userId);
     const calendarId = await resolveTargetCalendar(tx, current, input.calendarId);
     if (calendarId === "not-found") {
@@ -63,7 +67,6 @@ export const updateCalendarEvent = (
     if (input.reminderOffsetsMinutes !== undefined || Object.keys(window).length > 0) {
       await replaceEventReminders(tx, {
         eventId: record.eventId,
-        familyId: record.familyId,
         userId,
         startsAt: record.startsAt,
         offsetsMinutes:
@@ -81,6 +84,39 @@ export const updateCalendarEvent = (
       },
     };
   });
+
+// Reminders belong to the user who sets them, so a guest may change only their own reminders.
+// Those changes touch no event field, so they publish nothing.
+const isReminderOnly = (input: CalendarEventUpdateInput): boolean =>
+  input.reminderOffsetsMinutes !== undefined &&
+  Object.entries(input).every(
+    ([key, value]) => value === undefined || key === "reminderOffsetsMinutes",
+  );
+
+const setOwnReminders = async (
+  tx: ModuleTransaction,
+  current: CalendarEventRecord,
+  userId: string,
+  offsetsMinutes: readonly number[],
+  now: Date,
+): Promise<UpdateCalendarEventOutcome> => {
+  await replaceEventReminders(tx, {
+    eventId: current.eventId,
+    userId,
+    startsAt: current.startsAt,
+    offsetsMinutes,
+    now,
+  });
+  const timeZone = (await findTimeZone(tx, userId)) ?? DEFAULT_TIME_ZONE;
+  const readOnly = await findEventGuest(tx, { eventId: current.eventId, guestUserId: userId });
+  return {
+    outcome: "found",
+    value: {
+      ...toEventView(current, timeZone, readOnly),
+      reminderOffsetsMinutes: await findOwnReminderOffsets(tx, current.eventId, userId),
+    },
+  };
+};
 
 const resolveTargetCalendar = async (
   tx: ModuleTransaction,

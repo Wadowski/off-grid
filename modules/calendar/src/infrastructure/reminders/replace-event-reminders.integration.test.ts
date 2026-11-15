@@ -58,7 +58,6 @@ describe("replaceEventReminders", { timeout: 60_000 }, () => {
       await withUserContext(tx, options.as ?? userId);
       await replaceEventReminders(tx, {
         eventId,
-        familyId: null,
         userId: options.as ?? userId,
         startsAt: options.at ?? startsAt,
         offsetsMinutes,

@@ -24,26 +24,14 @@ CREATE INDEX event_reminder_due_idx
   ON calendar.event_reminder (remind_at)
   WHERE fired_at IS NULL AND skipped_at IS NULL;
 
--- Privacy: a reminder is private to its creator. Family membership is still required for
--- family-owned events, so removing a member also removes their access.
+-- Privacy: a reminder is private to its creator. The scope is user-owned, so family_id stays NULL
+-- and the row is visible only to the user who wrote it.
 DROP POLICY event_reminder_family_member_access ON calendar.event_reminder;
 
 CREATE POLICY event_reminder_own_access ON calendar.event_reminder
   FOR ALL
-  USING (
-    user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-    AND (family_id IS NULL OR family_id IN (
-      SELECT f.family_id FROM calendar.family_membership f
-      WHERE f.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid AND f.is_member
-    ))
-  )
-  WITH CHECK (
-    user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-    AND (family_id IS NULL OR family_id IN (
-      SELECT f.family_id FROM calendar.family_membership f
-      WHERE f.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid AND f.is_member
-    ))
-  );
+  USING (user_id = NULLIF(current_setting('app.user_id', true), '')::uuid)
+  WITH CHECK (user_id = NULLIF(current_setting('app.user_id', true), '')::uuid);
 
 -- Deleting an event removes every reminder of that event, including other people's rows
 -- (for example a guest's). Only a caller who can write the event's calendar may do that.
@@ -68,11 +56,40 @@ CREATE POLICY event_reminder_event_writer_delete ON calendar.event_reminder
   FOR DELETE
   USING (calendar.caller_can_write_event(event_id));
 
+-- Whether a given user can see an event: the creator of a personal event, a member of the
+-- family that owns a family event, or an invited guest. Takes the user explicitly, so the worker
+-- can check each reminder's owner without a session user.
+CREATE FUNCTION calendar.user_can_see_event(p_user_id uuid, p_event_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = calendar, pg_temp
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM calendar.calendar_event e
+    WHERE e.event_id = p_event_id
+      AND (
+        (e.user_id IS NOT NULL AND e.user_id = p_user_id)
+        OR (e.family_id IS NOT NULL AND e.family_id IN (
+          SELECT f.family_id FROM calendar.family_membership f
+          WHERE f.user_id = p_user_id AND f.is_member
+        ))
+      )
+  ) OR EXISTS (
+    SELECT 1 FROM calendar.event_guest g
+    WHERE g.event_id = p_event_id AND g.guest_user_id = p_user_id
+  );
+$$;
+
+REVOKE ALL ON FUNCTION calendar.user_can_see_event(uuid, uuid) FROM PUBLIC;
+
 -- The worker reads across users, so it cannot run under the row policies. This function is the
--- only exception: it claims due rows atomically, marks them fired, and returns ids only.
+-- only exception: it claims due rows atomically, marks them fired, and returns ids only. A row
+-- whose owner can no longer see the event (for example a removed family member) is not claimed.
 -- It is recorded in ADR 0030.
 CREATE FUNCTION calendar.claim_due_reminders(p_now timestamptz, p_batch integer)
-RETURNS TABLE (reminder_id uuid, event_id uuid, user_id uuid, family_id uuid)
+RETURNS TABLE (reminder_id uuid, event_id uuid, user_id uuid)
 LANGUAGE sql
 VOLATILE
 SECURITY DEFINER
@@ -82,12 +99,15 @@ AS $$
   SET fired_at = p_now
   WHERE r.reminder_id IN (
     SELECT d.reminder_id FROM calendar.event_reminder d
-    WHERE d.fired_at IS NULL AND d.skipped_at IS NULL AND d.remind_at <= p_now
+    WHERE d.fired_at IS NULL
+      AND d.skipped_at IS NULL
+      AND d.remind_at <= p_now
+      AND calendar.user_can_see_event(d.user_id, d.event_id)
     ORDER BY d.remind_at
     LIMIT p_batch
     FOR UPDATE SKIP LOCKED
   )
-  RETURNING r.reminder_id, r.event_id, r.user_id, r.family_id;
+  RETURNING r.reminder_id, r.event_id, r.user_id;
 $$;
 
 REVOKE ALL ON FUNCTION calendar.claim_due_reminders(timestamptz, integer) FROM PUBLIC;

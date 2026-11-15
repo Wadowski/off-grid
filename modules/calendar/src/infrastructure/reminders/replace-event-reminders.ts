@@ -7,7 +7,6 @@ import { isPast, remindAt } from "../../domain/reminders/compute-remind-at.js";
 
 export interface ReplaceEventRemindersInput {
   readonly eventId: string;
-  readonly familyId: string | null;
   readonly userId: string;
   readonly startsAt: Date;
   readonly offsetsMinutes: readonly number[];
@@ -15,13 +14,13 @@ export interface ReplaceEventRemindersInput {
 }
 
 // Reconciles the caller's reminder rows for one event with the offsets they now want. Runs in
-// the same transaction as the event change. Only the caller's rows are touched (RLS allows
-// nothing else); a row whose time did not change keeps its fired or skipped state.
+// the same transaction as the event change. Reminders are user-owned, so only the caller's rows
+// are touched; a row whose time did not change keeps its fired or skipped state.
 export const replaceEventReminders = async (
   tx: ModuleTransaction,
   input: ReplaceEventRemindersInput,
 ): Promise<void> => {
-  const { eventId, familyId, userId, startsAt, offsetsMinutes, now } = input;
+  const { eventId, userId, startsAt, offsetsMinutes, now } = input;
   const existing = await tx.eventReminder.findMany({ where: { eventId, userId } });
   const byOffset = new Map(existing.map((row) => [row.offsetMinutes, row]));
 
@@ -34,7 +33,6 @@ export const replaceEventReminders = async (
         data: {
           reminderId: randomUUID(),
           eventId,
-          familyId,
           userId,
           offsetMinutes,
           remindAt: at,
