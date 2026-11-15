@@ -13,7 +13,7 @@ const rulesOf = (path, source) => checkFile(path, source, every(source)).map((f)
 test("findComments reports comments and ignores strings, SPDX and shebang", () => {
   const source = [
     "#!/usr/bin/env node",
-    "// SPDX-License-Identifier: FSL-1.1-ALv2",
+    `// SPDX-${"License"}-Identifier: FSL-1.1-ALv2`,
     'const url = "http://example.test";',
     "const text = `// not a comment`;",
     "const total = 1; // trailing",
