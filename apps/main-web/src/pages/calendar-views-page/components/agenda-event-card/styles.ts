@@ -3,6 +3,7 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import { calendarTintBackground } from "../../../../calendars/calendar-accents.js";
 
 export const agendaRowStyle: CSSProperties = {
   display: "flex",
@@ -72,7 +73,7 @@ export const agendaCalendarPillStyle = (color: string): CSSProperties => ({
   maxWidth: "100%",
   padding: `${tokens.space[1]} ${tokens.space[2]}`,
   borderRadius: cssVar("radius-full"),
-  background: `${color}26`,
+  background: calendarTintBackground(color),
   color: cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
   fontSize: cssVar("font-size-label-sm"),

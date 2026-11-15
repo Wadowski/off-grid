@@ -55,7 +55,7 @@ export const monthDayCellStyle = (inMonth: boolean): CSSProperties => ({
   cursor: inMonth ? "pointer" : "default",
 });
 
-export const monthDayNumberStyle = (selected: boolean): CSSProperties => ({
+export const monthDayNumberStyle = (selected: boolean, today = false): CSSProperties => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -64,7 +64,7 @@ export const monthDayNumberStyle = (selected: boolean): CSSProperties => ({
   borderRadius: cssVar("radius-full"),
   background: selected ? cssVar("color-primary") : "transparent",
   color: selected ? cssVar("color-accent-fg") : "inherit",
-  fontWeight: selected ? cssVar("font-weight-semibold") : cssVar("font-weight-medium"),
+  fontWeight: selected || today ? cssVar("font-weight-semibold") : cssVar("font-weight-medium"),
 });
 
 export const monthDotRowStyle: CSSProperties = {

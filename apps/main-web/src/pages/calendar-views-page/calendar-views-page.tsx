@@ -20,6 +20,7 @@ import { DateNavigator } from "./components/date-navigator/date-navigator.js";
 import { DayHeader } from "./components/day-header/day-header.js";
 import { DayTimeline } from "./components/day-timeline/day-timeline.js";
 import { MonthGrid } from "./components/month-grid/month-grid.js";
+import { MonthGridDesktop } from "./components/month-grid-desktop/month-grid-desktop.js";
 import { ViewSelect } from "./components/view-select/view-select.js";
 import { DESKTOP_WEEK_SIZE, PHONE_WEEK_SIZE } from "./components/week-grid/constants.js";
 import { WeekGrid } from "./components/week-grid/week-grid.js";
@@ -32,8 +33,10 @@ import {
   calendarViewsHeaderStyle,
   calendarViewsPageStyle,
   calendarViewsStatusStyle,
+  DESKTOP_MONTH_CLASS,
   FILTER_CLASS,
   FOOTER_CLASS,
+  MOBILE_MONTH_CLASS,
   PAGE_CLASS,
   WEEK_STRIP_CLASS,
 } from "./styles.js";
@@ -57,6 +60,9 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
   const selectedEvents = visibleDays.find((day) => day.date === date)?.events ?? [];
 
   const goToDate = (nextDate: string) => setSearchParams({ date: nextDate });
+
+  const goToDay = (nextDate: string) =>
+    navigate({ pathname: "/calendar/day", search: `?date=${nextDate}` });
 
   const goToView = (nextView: CalendarViewKind) =>
     navigate({ pathname: `/calendar/${nextView}`, search: `?date=${date}` });
@@ -117,14 +123,27 @@ export const CalendarViewsPage = ({ view }: CalendarViewsPageProps) => {
         </>
       )}
       {view === "month" && status === "ready" && (
-        <MonthGrid
-          days={visibleDays}
-          selectedDate={date}
-          todayDate={today}
-          timeZone={timeZone}
-          selectedEvents={selectedEvents}
-          onSelect={goToDate}
-        />
+        <>
+          <div className={MOBILE_MONTH_CLASS}>
+            <MonthGrid
+              days={visibleDays}
+              selectedDate={date}
+              todayDate={today}
+              timeZone={timeZone}
+              selectedEvents={selectedEvents}
+              onSelect={goToDate}
+            />
+          </div>
+          <div className={DESKTOP_MONTH_CLASS}>
+            <MonthGridDesktop
+              days={visibleDays}
+              selectedDate={date}
+              todayDate={today}
+              timeZone={timeZone}
+              onOpenDay={goToDay}
+            />
+          </div>
+        </>
       )}
       {view === "week" && status === "ready" && (
         <div className={gridWrapperClass}>

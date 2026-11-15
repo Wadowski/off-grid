@@ -3,7 +3,7 @@
 
 import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { addDays, mondayIndexOf } from "../../../../calendar-views/week-days.js";
+import { monthCells } from "../../../../calendar-views/month-cells.js";
 import { weekdayLetters } from "../../../../calendar-views/weekday-letters.js";
 import { MonthDayCell } from "./components/month-day-cell/month-day-cell.js";
 import { SelectedDaySheet } from "./components/selected-day-sheet/selected-day-sheet.js";
@@ -57,27 +57,4 @@ export const MonthGrid = ({
       <SelectedDaySheet date={selectedDate} events={selectedEvents} timeZone={timeZone} />
     </section>
   );
-};
-
-type MonthCell = { readonly date: string; readonly inMonth: boolean };
-
-const monthCells = (monthDates: readonly string[]): MonthCell[] => {
-  const first = monthDates[0];
-  const last = monthDates[monthDates.length - 1];
-  if (first === undefined || last === undefined) {
-    return [];
-  }
-  const leading = mondayIndexOf(first);
-  const used = leading + monthDates.length;
-  const trailing = (7 - (used % 7)) % 7;
-  const before = Array.from({ length: leading }, (_, index) => ({
-    date: addDays(first, index - leading),
-    inMonth: false,
-  }));
-  const inMonth = monthDates.map((date) => ({ date, inMonth: true }));
-  const after = Array.from({ length: trailing }, (_, index) => ({
-    date: addDays(last, index + 1),
-    inMonth: false,
-  }));
-  return [...before, ...inMonth, ...after];
 };

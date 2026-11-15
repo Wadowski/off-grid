@@ -5,6 +5,7 @@ import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 import type { WeekAccent } from "./components/week-event-block/types.js";
 import type { WeekCardStyle, WeekGridSize } from "./constants.js";
+import { calendarTintBackground } from "../../../../calendars/calendar-accents.js";
 
 // Room past the last day column for the desktop now-line time badge.
 const DESKTOP_NOW_BADGE_GUTTER = "4.25rem";
@@ -171,7 +172,7 @@ export const weekBlockStyle = (
   overflow: "hidden",
   borderRadius: cssVar("radius-sm"),
   borderLeft: `2px solid ${color}`,
-  background: `${color}26`,
+  background: calendarTintBackground(color),
   color: cssVar("color-fg"),
   fontFamily: cssVar("font-family-base"),
   fontSize: "9px",

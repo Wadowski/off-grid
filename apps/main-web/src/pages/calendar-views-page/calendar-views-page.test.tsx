@@ -10,6 +10,7 @@ import { jsonResponse } from "../../test-support/json-response.js";
 import type { CalendarsState, ShellContext } from "../../types.js";
 import { CalendarLayout } from "../../layouts/calendar-layout/calendar-layout.js";
 import { CalendarViewsPage } from "./calendar-views-page.js";
+import { DESKTOP_MONTH_CLASS, MOBILE_MONTH_CLASS } from "./styles.js";
 
 const FAMILY_ID = "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f";
 const STUDIO: Calendar = calendarSchema.parse({
@@ -181,5 +182,67 @@ describe("CalendarViewsPage", () => {
 
     expect(screen.queryByRole("button", { name: "Search" })).not.toBeInTheDocument();
     expect(screen.queryByText(/Scheduled/)).not.toBeInTheDocument();
+  });
+});
+
+const NOVEMBER_BODY = {
+  view: "month",
+  startDate: "2026-11-01",
+  endDate: "2026-11-30",
+  days: Array.from({ length: 30 }, (_, index) => ({
+    date: `2026-11-${String(index + 1).padStart(2, "0")}`,
+    events: [],
+  })),
+};
+
+const renderMonthPage = () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url.includes("time-zone")
+        ? jsonResponse({ status: 200, body: { timeZone: "UTC", isSet: false } })
+        : jsonResponse({ status: 200, body: NOVEMBER_BODY }),
+    ),
+  );
+  return render(
+    <MemoryRouter initialEntries={["/calendar/month?date=2026-11-18"]}>
+      <LocationProbe />
+      <Routes>
+        <Route element={<Outlet context={shellWith(readyCalendars([STUDIO]))} />}>
+          <Route path="calendar" element={<CalendarLayout />}>
+            <Route path="month" element={<CalendarViewsPage view="month" />} />
+          </Route>
+          <Route path="calendar/day" element={<p>Day view</p>} />
+        </Route>
+      </Routes>
+    </MemoryRouter>,
+  );
+};
+
+describe("CalendarViewsPage month view", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    window.localStorage.clear();
+  });
+
+  it("renders the mobile and the desktop month grids, each in its own wrapper", async () => {
+    const { container } = renderMonthPage();
+
+    expect(await screen.findByTestId("month-desktop-cell-2026-11-18")).toBeInTheDocument();
+    expect(container.querySelector(`.${MOBILE_MONTH_CLASS}`)).toContainElement(
+      screen.getByTestId("month-day-2026-11-18"),
+    );
+    expect(container.querySelector(`.${DESKTOP_MONTH_CLASS}`)).toContainElement(
+      screen.getByTestId("month-desktop-day-2026-11-18"),
+    );
+  });
+
+  it("opens the day view when a desktop day number is clicked", async () => {
+    renderMonthPage();
+
+    fireEvent.click(await screen.findByTestId("month-desktop-day-2026-11-05"));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2026-11-05");
   });
 });
