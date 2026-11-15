@@ -9,7 +9,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { publish, replayEvents } from "./index.js";
 import { familyCreated } from "../test/family-created.js";
 import { startTestDatabase } from "../test/start-test-database.js";
-import type { TestDatabase } from "../test/types.js";
+import type { Seen, TestDatabase } from "../test/types.js";
 
 const FAMILY_ID = randomUUID();
 
@@ -45,11 +45,6 @@ const publishCommitted = async (
     client.release();
   }
 };
-
-interface Seen {
-  readonly type: string;
-  readonly sourceVersion: number;
-}
 
 describe("replayEvents", () => {
   let db: TestDatabase;
