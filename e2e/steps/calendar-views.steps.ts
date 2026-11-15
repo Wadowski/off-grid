@@ -87,6 +87,29 @@ When(
   },
 );
 
+When(
+  /^(\w+) rejoins the family "([^"]*)" with the invitation code$/,
+  async ({ world }, who: string, family: string) => {
+    const scenario = eventsState(world);
+    const familyId = scenario.families[family]?.id;
+    expect(familyId, `the family "${family}" is not set up`).toBeDefined();
+    const admin = await sessionOf(world, `${family} admin`);
+    const invitation = await world.api.post(`/api/families/${familyId}/invitations`, {
+      headers: bearer(admin),
+      failOnStatusCode: false,
+    });
+    expect(invitation.status(), `could not invite ${who} back to "${family}"`).toBe(201);
+    const { code } = (await invitation.json()) as { code: string };
+    const session = await sessionOf(world, who);
+    const joined = await world.api.post("/api/families/join", {
+      headers: bearer(session),
+      data: { code },
+      failOnStatusCode: false,
+    });
+    expect(joined.status(), `${who} could not rejoin "${family}"`).toBe(201);
+  },
+);
+
 Then(
   /^the (agenda|day|week|month) view starts on (\d{4}-\d{2}-\d{2}) and ends on (\d{4}-\d{2}-\d{2})$/,
   async ({ world }, view: string, startDate: string, endDate: string) => {
