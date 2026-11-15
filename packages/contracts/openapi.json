@@ -1067,6 +1067,15 @@
                 "minLength": 1,
                 "maxLength": 2000
               },
+              "reminderOffsetsMinutes": {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 40320
+                }
+              },
               "isAllDay": {
                 "type": "boolean",
                 "const": false
@@ -1107,6 +1116,15 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 2000
+              },
+              "reminderOffsetsMinutes": {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 40320
+                }
               },
               "isAllDay": {
                 "type": "boolean",

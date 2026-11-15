@@ -10,6 +10,7 @@ import {
   eventLocationSchema,
   eventTitleSchema,
 } from "./calendar-event-fields-schema.js";
+import { reminderOffsetsSchema } from "./reminder-offsets-schema.js";
 
 export const updateCalendarEventRequestSchema = z
   .strictObject({
@@ -21,6 +22,7 @@ export const updateCalendarEventRequestSchema = z
     endsAt: eventInstantSchema.optional(),
     startDate: eventDateSchema.optional(),
     endDate: eventDateSchema.optional(),
+    reminderOffsetsMinutes: reminderOffsetsSchema.optional(),
   })
   .refine((value) => Object.values(value).some((field) => field !== undefined), {
     message: "Send at least one field to change",

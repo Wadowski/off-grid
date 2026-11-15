@@ -12,6 +12,7 @@ import {
 } from "./calendar-event-fields-schema.js";
 import { calendarColorSchema } from "./calendar-color-schema.js";
 import { nameSchema } from "./name-schema.js";
+import { reminderOffsetsSchema } from "./reminder-offsets-schema.js";
 import { timestampSchema } from "./timestamp-schema.js";
 
 export const calendarEventSchema = z.object({
@@ -28,4 +29,5 @@ export const calendarEventSchema = z.object({
   readOnly: z.boolean(),
   calendarName: nameSchema.optional(),
   calendarColor: calendarColorSchema.optional(),
+  reminderOffsetsMinutes: reminderOffsetsSchema.optional(),
 });

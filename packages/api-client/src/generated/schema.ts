@@ -230,6 +230,7 @@ export interface components {
             title: string;
             location?: string;
             description?: string;
+            reminderOffsetsMinutes?: number[];
             /** @constant */
             isAllDay: false;
             /** Format: date-time */
@@ -240,6 +241,7 @@ export interface components {
             title: string;
             location?: string;
             description?: string;
+            reminderOffsetsMinutes?: number[];
             /** @constant */
             isAllDay: true;
             /** Format: date */

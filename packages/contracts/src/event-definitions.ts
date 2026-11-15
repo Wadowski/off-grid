@@ -3,6 +3,7 @@
 
 import { calendarEventCreatedV1 } from "./calendar-event-created-v1.js";
 import { calendarEventGuestInvitedV1 } from "./calendar-event-guest-invited-v1.js";
+import { calendarReminderDueV1 } from "./calendar-reminder-due-v1.js";
 import { calendarEventRemovedV1 } from "./calendar-event-removed-v1.js";
 import { calendarEventUpdatedV1 } from "./calendar-event-updated-v1.js";
 import { familyCreatedV1 } from "./family-created-v1.js";
@@ -20,6 +21,7 @@ export const eventDefinitions: readonly AnyEventDefinition[] = [
   calendarEventCreatedV1,
   calendarEventGuestInvitedV1,
   calendarEventRemovedV1,
+  calendarReminderDueV1,
   calendarEventUpdatedV1,
   familyCreatedV1,
   familyMemberAddedV1,
