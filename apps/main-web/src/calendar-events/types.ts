@@ -14,6 +14,12 @@ export type EventFormValues = {
   readonly endTime: string;
   readonly location: string;
   readonly description: string;
+  readonly guestUserIds: readonly string[];
+};
+
+export type GuestChanges = {
+  readonly toInvite: readonly string[];
+  readonly toRemove: readonly string[];
 };
 
 export type EventFormErrors = {
@@ -67,4 +73,5 @@ export type EventFormSource = {
   readonly endsAt: string;
   readonly startDate: string | null;
   readonly endDate: string | null;
+  readonly guestUserIds?: readonly string[];
 };

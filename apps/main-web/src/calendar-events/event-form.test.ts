@@ -18,6 +18,7 @@ const timedForm = (overrides: Partial<EventFormValues> = {}): EventFormValues =>
   endTime: "13:00",
   location: "",
   description: "",
+  guestUserIds: [],
   ...overrides,
 });
 
