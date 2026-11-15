@@ -15,6 +15,8 @@ import { publishCalendarEventUpdated } from "../../events/calendar-events/publis
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
 import { updateEvent } from "../../infrastructure/calendar-events/update-event.js";
+import { findOwnReminderOffsets } from "../../infrastructure/reminders/find-own-reminder-offsets.js";
+import { replaceEventReminders } from "../../infrastructure/reminders/replace-event-reminders.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import type { CalendarEventRecord, CalendarOutcome } from "../../types.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
@@ -33,6 +35,7 @@ export const updateCalendarEvent = (
   userId: string,
   eventId: string,
   input: CalendarEventUpdateInput,
+  now: Date = new Date(),
 ): Promise<UpdateCalendarEventOutcome> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
@@ -57,8 +60,26 @@ export const updateCalendarEvent = (
       calendarId,
       ...window,
     });
+    if (input.reminderOffsetsMinutes !== undefined || Object.keys(window).length > 0) {
+      await replaceEventReminders(tx, {
+        eventId: record.eventId,
+        familyId: record.familyId,
+        userId,
+        startsAt: record.startsAt,
+        offsetsMinutes:
+          input.reminderOffsetsMinutes ??
+          (await findOwnReminderOffsets(tx, record.eventId, userId)),
+        now,
+      });
+    }
     await publishCalendarEventUpdated(tx, record);
-    return { outcome: "found", value: toEventView(record, timeZone) };
+    return {
+      outcome: "found",
+      value: {
+        ...toEventView(record, timeZone),
+        reminderOffsetsMinutes: await findOwnReminderOffsets(tx, record.eventId, userId),
+      },
+    };
   });
 
 const resolveTargetCalendar = async (

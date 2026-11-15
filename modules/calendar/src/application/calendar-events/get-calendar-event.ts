@@ -4,6 +4,7 @@
 import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { findEvent } from "../../infrastructure/calendar-events/find-event.js";
+import { findOwnReminderOffsets } from "../../infrastructure/reminders/find-own-reminder-offsets.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { findEventGuest } from "../../infrastructure/event-guests/find-event-guest.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
@@ -24,7 +25,10 @@ export const getCalendarEvent = (
     }
     const timeZone = (await findTimeZone(tx, userId)) ?? DEFAULT_TIME_ZONE;
     const readOnly = await findEventGuest(tx, { eventId: record.eventId, guestUserId: userId });
-    const view = toEventView(record, timeZone, readOnly);
+    const view = {
+      ...toEventView(record, timeZone, readOnly),
+      reminderOffsetsMinutes: await findOwnReminderOffsets(tx, record.eventId, userId),
+    };
     if (!readOnly) {
       return { outcome: "found", value: view };
     }

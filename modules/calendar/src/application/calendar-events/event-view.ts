@@ -11,6 +11,7 @@ export interface CalendarEventView extends CalendarEventRecord {
   readonly readOnly: boolean;
   readonly calendarName?: string;
   readonly calendarColor?: CalendarColor;
+  readonly reminderOffsetsMinutes?: readonly number[];
 }
 
 export const toEventView = (

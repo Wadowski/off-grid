@@ -9,6 +9,8 @@ import { DEFAULT_TIME_ZONE } from "../../domain/time-zone.js";
 import { publishCalendarEventCreated } from "../../events/calendar-events/publish-calendar-event-created.js";
 import { findCalendar } from "../../infrastructure/calendars/find-calendar.js";
 import { insertEvent } from "../../infrastructure/calendar-events/insert-event.js";
+import { findOwnReminderOffsets } from "../../infrastructure/reminders/find-own-reminder-offsets.js";
+import { replaceEventReminders } from "../../infrastructure/reminders/replace-event-reminders.js";
 import { findTimeZone } from "../../infrastructure/time-zones/find-time-zone.js";
 import type { CalendarOutcome } from "../../types.js";
 import { toEventView, type CalendarEventView } from "./event-view.js";
@@ -18,6 +20,7 @@ export const createCalendarEvent = (
   userId: string,
   calendarId: string,
   input: NewCalendarEventInput,
+  now: Date = new Date(),
 ): Promise<CalendarOutcome<CalendarEventView>> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, userId);
@@ -41,6 +44,22 @@ export const createCalendarEvent = (
       startsAt: window.startsAt,
       endsAt: window.endsAt,
     });
+    if (input.reminderOffsetsMinutes !== undefined) {
+      await replaceEventReminders(tx, {
+        eventId: record.eventId,
+        familyId: record.familyId,
+        userId,
+        startsAt: record.startsAt,
+        offsetsMinutes: input.reminderOffsetsMinutes,
+        now,
+      });
+    }
     await publishCalendarEventCreated(tx, record);
-    return { outcome: "found", value: toEventView(record, timeZone) };
+    return {
+      outcome: "found",
+      value: {
+        ...toEventView(record, timeZone),
+        reminderOffsetsMinutes: await findOwnReminderOffsets(tx, record.eventId, userId),
+      },
+    };
   });
