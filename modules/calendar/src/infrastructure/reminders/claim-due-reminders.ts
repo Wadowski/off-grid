@@ -3,21 +3,18 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 
-export interface ClaimedReminder {
+interface ClaimedReminder {
   readonly reminderId: string;
   readonly eventId: string;
-  readonly userId: string | null;
+  readonly userId: string;
 }
 
 interface ClaimRow {
   readonly reminder_id: string;
   readonly event_id: string;
-  readonly user_id: string | null;
+  readonly user_id: string;
 }
 
-// Calls the SECURITY DEFINER function that marks due reminders as fired and returns their ids.
-// The function is the only cross-user read the worker makes (ADR 0030). It runs in the caller's
-// transaction, so a rollback also unmarks the rows.
 export const claimDueReminders = async (
   tx: ModuleTransaction,
   now: Date,

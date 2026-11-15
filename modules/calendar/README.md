@@ -17,7 +17,7 @@ Owner: module team (calendar)
 - `calendar.family_membership`: which people belong to each family, fed by family membership events. A removed membership stays as a row with `is_member = false` and the newest `source_version` applied, so an older join cannot bring it back.
 - `calendar.location`: named places.
 
-Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init`, `*_calendar_color_and_default`, `*_calendar_family_membership`, `*_calendar_events`, `*_calendar_user_time_zone` and `*_calendar_event_range_index`. The last one adds the `(starts_at, ends_at)` index that the view query uses.
+Migrations live in [packages/db/prisma/migrations](../../packages/db/prisma/migrations) as `*_calendar_init`, `*_calendar_color_and_default`, `*_calendar_family_membership`, `*_calendar_events`, `*_calendar_user_time_zone` and `*_calendar_event_range_index`. The last one adds the `(starts_at, ends_at)` index that the view query uses. `*_calendar_event_guests` and `*_calendar_event_reminders` follow.
 
 ## Routes
 
@@ -80,7 +80,8 @@ A reminder fires a fixed number of minutes before the event's start. Each person
 - A row is due at `remind_at = startsAt - offset`, inclusive. Setting or moving a reminder into the past sets `skipped_at`, so it never fires. A reminder that becomes due while the server is down fires once, at the next tick.
 - A change to the event's start, end or all-day window reschedules the editing user's rows, keeping `fired_at` only when the time is unchanged. Moving a reminder into the future after it fired fires it again at the new time. Clearing or adding offsets adds or removes rows.
 - Deleting an event removes all its reminder rows, including guests' rows, so none fires after the event is gone.
-- The worker (`src/workers/reminder-dispatch/`) runs every 30 seconds in the server process. Each tick claims due rows with `calendar.claim_due_reminders` and publishes `calendar-reminder-due-v1` for each, in one transaction. The claim is row-locked, so two server instances never fire the same row, and it skips rows whose owner can no longer see the event.
+- The worker (`src/workers/reminder-dispatch/`) runs every 30 seconds in the server process, and skips a tick while the previous one is still running. Each tick claims due rows with `calendar.claim_due_reminders` and publishes `calendar-reminder-due-v1` for each, in one transaction. The claim is row-locked, so two server instances never fire the same row, and it skips rows whose owner can no longer see the event and rows with no user owner.
+- The claim is raw SQL, in `src/infrastructure/reminders/claim-due-reminders.ts` with `$queryRaw`. It is the only cross-user read the worker makes. The worker runs outside any user context, so row-level security cannot scope the read, and Prisma cannot call a set-returning function through its model API. The function is `SECURITY DEFINER`, is `REVOKE`d from `PUBLIC`, returns only the three ids, and is reviewed with each change to the reminder tables (ADR 0030).
 - `calendar-reminder-due-v1` carries `eventId` and `userId` only. Notifications maps it to an `event-reminder` inbox item for its creator. The fact is not delivered through a calendar-specific channel.
 - Known gaps: an event move reschedules only the editing user's rows, so a guest's reminders keep their old times until they set them again. Reminder controls in the event screen are not built (API only).
 

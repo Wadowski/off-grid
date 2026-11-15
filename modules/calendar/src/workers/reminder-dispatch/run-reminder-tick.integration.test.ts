@@ -10,8 +10,6 @@ import { removeCalendarEvent } from "../../application/calendar-events/remove-ca
 import { claimDueReminders } from "../../infrastructure/reminders/claim-due-reminders.js";
 import { runReminderTick } from "./run-reminder-tick.js";
 
-// The event starts at 09:00 UTC and the reminders are 15 and 60 minutes before it, so they are
-// due at 08:45 and 08:00. The fake clock is the `now` passed to each tick.
 const seededAt = new Date("2026-11-20T07:00:00Z");
 const starts = "2026-11-20T09:00:00Z";
 const BATCH = 50;
@@ -132,6 +130,18 @@ describe("reminder dispatch tick with a fake clock", { timeout: 60_000 }, () => 
     expect(rows).toHaveLength(1);
     expect(await factCount()).toBe(0);
     expect(await tick("2026-11-20T08:45:00Z")).toBe(1);
+  });
+
+  it("does not claim a reminder that has no user owner", async () => {
+    await addStandup([15]);
+    await db.admin.query("UPDATE calendar.event_reminder SET family_id = $1, user_id = NULL", [
+      randomUUID(),
+    ]);
+    expect(await tick("2026-11-20T08:45:00Z")).toBe(0);
+    const { rows } = await db.admin.query(
+      "SELECT 1 FROM calendar.event_reminder WHERE fired_at IS NULL",
+    );
+    expect(rows).toHaveLength(1);
   });
 
   it("skips a reminder that was set in the past and never fires it", async () => {
