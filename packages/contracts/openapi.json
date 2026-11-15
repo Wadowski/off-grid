@@ -1674,7 +1674,8 @@
                   "enum": [
                     "password-changed",
                     "recovery-code-regenerated",
-                    "event-invited"
+                    "event-invited",
+                    "event-reminder"
                   ]
                 },
                 "data": {

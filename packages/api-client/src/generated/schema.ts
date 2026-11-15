@@ -357,7 +357,7 @@ export interface components {
                 /** Format: uuid */
                 id: string;
                 /** @enum {string} */
-                type: "password-changed" | "recovery-code-regenerated" | "event-invited";
+                type: "password-changed" | "recovery-code-regenerated" | "event-invited" | "event-reminder";
                 data: {
                     [key: string]: string;
                 };
