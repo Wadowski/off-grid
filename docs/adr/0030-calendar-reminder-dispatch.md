@@ -16,6 +16,8 @@ Row-level security ([ADR 0029](0029-event-guest-access.md)) lets each user read 
 - We will run the claim and the publish of `calendar-reminder-due-v1` in one transaction per tick. A rollback leaves no fired marker and no fact, so the next tick retries.
 - We will publish the fact owned by the creator, with payload `{ eventId, userId }` only. Notifications maps it to an `event-reminder` item for that user.
 - We will run the worker as an interval loop in the server process. It does not use the client connection, so reminders do not depend on the tunnel.
+- We will build the test-only clock into a separate e2e image only. The routes `PUT /api/e2e/clock` and `DELETE /api/e2e/clock` live in `apps/main-server/src/e2e/`, and the entry point `src/main-e2e.ts` is the only code that registers them. The production image removes `src/e2e` and `src/main-e2e.ts` before it is used, and the production build (`tsconfig.json`) excludes them. The e2e image is built from the `e2e` target of the same Dockerfile, used only by the e2e compose override. Production config has no clock switch.
+- The two e2e clock routes are not in `packages/contracts` or the generated client. The contract is shared by the production build, and adding a test-only route there would publish it in every build. This is a reviewed exemption from the rule that each route is described in the contract. The routes are documented here instead, and the e2e clock is time-only: it changes what the worker reads and writes no rows.
 
 ## Consequences
 

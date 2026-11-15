@@ -8,9 +8,19 @@ COPY . .
 RUN pnpm install --frozen-lockfile \
  && pnpm --filter @offgrid/db generate
 
-FROM node:24.22.1-alpine AS runtime
+FROM build AS production-source
+RUN rm -rf /repo/apps/main-server/src/e2e /repo/apps/main-server/src/main-e2e.ts /repo/apps/main-server/dist-e2e
+
+FROM node:24.22.1-alpine AS e2e
 ENV NODE_ENV=production
 COPY --from=build --chown=node:node /repo /repo
+WORKDIR /repo/apps/main-server
+USER node
+CMD ["node", "--import", "tsx", "src/main-e2e.ts"]
+
+FROM node:24.22.1-alpine AS runtime
+ENV NODE_ENV=production
+COPY --from=production-source --chown=node:node /repo /repo
 WORKDIR /repo/apps/main-server
 USER node
 CMD ["node", "--import", "tsx", "src/main.ts"]

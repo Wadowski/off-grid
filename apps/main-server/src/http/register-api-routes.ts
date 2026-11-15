@@ -2,24 +2,24 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
-import type { ServerRuntime, ModuleDescriptor } from "../types.js";
+import type { ExtraRoutes, ServerRuntime, ModuleDescriptor } from "../types.js";
 import type { Migration } from "@offgrid/db";
 import { moduleContextFor } from "../module-wiring/module-context-for.js";
 import { registerGetHealth } from "./register-get-health.js";
 import { registerGetHealthReady } from "./register-get-health-ready.js";
 import { registerMeRoute } from "./register-me-route.js";
-import { registerE2eClockRoutes } from "./register-e2e-clock-routes.js";
 
 export const registerApiRoutes = async (
   api: FastifyInstance,
   runtime: ServerRuntime,
   modules: readonly ModuleDescriptor[],
   expectedMigrations: readonly Migration[],
+  extraRoutes?: ExtraRoutes,
 ): Promise<void> => {
   registerGetHealth(api);
   registerGetHealthReady(api, runtime, expectedMigrations);
   registerMeRoute(api, runtime);
-  registerE2eClockRoutes(api, runtime);
+  extraRoutes?.(api);
   for (const module of modules) {
     await module.registerRoutes?.(api, moduleContextFor(runtime, module.name));
   }

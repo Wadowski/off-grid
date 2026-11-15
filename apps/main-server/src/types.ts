@@ -26,7 +26,6 @@ export interface ServerConfig {
   readonly trustedProxies: readonly string[];
   readonly corsOrigins: readonly string[];
   readonly rateLimitPerMinute: number;
-  readonly e2eClock: boolean;
   readonly outbox: { readonly retentionDays: number };
   readonly logLevel: LogLevel;
 }
@@ -78,12 +77,20 @@ export type FamilyMembershipLister = (
   userId: string,
 ) => Promise<readonly { readonly id: string }[]>;
 
+export type ExtraRoutes = (api: FastifyInstance) => void;
+
+export interface ServerOptions {
+  readonly clock?: ServerClock;
+  readonly extraRoutes?: ExtraRoutes;
+}
+
 export interface AppOptions {
   readonly config: ServerConfig;
   readonly runtime: ServerRuntime;
   readonly modules: readonly ModuleDescriptor[];
   readonly identity?: IdentityResolver;
   readonly migrations?: readonly Migration[];
+  readonly extraRoutes?: ExtraRoutes;
 }
 
 export interface AppliedMigrationRow {

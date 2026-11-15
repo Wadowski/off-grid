@@ -7,6 +7,7 @@ x-server-image: &server-image offgrid-main-server:${OFFGRID_VERSION:-local}
 x-server-build: &server-build
   context: ../..
   dockerfile: apps/main-server/Dockerfile
+  target: runtime
 
 services:
   secrets-init:

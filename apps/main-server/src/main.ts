@@ -4,13 +4,10 @@
 import { startServer } from "./index.js";
 import { modulesFor } from "./module-wiring/modules-for.js";
 import { failStartup } from "./lifecycle/fail-startup.js";
+import { closeOnSignals } from "./lifecycle/close-on-signals.js";
 import { loadConfigOrExit } from "./config/load-config-or-exit.js";
 
 const config = loadConfigOrExit();
 const running = await startServer(config, modulesFor(config)).catch(failStartup);
 
-for (const signal of ["SIGTERM", "SIGINT"] as const) {
-  process.once(signal, () => {
-    void running.close().then(() => process.exit(0), failStartup);
-  });
-}
+closeOnSignals(running);

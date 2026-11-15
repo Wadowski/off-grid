@@ -58,7 +58,7 @@ const stubRuntime = ({
     eventBus: unusedEventBus,
     errorSink,
     logger: createLogger({ sink: () => undefined }),
-    clock: createServerClock({ controlled: false }),
+    clock: createServerClock(),
     moduleDatabases: new Map(),
     state: { publisherRunning, draining: false },
   };

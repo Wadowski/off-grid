@@ -33,6 +33,4 @@ export const environmentSchema = z.object({
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_OUTBOX_RETENTION_DAYS: z.coerce.number().int().min(1).max(3650).default(7),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
-  // Test-only e2e switch that lets the e2e routes freeze the clock. Off everywhere else.
-  OFFGRID_E2E_CLOCK: z.enum(["off", "on"]).default("off"),
 });

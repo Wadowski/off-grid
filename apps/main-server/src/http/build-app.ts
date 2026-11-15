@@ -24,6 +24,7 @@ export const buildApp = async ({
   modules,
   identity = anonymousContext,
   migrations,
+  extraRoutes,
 }: AppOptions): Promise<FastifyInstance> => {
   const expectedMigrations = migrations ?? (await loadExpectedMigrations());
   const app = Fastify({
@@ -45,9 +46,12 @@ export const buildApp = async ({
     exposedHeaders: CORS_EXPOSED_HEADERS,
   });
   registerErrorHandling(app, runtime);
-  await app.register((api) => registerApiRoutes(api, runtime, modules, expectedMigrations), {
-    prefix: "/api",
-  });
+  await app.register(
+    (api) => registerApiRoutes(api, runtime, modules, expectedMigrations, extraRoutes),
+    {
+      prefix: "/api",
+    },
+  );
 
   await app.ready();
   return app;
