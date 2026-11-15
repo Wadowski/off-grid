@@ -1,16 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Tag, Text } from "@offgrid/ui";
+import { Avatar, Button, cssVar, Tag, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
-import { cssVar } from "@offgrid/ui";
 import { detailsCardStyle } from "../../event-details/event-details-body/styles.js";
-import { guestInitialStyle, guestRowStyle, guestRowsStyle, guestsSectionStyle } from "./styles.js";
+import { initialsOf } from "../../../session/initials-of.js";
+import { guestRowStyle, guestRowsStyle, guestsSectionStyle } from "./styles.js";
 import type { GuestsSectionProps } from "./types.js";
-
-const initialOf = (name: string | undefined): string =>
-  (name ?? "?").trim().charAt(0).toUpperCase();
 
 export const GuestsSection = ({ state, nameOf, readOnly }: GuestsSectionProps) => {
   const { t } = useTranslation();
@@ -60,9 +57,7 @@ export const GuestsSection = ({ state, nameOf, readOnly }: GuestsSectionProps) =
                 data-testid={`event-guest-${guest.userId}`}
                 style={guestRowStyle}
               >
-                <span aria-hidden="true" style={guestInitialStyle}>
-                  {initialOf(name)}
-                </span>
+                <Avatar initials={name === undefined ? "?" : initialsOf(name)} size="2rem" />
                 <Text variant="body" value={name ?? t("calendar.guests.unknownName")} />
               </li>
             );

@@ -24,15 +24,3 @@ export const guestRowStyle: CSSProperties = {
   alignItems: "center",
   gap: tokens.space[2],
 };
-
-export const guestInitialStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: tokens.space[6],
-  height: tokens.space[6],
-  borderRadius: tokens.radius.full,
-  background: cssVar("color-primary"),
-  color: cssVar("color-on-primary"),
-  fontWeight: tokens.font.weight.semibold,
-};
