@@ -12,8 +12,8 @@ import {
   type CalendarEventsWorld,
   type EventRecord,
 } from "../support/factories/calendar-events.js";
+import { listCalendars } from "../support/factories/calendar.js";
 import {
-  defaultCalendarIdOf,
   freezeClockAt,
   moveEvent,
   releaseClock,
@@ -24,15 +24,18 @@ import {
 import { waitForOwnNotifications } from "../support/factories/notifications.js";
 import type { Session } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
+import {
+  instantOfDate,
+  MEMBER_READY_INTERVAL_MS,
+  MEMBER_READY_TIMEOUT_MS,
+  ONE_HOUR_MS,
+} from "../support/timing.js";
 
 const { Given, When, Then, After } = createBdd(test);
 
 const ANNA = "Anna";
 const FAMILY = "Anna's family";
 const FAMILY_CALENDAR = "Family";
-const ONE_HOUR_MS = 60 * 60 * 1000;
-const MEMBER_READY_TIMEOUT_MS = 10_000;
-const MEMBER_READY_INTERVAL_MS = 200;
 const REMINDER_TYPE = "event-reminder";
 
 const eventsOf = (world: ScenarioWorld): CalendarEventsWorld => {
@@ -71,8 +74,6 @@ const eventNamed = (world: ScenarioWorld, title: string): EventRecord => {
   return found;
 };
 
-const instantOf = (date: string, time: string): string => `${date}T${time}:00.000Z`;
-
 const plusHour = (instant: string): string =>
   new Date(Date.parse(instant) + ONE_HOUR_MS).toISOString();
 
@@ -84,11 +85,13 @@ const createPersonalEvent = async (
   const anna = await sessionOf(world, ANNA);
   const calendarId = await eventually(
     async () => {
-      const id = await defaultCalendarIdOf(world.api, anna);
-      if (id === undefined) {
+      const defaultCalendar = (await listCalendars(world.api, anna)).find(
+        (calendar) => calendar.isDefault,
+      );
+      if (defaultCalendar === undefined) {
         throw new Error("Anna's default calendar is not ready yet");
       }
-      return id;
+      return defaultCalendar.id;
     },
     { timeout: MEMBER_READY_TIMEOUT_MS, interval: MEMBER_READY_INTERVAL_MS },
   );
@@ -136,7 +139,7 @@ const setOffsets = async (
 
 const freezeAt = async (world: ScenarioWorld, date: string, time: string): Promise<void> => {
   remindersOf(world).clockFrozen = true;
-  await freezeClockAt(world.api, instantOf(date, time));
+  await freezeClockAt(world.api, instantOfDate(date, time));
 };
 
 const countOfType = (items: readonly { type: string }[]): number =>
@@ -145,7 +148,7 @@ const countOfType = (items: readonly { type: string }[]): number =>
 Given(
   /^Anna has a personal event "([^"]*)" at (\d{2}:\d{2}) UTC on (\d{4}-\d{2}-\d{2})$/,
   async ({ world }, title: string, time: string, date: string) => {
-    await createPersonalEvent(world, title, instantOf(date, time));
+    await createPersonalEvent(world, title, instantOfDate(date, time));
   },
 );
 
@@ -169,7 +172,6 @@ Given(
         { timeout: MEMBER_READY_TIMEOUT_MS, interval: MEMBER_READY_INTERVAL_MS },
       )
     ).id;
-    // Every member must read the family calendar before the event is created for them.
     for (const member of eventsOf(world).members[FAMILY] ?? []) {
       const session = await sessionOf(world, member);
       await eventually(
@@ -180,7 +182,7 @@ Given(
         { timeout: MEMBER_READY_TIMEOUT_MS, interval: MEMBER_READY_INTERVAL_MS },
       );
     }
-    const startsAt = instantOf(date, time);
+    const startsAt = instantOfDate(date, time);
     const response = await createTimedEvent(world.api, anna, reminders.familyCalendarId ?? "", {
       title,
       startsAt,
@@ -238,7 +240,7 @@ When(
   async ({ world }, title: string, time: string, date: string) => {
     const anna = await sessionOf(world, ANNA);
     const record = eventNamed(world, title);
-    const startsAt = instantOf(date, time);
+    const startsAt = instantOfDate(date, time);
     const response = await moveEvent(world.api, anna, record.id, {
       startsAt,
       endsAt: plusHour(startsAt),
@@ -292,7 +294,6 @@ Then(/^Tom has no reminder for the event "([^"]*)"$/, async ({ world }, title: s
 });
 
 After(async ({ world }) => {
-  // Only scenarios that froze the clock need to release it; the seam is absent elsewhere.
   if (world.calendarReminders?.clockFrozen === true) {
     await releaseClock(world.api);
   }

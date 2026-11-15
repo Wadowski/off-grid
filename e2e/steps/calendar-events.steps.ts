@@ -21,6 +21,7 @@ import {
   type EventRecord,
 } from "../support/factories/calendar-events.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
+import { MEMBER_READY_INTERVAL_MS, MEMBER_READY_TIMEOUT_MS } from "../support/timing.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -29,8 +30,6 @@ const DEFAULT_START = "2026-11-20 10:00";
 const DEFAULT_END = "2026-11-20 11:00";
 const REFUSED_STATUSES = [400, 409];
 const NOT_FOUND = 404;
-const MEMBER_READY_TIMEOUT_MS = 10_000;
-const MEMBER_READY_INTERVAL_MS = 200;
 
 const state = (world: ScenarioWorld): CalendarEventsWorld => {
   world.calendarEvents ??= { people: {}, families: {}, members: {}, calendars: [], events: [] };
