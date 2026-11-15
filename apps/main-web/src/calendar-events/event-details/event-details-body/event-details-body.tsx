@@ -11,7 +11,6 @@ import {
   zonedMomentOf,
 } from "../../../calendar-views/time-format.js";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
-import { useSession } from "../../../session/use-session.js";
 import { guestNameOf } from "../../guests/guest-names.js";
 import { GuestsSection } from "../../guests/guests-section/guests-section.js";
 import { useEventGuests } from "../../guests/use-event-guests.js";
@@ -26,9 +25,8 @@ import type { EventDetailsBodyProps } from "./types.js";
 
 export const EventDetailsBody = ({ event, timeZone }: EventDetailsBodyProps) => {
   const { t } = useTranslation();
-  const session = useSession();
   const guests = useEventGuests(event.id);
-  const candidates = useGuestCandidates(session.status === "signedIn" ? session.user.id : "");
+  const candidates = useGuestCandidates();
   const dateLine = event.isAllDay
     ? formatDayHeading(event.startDate ?? "")
     : formatDayHeading(zonedMomentOf(event.startsAt, timeZone).date);

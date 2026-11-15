@@ -6,24 +6,22 @@ import { listFamilies } from "../../families/list-families.js";
 import { listFamilyMembers } from "../../families/list-family-members.js";
 import type { GuestCandidate, GuestCandidatesState, LoadStatus } from "./types.js";
 
-const candidatesOfFamilies = async (selfUserId: string): Promise<readonly GuestCandidate[]> => {
+const candidatesOfFamilies = async (): Promise<readonly GuestCandidate[]> => {
   const families = await listFamilies();
   const groups = await Promise.all(
     families.map(async (family) => {
       const members = await listFamilyMembers(family.id);
-      return members
-        .filter((member) => member.userId !== selfUserId)
-        .map((member) => ({
-          userId: member.userId,
-          name: member.displayName ?? undefined,
-          familyName: family.name,
-        }));
+      return members.map((member) => ({
+        userId: member.userId,
+        name: member.displayName ?? undefined,
+        familyName: family.name,
+      }));
     }),
   );
   return groups.flat();
 };
 
-export const useGuestCandidates = (selfUserId: string): GuestCandidatesState => {
+export const useGuestCandidates = (): GuestCandidatesState => {
   const [candidates, setCandidates] = useState<readonly GuestCandidate[]>([]);
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [attempt, setAttempt] = useState(0);
@@ -31,7 +29,7 @@ export const useGuestCandidates = (selfUserId: string): GuestCandidatesState => 
   useEffect(() => {
     let current = true;
     setStatus("loading");
-    candidatesOfFamilies(selfUserId)
+    candidatesOfFamilies()
       .then((list) => {
         if (current) {
           setCandidates(list);
@@ -46,7 +44,7 @@ export const useGuestCandidates = (selfUserId: string): GuestCandidatesState => 
     return () => {
       current = false;
     };
-  }, [selfUserId, attempt]);
+  }, [attempt]);
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 

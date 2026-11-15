@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { webCalendarClient } from "../../api/web-api-client.js";
+import { subscribeEventsChanged } from "../subscribe-events-changed.js";
 import type { EventGuestRow, EventGuestsState, LoadStatus } from "./types.js";
 
 export const useEventGuests = (eventId: string | undefined): EventGuestsState => {
@@ -33,6 +34,8 @@ export const useEventGuests = (eventId: string | undefined): EventGuestsState =>
       current = false;
     };
   }, [eventId, attempt]);
+
+  useEffect(() => subscribeEventsChanged(() => setAttempt((count) => count + 1)), []);
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 

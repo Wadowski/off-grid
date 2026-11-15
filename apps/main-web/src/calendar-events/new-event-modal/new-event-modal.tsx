@@ -75,7 +75,7 @@ export const NewEventModal = ({
   const [baselineGuestIds, setBaselineGuestIds] = useState<readonly string[]>([]);
   const existingGuests = useEventGuests(editing?.eventId);
   const selfUserId = session.status === "signedIn" ? session.user.id : "";
-  const candidates = useGuestCandidates(selfUserId);
+  const candidates = useGuestCandidates();
 
   const calendarId = values.calendarId !== "" ? values.calendarId : defaultCalendarId;
   const selectedCalendar = calendars.find((calendar) => calendar.id === calendarId);
@@ -256,7 +256,10 @@ export const NewEventModal = ({
   const guestField = (
     <GuestField
       selectedIds={values.guestUserIds}
-      candidatesState={candidates}
+      candidatesState={{
+        ...candidates,
+        candidates: candidates.candidates.filter((candidate) => candidate.userId !== selfUserId),
+      }}
       disabled={!guestsAllowed}
       onToggle={(userId) => setValues((current) => toggleGuest(current, userId))}
     />
