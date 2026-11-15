@@ -14,8 +14,8 @@ const { Given, When, Then } = createBdd(test);
 
 const PHONE_WIDTH = 375;
 const PHONE_HEIGHT = 812;
+const WEEK_STRIP_WRAPPER_CLASS = "og-calendar-views-week-strip";
 const VIEWS_API = "**/api/calendar/views/**";
-// The day timeline places an event at a 12px offset plus 88px per hour (see day-timeline/constants.ts).
 const TIMELINE_OFFSET_PX = 12;
 const TIMELINE_HOUR_PX = 88;
 
@@ -27,7 +27,6 @@ const minutesOf = (time: string): number => {
 const timelineTopPx = (time: string): number =>
   TIMELINE_OFFSET_PX + (minutesOf(time) * TIMELINE_HOUR_PX) / 60;
 
-// Formats a 24-hour time the way the timeline shows it, for example 09:30 as "09:30 AM".
 const clock12 = (time: string): string => {
   const [hours = 0, minutes = 0] = time.split(":").map(Number);
   const meridiem = hours < 12 ? "AM" : "PM";
@@ -113,8 +112,11 @@ Then(
   },
 );
 
-When("I choose the day view in the view selector", async ({ page }) => {
-  await page.getByRole("combobox", { name: "Calendar view" }).selectOption("day");
+When("I choose the day view in the view tabs", async ({ page }) => {
+  await page
+    .getByRole("group", { name: "Calendar view" })
+    .getByRole("button", { name: "Day", exact: true })
+    .click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/calendar/day");
 });
 
@@ -133,8 +135,8 @@ When("I untick the calendar {string} in the calendar filter", async ({ page }, n
     .uncheck();
 });
 
-Then("I see the view selector", async ({ page }) => {
-  await expect(page.getByRole("combobox", { name: "Calendar view" })).toBeVisible();
+Then("I see the view tabs", async ({ page }) => {
+  await expect(page.getByRole("group", { name: "Calendar view" })).toBeVisible();
 });
 
 Then("I see the calendar filter", async ({ page }) => {
@@ -253,4 +255,26 @@ When("I tap the day {word}", async ({ page }, date: string) => {
 Then("I see the event {string} in the day sheet", async ({ page }, title: string) => {
   const sheet = page.getByRole("region", { name: "Selected day" });
   await expect(sheet.getByText(title)).toBeVisible();
+});
+
+When("I choose {string} next to the calendar heading", async ({ page }, name: string) => {
+  await page.getByRole("main").getByRole("button", { name, exact: true }).click();
+});
+
+When("I scroll the page down", async ({ page }) => {
+  await page.evaluate("window.scrollTo(0, 300)");
+  await expect.poll(() => page.evaluate<number>("window.scrollY")).toBeGreaterThan(0);
+});
+
+Then("the days row stays right below the app header", async ({ page }) => {
+  const gapBelowHeader = async (): Promise<number> => {
+    const header = await page.locator(".og-header").boundingBox();
+    const strip = await page.locator(`.${WEEK_STRIP_WRAPPER_CLASS}`).boundingBox();
+    if (header === null || strip === null) {
+      return Number.NaN;
+    }
+    return Math.round(strip.y - (header.y + header.height));
+  };
+  await expect.poll(gapBelowHeader).toBeGreaterThanOrEqual(-1);
+  await expect.poll(gapBelowHeader).toBeLessThanOrEqual(1);
 });

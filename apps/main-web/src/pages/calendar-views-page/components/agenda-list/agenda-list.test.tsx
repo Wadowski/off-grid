@@ -28,10 +28,11 @@ const event = (
 });
 
 describe("AgendaList", () => {
-  it("says nothing is scheduled for an empty day", () => {
+  it("shows no text for an empty day", () => {
     render(<AgendaList events={[]} timeZone="UTC" />);
 
-    expect(screen.getByText("Nothing scheduled for this day.")).toBeInTheDocument();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    expect(screen.queryByText("Nothing scheduled for this day.")).not.toBeInTheDocument();
   });
 
   it("lists all-day events first and then timed events in time order", () => {

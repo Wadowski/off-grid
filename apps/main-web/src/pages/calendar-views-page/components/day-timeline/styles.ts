@@ -19,6 +19,26 @@ export const timelineScrollStyle: CSSProperties = {
   background: cssVar("color-surface-low"),
 };
 
+export const timelineFillSectionStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  minHeight: 0,
+};
+
+export const timelineFillScrollStyle: CSSProperties = {
+  flex: 1,
+  height: "auto",
+  minHeight: 0,
+};
+
+export const timelinePhoneScrollStyle: CSSProperties = {
+  ...timelineScrollStyle,
+  height: "auto",
+  overflowY: "visible",
+  borderRadius: 0,
+};
+
 export const timelineCanvasStyle: CSSProperties = {
   position: "relative",
   height: `${HOUR_HEIGHT_PX * HOURS_PER_DAY + TIMELINE_TOP_OFFSET_PX * 2}px`,

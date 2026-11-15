@@ -24,6 +24,7 @@ export const TimelineEventBlock = ({
   heightPx,
   column,
   columnCount,
+  desktop,
 }: TimelineEventBlockProps) => {
   const { t } = useTranslation();
   const accent = calendarAccentColor(event.calendarColor).background;
@@ -32,7 +33,7 @@ export const TimelineEventBlock = ({
   return (
     <article
       data-testid={`timeline-event-${event.id}`}
-      style={timelineBlockStyle(topPx, heightPx, column, columnCount)}
+      style={timelineBlockStyle(topPx, heightPx, column, columnCount, desktop)}
     >
       <span aria-hidden="true" style={timelineBlockAccentStyle(accent)} />
       <div style={timelineBlockHeaderStyle}>
@@ -42,7 +43,7 @@ export const TimelineEventBlock = ({
         <span style={timelineBlockRangeStyle}>{range}</span>
       </div>
       {event.location !== null && (
-        <div style={timelineBlockTitleStyle}>
+        <div style={timelineBlockTitleStyle} data-testid="timeline-event-location">
           <Text variant="body" value={event.location} />
         </div>
       )}

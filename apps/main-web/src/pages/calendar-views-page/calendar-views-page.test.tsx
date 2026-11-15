@@ -10,7 +10,6 @@ import { jsonResponse } from "../../test-support/json-response.js";
 import type { CalendarsState, ShellContext } from "../../types.js";
 import { CalendarLayout } from "../../layouts/calendar-layout/calendar-layout.js";
 import { CalendarViewsPage } from "./calendar-views-page.js";
-import { DESKTOP_MONTH_CLASS, MOBILE_MONTH_CLASS } from "./styles.js";
 
 const FAMILY_ID = "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f";
 const STUDIO: Calendar = calendarSchema.parse({
@@ -86,6 +85,7 @@ const renderPage = (path: string, view: "agenda" | "day" | "week" | "month") =>
           <Route path="calendar" element={<CalendarLayout />}>
             <Route path="week" element={<CalendarViewsPage view={view} />} />
             <Route path="agenda" element={<CalendarViewsPage view={view} />} />
+            <Route path="day" element={<CalendarViewsPage view={view} />} />
           </Route>
           <Route path="calendar/calendars" element={<p>Calendars list</p>} />
         </Route>
@@ -122,25 +122,25 @@ describe("CalendarViewsPage", () => {
   });
 
   it("hides a calendar's events when the person unticks it in the calendar filter", async () => {
-    stubApi();
-    renderPage("/calendar/week?date=2025-10-23", "week");
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: query.includes("max-width"),
+    });
+    try {
+      stubApi();
+      renderPage("/calendar/week?date=2025-10-23", "week");
 
-    fireEvent.click(screen.getByRole("button", { name: /^Calendar filter/ }));
-    const filter = screen.getByRole("group", { name: "Calendar filter" });
-    fireEvent.click(within(filter).getByRole("checkbox", { name: "Studio" }));
+      fireEvent.click(screen.getByRole("button", { name: /^Calendar filter/ }));
+      const filter = screen.getByRole("group", { name: "Calendar filter" });
+      fireEvent.click(within(filter).getByRole("checkbox", { name: "Studio" }));
 
-    expect(
-      screen.getByRole("button", { name: "Calendar filter: No calendars" }),
-    ).toBeInTheDocument();
-  });
-
-  it("opens the calendars list from the Calendars button", async () => {
-    stubApi();
-    renderPage("/calendar/week?date=2025-10-23", "week");
-
-    fireEvent.click(screen.getByRole("button", { name: "Calendars" }));
-
-    expect(await screen.findByText("Calendars list")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Calendar filter: No calendars" }),
+      ).toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
   });
 
   it("shows the error text and retries the same view when it fails", async () => {
@@ -154,26 +154,71 @@ describe("CalendarViewsPage", () => {
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(viewCalls));
   });
 
-  it("switches to another view from the view selector and keeps the date", () => {
+  it("switches to another view from the view tabs and keeps the date", () => {
     stubApi();
     renderPage("/calendar/agenda?date=2025-10-23", "agenda");
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Calendar view" }), {
-      target: { value: "month" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/month?date=2025-10-23");
   });
 
-  it("switches from the agenda to the day view from the view selector", () => {
+  it("switches from the agenda to the day view from the view tabs", () => {
     stubApi();
     renderPage("/calendar/agenda?date=2025-10-23", "agenda");
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Calendar view" }), {
-      target: { value: "day" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/calendar/day?date=2025-10-23");
+  });
+
+  it("puts the full date and the day navigator in one row and the view tabs in the header row on desktop", () => {
+    stubApi();
+    renderPage("/calendar/day?date=2025-10-23", "day");
+
+    const row = screen.getByTestId("day-command-row");
+    expect(within(row).getByRole("heading", { name: "Thursday, October 23" })).toBeInTheDocument();
+    expect(within(row).getByRole("button", { name: "Today" })).toBeInTheDocument();
+    expect(within(row).queryByRole("group", { name: "Calendar view" })).not.toBeInTheDocument();
+    const header = screen.getByRole("heading", { name: "Calendar" }).closest("header");
+    if (header === null) {
+      throw new Error("The calendar heading is not inside the page header.");
+    }
+    expect(within(header).getByRole("group", { name: "Calendar view" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Calendar view" })).not.toBeInTheDocument();
+    expect(screen.getAllByText("Thursday, October 23")).toHaveLength(1);
+    expect(screen.getByTestId("calendar-views-footer")).toBeInTheDocument();
+  });
+
+  it("shows the New Event button in a footer with no bar background or border", () => {
+    stubApi();
+    renderPage("/calendar/day?date=2025-10-23", "day");
+
+    const footer = screen.getByTestId("calendar-views-footer");
+    expect(within(footer).getByRole("button", { name: "New Event" })).toBeInTheDocument();
+    expect(footer.style.background).toBe("");
+    expect(footer.style.borderTop).toBe("");
+    expect(footer.style.pointerEvents).toBe("none");
+  });
+
+  it("shows the phone day view without a date heading or command row below 640px", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: query.includes("max-width"),
+    });
+    try {
+      stubApi();
+      renderPage("/calendar/day?date=2025-10-23", "day");
+
+      expect(screen.queryByTestId("day-command-row")).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByTestId("day-timeline")).toBeInTheDocument());
+      expect(screen.queryByText("Thursday, October 23")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^Calendar filter/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Manage calendars" })).toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
   });
 
   it("has no search button, avatar or day scheduled count", () => {
@@ -226,16 +271,27 @@ describe("CalendarViewsPage month view", () => {
     window.localStorage.clear();
   });
 
-  it("renders the mobile and the desktop month grids, each in its own wrapper", async () => {
-    const { container } = renderMonthPage();
+  it("renders the desktop month grid above 767 pixels and no mobile grid", async () => {
+    renderMonthPage();
 
     expect(await screen.findByTestId("month-desktop-cell-2026-11-18")).toBeInTheDocument();
-    expect(container.querySelector(`.${MOBILE_MONTH_CLASS}`)).toContainElement(
-      screen.getByTestId("month-day-2026-11-18"),
-    );
-    expect(container.querySelector(`.${DESKTOP_MONTH_CLASS}`)).toContainElement(
-      screen.getByTestId("month-desktop-day-2026-11-18"),
-    );
+    expect(screen.queryByTestId("month-day-2026-11-18")).not.toBeInTheDocument();
+  });
+
+  it("renders the mobile month grid at 767 pixels or less and no desktop grid", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      ...original(query),
+      matches: query.includes("max-width"),
+    });
+    try {
+      renderMonthPage();
+
+      expect(await screen.findByTestId("month-day-2026-11-18")).toBeInTheDocument();
+      expect(screen.queryByTestId("month-desktop-cell-2026-11-18")).not.toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
   });
 
   it("opens the day view when a desktop day number is clicked", async () => {

@@ -16,7 +16,6 @@ const DESKTOP_HEIGHT = 900;
 const SIDEBAR = "calendar-sidebar";
 const AGENDA_PATHS = ["/calendar", "/calendar/agenda"];
 
-// Monday is column 0, Sunday is column 6.
 const weekColumnOf = (date: string): number => {
   const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
   return (weekday + 6) % 7;
@@ -85,8 +84,11 @@ Then(
   },
 );
 
-When("I choose the week view in the view selector", async ({ page }) => {
-  await page.getByRole("combobox", { name: "Calendar view" }).selectOption("week");
+When("I choose the week view in the view tabs", async ({ page }) => {
+  await page
+    .getByRole("group", { name: "Calendar view" })
+    .getByRole("button", { name: "Week", exact: true })
+    .click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/calendar/week");
 });
 

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { sortByStart, splitAllDay } from "../../../../calendar-views/events-by-calendar.js";
 import { AgendaEventCard } from "../agenda-event-card/agenda-event-card.js";
@@ -12,7 +11,7 @@ export const AgendaList = ({ events, timeZone }: AgendaListProps) => {
   const { t } = useTranslation();
 
   if (events.length === 0) {
-    return <Text variant="body" textId="calendar.mobileViews.nothingScheduled" />;
+    return null;
   }
 
   const { allDay, timed } = splitAllDay(events);

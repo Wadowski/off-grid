@@ -22,13 +22,31 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
 type Theme = "light" | "dark";
 
-const nextFrame = (page: Page): Promise<void> =>
-  page.evaluate("new Promise((resolve) => requestAnimationFrame(() => resolve()))");
+const SCREEN_TAG = "@screen:";
+
+const UUID_SEGMENT = /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\/|$)/gi;
+
+export const screenNameFor = (url: string, tags: readonly string[]): string => {
+  const screenTag = tags.find((tag) => tag.startsWith(SCREEN_TAG));
+  if (screenTag !== undefined) {
+    return screenTag.slice(SCREEN_TAG.length);
+  }
+  return new URL(url).pathname.replace(UUID_SEGMENT, "/:id");
+};
+
+export const isScreenUrl = (url: string): boolean => url.startsWith("http");
+
+const screenKey = (feature: string, screen: string): string => `${slug(feature)}/${slug(screen)}`;
 
 const shotName = (name: string, theme: Theme, mobile: boolean): string =>
   [name, theme === "dark" ? "dark" : undefined, mobile ? "mobile" : undefined]
     .filter((part): part is string => part !== undefined)
     .join(" ");
+
+const captured = new Set<string>();
+
+const nextFrame = (page: Page): Promise<void> =>
+  page.evaluate("new Promise((resolve) => requestAnimationFrame(() => resolve()))");
 
 const captureTheme = async (
   page: Page,
@@ -59,6 +77,12 @@ export async function captureScreen(
   if (!screenshotsEnabled()) {
     return undefined;
   }
+  const key = screenKey(feature, name);
+  const lightPath = screenPath(feature, shotName(name, "light", false));
+  if (captured.has(key)) {
+    return lightPath;
+  }
+  captured.add(key);
   await mkdir(screenPath(feature, name).split("/").slice(0, -1).join("/"), { recursive: true });
   const path = await captureTheme(page, name, feature, "light");
   await captureTheme(page, name, feature, "dark");
