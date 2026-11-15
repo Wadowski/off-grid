@@ -76,14 +76,16 @@ const setReminder = async (
   await scope.getByTestId(`reminder-unit-${index}`).selectOption(unitOf(reminder.word));
 };
 
-const shownReminders = (scope: Locator): Promise<string[]> =>
-  scope.locator('[data-testid^="reminder-row-"]').evaluateAll((rows) =>
-    rows.map((row) => {
-      const amount = row.querySelector<HTMLInputElement>('[data-testid^="reminder-amount-"]');
-      const unit = row.querySelector<HTMLSelectElement>('[data-testid^="reminder-unit-"]');
-      return `${amount?.value ?? ""} ${unit?.selectedOptions[0]?.textContent ?? ""}`;
-    }),
-  );
+const shownReminders = async (scope: Locator): Promise<string[]> => {
+  const rows = await scope.locator('[data-testid^="reminder-row-"]').all();
+  const shown: string[] = [];
+  for (const row of rows) {
+    const amount = await row.locator('[data-testid^="reminder-amount-"]').inputValue();
+    const unit = await row.locator('[data-testid^="reminder-unit-"] option:checked').textContent();
+    shown.push(`${amount} ${unit ?? ""}`);
+  }
+  return shown;
+};
 
 const saveNewEvent = async (page: Page): Promise<void> => {
   await newEventModal(page).getByRole("button", { name: "Create Event", exact: true }).click();
