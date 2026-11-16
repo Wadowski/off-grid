@@ -112,3 +112,5 @@ src/events/              events published and handled (empty)
 src/workers/             background jobs (empty)
 test/                    Postgres harness for the module's tests
 ```
+
+Consumers: the relations module subscribes to the event created, updated, removed and guest-invited events to keep link titles and guest access current ([ADR 0031](../../docs/adr/0031-cross-entity-links.md)).

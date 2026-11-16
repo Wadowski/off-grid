@@ -33,7 +33,12 @@ export const createRelationsClient = (client: ApiClient) => ({
 
   createCrossEntityLink: async (input: CreateCrossEntityLinkRequest, familyId?: string) =>
     crossEntityLinkSchema.parse(
-      await client.request("POST", relationsRoutes.crossEntityLinks, input, familyHeaders(familyId)),
+      await client.request(
+        "POST",
+        relationsRoutes.crossEntityLinks,
+        input,
+        familyHeaders(familyId),
+      ),
     ),
 
   removeCrossEntityLink: async (linkId: string, familyId?: string): Promise<void> => {
