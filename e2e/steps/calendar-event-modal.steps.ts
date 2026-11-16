@@ -136,7 +136,7 @@ Then("I see the new event modal over the agenda view", async ({ page }) => {
 });
 
 Then("I see the guest field in the new event modal", async ({ page }) => {
-  await expect(modal(page).getByLabel("Guests", { exact: true })).toBeVisible();
+  await expect(modal(page).getByTestId("guest-field")).toBeVisible();
 });
 
 When("I try to save an event without a title", async ({ page }) => {

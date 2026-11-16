@@ -6,6 +6,7 @@ export { createAdminClient } from "./admin-client.js";
 export { createAuthClient } from "./auth-client.js";
 export { createCalendarClient } from "./calendar-client.js";
 export { createRelationsClient } from "./relations-client.js";
+export { createFamilyClient } from "./family-client.js";
 export { createApiClient } from "./create-api-client.js";
 export type { SignInInput } from "./types.js";
 export type { components, paths } from "./generated/schema.js";

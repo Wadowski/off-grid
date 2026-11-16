@@ -176,6 +176,22 @@ export const en = {
         saveFailed: "Could not save your reminders. Try again.",
       },
     },
+    guests: {
+      heading: "Guests",
+      selectedCount: "{{count}} selected",
+      add: "Add guests",
+      remove: "Remove {{name}}",
+      unknownName: "Guest",
+      familyHeading: "Family",
+      emptyHost: "No guests yet",
+      noCandidates:
+        "You share no family with anyone yet. Join or create a family to invite people.",
+      familyHint: "Guests can only be invited to personal events.",
+      loadFailed: "Guests could not be loaded",
+      partialFailure: "Event saved, but some guests could not be invited. Try again.",
+      loading: "Loading guests",
+      retry: "Try again",
+    },
     mobileViews: {
       allCalendars: "All Calendars",
       noCalendarsSelected: "No calendars",

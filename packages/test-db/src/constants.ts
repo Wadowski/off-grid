@@ -13,3 +13,28 @@ export const POOL_MAX = 4;
 export const MIGRATOR_ROLE_NAME = "offgrid_migrator";
 
 export const APP_ROLE_NAME = "offgrid_app";
+
+export const SHARED_DATABASE_FILE_ENV = "OFFGRID_TEST_DATABASE_FILE";
+
+export const SHARED_CLUSTER_SERVER_SETTINGS = [
+  "max_connections=300",
+  "fsync=off",
+  "synchronous_commit=off",
+  "full_page_writes=off",
+] as const;
+
+export const TEST_DATABASE_LABEL = "org.offgrid.test-db";
+
+export const SHARED_CLUSTER_LABEL_VALUE = "shared-cluster";
+
+export const ISOLATED_DATABASE_PREFIX = "offgrid_test_";
+
+export const ISOLATED_DATABASE_NAME_PATTERN = /^offgrid_test_[0-9a-f]{24}$/;
+
+export const CONNECTION_FILE_NAME = "connection.json";
+
+export const FORWARDED_SIGNALS = [
+  "SIGINT",
+  "SIGTERM",
+  "SIGHUP",
+] as const satisfies readonly NodeJS.Signals[];

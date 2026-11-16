@@ -11,6 +11,12 @@ import {
   zonedMomentOf,
 } from "../../../calendar-views/time-format.js";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
+import { useCalendars } from "../../../calendars/use-calendars.js";
+import { FamilyMembersSection } from "../../guests/family-members-section/family-members-section.js";
+import { guestNameOf } from "../../guests/guest-names.js";
+import { GuestsSection } from "../../guests/guests-section/guests-section.js";
+import { useEventGuests } from "../../guests/use-event-guests.js";
+import { useGuestCandidates } from "../../guests/use-guest-candidates.js";
 import { GuestReminders } from "../components/guest-reminders/guest-reminders.js";
 import {
   detailsBodyStyle,
@@ -22,6 +28,11 @@ import type { EventDetailsBodyProps } from "./types.js";
 
 export const EventDetailsBody = ({ event, timeZone, onSaveReminders }: EventDetailsBodyProps) => {
   const { t } = useTranslation();
+  const guests = useEventGuests(event.id);
+  const candidates = useGuestCandidates();
+  const calendarsState = useCalendars(true);
+  const familyId =
+    calendarsState.calendars.find((calendar) => calendar.id === event.calendarId)?.familyId ?? null;
   const dateLine = event.isAllDay
     ? formatDayHeading(event.startDate ?? "")
     : formatDayHeading(zonedMomentOf(event.startsAt, timeZone).date);
@@ -51,6 +62,21 @@ export const EventDetailsBody = ({ event, timeZone, onSaveReminders }: EventDeta
             <Text variant="body" value={event.location} />
           </div>
         </div>
+      )}
+      {calendarsState.listStatus === "loading" && (
+        <div style={detailsCardStyle}>
+          <Text variant="body" textId="calendar.guests.loading" />
+        </div>
+      )}
+      {calendarsState.listStatus !== "loading" && familyId === null && (
+        <GuestsSection
+          state={guests}
+          readOnly={event.readOnly}
+          nameOf={(userId) => guestNameOf(candidates.candidates, userId)}
+        />
+      )}
+      {calendarsState.listStatus !== "loading" && familyId !== null && (
+        <FamilyMembersSection state={candidates} familyId={familyId} />
       )}
       {event.description !== null && (
         <div style={detailsCardStyle}>

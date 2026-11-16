@@ -16,6 +16,7 @@ import { crossEntityLinkSchema } from "./cross-entity-link-schema.js";
 import { createCalendarEventRequestSchema } from "./create-calendar-event-request-schema.js";
 import { createCalendarRequestSchema } from "./create-calendar-request-schema.js";
 import { inviteEventGuestRequestSchema } from "./invite-event-guest-request-schema.js";
+import { eventGuestListSchema } from "./event-guest-list-schema.js";
 import { updateCalendarRequestSchema } from "./update-calendar-request-schema.js";
 import { changePasswordRequestSchema } from "./change-password-request-schema.js";
 import { passwordConfirmationRequestSchema } from "./password-confirmation-request-schema.js";
@@ -54,6 +55,7 @@ export const openApiComponentSchemas = {
   ErrorResponse: errorResponseSchema,
   CreateFamilyRequest: createFamilyRequestSchema,
   InviteEventGuestRequest: inviteEventGuestRequestSchema,
+  EventGuestList: eventGuestListSchema,
   Family: familySchema,
   ActiveFamily: activeFamilySchema,
   SelectActiveFamilyRequest: selectActiveFamilyRequestSchema,

@@ -7,6 +7,7 @@ import { ApiError, createApiClient, createCalendarClient } from "./index.js";
 const BASE_URL = "http://localhost:3000/api";
 const CALENDAR_ID = "9f1c2a4e-8d3b-4c6a-9e2f-1a2b3c4d5e6f";
 const EVENT_ID = "3b8a6f2e-1c4d-4e7a-9b5f-0a1b2c3d4e5f";
+const GUEST_ID = "7c2e9d1b-4a6f-4b8e-9c3d-2f1a0b9e8d7c";
 const CALENDAR = {
   id: CALENDAR_ID,
   name: "Studio",
@@ -228,6 +229,39 @@ describe("createCalendarClient views and time zone", () => {
     expect(transport).toHaveBeenCalledWith(
       `${BASE_URL}/calendar/time-zone`,
       expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("posts the guest user id to invite a guest to an event", async () => {
+    const { calendars, transport } = calendarsWith(new Response(null, { status: 201 }));
+
+    await calendars.inviteEventGuest(EVENT_ID, GUEST_ID);
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/events/${EVENT_ID}/guests`,
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ guestUserId: GUEST_ID }) }),
+    );
+  });
+
+  it("lists the guests of an event", async () => {
+    const guests = [{ userId: GUEST_ID, invitedAt: "2026-11-20T10:00:00.000Z" }];
+    const { calendars, transport } = calendarsWith(jsonResponse({ guests }));
+
+    await expect(calendars.listEventGuests(EVENT_ID)).resolves.toEqual(guests);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/events/${EVENT_ID}/guests`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("deletes one guest of an event", async () => {
+    const { calendars, transport } = calendarsWith(new Response(null, { status: 204 }));
+
+    await calendars.removeEventGuest(EVENT_ID, GUEST_ID);
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/events/${EVENT_ID}/guests/${GUEST_ID}`,
+      expect.objectContaining({ method: "DELETE" }),
     );
   });
 });

@@ -20,4 +20,5 @@ export type NewEventModalProps = {
 export type FormAlertTextId =
   | "calendar.eventModal.incomplete"
   | "calendar.eventModal.invalid"
-  | "calendar.eventModal.saveFailed";
+  | "calendar.eventModal.saveFailed"
+  | "calendar.guests.partialFailure";

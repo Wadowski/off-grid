@@ -9,4 +9,5 @@ export const calendarRoutes = {
   calendarEvents: "/calendars/:id/events",
   calendarEvent: "/events/:id",
   eventGuests: "/events/:id/guests",
+  eventGuest: "/events/:id/guests/:guestUserId",
 } as const;
