@@ -78,7 +78,7 @@ export const ReminderRow = ({
         </div>
         <div style={reminderUnitCellStyle}>
           <Select
-            aria-label={t("calendar.eventModal.reminders.unitLabel")}
+            labelTextId="calendar.eventModal.reminders.unitLabel"
             data-testid={`reminder-unit-${index}`}
             variant="field"
             value={draft.unit}

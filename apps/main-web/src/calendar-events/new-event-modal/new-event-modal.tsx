@@ -4,7 +4,6 @@
 import { Button, Dialog, Select, Text, VisuallyHidden } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../calendars/calendar-accents.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
@@ -47,7 +46,6 @@ export const NewEventModal = ({
 }: NewEventModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const narrow = useIsNarrow();
-  const { t } = useTranslation();
   const defaultCalendarId = calendars[0]?.id ?? "";
   const [values, setValues] = useState<EventFormValues>(
     () =>
@@ -180,7 +178,7 @@ export const NewEventModal = ({
   const selectedCalendar = calendars.find((calendar) => calendar.id === calendarId);
   const calendarPicker = (
     <Select
-      aria-label={t("calendar.event.calendar")}
+      labelTextId="calendar.event.calendar"
       value={calendarId}
       onChange={(event) => update("calendarId", event.target.value)}
       options={calendars.map((calendar) => ({ value: calendar.id, label: calendar.name }))}
