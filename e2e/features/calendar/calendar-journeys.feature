@@ -5,10 +5,10 @@
 Feature: Calendar journeys
 
   The main calendar journeys run from start to finish through the web app:
-  a person creates and edits a calendar, adds an event and sees it in every
-  view, invites a guest who sees the event read-only, and joins and leaves a
-  family that owns a calendar. Each journey is checked from the point of view
-  of the person it affects, and ends with an accessibility check.
+  a person creates and edits a calendar, adds an event and sees it in the
+  agenda, day, week and month views, and joins and leaves a family that owns
+  a calendar. Each journey is checked from the point of view of the person it
+  affects, and ends with an accessibility check.
 
   @ui @a11y
   Scenario: I create a calendar, rename it and change its color, and see it in the list and the sidebar
