@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
+import type { ServerConfig } from "../types.js";
 import { assertValidModules } from "./assert-valid-modules.js";
+import { modulesFor } from "./modules-for.js";
 
 describe("assertValidModules", () => {
   it("accepts an empty registry and distinct lowercase names", () => {
@@ -20,5 +22,15 @@ describe("assertValidModules", () => {
     expect(() => assertValidModules([{ name: "Family-Module" }])).toThrow(
       /lowercase letters and digits/,
     );
+  });
+});
+
+describe("modulesFor", () => {
+  it("registers the relations module once, alongside the others", () => {
+    const config = { mail: { encryptionKey: Buffer.alloc(32) } } as unknown as ServerConfig;
+    const names = modulesFor(config).map((module) => module.name);
+
+    expect(names).toContain("relations");
+    expect(() => assertValidModules(modulesFor(config))).not.toThrow();
   });
 });

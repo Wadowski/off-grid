@@ -39,17 +39,16 @@ const clusterLevelStatements = [
 
 const findClusterLevelStatements = async (): Promise<string[]> => {
   const files = (await Promise.all(scannedRoots.map(listSourceFiles))).flat();
-  const findings: string[] = [];
-  for (const file of files) {
-    if (file.startsWith(testDatabasePackage)) {
-      continue;
-    }
-    const contents = await readFile(file, "utf8");
-    if (clusterLevelStatements.some((statement) => statement.test(contents))) {
-      findings.push(relative(repositoryRoot, file));
-    }
-  }
-  return findings;
+  const filesToScan = files.filter((file) => !file.startsWith(testDatabasePackage));
+  const findings = await Promise.all(
+    filesToScan.map(async (file) => {
+      const contents = await readFile(file, "utf8");
+      return clusterLevelStatements.some((statement) => statement.test(contents))
+        ? [relative(repositoryRoot, file)]
+        : [];
+    }),
+  );
+  return findings.flat();
 };
 
 describe("cluster level SQL", () => {

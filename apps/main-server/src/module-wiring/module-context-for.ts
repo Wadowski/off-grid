@@ -12,6 +12,7 @@ export const moduleContextFor = (runtime: ServerRuntime, moduleName: string): Mo
       return moduleDatabaseFor(runtime, moduleName);
     },
     currentUserId: (request) => request.requestContext.userId,
+    currentFamilyId: (request) => request.requestContext.familyId,
     currentSessionId: (request) => request.requestContext.sessionId,
   };
 };
