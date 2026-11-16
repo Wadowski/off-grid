@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { connectionFileSchema } from "./connection-file-schema.js";
+import { parseJson } from "./parse-json.js";
 import type { SharedClusterConnection } from "./types.js";
 
 export const parseConnectionFile = (contents: string): SharedClusterConnection => {
@@ -12,12 +13,4 @@ export const parseConnectionFile = (contents: string): SharedClusterConnection =
     throw new Error(`Shared test database connection file is invalid (fields: ${fields})`);
   }
   return result.data;
-};
-
-const parseJson = (contents: string): unknown => {
-  try {
-    return JSON.parse(contents);
-  } catch {
-    throw new Error("Shared test database connection file is not valid JSON");
-  }
 };

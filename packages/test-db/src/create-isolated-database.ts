@@ -4,6 +4,7 @@
 import { randomBytes } from "node:crypto";
 import { ISOLATED_DATABASE_PREFIX } from "./constants.js";
 import { dropIsolatedDatabase } from "./drop-isolated-database.js";
+import { createDatabase } from "./create-database.js";
 import { openAdminClient } from "./open-admin-client.js";
 import { runInitScripts } from "./run-init-scripts.js";
 import type { IsolatedDatabase, SharedClusterConnection } from "./types.js";
@@ -22,13 +23,4 @@ export const createIsolatedDatabase = async (
     throw error;
   }
   return { name, admin };
-};
-
-const createDatabase = async (connection: SharedClusterConnection, name: string): Promise<void> => {
-  const maintenance = await openAdminClient(connection, connection.maintenanceDatabase);
-  try {
-    await maintenance.query(`CREATE DATABASE "${name}"`);
-  } finally {
-    await maintenance.end();
-  }
 };
