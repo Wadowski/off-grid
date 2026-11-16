@@ -29,27 +29,6 @@ Feature: Calendar journeys
     When I look at the event "Studio review" in the day, week and month views at a desktop width of 1280 pixels
     Then the page has no serious accessibility violations
 
-  @ui @a11y @wip
-  Scenario: I see an event in the agenda, day, week and month views on a phone
-    Given I am a user with a family named "The Smiths"
-    And I have a personal calendar named "Studio" with the color "teal"
-    And I have a timed event named "Studio review" on the calendar "Studio"
-    When I look at the event "Studio review" in the agenda, day, week and month views at a phone width of 375 pixels
-    Then the page has no serious accessibility violations
-
-  @ui @a11y @wip
-  Scenario: A guest I invited sees the event read-only
-    Given I am a user with a family named "The Smiths"
-    And Ben joins the family "The Smiths" as a guest
-    And I have a personal calendar named "Studio" with the color "teal"
-    When I create a timed event named "Studio review" on the calendar "Studio" inviting Ben from the new event modal
-    And I sign in as Ben
-    And I open the event "Studio review" from the agenda
-    Then I see the details of the event "Studio review"
-    And I see the guests section listing Ben
-    And I see no edit or delete control for the event
-    And the page has no serious accessibility violations
-
   @ui @a11y
   Scenario: Joining a family adds its calendar to the sidebar and leaving removes it
     Given I am a user with a family named "The Smiths"

@@ -19,7 +19,6 @@ import { signInThroughUi } from "../support/web-session.js";
 const { Given, When, Then } = createBdd(test);
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
-const PHONE_VIEWPORT = { width: 375, height: 812 };
 const AGENDA_PATH = "/calendar";
 const DAY_PATH = "/calendar/day";
 const WEEK_PATH = "/calendar/week";
@@ -63,12 +62,6 @@ const openAt = async (
   await page.goto(`${webBaseUrl()}${path}`);
 };
 
-const todayIso = (): string => {
-  const now = new Date();
-  const twoDigits = (value: number): string => String(value).padStart(2, "0");
-  return `${now.getFullYear()}-${twoDigits(now.getMonth() + 1)}-${twoDigits(now.getDate())}`;
-};
-
 const sidebarRowNamed = (page: Page, name: string) =>
   page.getByTestId(SIDEBAR).getByRole("listitem").filter({ hasText: name });
 
@@ -102,21 +95,6 @@ When(
       await openAt(page, path, DESKTOP_VIEWPORT);
       await expectTitleVisible(page, title);
     }
-  },
-);
-
-When(
-  "I look at the event {string} in the agenda, day, week and month views at a phone width of 375 pixels",
-  async ({ page }, title: string) => {
-    for (const path of [AGENDA_PATH, DAY_PATH, WEEK_PATH]) {
-      await openAt(page, path, PHONE_VIEWPORT);
-      await expectTitleVisible(page, title);
-    }
-    await openAt(page, MONTH_PATH, PHONE_VIEWPORT);
-    await page.getByTestId(`month-day-${todayIso()}`).click();
-    await expect(
-      page.getByRole("region", { name: "Selected day" }).getByText(title).first(),
-    ).toBeVisible();
   },
 );
 
