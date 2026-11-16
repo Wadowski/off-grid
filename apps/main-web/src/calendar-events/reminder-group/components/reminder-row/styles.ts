@@ -16,9 +16,13 @@ export const reminderRowControlsStyle: CSSProperties = {
   gap: tokens.space[2],
 };
 
+// The amount TextField keeps a visually hidden label row, and the field frame's
+// column gap still applies above the input. Pull the cell up by that gap so the
+// number box lines up with the unit dropdown.
 export const reminderAmountCellStyle: CSSProperties = {
   flex: "0 0 6rem",
   minWidth: 0,
+  marginTop: `calc(-1 * ${cssVar("space-1")})`,
 };
 
 const DESKTOP_FIELD_HEIGHT = "2.25rem";

@@ -101,7 +101,7 @@ export const ReminderRow = ({
           <Button
             type="button"
             variant="ghost"
-            size="small"
+            size="medium"
             disabled={disabled}
             aria-label={t("calendar.eventModal.reminders.remove")}
             data-testid={`reminder-remove-${index}`}
