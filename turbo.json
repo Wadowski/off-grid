@@ -13,7 +13,8 @@
       "dependsOn": ["^build", "^generate", "generate"]
     },
     "test": {
-      "dependsOn": ["^build", "generate"]
+      "dependsOn": ["^build", "generate"],
+      "passThroughEnv": ["OFFGRID_TEST_DATABASE_FILE"]
     },
     "generate": {
       "cache": false,

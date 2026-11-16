@@ -19,7 +19,7 @@
     "ui:screens": "node scripts/ui-screens.mjs",
     "wt:cleanup": "node scripts/wt-cleanup.mjs",
     "format:check": "prettier --check .",
-    "test": "turbo run test && pnpm test:scripts",
+    "test": "pnpm --filter @offgrid/test-db build && node packages/test-db/dist/run-with-shared-database.js turbo run test && pnpm test:scripts",
     "test:scripts": "node --test scripts/*.test.mjs",
     "audit:deps": "pnpm audit --audit-level high",
     "license:headers": "node scripts/spdx-headers.mjs",

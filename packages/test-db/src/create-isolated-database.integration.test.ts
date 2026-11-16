@@ -3,33 +3,43 @@
 
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { APP_ROLE_NAME } from "./constants.js";
 import { createIsolatedDatabase } from "./create-isolated-database.js";
 import { dropIsolatedDatabase } from "./drop-isolated-database.js";
+import { readConnectionFile } from "./read-connection-file.js";
 import { sharedTargetOf } from "./shared-target-of.js";
 import { startSharedCluster } from "./start-shared-cluster.js";
 import { stopSharedCluster } from "./stop-shared-cluster.js";
 import { writeConnectionFile } from "./write-connection-file.js";
-import { APP_ROLE_NAME } from "./constants.js";
-import type { StartedSharedCluster } from "./types.js";
+import type { SharedClusterConnection, StartedSharedCluster } from "./types.js";
 
 const HOOK_TIMEOUT_MS = 120_000;
 
 describe("createIsolatedDatabase", () => {
-  let cluster: StartedSharedCluster;
-  let connectionFilePath: string;
+  let connection: SharedClusterConnection;
+  let ownedCluster: StartedSharedCluster | undefined;
+  let connectionFilePath: string | undefined;
 
   beforeAll(async () => {
-    cluster = await startSharedCluster();
-    connectionFilePath = await writeConnectionFile(cluster.connection);
+    const announced = await readConnectionFile();
+    if (announced === undefined) {
+      ownedCluster = await startSharedCluster();
+      connectionFilePath = await writeConnectionFile(ownedCluster.connection);
+      connection = ownedCluster.connection;
+    } else {
+      connection = announced;
+    }
   }, HOOK_TIMEOUT_MS);
 
   afterAll(async () => {
-    await stopSharedCluster(cluster, connectionFilePath);
+    if (ownedCluster !== undefined && connectionFilePath !== undefined) {
+      await stopSharedCluster(ownedCluster, connectionFilePath);
+    }
   }, HOOK_TIMEOUT_MS);
 
   it("keeps tables and rows of two databases in one cluster apart", async () => {
-    const first = await createIsolatedDatabase(cluster.connection);
-    const second = await createIsolatedDatabase(cluster.connection);
+    const first = await createIsolatedDatabase(connection);
+    const second = await createIsolatedDatabase(connection);
     try {
       await first.admin.query("CREATE TABLE probe (value text)");
       await first.admin.query("INSERT INTO probe (value) VALUES ('first only')");
@@ -38,19 +48,14 @@ describe("createIsolatedDatabase", () => {
     } finally {
       await first.admin.end();
       await second.admin.end();
-      await dropIsolatedDatabase(cluster.connection, first.name);
-      await dropIsolatedDatabase(cluster.connection, second.name);
+      await dropIsolatedDatabase(connection, first.name);
+      await dropIsolatedDatabase(connection, second.name);
     }
   });
 
   it("lets the application role log in to each database", async () => {
-    const database = await createIsolatedDatabase(cluster.connection);
-    const target = sharedTargetOf(
-      cluster.connection,
-      database.name,
-      APP_ROLE_NAME,
-      cluster.connection.appPassword,
-    );
+    const database = await createIsolatedDatabase(connection);
+    const target = sharedTargetOf(connection, database.name, APP_ROLE_NAME, connection.appPassword);
     const client = new Client({ ...target });
     try {
       await client.connect();
@@ -61,33 +66,28 @@ describe("createIsolatedDatabase", () => {
     } finally {
       await client.end();
       await database.admin.end();
-      await dropIsolatedDatabase(cluster.connection, database.name);
+      await dropIsolatedDatabase(connection, database.name);
     }
   });
 
   it("drops a database while a client is still connected to it", async () => {
-    const database = await createIsolatedDatabase(cluster.connection);
-    const survivor = await createIsolatedDatabase(cluster.connection);
+    const database = await createIsolatedDatabase(connection);
+    const survivor = await createIsolatedDatabase(connection);
     const open = new Client({
-      ...sharedTargetOf(
-        cluster.connection,
-        database.name,
-        cluster.connection.adminUser,
-        cluster.connection.adminPassword,
-      ),
+      ...sharedTargetOf(connection, database.name, connection.adminUser, connection.adminPassword),
     });
     open.on("error", () => undefined);
     database.admin.on("error", () => undefined);
     await open.connect();
     try {
-      await dropIsolatedDatabase(cluster.connection, database.name);
+      await dropIsolatedDatabase(connection, database.name);
       const { rows } = await survivor.admin.query("SELECT 1 AS alive");
       expect(rows[0].alive).toBe(1);
     } finally {
       await open.end().catch(() => undefined);
       await database.admin.end().catch(() => undefined);
       await survivor.admin.end();
-      await dropIsolatedDatabase(cluster.connection, survivor.name);
+      await dropIsolatedDatabase(connection, survivor.name);
     }
   });
 });

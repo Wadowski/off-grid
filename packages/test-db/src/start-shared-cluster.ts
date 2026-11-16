@@ -5,8 +5,8 @@ import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { Client } from "pg";
 import {
   CONTAINER_IMAGE,
-  MAX_CONNECTIONS,
   SHARED_CLUSTER_LABEL_VALUE,
+  SHARED_CLUSTER_SERVER_SETTINGS,
   TEST_DATABASE_LABEL,
 } from "./constants.js";
 import { provisionSharedRoles } from "./provision-shared-roles.js";
@@ -17,7 +17,10 @@ import type { SharedClusterConnection, StartedSharedCluster } from "./types.js";
 export const startSharedCluster = async (): Promise<StartedSharedCluster> => {
   const container = await new PostgreSqlContainer(CONTAINER_IMAGE)
     .withLabels({ [TEST_DATABASE_LABEL]: SHARED_CLUSTER_LABEL_VALUE })
-    .withCommand(["postgres", "-c", `max_connections=${MAX_CONNECTIONS}`])
+    .withCommand([
+      "postgres",
+      ...SHARED_CLUSTER_SERVER_SETTINGS.flatMap((setting) => ["-c", setting]),
+    ])
     .start();
   const admin = new Client({ connectionString: container.getConnectionUri() });
   const connection: SharedClusterConnection = {
