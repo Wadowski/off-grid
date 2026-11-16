@@ -31,3 +31,18 @@ export interface MigratedTestDatabase {
   reset(): Promise<void>;
   stop(): Promise<void>;
 }
+
+export interface SharedClusterConnection {
+  readonly host: string;
+  readonly port: number;
+  readonly maintenanceDatabase: string;
+  readonly adminUser: string;
+  readonly adminPassword: string;
+  readonly appPassword: string;
+  readonly migratorPassword: string;
+}
+
+export interface IsolatedDatabase {
+  readonly name: string;
+  readonly admin: Client;
+}
