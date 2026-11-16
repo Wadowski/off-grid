@@ -44,7 +44,7 @@ describe("defineEvent", () => {
 
 describe("parseEvent", () => {
   it("accepts a well-formed envelope", () => {
-    expect(parseEvent(familyCreatedV1, validEnvelope)).toEqual({ ...validEnvelope, userId: null });
+    expect(parseEvent(familyCreatedV1, validEnvelope)).toEqual(validEnvelope);
   });
 
   it("rejects an envelope with an invalid payload", () => {

@@ -8,9 +8,9 @@ const jsonContent = (schemaName: string) => ({
   "application/json": { schema: { $ref: `#/components/schemas/${schemaName}` } },
 });
 
-const errorResponse = (description: string) => ({
-  description,
-  content: jsonContent("ErrorResponse"),
+const response = (schemaName?: string) => ({
+  description: "",
+  ...(schemaName === undefined ? {} : { content: jsonContent(schemaName) }),
 });
 
 const linkIdParameter = {
@@ -20,13 +20,10 @@ const linkIdParameter = {
   schema: z.toJSONSchema(crossEntityLinkParamsSchema.shape.id),
 };
 
-const unauthenticated = errorResponse("UNAUTHENTICATED: the request has no signed-in person.");
-
 export const relationsOpenApiPaths = {
   "/links": {
     get: {
       operationId: "listCrossEntityLinks",
-      summary: "List the links of an entity that the signed-in person can see",
       parameters: [
         {
           name: "entityType",
@@ -42,41 +39,34 @@ export const relationsOpenApiPaths = {
         },
       ],
       responses: {
-        "200": {
-          description: "The visible links, with the title of the other end.",
-          content: jsonContent("CrossEntityLinkList"),
-        },
-        "400": errorResponse("VALIDATION_FAILED: the query does not match the request schema."),
-        "401": unauthenticated,
+        "200": response("CrossEntityLinkList"),
+        "400": response("ErrorResponse"),
+        "401": response("ErrorResponse"),
       },
     },
     post: {
       operationId: "createCrossEntityLink",
-      summary: "Link two entities that the signed-in person can see",
       requestBody: { required: true, content: jsonContent("CreateCrossEntityLinkRequest") },
       responses: {
-        "200": {
-          description: "The link already existed; the existing link is returned.",
-          content: jsonContent("CrossEntityLink"),
-        },
-        "201": { description: "The created link.", content: jsonContent("CrossEntityLink") },
-        "400": errorResponse("VALIDATION_FAILED: the body does not match the request schema."),
-        "401": unauthenticated,
-        "404": errorResponse("NOT_FOUND: an entity does not exist or the person cannot see it."),
-        "422": errorResponse("UNPROCESSABLE: an entity cannot be linked to itself."),
+        "200": response("CrossEntityLink"),
+        "201": response("CrossEntityLink"),
+        "400": response("ErrorResponse"),
+        "401": response("ErrorResponse"),
+        "404": response("ErrorResponse"),
+        "409": response("ErrorResponse"),
+        "422": response("ErrorResponse"),
       },
     },
   },
   "/links/{id}": {
     delete: {
       operationId: "removeCrossEntityLink",
-      summary: "Remove a link the signed-in person owns",
       parameters: [linkIdParameter],
       responses: {
-        "204": { description: "The link was removed." },
-        "400": errorResponse("VALIDATION_FAILED: the id does not match the schema."),
-        "401": unauthenticated,
-        "404": errorResponse("NOT_FOUND: the link does not exist or the person cannot see it."),
+        "204": response(),
+        "400": response("ErrorResponse"),
+        "401": response("ErrorResponse"),
+        "404": response("ErrorResponse"),
       },
     },
   },

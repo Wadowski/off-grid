@@ -376,7 +376,6 @@
     "/links": {
       "get": {
         "operationId": "listCrossEntityLinks",
-        "summary": "List the links of an entity that the signed-in person can see",
         "parameters": [
           {
             "name": "entityType",
@@ -401,7 +400,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The visible links, with the title of the other end.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -411,7 +410,7 @@
             }
           },
           "400": {
-            "description": "VALIDATION_FAILED: the query does not match the request schema.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -421,7 +420,7 @@
             }
           },
           "401": {
-            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -434,7 +433,6 @@
       },
       "post": {
         "operationId": "createCrossEntityLink",
-        "summary": "Link two entities that the signed-in person can see",
         "requestBody": {
           "required": true,
           "content": {
@@ -447,7 +445,7 @@
         },
         "responses": {
           "200": {
-            "description": "The link already existed; the existing link is returned.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -457,7 +455,7 @@
             }
           },
           "201": {
-            "description": "The created link.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -467,7 +465,7 @@
             }
           },
           "400": {
-            "description": "VALIDATION_FAILED: the body does not match the request schema.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -477,7 +475,7 @@
             }
           },
           "401": {
-            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -487,7 +485,17 @@
             }
           },
           "404": {
-            "description": "NOT_FOUND: an entity does not exist or the person cannot see it.",
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -497,7 +505,7 @@
             }
           },
           "422": {
-            "description": "UNPROCESSABLE: an entity cannot be linked to itself.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -512,7 +520,6 @@
     "/links/{id}": {
       "delete": {
         "operationId": "removeCrossEntityLink",
-        "summary": "Remove a link the signed-in person owns",
         "parameters": [
           {
             "name": "id",
@@ -528,10 +535,10 @@
         ],
         "responses": {
           "204": {
-            "description": "The link was removed."
+            "description": ""
           },
           "400": {
-            "description": "VALIDATION_FAILED: the id does not match the schema.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -541,7 +548,7 @@
             }
           },
           "401": {
-            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -551,7 +558,7 @@
             }
           },
           "404": {
-            "description": "NOT_FOUND: the link does not exist or the person cannot see it.",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
