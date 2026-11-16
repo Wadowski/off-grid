@@ -11,3 +11,8 @@ export interface RelationsTestDatabase {
   reset(): Promise<void>;
   stop(): Promise<void>;
 }
+
+export interface Actor {
+  readonly userId: string;
+  readonly familyId?: string;
+}

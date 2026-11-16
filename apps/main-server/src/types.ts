@@ -36,6 +36,7 @@ export interface ModuleContext {
   readonly logger: Logger;
   readonly db: ModuleDatabase;
   readonly currentUserId: (request: FastifyRequest) => string | null;
+  readonly currentFamilyId: (request: FastifyRequest) => string | null;
   readonly currentSessionId: (request: FastifyRequest) => string | null;
 }
 
