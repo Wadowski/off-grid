@@ -20,6 +20,7 @@ const timedForm = (overrides: Partial<EventFormValues> = {}): EventFormValues =>
   location: "",
   description: "",
   guestUserIds: [],
+  reminderOffsetsMinutes: [],
   ...overrides,
 });
 
@@ -33,6 +34,50 @@ describe("toUpdateEventRequest", () => {
     );
 
     expect(result).toEqual({ ok: true, request: { title: "Studio retro" } });
+  });
+
+  it("sends the reminder offsets alone when only the reminders changed", () => {
+    const initial = timedForm({ reminderOffsetsMinutes: [15] });
+    const result = toUpdateEventRequest(
+      initial,
+      withField(initial, "reminderOffsetsMinutes", [15, 60]),
+      TIME_ZONE,
+    );
+
+    expect(result).toEqual({ ok: true, request: { reminderOffsetsMinutes: [15, 60] } });
+  });
+
+  it("sends an empty list when every reminder was removed", () => {
+    const initial = timedForm({ reminderOffsetsMinutes: [15, 60] });
+    const result = toUpdateEventRequest(
+      initial,
+      withField(initial, "reminderOffsetsMinutes", []),
+      TIME_ZONE,
+    );
+
+    expect(result).toEqual({ ok: true, request: { reminderOffsetsMinutes: [] } });
+  });
+
+  it("sends the new offsets when a reminder was changed", () => {
+    const initial = timedForm({ reminderOffsetsMinutes: [15] });
+    const result = toUpdateEventRequest(
+      initial,
+      withField(initial, "reminderOffsetsMinutes", [30]),
+      TIME_ZONE,
+    );
+
+    expect(result).toEqual({ ok: true, request: { reminderOffsetsMinutes: [30] } });
+  });
+
+  it("sends nothing when the reminders were only reordered", () => {
+    const initial = timedForm({ reminderOffsetsMinutes: [15, 60] });
+    const result = toUpdateEventRequest(
+      initial,
+      withField(initial, "reminderOffsetsMinutes", [60, 15]),
+      TIME_ZONE,
+    );
+
+    expect(result).toEqual({ ok: true, request: undefined });
   });
 
   it("sends nothing when no field changed", () => {

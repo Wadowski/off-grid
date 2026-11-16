@@ -25,4 +25,4 @@ Row-level security ([ADR 0029](0029-event-guest-access.md)) lets each user read 
 - Known gap: when an event moves, only the editing user's reminders are rescheduled. A guest's reminders on that event keep their old times until the guest sets them again. Rescheduling them needs a second cross-user write, which is not included.
 - Known gap: removing a family member does not delete their reminder rows. The claim skips them, so they never fire, but the rows remain until the event or the member is removed.
 - Known gap: reminder timing is not covered by an end-to-end scenario, because the e2e stack cannot advance the server clock. The tick integration tests and worker unit tests cover the claim, skip and retry rules.
-- Follow-up: the reminder controls in the event modal need a design before they are built (OG-90 is API only).
+- Follow-up: the reminder controls in the new, edit and details event modals shipped with [OG-99](https://linear.app/offgridos/issue/OG-99). Guests set their own reminders from the event details.

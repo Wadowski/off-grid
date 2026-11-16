@@ -25,6 +25,15 @@ const NEW_EVENT_PATH = "/calendar/event/new";
 const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 const GUESTS_SECTION = "event-guests-section";
 
+const settleGuests = async (page: Page): Promise<void> => {
+  await page.waitForLoadState("networkidle");
+  await page
+    .getByText("Loading guests")
+    .first()
+    .waitFor({ state: "hidden", timeout: 10_000 })
+    .catch(() => undefined);
+};
+
 const pathOf = (page: Page): string => new URL(page.url()).pathname;
 
 const modal = (page: Page): Locator => page.getByTestId("new-event-modal");
@@ -224,13 +233,13 @@ When("I remove Ben from the guests and save the event", async ({ page, world }) 
 
 Then("I see the guests section without Ben", async ({ page, world }) => {
   await expect(detailsOf(page).getByTestId(`event-guest-${benOf(world)}`)).toHaveCount(0);
-  await captureScreen(page, "details guests after removal", FEATURE);
+  await captureScreen(page, "details guests after removal", FEATURE, () => settleGuests(page));
 });
 
 Then("I see the guests section listing Ben", async ({ page, world }) => {
   await expect(detailsOf(page).getByTestId(GUESTS_SECTION)).toContainText("Ben");
   await expect(detailsOf(page).getByTestId(`event-guest-${benOf(world)}`)).toBeVisible();
-  await captureScreen(page, "details guests for a guest", FEATURE);
+  await captureScreen(page, "details guests for a guest", FEATURE, () => settleGuests(page));
 });
 
 Then("I see the guests section listing Cara", async ({ page, world }) => {
@@ -312,5 +321,5 @@ Then("I see the family members listing Ben", async ({ page, world }) => {
   await expect(detailsOf(page).getByTestId("event-family-section")).toContainText("Ben");
   await expect(detailsOf(page).getByTestId(`event-family-member-${benOf(world)}`)).toBeVisible();
   await expect(detailsOf(page).getByTestId(GUESTS_SECTION)).toHaveCount(0);
-  await captureScreen(page, "details family members", FEATURE);
+  await captureScreen(page, "details family members", FEATURE, () => settleGuests(page));
 });

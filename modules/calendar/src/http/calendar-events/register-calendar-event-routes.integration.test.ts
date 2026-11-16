@@ -129,6 +129,21 @@ describe("calendar event routes", { timeout: 60_000 }, () => {
       expect(response.json().events).toHaveLength(1);
     });
 
+    it("returns the caller's own reminder offsets when one event is read", async () => {
+      const kitchen = await insertCalendar({ familyId: home }, "Kitchen");
+      const eventId = await createEvent(ben, kitchen, {
+        ...timedBody,
+        reminderOffsetsMinutes: [15, 60],
+      } as typeof timedBody);
+      await request("PATCH", `/events/${eventId}`, anna, { reminderOffsetsMinutes: [30] });
+
+      const own = await request("GET", `/events/${eventId}`, ben);
+      const other = await request("GET", `/events/${eventId}`, anna);
+
+      expect(own.json().reminderOffsetsMinutes).toEqual([15, 60]);
+      expect(other.json().reminderOffsetsMinutes).toEqual([30]);
+    });
+
     it("answers 404 when the caller cannot see the calendar or the event", async () => {
       const gym = await insertCalendar({ userId: carol }, "Gym");
       const eventId = await createEvent(carol, gym);

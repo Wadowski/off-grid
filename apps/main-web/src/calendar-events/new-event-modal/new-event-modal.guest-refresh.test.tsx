@@ -53,6 +53,7 @@ const renderEdit = () =>
           endDate: "2026-07-01",
           endTime: "13:00",
           location: "",
+          reminderOffsetsMinutes: [],
           description: "",
           guestUserIds: [],
         },

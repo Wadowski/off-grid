@@ -18,6 +18,7 @@ export const eventToFormValues = (event: EventFormSource, timeZone: string): Eve
       location: event.location ?? "",
       description: event.description ?? "",
       guestUserIds: event.guestUserIds ?? [],
+      reminderOffsetsMinutes: event.reminderOffsetsMinutes ?? [],
     };
   }
   const start = zonedMomentOf(event.startsAt, timeZone);
@@ -33,5 +34,6 @@ export const eventToFormValues = (event: EventFormSource, timeZone: string): Eve
     location: event.location ?? "",
     description: event.description ?? "",
     guestUserIds: event.guestUserIds ?? [],
+    reminderOffsetsMinutes: event.reminderOffsetsMinutes ?? [],
   };
 };

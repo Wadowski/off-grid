@@ -19,6 +19,7 @@ const timedForm = (overrides: Partial<EventFormValues> = {}): EventFormValues =>
   location: "",
   description: "",
   guestUserIds: [],
+  reminderOffsetsMinutes: [],
   ...overrides,
 });
 
@@ -43,6 +44,45 @@ describe("eventToFormValues", () => {
       ...timedForm({ startTime: "12:30", endTime: "13:15", location: "West Gate" }),
       description: "",
     });
+  });
+
+  it("copies the reminder offsets of the event", () => {
+    const values = eventToFormValues(
+      {
+        calendarId: CALENDAR_ID,
+        title: "Studio review",
+        location: null,
+        description: null,
+        isAllDay: false,
+        startsAt: "2026-07-01T10:30:00Z",
+        endsAt: "2026-07-01T11:15:00Z",
+        startDate: null,
+        endDate: null,
+        reminderOffsetsMinutes: [90, 40320],
+      },
+      TIME_ZONE,
+    );
+
+    expect(values.reminderOffsetsMinutes).toEqual([90, 40320]);
+  });
+
+  it("starts with no reminders when the event has none", () => {
+    const values = eventToFormValues(
+      {
+        calendarId: CALENDAR_ID,
+        title: "Trip",
+        location: null,
+        description: null,
+        isAllDay: true,
+        startsAt: "2026-06-30T22:00:00Z",
+        endsAt: "2026-07-02T22:00:00Z",
+        startDate: "2026-07-01",
+        endDate: "2026-07-02",
+      },
+      TIME_ZONE,
+    );
+
+    expect(values.reminderOffsetsMinutes).toEqual([]);
   });
 
   it("prefills an all-day event with its inclusive dates", () => {

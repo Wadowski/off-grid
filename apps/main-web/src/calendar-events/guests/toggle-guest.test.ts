@@ -15,6 +15,7 @@ const values: EventFormValues = {
   endTime: "11:00",
   location: "",
   description: "",
+  reminderOffsetsMinutes: [],
   guestUserIds: ["ben"],
 };
 

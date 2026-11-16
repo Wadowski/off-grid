@@ -4,7 +4,6 @@
 import { Button, Dialog, Select, Text, VisuallyHidden } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { calendarAccentColor } from "../../calendars/calendar-accents.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
@@ -58,7 +57,6 @@ export const NewEventModal = ({
 }: NewEventModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const narrow = useIsNarrow();
-  const { t } = useTranslation();
   const session = useSession();
   const defaultCalendarId = calendars[0]?.id ?? "";
   const [values, setValues] = useState<EventFormValues>(
@@ -77,6 +75,8 @@ export const NewEventModal = ({
   const existingGuests = useEventGuests(editing?.eventId);
   const selfUserId = session.status === "signedIn" ? session.user.id : "";
   const candidates = useGuestCandidates();
+  const [remindersValid, setRemindersValid] = useState(true);
+  const [reminderSubmitAttempt, setReminderSubmitAttempt] = useState(0);
 
   const calendarId = values.calendarId !== "" ? values.calendarId : defaultCalendarId;
   const selectedCalendar = calendars.find((calendar) => calendar.id === calendarId);
@@ -103,6 +103,19 @@ export const NewEventModal = ({
         ? withField(current, "calendarId", nextCalendarId)
         : { ...withField(current, "calendarId", nextCalendarId), guestUserIds: [] },
     );
+  };
+
+  const changeReminders = (offsets: readonly number[], valid: boolean) => {
+    update("reminderOffsetsMinutes", offsets);
+    setRemindersValid(valid);
+  };
+
+  const blockOnInvalidReminders = (): boolean => {
+    if (remindersValid) {
+      return false;
+    }
+    setReminderSubmitAttempt((attempt) => attempt + 1);
+    return true;
   };
 
   const dismiss = () => dialogRef.current?.close();
@@ -147,6 +160,9 @@ export const NewEventModal = ({
       setSaveFailed(false);
       return;
     }
+    if (blockOnInvalidReminders()) {
+      return;
+    }
     setErrors({});
     setSaveFailed(false);
     setSaving(true);
@@ -170,6 +186,9 @@ export const NewEventModal = ({
     if (!result.ok) {
       setErrors(result.errors);
       setSaveFailed(false);
+      return;
+    }
+    if (blockOnInvalidReminders()) {
       return;
     }
     setErrors({});
@@ -232,7 +251,7 @@ export const NewEventModal = ({
 
   const calendarPicker = (
     <Select
-      aria-label={t("calendar.event.calendar")}
+      labelTextId="calendar.event.calendar"
       value={calendarId}
       onChange={(event) => chooseCalendar(event.target.value)}
       options={calendars.map((calendar) => ({ value: calendar.id, label: calendar.name }))}
@@ -300,7 +319,10 @@ export const NewEventModal = ({
             narrow={narrow}
             calendarPicker={calendarPicker}
             guestField={guestField}
+            saving={saving}
+            reminderSubmitAttempt={reminderSubmitAttempt}
             update={update}
+            onRemindersChange={changeReminders}
           />
 
           {alertTextId !== undefined && (

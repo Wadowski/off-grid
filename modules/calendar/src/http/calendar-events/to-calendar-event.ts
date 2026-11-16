@@ -22,4 +22,7 @@ export const toCalendarEvent = (view: CalendarEventView): CalendarEventResponse 
         calendarName: view.calendarName,
         calendarColor: view.calendarColor,
       }),
+  ...(view.reminderOffsetsMinutes === undefined
+    ? {}
+    : { reminderOffsetsMinutes: [...view.reminderOffsetsMinutes] }),
 });

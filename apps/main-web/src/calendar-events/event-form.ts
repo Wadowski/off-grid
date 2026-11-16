@@ -47,6 +47,7 @@ export const defaultEventForm = (input: {
     location: "",
     description: "",
     guestUserIds: [],
+    reminderOffsetsMinutes: [],
   };
 };
 
@@ -66,6 +67,9 @@ export const toCreateEventRequest = (
     title: values.title.trim(),
     ...(location === undefined ? {} : { location }),
     ...(description === undefined ? {} : { description }),
+    ...(values.reminderOffsetsMinutes.length === 0
+      ? {}
+      : { reminderOffsetsMinutes: [...values.reminderOffsetsMinutes] }),
   };
 
   const candidate = values.isAllDay

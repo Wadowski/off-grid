@@ -65,12 +65,20 @@ export const CalendarEventDetailsPage = () => {
           calendarColor: event.calendarColor ?? calendar?.color,
         };
 
+  const saveReminders = async (offsets: readonly number[]) => {
+    await webCalendarClient.updateCalendarEvent(eventId, {
+      reminderOffsetsMinutes: [...offsets],
+    });
+    notifyEventsChanged();
+  };
+
   const shell = {
     event: shownEvent,
     status,
     retry,
     timeZone,
     onEdit: () => setMode("edit"),
+    onSaveReminders: saveReminders,
     onDelete: () => {
       setDeleteFailed(false);
       setMode("confirmDelete");
