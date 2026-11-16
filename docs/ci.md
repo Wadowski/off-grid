@@ -47,7 +47,8 @@ guess one. The job also records how long the full suite took.
 container, runs the package tests through Turborepo against it and then runs
 `pnpm test:scripts`. Each integration test file gets its own database inside
 that container. The container is stopped at the end of the run, and Testcontainers
-removes it when the runner is killed with SIGKILL. A single package run
+eventually removes it when the runner is killed with SIGKILL (about 11 seconds
+later). A single package run
 (`pnpm --filter <package> test`) starts a private container instead. See
 `packages/test-db/README.md`.
 `pnpm dco:check` checks `origin/main..HEAD`. Pass another range to check it
