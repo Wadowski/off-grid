@@ -61,20 +61,17 @@ describe("shared cluster provisioning", () => {
     await client.end();
   });
 
-  it(
-    "creates parallel isolated databases without a role clash",
-    async () => {
-      const databases = await Promise.all(
-        Array.from({ length: PARALLEL_DATABASES }, () => createIsolatedDatabase(connection)),
+  it("creates parallel isolated databases without a role clash", async () => {
+    const databases = await Promise.all(
+      Array.from({ length: PARALLEL_DATABASES }, () => createIsolatedDatabase(connection)),
+    );
+    try {
+      expect(new Set(databases.map((database) => database.name)).size).toBe(PARALLEL_DATABASES);
+    } finally {
+      await Promise.all(databases.map((database) => database.admin.end()));
+      await Promise.all(
+        databases.map((database) => dropIsolatedDatabase(connection, database.name)),
       );
-      try {
-        expect(new Set(databases.map((database) => database.name)).size).toBe(PARALLEL_DATABASES);
-      } finally {
-        await Promise.all(databases.map((database) => database.admin.end()));
-        await Promise.all(
-          databases.map((database) => dropIsolatedDatabase(connection, database.name)),
-        );
-      }
-    },
-  );
+    }
+  });
 });
