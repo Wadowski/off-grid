@@ -15,20 +15,28 @@ import { stopContainer } from "./stop-container.js";
 import type { SharedClusterConnection, StartedSharedCluster } from "./types.js";
 
 export const startSharedCluster = async (): Promise<StartedSharedCluster> => {
+  const adminPassword = secret();
   const container = await new PostgreSqlContainer(CONTAINER_IMAGE)
+    .withPassword(adminPassword)
     .withLabels({ [TEST_DATABASE_LABEL]: SHARED_CLUSTER_LABEL_VALUE })
     .withCommand([
       "postgres",
       ...SHARED_CLUSTER_SERVER_SETTINGS.flatMap((setting) => ["-c", setting]),
     ])
     .start();
-  const admin = new Client({ connectionString: container.getConnectionUri() });
+  const admin = new Client({
+    host: container.getHost(),
+    port: container.getPort(),
+    user: container.getUsername(),
+    password: adminPassword,
+    database: container.getDatabase(),
+  });
   const connection: SharedClusterConnection = {
     host: container.getHost(),
     port: container.getPort(),
     maintenanceDatabase: container.getDatabase(),
     adminUser: container.getUsername(),
-    adminPassword: container.getPassword(),
+    adminPassword,
     appPassword: secret(),
     migratorPassword: secret(),
   };
