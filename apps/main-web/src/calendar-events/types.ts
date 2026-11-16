@@ -3,6 +3,7 @@ import type { KeyboardEvent } from "react";
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { CalendarEventUpdateInput, NewCalendarEventInput } from "@offgrid/contracts";
+import type { REMINDER_UNITS } from "./constants.js";
 
 export type EventFormValues = {
   readonly title: string;
@@ -71,7 +72,7 @@ export type EventFormSource = {
   readonly reminderOffsetsMinutes?: readonly number[];
 };
 
-export type ReminderUnit = "minute" | "hour" | "day" | "week";
+export type ReminderUnit = (typeof REMINDER_UNITS)[number];
 
 export type ReminderDraft = {
   readonly key: number;

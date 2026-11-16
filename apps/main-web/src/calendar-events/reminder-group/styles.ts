@@ -17,9 +17,6 @@ export const reminderGroupTitleStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: tokens.space[2],
-  fontSize: tokens.font.size["label-md"],
-  lineHeight: tokens.font.lineHeight["label-md"],
-  fontWeight: tokens.font.weight.semibold,
 };
 
 export const reminderListStyle: CSSProperties = {

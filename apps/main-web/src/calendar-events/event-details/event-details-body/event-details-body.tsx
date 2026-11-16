@@ -10,8 +10,8 @@ import {
   formatDayHeading,
   zonedMomentOf,
 } from "../../../calendar-views/time-format.js";
-import { GuestReminders } from "../components/guest-reminders/guest-reminders.js";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
+import { GuestReminders } from "../components/guest-reminders/guest-reminders.js";
 import {
   detailsBodyStyle,
   detailsCardStyle,

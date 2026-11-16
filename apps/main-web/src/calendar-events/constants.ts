@@ -24,7 +24,7 @@ export const DEFAULT_REMINDER_AMOUNT = "15";
 
 export const DEFAULT_REMINDER_UNIT = "minute";
 
-export const REMINDER_UNITS_LARGEST_FIRST = ["week", "day", "hour"] as const;
+export const REMINDER_UNITS_WITH_MULTIPLIER = ["week", "day", "hour"] as const;
 
 export const REMINDER_ERROR_TEXT_IDS = {
   empty: "calendar.eventModal.reminders.errors.empty",
@@ -34,7 +34,7 @@ export const REMINDER_ERROR_TEXT_IDS = {
   duplicate: "calendar.eventModal.reminders.errors.duplicate",
 } as const;
 
-export const REMINDER_UNIT_TEXT_KEYS = {
+export const REMINDER_UNIT_TEXT_IDS = {
   minute: "calendar.eventModal.reminders.units.minute",
   hour: "calendar.eventModal.reminders.units.hour",
   day: "calendar.eventModal.reminders.units.day",

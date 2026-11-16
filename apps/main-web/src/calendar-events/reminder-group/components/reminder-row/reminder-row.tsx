@@ -7,7 +7,7 @@ import { useIsNarrow } from "../../../../media/use-is-narrow.js";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import {
   REMINDER_ERROR_TEXT_IDS,
-  REMINDER_UNIT_TEXT_KEYS,
+  REMINDER_UNIT_TEXT_IDS,
   REMINDER_UNITS,
 } from "../../../constants.js";
 import {
@@ -39,7 +39,7 @@ export const ReminderRow = ({
   const count = draft.amount.trim() !== "" && Number.isFinite(amount) ? amount : PLURAL_COUNT;
   const unitOptions = REMINDER_UNITS.map((unit) => ({
     value: unit,
-    label: t(REMINDER_UNIT_TEXT_KEYS[unit], { count }),
+    label: t(REMINDER_UNIT_TEXT_IDS[unit], { count }),
   }));
   const rowLabel = t("calendar.eventModal.reminders.rowLabel", {
     position: index + 1,
