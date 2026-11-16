@@ -29,6 +29,8 @@ export const SHARED_CLUSTER_LABEL_VALUE = "shared-cluster";
 
 export const ISOLATED_DATABASE_PREFIX = "offgrid_test_";
 
+export const ISOLATED_DATABASE_NAME_PATTERN = /^offgrid_test_[0-9a-f]{24}$/;
+
 export const CONNECTION_FILE_NAME = "connection.json";
 
 export const FORWARDED_SIGNALS = [
