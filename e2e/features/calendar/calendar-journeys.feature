@@ -10,7 +10,7 @@ Feature: Calendar journeys
   family that owns a calendar. Each journey is checked from the point of view
   of the person it affects, and ends with an accessibility check.
 
-  @ui @a11y @wip
+  @ui @a11y
   Scenario: I create a calendar, rename it and change its color, and see it in the list and the sidebar
     Given I am a user with a family named "The Smiths"
     When I create a personal calendar named "Studio" with the color "teal" from the calendar screen
@@ -20,7 +20,7 @@ Feature: Calendar journeys
     Then the sidebar shows "Workshop" with the color "rose"
     And the page has no serious accessibility violations
 
-  @ui @a11y @wip
+  @ui @a11y
   Scenario: I create an event and see it in the agenda, day, week and month views on desktop
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
@@ -50,15 +50,17 @@ Feature: Calendar journeys
     And I see no edit or delete control for the event
     And the page has no serious accessibility violations
 
-  @ui @a11y @wip
+  @ui @a11y
   Scenario: Joining a family adds its calendar to the sidebar and leaving removes it
     Given I am a user with a family named "The Smiths"
     And the family has a calendar named "Kitchen" with the color "teal"
-    And a family member named "Sam Smith" joins "The Smiths"
-    When I sign in as the family member "Sam Smith"
+    And a family member named "Sam" with a family of their own joins "The Smiths"
+    And the family member "Sam" eventually sees the calendar "Kitchen"
+    When I sign in as the family member "Sam"
     And I open the calendar from the navigation
     Then I see "Kitchen" in the calendar sidebar with a checked show checkbox
-    When the family member "Sam Smith" leaves "The Smiths"
-    And I open the calendar from the navigation
+    When the family member "Sam" leaves "The Smiths"
+    And the family member "Sam" eventually stops seeing the calendar "Kitchen"
+    And I open the agenda at a desktop width of 1280 pixels
     Then I do not see "Kitchen" in the calendar sidebar
     And the page has no serious accessibility violations
