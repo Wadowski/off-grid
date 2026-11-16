@@ -24,3 +24,10 @@ export const guestRowStyle: CSSProperties = {
   alignItems: "center",
   gap: tokens.space[2],
 };
+
+export const guestCardStyle: CSSProperties = {
+  ...guestRowStyle,
+  padding: tokens.space[2],
+  borderRadius: tokens.radius.md,
+  background: cssVar("color-surface"),
+};
