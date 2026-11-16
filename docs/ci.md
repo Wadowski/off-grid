@@ -43,7 +43,14 @@ guess one. The job also records how long the full suite took.
 `e2e-full` runs one shard by default. To split the suite, change the `shard` and
 `total` matrix lists in `ci.yml` together.
 
-`pnpm test` runs the package tests through Turborepo and then `pnpm test:scripts`.
+`pnpm test` builds `@offgrid/test-db`, then starts one shared `postgres:17-alpine`
+container, runs the package tests through Turborepo against it and then runs
+`pnpm test:scripts`. Each integration test file gets its own database inside
+that container. The container is stopped at the end of the run, and Testcontainers
+eventually removes it when the runner is killed with SIGKILL (about 11 seconds
+later). A single package run
+(`pnpm --filter <package> test`) starts a private container instead. See
+`packages/test-db/README.md`.
 `pnpm dco:check` checks `origin/main..HEAD`. Pass another range to check it
 instead, for example `pnpm dco:check main..HEAD`.
 
