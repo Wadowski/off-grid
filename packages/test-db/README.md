@@ -8,7 +8,7 @@ Each login uses the same random password. A login can reach only its own schema.
 
 ## One container per test run
 
-`pnpm test` runs `src/run-with-shared-database.ts` (compiled to `dist/`). The runner starts one `postgres:17-alpine` container, creates the two login roles once with random per-run passwords, and writes the connection details to a file in a private temporary directory (mode 0600). It sets `OFFGRID_TEST_DATABASE_FILE` to that file for the child command, `turbo run test`, which passes the variable through to each package's tests.
+`pnpm test` runs `src/cli.ts` (compiled to `dist/cli.js`). The runner starts one `postgres:17-alpine` container, creates the two login roles once with random per-run passwords, and writes the connection details to a file in a private temporary directory (mode 0600). It sets `OFFGRID_TEST_DATABASE_FILE` to that file for the child command, `turbo run test`, which passes the variable through to each package's tests.
 
 `startTestDatabase` reads that file. When it is present, each test file calls `CREATE DATABASE offgrid_test_<random>` in the shared container, runs the init scripts in it, and drops it with `DROP DATABASE ... WITH (FORCE)` in `stop()`. The shared container is never stopped by a test file. When the variable is not set, `startTestDatabase` starts a private container as before, so `pnpm --filter <package> test` and IDE runs keep working.
 
