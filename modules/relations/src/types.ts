@@ -77,3 +77,31 @@ export interface CrossEntityLinkRow {
   readonly targetId: string;
   readonly createdAt: Date;
 }
+
+export interface LinkableEntityVersion {
+  readonly endpoint: LinkEndpoint;
+  readonly sourceVersion: number;
+}
+
+export interface LinkableEntityUpsert extends LinkableEntityVersion {
+  readonly owner: LinkOwner;
+  readonly title: string;
+}
+
+export interface GuestInvitation {
+  readonly endpoint: LinkEndpoint;
+  readonly guestUserId: string;
+  readonly hostUserId: string;
+}
+
+export interface FamilyMembershipChange {
+  readonly familyId: string;
+  readonly userId: string;
+  readonly sourceVersion: number;
+  readonly isMember: boolean;
+}
+
+export interface StoredLinkableEntity {
+  readonly sourceVersion: number;
+  readonly isRemoved: boolean;
+}
