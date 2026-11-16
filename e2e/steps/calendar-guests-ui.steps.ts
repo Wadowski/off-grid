@@ -317,6 +317,10 @@ When("I expand the family {string} section", async ({ page }, familyName: string
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
 });
 
+Given("Ben's name is shared with the family", async ({ world }) => {
+  await waitForNameOf(world, benOf(world));
+});
+
 Then("I see the family members listing Ben", async ({ page, world }) => {
   await expect(detailsOf(page).getByTestId("event-family-section")).toContainText("Ben");
   await expect(detailsOf(page).getByTestId(`event-family-member-${benOf(world)}`)).toBeVisible();

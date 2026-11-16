@@ -64,6 +64,7 @@ Feature: Event guests in the calendar screens
     And Ben joins the family "The Smiths" as a guest
     And the family has a calendar named "Family" with the color "teal"
     And the family has a timed event named "Family dinner" on the calendar "Family"
+    And Ben's name is shared with the family
     When I open the event "Family dinner" from the agenda
     Then I see the family "The Smiths" section collapsed
     When I expand the family "The Smiths" section
