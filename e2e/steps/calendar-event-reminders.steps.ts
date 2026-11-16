@@ -19,6 +19,7 @@ const PHONE_VIEWPORT = { width: 375, height: 812 };
 const CALENDAR_PATH = "/calendar";
 const AGENDA_PATH = "/calendar/agenda";
 const NEW_EVENT_PATH = "/calendar/event/new";
+const DUPLICATE_MESSAGE = "You already have a reminder at this time.";
 const UNITS = ["minute", "hour", "day", "week"] as const;
 
 const pathOf = (page: Page): string => new URL(page.url()).pathname;
@@ -74,6 +75,11 @@ const setReminder = async (
 ): Promise<void> => {
   await scope.getByTestId(`reminder-amount-${index}`).fill(String(reminder.amount));
   await scope.getByTestId(`reminder-unit-${index}`).selectOption(unitOf(reminder.word));
+};
+
+const revealReminders = async (scope: Locator): Promise<void> => {
+  await scope.page().evaluate("new Promise((resolve) => requestAnimationFrame(() => resolve()))");
+  await scope.getByTestId("reminder-group").scrollIntoViewIfNeeded();
 };
 
 const shownReminders = async (scope: Locator): Promise<string[]> => {
@@ -207,6 +213,11 @@ When(
     await addReminder(newEventModal(page), 0, { amount: firstAmount, word: firstWord });
     await addReminder(newEventModal(page), 1, { amount: secondAmount, word: secondWord });
     await saveNewEvent(page);
+    await expect(newEventModal(page).getByText(DUPLICATE_MESSAGE)).toBeVisible();
+    await revealReminders(newEventModal(page));
+    await captureScreen(page, "new event reminders duplicate", FEATURE, () =>
+      revealReminders(newEventModal(page)),
+    );
   },
 );
 
@@ -237,6 +248,25 @@ When("I open the new event modal on a phone and add a reminder", async ({ page }
   await newEventModal(page).getByTestId("reminder-add").click();
 });
 
+When("I open the new event modal on a desktop and add a reminder", async ({ page }) => {
+  await openNewEventModal(page);
+  await newEventModal(page).getByTestId("reminder-add").click();
+});
+
+When("I add a reminder and then remove it using only the keyboard", async ({ page }) => {
+  const modal = newEventModal(page);
+  await openNewEventModal(page);
+  await modal.getByTestId("reminder-add").focus();
+  await page.keyboard.press("Enter");
+  await expect(modal.getByTestId("reminder-amount-0")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(modal.getByTestId("reminder-unit-0")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(modal.getByTestId("reminder-remove-0")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(modal.getByTestId("reminder-row-0")).toHaveCount(0);
+});
+
 Then("I see the reminder {string} in the event form", async ({ page }, reminder: string) => {
   await expect.poll(() => shownReminders(newEventModal(page))).toContain(reminder);
 });
@@ -253,12 +283,32 @@ Then("I see no reminders in the event form", async ({ page }) => {
 
 Then("I see the reminder {string} in the event details", async ({ page }, reminder: string) => {
   await expect.poll(() => shownReminders(detailsOf(page))).toContain(reminder);
+  await revealReminders(detailsOf(page));
+  await captureScreen(page, "event details guest reminders", FEATURE, () =>
+    revealReminders(detailsOf(page)),
+  );
 });
 
 Then("I cannot add another reminder", async ({ page }) => {
   await expect(newEventModal(page).getByTestId("reminder-add")).toBeDisabled();
   await expect(newEventModal(page).getByTestId("reminder-row-4")).toBeVisible();
   await expect(newEventModal(page).getByTestId("reminder-row-5")).toHaveCount(0);
+  await revealReminders(newEventModal(page));
+  await captureScreen(page, "new event reminders limit", FEATURE, () =>
+    revealReminders(newEventModal(page)),
+  );
+});
+
+Then("the focus is on the add reminder control", async ({ page }) => {
+  await expect(newEventModal(page).getByTestId("reminder-add")).toBeFocused();
+});
+
+Then("I see the reminder controls in the new event modal", async ({ page }) => {
+  const modal = newEventModal(page);
+  await revealReminders(modal);
+  await expect(modal.getByTestId("reminder-row-0")).toBeInViewport({ ratio: 1 });
+  await expect(modal.getByTestId("reminder-add")).toBeInViewport({ ratio: 1 });
+  await captureScreen(page, "new event reminders", FEATURE, () => revealReminders(modal));
 });
 
 Then("I see the reminder controls at phone width without horizontal scroll", async ({ page }) => {
@@ -266,5 +316,4 @@ Then("I see the reminder controls at phone width without horizontal scroll", asy
   expect(await page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")).toBe(
     true,
   );
-  await captureScreen(page, "new event reminders", FEATURE);
 });

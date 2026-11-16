@@ -9,19 +9,22 @@ Feature: Event reminders
   the start of the event. Nobody sees another person's reminders. A guest, who
   cannot edit the event, sets their own reminders from the event details.
 
-  Scenario: I add a reminder when I create an event
+  Scenario Outline: I add a reminder when I create an event
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"
-    When I create an event named "Studio review" with a reminder of 15 minutes
+    When I create an event named "Studio review" with a reminder of <amount> <unit>
     And I open the event "Studio review" for editing from the agenda
-    Then I see the reminder "15 minutes" in the event form
+    Then I see the reminder "<amount> <unit>" in the event form
 
-  Scenario: I set a reminder in hours and it is saved
-    Given I am a user with a family named "The Smiths"
-    And I have a personal calendar named "Studio" with the color "teal"
-    When I create an event named "Studio review" with a reminder of 2 hours
-    And I open the event "Studio review" for editing from the agenda
-    Then I see the reminder "2 hours" in the event form
+    @smoke
+    Examples:
+      | amount | unit    |
+      | 15     | minutes |
+
+    Examples:
+      | amount | unit  |
+      | 2      | hours |
+      | 1      | day   |
 
   Scenario: I change a reminder of an existing event
     Given I am a user with a family named "The Smiths"
@@ -88,3 +91,17 @@ Feature: Event reminders
     And I have a personal calendar named "Studio" with the color "teal"
     When I open the new event modal on a phone and add a reminder
     Then I see the reminder controls at phone width without horizontal scroll
+
+  Scenario: I see the reminder controls in the new event modal on a desktop
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Studio" with the color "teal"
+    When I open the new event modal on a desktop and add a reminder
+    Then I see the reminder controls in the new event modal
+
+  @a11y
+  Scenario: I add and remove a reminder with the keyboard only
+    Given I am a user with a family named "The Smiths"
+    And I have a personal calendar named "Studio" with the color "teal"
+    When I add a reminder and then remove it using only the keyboard
+    Then I see no reminders in the event form
+    And the focus is on the add reminder control
