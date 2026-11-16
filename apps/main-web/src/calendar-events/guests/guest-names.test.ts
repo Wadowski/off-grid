@@ -4,7 +4,9 @@
 import { describe, expect, it } from "vitest";
 import { guestNameOf } from "./guest-names.js";
 
-const candidates = [{ userId: "ben", name: "Ben", familyName: "The Smiths" }];
+const candidates = [
+  { userId: "ben", name: "Ben", familyId: "family-smiths", familyName: "The Smiths" },
+];
 
 describe("guestNameOf", () => {
   it("returns the name of a known candidate", () => {

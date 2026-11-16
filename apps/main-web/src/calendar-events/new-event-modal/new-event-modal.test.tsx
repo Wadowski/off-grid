@@ -173,7 +173,9 @@ describe("NewEventModal", () => {
     const onSaved = vi.fn();
     vi.mocked(useGuestCandidates).mockReturnValue({
       status: "ready",
-      candidates: [{ userId: BEN, name: "Ben", familyName: "The Smiths" }],
+      candidates: [
+        { userId: BEN, name: "Ben", familyId: "family-smiths", familyName: "The Smiths" },
+      ],
       retry: vi.fn(),
     });
     vi.mocked(createCalendarEvent).mockResolvedValue(CREATED_EVENT);
@@ -196,7 +198,9 @@ describe("NewEventModal", () => {
     const onSaved = vi.fn();
     vi.mocked(useGuestCandidates).mockReturnValue({
       status: "ready",
-      candidates: [{ userId: BEN, name: "Ben", familyName: "The Smiths" }],
+      candidates: [
+        { userId: BEN, name: "Ben", familyId: "family-smiths", familyName: "The Smiths" },
+      ],
       retry: vi.fn(),
     });
     vi.mocked(createCalendarEvent).mockResolvedValue(CREATED_EVENT);

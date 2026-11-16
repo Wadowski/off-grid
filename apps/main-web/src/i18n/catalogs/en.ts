@@ -146,6 +146,7 @@ export const en = {
       add: "Add guests",
       remove: "Remove {{name}}",
       unknownName: "Guest",
+      familyHeading: "Family",
       emptyHost: "No guests yet",
       noCandidates:
         "You share no family with anyone yet. Join or create a family to invite people.",

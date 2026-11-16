@@ -293,3 +293,24 @@ Then(
       .toBeDefined();
   },
 );
+
+Then("I see the family {string} section collapsed", async ({ page }, familyName: string) => {
+  const toggle = detailsOf(page).getByTestId("event-family-toggle");
+  await expect(toggle).toContainText(familyName);
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(detailsOf(page).getByTestId("event-family-members")).toHaveCount(0);
+});
+
+When("I expand the family {string} section", async ({ page }, familyName: string) => {
+  const toggle = detailsOf(page).getByTestId("event-family-toggle");
+  await expect(toggle).toContainText(familyName);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+});
+
+Then("I see the family members listing Ben", async ({ page, world }) => {
+  await expect(detailsOf(page).getByTestId("event-family-section")).toContainText("Ben");
+  await expect(detailsOf(page).getByTestId(`event-family-member-${benOf(world)}`)).toBeVisible();
+  await expect(detailsOf(page).getByTestId(GUESTS_SECTION)).toHaveCount(0);
+  await captureScreen(page, "details family members", FEATURE);
+});

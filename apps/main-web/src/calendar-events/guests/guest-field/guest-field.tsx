@@ -5,6 +5,7 @@ import { Button, cssVar, Tag, Text, VisuallyHidden } from "@offgrid/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
+import { GuestName } from "../guest-name/guest-name.js";
 import { guestNameOf } from "../guest-names.js";
 import { CandidateOptions } from "./components/candidate-options/candidate-options.js";
 import { guestChipStyle, guestChipsStyle, guestFieldStyle } from "./styles.js";
@@ -34,7 +35,8 @@ export const GuestField = ({
         <Tag>
           <Text
             variant="caption"
-            value={t("calendar.guests.selectedCount", { count: selectedIds.length })}
+            textId="calendar.guests.selectedCount"
+            values={{ count: selectedIds.length }}
           />
         </Tag>
       </div>
@@ -45,7 +47,7 @@ export const GuestField = ({
         <div style={guestChipsStyle}>
           {selectedIds.map((userId) => (
             <span key={userId} data-testid={`guest-chip-${userId}`} style={guestChipStyle}>
-              <Text variant="body" value={chipLabel(userId)} />
+              <GuestName name={guestNameOf(candidates, userId)} />
               <Button
                 type="button"
                 variant="ghost"
@@ -57,7 +59,8 @@ export const GuestField = ({
                 <VisuallyHidden>
                   <Text
                     variant="action"
-                    value={t("calendar.guests.remove", { name: chipLabel(userId) })}
+                    textId="calendar.guests.remove"
+                    values={{ name: chipLabel(userId) }}
                   />
                 </VisuallyHidden>
               </Button>

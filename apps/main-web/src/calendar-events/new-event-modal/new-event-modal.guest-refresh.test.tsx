@@ -75,8 +75,8 @@ describe("NewEventModal guest selection while the guests refresh", () => {
     vi.mocked(useGuestCandidates).mockReturnValue({
       status: "ready",
       candidates: [
-        { userId: BEN, name: "Ben", familyName: "The Smiths" },
-        { userId: CARA, name: "Cara", familyName: "The Smiths" },
+        { userId: BEN, name: "Ben", familyId: "family-smiths", familyName: "The Smiths" },
+        { userId: CARA, name: "Cara", familyId: "family-smiths", familyName: "The Smiths" },
       ],
       retry: vi.fn(),
     });

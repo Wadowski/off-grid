@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
 import { detailsCardStyle } from "../../event-details/event-details-body/styles.js";
 import { initialsOf } from "../../../session/initials-of.js";
+import { GuestName } from "../guest-name/guest-name.js";
 import { guestCardStyle, guestRowStyle, guestRowsStyle, guestsSectionStyle } from "./styles.js";
 import type { GuestsSectionProps } from "./types.js";
 
@@ -58,7 +59,7 @@ export const GuestsSection = ({ state, nameOf, readOnly }: GuestsSectionProps) =
                 style={guestCardStyle}
               >
                 <Avatar initials={name === undefined ? "?" : initialsOf(name)} size="2rem" />
-                <Text variant="body" value={name ?? t("calendar.guests.unknownName")} />
+                <GuestName name={name} />
               </li>
             );
           })}

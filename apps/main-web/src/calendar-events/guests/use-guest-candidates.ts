@@ -14,6 +14,7 @@ const candidatesOfFamilies = async (): Promise<readonly GuestCandidate[]> => {
       return members.map((member) => ({
         userId: member.userId,
         name: member.displayName ?? undefined,
+        familyId: family.id,
         familyName: family.name,
       }));
     }),

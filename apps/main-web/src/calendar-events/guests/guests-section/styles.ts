@@ -14,6 +14,9 @@ export const guestsSectionStyle: CSSProperties = {
 };
 
 export const guestRowsStyle: CSSProperties = {
+  margin: 0,
+  padding: 0,
+  listStyle: "none",
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(10rem, 1fr))",
   gap: tokens.space[2],

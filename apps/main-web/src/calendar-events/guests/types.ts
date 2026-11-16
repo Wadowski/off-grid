@@ -4,6 +4,7 @@
 export type GuestCandidate = {
   readonly userId: string;
   readonly name: string | undefined;
+  readonly familyId: string;
   readonly familyName: string;
 };
 

@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Checkbox, Text } from "@offgrid/ui";
-import { useTranslation } from "react-i18next";
+import { GuestName } from "../../../guest-name/guest-name.js";
 import { groupCandidatesByFamily } from "../../../group-candidates-by-family.js";
 import { guestFamilyNameStyle, guestOptionsStyle } from "./styles.js";
 import type { CandidateOptionsProps } from "./types.js";
 
 export const CandidateOptions = ({ candidates, selectedIds, onToggle }: CandidateOptionsProps) => {
-  const { t } = useTranslation();
   return (
     <div style={guestOptionsStyle}>
       {groupCandidatesByFamily(candidates).map((group) => (
@@ -22,9 +21,7 @@ export const CandidateOptions = ({ candidates, selectedIds, onToggle }: Candidat
               data-testid={`guest-option-${candidate.userId}`}
               checked={selectedIds.includes(candidate.userId)}
               onChange={() => onToggle(candidate.userId)}
-              label={
-                <Text variant="body" value={candidate.name ?? t("calendar.guests.unknownName")} />
-              }
+              label={<GuestName name={candidate.name} />}
             />
           ))}
         </div>

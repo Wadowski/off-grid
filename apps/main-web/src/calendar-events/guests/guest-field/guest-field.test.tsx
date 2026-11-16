@@ -10,7 +10,7 @@ const BEN = "7c2e9d1b-4a6f-4b8e-9c3d-2f1a0b9e8d7c";
 
 const readyState = (overrides: Partial<GuestCandidatesState> = {}): GuestCandidatesState => ({
   status: "ready",
-  candidates: [{ userId: BEN, name: "Ben", familyName: "The Smiths" }],
+  candidates: [{ userId: BEN, name: "Ben", familyId: "family-smiths", familyName: "The Smiths" }],
   retry: vi.fn(),
   ...overrides,
 });

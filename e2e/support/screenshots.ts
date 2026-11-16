@@ -62,8 +62,12 @@ const captureTheme = async (
   const desktopViewport = page.viewportSize();
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.waitForFunction("document.documentElement.scrollWidth <= window.innerWidth");
-  // A layout change can refetch data (for example the guest list), so wait for the page to settle.
   await page.waitForLoadState("networkidle");
+  await page
+    .getByText("Loading guests")
+    .first()
+    .waitFor({ state: "hidden", timeout: 10_000 })
+    .catch(() => undefined);
   await page.screenshot({ path: screenPath(feature, shotName(name, theme, true)), fullPage: true });
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);

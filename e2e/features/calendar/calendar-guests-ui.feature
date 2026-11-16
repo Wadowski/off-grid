@@ -58,3 +58,13 @@ Feature: Event guests in the calendar screens
     Then I see the message "Event saved, but some guests could not be invited. Try again."
     And the event "Studio review" is saved on the calendar "Studio"
     And Ben does not see the event "Studio review"
+
+  Scenario: I see the family members of a family calendar event
+    Given I am a user with a family named "The Smiths"
+    And Ben joins the family "The Smiths" as a guest
+    And the family has a calendar named "Family" with the color "teal"
+    And the family has a timed event named "Family dinner" on the calendar "Family"
+    When I open the event "Family dinner" from the agenda
+    Then I see the family "The Smiths" section collapsed
+    When I expand the family "The Smiths" section
+    Then I see the family members listing Ben
