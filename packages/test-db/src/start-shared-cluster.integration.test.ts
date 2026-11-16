@@ -14,8 +14,7 @@ import { writeConnectionFile } from "./write-connection-file.js";
 import type { SharedClusterConnection, StartedSharedCluster } from "./types.js";
 
 const HOOK_TIMEOUT_MS = 120_000;
-const PARALLEL_TEST_TIMEOUT_MS = 60_000;
-const PARALLEL_DATABASES = 20;
+const PARALLEL_DATABASES = 5;
 
 describe("shared cluster provisioning", () => {
   let connection: SharedClusterConnection;
@@ -77,6 +76,5 @@ describe("shared cluster provisioning", () => {
         );
       }
     },
-    PARALLEL_TEST_TIMEOUT_MS,
   );
 });
