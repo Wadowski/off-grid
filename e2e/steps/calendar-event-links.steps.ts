@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { APIRequestContext, APIResponse } from "@playwright/test";
+import type { APIResponse } from "@playwright/test";
 import { crossEntityLinkListSchema, crossEntityLinkSchema } from "@offgrid/contracts";
 import { createBdd } from "playwright-bdd";
 import { eventually } from "../support/eventually.js";
@@ -9,8 +9,6 @@ import { bearer } from "../support/family-sessions.js";
 import {
   createCalendarNamed,
   createTimedEvent,
-  deleteEvent,
-  changeEvent,
   eventsState,
   familyIdNamed,
   sessionOf,
