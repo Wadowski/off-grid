@@ -13,6 +13,7 @@ export const toStoredEvent = (row: EventRow): StoredEvent => {
     traceId: row.trace_id,
     occurredAt: row.occurred_at.toISOString(),
     familyId: row.family_id,
+    userId: row.user_id,
     payload: row.payload,
   };
 };
