@@ -25,6 +25,7 @@
     "@offgrid/identity": "workspace:*",
     "@offgrid/notifications": "workspace:*",
     "@offgrid/observability": "workspace:*",
+    "@offgrid/relations": "workspace:*",
     "fastify": "5.12.7",
     "pg": "8.23.1",
     "tsx": "^4.23.15",

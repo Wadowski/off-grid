@@ -5,7 +5,9 @@ import type { AnyEventDefinition } from "@offgrid/contracts";
 import type { ErrorSink } from "@offgrid/observability";
 import type { Client, ClientBase, Pool } from "pg";
 
-export type EventOf<D extends AnyEventDefinition> = ReturnType<D["envelope"]["parse"]>;
+export type EventOf<D extends AnyEventDefinition> = ReturnType<D["envelope"]["parse"]> & {
+  readonly userId: string | null;
+};
 
 export interface HandlerContext {
   readonly tx: ClientBase;
@@ -101,6 +103,7 @@ export interface StoredEvent {
   readonly traceId: string;
   readonly occurredAt: string;
   readonly familyId: string | null;
+  readonly userId: string | null;
   readonly payload: unknown;
 }
 
@@ -113,6 +116,7 @@ export interface EventRow {
   readonly trace_id: string;
   readonly occurred_at: Date;
   readonly family_id: string | null;
+  readonly user_id: string | null;
   readonly payload: unknown;
 }
 

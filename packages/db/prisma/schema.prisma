@@ -288,10 +288,10 @@ model EventGuest {
 }
 
 model EventReminder {
-  reminderId String   @id @map("reminder_id") @db.Uuid
-  eventId    String   @map("event_id") @db.Uuid
-  familyId   String?  @map("family_id") @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
+  reminderId    String    @id @map("reminder_id") @db.Uuid
+  eventId       String    @map("event_id") @db.Uuid
+  familyId      String?   @map("family_id") @db.Uuid
+  userId        String?   @map("user_id") @db.Uuid
   remindAt      DateTime  @map("remind_at") @db.Timestamptz(6)
   offsetMinutes Int       @map("offset_minutes")
   firedAt       DateTime? @map("fired_at") @db.Timestamptz(6)
@@ -328,4 +328,57 @@ generator client {
   provider            = "prisma-client"
   output              = "../../../node_modules/.prisma/offgrid-db"
   importFileExtension = "js"
+}
+
+model RelationsLinkableEntity {
+  entityType    String  @map("entity_type") @db.VarChar(40)
+  entityId      String  @map("entity_id") @db.Uuid
+  familyId      String? @map("family_id") @db.Uuid
+  userId        String? @map("user_id") @db.Uuid
+  title         String  @db.VarChar(200)
+  sourceVersion Int     @map("source_version")
+  isRemoved     Boolean @default(false) @map("is_removed")
+
+  @@id([entityType, entityId])
+  @@map("linkable_entity")
+  @@schema("relations")
+}
+
+model RelationsLinkableEntityGuest {
+  entityType String   @map("entity_type") @db.VarChar(40)
+  entityId   String   @map("entity_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  hostUserId String   @map("host_user_id") @db.Uuid
+  invitedAt  DateTime @default(now()) @map("invited_at") @db.Timestamptz(6)
+
+  @@id([entityType, entityId, userId])
+  @@map("linkable_entity_guest")
+  @@schema("relations")
+}
+
+model RelationsFamilyMember {
+  familyId      String  @map("family_id") @db.Uuid
+  userId        String  @map("user_id") @db.Uuid
+  sourceVersion Int     @map("source_version")
+  isMember      Boolean @map("is_member")
+
+  @@id([familyId, userId])
+  @@map("family_member")
+  @@schema("relations")
+}
+
+model RelationsCrossEntityLink {
+  linkId     String   @id @map("link_id") @db.Uuid
+  sourceType String   @map("source_type") @db.VarChar(40)
+  sourceId   String   @map("source_id") @db.Uuid
+  targetType String   @map("target_type") @db.VarChar(40)
+  targetId   String   @map("target_id") @db.Uuid
+  familyId   String?  @map("family_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  createdBy  String   @map("created_by") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([sourceType, sourceId, targetType, targetId])
+  @@map("cross_entity_link")
+  @@schema("relations")
 }

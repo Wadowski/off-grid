@@ -22,7 +22,7 @@ export const deliverOne = async (
   }
   let event: EventOf<AnyEventDefinition>;
   try {
-    event = parseEvent(definition, toEnvelope(stored));
+    event = { ...parseEvent(definition, toEnvelope(stored)), userId: stored.userId };
   } catch (error) {
     await giveUp(busClient, subscription, stored, 1, error, settings);
     return;

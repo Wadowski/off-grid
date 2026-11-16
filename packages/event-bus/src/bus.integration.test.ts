@@ -202,6 +202,35 @@ describe("delivery", () => {
     expect(second).toEqual(["Alpha", "Beta"]);
   });
 
+  it("delivers the owning user of a user-owned event and no user for a family-owned one", async () => {
+    const owners: Array<{ familyId: string | null; userId: string | null }> = [];
+    bus.subscribe({
+      name: "owners",
+      event: familyCreated,
+      runAs: "family",
+      handler: async (event) => {
+        owners.push({ familyId: event.familyId, userId: event.userId });
+      },
+    });
+    const privateUserId = randomUUID();
+    const client = await family.connect();
+    try {
+      await client.query("BEGIN");
+      await publish(client, familyCreated, envelope(1, "Private", null), { userId: privateUserId });
+      await client.query("COMMIT");
+    } finally {
+      client.release();
+    }
+    await publishCommitted(family, envelope(2, "Shared"));
+
+    await bus.deliverPending();
+
+    expect(owners).toEqual([
+      { familyId: null, userId: privateUserId },
+      { familyId: FAMILY_ID, userId: null },
+    ]);
+  });
+
   it("runs a handler as its module role", async () => {
     const roles: string[] = [];
     bus.subscribe({

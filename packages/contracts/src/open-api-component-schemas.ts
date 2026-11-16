@@ -10,6 +10,9 @@ import { accessGroupIdSchema } from "./access-group-id-schema.js";
 import { accountProfileSchema } from "./account-profile-schema.js";
 import { calendarListSchema } from "./calendar-list-schema.js";
 import { calendarSchema } from "./calendar-schema.js";
+import { createCrossEntityLinkRequestSchema } from "./create-cross-entity-link-request-schema.js";
+import { crossEntityLinkListSchema } from "./cross-entity-link-list-schema.js";
+import { crossEntityLinkSchema } from "./cross-entity-link-schema.js";
 import { createCalendarEventRequestSchema } from "./create-calendar-event-request-schema.js";
 import { createCalendarRequestSchema } from "./create-calendar-request-schema.js";
 import { inviteEventGuestRequestSchema } from "./invite-event-guest-request-schema.js";
@@ -66,6 +69,9 @@ export const openApiComponentSchemas = {
   AdminUser: adminUserSchema,
   AdminUserList: adminUserListSchema,
   Calendar: calendarSchema,
+  CrossEntityLink: crossEntityLinkSchema,
+  CrossEntityLinkList: crossEntityLinkListSchema,
+  CreateCrossEntityLinkRequest: createCrossEntityLinkRequestSchema,
   CalendarList: calendarListSchema,
   CreateCalendarRequest: createCalendarRequestSchema,
   CreateCalendarEventRequest: createCalendarEventRequestSchema,
