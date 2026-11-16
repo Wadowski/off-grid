@@ -24,7 +24,10 @@ describe("buildOpenApiDocument", () => {
       "CreateAccountRequest",
       "CreateCalendarEventRequest",
       "CreateCalendarRequest",
+      "CreateCrossEntityLinkRequest",
       "CreateFamilyRequest",
+      "CrossEntityLink",
+      "CrossEntityLinkList",
       "EmailCodeRequest",
       "ErrorResponse",
       "Family",
@@ -65,6 +68,8 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/calendars/{id}",
       "/calendars/{id}/events",
       "/events/{id}/guests",
+      "/links",
+      "/links/{id}",
     ]);
     expect(paths["/events/{id}/guests"].post.operationId).toBe("inviteEventGuest");
     expect(paths["/calendars/{id}/events"].post.operationId).toBe("createCalendarEvent");

@@ -13,5 +13,6 @@ export const envelopeFields = z.object({
   occurredAt: timestampSchema,
   traceId: z.string().min(1).max(128),
   familyId: familyIdSchema.nullable(),
+  userId: uuidSchema.nullable().default(null),
   sourceVersion: z.number().int().min(1),
 });
