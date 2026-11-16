@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import type { Client, Pool } from "pg";
 
 export interface DatabaseTarget {
@@ -45,4 +46,10 @@ export interface SharedClusterConnection {
 export interface IsolatedDatabase {
   readonly name: string;
   readonly admin: Client;
+}
+
+export interface StartedSharedCluster {
+  readonly container: StartedPostgreSqlContainer;
+  readonly admin: Client;
+  readonly connection: SharedClusterConnection;
 }
