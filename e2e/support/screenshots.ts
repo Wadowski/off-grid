@@ -53,15 +53,18 @@ const captureTheme = async (
   name: string,
   feature: string,
   theme: Theme,
+  prepare: (() => Promise<void>) | undefined,
 ): Promise<string> => {
   await page.emulateMedia({ colorScheme: theme });
   await nextFrame(page);
+  await prepare?.();
   const path = screenPath(feature, shotName(name, theme, false));
   await page.screenshot({ path, fullPage: true });
 
   const desktopViewport = page.viewportSize();
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.waitForFunction("document.documentElement.scrollWidth <= window.innerWidth");
+  await prepare?.();
   await page.screenshot({ path: screenPath(feature, shotName(name, theme, true)), fullPage: true });
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);
@@ -73,6 +76,7 @@ export async function captureScreen(
   page: Page,
   name: string,
   feature = "adhoc",
+  prepare?: () => Promise<void>,
 ): Promise<string | undefined> {
   if (!screenshotsEnabled()) {
     return undefined;
@@ -84,8 +88,8 @@ export async function captureScreen(
   }
   captured.add(key);
   await mkdir(screenPath(feature, name).split("/").slice(0, -1).join("/"), { recursive: true });
-  const path = await captureTheme(page, name, feature, "light");
-  await captureTheme(page, name, feature, "dark");
+  const path = await captureTheme(page, name, feature, "light", prepare);
+  await captureTheme(page, name, feature, "dark", prepare);
   await page.emulateMedia({ colorScheme: "light" });
   return path;
 }

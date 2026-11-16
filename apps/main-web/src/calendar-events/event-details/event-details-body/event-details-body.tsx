@@ -11,6 +11,7 @@ import {
   zonedMomentOf,
 } from "../../../calendar-views/time-format.js";
 import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
+import { GuestReminders } from "../components/guest-reminders/guest-reminders.js";
 import {
   detailsBodyStyle,
   detailsCardStyle,
@@ -19,7 +20,7 @@ import {
 } from "./styles.js";
 import type { EventDetailsBodyProps } from "./types.js";
 
-export const EventDetailsBody = ({ event, timeZone }: EventDetailsBodyProps) => {
+export const EventDetailsBody = ({ event, timeZone, onSaveReminders }: EventDetailsBodyProps) => {
   const { t } = useTranslation();
   const dateLine = event.isAllDay
     ? formatDayHeading(event.startDate ?? "")
@@ -63,6 +64,13 @@ export const EventDetailsBody = ({ event, timeZone }: EventDetailsBodyProps) => 
         <div role="note" style={detailsCardStyle}>
           <Text variant="body" textId="calendar.eventDetails.readOnly" />
         </div>
+      )}
+      {event.readOnly && (
+        <GuestReminders
+          key={event.id}
+          offsets={event.reminderOffsetsMinutes ?? []}
+          onSave={onSaveReminders}
+        />
       )}
     </div>
   );

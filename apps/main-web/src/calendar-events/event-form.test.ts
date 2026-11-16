@@ -18,6 +18,7 @@ const timedForm = (overrides: Partial<EventFormValues> = {}): EventFormValues =>
   endTime: "13:00",
   location: "",
   description: "",
+  reminderOffsetsMinutes: [],
   ...overrides,
 });
 
@@ -29,6 +30,7 @@ describe("defaultEventForm", () => {
       timeZone: TIME_ZONE,
     });
 
+    expect(form.reminderOffsetsMinutes).toEqual([]);
     expect(form).toMatchObject({
       title: "",
       calendarId: CALENDAR_ID,
@@ -62,6 +64,21 @@ describe("defaultEventForm", () => {
 });
 
 describe("toCreateEventRequest", () => {
+  it("sends the reminder offsets in minutes", () => {
+    const result = toCreateEventRequest(
+      timedForm({ reminderOffsetsMinutes: [15, 1440] }),
+      TIME_ZONE,
+    );
+
+    expect(result).toMatchObject({ ok: true, request: { reminderOffsetsMinutes: [15, 1440] } });
+  });
+
+  it("leaves the reminder offsets out when there are none", () => {
+    const result = toCreateEventRequest(timedForm(), TIME_ZONE);
+
+    expect(result.ok && "reminderOffsetsMinutes" in result.request).toBe(false);
+  });
+
   it("builds a timed request with UTC instants and no empty optional fields", () => {
     const result = toCreateEventRequest(timedForm({ location: "  ", description: "" }), TIME_ZONE);
 

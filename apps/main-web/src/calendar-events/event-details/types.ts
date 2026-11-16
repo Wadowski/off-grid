@@ -20,4 +20,5 @@ export type EventDetailsShellProps = {
   readonly timeZone: string;
   readonly onEdit: () => void;
   readonly onDelete: () => void;
+  readonly onSaveReminders: (offsets: readonly number[]) => Promise<void>;
 };
