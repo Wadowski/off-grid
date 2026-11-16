@@ -25,6 +25,7 @@ export const NewEventFields = ({
   timeZone,
   narrow,
   calendarPicker,
+  guestField,
   saving,
   reminderSubmitAttempt,
   update,
@@ -130,6 +131,8 @@ export const NewEventFields = ({
           <Text variant="body" value={timeZone} />
         </div>
       </div>
+
+      {guestField}
 
       <div style={newEventGroupStyle}>
         <TextField

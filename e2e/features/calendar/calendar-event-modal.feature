@@ -54,7 +54,6 @@ Feature: New event modal
     When I try to save an event without a title
     Then I see the message "Enter an event title."
 
-  @wip
   Scenario: The new event modal shows a guest field that follows the event's guests
     Given I am a user with a family named "The Smiths"
     And I have a personal calendar named "Studio" with the color "teal"

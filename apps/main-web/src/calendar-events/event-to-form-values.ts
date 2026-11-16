@@ -17,6 +17,7 @@ export const eventToFormValues = (event: EventFormSource, timeZone: string): Eve
       endTime: "00:00",
       location: event.location ?? "",
       description: event.description ?? "",
+      guestUserIds: event.guestUserIds ?? [],
       reminderOffsetsMinutes: event.reminderOffsetsMinutes ?? [],
     };
   }
@@ -32,6 +33,7 @@ export const eventToFormValues = (event: EventFormSource, timeZone: string): Eve
     endTime: formatMinutesOfDay(end.minutesOfDay),
     location: event.location ?? "",
     description: event.description ?? "",
+    guestUserIds: event.guestUserIds ?? [],
     reminderOffsetsMinutes: event.reminderOffsetsMinutes ?? [],
   };
 };

@@ -10,6 +10,7 @@ export type NewEventFieldsProps = {
   readonly timeZone: string;
   readonly narrow: boolean;
   readonly calendarPicker: ReactNode;
+  readonly guestField: ReactNode;
   readonly saving: boolean;
   readonly reminderSubmitAttempt: number;
   readonly onRemindersChange: (offsets: readonly number[], valid: boolean) => void;

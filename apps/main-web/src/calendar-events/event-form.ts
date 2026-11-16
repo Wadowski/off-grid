@@ -46,6 +46,7 @@ export const defaultEventForm = (input: {
     endTime: end.time,
     location: "",
     description: "",
+    guestUserIds: [],
     reminderOffsetsMinutes: [],
   };
 };

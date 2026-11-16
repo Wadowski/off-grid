@@ -114,3 +114,15 @@ export interface CalendarViewEventRecord extends CalendarEventRecord {
   readonly calendarName: string;
   readonly calendarColor: string;
 }
+
+export interface EventGuest {
+  readonly userId: string;
+  readonly invitedAt: string;
+}
+
+export type EventGuestListing =
+  | { readonly outcome: "found"; readonly guests: readonly EventGuest[] }
+  | { readonly outcome: "not-found" };
+
+export type RemoveEventGuestOutcome =
+  { readonly outcome: "removed" } | { readonly outcome: "not-found" };
