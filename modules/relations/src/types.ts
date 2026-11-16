@@ -1,14 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { linkableEntityTypeSchema } from "@offgrid/contracts";
+import type { LinkableEntityType } from "@offgrid/contracts";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { CurrentUserId } from "@offgrid/http";
 import type { FastifyRequest } from "fastify";
-import type { z } from "zod";
-
-export type LinkableEntityType = z.output<typeof linkableEntityTypeSchema>;
 
 export type CurrentFamilyId = (request: FastifyRequest) => string | null;
 
