@@ -22,9 +22,6 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
 type Theme = "light" | "dark";
 
-// Runs before each shot, after the viewport is set, so a screen can scroll its own container back to the part under review.
-type Prepare = () => Promise<void>;
-
 const SCREEN_TAG = "@screen:";
 
 const UUID_SEGMENT = /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\/|$)/gi;
@@ -56,7 +53,7 @@ const captureTheme = async (
   name: string,
   feature: string,
   theme: Theme,
-  prepare: Prepare | undefined,
+  prepare: (() => Promise<void>) | undefined,
 ): Promise<string> => {
   await page.emulateMedia({ colorScheme: theme });
   await nextFrame(page);
@@ -79,7 +76,7 @@ export async function captureScreen(
   page: Page,
   name: string,
   feature = "adhoc",
-  prepare?: Prepare,
+  prepare?: () => Promise<void>,
 ): Promise<string | undefined> {
   if (!screenshotsEnabled()) {
     return undefined;
