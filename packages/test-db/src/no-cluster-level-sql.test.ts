@@ -44,15 +44,13 @@ const findClusterLevelStatements = async (): Promise<string[]> => {
     if (file.startsWith(testDatabasePackage)) {
       continue;
     }
-    const contents = await readSource(file);
+    const contents = await readFile(file, "utf8");
     if (clusterLevelStatements.some((statement) => statement.test(contents))) {
       findings.push(relative(repositoryRoot, file));
     }
   }
   return findings;
 };
-
-const readSource = (file: string): Promise<string> => readFile(file, "utf8");
 
 describe("cluster level SQL", () => {
   it("is only issued by the shared cluster runner in packages/test-db", async () => {
