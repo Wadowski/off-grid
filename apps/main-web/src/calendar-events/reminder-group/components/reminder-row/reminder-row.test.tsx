@@ -58,4 +58,19 @@ describe("ReminderRow", () => {
     expect(amount).toHaveAttribute("aria-invalid", "true");
     expect(amount).toHaveAccessibleDescription("You already have a reminder at this time.");
   });
+
+  it("shows the before-the-event suffix in the row on a wide screen", () => {
+    renderRow();
+
+    expect(screen.getByTestId("reminder-row-0")).toHaveTextContent("before the event");
+  });
+
+  it("labels the icon-only remove button for assistive technology", () => {
+    renderRow();
+
+    expect(screen.getByTestId("reminder-remove-0")).toHaveAttribute(
+      "aria-label",
+      "Remove reminder",
+    );
+  });
 });

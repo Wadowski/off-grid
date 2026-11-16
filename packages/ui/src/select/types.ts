@@ -13,10 +13,13 @@ export type SelectAccent = {
   readonly color: string;
 };
 
+export type SelectVariant = "default" | "field";
+
 export type SelectProps = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   "style" | "className" | "children"
 > & {
   readonly options: readonly SelectOption[];
   readonly accent?: SelectAccent;
+  readonly variant?: SelectVariant;
 };

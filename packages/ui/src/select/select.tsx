@@ -4,10 +4,10 @@
 import { selectAccentStyle, selectStyle } from "./styles.js";
 import type { SelectProps } from "./types.js";
 
-export const Select = ({ options, accent, ...rest }: SelectProps) => (
+export const Select = ({ options, accent, variant = "default", ...rest }: SelectProps) => (
   <select
-    className="og-focusable"
-    style={{ ...selectStyle, ...selectAccentStyle(accent) }}
+    className={variant === "field" ? "og-focusable og-select-field" : "og-focusable"}
+    style={variant === "field" ? undefined : { ...selectStyle, ...selectAccentStyle(accent) }}
     {...rest}
   >
     {options.map((option) => (

@@ -5,6 +5,7 @@ import { MAX_REMINDERS_PER_EVENT } from "@offgrid/contracts";
 import { Button, cssVar, Text, VisuallyHidden } from "@offgrid/ui";
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { DEFAULT_REMINDER_AMOUNT, DEFAULT_REMINDER_UNIT } from "../constants.js";
 import { findReminderErrors } from "../find-reminder-errors.js";
@@ -32,6 +33,7 @@ export const ReminderGroup = ({
   onChange,
 }: ReminderGroupProps) => {
   const { t } = useTranslation();
+  const narrow = useIsNarrow();
   const headingId = useId();
   const limitId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -135,9 +137,11 @@ export const ReminderGroup = ({
               onRemove={() => remove(index)}
             />
           ))}
-          <div style={reminderMutedStyle}>
-            <Text variant="caption" textId="calendar.eventModal.reminders.suffix" />
-          </div>
+          {narrow && (
+            <div style={reminderMutedStyle}>
+              <Text variant="caption" textId="calendar.eventModal.reminders.suffix" />
+            </div>
+          )}
         </div>
       )}
 
@@ -152,7 +156,7 @@ export const ReminderGroup = ({
           onClick={add}
         >
           <MaterialIcon name="add" size="18px" color="currentColor" />
-          <Text variant="action" textId="calendar.eventModal.reminders.add" />
+          <Text variant="label" textId="calendar.eventModal.reminders.add" />
         </Button>
         {atLimit && (
           <div id={limitId} style={reminderMutedStyle}>

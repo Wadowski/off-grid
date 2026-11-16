@@ -21,22 +21,31 @@ export const reminderAmountCellStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const centeredCellStyle: CSSProperties = {
+const DESKTOP_FIELD_HEIGHT = "2.25rem";
+const PHONE_FIELD_HEIGHT = "3rem";
+
+const centeredCellStyle = (narrow: boolean): CSSProperties => ({
   display: "flex",
   alignItems: "center",
-  minHeight: "3rem",
-};
+  minHeight: narrow ? PHONE_FIELD_HEIGHT : DESKTOP_FIELD_HEIGHT,
+});
 
 export const reminderUnitCellStyle: CSSProperties = {
-  ...centeredCellStyle,
   flex: "1 1 0",
   minWidth: 0,
 };
 
-export const reminderRemoveCellStyle: CSSProperties = {
-  ...centeredCellStyle,
+export const reminderSuffixCellStyle = (narrow: boolean): CSSProperties => ({
+  ...centeredCellStyle(narrow),
   flex: "0 0 auto",
-};
+  color: cssVar("color-muted"),
+  whiteSpace: "nowrap",
+});
+
+export const reminderRemoveCellStyle = (narrow: boolean): CSSProperties => ({
+  ...centeredCellStyle(narrow),
+  flex: "0 0 auto",
+});
 
 export const reminderZeroHelperStyle: CSSProperties = {
   color: cssVar("color-muted"),

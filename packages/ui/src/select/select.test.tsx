@@ -42,4 +42,10 @@ describe("Select", () => {
 
     expect(screen.getByRole("combobox")).toHaveClass("og-focusable");
   });
+
+  it("uses the shared form field class for the field variant", () => {
+    render(<Select aria-label="Role" options={ROLE_OPTIONS} variant="field" />);
+
+    expect(screen.getByRole("combobox")).toHaveClass("og-focusable", "og-select-field");
+  });
 });

@@ -3,6 +3,7 @@
 
 import { Button, Select, Text, TextField, VisuallyHidden } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
+import { useIsNarrow } from "../../../../media/use-is-narrow.js";
 import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import {
   REMINDER_ERROR_TEXT_IDS,
@@ -12,6 +13,7 @@ import {
 import {
   reminderAmountCellStyle,
   reminderRemoveCellStyle,
+  reminderSuffixCellStyle,
   reminderRowControlsStyle,
   reminderRowStyle,
   reminderUnitCellStyle,
@@ -32,6 +34,7 @@ export const ReminderRow = ({
   onRemove,
 }: ReminderRowProps) => {
   const { t } = useTranslation();
+  const narrow = useIsNarrow();
   const amount = Number(draft.amount);
   const count = draft.amount.trim() !== "" && Number.isFinite(amount) ? amount : PLURAL_COUNT;
   const unitOptions = REMINDER_UNITS.map((unit) => ({
@@ -77,6 +80,7 @@ export const ReminderRow = ({
           <Select
             aria-label={t("calendar.eventModal.reminders.unitLabel")}
             data-testid={`reminder-unit-${index}`}
+            variant="field"
             value={draft.unit}
             disabled={disabled}
             onChange={(event) => {
@@ -88,19 +92,22 @@ export const ReminderRow = ({
             options={unitOptions}
           />
         </div>
-        <div style={reminderRemoveCellStyle}>
+        {!narrow && (
+          <div style={reminderSuffixCellStyle(narrow)}>
+            <Text variant="caption" textId="calendar.eventModal.reminders.suffix" />
+          </div>
+        )}
+        <div style={reminderRemoveCellStyle(narrow)}>
           <Button
             type="button"
             variant="ghost"
             size="small"
             disabled={disabled}
+            aria-label={t("calendar.eventModal.reminders.remove")}
             data-testid={`reminder-remove-${index}`}
             onClick={onRemove}
           >
             <MaterialIcon name="close" size="18px" color="currentColor" />
-            <VisuallyHidden>
-              <Text variant="action" textId="calendar.eventModal.reminders.remove" />
-            </VisuallyHidden>
           </Button>
         </div>
       </div>

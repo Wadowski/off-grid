@@ -21,6 +21,7 @@ export const tokensStylesheet = [
   `.og-text-field-shell .og-input.og-text-field-title { padding: var(--og-space-1) 0; background: transparent; box-shadow: none; font-size: var(--og-font-size-headline-md); line-height: var(--og-line-height-headline-md); letter-spacing: var(--og-letter-spacing-headline-md); font-weight: var(--og-font-weight-semibold); }`,
   `.og-text-field-shell .og-input.og-text-field-title:focus { background: transparent; box-shadow: none; }`,
   `.og-text-field-invalid .og-input.og-text-field-title { box-shadow: 0 0 0 1px var(--og-color-danger); }`,
+  `.og-select-field { width: 100%; min-width: 0; padding: var(--og-space-2) var(--og-space-3); border: none; border-radius: var(--og-radius-md); background: var(--og-color-surface-low); box-shadow: inset 0 0 0 1px var(--og-color-outline); color: var(--og-color-fg); font-family: var(--og-font-family-base); font-size: var(--og-font-size-body-md); line-height: var(--og-line-height-body-md); letter-spacing: var(--og-letter-spacing-body-md); }`,
   `.og-textarea { min-height: 4.5rem; resize: vertical; }`,
   `.og-text-field-leading, .og-text-field-trailing { position: absolute; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }`,
   `.og-text-field-leading { left: var(--og-space-8); pointer-events: none; }`,
@@ -45,5 +46,6 @@ export const tokensStylesheet = [
   .og-text-field-shell.og-text-field-has-leading .og-input, .og-text-field-shell.og-text-field-has-trailing .og-input { padding: 0; }
   .og-text-field-leading, .og-text-field-trailing { position: static; transform: none; }
   .og-text-field-invalid .og-input { box-shadow: none; }
+  .og-select-field { min-height: 3rem; border-radius: var(--og-radius-lg); background: var(--og-color-surface-2); font-size: var(--og-font-size-body-lg); line-height: var(--og-line-height-body-lg); letter-spacing: var(--og-letter-spacing-body-lg); }
 }`,
 ].join("\n");
