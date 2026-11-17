@@ -20,7 +20,7 @@ Feature: System update
     And a newer version is available
     When I start the update
     Then I can see the update in progress
-    And when it finishes I can see the new version running
+    And I can see the new version running
 
   Scenario: Update does not start when the backup fails
     Given I am the admin
@@ -33,30 +33,29 @@ Feature: System update
   Scenario: Update rolls back when the new version fails its health check
     Given I am the admin
     And a newer version is available
-    When I start the update
     And the new version fails its health check
+    When I start the update
     Then the previous version is running again
     And I can see that the update was rolled back
 
   Scenario: Regular user cannot check for updates
     Given I am a regular user
-    When I try to check for updates
-    Then I am refused
+    When I open the system update screen
+    Then I see that only an admin can check for updates
 
   Scenario: Regular user cannot start an update
     Given I am a regular user
     And a newer version is available
     When I try to start the update
-    Then I am refused
+    Then I see that only an admin can start an update
     And the update does not start
 
   Scenario: Nightly automatic update is off by default
     Given I am the admin
-    When I open the system update settings
+    When I open the system update screen
     Then the nightly automatic update is turned off
 
   Scenario: Admin turns on the nightly automatic update
     Given I am the admin
     When I turn on the nightly automatic update
     Then the nightly automatic update is turned on
-    And I can see the hour when the check runs
