@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+export type ByteBody = Uint8Array<ArrayBuffer> | Blob;
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type ApiClientOptions = {
@@ -18,7 +20,7 @@ export type ApiClient = {
   readonly requestBytes: (
     method: HttpMethod,
     path: string,
-    body: Uint8Array<ArrayBuffer> | Blob,
+    body: ByteBody,
     headers?: Readonly<Record<string, string>>,
   ) => Promise<unknown>;
 };

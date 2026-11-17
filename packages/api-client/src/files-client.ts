@@ -19,7 +19,7 @@ import {
 } from "@offgrid/contracts";
 import { fillRoute } from "./fill-route.js";
 import { withListQuery } from "./with-list-query.js";
-import type { ApiClient, FileListOptions } from "./types.js";
+import type { ApiClient, ByteBody, FileListOptions } from "./types.js";
 
 export const createFilesClient = (client: ApiClient) => ({
   listDrives: async () =>
@@ -109,7 +109,7 @@ export const createFilesClient = (client: ApiClient) => ({
       await client.request("GET", fillRoute(filesRoutes.upload, { id: uploadId })),
     ),
 
-  uploadChunk: async (uploadId: string, offset: number, bytes: Uint8Array<ArrayBuffer> | Blob) =>
+  uploadChunk: async (uploadId: string, offset: number, bytes: ByteBody) =>
     uploadSchema.parse(
       await client.requestBytes("PATCH", fillRoute(filesRoutes.upload, { id: uploadId }), bytes, {
         "Upload-Offset": String(offset),
