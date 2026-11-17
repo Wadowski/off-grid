@@ -44,6 +44,7 @@ describe("buildOpenApiDocument", () => {
       "FileList",
       "FileVersion",
       "FileVersionList",
+      "FilesErrorCode",
       "InstanceSettings",
       "InstanceSettingsUpdate",
       "InviteEventGuestRequest",

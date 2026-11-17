@@ -813,6 +813,7 @@ export interface components {
                 currentVersionId: string;
             }) | null;
         };
+        FilesErrorCode: "NOT_FOUND" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NAME_TAKEN" | "INVALID_MOVE" | "NOT_TRASHED" | "IS_FOLDER" | "UPLOAD_INCOMPLETE" | "UPLOAD_OFFSET_MISMATCH";
     };
     responses: never;
     parameters: never;
