@@ -252,9 +252,7 @@
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
               "type": "string"
             },
-            {
-              "type": "null"
-            }
+            { "type": "null" }
           ]
         },
         "id": {
@@ -275,32 +273,28 @@
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
               "type": "string"
             },
-            "familyId": {
+            "ownerFamilyId": {
               "anyOf": [
                 {
                   "format": "uuid",
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
                   "type": "string"
                 },
-                {
-                  "type": "null"
-                }
+                { "type": "null" }
               ]
             },
-            "userId": {
+            "ownerUserId": {
               "anyOf": [
                 {
                   "format": "uuid",
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
                   "type": "string"
                 },
-                {
-                  "type": "null"
-                }
+                { "type": "null" }
               ]
             }
           },
-          "required": ["driveId", "userId", "familyId"],
+          "required": ["driveId", "ownerUserId", "ownerFamilyId"],
           "type": "object"
         },
         "sourceVersion": {
@@ -308,19 +302,9 @@
           "minimum": 1,
           "type": "integer"
         },
-        "traceId": {
-          "maxLength": 128,
-          "minLength": 1,
-          "type": "string"
-        },
-        "type": {
-          "const": "drive-created-v1",
-          "type": "string"
-        },
-        "version": {
-          "const": 1,
-          "type": "number"
-        }
+        "traceId": { "maxLength": 128, "minLength": 1, "type": "string" },
+        "type": { "const": "drive-created-v1", "type": "string" },
+        "version": { "const": 1, "type": "number" }
       },
       "required": [
         "id",

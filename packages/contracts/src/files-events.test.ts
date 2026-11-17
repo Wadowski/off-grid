@@ -36,8 +36,8 @@ const removedPayload = {
 
 const drivePayload = {
   driveId: ID,
-  userId: null,
-  familyId: ID,
+  ownerUserId: null,
+  ownerFamilyId: ID,
 };
 
 const keysOf = (schema: { shape: Record<string, unknown> }): string[] =>
@@ -130,7 +130,9 @@ describe("file-removed-v1 payload", () => {
 
 describe("drive-created-v1 payload", () => {
   it("carries exactly the drive id and owner, and no name", () => {
-    expect(keysOf(driveCreatedV1.schema)).toEqual(["driveId", "familyId", "userId"].sort());
+    expect(keysOf(driveCreatedV1.schema)).toEqual(
+      ["driveId", "ownerFamilyId", "ownerUserId"].sort(),
+    );
   });
 
   it("rejects a name and every content field", () => {
@@ -143,16 +145,18 @@ describe("drive-created-v1 payload", () => {
   it("accepts a family drive and a personal drive", () => {
     expect(driveCreatedV1.schema.safeParse(drivePayload).success).toBe(true);
     expect(
-      driveCreatedV1.schema.safeParse({ driveId: ID, userId: ID, familyId: null }).success,
+      driveCreatedV1.schema.safeParse({ driveId: ID, ownerUserId: ID, ownerFamilyId: null })
+        .success,
     ).toBe(true);
   });
 
   it("rejects a drive with no owner or two owners", () => {
     expect(
-      driveCreatedV1.schema.safeParse({ driveId: ID, userId: null, familyId: null }).success,
+      driveCreatedV1.schema.safeParse({ driveId: ID, ownerUserId: null, ownerFamilyId: null })
+        .success,
     ).toBe(false);
-    expect(driveCreatedV1.schema.safeParse({ driveId: ID, userId: ID, familyId: ID }).success).toBe(
-      false,
-    );
+    expect(
+      driveCreatedV1.schema.safeParse({ driveId: ID, ownerUserId: ID, ownerFamilyId: ID }).success,
+    ).toBe(false);
   });
 });
