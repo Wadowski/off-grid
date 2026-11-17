@@ -141,3 +141,7 @@ export * from "./rename-file-request-schema.js";
 export * from "./move-file-request-schema.js";
 export * from "./move-file-result-schema.js";
 export * from "./file-list-query-schema.js";
+export * from "./drive-params-schema.js";
+export * from "./file-params-schema.js";
+export * from "./file-version-params-schema.js";
+export * from "./files-routes.js";
