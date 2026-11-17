@@ -67,6 +67,7 @@ describe("buildOpenApiDocument", () => {
       "SessionList",
       "SignInRequest",
       "SignedIn",
+      "SystemVersion",
       "Timestamp",
       "UpdateCalendarRequest",
       "UpdateProfileRequest",
@@ -101,6 +102,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/files/{id}/versions/{versionId}/restore",
       "/links",
       "/links/{id}",
+      "/system/version",
       "/uploads",
       "/uploads/{id}",
     ]);
