@@ -44,11 +44,11 @@ We chose one table for one tree, so that moves, listing and trash work the same 
 
 Trashing a file or folder sets `deleted_at` on the root item only. Descendants are hidden because a reader checks the ancestor chain in the module's query code, using recursive Prisma queries, not a SQL function. The RLS policy protects rows by owner and membership only. We do not mark every descendant, because that costs one write per item and a partial restore could leave some items hidden. A trashed item can be restored until it is purged. Trashing and restoring publish no removed event in this ADR. The contracts issue (OG-107) decides which update events they publish.
 
-Restoring an item clears its `deleted_at`. If the item's parent is also trashed, the whole trashed ancestor chain comes back with it. A name that now collides with a sibling gets an automatic numeric suffix, for example `report (2).pdf`. Auto-suffixing applies only to restore. Create and move refuse collisions instead (rule 5).
+Restoring an item clears its `deleted_at`. If the item sits under a trashed ancestor, only the selected item comes back. It moves out of the trashed ancestor to the drive root, and the ancestors stay in trash. Because only the root of a trashed subtree is marked, the restore also sets `deleted_at` on each remaining child of that ancestor, so those children stay in trash without the ancestor. A name that now collides with a sibling at the target gets an automatic numeric suffix, for example `report (2).pdf`. Auto-suffixing applies only to restore. Create and move refuse collisions instead (rule 5).
 
 Purge hard-deletes the trashed subtree whose trash period has ended: the root, its descendants and their version rows. Each purged file publishes its own removed event. The default retention is 30 days. The value is set by `OFFGRID_FILES_TRASH_RETENTION_DAYS`, and it is read at startup. A daily purge worker in `src/workers/` runs the purge. Each purged file publishes its removed event with `version + 1`, in the same transaction as the delete ([ADR 0028](0028-calendar-event-time-and-versions.md)).
 
-We chose a soft delete with a fixed window, so a person can undo a mistake without keeping data forever. Rejected alternatives: hard delete only, which cannot be undone; a marker on every descendant, which costs one write per item and makes partial restores hard to get right.
+We chose a soft delete with a fixed window, so a person can undo a mistake without keeping data forever. Restores are rarer than trashes, so the extra writes belong to restore, not to trash. Rejected alternatives: hard delete only, which cannot be undone; a marker on every descendant, which costs one write per item and makes partial restores hard to get right.
 
 ### 7. Versions are immutable, and a pointer names the current one
 
@@ -60,15 +60,19 @@ We keep every version, with no cap, in this milestone. Versions are deleted only
 
 We chose immutable versions so that a restore is an ordinary write, and so that projections can order changes by `version`. Rejected alternative: overwriting the bytes in place, which loses the previous content and makes restore impossible.
 
-### 8. Cross-owner moves are refused
+### 8. Cross-owner moves are allowed with a notice
 
-A move inside one drive is allowed. A move from a drive to a drive with a different owner is refused with 409, and nothing is written. The target drive must be visible to the caller. If it is not, the answer is 404 ([ADR 0029](0029-event-guest-access.md)). A move of a folder into its own subtree is refused.
+A move inside one drive keeps the same file row. A move to a drive with a different owner is allowed when the caller can see the target drive. If the target is not visible, the answer is 404 ([ADR 0029](0029-event-guest-access.md)). A move of a folder into its own subtree is refused.
 
-We chose this because moving a file across owners changes who can read it, and that change must be a deliberate new share, not a side effect of a move. Rejected alternative: moving the file and changing its owner, which would silently change its readers.
+A cross-owner move is treated as a new upload. The target gets a new file row and a first version whose bytes are copied to new storage. It has no reference to the source's versions or bytes. The source item is then removed. The response tells the caller that people with access to the source drive may have seen the file, and the client shows that notice to the caller.
 
-### 9. Events carry ids and versions only
+We chose this because the owner of a file should be able to move it to a family or personal drive. A copy with no reference keeps the two histories and their audiences separate, and the notice makes the old audience visible. Rejected alternatives: refusing cross-owner moves, which forces a manual download and upload; moving the row and changing its owner, which silently changes its readers.
 
-File events (created, updated, removed) carry ids, `sourceVersion` and the drive id. They never carry file names, folder names or file contents. Logs follow the same rule ([ADR 0011](0011-restricted-event-access-and-retention.md)). File names are personal data.
+### 9. Events carry names, ids and versions; logs never carry names
+
+File events (created, updated, removed) carry ids, `sourceVersion`, the drive id and the file or folder name, so that a receiving user sees the same name as the owner. They never carry file contents. Logs never carry file or folder names, and they never carry contents ([ADR 0011](0011-restricted-event-access-and-retention.md)). File names are personal data, so event consumers are restricted to the access rules above.
+
+We chose this because a shared file must keep one name for every person who sees it. Rejected alternative: ids only, which forces each reader to look up the name in a separate read.
 
 Event names and payloads are fixed in `packages/contracts` by the contracts issue.
 
@@ -79,6 +83,7 @@ Event names and payloads are fixed in `packages/contracts` by the contracts issu
 - A purge needs a worker and a configuration value. The trash window is a privacy and storage trade-off that the operator controls.
 - Versions are never capped, so storage grows with use until quotas exist. Quotas are not covered by this ADR.
 - Sharing with people outside a family, public links and guests need a new ADR. This model does not allow them.
+- A cross-owner move copies the bytes, so it uses storage equal to the file size until the source is purged. File names travel in events, so every event consumer holds personal data.
 - Files written through a restore take a new version number. Projections order by `version`, so no projection needs to know whether a change was a restore.
 - The bytes decision (where bytes live, how they are written and removed) is a separate ADR. Its outcome can change how a purge releases storage, but not the rules in this ADR.
 
