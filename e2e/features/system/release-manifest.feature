@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@infra @wip
+@infra
 Feature: Release manifest
 
   Each release names the exact images it ships, so that an installation can

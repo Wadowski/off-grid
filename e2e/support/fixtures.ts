@@ -64,6 +64,8 @@ export type ScenarioWorld = {
   calendarEvents?: CalendarEventsWorld;
   calendarViews?: CalendarViewsWorld;
   eventDetails?: EventDetailsWorld;
+  releaseBuild?: { version: string; serverDigest?: string; webDigest?: string };
+  releaseManifestRun?: { exitCode: number; stderr: string; outPath: string };
 };
 
 export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void }>({
