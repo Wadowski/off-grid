@@ -7,7 +7,13 @@ import { targetBaseUrl } from "./support/stack.js";
 
 const testDir = defineBddConfig({
   featuresRoot: "features",
-  features: "features/**/*.feature",
+  // Feature files that are still @wip have no step definitions yet. Remove each
+  // exclusion when its step definitions land (OG-175).
+  features: [
+    "features/**/*.feature",
+    "!features/system/install.feature",
+    "!features/system/system-update.feature",
+  ],
   steps: ["steps/**/*.ts", "support/fixtures.ts"],
 });
 
