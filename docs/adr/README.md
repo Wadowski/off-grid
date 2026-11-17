@@ -47,3 +47,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0030](0030-calendar-reminder-dispatch.md)               | Calendar reminders: user-owned rows, one claim function for the worker                           | Accepted                  |
 | [0031](0031-cross-entity-links.md)                       | Cross-entity links: owner-scoped links, projected titles, guests read through a projection       | Accepted                  |
 | [0032](0032-outbound-update-check-and-image-pull.md)     | Outbound update check and image pull, with a separate updater and a module that owns updates     | Proposed                  |
+| [0034](0034-files-access-model-trash-and-versions.md)    | Files: family or user drives, row-level access, soft-delete trash and immutable versions         | Proposed                  |

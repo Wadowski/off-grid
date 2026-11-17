@@ -82,4 +82,10 @@ Act only on an explicit **"merge"** in chat.
 2. `gh pr merge <n> --squash --delete-branch` (follow the strategy of recent history on `main`). Never enable auto-merge unless asked; never bypass branch protection.
 3. Confirm the issue is Done (`get_issue`). The GitHub integration normally moves it; if not, `save_issue` to the team's `completed` state (`list_issue_statuses` first).
 4. From the main checkout: `pnpm wt:cleanup <branch>`. It checks the PR is merged, removes the worktree (never `--force`; it reports uncommitted changes instead), updates `main`, deletes the branch and prunes the remote.
-5. Tell the user: PR merged, issue Done, what was removed, with links.
+5. Move unblocked issues to Todo. Only status changes; nothing is sorted or re-picked, so the board order stays as it is.
+   - `list_issue_statuses` for the team to get the exact names of the Backlog and Todo states.
+   - `list_issues` for the team in the Backlog state, following `hasNextPage` to the end.
+   - For each one, `get_issue` with `includeRelations: true`. An issue is unblocked when it has no "blocked by" relation to an issue that is neither Done nor Canceled.
+   - `save_issue` each unblocked issue to the team's Todo state. Skip issues that are already in Todo or further along.
+   - Keep the list of issues moved, and the Backlog issues left with their open blockers, for the report.
+6. Tell the user: PR merged, issue Done, what was removed, with links; the issues moved to Todo; and the Backlog issues still blocked, with the blocker for each.
