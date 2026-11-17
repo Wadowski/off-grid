@@ -9,7 +9,7 @@ RUN pnpm install --frozen-lockfile \
  && pnpm --filter @offgrid/db generate
 
 FROM node:24.22.1-alpine AS runtime
-ARG OFFGRID_VERSION=""
+ARG OFFGRID_VERSION=dev
 ENV NODE_ENV=production
 ENV OFFGRID_VERSION=${OFFGRID_VERSION}
 LABEL org.opencontainers.image.version=${OFFGRID_VERSION}
