@@ -6,7 +6,12 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { releaseManifestSchema } from "@offgrid/contracts";
+import {
+  RELEASE_VERSION_PATTERN,
+  SERVER_IMAGE_REFERENCE_PATTERN,
+  WEB_IMAGE_REFERENCE_PATTERN,
+  releaseManifestSchema,
+} from "@offgrid/contracts";
 import { createBdd } from "playwright-bdd";
 import { expect, test } from "../support/fixtures.js";
 
@@ -15,8 +20,6 @@ const { Given, When, Then } = createBdd(test);
 const REPO_ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const GENERATOR = join(REPO_ROOT, "scripts", "release-manifest.mjs");
 const MINIMUM_FILE = join(REPO_ROOT, "MINIMUM_UPDATE_FROM");
-const SERVER_REFERENCE = /^ghcr\.io\/[a-z0-9-]+\/offgrid-main-server@sha256:[0-9a-f]{64}$/;
-const WEB_REFERENCE = /^ghcr\.io\/[a-z0-9-]+\/offgrid-main-web@sha256:[0-9a-f]{64}$/;
 
 const digestOf = (imageName: string): string =>
   `sha256:${createHash("sha256").update(imageName).digest("hex")}`;
@@ -80,8 +83,8 @@ Then("the manifest names the server and web images by digest", ({ world }) => {
   const run = world.releaseManifestRun;
   expect(run?.exitCode, run?.stderr).toBe(0);
   const manifest = readManifest(run!.outPath);
-  expect(manifest.images.server.reference).toMatch(SERVER_REFERENCE);
-  expect(manifest.images.web.reference).toMatch(WEB_REFERENCE);
+  expect(manifest.images.server.reference).toMatch(SERVER_IMAGE_REFERENCE_PATTERN);
+  expect(manifest.images.web.reference).toMatch(WEB_IMAGE_REFERENCE_PATTERN);
 });
 
 Then("the manifest states the oldest version that can update to it", ({ world }) => {
@@ -89,7 +92,7 @@ Then("the manifest states the oldest version that can update to it", ({ world })
   expect(run?.exitCode, run?.stderr).toBe(0);
   const minimum = readFileSync(MINIMUM_FILE, "utf8").trim();
   expect(readManifest(run!.outPath).minimumPreviousVersion).toBe(minimum);
-  expect(minimum).toMatch(/^\d+\.\d+\.\d+$/);
+  expect(minimum).toMatch(RELEASE_VERSION_PATTERN);
 });
 
 Then("the release manifest is refused", ({ world }) => {
