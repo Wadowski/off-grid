@@ -4,7 +4,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { renderWithI18n } from "../../test/render-with-i18n.js";
-import { FILE_KIND_GLYPHS } from "./constants.js";
+import { FILE_KIND_GLYPHS } from "../constants.js";
 import { FileTypeIcon } from "./file-type-icon.js";
 import type { FileKind } from "../files/types.js";
 

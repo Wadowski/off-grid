@@ -32,13 +32,13 @@ describe("FileRow", () => {
   it("shows the number of items of a folder and no size", () => {
     renderWithI18n(<FileRow name="Photos" kind="folder" itemCount={184} sizeBytes={10} />);
 
-    expect(screen.getByTestId("file-size")).toHaveTextContent("184 items");
+    expect(screen.getByTestId("file-item-count")).toHaveTextContent("184 items");
   });
 
   it("uses the singular for one item", () => {
     renderWithI18n(<FileRow name="Photos" kind="folder" itemCount={1} />);
 
-    expect(screen.getByTestId("file-size")).toHaveTextContent("1 item");
+    expect(screen.getByTestId("file-item-count")).toHaveTextContent("1 item");
   });
 
   it("leaves out the size and the change when they are unknown", () => {

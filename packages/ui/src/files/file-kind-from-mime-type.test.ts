@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { MIME_TYPE_KINDS } from "./constants.js";
+import { MIME_TYPE_KINDS } from "../constants.js";
 import { fileKindFromMimeType } from "./file-kind-from-mime-type.js";
 
 describe("fileKindFromMimeType", () => {

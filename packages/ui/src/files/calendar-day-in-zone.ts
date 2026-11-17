@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { readDayPart } from "./read-day-part.js";
 import type { CalendarDay } from "./types.js";
 
 export const calendarDayInZone = (date: Date, timeZone?: string): CalendarDay => {
@@ -10,6 +11,9 @@ export const calendarDayInZone = (date: Date, timeZone?: string): CalendarDay =>
     month: "numeric",
     day: "numeric",
   }).formatToParts(date);
-  const read = (type: string): number => Number(parts.find((part) => part.type === type)?.value);
-  return { year: read("year"), month: read("month"), day: read("day") };
+  return {
+    year: readDayPart(parts, "year"),
+    month: readDayPart(parts, "month"),
+    day: readDayPart(parts, "day"),
+  };
 };

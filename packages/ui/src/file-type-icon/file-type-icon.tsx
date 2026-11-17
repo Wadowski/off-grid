@@ -6,7 +6,7 @@ import { IconTile } from "../icon-tile/icon-tile.js";
 import { MaterialIcon } from "../material-icon/material-icon.js";
 import { Text } from "../text/text.js";
 import { VisuallyHidden } from "../visually-hidden/visually-hidden.js";
-import { FILE_KIND_GLYPHS, FILE_TYPE_ICON_SIZES } from "./constants.js";
+import { FILE_KIND_GLYPHS, FILE_TYPE_ICON_SIZES } from "../constants.js";
 import { fileTypeIconStyle } from "./styles.js";
 import type { FileTypeIconProps } from "./types.js";
 

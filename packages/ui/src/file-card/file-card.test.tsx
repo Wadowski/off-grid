@@ -55,7 +55,7 @@ describe("FileCard", () => {
   it("shows a folder with its item count and without a media area", () => {
     renderWithI18n(<FileCard name="Photos" kind="folder" itemCount={184} sizeBytes={10} />);
 
-    expect(screen.getByTestId("file-size")).toHaveTextContent("184 items");
+    expect(screen.getByTestId("file-item-count")).toHaveTextContent("184 items");
     expect(screen.queryByTestId("file-card-media")).not.toBeInTheDocument();
     expect(screen.getByTestId("file-type-icon")).toHaveAttribute("data-kind", "folder");
   });

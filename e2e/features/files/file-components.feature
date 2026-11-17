@@ -57,7 +57,7 @@ Feature: File entries in a list or grid
     Then the file "Insurance policy.pdf" is opened
 
   @wip
-  Scenario: A file entry reads the same in the light and the dark theme
+  Scenario: A file entry is readable in the dark theme
     Given a family with a file "Insurance policy.pdf" of 2.8 MB
     When I open the file browser in the dark theme
     Then I see the file "Insurance policy.pdf" with "2.8 MB"

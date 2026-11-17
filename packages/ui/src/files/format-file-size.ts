@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { FILE_SIZE_BASE, FILE_SIZE_UNITS } from "./constants.js";
-
-const roundToOneDecimal = (value: number): number => Math.round(value * 10) / 10;
+import { FILE_SIZE_BASE, FILE_SIZE_UNITS } from "../constants.js";
+import { roundToOneDecimal } from "./round-to-one-decimal.js";
 
 export const formatFileSize = (bytes: number, locale?: string): string => {
   if (!Number.isFinite(bytes) || bytes < 0) {

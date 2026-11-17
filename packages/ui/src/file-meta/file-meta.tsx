@@ -36,7 +36,7 @@ export const FileMeta = ({
           variant="caption"
           textId="files.itemCount"
           values={{ count: itemCount }}
-          data-testid="file-size"
+          data-testid="file-item-count"
         />
       ) : null}
       {showsSize ? (
