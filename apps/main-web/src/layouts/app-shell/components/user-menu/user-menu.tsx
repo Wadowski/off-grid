@@ -1,11 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, MaterialIcon, Text } from "@offgrid/ui";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { initialsOf } from "../../../../session/initials-of.js";
 import type { CurrentUser } from "../../../../types.js";
 import {

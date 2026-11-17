@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Checkbox, IconTile, Text } from "@offgrid/ui";
+import { Checkbox, IconTile, MaterialIcon, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { webAdminClient } from "../../../../api/web-api-client.js";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { settingsIconColors } from "../../../settings-page/components/settings-link-row/styles.js";
 import {
   sectionCardStyle,

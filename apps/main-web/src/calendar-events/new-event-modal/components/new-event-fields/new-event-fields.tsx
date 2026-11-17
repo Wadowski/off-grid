@@ -1,9 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { cssVar, Checkbox, Text, TextField, Textarea, VisuallyHidden } from "@offgrid/ui";
+import {
+  Checkbox,
+  cssVar,
+  MaterialIcon,
+  Text,
+  Textarea,
+  TextField,
+  VisuallyHidden,
+} from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { ReminderGroup } from "../../../reminder-group/reminder-group.js";
 import { DateTimeBlock } from "../date-time-block/date-time-block.js";
 import {

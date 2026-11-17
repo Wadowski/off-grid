@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import markUrl from "../../../../media/offgrid-mark-64.png";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import { HeaderSearch } from "./components/header-search/header-search.js";
 
 export const AppHeader = () => {

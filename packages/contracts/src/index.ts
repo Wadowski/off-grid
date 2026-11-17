@@ -156,3 +156,4 @@ export * from "./drive-created-v1.js";
 export * from "./file-created-v1.js";
 export * from "./file-updated-v1.js";
 export * from "./file-removed-v1.js";
+export * from "./release-manifest-schema.js";

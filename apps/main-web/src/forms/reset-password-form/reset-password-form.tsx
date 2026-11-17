@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text, TextField } from "@offgrid/ui";
+import { Button, MaterialIcon, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { PasswordField } from "../create-account-form/components/password-field/password-field.js";
 import { PasswordStrengthBars } from "../create-account-form/components/password-strength-bars/password-strength-bars.js";
 import { PasswordStrengthLabel } from "../create-account-form/components/password-strength-label/password-strength-label.js";

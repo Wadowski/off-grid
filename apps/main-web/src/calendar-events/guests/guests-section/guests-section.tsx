@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Avatar, Button, cssVar, Tag, Text } from "@offgrid/ui";
+import { Avatar, Button, cssVar, MaterialIcon, Tag, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
 import { detailsCardStyle } from "../../event-details/event-details-body/styles.js";
 import { initialsOf } from "../../../session/initials-of.js";
 import { GuestName } from "../guest-name/guest-name.js";

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { cssVar, Text } from "@offgrid/ui";
+import { cssVar, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { formatDuration } from "../../../calendar-views/format-duration.js";
 import {
@@ -10,7 +10,6 @@ import {
   formatDayHeading,
   zonedMomentOf,
 } from "../../../calendar-views/time-format.js";
-import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
 import { useCalendars } from "../../../calendars/use-calendars.js";
 import { FamilyMembersSection } from "../../guests/family-members-section/family-members-section.js";
 import { guestNameOf } from "../../guests/guest-names.js";
