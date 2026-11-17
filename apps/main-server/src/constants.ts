@@ -43,6 +43,10 @@ export const OUTBOX_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
 
 export const SECONDS_PER_DAY = 24 * 60 * 60;
 
+export const DEFAULT_FILES_DIRECTORY = "/data/files";
+
+export const DEFAULT_FILES_MAX_UPLOAD_BYTES = 50 * 1024 * 1024 * 1024;
+
 export const FORBIDDEN_FAMILY_MESSAGE = "You are not a member of this family";
 
 export const INVALID_FAMILY_MESSAGE = "The family header must be a family id";

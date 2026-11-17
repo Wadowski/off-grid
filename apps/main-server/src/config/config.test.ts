@@ -39,6 +39,7 @@ describe("loadConfig", () => {
       corsOrigins: [],
       rateLimitPerMinute: 300,
       outbox: { retentionDays: 7 },
+      files: { directory: "/data/files", maxUploadBytes: 53687091200 },
       logLevel: "info",
     });
   });
@@ -50,6 +51,19 @@ describe("loadConfig", () => {
     );
 
     expect(config.outbox).toEqual({ retentionDays: 30 });
+  });
+
+  it("reads the files directory and the maximum upload size", () => {
+    const config = loadConfig(
+      {
+        ...requiredEnv,
+        OFFGRID_FILES_DIRECTORY: "/srv/offgrid/files",
+        OFFGRID_FILES_MAX_UPLOAD_BYTES: "1048576",
+      },
+      secretFiles("x"),
+    );
+
+    expect(config.files).toEqual({ directory: "/srv/offgrid/files", maxUploadBytes: 1048576 });
   });
 
   it("splits the allowed CORS origins and trims each entry", () => {
@@ -125,6 +139,14 @@ describe("loadConfig", () => {
     ["OFFGRID_CORS_ORIGINS", "http://localhost:8080/app"],
     ["OFFGRID_CORS_ORIGINS", "http://localhost:8080/"],
     ["OFFGRID_CORS_ORIGINS", "javascript:alert(1)"],
+    ["OFFGRID_FILES_DIRECTORY", "data/files"],
+    ["OFFGRID_FILES_DIRECTORY", ""],
+    ["OFFGRID_FILES_MAX_UPLOAD_BYTES", "0"],
+    ["OFFGRID_FILES_MAX_UPLOAD_BYTES", "-1"],
+    ["OFFGRID_FILES_MAX_UPLOAD_BYTES", "1.5"],
+    ["OFFGRID_FILES_MAX_UPLOAD_BYTES", "abc"],
+    ["OFFGRID_FILES_MAX_UPLOAD_BYTES", ""],
+    ["OFFGRID_FILES_MAX_UPLOAD_BYTES", String(Number.MAX_SAFE_INTEGER + 1)],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
     expect(() => loadConfig({ ...requiredEnv, [variable]: value }, secretFiles("x"))).toThrow(
       new RegExp(variable),

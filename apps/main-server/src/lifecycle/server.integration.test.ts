@@ -18,6 +18,7 @@ const configFor = (db: TestDatabase): ServerConfig => ({
   corsOrigins: [],
   rateLimitPerMinute: 1000,
   outbox: { retentionDays: 7 },
+  files: { directory: "/data/files", maxUploadBytes: 53687091200 },
   logLevel: "error",
 });
 

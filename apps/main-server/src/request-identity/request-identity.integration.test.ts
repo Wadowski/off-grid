@@ -54,6 +54,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       corsOrigins: [],
       rateLimitPerMinute: 1000,
       outbox: { retentionDays: 7 },
+      files: { directory: "/data/files", maxUploadBytes: 53687091200 },
       logLevel: "error",
     };
   }, 120_000);

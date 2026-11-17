@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { isAbsolute } from "node:path";
 import { z } from "zod";
 import { isHttpOrigin } from "./is-http-origin.js";
 import { isIpOrCidr } from "./is-ip-or-cidr.js";
 import { parseCommaSeparated } from "./parse-comma-separated.js";
 import { portSchema } from "./port-schema.js";
+import { DEFAULT_FILES_DIRECTORY, DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
 
 export const environmentSchema = z.object({
   OFFGRID_HTTP_HOST: z.string().min(1).default("127.0.0.1"),
@@ -32,5 +34,16 @@ export const environmentSchema = z.object({
     .pipe(z.array(z.string().refine(isHttpOrigin, "must be an http or https origin with no path"))),
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_OUTBOX_RETENTION_DAYS: z.coerce.number().int().min(1).max(3650).default(7),
+  OFFGRID_FILES_DIRECTORY: z
+    .string()
+    .min(1)
+    .refine(isAbsolute, "must be an absolute path")
+    .default(DEFAULT_FILES_DIRECTORY),
+  OFFGRID_FILES_MAX_UPLOAD_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(Number.MAX_SAFE_INTEGER)
+    .default(DEFAULT_FILES_MAX_UPLOAD_BYTES),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
