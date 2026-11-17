@@ -579,4 +579,23 @@ export const en = {
     appPasswordHelp:
       "For Gmail, iCloud and Fastmail, create an app password in your provider's account security settings and use it here instead of your mailbox password.",
   },
+  files: {
+    kind: {
+      folder: "Folder",
+      image: "Image",
+      document: "Document",
+      spreadsheet: "Spreadsheet",
+      pdf: "PDF",
+      archive: "Archive",
+      audio: "Audio",
+      video: "Video",
+      generic: "File",
+    },
+    itemCount_one: "{{count}} item",
+    itemCount_other: "{{count}} items",
+    date: {
+      today: "Today {{time}}",
+      yesterday: "Yesterday",
+    },
+  },
 } as const;
