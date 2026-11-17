@@ -87,3 +87,7 @@ week. Both are separate from this workflow.
 
 Add the job to `ci.yml`, add its row to the table above, and add its name to
 the required checks list. Keep the local command here in step with the job.
+
+## Release workflow
+
+`.github/workflows/release.yml` runs only when a `vX.Y.Z` tag is pushed. It publishes the server and web images to GitHub Container Registry and creates the GitHub Release with the release manifest. It is not part of the pull request checks. See [Cutting a release](../CONTRIBUTING.md#cutting-a-release).

@@ -47,6 +47,12 @@ The forces are these:
 - Before an update starts, the updater takes a backup. The backup and rollback rules are detailed in the backup and updater work, and this record does not restate them. If the backup fails, the update does not start.
 - A failed update leaves the previous images in place, and the admin sees the failure in the update history.
 
+### Release pipeline
+
+`.github/workflows/release.yml` runs when a `vX.Y.Z` tag is pushed. It refuses a tag that is not on `main`, a version below `MINIMUM_UPDATE_FROM`, and a tag that already has a release. It builds the `runtime` target of the server and web Dockerfiles for `linux/amd64` and `linux/arm64`, and pushes them to `ghcr.io/<owner>/offgrid-main-server` and `ghcr.io/<owner>/offgrid-main-web` with the tags `X.Y.Z` and `X.Y`. It never pushes `latest`. Provenance and SBOM attestations are off, so the digest that the manifest records is the digest of the multi-platform image index.
+
+`scripts/release-manifest.mjs` writes `release-manifest.json` with the fields `schemaVersion`, `version`, `commit`, `images.server` and `images.web` (each with a digest `reference` and `platforms`), and `minimumPreviousVersion`. The generator reads `minimumPreviousVersion` from the root file `MINIMUM_UPDATE_FROM` and validates the result with `releaseManifestSchema` from `packages/contracts`, the same schema the updater uses. The workflow attaches the manifest to the GitHub Release. The manifest is not signed.
+
 ### Documents amended in the same change
 
 This record is an exception to the no-outbound-calls rule, so the following are amended in the same change, as [ADR 0018](0018-outgoing-mail-to-a-chosen-provider.md) did for mail:
