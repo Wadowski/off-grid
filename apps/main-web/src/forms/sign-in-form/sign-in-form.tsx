@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Checkbox, Text, TextField } from "@offgrid/ui";
+import { Button, Checkbox, MaterialIcon, Text, TextField } from "@offgrid/ui";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useRef, useState } from "react";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { signIn } from "../../session/sign-in.js";
 import { PasswordField } from "../create-account-form/components/password-field/password-field.js";
 import { actionBlockStyle, formStyle } from "../shared/styles.js";

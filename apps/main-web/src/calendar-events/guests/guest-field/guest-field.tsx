@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, cssVar, Tag, Text, VisuallyHidden } from "@offgrid/ui";
+import { Button, cssVar, MaterialIcon, Tag, Text, VisuallyHidden } from "@offgrid/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
 import { GuestName } from "../guest-name/guest-name.js";
 import { guestNameOf } from "../guest-names.js";
 import { CandidateOptions } from "./components/candidate-options/candidate-options.js";

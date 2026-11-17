@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { Button, IconTile, Text, TextField } from "@offgrid/ui";
+import { Button, IconTile, MaterialIcon, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { webAdminClient } from "../../api/web-api-client.js";
 import { actionRowStyle, errorBannerStyle } from "../../forms/shared/styles.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { SettingsSubpage } from "../../layouts/settings-subpage/settings-subpage.js";
 import { useSession } from "../../session/use-session.js";
 import {

@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Dialog, Text, VisuallyHidden } from "@offgrid/ui";
+import { Button, Dialog, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
 import { useRef } from "react";
-import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
 import {
   eventDialogFooterStyle,
   eventDialogShellStyle,

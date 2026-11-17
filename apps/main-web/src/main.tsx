@@ -4,7 +4,7 @@
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@fontsource-variable/plus-jakarta-sans";
-import "material-symbols/outlined.css";
+import "@offgrid/ui/material-icons.css";
 import { tokensStylesheet } from "@offgrid/ui";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -12,15 +12,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import { App } from "./app.js";
 import "./i18n/i18n.js";
 import { ErrorFallback } from "./errors/error-fallback/error-fallback.js";
-import { materialIconCss } from "./icons/material-icon/styles.js";
 
 const tokenStyle = document.createElement("style");
 tokenStyle.textContent = tokensStylesheet;
 document.head.append(tokenStyle);
-
-const iconStyle = document.createElement("style");
-iconStyle.textContent = materialIconCss;
-document.head.append(iconStyle);
 
 const rootElement = document.getElementById("root");
 if (rootElement === null) {

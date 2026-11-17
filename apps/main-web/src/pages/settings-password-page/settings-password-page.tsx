@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { Button, Text } from "@offgrid/ui";
+import { Button, MaterialIcon, Text } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { webAuthClient } from "../../api/web-api-client.js";
@@ -11,7 +11,6 @@ import { actionBlockStyle, errorBannerStyle, formStyle } from "../../forms/share
 import { PasswordField } from "../../forms/create-account-form/components/password-field/password-field.js";
 import { PasswordStrengthBars } from "../../forms/create-account-form/components/password-strength-bars/password-strength-bars.js";
 import { PasswordStrengthLabel } from "../../forms/create-account-form/components/password-strength-label/password-strength-label.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { SettingsSubpage } from "../../layouts/settings-subpage/settings-subpage.js";
 import { findPasswordFieldError } from "./find-password-field-error.js";
 import type {

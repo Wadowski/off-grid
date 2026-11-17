@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Radio, Text, cssVar } from "@offgrid/ui";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import { cssVar, MaterialIcon, Radio, Text } from "@offgrid/ui";
 import { SPACE_PURPOSE_OPTIONS } from "../../constants.js";
 import { pickerSectionStyle } from "../../../shared/styles.js";
 import type { PurposePickerProps } from "./types.js";

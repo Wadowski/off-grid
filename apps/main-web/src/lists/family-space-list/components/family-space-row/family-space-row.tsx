@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, IconTile, Text } from "@offgrid/ui";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import { Button, IconTile, MaterialIcon, Text } from "@offgrid/ui";
 import {
   FAMILY_ACCENT_COLORS,
   FAMILY_PURPOSE_ICON_NAMES,

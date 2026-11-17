@@ -2,11 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { MAX_REMINDERS_PER_EVENT } from "@offgrid/contracts";
-import { Button, cssVar, Text, VisuallyHidden } from "@offgrid/ui";
+import { Button, cssVar, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { DEFAULT_REMINDER_AMOUNT, DEFAULT_REMINDER_UNIT } from "../constants.js";
 import { findReminderErrors } from "../find-reminder-errors.js";
 import { reminderOffsetToDraft } from "../reminder-offset-to-draft.js";

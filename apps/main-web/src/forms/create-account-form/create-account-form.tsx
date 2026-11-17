@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text, TextField } from "@offgrid/ui";
+import { Button, MaterialIcon, Text, TextField } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { anonymousAuthClient } from "../../api/anonymous-api-client.js";
 import { NO_FIELD_ERRORS } from "../../constants.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { SignInLink } from "../../session/components/sign-in-link/sign-in-link.js";
 import { actionBlockStyle, errorBannerStyle, formStyle, promptStyle } from "../shared/styles.js";

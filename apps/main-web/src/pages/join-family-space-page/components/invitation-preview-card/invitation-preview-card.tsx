@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Card, IconTile, Tag, Text } from "@offgrid/ui";
+import { Button, Card, IconTile, MaterialIcon, Tag, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import {
   invitationIconColor,
   invitationIconTileBackground,
