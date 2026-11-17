@@ -46,3 +46,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0029](0029-event-guest-access.md)                       | Event guests read through row-level security and cannot write                                    | Accepted                  |
 | [0030](0030-calendar-reminder-dispatch.md)               | Calendar reminders: user-owned rows, one claim function for the worker                           | Accepted                  |
 | [0031](0031-cross-entity-links.md)                       | Cross-entity links: owner-scoped links, projected titles, guests read through a projection       | Accepted                  |
+| [0033](0033-realtime-notifications-over-sse.md)          | Realtime notifications over server-sent events                                                   | Proposed                  |
