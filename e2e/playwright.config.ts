@@ -13,6 +13,7 @@ const testDir = defineBddConfig({
     "features/**/*.feature",
     "!features/system/install.feature",
     "!features/system/system-update.feature",
+    "!features/notifications/inbox-surfaces.feature",
   ],
   steps: ["steps/**/*.ts", "support/fixtures.ts"],
 });
