@@ -31,6 +31,7 @@ describe("modulesFor", () => {
     const names = modulesFor(config).map((module) => module.name);
 
     expect(names).toContain("relations");
+    expect(names).toContain("system");
     expect(() => assertValidModules(modulesFor(config))).not.toThrow();
   });
 

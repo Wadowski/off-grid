@@ -258,6 +258,9 @@ importers:
       '@offgrid/relations':
         specifier: workspace:*
         version: link:../../modules/relations
+      '@offgrid/system':
+        specifier: workspace:*
+        version: link:../../modules/system
       fastify:
         specifier: 5.12.7
         version: 5.12.7
@@ -575,6 +578,19 @@ importers:
       pg:
         specifier: 8.23.1
         version: 8.23.1
+
+  modules/system:
+    dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      fastify:
+        specifier: 5.12.7
+        version: 5.12.7
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
 
   packages/access-control: {}
 

@@ -4,7 +4,7 @@
 
 - `apps/main-server/`: the server process that wires modules together
 - `apps/main-web/`: the React + Vite web app
-- `modules/<name>/`: one folder per feature module (access, calendar, export, family, files, food, identity, lists, notes, notifications, relations); see `modules/README.md`
+- `modules/<name>/`: one folder per feature module (access, calendar, export, family, files, food, identity, lists, notes, notifications, relations, system); see `modules/README.md`
 - `packages/contracts/`: shared schemas, event types and OpenAPI
 - `packages/api-client/`: typed client for the server API
 - `packages/ui/`: design tokens and shared UI components

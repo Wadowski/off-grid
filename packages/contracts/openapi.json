@@ -2050,6 +2050,23 @@
           }
         }
       }
+    },
+    "/system/version": {
+      "get": {
+        "operationId": "getSystemVersion",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemVersion"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4924,6 +4941,24 @@
           "UPLOAD_INCOMPLETE",
           "UPLOAD_OFFSET_MISMATCH"
         ]
+      },
+      "SystemVersion": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "commit": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "additionalProperties": false
       }
     }
   }

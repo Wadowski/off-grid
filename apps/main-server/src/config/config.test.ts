@@ -41,8 +41,33 @@ describe("loadConfig", () => {
       rateLimitPerMinute: 300,
       outbox: { retentionDays: 7 },
       files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
+      version: { version: "dev" },
       logLevel: "info",
     });
+  });
+
+  it.each([
+    ["unset", undefined],
+    ["empty", ""],
+  ])("reports the version as dev when OFFGRID_VERSION is %s", (_label, value) => {
+    const config = loadConfig({ ...requiredEnv, OFFGRID_VERSION: value }, secretFiles("x"));
+
+    expect(config.version).toStrictEqual({ version: "dev" });
+  });
+
+  it("keeps a release version as given", () => {
+    const config = loadConfig({ ...requiredEnv, OFFGRID_VERSION: "1.2.3" }, secretFiles("x"));
+
+    expect(config.version).toEqual({ version: "1.2.3" });
+  });
+
+  it("reads the commit when OFFGRID_COMMIT is set", () => {
+    const config = loadConfig(
+      { ...requiredEnv, OFFGRID_VERSION: "1.2.3", OFFGRID_COMMIT: "abc1234" },
+      secretFiles("x"),
+    );
+
+    expect(config.version).toEqual({ version: "1.2.3", commit: "abc1234" });
   });
 
   it("reads the outbox retention period in days", () => {
@@ -135,6 +160,10 @@ describe("loadConfig", () => {
     ["OFFGRID_OUTBOX_RETENTION_DAYS", "0"],
     ["OFFGRID_OUTBOX_RETENTION_DAYS", "3651"],
     ["OFFGRID_LOG_LEVEL", "trace"],
+    ["OFFGRID_VERSION", "1.2.3 <script>"],
+    ["OFFGRID_VERSION", "x".repeat(65)],
+    ["OFFGRID_COMMIT", "not-a-commit"],
+    ["OFFGRID_COMMIT", "ABC1234"],
     ["OFFGRID_CORS_ORIGINS", "not a url"],
     ["OFFGRID_CORS_ORIGINS", "*"],
     ["OFFGRID_CORS_ORIGINS", "http://localhost:8080/app"],

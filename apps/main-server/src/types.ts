@@ -7,6 +7,7 @@ import type { Migration, ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { ErrorSink, LogLevel, Logger } from "@offgrid/observability";
 import type { Pool } from "pg";
+import type { SystemVersionOptions } from "@offgrid/system";
 import type { accessGroupIdSchema, familyIdSchema, userIdSchema } from "@offgrid/contracts";
 
 export interface DatabaseConnection {
@@ -27,6 +28,7 @@ export interface ServerConfig {
   readonly rateLimitPerMinute: number;
   readonly outbox: { readonly retentionDays: number };
   readonly files: { readonly directory: string; readonly maxUploadBytes: number };
+  readonly version: SystemVersionOptions;
   readonly logLevel: LogLevel;
 }
 

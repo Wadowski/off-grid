@@ -45,5 +45,16 @@ export const environmentSchema = z.object({
     .min(1)
     .max(Number.MAX_SAFE_INTEGER)
     .default(DEFAULT_FILES_MAX_UPLOAD_BYTES),
+  OFFGRID_VERSION: z
+    .string()
+    .trim()
+    .max(64)
+    .regex(/^[0-9A-Za-z.+_-]*$/)
+    .default("")
+    .transform((value) => (value === "" ? "dev" : value)),
+  OFFGRID_COMMIT: z
+    .string()
+    .regex(/^[0-9a-f]{7,40}$/)
+    .optional(),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

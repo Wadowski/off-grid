@@ -46,6 +46,10 @@ export const loadConfig = (
       directory: values.OFFGRID_FILES_DIRECTORY,
       maxUploadBytes: values.OFFGRID_FILES_MAX_UPLOAD_BYTES,
     },
+    version: {
+      version: values.OFFGRID_VERSION,
+      ...(values.OFFGRID_COMMIT === undefined ? {} : { commit: values.OFFGRID_COMMIT }),
+    },
     logLevel: values.OFFGRID_LOG_LEVEL,
   };
 };

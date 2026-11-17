@@ -61,6 +61,7 @@ import { moveFileResultSchema } from "./move-file-result-schema.js";
 import { createUploadRequestSchema } from "./create-upload-request-schema.js";
 import { uploadSchema } from "./upload-schema.js";
 import { filesErrorCodeSchema } from "./files-error-code-schema.js";
+import { systemVersionSchema } from "./system-version-schema.js";
 
 export const openApiComponentSchemas = {
   FamilyId: familyIdSchema,
@@ -122,4 +123,5 @@ export const openApiComponentSchemas = {
   CreateUploadRequest: createUploadRequestSchema,
   Upload: uploadSchema,
   FilesErrorCode: filesErrorCodeSchema,
+  SystemVersion: systemVersionSchema,
 } satisfies Record<string, z.ZodType>;
