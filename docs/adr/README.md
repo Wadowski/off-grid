@@ -48,3 +48,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0031](0031-cross-entity-links.md)                       | Cross-entity links: owner-scoped links, projected titles, guests read through a projection       | Accepted                  |
 | [0032](0032-outbound-update-check-and-image-pull.md)     | Outbound update check and image pull, with a separate updater and a module that owns updates     | Proposed                  |
 | [0033](0033-realtime-notifications-over-sse.md)          | Realtime notifications over server-sent events                                                   | Proposed                  |
+| [0034](0034-files-access-model-trash-and-versions.md)    | Files: family or user drives, row-level access, soft-delete trash and immutable versions         | Proposed                  |
