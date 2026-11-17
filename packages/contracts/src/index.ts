@@ -123,3 +123,4 @@ export * from "./user-notified-v1.js";
 export * from "./user-id-schema.js";
 export * from "./uuid-schema.js";
 export * from "./reminder-offsets-schema.js";
+export * from "./release-manifest-schema.js";

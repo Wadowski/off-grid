@@ -110,3 +110,23 @@ Use `pnpm format` to fix formatting. Use `pnpm changeset` when a published packa
 - Reference the Linear issue in the commit subject, for example `(OG-18)`.
 - Describe what changed, why, and how you tested it.
 - The owner reviews every change, as set out in [.github/CODEOWNERS](.github/CODEOWNERS).
+
+## Cutting a release
+
+A release is a `vX.Y.Z` tag on a commit of `main`. The release workflow in `.github/workflows/release.yml` does the rest.
+
+1. Make sure `main` is green and contains the change to release.
+2. Change `MINIMUM_UPDATE_FROM` only when installations older than the new version cannot update through it, for example after a migration that cannot be skipped. The file holds one semver line and starts at `0.0.0`.
+3. Tag the commit and push the tag:
+
+   ```bash
+   git tag -s v1.2.3 -m "OffGrid 1.2.3"
+   git push origin v1.2.3
+   ```
+
+4. The workflow refuses the tag if it is not on `main`, if the version is below `MINIMUM_UPDATE_FROM`, or if a release for the tag already exists. Otherwise it builds `offgrid-main-server` and `offgrid-main-web` for `linux/amd64` and `linux/arm64`, pushes them to `ghcr.io/<owner>/offgrid-main-server` and `ghcr.io/<owner>/offgrid-main-web` with the tags `1.2.3` and `1.2`, and creates a GitHub Release with `release-manifest.json` attached.
+5. On the first push GitHub creates both packages as private. Set each package to public in the repository's package settings, or the updater cannot pull the images without credentials.
+
+The workflow never pushes a `latest` tag. Images are referenced by digest in the manifest, and the manifest is not signed yet; see [ADR 0032](docs/adr/0032-outbound-update-check-and-image-pull.md).
+
+To rehearse the release on a fork, enable Actions on the fork and push a `vX.Y.Z` tag to its `main`. Delete the fork's release and package versions afterwards. A bad release is never fixed by re-pushing its tag: delete the GitHub Release and the package version, then cut the next patch version.

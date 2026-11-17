@@ -33,3 +33,15 @@ export const MAIL_PROVIDER_BY_DOMAIN: ReadonlyMap<string, (typeof MAIL_PROVIDERS
     ["fastmail.com", "fastmail"],
     ["fastmail.fm", "fastmail"],
   ]);
+
+export const RELEASE_VERSION_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+
+export const GIT_COMMIT_PATTERN = /^[0-9a-f]{40}$/;
+
+export const SERVER_IMAGE_REFERENCE_PATTERN =
+  /^ghcr\.io\/[a-z0-9][a-z0-9-]*\/offgrid-main-server@sha256:[0-9a-f]{64}$/;
+
+export const WEB_IMAGE_REFERENCE_PATTERN =
+  /^ghcr\.io\/[a-z0-9][a-z0-9-]*\/offgrid-main-web@sha256:[0-9a-f]{64}$/;
+
+export const RELEASE_PLATFORMS = ["linux/amd64", "linux/arm64"] as const;

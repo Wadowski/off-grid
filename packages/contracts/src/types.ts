@@ -23,6 +23,7 @@ import type { createCalendarEventRequestSchema } from "./create-calendar-event-r
 import type { updateCalendarEventRequestSchema } from "./update-calendar-event-request-schema.js";
 import type { calendarTimeZoneSchema } from "./calendar-time-zone-response-schema.js";
 import type { calendarEventSchema } from "./calendar-event-schema.js";
+import type { releaseManifestSchema } from "./release-manifest-schema.js";
 import type { MAIL_PRESETS, MAIL_PROVIDERS, MAIL_SECURITY } from "./constants.js";
 
 export type FamilyId = z.infer<typeof familyIdSchema>;
@@ -86,3 +87,5 @@ export interface ContractComparison {
   missing: string[];
   added: string[];
 }
+
+export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
