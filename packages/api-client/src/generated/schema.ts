@@ -354,6 +354,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSystemVersion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -814,6 +830,10 @@ export interface components {
             }) | null;
         };
         FilesErrorCode: "NOT_FOUND" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NAME_TAKEN" | "INVALID_MOVE" | "NOT_TRASHED" | "IS_FOLDER" | "UPLOAD_INCOMPLETE" | "UPLOAD_OFFSET_MISMATCH";
+        SystemVersion: {
+            version: string;
+            commit?: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -2282,6 +2302,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSystemVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemVersion"];
                 };
             };
         };

@@ -7,6 +7,7 @@ export { createAuthClient } from "./auth-client.js";
 export { createCalendarClient } from "./calendar-client.js";
 export { createFilesClient } from "./files-client.js";
 export { createRelationsClient } from "./relations-client.js";
+export { createSystemClient } from "./system-client.js";
 export { createFamilyClient } from "./family-client.js";
 export { createApiClient } from "./create-api-client.js";
 export type { SignInInput } from "./types.js";
