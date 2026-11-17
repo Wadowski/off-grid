@@ -9,6 +9,7 @@ import { createLogger, createMemoryErrorSink, currentTraceId } from "@offgrid/ob
 import { afterEach, describe, expect, it } from "vitest";
 import type { StubOptions } from "../../test/types.js";
 import { buildApp } from "./build-app.js";
+import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
 import type { IdentityResolver, ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
 import { userIdSchema } from "@offgrid/contracts";
 
@@ -27,7 +28,7 @@ const baseConfig: ServerConfig = {
   corsOrigins: [],
   rateLimitPerMinute: 1000,
   outbox: { retentionDays: 7 },
-  files: { directory: "/data/files", maxUploadBytes: 53687091200 },
+  files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
   logLevel: "error",
 };
 

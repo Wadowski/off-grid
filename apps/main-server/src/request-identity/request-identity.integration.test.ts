@@ -15,7 +15,7 @@ import type { TestDatabase } from "../../test/types.js";
 import { buildApp } from "../http/build-app.js";
 import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
-import { FAMILY_HEADER } from "../constants.js";
+import { DEFAULT_FILES_MAX_UPLOAD_BYTES, FAMILY_HEADER } from "../constants.js";
 import { modulesFor } from "../module-wiring/modules-for.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
 
@@ -54,7 +54,7 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       corsOrigins: [],
       rateLimitPerMinute: 1000,
       outbox: { retentionDays: 7 },
-      files: { directory: "/data/files", maxUploadBytes: 53687091200 },
+      files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
       logLevel: "error",
     };
   }, 120_000);

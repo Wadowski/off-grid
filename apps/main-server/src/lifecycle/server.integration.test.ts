@@ -10,6 +10,7 @@ import { startTestDatabase } from "../../test/start-test-database.js";
 import type { TestDatabase } from "../../test/types.js";
 import { modulesFor } from "../module-wiring/modules-for.js";
 import { startServer } from "./start-server.js";
+import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
 import type { ServerConfig } from "../types.js";
 
 let database: TestDatabase;
@@ -23,7 +24,7 @@ const configFor = (db: TestDatabase): ServerConfig => ({
   corsOrigins: [],
   rateLimitPerMinute: 1000,
   outbox: { retentionDays: 7 },
-  files: { directory: filesDirectory, maxUploadBytes: 53687091200 },
+  files: { directory: filesDirectory, maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
   logLevel: "error",
 });
 
@@ -72,7 +73,10 @@ describe("startServer", () => {
   it("refuses to boot when the files directory is missing and names the variable", async () => {
     const missingDirectory: ServerConfig = {
       ...configFor(database),
-      files: { directory: join(filesDirectory, "absent"), maxUploadBytes: 53687091200 },
+      files: {
+        directory: join(filesDirectory, "absent"),
+        maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+      },
     };
 
     await expect(startServer(missingDirectory, [])).rejects.toThrow(/OFFGRID_FILES_DIRECTORY/);

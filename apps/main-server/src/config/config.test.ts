@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
+import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
 import { loadConfig } from "./load-config.js";
 
 const DATABASE_SECRET_PATH = "/run/secrets/db_password";
@@ -39,7 +40,7 @@ describe("loadConfig", () => {
       corsOrigins: [],
       rateLimitPerMinute: 300,
       outbox: { retentionDays: 7 },
-      files: { directory: "/data/files", maxUploadBytes: 53687091200 },
+      files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
       logLevel: "info",
     });
   });
