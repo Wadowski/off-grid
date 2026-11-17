@@ -7,6 +7,7 @@ import { signOut } from "../../session/sign-out.js";
 import { useSession } from "../../session/use-session.js";
 import { SettingsProfileCard } from "./components/settings-profile-card/settings-profile-card.js";
 import { SettingsSection } from "./components/settings-section/settings-section.js";
+import { SettingsVersionRow } from "./components/settings-version-row/settings-version-row.js";
 import { SETTINGS_SECTIONS } from "./constants.js";
 import { settingsPageStyle, signOutIconColor, signOutRowStyle } from "./styles.js";
 
@@ -35,6 +36,7 @@ export const SettingsPage = () => {
           <Text variant="error" textId="settings.signOut" />
         </Button>
       </div>
+      <SettingsVersionRow />
     </div>
   );
 };
