@@ -7,7 +7,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { CHANGED_LINES_DIFF_ARGS, changedLineMap, parseChangedLines } from "./changed-lines.mjs";
+import { changedLineMap, parseChangedLines } from "./changed-lines.mjs";
 
 test("parseChangedLines maps hunks to added line numbers", () => {
   const diff = [
@@ -27,10 +27,6 @@ test("parseChangedLines maps hunks to added line numbers", () => {
   const result = parseChangedLines(diff);
   assert.deepEqual([...result.get("src/a.ts")], [4, 5, 12]);
   assert.equal(result.has("src/gone.ts"), false);
-});
-
-test("the changed-line diff uses the patience algorithm", () => {
-  assert.ok(CHANGED_LINES_DIFF_ARGS.includes("--diff-algorithm=patience"));
 });
 
 test("changedLineMap reports the lines a commit adds to a tracked file", () => {

@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-export const CHANGED_LINES_DIFF_ARGS = [
+const CHANGED_LINES_DIFF_ARGS = [
   "diff",
   "-U0",
   "--no-color",
