@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { releaseManifestSchema } from "@offgrid/contracts";
 import { createBdd } from "playwright-bdd";
 import { expect, test } from "../support/fixtures.js";
 
@@ -17,18 +18,12 @@ const MINIMUM_FILE = join(REPO_ROOT, "MINIMUM_UPDATE_FROM");
 const SERVER_REFERENCE = /^ghcr\.io\/[a-z0-9-]+\/offgrid-main-server@sha256:[0-9a-f]{64}$/;
 const WEB_REFERENCE = /^ghcr\.io\/[a-z0-9-]+\/offgrid-main-web@sha256:[0-9a-f]{64}$/;
 
-type ReleaseManifestFile = {
-  version: string;
-  minimumPreviousVersion: string;
-  images: { server: { reference: string }; web: { reference: string } };
-};
-
 const digestOf = (imageName: string): string =>
   `sha256:${createHash("sha256").update(imageName).digest("hex")}`;
 
-const readManifest = (outPath: string): ReleaseManifestFile => {
+const readManifest = (outPath: string) => {
   expect(existsSync(outPath), "no release manifest was written").toBe(true);
-  return JSON.parse(readFileSync(outPath, "utf8"));
+  return releaseManifestSchema.parse(JSON.parse(readFileSync(outPath, "utf8")));
 };
 
 Given("a release {string} has been built with its server and web images", ({ world }, version) => {
