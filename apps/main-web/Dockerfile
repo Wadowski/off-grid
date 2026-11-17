@@ -11,5 +11,7 @@ RUN pnpm install --frozen-lockfile \
  && pnpm --filter @offgrid/main-web build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
+ARG OFFGRID_VERSION=""
+LABEL org.opencontainers.image.version=${OFFGRID_VERSION}
 COPY apps/main-web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /repo/apps/main-web/dist /usr/share/nginx/html
