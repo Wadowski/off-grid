@@ -17,8 +17,8 @@ export const requestBytes = async (
     method,
     headers: {
       accept: "application/json",
-      "content-type": "application/offset+octet-stream",
       ...extraHeaders,
+      "content-type": "application/offset+octet-stream",
     },
     body,
   });

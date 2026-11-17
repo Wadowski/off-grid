@@ -288,6 +288,23 @@ describe("createFilesClient uploads", () => {
     );
   });
 
+  it("keeps the octet-stream content type when a caller header tries to override it", async () => {
+    const transport = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(UPLOAD));
+    const client = createApiClient({ baseUrl: BASE_URL, fetch: transport });
+
+    await client.requestBytes("PATCH", "/uploads/x", new Uint8Array([1]), {
+      "content-type": "text/plain",
+    });
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/uploads/x`,
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "content-type": "application/offset+octet-stream",
+        }),
+      }),
+    );
+  });
+
   it("aborts an upload with DELETE", async () => {
     const { files, transport } = filesWith(emptyResponse(204));
 
