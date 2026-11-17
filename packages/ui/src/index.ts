@@ -23,3 +23,4 @@ export { IconTile } from "./icon-tile/icon-tile.js";
 export { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 export { Dialog } from "./dialog/dialog.js";
 export type { DialogProps } from "./dialog/types.js";
+export { MaterialIcon } from "./material-icon/material-icon.js";
