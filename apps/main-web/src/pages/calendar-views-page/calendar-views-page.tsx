@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
@@ -14,7 +14,6 @@ import { useCalendarTimeZone } from "../../calendar-views/use-calendar-time-zone
 import { useCalendarView } from "../../calendar-views/use-calendar-view.js";
 import { localDateOf, mondayOf, weekDates } from "../../calendar-views/week-days.js";
 import { parseDateParam, periodLabel, shiftDate } from "../../calendar-views/view-navigation.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useCalendarLayout } from "../../layouts/calendar-layout/calendar-layout-context.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { useMediaQuery } from "../../media/use-media-query.js";

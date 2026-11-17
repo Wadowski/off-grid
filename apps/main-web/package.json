@@ -21,7 +21,6 @@
     "@offgrid/contracts": "workspace:*",
     "@offgrid/ui": "workspace:*",
     "i18next": "25.6.2",
-    "material-symbols": "^0.48.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-error-boundary": "5.0.0",

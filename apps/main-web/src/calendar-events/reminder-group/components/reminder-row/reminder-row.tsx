@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Select, Text, TextField, VisuallyHidden } from "@offgrid/ui";
+import { Button, MaterialIcon, Select, Text, TextField, VisuallyHidden } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useIsNarrow } from "../../../../media/use-is-narrow.js";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
 import {
   REMINDER_ERROR_TEXT_IDS,
   REMINDER_UNIT_TEXT_IDS,

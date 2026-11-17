@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { cssVar, IconTile } from "@offgrid/ui";
-import { MaterialIcon } from "../../../../icons/material-icon/material-icon.js";
+import { cssVar, IconTile, MaterialIcon } from "@offgrid/ui";
 import { newEventIconTileBackground } from "../../styles.js";
 import {
   newEventHeaderActionsStyle,

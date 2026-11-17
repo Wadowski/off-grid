@@ -1,11 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Dialog, Select, Text, VisuallyHidden } from "@offgrid/ui";
+import { Button, Dialog, MaterialIcon, Select, Text, VisuallyHidden } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { calendarAccentColor } from "../../calendars/calendar-accents.js";
-import { MaterialIcon } from "../../icons/material-icon/material-icon.js";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { webCalendarClient } from "../../api/web-api-client.js";
 import { useSession } from "../../session/use-session.js";

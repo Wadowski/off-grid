@@ -35,6 +35,25 @@ const textPairs: ColorPair[] = [
   ["danger", "bg"],
 ];
 
+const FILE_KINDS = [
+  "folder",
+  "image",
+  "document",
+  "spreadsheet",
+  "pdf",
+  "archive",
+  "audio",
+  "video",
+  "generic",
+] as const;
+
+const fileKindPairs: ColorPair[] = FILE_KINDS.flatMap((kind): ColorPair[] => [
+  [`file-${kind}`, `file-${kind}-soft`],
+  [`file-${kind}`, "surface"],
+  [`file-${kind}`, "surface-2"],
+  ["bg", `file-${kind}`],
+]);
+
 const nonTextPairs: ColorPair[] = [
   ["muted", "bg"],
   ["accent", "bg"],
@@ -46,6 +65,12 @@ describe("tokens", () => {
 
     it(`meets WCAG 2.2 AA text contrast in the ${themeName} theme`, () => {
       for (const [foreground, background] of textPairs) {
+        expect(contrastRatio(theme[foreground], theme[background])).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it(`meets WCAG 2.2 AA text contrast for every file kind in the ${themeName} theme`, () => {
+      for (const [foreground, background] of fileKindPairs) {
         expect(contrastRatio(theme[foreground], theme[background])).toBeGreaterThanOrEqual(4.5);
       }
     });

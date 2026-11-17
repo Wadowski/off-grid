@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, cssVar, Text, VisuallyHidden } from "@offgrid/ui";
-import { MaterialIcon } from "../../../icons/material-icon/material-icon.js";
+import { Button, cssVar, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
 import { EventDetailsBody } from "../event-details-body/event-details-body.js";
 import { EventDetailsState } from "../event-details-state/event-details-state.js";
 import {

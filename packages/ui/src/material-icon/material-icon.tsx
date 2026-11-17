@@ -4,7 +4,6 @@
 import { materialIconStyle } from "./styles.js";
 import type { MaterialIconProps } from "./types.js";
 
-// The glyph name is drawn by the stylesheet from `data-icon`, so the icon adds no text to the DOM.
 export const MaterialIcon = ({ name, size, color, filled = false }: MaterialIconProps) => (
   <span
     aria-hidden="true"
