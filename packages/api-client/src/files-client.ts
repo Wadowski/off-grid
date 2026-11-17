@@ -109,7 +109,7 @@ export const createFilesClient = (client: ApiClient) => ({
       await client.request("GET", fillRoute(filesRoutes.upload, { id: uploadId })),
     ),
 
-  uploadChunk: async (uploadId: string, offset: number, bytes: Uint8Array | Blob) =>
+  uploadChunk: async (uploadId: string, offset: number, bytes: Uint8Array<ArrayBuffer> | Blob) =>
     uploadSchema.parse(
       await client.requestBytes("PATCH", fillRoute(filesRoutes.upload, { id: uploadId }), bytes, {
         "Upload-Offset": String(offset),

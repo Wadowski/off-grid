@@ -18,7 +18,7 @@ export type ApiClient = {
   readonly requestBytes: (
     method: HttpMethod,
     path: string,
-    body: Uint8Array | Blob,
+    body: Uint8Array<ArrayBuffer> | Blob,
     headers?: Readonly<Record<string, string>>,
   ) => Promise<unknown>;
 };
