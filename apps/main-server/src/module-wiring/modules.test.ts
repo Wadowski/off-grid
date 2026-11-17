@@ -33,4 +33,12 @@ describe("modulesFor", () => {
     expect(names).toContain("relations");
     expect(() => assertValidModules(modulesFor(config))).not.toThrow();
   });
+
+  it("registers the files module with a valid, unique name", () => {
+    const config = { mail: { encryptionKey: Buffer.alloc(32) } } as unknown as ServerConfig;
+    const names = modulesFor(config).map((module) => module.name);
+
+    expect(names.filter((name) => name === "files")).toHaveLength(1);
+    expect(() => assertValidModules(modulesFor(config))).not.toThrow();
+  });
 });
