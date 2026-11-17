@@ -16,6 +16,8 @@ export const assertFilesDirectoryWritable = async (directory: string): Promise<v
     throw new ConfigError(`${FILES_DIRECTORY_VARIABLE} must name a directory, not a file`);
   }
   if (!(await probeDirectoryWritable(directory))) {
-    throw new ConfigError(`${FILES_DIRECTORY_VARIABLE} must name a directory the server can write to`);
+    throw new ConfigError(
+      `${FILES_DIRECTORY_VARIABLE} must name a directory the server can write to`,
+    );
   }
 };
