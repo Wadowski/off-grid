@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:system @wip
+@module:system
 Feature: Version reporting
 
   The running server tells which version it is, so that an admin can compare it
