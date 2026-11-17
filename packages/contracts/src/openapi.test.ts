@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildOpenApiDocument } from "./build-open-api-document.js";
+import { filesErrorCodeSchema } from "./files-error-code-schema.js";
 import { renderOpenApi } from "./render-open-api.js";
 
 describe("buildOpenApiDocument", () => {
@@ -123,5 +124,22 @@ describe("renderOpenApi", () => {
     const committed = readFileSync(new URL("../openapi.json", import.meta.url), "utf8");
 
     expect(committed).toBe(renderOpenApi());
+  });
+});
+
+describe("buildOpenApiDocument files error codes", () => {
+  it("names only codes that filesErrorCodeSchema defines", () => {
+    const { paths } = buildOpenApiDocument();
+    const filesPaths = Object.fromEntries(
+      Object.entries(paths).filter(([path]) => /^\/(drives|files|uploads)(\/|$)/.test(path)),
+    );
+    const codes = new Set(
+      [...JSON.stringify(filesPaths).matchAll(/\b([A-Z][A-Z0-9_]+): /g)].map((match) => match[1]),
+    );
+
+    expect(codes.size).toBeGreaterThan(0);
+    for (const code of codes) {
+      expect(filesErrorCodeSchema.options).toContain(code);
+    }
   });
 });
