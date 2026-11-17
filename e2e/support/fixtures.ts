@@ -18,6 +18,7 @@ import type { EventDetailsWorld } from "./factories/calendar-event-details.js";
 export type ScenarioWorld = {
   api: APIRequestContext;
   healthResponse?: APIResponse;
+  versionResponse?: APIResponse;
   families: Family[];
   calendarIds?: Record<string, string>;
   accessibilityViolations?: string[];
