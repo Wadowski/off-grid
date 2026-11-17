@@ -8,7 +8,14 @@ export const directoryKindOf = async (path: string): Promise<DirectoryKind> => {
   try {
     const entry = await stat(path);
     return entry.isDirectory() ? "directory" : "other";
-  } catch {
-    return "missing";
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error.code === "ENOENT" || error.code === "ENOTDIR")
+    ) {
+      return "missing";
+    }
+    throw error;
   }
 };
