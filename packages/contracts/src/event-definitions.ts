@@ -6,6 +6,10 @@ import { calendarEventGuestInvitedV1 } from "./calendar-event-guest-invited-v1.j
 import { calendarReminderDueV1 } from "./calendar-reminder-due-v1.js";
 import { calendarEventRemovedV1 } from "./calendar-event-removed-v1.js";
 import { calendarEventUpdatedV1 } from "./calendar-event-updated-v1.js";
+import { driveCreatedV1 } from "./drive-created-v1.js";
+import { fileCreatedV1 } from "./file-created-v1.js";
+import { fileRemovedV1 } from "./file-removed-v1.js";
+import { fileUpdatedV1 } from "./file-updated-v1.js";
 import { familyCreatedV1 } from "./family-created-v1.js";
 import { familyMemberAddedV1 } from "./family-member-added-v1.js";
 import { familyMemberRemovedV1 } from "./family-member-removed-v1.js";
@@ -18,6 +22,10 @@ import { userNotifiedV1 } from "./user-notified-v1.js";
 import type { AnyEventDefinition } from "./types.js";
 
 export const eventDefinitions: readonly AnyEventDefinition[] = [
+  driveCreatedV1,
+  fileCreatedV1,
+  fileUpdatedV1,
+  fileRemovedV1,
   calendarEventCreatedV1,
   calendarEventGuestInvitedV1,
   calendarEventRemovedV1,

@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildOpenApiDocument } from "./build-open-api-document.js";
+import { filesErrorCodeSchema } from "./files-error-code-schema.js";
 import { renderOpenApi } from "./render-open-api.js";
 
 describe("buildOpenApiDocument", () => {
@@ -18,6 +19,7 @@ describe("buildOpenApiDocument", () => {
       "ActiveFamily",
       "AdminUser",
       "AdminUserList",
+      "Breadcrumb",
       "Calendar",
       "CalendarList",
       "ChangePasswordRequest",
@@ -26,19 +28,31 @@ describe("buildOpenApiDocument", () => {
       "CreateCalendarRequest",
       "CreateCrossEntityLinkRequest",
       "CreateFamilyRequest",
+      "CreateFolderRequest",
+      "CreateUploadRequest",
       "CrossEntityLink",
       "CrossEntityLinkList",
+      "Drive",
+      "DriveList",
       "EmailCodeRequest",
       "ErrorResponse",
       "EventGuestList",
       "Family",
       "FamilyId",
       "FamilyList",
+      "File",
+      "FileDetails",
+      "FileList",
+      "FileVersion",
+      "FileVersionList",
+      "FilesErrorCode",
       "InstanceSettings",
       "InstanceSettingsUpdate",
       "InviteEventGuestRequest",
       "MailSettings",
       "MailSettingsRequest",
+      "MoveFileRequest",
+      "MoveFileResult",
       "NotificationList",
       "PasswordConfirmationRequest",
       "PasswordRecoveryOptions",
@@ -47,6 +61,7 @@ describe("buildOpenApiDocument", () => {
       "PasswordResetRequest",
       "RecoveryCodeIssued",
       "RegistrationStatus",
+      "RenameFileRequest",
       "SelectActiveFamilyRequest",
       "SessionAccess",
       "SessionList",
@@ -55,6 +70,7 @@ describe("buildOpenApiDocument", () => {
       "Timestamp",
       "UpdateCalendarRequest",
       "UpdateProfileRequest",
+      "Upload",
       "UserId",
     ]);
   });
@@ -68,10 +84,25 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/calendars",
       "/calendars/{id}",
       "/calendars/{id}/events",
+      "/drives",
+      "/drives/{id}/children",
+      "/drives/{id}/folders",
+      "/drives/{id}/trash",
       "/events/{id}/guests",
       "/events/{id}/guests/{guestUserId}",
+      "/files/{id}",
+      "/files/{id}/children",
+      "/files/{id}/content",
+      "/files/{id}/move",
+      "/files/{id}/restore",
+      "/files/{id}/trash",
+      "/files/{id}/versions",
+      "/files/{id}/versions/{versionId}/content",
+      "/files/{id}/versions/{versionId}/restore",
       "/links",
       "/links/{id}",
+      "/uploads",
+      "/uploads/{id}",
     ]);
     expect(paths["/events/{id}/guests"].post.operationId).toBe("inviteEventGuest");
     expect(paths["/events/{id}/guests"].get.operationId).toBe("listEventGuests");
@@ -93,5 +124,22 @@ describe("renderOpenApi", () => {
     const committed = readFileSync(new URL("../openapi.json", import.meta.url), "utf8");
 
     expect(committed).toBe(renderOpenApi());
+  });
+});
+
+describe("buildOpenApiDocument files error codes", () => {
+  it("names only codes that filesErrorCodeSchema defines", () => {
+    const { paths } = buildOpenApiDocument();
+    const filesPaths = Object.fromEntries(
+      Object.entries(paths).filter(([path]) => /^\/(drives|files|uploads)(\/|$)/.test(path)),
+    );
+    const codes = new Set(
+      [...JSON.stringify(filesPaths).matchAll(/\b([A-Z][A-Z0-9_]+): /g)].map((match) => match[1]),
+    );
+
+    expect(codes.size).toBeGreaterThan(0);
+    for (const code of codes) {
+      expect(filesErrorCodeSchema.options).toContain(code);
+    }
   });
 });

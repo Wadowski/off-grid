@@ -46,6 +46,21 @@ import { signInRequestSchema } from "./sign-in-request-schema.js";
 import { signedInSchema } from "./signed-in-schema.js";
 import { timestampSchema } from "./timestamp-schema.js";
 import { userIdSchema } from "./user-id-schema.js";
+import { driveSchema } from "./drive-schema.js";
+import { driveListSchema } from "./drive-list-schema.js";
+import { fileSchema } from "./file-schema.js";
+import { fileListSchema } from "./file-list-schema.js";
+import { fileDetailsSchema } from "./file-details-schema.js";
+import { breadcrumbSchema } from "./breadcrumb-schema.js";
+import { fileVersionSchema } from "./file-version-schema.js";
+import { fileVersionListSchema } from "./file-version-list-schema.js";
+import { createFolderRequestSchema } from "./create-folder-request-schema.js";
+import { renameFileRequestSchema } from "./rename-file-request-schema.js";
+import { moveFileRequestSchema } from "./move-file-request-schema.js";
+import { moveFileResultSchema } from "./move-file-result-schema.js";
+import { createUploadRequestSchema } from "./create-upload-request-schema.js";
+import { uploadSchema } from "./upload-schema.js";
+import { filesErrorCodeSchema } from "./files-error-code-schema.js";
 
 export const openApiComponentSchemas = {
   FamilyId: familyIdSchema,
@@ -92,4 +107,19 @@ export const openApiComponentSchemas = {
   RecoveryCodeIssued: recoveryCodeIssuedSchema,
   SessionList: sessionListSchema,
   NotificationList: notificationListSchema,
+  Drive: driveSchema,
+  DriveList: driveListSchema,
+  File: fileSchema,
+  FileList: fileListSchema,
+  FileDetails: fileDetailsSchema,
+  Breadcrumb: breadcrumbSchema,
+  FileVersion: fileVersionSchema,
+  FileVersionList: fileVersionListSchema,
+  CreateFolderRequest: createFolderRequestSchema,
+  RenameFileRequest: renameFileRequestSchema,
+  MoveFileRequest: moveFileRequestSchema,
+  MoveFileResult: moveFileResultSchema,
+  CreateUploadRequest: createUploadRequestSchema,
+  Upload: uploadSchema,
+  FilesErrorCode: filesErrorCodeSchema,
 } satisfies Record<string, z.ZodType>;

@@ -25,6 +25,10 @@ import type { calendarTimeZoneSchema } from "./calendar-time-zone-response-schem
 import type { calendarEventSchema } from "./calendar-event-schema.js";
 import type { releaseManifestSchema } from "./release-manifest-schema.js";
 import type { MAIL_PRESETS, MAIL_PROVIDERS, MAIL_SECURITY } from "./constants.js";
+import type { createFolderRequestSchema } from "./create-folder-request-schema.js";
+import type { renameFileRequestSchema } from "./rename-file-request-schema.js";
+import type { moveFileRequestSchema } from "./move-file-request-schema.js";
+import type { createUploadRequestSchema } from "./create-upload-request-schema.js";
 
 export type FamilyId = z.infer<typeof familyIdSchema>;
 export type UserId = z.infer<typeof userIdSchema>;
@@ -55,6 +59,11 @@ export type NewCalendarEventInput = z.infer<typeof createCalendarEventRequestSch
 export type CalendarEventUpdateInput = z.infer<typeof updateCalendarEventRequestSchema>;
 export type TimeZoneSetting = z.infer<typeof calendarTimeZoneSchema>;
 export type CalendarEventResponse = z.input<typeof calendarEventSchema>;
+
+export type CreateFolderRequest = z.infer<typeof createFolderRequestSchema>;
+export type RenameFileRequest = z.infer<typeof renameFileRequestSchema>;
+export type MoveFileRequest = z.infer<typeof moveFileRequestSchema>;
+export type CreateUploadRequest = z.infer<typeof createUploadRequestSchema>;
 
 export type MailProvider = (typeof MAIL_PROVIDERS)[number];
 
