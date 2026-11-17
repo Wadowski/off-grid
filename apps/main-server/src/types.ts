@@ -32,6 +32,8 @@ export interface ServerConfig {
 
 export type ReadSecretFile = (path: string) => string;
 
+export type DirectoryKind = "missing" | "directory" | "other";
+
 export interface ModuleContext {
   readonly eventBus: EventBus;
   readonly logger: Logger;

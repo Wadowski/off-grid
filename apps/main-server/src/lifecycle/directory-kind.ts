@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { stat } from "node:fs/promises";
-
-export type DirectoryKind = "missing" | "directory" | "other";
+import type { DirectoryKind } from "../types.js";
 
 export const directoryKindOf = async (path: string): Promise<DirectoryKind> => {
   try {
