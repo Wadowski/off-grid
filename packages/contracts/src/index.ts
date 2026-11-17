@@ -145,3 +145,7 @@ export * from "./drive-params-schema.js";
 export * from "./file-params-schema.js";
 export * from "./file-version-params-schema.js";
 export * from "./files-routes.js";
+export * from "./upload-id-schema.js";
+export * from "./create-upload-request-schema.js";
+export * from "./upload-schema.js";
+export * from "./upload-params-schema.js";

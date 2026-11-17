@@ -6,6 +6,7 @@ import { driveParamsSchema } from "./drive-params-schema.js";
 import { fileParamsSchema } from "./file-params-schema.js";
 import { fileVersionParamsSchema } from "./file-version-params-schema.js";
 import { filesRoutes } from "./files-routes.js";
+import { uploadParamsSchema } from "./upload-params-schema.js";
 
 const placeholdersOf = (path: string): string[] =>
   path
@@ -29,12 +30,15 @@ describe("filesRoutes", () => {
       fileVersions: "/files/:id/versions",
       fileVersionContent: "/files/:id/versions/:versionId/content",
       fileVersionRestore: "/files/:id/versions/:versionId/restore",
+      uploads: "/uploads",
+      upload: "/uploads/:id",
     });
   });
 
   it("names the path parameters that each params schema validates", () => {
     expect(placeholdersOf(filesRoutes.driveChildren)).toEqual(Object.keys(driveParamsSchema.shape));
     expect(placeholdersOf(filesRoutes.file)).toEqual(Object.keys(fileParamsSchema.shape));
+    expect(placeholdersOf(filesRoutes.upload)).toEqual(Object.keys(uploadParamsSchema.shape));
     expect(placeholdersOf(filesRoutes.fileVersionRestore)).toEqual(
       Object.keys(fileVersionParamsSchema.shape),
     );

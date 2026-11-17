@@ -58,6 +58,8 @@ import { createFolderRequestSchema } from "./create-folder-request-schema.js";
 import { renameFileRequestSchema } from "./rename-file-request-schema.js";
 import { moveFileRequestSchema } from "./move-file-request-schema.js";
 import { moveFileResultSchema } from "./move-file-result-schema.js";
+import { createUploadRequestSchema } from "./create-upload-request-schema.js";
+import { uploadSchema } from "./upload-schema.js";
 
 export const openApiComponentSchemas = {
   FamilyId: familyIdSchema,
@@ -116,4 +118,6 @@ export const openApiComponentSchemas = {
   RenameFileRequest: renameFileRequestSchema,
   MoveFileRequest: moveFileRequestSchema,
   MoveFileResult: moveFileResultSchema,
+  CreateUploadRequest: createUploadRequestSchema,
+  Upload: uploadSchema,
 } satisfies Record<string, z.ZodType>;

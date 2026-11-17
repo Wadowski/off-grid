@@ -6,6 +6,7 @@ import { driveParamsSchema } from "./drive-params-schema.js";
 import { fileListQuerySchema } from "./file-list-query-schema.js";
 import { fileParamsSchema } from "./file-params-schema.js";
 import { fileVersionParamsSchema } from "./file-version-params-schema.js";
+import { uploadParamsSchema } from "./upload-params-schema.js";
 
 const jsonContent = (schemaName: string) => ({
   "application/json": { schema: { $ref: `#/components/schemas/${schemaName}` } },
@@ -73,6 +74,22 @@ const listQueryParameters = [
     schema: z.toJSONSchema(fileListQuerySchema.shape.limit),
   },
 ];
+
+const uploadIdParameter = {
+  name: "id",
+  in: "path",
+  required: true,
+  schema: z.toJSONSchema(uploadParamsSchema.shape.id),
+};
+
+const uploadOffsetHeader = {
+  name: "Upload-Offset",
+  in: "header",
+  required: true,
+  description:
+    "The byte offset at which the body starts. It must equal the offset the server reports.",
+  schema: { type: "integer", minimum: 0 },
+};
 
 const contentHeaders = {
   "Content-Disposition": {
@@ -283,6 +300,71 @@ export const filesOpenApiPaths = {
           description: "The file with its restored current version.",
           content: jsonContent("File"),
         },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+      },
+    },
+  },
+  "/uploads": {
+    post: {
+      operationId: "createUpload",
+      summary: "Start a resumable upload of a new file or a new version of an existing file",
+      requestBody: { required: true, content: jsonContent("CreateUploadRequest") },
+      responses: {
+        "201": {
+          description: "The upload session. Send the bytes with PATCH.",
+          content: jsonContent("Upload"),
+        },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+        "409": nameTaken,
+      },
+    },
+  },
+  "/uploads/{id}": {
+    get: {
+      operationId: "getUpload",
+      summary: "Read how many bytes an upload session has received",
+      parameters: [uploadIdParameter],
+      responses: {
+        "200": { description: "The upload session.", content: jsonContent("Upload") },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+      },
+    },
+    patch: {
+      operationId: "appendUploadBytes",
+      summary:
+        "Append bytes to an upload session; the request that completes the file returns the file",
+      parameters: [uploadIdParameter, uploadOffsetHeader],
+      requestBody: {
+        required: true,
+        content: {
+          "application/offset+octet-stream": { schema: { type: "string", format: "binary" } },
+        },
+      },
+      responses: {
+        "200": {
+          description: "The session, with the file once every byte has arrived.",
+          content: jsonContent("Upload"),
+        },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+        "409": errorResponse(
+          "UPLOAD_OFFSET_MISMATCH: the Upload-Offset header does not equal the bytes received so far. NAME_TAKEN: another live entry in the folder took the name before the upload completed.",
+        ),
+      },
+    },
+    delete: {
+      operationId: "abortUpload",
+      summary: "Abort an upload session and discard the bytes it received",
+      parameters: [uploadIdParameter],
+      responses: {
+        "204": { description: "The session was aborted." },
         "400": validationFailed,
         "401": unauthenticated,
         "404": notFound,

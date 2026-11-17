@@ -15,4 +15,6 @@ export const filesRoutes = {
   fileVersions: "/files/:id/versions",
   fileVersionContent: "/files/:id/versions/:versionId/content",
   fileVersionRestore: "/files/:id/versions/:versionId/restore",
+  uploads: "/uploads",
+  upload: "/uploads/:id",
 } as const;
