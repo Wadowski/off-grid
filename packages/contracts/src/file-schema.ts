@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { z } from "zod";
+import { byteSizeSchema } from "./byte-size-schema.js";
+import { mimeTypeSchema } from "./mime-type-schema.js";
 import { driveIdSchema } from "./drive-id-schema.js";
 import { fileIdSchema } from "./file-id-schema.js";
 import { fileNameSchema } from "./file-name-schema.js";
@@ -27,8 +29,8 @@ const folderSchema = z.object({
 const regularFileSchema = z.object({
   ...fileEntryBase,
   isFolder: z.literal(false),
-  mimeType: z.string().min(1).max(255),
-  size: z.number().int().min(0),
+  mimeType: mimeTypeSchema,
+  size: byteSizeSchema,
   currentVersionId: fileVersionIdSchema,
 });
 
