@@ -25,8 +25,11 @@ write_if_missing app-password "$(random_secret)"
 write_if_missing mail-encryption-key "$(random_secret)"
 write_if_missing instance-id "$(cat /proc/sys/kernel/random/uuid)"
 
-for files_dir in /data/files /data/files-e2e; do
+files_root=${FILES_ROOT:-/data}
+for files_dir in "$files_root/files" "$files_root/files-e2e"; do
   mkdir -p "$files_dir"
-  chown 1000:1000 "$files_dir"
+  if [ "$(id -u)" = 0 ]; then
+    chown 1000:1000 "$files_dir"
+  fi
   chmod 0700 "$files_dir"
 done
