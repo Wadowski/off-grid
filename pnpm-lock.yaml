@@ -240,6 +240,9 @@ importers:
       '@offgrid/family':
         specifier: workspace:*
         version: link:../../modules/family
+      '@offgrid/files':
+        specifier: workspace:*
+        version: link:../../modules/files
       '@offgrid/http':
         specifier: workspace:*
         version: link:../../packages/http

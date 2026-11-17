@@ -42,6 +42,10 @@ export const loadConfig = (
     corsOrigins: values.OFFGRID_CORS_ORIGINS,
     rateLimitPerMinute: values.OFFGRID_RATE_LIMIT_PER_MINUTE,
     outbox: { retentionDays: values.OFFGRID_OUTBOX_RETENTION_DAYS },
+    files: {
+      directory: values.OFFGRID_FILES_DIRECTORY,
+      maxUploadBytes: values.OFFGRID_FILES_MAX_UPLOAD_BYTES,
+    },
     version: {
       version: values.OFFGRID_VERSION,
       ...(values.OFFGRID_COMMIT === undefined ? {} : { commit: values.OFFGRID_COMMIT }),

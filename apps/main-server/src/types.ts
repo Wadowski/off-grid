@@ -27,11 +27,14 @@ export interface ServerConfig {
   readonly corsOrigins: readonly string[];
   readonly rateLimitPerMinute: number;
   readonly outbox: { readonly retentionDays: number };
+  readonly files: { readonly directory: string; readonly maxUploadBytes: number };
   readonly version: SystemVersionOptions;
   readonly logLevel: LogLevel;
 }
 
 export type ReadSecretFile = (path: string) => string;
+
+export type DirectoryKind = "missing" | "directory" | "other";
 
 export interface ModuleContext {
   readonly eventBus: EventBus;

@@ -14,12 +14,14 @@ import { startWorkers } from "../module-wiring/start-workers.js";
 import { baseUrlOf } from "./base-url-of.js";
 import { startErrorRecordPruning } from "../error-log/start-error-record-pruning.js";
 import { startOutboxPruning } from "../outbox/start-outbox-pruning.js";
+import { assertFilesDirectoryWritable } from "./assert-files-directory-writable.js";
 
 export const startServer = async (
   config: ServerConfig,
   modules: readonly ModuleDescriptor[],
 ): Promise<RunningServer> => {
   assertValidModules(modules);
+  await assertFilesDirectoryWritable(config.files.directory);
   const runtime = createRuntime(config);
   const workers = registerSubscribersAndCollectWorkers(modules, runtime);
 

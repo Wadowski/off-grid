@@ -1,14 +1,20 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { migrateDeploy } from "@offgrid/db";
 import { startTestDatabase } from "../../test/start-test-database.js";
 import type { TestDatabase } from "../../test/types.js";
+import { modulesFor } from "../module-wiring/modules-for.js";
 import { startServer } from "./start-server.js";
+import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
 import type { ServerConfig } from "../types.js";
 
 let database: TestDatabase;
+let filesDirectory: string;
 
 const configFor = (db: TestDatabase): ServerConfig => ({
   http: { host: "127.0.0.1", port: 0 },
@@ -18,15 +24,18 @@ const configFor = (db: TestDatabase): ServerConfig => ({
   corsOrigins: [],
   rateLimitPerMinute: 1000,
   outbox: { retentionDays: 7 },
+  files: { directory: filesDirectory, maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
   logLevel: "error",
 });
 
 beforeAll(async () => {
   database = await startTestDatabase();
+  filesDirectory = mkdtempSync(join(tmpdir(), "offgrid-files-"));
 }, 120_000);
 
 afterAll(async () => {
   await database?.stop();
+  rmSync(filesDirectory, { recursive: true, force: true });
 });
 
 describe("startServer", () => {
@@ -46,7 +55,8 @@ describe("startServer", () => {
 
   it("boots, reports ready and closes cleanly once the migrations have run", async () => {
     await migrateDeploy(database.migratorTarget);
-    const running = await startServer(configFor(database), []);
+    const config = configFor(database);
+    const running = await startServer(config, modulesFor(config));
 
     const response = await fetch(`${running.baseUrl}/api/health/ready`);
 
@@ -59,6 +69,18 @@ describe("startServer", () => {
     await running.close();
     await running.close();
   }, 60_000);
+
+  it("refuses to boot when the files directory is missing and names the variable", async () => {
+    const missingDirectory: ServerConfig = {
+      ...configFor(database),
+      files: {
+        directory: join(filesDirectory, "absent"),
+        maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+      },
+    };
+
+    await expect(startServer(missingDirectory, [])).rejects.toThrow(/OFFGRID_FILES_DIRECTORY/);
+  });
 
   it("refuses to boot when the database cannot be reached", async () => {
     const unreachable: ServerConfig = {

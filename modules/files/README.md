@@ -1,8 +1,21 @@
 # @offgrid/files
 
-Purpose: file storage and metadata.
+Purpose: file storage and metadata. File bytes live on a disk volume behind a storage port, and the metadata lives in this module's Postgres schema ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md), [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)).
 Public API: only what `src/index.ts` exports; never import from `src/` internals.
 Owner: module team (files)
+
+## Schema and role
+
+- Schema `files`, runtime role `offgrid_app`, as for every module ([ADR 0009](../../docs/adr/0009-table-ownership-scopes.md)).
+- No tables yet. The tables, Prisma models and migration follow in OG-108.
+
+## Storage volume
+
+- The server bind-mounts `data/files` at `/data/files` in Compose. The e2e stack mounts `data/files-e2e` instead.
+- The server reads the directory from `OFFGRID_FILES_DIRECTORY` (default `/data/files`) and the upload cap from `OFFGRID_FILES_MAX_UPLOAD_BYTES` (default 50 GiB). See the [server configuration table](../../apps/main-server/README.md#configuration).
+- Startup fails, naming the variable, when the directory is missing, is not a directory, or is not writable. `secrets-init` creates the Compose folders with owner 1000:1000 and mode 0700.
+- Only this module reads or writes file bytes, through its storage port. The startup check in `apps/main-server/src/lifecycle/probe-directory-writable.ts` creates and removes a probe file in the folder to confirm it is writable. The storage port and disk adapter come with OG-109.
+- Opaque storage keys, not user-chosen names, decide the paths on disk ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md)).
 
 ## Contracts
 

@@ -21,6 +21,7 @@
     "@offgrid/db": "workspace:*",
     "@offgrid/event-bus": "workspace:*",
     "@offgrid/family": "workspace:*",
+    "@offgrid/files": "workspace:*",
     "@offgrid/http": "workspace:*",
     "@offgrid/identity": "workspace:*",
     "@offgrid/notifications": "workspace:*",
