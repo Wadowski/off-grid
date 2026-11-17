@@ -40,7 +40,7 @@ Local access uses plain HTTP, so traffic on your local network is not encrypted.
 ## Backing up and exporting
 
 - **Back up** with the commands in the [README](../README.md#back-up). The database dump holds your data. The copy of `data/` holds your secrets. Store both somewhere safe, outside the repository. Once the files module ships, `data/files` holds the file bytes and is part of the same copy. Take the dump and the copy while the server is stopped (the database keeps running for the dump), so that the file names in the database match the bytes on disk.
-- **Export** as a feature, for example to a file you can read, is planned in the `export` module. It is not built yet. Until it is, the database dump is the way to get your data out. Once the files module ships, the export includes the file bytes, provided by the files module, not by copying `data/files`.
+- **Export** as a feature, for example to a file you can read, is planned in the `export` module. It is not built yet. Until it is, the database dump is the way to get your data out. Once the files module ships, the export includes the file bytes, provided by the files module, not by copying `data/files`. File names also travel in events, so other modules that keep a copy of them, in the same database, hold those names too.
 - **Delete** by running `docker compose -f infra/compose/docker-compose.yml down -v`, which removes the database volume. Then delete `data/` to remove the secrets and, once the files module ships, the file bytes in `data/files`.
 
 ## What is not yet in place
