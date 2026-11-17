@@ -6,7 +6,7 @@
 
 The files module will hold user files: photos, documents and attachments that people add to notes, events and lists. Each file has two parts. The bytes can be large, up to 20 GB or more. The metadata (owner, family, the user-chosen name, content type, size, checksum) is small and must follow the same access rules as the rest of the data in Postgres ([ADR 0009](0009-table-ownership-scopes.md), [ADR 0021](0021-family-membership.md), [ADR 0029](0029-event-guest-access.md)).
 
-Offgrid runs on small home hardware, including a Raspberry Pi, as a stack of five services. The local deployment runs one server instance ([ADR 0019](0019-state-shared-between-instances.md)). Keeping bytes out of the database keeps the Postgres dump small and fast to write and restore.
+Offgrid runs on small home hardware, including a Raspberry Pi, as a Docker Compose stack. The local deployment runs one server instance ([ADR 0019](0019-state-shared-between-instances.md)). Keeping bytes out of the database keeps the Postgres dump small and fast to write and restore.
 
 Two options were considered for the bytes. Storing them in Postgres large objects would put every file into the database dump and slow backups on slow disks. Running an object store such as MinIO would add a sixth service to the install and needs a lot of memory and disk for a household. Neither is needed for local mode.
 
@@ -29,7 +29,7 @@ The disk adapter implements the port in the files module's infrastructure layer.
 
 We will record the size and SHA-256 at write time, in the files module's metadata table in Postgres. Reads check the size, and an integrity check can compare the checksum against the bytes on disk.
 
-Events carry ids and storage keys only. They never carry file names, paths or content, consistent with [events.md](../../.claude/rules/events.md) ("do not put personal data in event payloads beyond what the consumer needs"). [ADR 0011](0011-restricted-event-access-and-retention.md) sets the retention and access rules for events. Consumers that need a name read it from the owning module's projection, or through the API.
+Events carry file ids and sizes only. Storage keys stay inside the files module, because no other module uses the port. Events never carry file names, paths or content, consistent with [events.md](../../.claude/rules/events.md) ("do not put personal data in event payloads beyond what the consumer needs"). [ADR 0011](0011-restricted-event-access-and-retention.md) sets the retention and access rules for events. Consumers that need a name read it from the owning module's projection, or through the API.
 
 ### Fit with ADR 0019
 
@@ -37,13 +37,13 @@ Local mode is one server instance with a local disk, and that is the only mode t
 
 ### Backup and restore
 
-A backup is two parts taken as a pair: the `pg_dump` of the database and a copy of `data/files`. The two must be taken from the same quiet point, or the metadata can point at bytes that are missing, or bytes can exist with no metadata. The README backup section and [privacy.md](../privacy.md) state this. A restore puts back both parts. Until the files module ships, the backup commands in the README do not yet include `data/files`, and the README note is added with the mount.
+A backup is two parts taken as a pair: the `pg_dump` of the database and a copy of `data/files`. The two must be taken from the same quiet point, or the metadata can point at bytes that are missing, or bytes can exist with no metadata. The README backup section and [privacy.md](../privacy.md) state this. A restore puts back both parts. The README and privacy.md already describe `data/files` in the backup steps, with the wording "once the files module ships". To get the quiet point, the owner stops the stack before taking the dump and the copy, then starts it again. The copy of `data/` holds the secrets and the file bytes together, so it is stored with the same care as the dump.
 
 Orphan bytes (no metadata) and missing bytes (metadata without a file) are the expected failure modes of a bad pair. An integrity sweep that reports both is follow-up work for OG-109 or later.
 
 ### Export
 
-The `export` module includes file bytes by reading them through the storage port, one file at a time, and writes them into the export. It does not copy the `data/files` folder, because the folder layout uses opaque keys and the export needs the user-chosen names from Postgres. Export is never feature-gated ([CLAUDE.md](../../CLAUDE.md) non-negotiables).
+The `export` module does not call the storage port, and it does not copy the `data/files` folder, because the folder layout uses opaque keys. Instead, the export module asks the files module for an export of its bytes through a versioned event defined in `packages/contracts`. The files module reads the bytes through its own port, pairs them with the user-chosen names from its own Postgres schema, and writes them into the export. The exact event is defined by the export work, with the new-event process. Export is never feature-gated ([CLAUDE.md](../../CLAUDE.md) non-negotiables).
 
 ### Privacy
 
@@ -61,5 +61,5 @@ File bytes are personal data on the host. They are not secrets, but they are as 
 - Backup size grows with the files, while the dump stays small.
 - Streaming and byte-range reads are possible on the disk adapter without loading a file into memory.
 - The files module must keep metadata and bytes consistent on write and delete. Follow-up work: the disk adapter and an integrity sweep (OG-109), the module scaffold, volume and config (OG-106), and the S3-compatible adapter for a hosted deployment, with its own ADR.
-- Export must go through the port, which costs more than a folder copy but keeps names out of the disk layout.
+- Export asks the files module for the bytes through an event, which costs more than a folder copy but keeps names out of the disk layout and keeps the module boundary.
 - This ADR sets the direction only. The port and adapter are not built yet, so the status stays Proposed until OG-109 implements it.

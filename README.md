@@ -51,7 +51,7 @@ cp -a data <backup-dir>/data
 
 Store both outputs somewhere safe. The dump holds your data and the copy holds your secrets.
 
-Once the files module ships, `data/files` holds uploaded file bytes. The `cp -a data` line copies it too. Take the dump and the copy in the same quiet period, so that the file names in the dump match the bytes in the copy.
+Once the files module ships, `data/files` holds uploaded file bytes. The `cp -a data` line copies it too. Take the dump and the copy while the stack is stopped (stop it with the command in [Stop](#stop) below, take both, then start it again), so that the file names in the dump match the bytes in the copy.
 
 ### Stop
 
