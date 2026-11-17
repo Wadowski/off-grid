@@ -5,6 +5,15 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
+export const CHANGED_LINES_DIFF_ARGS = [
+  "diff",
+  "-U0",
+  "--no-color",
+  "--no-ext-diff",
+  "--diff-filter=d",
+  "--diff-algorithm=patience",
+];
+
 const HUNK_HEADER = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/;
 
 const git = (root, args) =>
@@ -56,14 +65,7 @@ const allLines = (root, path) => {
 
 export const changedLineMap = (root, base = resolveBase(root)) => {
   const mergeBase = tryGit(root, ["merge-base", base, "HEAD"]) ?? base;
-  const diff = git(root, [
-    "diff",
-    "-U0",
-    "--no-color",
-    "--no-ext-diff",
-    "--diff-filter=d",
-    mergeBase,
-  ]);
+  const diff = git(root, [...CHANGED_LINES_DIFF_ARGS, mergeBase]);
   const result = parseChangedLines(diff);
   const untracked = git(root, ["ls-files", "--others", "--exclude-standard"]).split("\n");
   for (const path of untracked.filter(Boolean)) {
