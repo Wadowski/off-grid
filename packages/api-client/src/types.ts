@@ -15,6 +15,17 @@ export type ApiClient = {
     body?: unknown,
     headers?: Readonly<Record<string, string>>,
   ) => Promise<unknown>;
+  readonly requestBytes: (
+    method: HttpMethod,
+    path: string,
+    body: Uint8Array | Blob,
+    headers?: Readonly<Record<string, string>>,
+  ) => Promise<unknown>;
+};
+
+export type FileListOptions = {
+  readonly cursor?: string;
+  readonly limit?: number;
 };
 
 export type SignInInput = {
