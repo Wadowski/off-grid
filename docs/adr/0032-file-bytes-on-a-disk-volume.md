@@ -37,13 +37,13 @@ Local mode is one server instance with a local disk, and that is the only mode t
 
 ### Backup and restore
 
-A backup is two parts taken as a pair: the `pg_dump` of the database and a copy of `data/files`. The two must be taken from the same quiet point, or the metadata can point at bytes that are missing, or bytes can exist with no metadata. The README backup section and [privacy.md](../privacy.md) state this. A restore puts back both parts. The README and privacy.md already describe `data/files` in the backup steps, with the wording "once the files module ships". To get the quiet point, the owner stops the stack before taking the dump and the copy, then starts it again. The copy of `data/` holds the secrets and the file bytes together, so it is stored with the same care as the dump.
+A backup is two parts taken as a pair: the `pg_dump` of the database and a copy of `data/files`. The two must be taken from the same quiet point, or the metadata can point at bytes that are missing, or bytes can exist with no metadata. The README backup section and [privacy.md](../privacy.md) state this. A restore puts back both parts. The README and privacy.md already describe `data/files` in the backup steps, with the wording "once the files module ships". To get the quiet point, the owner stops only the server before taking the dump and the copy, keeps the database running for `pg_dump`, then starts the server again. The copy of `data/` holds the secrets and the file bytes together, so it is stored with the same care as the dump.
 
 Orphan bytes (no metadata) and missing bytes (metadata without a file) are the expected failure modes of a bad pair. An integrity sweep that reports both is follow-up work for OG-109 or later.
 
 ### Export
 
-The `export` module does not call the storage port, and it does not copy the `data/files` folder, because the folder layout uses opaque keys. Instead, the export module asks the files module for an export of its bytes through a versioned event defined in `packages/contracts`. The files module reads the bytes through its own port, pairs them with the user-chosen names from its own Postgres schema, and writes them into the export. The exact event is defined by the export work, with the new-event process. Export is never feature-gated ([CLAUDE.md](../../CLAUDE.md) non-negotiables).
+The `export` module does not call the storage port, and it does not copy the `data/files` folder, because the folder layout uses opaque keys. Instead, the export module asks the files module for an export of its bytes through a versioned event defined in `packages/contracts`. The files module reads the bytes through its own port, pairs them with the user-chosen names from its own Postgres schema, and writes them into the export. The event carries an export request id and never the bytes. The files module writes the bytes into an export-owned location, and it reports back through a versioned event that the export is ready to be packaged. The exact event names are defined by the export work, with the new-event process. Export is never feature-gated ([CLAUDE.md](../../CLAUDE.md) non-negotiables).
 
 ### Privacy
 

@@ -32,6 +32,7 @@ To open the web app from another device, set `OFFGRID_CORS_ORIGINS` to the origi
 ### Where data and secrets live
 
 - `data/secrets/` (in the repository root, git-ignored): the database passwords and the instance id. Files are created once and never regenerated. Keep this folder safe: losing it means losing access to the database. The files are readable by any user on this machine, so keep the host account itself locked down.
+- `data/files/` (once the files module ships, in the repository root, git-ignored): the bytes of files you upload. The names you give files are in the database, not here.
 - The `offgrid-db` Docker volume: the PostgreSQL data.
 
 If you ran an earlier stack that used Caddy, its `caddy-data` and `caddy-config` volumes are no longer used. Remove them with `docker volume rm` once the new stack runs.
@@ -51,7 +52,13 @@ cp -a data <backup-dir>/data
 
 Store both outputs somewhere safe. The dump holds your data and the copy holds your secrets.
 
-Once the files module ships, `data/files` holds uploaded file bytes. The `cp -a data` line copies it too. Take the dump and the copy while the stack is stopped (stop it with the command in [Stop](#stop) below, take both, then start it again), so that the file names in the dump match the bytes in the copy.
+Once the files module ships, `data/files` holds uploaded file bytes. The `cp -a data` line copies it too. Take the dump and the copy while the server is stopped, so that the file names in the dump match the bytes in the copy. Stop only the server, and keep the database running for `pg_dump`:
+
+```bash
+docker compose -f infra/compose/docker-compose.yml stop server
+# run the dump and copy commands above, then:
+docker compose -f infra/compose/docker-compose.yml start server
+```
 
 ### Stop
 
