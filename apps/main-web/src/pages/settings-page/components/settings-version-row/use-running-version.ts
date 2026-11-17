@@ -9,15 +9,23 @@ export const useRunningVersion = (): RunningVersionState => {
   const [state, setState] = useState<RunningVersionState>({ status: "loading" });
 
   useEffect(() => {
+    let cancelled = false;
     const loadVersion = async () => {
       try {
         const { version } = await webSystemClient.version();
-        setState({ status: "ready", version });
+        if (!cancelled) {
+          setState({ status: "ready", version });
+        }
       } catch {
-        setState({ status: "failed" });
+        if (!cancelled) {
+          setState({ status: "failed" });
+        }
       }
     };
     void loadVersion();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return state;
