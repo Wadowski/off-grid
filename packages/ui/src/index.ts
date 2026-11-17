@@ -24,3 +24,8 @@ export { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 export { Dialog } from "./dialog/dialog.js";
 export type { DialogProps } from "./dialog/types.js";
 export { MaterialIcon } from "./material-icon/material-icon.js";
+export { FileTypeIcon } from "./file-type-icon/file-type-icon.js";
+export { FileRow } from "./file-row/file-row.js";
+export { FileCard } from "./file-card/file-card.js";
+export { fileKindFromMimeType } from "./files/file-kind-from-mime-type.js";
+export type { FileKind } from "./files/types.js";
