@@ -300,11 +300,7 @@
               ]
             }
           },
-          "required": [
-            "driveId",
-            "userId",
-            "familyId"
-          ],
+          "required": ["driveId", "userId", "familyId"],
           "type": "object"
         },
         "sourceVersion": {
@@ -630,13 +626,7 @@
               "type": "integer"
             }
           },
-          "required": [
-            "fileId",
-            "driveId",
-            "ownerUserId",
-            "ownerFamilyId",
-            "version"
-          ],
+          "required": ["fileId", "driveId", "ownerUserId", "ownerFamilyId", "version"],
           "type": "object"
         },
         "sourceVersion": {
