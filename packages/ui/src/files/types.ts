@@ -11,3 +11,14 @@ export type CalendarDay = {
   readonly month: number;
   readonly day: number;
 };
+
+export type FileKind =
+  | "folder"
+  | "image"
+  | "document"
+  | "spreadsheet"
+  | "pdf"
+  | "archive"
+  | "audio"
+  | "video"
+  | "generic";
