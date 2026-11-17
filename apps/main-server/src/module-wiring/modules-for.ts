@@ -4,6 +4,7 @@
 import { calendarModule } from "@offgrid/calendar";
 import { createNotificationsModule } from "@offgrid/notifications";
 import { relationsModule } from "@offgrid/relations";
+import { createSystemModule } from "@offgrid/system";
 import { familyModule } from "@offgrid/family";
 import { createIdentityModule } from "@offgrid/identity";
 import type { ModuleDescriptor, ServerConfig } from "../types.js";
@@ -14,4 +15,5 @@ export const modulesFor = (config: ServerConfig): readonly ModuleDescriptor[] =>
   createIdentityModule({ mailEncryptionKey: config.mail.encryptionKey }),
   createNotificationsModule(),
   relationsModule,
+  createSystemModule(config.version),
 ];

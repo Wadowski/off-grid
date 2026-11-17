@@ -8,6 +8,8 @@ x-server-build: &server-build
   context: ../..
   dockerfile: apps/main-server/Dockerfile
   target: runtime
+  args:
+    OFFGRID_VERSION: ${OFFGRID_VERSION:-dev}
 
 services:
   secrets-init:
@@ -97,6 +99,7 @@ services:
       dockerfile: apps/main-web/Dockerfile
       args:
         VITE_API_ORIGIN: ${OFFGRID_API_ORIGIN:-}
+        OFFGRID_VERSION: ${OFFGRID_VERSION:-dev}
     restart: unless-stopped
     ports:
       - "${OFFGRID_WEB_PORT:-8080}:8080"

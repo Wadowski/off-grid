@@ -361,6 +361,8 @@ export const en = {
     familyLabel: "Family & Spaces",
     familyDescription: "Your spaces and your role in each",
     signOut: "Sign out",
+    versionLabel: "Offgrid version {{version}}",
+    versionUnavailable: "Version unavailable",
     back: "Back to settings",
     save: "Save",
     saving: "Saving…",

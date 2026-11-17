@@ -1,0 +1,22 @@
+{
+  "name": "@offgrid/system",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@offgrid/contracts": "workspace:*",
+    "fastify": "5.12.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2"
+  }
+}

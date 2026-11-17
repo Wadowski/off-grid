@@ -32,5 +32,16 @@ export const environmentSchema = z.object({
     .pipe(z.array(z.string().refine(isHttpOrigin, "must be an http or https origin with no path"))),
   OFFGRID_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   OFFGRID_OUTBOX_RETENTION_DAYS: z.coerce.number().int().min(1).max(3650).default(7),
+  OFFGRID_VERSION: z
+    .string()
+    .trim()
+    .max(64)
+    .regex(/^[0-9A-Za-z.+_-]*$/)
+    .default("")
+    .transform((value) => (value === "" ? "dev" : value)),
+  OFFGRID_COMMIT: z
+    .string()
+    .regex(/^[0-9a-f]{7,40}$/)
+    .optional(),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

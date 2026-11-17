@@ -40,6 +40,8 @@ Read from the environment and validated with zod at startup. Missing or invalid 
 | `OFFGRID_TRUSTED_PROXIES`        | empty         | Comma-separated proxy addresses or subnets whose `X-Forwarded-For` header is trusted for the client IP. Empty trusts no proxy, so behind a proxy every client shares its address for the rate limit |
 | `OFFGRID_RATE_LIMIT_PER_MINUTE`  | `300`         | Per client IP                                                                                                                                                                                       |
 | `OFFGRID_OUTBOX_RETENTION_DAYS`  | `7`           | Days a delivered event stays in the outbox before the prune job removes it. Events are removed only after every subscriber has passed them. Range 1 to 3650                                         |
+| `OFFGRID_VERSION`                | `dev`         | Release version shown by `GET /api/system/version` and the settings page. Set at build time; empty means `dev`. Letters, digits and `.+_-`, up to 64 characters                                     |
+| `OFFGRID_COMMIT`                 | unset         | Optional commit hash (7 to 40 lowercase hex characters) that `GET /api/system/version` reports. Not shown in the web app                                                                            |
 | `OFFGRID_LOG_LEVEL`              | `info`        | `debug`, `info`, `warn` or `error`                                                                                                                                                                  |
 
 ## Endpoints
