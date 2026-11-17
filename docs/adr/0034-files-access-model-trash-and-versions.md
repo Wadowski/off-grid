@@ -70,7 +70,7 @@ We chose this because the owner of a file should be able to move it to a family 
 
 ### 9. Events carry names, ids and versions; logs never carry names
 
-File events (created, updated, removed) carry ids, `sourceVersion`, the drive id and the file or folder name, so that a receiving user sees the same name as the owner. They never carry file contents. Logs never carry file or folder names, and they never carry contents ([ADR 0011](0011-restricted-event-access-and-retention.md)). File names are personal data, so event consumers are restricted to the access rules above.
+File created and updated events carry ids, `sourceVersion`, the drive id and the file or folder name, so that a receiving user sees the same name as the owner. A removed event carries ids, the owner and `version` only, because the item is gone and no reader needs its name. A drive created event carries ids and the owner only. No file event ever carries file contents. Logs never carry file or folder names, and they never carry contents ([ADR 0011](0011-restricted-event-access-and-retention.md)). File names are personal data, so event consumers are restricted to the access rules above.
 
 We chose this because a shared file must keep one name for every person who sees it. Rejected alternative: ids only, which forces each reader to look up the name in a separate read.
 

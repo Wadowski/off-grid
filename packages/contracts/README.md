@@ -11,6 +11,7 @@ Owner: platform team
 - `src/event-definitions.ts`: every event defined in this package. Add each new event here.
 - `src/compare-released-events.ts`: compares the live event schemas with the released snapshot.
 - `src/build-open-api-document.ts`: builds the OpenAPI document from the shared schemas.
+- Files (`modules/files`): `src/drive-*`, `src/file-*`, `src/breadcrumb-schema.ts`, `src/upload-*` and `src/create-upload-request-schema.ts` are the drive, file, version and resumable upload shapes. `src/files-routes.ts` is the route table, `src/files-open-api-paths.ts` the OpenAPI operations. Events: `src/drive-created-v1.ts`, `src/file-created-v1.ts`, `src/file-updated-v1.ts` and `src/file-removed-v1.ts`, with payloads in `src/*-payload-schema.ts` (`file-created` and `file-updated` carry the name, `file-removed` and `drive-created` carry none, and no payload carries content, storage keys, paths or checksums).
 - `released-events.json`: snapshot of released event schemas. Committed; never hand-edit an existing entry.
 - `openapi.json`: generated OpenAPI document. Committed; never hand-edit.
 

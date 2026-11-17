@@ -29,7 +29,7 @@ The disk adapter implements the port in the files module's infrastructure layer.
 
 We will record the size and SHA-256 at write time, on the `files.file_version` row that refers to the bytes. Reads check the size, and an integrity check can compare the checksum against the bytes on disk.
 
-Events follow [ADR 0034](0034-files-access-model-trash-and-versions.md), rule 9: they carry ids, the `sourceVersion`, the drive id and the name, and never file contents. This ADR adds one limit: storage keys, paths and bytes never go into events, because no other module uses the port. [ADR 0011](0011-restricted-event-access-and-retention.md) sets the retention and access rules for events, and [events.md](../../.claude/rules/events.md) applies to the payloads.
+Events follow [ADR 0034](0034-files-access-model-trash-and-versions.md), rule 9: created and updated events carry ids, the `sourceVersion`, the drive id and the name, removed events carry no name, and no event carries file contents. This ADR adds one limit: storage keys, paths and bytes never go into events, because no other module uses the port. [ADR 0011](0011-restricted-event-access-and-retention.md) sets the retention and access rules for events, and [events.md](../../.claude/rules/events.md) applies to the payloads.
 
 ### Fit with ADR 0019
 
