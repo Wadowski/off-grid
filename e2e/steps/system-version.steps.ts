@@ -30,6 +30,11 @@ When("the running version of the server is checked without signing in", async ({
 Then("the server reports a version and no personal data", async ({ world }) => {
   expect(world.versionResponse?.status()).toBe(200);
   const body = (await world.versionResponse?.json()) as Record<string, unknown>;
-  expect(Object.keys(body).every((key) => ALLOWED_KEYS.includes(key))).toBe(true);
+  const keys = Object.keys(body);
+  expect(keys).toEqual(expect.arrayContaining(["version"]));
+  expect(
+    keys.filter((key) => !ALLOWED_KEYS.includes(key)),
+    `keys outside ${ALLOWED_KEYS.join(", ")}: ${keys.join(", ")}`,
+  ).toEqual([]);
   expect(typeof body.version).toBe("string");
 });
