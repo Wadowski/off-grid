@@ -115,38 +115,37 @@ const writeProbeValue = async (note: string): Promise<void> => {
 
 const modeOf = async (path: string): Promise<number> => (await stat(path)).mode & 0o777;
 
-const SUPERUSER_OWNED_OBJECTS_QUERY = `
-  select 'database' as kind, d.datname as name
-    from pg_database d join pg_roles r on r.oid = d.datdba
-   where d.datname = current_database() and r.rolsuper
+const NON_MIGRATOR_OWNED_OBJECTS_QUERY = `
+  select 'database' as kind, current_database() as name
+   where pg_get_userbyid((select datdba from pg_database where datname = current_database())) <> 'offgrid_migrator'
   union all
   select 'schema', n.nspname
-    from pg_namespace n join pg_roles r on r.oid = n.nspowner
-   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+    from pg_namespace n
+   where n.nspname in (${MODULE_SCHEMAS}) and pg_get_userbyid(n.nspowner) <> 'offgrid_migrator'
   union all
   select 'relation', c.relname
     from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
-    join pg_roles r on r.oid = c.relowner
-   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS}))
+     and pg_get_userbyid(c.relowner) <> 'offgrid_migrator'
   union all
   select 'function', p.proname
     from pg_proc p
     join pg_namespace n on n.oid = p.pronamespace
-    join pg_roles r on r.oid = p.proowner
-   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS}))
+     and pg_get_userbyid(p.proowner) <> 'offgrid_migrator'
   union all
   select 'type', t.typname
     from pg_type t
     join pg_namespace n on n.oid = t.typnamespace
-    join pg_roles r on r.oid = t.typowner
-   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS}))
      and t.typtype <> 'c'
+     and pg_get_userbyid(t.typowner) <> 'offgrid_migrator'
 `;
 
-const findSuperuserOwnedObjects = async (): Promise<string[]> => {
+const findObjectsNotOwnedByMigrator = async (): Promise<string[]> => {
   const result = await requireMigrator().query<{ kind: string; name: string }>(
-    SUPERUSER_OWNED_OBJECTS_QUERY,
+    NON_MIGRATOR_OWNED_OBJECTS_QUERY,
   );
   return result.rows.map((row) => `${row.kind} ${row.name}`);
 };
@@ -235,7 +234,7 @@ describe("backup and restore against Postgres 17", () => {
     expect(remaining).not.toContain(first.name);
   }, 60_000);
 
-  it("leaves no superuser-owned objects in public or the module schemas after a restore", async () => {
+  it("leaves only offgrid_migrator-owned objects in public and the module schemas after a restore", async () => {
     const backup = await createBackup(
       postgresTools,
       settings(requireDatabase().migratorTarget, 3),
@@ -251,7 +250,7 @@ describe("backup and restore against Postgres 17", () => {
       backup.name,
     );
 
-    expect(await findSuperuserOwnedObjects()).toEqual([]);
+    expect(await findObjectsNotOwnedByMigrator()).toEqual([]);
   }, 60_000);
 
   it("refuses to restore a backup name that does not exist", async () => {
