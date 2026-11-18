@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { UpdateStatus } from "../types.js";
+import { parseStatusJson } from "./parse-status-json.js";
 import { readStatusFileText } from "./read-status-file-text.js";
 import { updateStatusSchema } from "./update-status-schema.js";
 
@@ -10,5 +11,5 @@ export const readUpdateStatus = async (statusFile: string): Promise<UpdateStatus
   if (statusText === null) {
     return null;
   }
-  return updateStatusSchema.parse(JSON.parse(statusText));
+  return updateStatusSchema.parse(parseStatusJson(statusText));
 };

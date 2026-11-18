@@ -13,9 +13,10 @@ export interface BackupFailures {
 }
 
 export interface HarnessOptions {
-  readonly failingMethods?: ReadonlySet<FakeDockerMethod>;
+  readonly failingMethods?: ReadonlyMap<FakeDockerMethod, Error>;
   readonly backupFailures?: BackupFailures;
   readonly health?: HealthMode;
+  readonly statusWriteFailure?: (status: UpdateStatus) => boolean;
 }
 
 export interface Harness {

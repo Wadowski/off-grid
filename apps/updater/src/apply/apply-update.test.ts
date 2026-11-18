@@ -93,15 +93,20 @@ const createBackupService = (calls: string[], failures: BackupFailures): BackupS
 const createHarness = (options: HarnessOptions = {}): Harness => {
   const calls: string[] = [];
   const writes: UpdateStatus[] = [];
+  let statusWriteFailed = false;
   const dependencies: ApplyDependencies = {
     docker: createFakeDockerRunner(
       calls,
-      options.failingMethods ?? new Set<FakeDockerMethod>(),
+      options.failingMethods ?? new Map<FakeDockerMethod, Error>(),
       RUNNING_IMAGES,
     ),
     backup: createBackupService(calls, options.backupFailures ?? {}),
     statusStore: {
       write: async (status) => {
+        if (!statusWriteFailed && options.statusWriteFailure?.(status) === true) {
+          statusWriteFailed = true;
+          throw new Error("status write failed");
+        }
         writes.push(structuredClone(status));
       },
     },
@@ -112,7 +117,10 @@ const createHarness = (options: HarnessOptions = {}): Harness => {
   return { dependencies, calls, writes };
 };
 
-const failing = (...methods: FakeDockerMethod[]): ReadonlySet<FakeDockerMethod> => new Set(methods);
+const failing = (...methods: FakeDockerMethod[]): ReadonlyMap<FakeDockerMethod, Error> =>
+  new Map(
+    methods.map((method): [FakeDockerMethod, Error] => [method, new Error(`${method} failed`)]),
+  );
 
 const stateOf = (status: UpdateStatus, name: UpdateStepName) =>
   status.steps.find((step) => step.name === name)?.state;
@@ -305,6 +313,64 @@ describe("applyUpdate", () => {
         ...ROLLBACK_STEP_NAMES,
       ]);
       expect(stateOf(status, "replace")).toBe("skipped");
+    });
+  });
+
+  describe("unexpected errors", () => {
+    it("rolls back when a forward step throws something other than a step failure", async () => {
+      const harness = createHarness({
+        failingMethods: new Map<FakeDockerMethod, Error>([
+          ["runInitJob", new TypeError("unexpected")],
+        ]),
+      });
+
+      const status = await applyUpdate(harness.dependencies, buildRequest());
+
+      expect(status.outcome).toBe("rolled_back");
+      expect(status.failedStep).toBe("migrate");
+      expect(status.writesAfterBackupLost).toBe(true);
+      expect(harness.calls.slice(-3)).toEqual([STOP_CALL, RESTORE_CALL, START_CALL]);
+    });
+
+    it("ends failed_needs_admin when a rollback step throws something other than a step failure", async () => {
+      const harness = createHarness({
+        failingMethods: new Map<FakeDockerMethod, Error>([
+          ["runInitJob", new Error("migrate failed")],
+          ["startContainers", new TypeError("unexpected")],
+        ]),
+      });
+
+      const status = await applyUpdate(harness.dependencies, buildRequest());
+
+      expect(status.outcome).toBe("failed_needs_admin");
+      expect(status.failedStep).toBe("rollback_start");
+      expect(status.writesAfterBackupLost).toBe(true);
+      expect(stateOf(status, "rollback_health")).toBe("skipped");
+    });
+
+    it("rolls back when the status write after a container change fails", async () => {
+      const harness = createHarness({
+        statusWriteFailure: (status) => stateOf(status, "migrate") === "succeeded",
+      });
+
+      const status = await applyUpdate(harness.dependencies, buildRequest());
+
+      expect(status.outcome).toBe("rolled_back");
+      expect(status.failedStep).toBe("migrate");
+      expect(harness.calls.slice(-3)).toEqual([STOP_CALL, RESTORE_CALL, START_CALL]);
+    });
+
+    it("keeps the original failure when writing the failed state also fails", async () => {
+      const harness = createHarness({
+        failingMethods: failing("replaceContainers"),
+        statusWriteFailure: (status) => stateOf(status, "replace") === "failed",
+      });
+
+      const status = await applyUpdate(harness.dependencies, buildRequest());
+
+      expect(status.outcome).toBe("rolled_back");
+      expect(status.failedStep).toBe("replace");
+      expect(harness.calls.slice(-3)).toEqual([STOP_CALL, RESTORE_CALL, START_CALL]);
     });
   });
 

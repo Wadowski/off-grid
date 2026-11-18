@@ -4,13 +4,7 @@
 import type { z } from "zod";
 import type { releaseManifestSchema } from "@offgrid/contracts";
 import type { updateStatusSchema } from "./apply/update-status-schema.js";
-import type {
-  FORWARD_STEP_NAMES,
-  ROLLBACK_STEP_NAMES,
-  UPDATE_OUTCOMES,
-  UPDATE_STEP_NAMES,
-  UPDATE_STEP_STATES,
-} from "./constants.js";
+import type { UPDATE_OUTCOMES, UPDATE_STEP_NAMES, UPDATE_STEP_STATES } from "./constants.js";
 
 export interface DatabaseTarget {
   readonly host: string;
@@ -83,10 +77,6 @@ export interface UpdaterConfig {
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
 
 export type UpdateStepName = (typeof UPDATE_STEP_NAMES)[number];
-
-export type ForwardStepName = (typeof FORWARD_STEP_NAMES)[number];
-
-export type RollbackStepName = (typeof ROLLBACK_STEP_NAMES)[number];
 
 export type UpdateStepState = (typeof UPDATE_STEP_STATES)[number];
 

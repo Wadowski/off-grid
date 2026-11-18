@@ -5,6 +5,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { StatusFileCorruptError } from "./errors/status-file-corrupt-error.js";
 import { readUpdateStatus } from "./read-update-status.js";
 
 let folder: string;
@@ -30,9 +31,9 @@ describe("readUpdateStatus", () => {
     await expect(readUpdateStatus(statusFile)).rejects.toThrow();
   });
 
-  it("fails when the file is not JSON", async () => {
+  it("fails with StatusFileCorruptError when the file is not JSON", async () => {
     await writeFile(statusFile, "not json");
 
-    await expect(readUpdateStatus(statusFile)).rejects.toThrow();
+    await expect(readUpdateStatus(statusFile)).rejects.toBeInstanceOf(StatusFileCorruptError);
   });
 });

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { mkdtemp, readdir, rm, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -68,6 +68,17 @@ describe("createFileStatusStore", () => {
     await createFileStatusStore(statusFile).write(buildStatus("in_progress"));
 
     expect(await readdir(join(folder, "data"))).toEqual(["status.json"]);
+  });
+
+  it("removes the temporary file when the final rename fails", async () => {
+    await mkdir(statusFile, { recursive: true });
+
+    await expect(
+      createFileStatusStore(statusFile).write(buildStatus("in_progress")),
+    ).rejects.toThrow();
+
+    expect(await readdir(join(folder, "data"))).toEqual(["status.json"]);
+    expect(await readdir(statusFile)).toEqual([]);
   });
 
   it("rejects a status that does not match the schema and writes nothing", async () => {

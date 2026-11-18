@@ -96,7 +96,7 @@ const buildDependencies = (
   backup: BackupService,
   newReleaseWrites: string,
 ): ApplyDependencies => ({
-  docker: createFakeDockerRunner(calls, new Set(), RUNNING_IMAGES),
+  docker: createFakeDockerRunner(calls, new Map(), RUNNING_IMAGES),
   backup,
   statusStore: createFileStatusStore(statusFile),
   health: {

@@ -8,16 +8,15 @@ import { recordRunStep } from "./record-run-step.js";
 export const runUpdateStep = async <Result>(
   run: UpdateRun,
   name: UpdateStepName,
-  action: () => Promise<Result>,
+  action: () => Result | Promise<Result>,
 ): Promise<Result> => {
-  await recordRunStep(run, name, "running");
-  let result: Result;
   try {
-    result = await action();
+    await recordRunStep(run, name, "running");
+    const result = await action();
+    await recordRunStep(run, name, "succeeded");
+    return result;
   } catch (cause) {
-    await recordRunStep(run, name, "failed");
+    await recordRunStep(run, name, "failed").catch(() => undefined);
     throw new UpdateStepFailedError(name, { cause });
   }
-  await recordRunStep(run, name, "succeeded");
-  return result;
 };

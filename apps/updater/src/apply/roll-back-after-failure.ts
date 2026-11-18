@@ -13,10 +13,8 @@ export const rollBackAfterFailure = async (
   try {
     await runRollback(run);
   } catch (error) {
-    if (error instanceof UpdateStepFailedError) {
-      return finishRun(run, "failed_needs_admin", error.step);
-    }
-    throw error;
+    const rollbackFailedStep = error instanceof UpdateStepFailedError ? error.step : null;
+    return finishRun(run, "failed_needs_admin", rollbackFailedStep);
   }
   return finishRun(run, "rolled_back", failedStep);
 };

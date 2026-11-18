@@ -9,11 +9,11 @@ const fetchStatus = (status: number): typeof fetch =>
 
 describe("probeHealthUrl", () => {
   it("reports healthy for a 2xx response", async () => {
-    expect(await probeHealthUrl(fetchStatus(200), "http://127.0.0.1:3000/health")).toBe(true);
+    expect(await probeHealthUrl(fetchStatus(200), "http://127.0.0.1:3000/api/health")).toBe(true);
   });
 
   it("reports unhealthy for a non-2xx response", async () => {
-    expect(await probeHealthUrl(fetchStatus(503), "http://127.0.0.1:3000/health")).toBe(false);
+    expect(await probeHealthUrl(fetchStatus(503), "http://127.0.0.1:3000/api/health")).toBe(false);
   });
 
   it("reports unhealthy when the server cannot be reached", async () => {
@@ -21,6 +21,6 @@ describe("probeHealthUrl", () => {
       throw new TypeError("fetch failed");
     }) as unknown as typeof fetch;
 
-    expect(await probeHealthUrl(unreachable, "http://127.0.0.1:3000/health")).toBe(false);
+    expect(await probeHealthUrl(unreachable, "http://127.0.0.1:3000/api/health")).toBe(false);
   });
 });

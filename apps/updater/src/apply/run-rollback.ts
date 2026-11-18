@@ -3,7 +3,6 @@
 
 import type { UpdateRun } from "../types.js";
 import { appendRollbackSteps } from "./append-rollback-steps.js";
-import { patchRunStatus } from "./patch-run-status.js";
 import { restoreRunBackup } from "./restore-run-backup.js";
 import { runUpdateStep } from "./run-update-step.js";
 import { startPreviousImages } from "./start-previous-images.js";
@@ -13,7 +12,8 @@ export const runRollback = async (run: UpdateRun): Promise<void> => {
   await appendRollbackSteps(run);
   await runUpdateStep(run, "rollback_stop", () => run.dependencies.docker.stopContainers());
   await runUpdateStep(run, "rollback_restore", () => restoreRunBackup(run));
-  await patchRunStatus(run, { writesAfterBackupLost: true });
   await runUpdateStep(run, "rollback_start", () => startPreviousImages(run));
-  await runUpdateStep(run, "rollback_health", () => waitForBothHealthy(run.dependencies));
+  await runUpdateStep(run, "rollback_health", () =>
+    waitForBothHealthy(run.dependencies, "rollback_health"),
+  );
 };

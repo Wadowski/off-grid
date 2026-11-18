@@ -15,5 +15,5 @@ export const runForwardSteps = async (run: UpdateRun): Promise<void> => {
   await runUpdateStep(run, "pull", () => pullUpdateImages(run));
   await runUpdateStep(run, "migrate", () => docker.runInitJob(newImages.server));
   await runUpdateStep(run, "replace", () => docker.replaceContainers(newImages));
-  await runUpdateStep(run, "health", () => waitForBothHealthy(run.dependencies));
+  await runUpdateStep(run, "health", () => waitForBothHealthy(run.dependencies, "health"));
 };
