@@ -40,7 +40,7 @@ describe("loadUpdaterConfig", () => {
       webHealthUrl: "http://127.0.0.1:8080/",
       healthTimeoutMilliseconds: 120000,
       statusFile: "data/updater/status.json",
-      httpHost: "0.0.0.0",
+      httpHost: "127.0.0.1",
       httpPort: 3100,
       apiToken: "m1gr4tor",
       releaseRepository: "owner/offgrid",
@@ -166,6 +166,7 @@ describe("loadUpdaterConfig", () => {
     ["OFFGRID_UPDATER_DATABASE_USER", "Migrator-Role"],
     ["OFFGRID_UPDATER_HTTP_PORT", "0"],
     ["OFFGRID_UPDATER_HTTP_PORT", "not-a-port"],
+    ["OFFGRID_UPDATER_RELEASE_REPOSITORY", ""],
     ["OFFGRID_UPDATER_RELEASE_REPOSITORY", "just-a-name"],
     ["OFFGRID_UPDATER_RELEASE_REPOSITORY", "owner/name/extra"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {

@@ -17,26 +17,26 @@ It has three parts. The backup and restore core dumps the `offgrid` database and
 
 ## Configuration
 
-| Variable                                 | Default                            | Notes                                |
-| ---------------------------------------- | ---------------------------------- | ------------------------------------ |
-| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                        |
-| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                      |
-| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                      |
-| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                      |
-| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password   |
-| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production         |
-| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production      |
-| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1      |
-| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only    |
-| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only       |
-| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                      |
-| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres |
-| `OFFGRID_UPDATER_TOKEN_FILE`             | required                           | File holding the API bearer token    |
-| `OFFGRID_UPDATER_HTTP_HOST`              | `0.0.0.0`                          | API listen address                   |
-| `OFFGRID_UPDATER_HTTP_PORT`              | `3100`                             | API port, never published            |
-| `OFFGRID_UPDATER_RELEASE_REPOSITORY`     | required                           | `owner/name` of the release repo     |
-| `OFFGRID_UPDATER_DOCKER_SOCKET`          | `/var/run/docker.sock`             | Docker Engine unix socket            |
-| `OFFGRID_UPDATER_COMPOSE_PROJECT`        | `offgrid`                          | Compose project of the containers    |
+| Variable                                 | Default                            | Notes                                      |
+| ---------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                              |
+| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                            |
+| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                            |
+| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                            |
+| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password         |
+| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production               |
+| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production            |
+| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1            |
+| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only          |
+| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only             |
+| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                            |
+| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres       |
+| `OFFGRID_UPDATER_TOKEN_FILE`             | required                           | File holding the API bearer token          |
+| `OFFGRID_UPDATER_HTTP_HOST`              | `127.0.0.1`                        | API listen address, Compose sets `0.0.0.0` |
+| `OFFGRID_UPDATER_HTTP_PORT`              | `3100`                             | API port, never published                  |
+| `OFFGRID_UPDATER_RELEASE_REPOSITORY`     | required                           | `owner/name` of the release repo           |
+| `OFFGRID_UPDATER_DOCKER_SOCKET`          | `/var/run/docker.sock`             | Docker Engine unix socket                  |
+| `OFFGRID_UPDATER_COMPOSE_PROJECT`        | `offgrid`                          | Compose project of the containers          |
 
 A missing, unreadable or empty token file, or a missing release repository, stops the process at start with a `ConfigError` that names the variable. The token and the file content never appear in an error message or a log line.
 
@@ -65,7 +65,9 @@ The current version comes from the `org.opencontainers.image.version` label of t
 
 The Compose environment is copied; variables that came from the old image are not, so the new image sets its own.
 
-> **Socket warning.** Access to the Docker socket is root on the host. Only this container mounts it. It has no published port, and it requires the bearer token. The container runs as the non-root `node` user and reaches the socket through `group_add` (`OFFGRID_DOCKER_GID`). Do not mount the socket into any other service.
+> **Socket warning.** Access to the Docker socket is root on the host. The updater is therefore a privileged component: anyone who can drive its API can run containers as root on the host. Only this container mounts the socket. It has no published port, and it requires the bearer token. The container runs as the non-root `node` user and reaches the socket through `group_add` (`OFFGRID_DOCKER_GID`). Do not mount the socket into any other service.
+>
+> The API listens on the internal Compose network without TLS. The bearer token is the only barrier between any container on that network and this privilege.
 
 ## Release source
 

@@ -53,7 +53,7 @@ const composeConfigOf = (files) =>
     ),
   );
 
-export const main = () => {
+const main = () => {
   const failures = CONFIGURATIONS.flatMap((files) =>
     findViolations(composeConfigOf(files)).map((violation) => `${files.join(" + ")}: ${violation}`),
   );

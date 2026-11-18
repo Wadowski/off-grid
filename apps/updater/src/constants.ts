@@ -19,7 +19,7 @@ export const DEFAULT_WEB_HEALTH_URL = "http://127.0.0.1:8080/";
 
 export const DEFAULT_STATUS_FILE = "data/updater/status.json";
 
-export const DEFAULT_HTTP_HOST = "0.0.0.0";
+export const DEFAULT_HTTP_HOST = "127.0.0.1";
 
 export const DEFAULT_HTTP_PORT = 3100;
 
