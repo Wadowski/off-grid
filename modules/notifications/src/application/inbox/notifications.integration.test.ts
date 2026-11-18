@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import type { NotificationCategory } from "@offgrid/contracts";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startNotificationsTestDatabase } from "../../../test/start-notifications-test-database.js";
 import type { NotificationsTestDatabase } from "../../../test/types.js";
@@ -84,20 +85,145 @@ describe("inbox", { timeout: 60_000 }, () => {
     expect(list.unreadCount).toBe(0);
   });
 
-  describe("paging", () => {
-    const walkPages = async (userId: string, limit: number) => {
-      const ids: string[] = [];
-      let cursor: string | undefined;
-      for (;;) {
-        const page = await listOwnNotifications(db.db, userId, { limit, cursor });
-        ids.push(...page.notifications.map((item) => item.id));
-        if (page.nextCursor === null) {
-          return { ids, lastPage: page };
-        }
-        cursor = page.nextCursor;
+  const walkPages = async (
+    userId: string,
+    limit: number,
+    filter: { category?: NotificationCategory; unread?: "true" } = {},
+  ) => {
+    const ids: string[] = [];
+    let cursor: string | undefined;
+    for (;;) {
+      const page = await listOwnNotifications(db.db, userId, { limit, cursor, ...filter });
+      ids.push(...page.notifications.map((item) => item.id));
+      if (page.nextCursor === null) {
+        return { ids, lastPage: page };
       }
+      cursor = page.nextCursor;
+    }
+  };
+
+  describe("filters", () => {
+    const seedOneOfEachType = async (userId: string) => {
+      const passwordChanged = notice(userId, "password-changed");
+      const recovery = notice(userId, "recovery-code-regenerated");
+      const invited = notice(userId, "event-invited");
+      const reminder = notice(userId, "event-reminder");
+      await writeInboxNotification(db.db, passwordChanged, new Date("2026-11-01T10:00:00Z"));
+      await writeInboxNotification(db.db, recovery, new Date("2026-11-02T10:00:00Z"));
+      await writeInboxNotification(db.db, invited, new Date("2026-11-03T10:00:00Z"));
+      await writeInboxNotification(db.db, reminder, new Date("2026-11-04T10:00:00Z"));
+      await markOwnNotificationRead(db.db, userId, passwordChanged.notificationId);
+      await markOwnNotificationRead(db.db, userId, invited.notificationId);
+      return { passwordChanged, recovery, invited, reminder };
     };
 
+    it("gives each notice the category of its type", async () => {
+      const anna = randomUUID();
+      const { passwordChanged, recovery, invited, reminder } = await seedOneOfEachType(anna);
+
+      const list = await listOwnNotifications(db.db, anna, { limit: 20 });
+
+      expect(
+        Object.fromEntries(list.notifications.map((item) => [item.id, item.category])),
+      ).toEqual({
+        [passwordChanged.notificationId]: "account-security",
+        [recovery.notificationId]: "account-security",
+        [invited.notificationId]: "calendar",
+        [reminder.notificationId]: "calendar",
+      });
+    });
+
+    it.each([
+      {
+        name: "the calendar category",
+        request: { category: "calendar" as const },
+        expected: ["reminder", "invited"],
+      },
+      {
+        name: "the account-security category",
+        request: { category: "account-security" as const },
+        expected: ["recovery", "passwordChanged"],
+      },
+      {
+        name: "unread notices only",
+        request: { unread: "true" as const },
+        expected: ["reminder", "recovery"],
+      },
+      {
+        name: "the calendar category and unread notices only",
+        request: { category: "calendar" as const, unread: "true" as const },
+        expected: ["reminder"],
+      },
+      {
+        name: "the account-security category and unread notices only",
+        request: { category: "account-security" as const, unread: "true" as const },
+        expected: ["recovery"],
+      },
+    ])("lists $name", async ({ request, expected }) => {
+      const anna = randomUUID();
+      const notices = await seedOneOfEachType(anna);
+      const idsByName = {
+        passwordChanged: notices.passwordChanged.notificationId,
+        recovery: notices.recovery.notificationId,
+        invited: notices.invited.notificationId,
+        reminder: notices.reminder.notificationId,
+      };
+
+      const list = await listOwnNotifications(db.db, anna, { limit: 20, ...request });
+
+      expect(list.notifications.map((item) => item.id)).toEqual(
+        expected.map((name) => idsByName[name as keyof typeof idsByName]),
+      );
+      expect(list.total).toBe(expected.length);
+    });
+
+    it("keeps unreadCount as the whole inbox's unread count under a filter", async () => {
+      const anna = randomUUID();
+      await seedOneOfEachType(anna);
+
+      const list = await listOwnNotifications(db.db, anna, {
+        limit: 20,
+        category: "calendar",
+      });
+
+      expect(list.notifications).toHaveLength(2);
+      expect(list.total).toBe(2);
+      expect(list.unreadCount).toBe(2);
+    });
+
+    it("counts and pages only the rows that match the category", async () => {
+      const anna = randomUUID();
+      const tom = randomUUID();
+      const written: string[] = [];
+      for (let day = 1; day <= 5; day += 1) {
+        const item = notice(anna, day % 2 === 0 ? "event-invited" : "password-changed");
+        if (day % 2 === 1) {
+          written.push(item.notificationId);
+        }
+        await writeInboxNotification(db.db, item, new Date(`2026-11-0${day}T10:00:00Z`));
+      }
+      await writeInboxNotification(db.db, notice(tom, "password-changed"), new Date());
+
+      const { ids, lastPage } = await walkPages(anna, 2, { category: "account-security" });
+
+      expect(ids).toEqual([...written].reverse());
+      expect(lastPage.total).toBe(3);
+      expect(lastPage.nextCursor).toBeNull();
+    });
+
+    it("never returns another person's rows under a filter", async () => {
+      const anna = randomUUID();
+      const tom = randomUUID();
+      await writeInboxNotification(db.db, notice(tom, "event-invited"), new Date());
+
+      const list = await listOwnNotifications(db.db, anna, { limit: 20, category: "calendar" });
+
+      expect(list.notifications).toEqual([]);
+      expect(list.total).toBe(0);
+    });
+  });
+
+  describe("paging", () => {
     it("returns the page size, a next cursor, and the total and unread counts for the whole inbox", async () => {
       const anna = randomUUID();
       for (let day = 1; day <= 5; day += 1) {
