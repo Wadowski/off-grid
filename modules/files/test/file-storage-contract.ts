@@ -9,7 +9,7 @@ import { StorageObjectNotFoundError } from "../src/application/errors/storage-ob
 import { StorageRangeNotSatisfiableError } from "../src/application/errors/storage-range-not-satisfiable-error.js";
 import { generateStorageKey } from "../src/application/storage/generate-storage-key.js";
 import { collectEntries } from "./collect-entries.js";
-import { readAll } from "./read-all.js";
+import { collectBytes } from "../src/infrastructure/storage/in-memory/collect-bytes.js";
 import type { StorageFixture, StorageFixtureFactory } from "./types.js";
 
 const PAYLOAD = Buffer.from("0123456789abcdefghijklmnopqrstuvwxyz", "utf8");
@@ -78,13 +78,13 @@ export const describeFileStorageContract = (
     it("get returns exactly the stored bytes", async () => {
       const key = await storedKeyOf(current(), PAYLOAD);
 
-      expect(await readAll(await current().storage.get(key))).toEqual(PAYLOAD);
+      expect(await collectBytes(await current().storage.get(key), undefined)).toEqual(PAYLOAD);
     });
 
     it("get returns the first byte, a middle range, the last byte and an open-ended tail", async () => {
       const key = await storedKeyOf(current(), PAYLOAD);
       const read = async (range: { start: number; end?: number }) =>
-        (await readAll(await current().storage.get(key, range))).toString("utf8");
+        (await collectBytes(await current().storage.get(key, range), undefined)).toString("utf8");
 
       expect(await read({ start: 0, end: 0 })).toBe("0");
       expect(await read({ start: 10, end: 15 })).toBe("abcdef");
@@ -113,7 +113,9 @@ export const describeFileStorageContract = (
       const stored = await current().storage.put(sourceOf(Buffer.alloc(0)));
 
       expect(stored.sizeBytes).toBe(0);
-      expect(await readAll(await current().storage.get(stored.key))).toEqual(Buffer.alloc(0));
+      expect(await collectBytes(await current().storage.get(stored.key), undefined)).toEqual(
+        Buffer.alloc(0),
+      );
     });
 
     it("exists reports whether bytes are present", async () => {
