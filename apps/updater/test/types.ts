@@ -63,3 +63,27 @@ export interface FakeEngine {
   ) => { image: string; env: string[]; running: boolean } | undefined;
   readonly close: () => Promise<void>;
 }
+
+export interface FakeEngineContainerRecord {
+  readonly id: string;
+  name: string;
+  image: string;
+  config: Record<string, unknown>;
+  env: string[];
+  labels: Record<string, string>;
+  running: boolean;
+  exitCode: number;
+}
+
+export interface FakeEngineImageRecord {
+  readonly id: string;
+  readonly reference: string;
+  readonly repoDigests: string[];
+  readonly env: string[];
+}
+
+export interface FakeEngineReply {
+  readonly status: number;
+  readonly json?: unknown;
+  readonly text?: string;
+}

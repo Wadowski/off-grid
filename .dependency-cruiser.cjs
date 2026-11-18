@@ -1,16 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-// Module boundary rules for the modular monolith. `pnpm check:boundaries` runs
-// this config over apps/, modules/ and packages/. The rules are listed in
-// docs/architecture/boundaries.md and decided in docs/adr/0006-modular-monolith.md.
-//
-// Paths match `(^|/)` rather than a leading `^` so that the fixtures under
-// tools/boundary-fixtures/ can mirror the real tree under their own prefix.
-
 const ADR = "See docs/adr/0006-modular-monolith.md and docs/architecture/boundaries.md.";
 
-// Node built-ins and npm packages that domain code must not touch.
 const IO_CORE =
   "^(node:)?(fs|fs/promises|net|tls|http|https|http2|dns|dgram|child_process|worker_threads|cluster)$";
 const IO_NPM =
@@ -88,9 +80,7 @@ module.exports = {
   options: {
     doNotFollow: { path: "node_modules" },
     exclude: { path: "(^|/)(node_modules|dist|coverage|\\.turbo)/" },
-    // Type-only imports count too: a domain type imported from Prisma is still a violation.
     tsPreCompilationDeps: true,
-    // Resolve with the NodeNext rules, so `./x.js` in source finds `./x.ts`.
     tsConfig: { fileName: "tsconfig.base.json" },
   },
 };

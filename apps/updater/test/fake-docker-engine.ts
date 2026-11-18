@@ -5,31 +5,14 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { FakeEngine, FakeEngineOptions, FakeEngineRequest } from "./types.js";
-
-interface Container {
-  readonly id: string;
-  name: string;
-  image: string;
-  config: Record<string, unknown>;
-  env: string[];
-  labels: Record<string, string>;
-  running: boolean;
-  exitCode: number;
-}
-
-interface Image {
-  readonly id: string;
-  readonly reference: string;
-  readonly repoDigests: string[];
-  readonly env: string[];
-}
-
-interface Reply {
-  readonly status: number;
-  readonly json?: unknown;
-  readonly text?: string;
-}
+import type {
+  FakeEngine,
+  FakeEngineContainerRecord,
+  FakeEngineImageRecord,
+  FakeEngineOptions,
+  FakeEngineRequest,
+  FakeEngineReply,
+} from "./types.js";
 
 const readBody = (request: IncomingMessage): Promise<string> =>
   new Promise((resolve) => {
@@ -38,27 +21,34 @@ const readBody = (request: IncomingMessage): Promise<string> =>
     request.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
   });
 
-const notFound = (): Reply => ({ status: 404, json: { message: "no such object" } });
+const notFound = (): FakeEngineReply => ({ status: 404, json: { message: "no such object" } });
 
-const summaryOf = (container: Container) => ({
+const summaryOf = (container: FakeEngineContainerRecord) => ({
   Id: container.id,
   Names: [`/${container.name}`],
   Image: container.image,
 });
 
-const labelsMatch = (container: Container, filters: { label?: string[] }): boolean =>
+const labelsMatch = (
+  container: FakeEngineContainerRecord,
+  filters: { label?: string[] },
+): boolean =>
   (filters.label ?? []).every((entry) => {
     const [key, value] = entry.split("=");
     return container.labels[key ?? ""] === value;
   });
 
-const findContainer = (containers: Container[], reference: string): Container | undefined =>
+const findContainer = (
+  containers: FakeEngineContainerRecord[],
+  reference: string,
+): FakeEngineContainerRecord | undefined =>
   containers.find((container) => container.id === reference || container.name === reference);
 
-const inspectOf = (container: Container, images: Image[]) => ({
+const inspectOf = (container: FakeEngineContainerRecord, images: FakeEngineImageRecord[]) => ({
   Id: container.id,
   Name: `/${container.name}`,
-  Image: images.find((image) => image.reference === container.config.Image)?.id ?? "",
+  Image:
+    images.find((image) => image.reference === container.config.FakeEngineImageRecord)?.id ?? "",
   Config: { ...container.config, Env: container.env, Labels: container.labels },
   HostConfig: { PortBindings: {} },
   NetworkSettings: { Networks: { offgrid_default: {} } },
@@ -68,13 +58,13 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
   const directory = mkdtempSync(join(tmpdir(), "offgrid-engine-"));
   const socketPath = join(directory, "engine.sock");
   const requests: FakeEngineRequest[] = [];
-  const images: Image[] = options.images.map((image) => ({
+  const images: FakeEngineImageRecord[] = options.images.map((image) => ({
     id: image.id,
     reference: image.reference,
     repoDigests: [...image.repoDigests],
     env: [...image.env],
   }));
-  const containers: Container[] = options.containers.map((container) => ({
+  const containers: FakeEngineContainerRecord[] = options.containers.map((container) => ({
     id: `id-${container.name}`,
     name: container.name,
     image: images.find((image) => image.reference === container.image)?.id ?? "",
@@ -88,7 +78,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
     exitCode: container.exitCode,
   }));
 
-  const handle = (method: string, url: URL, body: string): Reply => {
+  const handle = (method: string, url: URL, body: string): FakeEngineReply => {
     const path = url.pathname;
     if (method === "GET" && path === "/containers/json") {
       const filters = JSON.parse(url.searchParams.get("filters") ?? "{}") as { label?: string[] };
@@ -133,7 +123,9 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
       if (containers.some((container) => container.name === name)) {
         return { status: 409, json: { message: "name in use" } };
       }
-      const image = images.find((candidate) => candidate.reference === config.Image);
+      const image = images.find(
+        (candidate) => candidate.reference === config.FakeEngineImageRecord,
+      );
       if (image === undefined) {
         return notFound();
       }
@@ -180,11 +172,11 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
   };
 
   const handleAction = (
-    container: Container,
+    container: FakeEngineContainerRecord,
     action: string,
     url: URL,
-    all: Container[],
-  ): Reply => {
+    all: FakeEngineContainerRecord[],
+  ): FakeEngineReply => {
     if (action === "start" || action === "stop") {
       const running = action === "start";
       if (container.running === running) {
@@ -227,7 +219,11 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
       const container = containers.find((candidate) => candidate.name === name);
       return container === undefined
         ? undefined
-        : { image: String(container.config.Image), env: container.env, running: container.running };
+        : {
+            image: String(container.config.FakeEngineImageRecord),
+            env: container.env,
+            running: container.running,
+          };
     },
     close: async () => {
       await new Promise<void>((resolve) => server.close(() => resolve()));

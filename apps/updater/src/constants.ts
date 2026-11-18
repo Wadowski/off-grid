@@ -95,7 +95,7 @@ export const BEARER_TOKEN_PATTERN = /^Bearer (.+)$/;
 
 export const GITHUB_API_HOST = "api.github.com";
 
-export const RELEASE_ASSET_DOWNLOAD_HOST = "release-assets.githubusercontent.com";
+const RELEASE_ASSET_DOWNLOAD_HOST = "release-assets.githubusercontent.com";
 
 export const RELEASE_MANIFEST_ASSET_NAME = "release-manifest.json";
 
