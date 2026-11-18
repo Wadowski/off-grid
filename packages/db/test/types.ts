@@ -18,3 +18,14 @@ export interface TestDatabase {
   connectPool(): Pool;
   stop(): Promise<void>;
 }
+
+export interface FileInput {
+  driveId: string;
+  owner: Context;
+  name: string;
+  parentId?: string | null;
+  isFolder?: boolean;
+  mimeType?: string | null;
+  sizeBytes?: number | null;
+  currentVersionId?: string | null;
+}
