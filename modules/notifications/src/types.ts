@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { NotificationCategory, NotificationType } from "@offgrid/contracts";
 import type { CurrentUserId } from "@offgrid/http";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
@@ -36,7 +37,7 @@ export interface NotificationsModuleOptions {
 
 export interface NotificationRecord {
   readonly notificationId: string;
-  readonly type: string;
+  readonly type: NotificationType;
   readonly data: Record<string, string>;
   readonly createdAt: Date;
   readonly readAt: Date | null;
@@ -44,7 +45,8 @@ export interface NotificationRecord {
 
 export interface ListedNotification {
   readonly id: string;
-  readonly type: string;
+  readonly type: NotificationType;
+  readonly category: NotificationCategory;
   readonly data: Record<string, string>;
   readonly createdAt: string;
   readonly readAt: string | null;
@@ -65,4 +67,11 @@ export interface NotificationCursor {
 export interface NotificationPageRequest {
   readonly limit: number;
   readonly cursor?: string;
+  readonly category?: NotificationCategory;
+  readonly unread?: "true";
+}
+
+export interface NotificationFilter {
+  readonly types?: readonly NotificationType[];
+  readonly unreadOnly: boolean;
 }
