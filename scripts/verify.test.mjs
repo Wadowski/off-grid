@@ -11,6 +11,8 @@ test("planChecks adds checks by what changed", () => {
   assert.ok(!names(planChecks(["docs/a.md"])).includes("build"));
   assert.ok(names(planChecks(["apps/main-web/src/a.ts"])).includes("build"));
   assert.ok(names(planChecks(["e2e/features/x/y.feature"])).includes("features"));
+  assert.ok(names(planChecks(["infra/compose/docker-compose.yml"])).includes("compose"));
+  assert.ok(!names(planChecks(["docs/a.md"])).includes("compose"));
   assert.ok(names(planChecks(["packages/contracts/src/a.ts"])).includes("contracts"));
 });
 

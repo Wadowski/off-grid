@@ -110,6 +110,42 @@ services:
       init:
         condition: service_completed_successfully
 
+  updater:
+    image: offgrid-updater:${OFFGRID_VERSION:-local}
+    build:
+      context: ../..
+      dockerfile: apps/updater/Dockerfile
+      target: runtime
+      args:
+        OFFGRID_VERSION: ${OFFGRID_VERSION:-dev}
+    restart: unless-stopped
+    group_add:
+      - "${OFFGRID_DOCKER_GID:-0}"
+    environment:
+      OFFGRID_UPDATER_DATABASE_HOST: db
+      OFFGRID_UPDATER_DATABASE_NAME: offgrid
+      OFFGRID_UPDATER_DATABASE_USER: offgrid_migrator
+      OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE: /run/secrets/migrator-password
+      OFFGRID_UPDATER_SECRETS_DIRECTORY: /run/secrets
+      OFFGRID_UPDATER_TOKEN_FILE: /run/secrets/updater-token
+      OFFGRID_UPDATER_BACKUP_ROOT: /backups
+      OFFGRID_UPDATER_STATUS_FILE: /var/lib/offgrid-updater/status.json
+      OFFGRID_UPDATER_HEALTH_URL: http://server:3000/api/health
+      OFFGRID_UPDATER_WEB_HEALTH_URL: http://web:8080/
+      OFFGRID_UPDATER_RELEASE_REPOSITORY: ${OFFGRID_RELEASE_REPOSITORY:-}
+      OFFGRID_UPDATER_HTTP_HOST: 0.0.0.0
+      OFFGRID_UPDATER_DOCKER_SOCKET: /var/run/docker.sock
+      OFFGRID_UPDATER_COMPOSE_PROJECT: offgrid
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ../../data/secrets:/run/secrets:ro
+      - ../../data/backups:/backups
+      - offgrid-updater:/var/lib/offgrid-updater
+      - ${OFFGRID_DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+
   web:
     image: offgrid-main-web:${OFFGRID_VERSION:-local}
     build:
@@ -124,3 +160,4 @@ services:
 
 volumes:
   offgrid-db:
+  offgrid-updater:

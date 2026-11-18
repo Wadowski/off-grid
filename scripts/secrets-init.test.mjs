@@ -16,6 +16,7 @@ const SECRET_FILES = [
   "mail-encryption-key",
   "migrator-password",
   "postgres-password",
+  "updater-token",
 ];
 
 function runSecretsInit(secretsDir) {

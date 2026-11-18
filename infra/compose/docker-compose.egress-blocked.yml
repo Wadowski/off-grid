@@ -27,3 +27,6 @@ services:
   web:
     networks: [internal]
     ports: !reset []
+
+  updater:
+    networks: [internal]

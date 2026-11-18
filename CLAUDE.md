@@ -4,6 +4,7 @@
 
 - `apps/main-server/`: the server process that wires modules together
 - `apps/main-web/`: the React + Vite web app
+- `apps/updater/`: the updater container (internal API, Docker socket, backups, release check and apply)
 - `modules/<name>/`: one folder per feature module (access, calendar, export, family, files, food, identity, lists, notes, notifications, relations, system); see `modules/README.md`
 - `packages/contracts/`: shared schemas, event types and OpenAPI
 - `packages/api-client/`: typed client for the server API

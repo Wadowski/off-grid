@@ -2,8 +2,14 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { z } from "zod";
+import type { Logger } from "@offgrid/observability";
 import type { releaseManifestSchema } from "@offgrid/contracts";
 import type { updateStatusSchema } from "./apply/update-status-schema.js";
+import type {
+  containerInspectSchema,
+  containerSummarySchema,
+  imageInspectSchema,
+} from "./docker/engine-schemas.js";
 import type { UPDATE_OUTCOMES, UPDATE_STEP_NAMES, UPDATE_STEP_STATES } from "./constants.js";
 
 export interface DatabaseTarget {
@@ -72,6 +78,12 @@ export interface UpdaterConfig {
   readonly webHealthUrl: string;
   readonly healthTimeoutMilliseconds: number;
   readonly statusFile: string;
+  readonly httpHost: string;
+  readonly httpPort: number;
+  readonly apiToken: string;
+  readonly releaseRepository: string;
+  readonly dockerSocket: string;
+  readonly composeProject: string;
 }
 
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
@@ -137,4 +149,64 @@ export interface UpdateRun {
   readonly dependencies: ApplyDependencies;
   readonly manifest: ReleaseManifest;
   status: UpdateStatus;
+}
+
+export type ReleaseRun = () => void;
+
+export interface RunLock {
+  readonly tryAcquire: () => ReleaseRun | null;
+}
+
+export type HttpFetch = (url: string, init: RequestInit) => Promise<Response>;
+
+export interface UpdateCheck {
+  readonly currentVersion: string;
+  readonly latestVersion: string;
+  readonly updateAvailable: boolean;
+  readonly updateAllowed: boolean;
+}
+
+export interface DockerContext {
+  readonly socketPath: string;
+  readonly project: string;
+}
+
+export interface EngineResponse {
+  readonly status: number;
+  readonly text: string;
+}
+
+export interface EngineRequestOptions {
+  readonly operation: string;
+  readonly body?: unknown;
+  readonly acceptedStatuses?: readonly number[];
+}
+
+export type ContainerSummary = z.infer<typeof containerSummarySchema>;
+
+export type ContainerInspect = z.infer<typeof containerInspectSchema>;
+
+export type ImageInspect = z.infer<typeof imageInspectSchema>;
+
+export interface UpdaterServices {
+  readonly apiToken: string;
+  readonly statusFile: string;
+  readonly releaseRepository: string;
+  readonly runLock: RunLock;
+  readonly httpFetch: HttpFetch;
+  readonly logger: Logger;
+  readonly currentVersion: () => Promise<string>;
+  readonly runApply: (request: ApplyRequest) => Promise<UpdateStatus>;
+}
+
+export interface ReleaseContext {
+  readonly ok: true;
+  readonly currentVersion: string;
+  readonly manifest: ReleaseManifest;
+}
+
+export interface ReleaseContextFailure {
+  readonly ok: false;
+  readonly statusCode: 502 | 503;
+  readonly error: "current_version_unknown" | "release_source_unreachable";
 }

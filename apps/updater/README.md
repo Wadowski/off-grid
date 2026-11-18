@@ -1,31 +1,82 @@
 # Updater
 
-The updater is an app, not a module. It holds the only Docker socket in the stack (from OG-167 on) and has no module schema.
+The updater is an app, not a module. It holds the only Docker socket in the stack and has no module schema. It runs as a process (`src/main.ts`) and as the `updater` container built from `Dockerfile`.
 
-This package is the backup and restore core used before an update: it dumps the `offgrid` database and copies the secrets directory into a backup folder, verifies the dump, and restores a dump on demand.
+It has three parts. The backup and restore core dumps the `offgrid` database and copies the secrets directory before an update. The apply state machine runs one update at a time through the Docker Engine API. A small HTTP API on port 3100 lets the server check for a release, start an update and read its status.
 
 ## Layout
 
 - `src/config/`: environment and secret file loading, validated with zod.
 - `src/backup/`: naming, retention, dump, verification, secrets copy, restore and health wait.
+- `src/apply/`: the update state machine and the status file.
+- `src/docker/`: the Docker runner over the Engine API on the unix socket (`node:http`, no docker CLI in the image).
+- `src/release/`: the release manifest from GitHub Releases, checked with `releaseManifestSchema`.
+- `src/run/`: the single-run lock and the background run.
+- `src/http/`: the Fastify API, the bearer token check and the fixed error bodies.
 - `src/types.ts` and `src/constants.ts`: shared types and constants.
 
 ## Configuration
 
-| Variable                                 | Default                            | Notes                                |
-| ---------------------------------------- | ---------------------------------- | ------------------------------------ |
-| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                        |
-| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                      |
-| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                      |
-| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                      |
-| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password   |
-| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production         |
-| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production      |
-| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1      |
-| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only    |
-| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only       |
-| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                      |
-| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres |
+| Variable                                 | Default                            | Notes                                      |
+| ---------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                              |
+| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                            |
+| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                            |
+| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                            |
+| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password         |
+| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production               |
+| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production            |
+| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1            |
+| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only          |
+| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only             |
+| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                            |
+| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres       |
+| `OFFGRID_UPDATER_TOKEN_FILE`             | required                           | File holding the API bearer token          |
+| `OFFGRID_UPDATER_HTTP_HOST`              | `127.0.0.1`                        | API listen address, Compose sets `0.0.0.0` |
+| `OFFGRID_UPDATER_HTTP_PORT`              | `3100`                             | API port, never published                  |
+| `OFFGRID_UPDATER_RELEASE_REPOSITORY`     | required                           | `owner/name` of the release repo           |
+| `OFFGRID_UPDATER_DOCKER_SOCKET`          | `/var/run/docker.sock`             | Docker Engine unix socket                  |
+| `OFFGRID_UPDATER_COMPOSE_PROJECT`        | `offgrid`                          | Compose project of the containers          |
+
+A missing, unreadable or empty token file, or a missing release repository, stops the process at start with a `ConfigError` that names the variable. The token and the file content never appear in an error message or a log line.
+
+## HTTP API
+
+The API listens on `OFFGRID_UPDATER_HTTP_PORT`. Every route needs `Authorization: Bearer <token>`. A missing, malformed or wrong token gets `401` with the body `{ "error": "unauthorized" }` and `www-authenticate: Bearer`. The token is compared in constant time on SHA-256 digests. Any other route gets `404 { "error": "not_found" }`, also with a token.
+
+| Method and path | Success                                                                                  | Errors                                                            |
+| --------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `GET /status`   | `200 { "update": UpdateStatus \| null }`, read from the status file                      | `500 status_unreadable` when the file does not match the schema   |
+| `POST /check`   | `200 { currentVersion, latestVersion, updateAvailable, updateAllowed }`, changes nothing | `502 release_source_unreachable`, `503 current_version_unknown`   |
+| `POST /apply`   | `202 { started: true, targetVersion }`, body `{ "version": "X.Y.Z" }` only               | `400 invalid_request`, `409 update_already_running`, `502`, `503` |
+
+`POST /apply` takes the lock, reads the running version and the release manifest for the requested version, then returns `202` and runs `applyUpdate` in the background. The lock is released when the run ends in any outcome, including a thrown error. A release lookup that fails before the run starts gives `502` and leaves no status. `POST /check` works while a run is active. Error bodies are fixed and carry no error text.
+
+The current version comes from the `org.opencontainers.image.version` label of the running server image. A local build without a release version label cannot be updated.
+
+## Docker
+
+`createDockerRunner` implements the `DockerRunner` contract over the Engine API on the unix socket. Containers are found by the Compose labels `com.docker.compose.project` and `com.docker.compose.service` of `OFFGRID_UPDATER_COMPOSE_PROJECT`. The running images must have a registry digest (`ghcr.io/...@sha256:...`), or the update is refused.
+
+- `pullImage` pulls the digest reference.
+- `runInitJob` clones the `init` container with the new server image, runs it, removes it, and fails on a non-zero exit.
+- `replaceContainers` stops each container, renames it to `<name>-replaced`, and creates and starts a new one from its config with the new image.
+- `startContainers` restores the `-replaced` containers for a rollback.
+
+The Compose environment is copied; variables that came from the old image are not, so the new image sets its own.
+
+> **Socket warning.** Access to the Docker socket is root on the host. The updater is therefore a privileged component: anyone who can drive its API can run containers as root on the host. Only this container mounts the socket. It has no published port, and it requires the bearer token. The container runs as the non-root `node` user and reaches the socket through `group_add` (`OFFGRID_DOCKER_GID`). Do not mount the socket into any other service.
+>
+> The API listens on the internal Compose network without TLS. The bearer token is the only barrier between any container on that network and this privilege.
+
+## Release source
+
+The manifest is `release-manifest.json` on the GitHub release (ADR 0032). The updater calls `api.github.com` for the release, downloads the asset through the API, and follows one redirect to `release-assets.githubusercontent.com`. Any other host is refused. The manifest is validated with `releaseManifestSchema`, and its version must match the requested version. The manifest is not signed; digest pinning is the trust mechanism (ADR 0032).
+
+## Run
+
+- Process: `OFFGRID_UPDATER_TOKEN_FILE=... OFFGRID_UPDATER_RELEASE_REPOSITORY=owner/name node --import tsx src/main.ts`.
+- Container: `docker build -f apps/updater/Dockerfile --target runtime -t offgrid-updater .` The image carries `pg_dump` and `pg_restore` 17.
 
 ## Backups
 
@@ -36,7 +87,7 @@ This package is the backup and restore core used before an update: it dumps the 
 
 Folders are created with mode `0700`. A failed backup removes its partial folder and prunes nothing. After a successful backup only the newest `OFFGRID_UPDATER_BACKUP_RETENTION` backups are kept, ordered by the timestamp in the name.
 
-The updater needs `pg_dump` and `pg_restore` version 17 on its PATH. The password is passed to the tools through `PGPASSWORD`, never on the command line. The tools get no other environment variable than `PATH` and `PGPASSWORD`.
+The updater needs `pg_dump` and `pg_restore` version 17 on its PATH (the container image installs them). The password is passed to the tools through `PGPASSWORD`, never on the command line. The tools get no other environment variable than `PATH` and `PGPASSWORD`.
 
 The backup folder holds the secrets in plaintext, including `mail-encryption-key`. Copying the folder copies that key with the data, so keep backups on the host or handle them as secrets. The migrator password must never reach `main-server` or any other runtime container.
 
@@ -60,7 +111,7 @@ Manual secrets recovery: secrets are never restored automatically, because a res
 
 ## Apply an update
 
-`applyUpdate(dependencies, request)` runs one update. The caller passes the running version and the parsed release manifest as `unknown`; the updater validates both with zod. The Docker runner, the backup service, the status store and the health probes are injected, so the state machine itself does not touch the Docker socket or the network. The real Docker runner belongs to the update API issue, which must implement the contract in `src/types.ts`.
+`applyUpdate(dependencies, request)` runs one update. The caller passes the running version and the parsed release manifest as `unknown`; the updater validates both with zod. The Docker runner, the backup service, the status store and the health probes are injected, so the state machine itself does not touch the Docker socket or the network. `src/create-updater-services.ts` wires the real dependencies.
 
 The steps run in this order:
 
@@ -92,5 +143,6 @@ The file holds only run identifiers, versions, image references, the backup fold
 
 ### Limits
 
-- If the updater process dies during an update, the status stays `in_progress`. Locking against concurrent runs and recovery of a stale run belong to the update API issue.
+- If the updater process dies during an update, the status stays `in_progress`. The lock is in memory, so a restarted updater accepts a new run while the status still reads `in_progress`. Recovery of a stale run is not implemented yet and is owned by the server integration (OG-170).
+- A rolled-back or replaced container stays as `<name>-replaced`, stopped, until the next update replaces it. Compose may report it as an extra container of the service.
 - `failed_needs_admin` means the database and the containers may not match the previous version. Restore by hand: stop the containers, restore the database as described in the Restore section, then start the previous images from the status file.

@@ -19,6 +19,14 @@ export const DEFAULT_WEB_HEALTH_URL = "http://127.0.0.1:8080/";
 
 export const DEFAULT_STATUS_FILE = "data/updater/status.json";
 
+export const DEFAULT_HTTP_HOST = "127.0.0.1";
+
+export const DEFAULT_HTTP_PORT = 3100;
+
+export const DEFAULT_DOCKER_SOCKET = "/var/run/docker.sock";
+
+export const DEFAULT_COMPOSE_PROJECT = "offgrid";
+
 export const DEFAULT_HEALTH_TIMEOUT_SECONDS = 120;
 
 export const HEALTH_POLL_INTERVAL_MILLISECONDS = 1000;
@@ -82,3 +90,39 @@ export const UPDATE_OUTCOME_MESSAGES = {
   failed_needs_admin:
     "Update failed and the automatic rollback did not finish. Restore by hand as described in the updater README.",
 } as const;
+
+export const BEARER_TOKEN_PATTERN = /^Bearer (.+)$/;
+
+export const GITHUB_API_HOST = "api.github.com";
+
+const RELEASE_ASSET_DOWNLOAD_HOST = "release-assets.githubusercontent.com";
+
+export const RELEASE_MANIFEST_ASSET_NAME = "release-manifest.json";
+
+export const RELEASE_REQUEST_TIMEOUT_MILLISECONDS = 15000;
+
+export const RELEASE_REDIRECT_STATUS_MIN = 300;
+
+export const RELEASE_REDIRECT_STATUS_MAX = 399;
+
+export const REDIRECT_FORWARDED_HEADER_NAMES = ["accept", "user-agent"] as const;
+
+export const RELEASE_ALLOWED_HOSTS = [GITHUB_API_HOST, RELEASE_ASSET_DOWNLOAD_HOST] as const;
+
+export const REPLACED_CONTAINER_SUFFIX = "-replaced";
+
+export const DOCKER_SERVICE_NAMES = ["server", "web"] as const;
+
+export const INIT_SERVICE_NAME = "init";
+
+export const DOCKER_SUCCESS_STATUSES = [204, 304] as const;
+
+export const DOCKER_SUCCESS_STATUS_MIN = 200;
+
+export const DOCKER_SUCCESS_STATUS_MAX = 299;
+
+export const DOCKER_MISSING_STATUS = 404;
+
+export const SERVER_VERSION_LABEL = "org.opencontainers.image.version";
+
+export const API_BODY_LIMIT_BYTES = 1024;

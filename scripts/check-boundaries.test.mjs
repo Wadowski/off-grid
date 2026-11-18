@@ -20,6 +20,7 @@ const RULES = [
   "modules-not-import-apps",
   "packages-not-import-apps-or-modules",
   "web-allowed-imports",
+  "updater-allowed-imports",
   "domain-no-io",
   "domain-no-adapter-layers",
   "no-circular",
