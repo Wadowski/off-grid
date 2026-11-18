@@ -105,6 +105,8 @@ export const RELEASE_REDIRECT_STATUS_MIN = 300;
 
 export const RELEASE_REDIRECT_STATUS_MAX = 399;
 
+export const REDIRECT_FORWARDED_HEADER_NAMES = ["accept", "user-agent"] as const;
+
 export const RELEASE_ALLOWED_HOSTS = [GITHUB_API_HOST, RELEASE_ASSET_DOWNLOAD_HOST] as const;
 
 export const REPLACED_CONTAINER_SUFFIX = "-replaced";

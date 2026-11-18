@@ -1,23 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import {
-  RELEASE_REDIRECT_STATUS_MAX,
-  RELEASE_REDIRECT_STATUS_MIN,
-  RELEASE_REQUEST_TIMEOUT_MILLISECONDS,
-} from "../constants.js";
 import type { HttpFetch } from "../types.js";
 import { ReleaseSourceError } from "./errors/release-source-error.js";
 import { isAllowedHttpsUrl } from "./is-allowed-https-url.js";
-
-const isRedirect = (status: number): boolean =>
-  status >= RELEASE_REDIRECT_STATUS_MIN && status <= RELEASE_REDIRECT_STATUS_MAX;
-
-const requestInit = (headers: Record<string, string>): RequestInit => ({
-  headers,
-  redirect: "manual",
-  signal: AbortSignal.timeout(RELEASE_REQUEST_TIMEOUT_MILLISECONDS),
-});
+import { isRedirect } from "./is-redirect.js";
+import { keepRedirectHeaders } from "./keep-redirect-headers.js";
+import { requestInit } from "./request-init.js";
 
 export const fetchAllowingHosts = async (
   httpFetch: HttpFetch,
@@ -33,8 +22,9 @@ export const fetchAllowingHosts = async (
     return response;
   }
   const location = response.headers.get("location");
-  if (location === null || !isAllowedHttpsUrl(new URL(location, url).href, allowedHosts)) {
+  const redirectUrl = location === null ? null : new URL(location, url).href;
+  if (redirectUrl === null || !isAllowedHttpsUrl(redirectUrl, allowedHosts)) {
     throw new ReleaseSourceError("release source redirected to a host that is not allowed");
   }
-  return httpFetch(new URL(location, url).href, requestInit(headers));
+  return httpFetch(redirectUrl, requestInit(keepRedirectHeaders(headers)));
 };
