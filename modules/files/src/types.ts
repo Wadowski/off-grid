@@ -23,6 +23,11 @@ export interface StoredObjectEntry {
   readonly modifiedAt: Date;
 }
 
+export interface ShardKeyFile {
+  readonly key: string;
+  readonly path: string;
+}
+
 export interface InMemoryObject {
   readonly bytes: Buffer;
   readonly modifiedAt: Date;
@@ -34,4 +39,13 @@ export interface FileStorage {
   delete(key: string): Promise<void>;
   exists(key: string): Promise<boolean>;
   listKeys(): AsyncIterable<StoredObjectEntry>;
+}
+
+export interface StorageIntegrityReport {
+  readonly orphanKeys: readonly string[];
+  readonly missingKeys: readonly string[];
+  readonly orphanCount: number;
+  readonly missingCount: number;
+  readonly checkedRowCount: number;
+  readonly checkedObjectCount: number;
 }
