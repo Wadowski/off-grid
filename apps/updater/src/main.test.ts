@@ -27,14 +27,18 @@ describe("updater process start", () => {
     rmSync(directory, { recursive: true, force: true });
   });
 
-  it("exits non-zero and names OFFGRID_UPDATER_TOKEN_FILE when the token file is not configured", () => {
-    const result = runMain({
-      OFFGRID_UPDATER_DATABASE_HOST: "db.internal",
-      OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE: passwordFile,
-      OFFGRID_UPDATER_RELEASE_REPOSITORY: "owner/offgrid",
-    });
+  it(
+    "exits non-zero and names OFFGRID_UPDATER_TOKEN_FILE when the token file is not configured",
+    () => {
+      const result = runMain({
+        OFFGRID_UPDATER_DATABASE_HOST: "db.internal",
+        OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE: passwordFile,
+        OFFGRID_UPDATER_RELEASE_REPOSITORY: "owner/offgrid",
+      });
 
-    expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("OFFGRID_UPDATER_TOKEN_FILE");
-  });
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain("OFFGRID_UPDATER_TOKEN_FILE");
+    },
+    PROCESS_TIMEOUT_MILLISECONDS,
+  );
 });
