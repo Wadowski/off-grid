@@ -5,18 +5,18 @@ import { Readable } from "node:stream";
 import { StorageObjectNotFoundError } from "../../../application/errors/storage-object-not-found-error.js";
 import { assertValidStorageKey } from "../../../application/storage/assert-valid-storage-key.js";
 import { resolveRequestedRange } from "../../../application/storage/resolve-requested-range.js";
-import type { ByteRange } from "../../../types.js";
+import type { ByteRange, InMemoryObject } from "../../../types.js";
 
 export const readInMemoryObject = async (
-  objects: Map<string, Buffer>,
+  objects: Map<string, InMemoryObject>,
   key: string,
   range: ByteRange | undefined,
 ): Promise<Readable> => {
   assertValidStorageKey(key);
-  const bytes = objects.get(key);
-  if (bytes === undefined) {
+  const object = objects.get(key);
+  if (object === undefined) {
     throw new StorageObjectNotFoundError();
   }
-  const { start, length } = resolveRequestedRange(bytes.length, range);
-  return Readable.from([bytes.subarray(start, start + length)]);
+  const { start, length } = resolveRequestedRange(object.bytes.length, range);
+  return Readable.from([object.bytes.subarray(start, start + length)]);
 };

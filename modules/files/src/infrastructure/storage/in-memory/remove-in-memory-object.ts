@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { assertValidStorageKey } from "../../../application/storage/assert-valid-storage-key.js";
+import type { InMemoryObject } from "../../../types.js";
 
 export const removeInMemoryObject = async (
-  objects: Map<string, Buffer>,
+  objects: Map<string, InMemoryObject>,
   key: string,
 ): Promise<void> => {
   assertValidStorageKey(key);

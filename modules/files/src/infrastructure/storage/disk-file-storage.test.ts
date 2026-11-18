@@ -12,6 +12,7 @@ import { listRegularFiles } from "../../../test/list-regular-files.js";
 import { createStorageRoot, createTemporaryDirectory, fixtureAt } from "../../../test/temp-fixture.js";
 import type { StorageFixture } from "../../../test/types.js";
 import { createDiskFileStorage } from "./disk-file-storage.js";
+import { collectEntries } from "../../../test/collect-entries.js";
 
 const PAYLOAD = Buffer.from("disk payload for the sharded layout", "utf8");
 const CHUNK_BYTES = 1024 * 1024;
@@ -127,5 +128,20 @@ describe("disk file storage", () => {
     await expect(storage.exists("../victim")).rejects.toThrow(StorageKeyInvalidError);
 
     expect(await readFile(victim, "utf8")).toBe("keep me");
+  });
+  it("listKeys ignores temp files and names that are not storage keys", async () => {
+    const base = await createTemporaryDirectory();
+    const root = await createStorageRoot(base);
+    const storage = createDiskFileStorage(root);
+    const stored = await storage.put(Readable.from([PAYLOAD]));
+    await mkdir(join(root, ".tmp"), { recursive: true });
+    await writeFile(join(root, ".tmp", "partial.part"), "half written");
+    await mkdir(join(root, "ab", "cd"), { recursive: true });
+    await writeFile(join(root, "ab", "cd", "not-a-key"), "stray");
+    await mkdir(join(root, "zz"), { recursive: true });
+
+    const keys = (await collectEntries(storage.listKeys())).map((entry) => entry.key);
+
+    expect(keys).toEqual([stored.key]);
   });
 });

@@ -18,9 +18,20 @@ export interface PutOptions {
   readonly signal?: AbortSignal;
 }
 
+export interface StoredObjectEntry {
+  readonly key: string;
+  readonly modifiedAt: Date;
+}
+
+export interface InMemoryObject {
+  readonly bytes: Buffer;
+  readonly modifiedAt: Date;
+}
+
 export interface FileStorage {
   put(source: AsyncIterable<Uint8Array>, options?: PutOptions): Promise<StoredObject>;
   get(key: string, range?: ByteRange): Promise<Readable>;
   delete(key: string): Promise<void>;
   exists(key: string): Promise<boolean>;
+  listKeys(): AsyncIterable<StoredObjectEntry>;
 }

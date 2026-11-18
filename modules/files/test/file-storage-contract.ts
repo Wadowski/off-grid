@@ -8,6 +8,7 @@ import { StorageKeyInvalidError } from "../src/application/errors/storage-key-in
 import { StorageObjectNotFoundError } from "../src/application/errors/storage-object-not-found-error.js";
 import { StorageRangeNotSatisfiableError } from "../src/application/errors/storage-range-not-satisfiable-error.js";
 import { generateStorageKey } from "../src/application/storage/generate-storage-key.js";
+import { collectEntries } from "./collect-entries.js";
 import { readAll } from "./read-all.js";
 import type { StorageFixture, StorageFixtureFactory } from "./types.js";
 
@@ -132,6 +133,33 @@ export const describeFileStorageContract = (name: string, createFixture: Storage
       await expect(current().storage.get(key)).rejects.toThrow(StorageKeyInvalidError);
       await expect(current().storage.exists(key)).rejects.toThrow(StorageKeyInvalidError);
       await expect(current().storage.delete(key)).rejects.toThrow(StorageKeyInvalidError);
+    });
+
+    it("listKeys is empty when nothing is stored", async () => {
+      expect(await collectEntries(current().storage.listKeys())).toEqual([]);
+    });
+
+    it("listKeys yields every stored object with its modified time", async () => {
+      const first = await current().storage.put(sourceOf(PAYLOAD));
+      const second = await current().storage.put(sourceOf(Buffer.from("second")));
+
+      const entries = await collectEntries(current().storage.listKeys());
+
+      expect(entries.map((entry) => entry.key).sort()).toEqual([first.key, second.key].sort());
+      for (const entry of entries) {
+        expect(entry.modifiedAt).toBeInstanceOf(Date);
+        expect(Number.isNaN(entry.modifiedAt.getTime())).toBe(false);
+      }
+    });
+
+    it("listKeys leaves out an object that was deleted", async () => {
+      const kept = await current().storage.put(sourceOf(PAYLOAD));
+      const removed = await current().storage.put(sourceOf(Buffer.from("gone")));
+      await current().storage.delete(removed.key);
+
+      const keys = (await collectEntries(current().storage.listKeys())).map((entry) => entry.key);
+
+      expect(keys).toEqual([kept.key]);
     });
 
     it("put rejects a source that fails", async () => {
