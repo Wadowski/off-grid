@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { createDiskFileStorage } from "./infrastructure/storage/disk-file-storage.js";
+import { createDiskFileStorage } from "@offgrid/file-storage";
 import { createStorageIntegritySweepWorker } from "./workers/storage-integrity-sweep/create-storage-integrity-sweep-worker.js";
 import { STORAGE_SWEEP_FIRST_RUN_DELAY_MS, STORAGE_SWEEP_INTERVAL_MS } from "./constants.js";
 import type { FilesModuleOptions, FilesWorkerContext } from "./types.js";

@@ -3,7 +3,8 @@
 
 import type { ModuleDatabase } from "@offgrid/db";
 import { STORAGE_SWEEP_BATCH_SIZE } from "../../constants.js";
-import type { FileStorage, StorageIntegrityReport } from "../../types.js";
+import type { FileStorage } from "@offgrid/file-storage";
+import type { StorageIntegrityReport } from "../../types.js";
 import { findMissingKeys } from "./find-missing-keys.js";
 import { findOrphanKeys } from "./find-orphan-keys.js";
 

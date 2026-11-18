@@ -19,6 +19,7 @@
     "pg": "8.23.1"
   },
   "dependencies": {
+    "@offgrid/file-storage": "workspace:*",
     "@offgrid/db": "workspace:*",
     "@offgrid/observability": "workspace:*"
   }

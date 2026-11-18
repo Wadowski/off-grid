@@ -4,7 +4,7 @@
 import type { ModuleDatabase } from "@offgrid/db";
 import type { Logger } from "@offgrid/observability";
 import { checkStorageIntegrity } from "../../application/storage/check-storage-integrity.js";
-import type { FileStorage } from "../../types.js";
+import type { FileStorage } from "@offgrid/file-storage";
 
 export const runStorageIntegritySweep = async (
   db: ModuleDatabase,

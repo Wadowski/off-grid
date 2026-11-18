@@ -5,7 +5,7 @@ import { Readable } from "node:stream";
 import type { ModuleDatabase } from "@offgrid/db";
 import { createLogger } from "@offgrid/observability";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createInMemoryFileStorage } from "../../infrastructure/storage/in-memory-file-storage.js";
+import { createInMemoryFileStorage } from "@offgrid/file-storage";
 import { createStorageIntegritySweepWorker } from "./create-storage-integrity-sweep-worker.js";
 
 const INTERVAL_MS = 24 * 60 * 60 * 1000;

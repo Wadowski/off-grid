@@ -4,7 +4,7 @@
 import type { ModuleDatabase } from "@offgrid/db";
 import { STORAGE_SWEEP_GRACE_MS } from "../../constants.js";
 import { hasGracePeriodElapsed } from "../../domain/storage/has-grace-period-elapsed.js";
-import type { FileStorage } from "../../types.js";
+import type { FileStorage } from "@offgrid/file-storage";
 import { findUnreferencedKeys } from "./find-unreferenced-keys.js";
 
 export const findOrphanKeys = async (

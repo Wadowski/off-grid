@@ -7,14 +7,14 @@ import { join } from "node:path";
 import { Readable } from "node:stream";
 import type { Client } from "pg";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { createDiskFileStorage } from "../../infrastructure/storage/disk-file-storage.js";
+import { createDiskFileStorage, type FileStorage } from "@offgrid/file-storage";
+import {
+  createStorageRoot,
+  createTemporaryDirectory,
+  removeDirectory,
+} from "@offgrid/file-storage/testing";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
-import { createStorageRoot } from "../../../test/create-storage-root.js";
-import { createTemporaryDirectory } from "../../../test/create-temporary-directory.js";
-import { removeDirectory } from "../../../test/remove-directory.js";
 import type { FilesTestDatabase, SeedScope } from "../../../test/types.js";
-import type { FileStorage } from "../../types.js";
-import { generateStorageKey } from "./generate-storage-key.js";
 import { checkStorageIntegrity } from "./check-storage-integrity.js";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -123,7 +123,7 @@ describe("storage integrity sweep", { timeout: 120_000 }, () => {
   });
 
   it("reports a version row whose bytes are gone as missing, once per key", async () => {
-    const missingKey = generateStorageKey();
+    const missingKey = "f".repeat(32);
     await seedVersion(db.admin, "user", missingKey);
     await seedVersion(db.admin, "family", missingKey);
 
@@ -158,7 +158,7 @@ describe("storage integrity sweep", { timeout: 120_000 }, () => {
     for (let index = 0; index < 3; index += 1) {
       orphanKeys.push(await putObject(storage, root, OLD));
     }
-    const missingKeys = [generateStorageKey(), generateStorageKey(), generateStorageKey()];
+    const missingKeys = ["7", "8", "9"].map((digit) => digit.repeat(32));
     for (const key of missingKeys) {
       await seedVersion(db.admin, "user", key);
     }
