@@ -12,7 +12,10 @@ const encodePayload = (payload: unknown): string =>
 
 describe("decodeNotificationCursor", () => {
   it("returns the cursor that encodeNotificationCursor wrote", () => {
-    const cursor = { createdAt: new Date("2026-11-01T10:00:00.123Z"), notificationId: randomUUID() };
+    const cursor = {
+      createdAt: new Date("2026-11-01T10:00:00.123Z"),
+      notificationId: randomUUID(),
+    };
 
     expect(decodeNotificationCursor(encodeNotificationCursor(cursor))).toEqual(cursor);
   });

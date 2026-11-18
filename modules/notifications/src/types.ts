@@ -64,5 +64,5 @@ export interface NotificationCursor {
 
 export interface NotificationPageRequest {
   readonly limit: number;
-  readonly cursor: NotificationCursor | null;
+  readonly cursor?: string;
 }
