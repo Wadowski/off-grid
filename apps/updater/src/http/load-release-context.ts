@@ -2,19 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { fetchReleaseManifest } from "../release/fetch-release-manifest.js";
-import type { ReleaseManifest, UpdaterServices } from "../types.js";
-
-export interface ReleaseContext {
-  readonly ok: true;
-  readonly currentVersion: string;
-  readonly manifest: ReleaseManifest;
-}
-
-export interface ReleaseContextFailure {
-  readonly ok: false;
-  readonly statusCode: 502 | 503;
-  readonly error: "current_version_unknown" | "release_source_unreachable";
-}
+import type { ReleaseContext, ReleaseContextFailure, UpdaterServices } from "../types.js";
 
 export const loadReleaseContext = async (
   services: UpdaterServices,

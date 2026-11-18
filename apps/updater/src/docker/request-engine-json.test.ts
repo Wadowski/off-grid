@@ -7,12 +7,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DockerApiError } from "./errors/docker-api-error.js";
+import type { CannedReply } from "../../test/types.js";
 import { requestEngineJson } from "./request-engine-json.js";
-
-interface CannedReply {
-  readonly status: number;
-  readonly body: string;
-}
 
 describe("requestEngineJson", () => {
   let directory: string;

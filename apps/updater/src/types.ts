@@ -198,3 +198,15 @@ export interface UpdaterServices {
   readonly currentVersion: () => Promise<string>;
   readonly runApply: (request: ApplyRequest) => Promise<UpdateStatus>;
 }
+
+export interface ReleaseContext {
+  readonly ok: true;
+  readonly currentVersion: string;
+  readonly manifest: ReleaseManifest;
+}
+
+export interface ReleaseContextFailure {
+  readonly ok: false;
+  readonly statusCode: 502 | 503;
+  readonly error: "current_version_unknown" | "release_source_unreachable";
+}

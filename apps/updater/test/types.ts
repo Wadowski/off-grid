@@ -87,3 +87,8 @@ export interface FakeEngineReply {
   readonly json?: unknown;
   readonly text?: string;
 }
+
+export interface CannedReply {
+  readonly status: number;
+  readonly body: string;
+}
