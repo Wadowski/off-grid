@@ -241,59 +241,79 @@ describe("files init migration", () => {
   });
 
   it("refuses a file whose owner differs from its drive and a version whose owner differs from its file", async () => {
-    const driveA = await db.admin.query<{ drive_id: string }>(
-      "SELECT drive_id FROM files.drive WHERE user_id = $1",
-      [userA],
-    );
-    const driveAId = driveA.rows[0]?.drive_id ?? "";
-    const familyDrive = await db.admin.query<{ drive_id: string }>(
-      "SELECT drive_id FROM files.drive WHERE family_id = $1",
-      [familyF],
-    );
-    const familyDriveId = familyDrive.rows[0]?.drive_id ?? "";
+    const ownerUser = randomUUID();
+    const ownerFamily = randomUUID();
+    const personalDrive = await insertDrive(db.admin, { userId: ownerUser }, "personal");
+    const familyDrive = await insertDrive(db.admin, { familyId: ownerFamily }, "family");
 
     await expect(
       insertFile(db.admin, {
-        driveId: familyDriveId,
-        owner: { userId: userA },
+        driveId: familyDrive,
+        owner: { userId: ownerUser },
         name: "wrong-owner",
       }),
     ).rejects.toThrow(/foreign key/);
 
     const fileA = await insertFile(db.admin, {
-      driveId: driveAId,
-      owner: { userId: userA },
+      driveId: personalDrive,
+      owner: { userId: ownerUser },
       name: "versioned.txt",
       isFolder: false,
     });
-    await expect(insertVersion(db.admin, fileA, { familyId: familyF })).rejects.toThrow(
+    await expect(insertVersion(db.admin, fileA, { familyId: ownerFamily })).rejects.toThrow(
       /foreign key/,
     );
   });
 
   it("refuses a parent folder from another drive", async () => {
-    const driveA = await db.admin.query<{ drive_id: string }>(
-      "SELECT drive_id FROM files.drive WHERE user_id = $1",
-      [userA],
-    );
-    const familyDrive = await db.admin.query<{ drive_id: string }>(
-      "SELECT drive_id FROM files.drive WHERE family_id = $1",
-      [familyF],
-    );
-    const parentInA = await insertFile(db.admin, {
-      driveId: driveA.rows[0]?.drive_id ?? "",
-      owner: { userId: userA },
-      name: "parent-in-a",
+    const parentUser = randomUUID();
+    const parentFamily = randomUUID();
+    const personalDrive = await insertDrive(db.admin, { userId: parentUser }, "personal");
+    const familyDrive = await insertDrive(db.admin, { familyId: parentFamily }, "family");
+    const parentInPersonal = await insertFile(db.admin, {
+      driveId: personalDrive,
+      owner: { userId: parentUser },
+      name: "parent-in-personal",
     });
 
     await expect(
       insertFile(db.admin, {
-        driveId: familyDrive.rows[0]?.drive_id ?? "",
-        owner: { familyId: familyF },
+        driveId: familyDrive,
+        owner: { familyId: parentFamily },
         name: "child",
-        parentId: parentInA,
+        parentId: parentInPersonal,
       }),
     ).rejects.toThrow(/foreign key/);
+  });
+
+  it("refuses a current version pointer to another file's version", async () => {
+    const pointerUser = randomUUID();
+    const drive = await insertDrive(db.admin, { userId: pointerUser }, "personal");
+    const fileOne = await insertFile(db.admin, {
+      driveId: drive,
+      owner: { userId: pointerUser },
+      name: "one.txt",
+      isFolder: false,
+    });
+    const versionOfOne = await insertVersion(db.admin, fileOne, { userId: pointerUser });
+    const fileTwo = randomUUID();
+
+    await db.admin.query("BEGIN");
+    try {
+      await db.admin.query(
+        `INSERT INTO files.file (file_id, drive_id, user_id, name, is_folder, mime_type, size_bytes, current_version_id)
+         VALUES ($1, $2, $3, 'two.txt', false, 'text/plain', 0, $4)`,
+        [fileTwo, drive, pointerUser, versionOfOne],
+      );
+      await expect(db.admin.query("COMMIT")).rejects.toThrow(/file_current_version_fk/);
+    } finally {
+      await db.admin.query("ROLLBACK");
+    }
+
+    const { rows } = await db.admin.query("SELECT file_id FROM files.file WHERE file_id = $1", [
+      fileTwo,
+    ]);
+    expect(rows).toEqual([]);
   });
 
   it("enforces case-insensitive unique names among live siblings, including at the root", async () => {
@@ -392,14 +412,23 @@ describe("files init migration", () => {
     );
     expect(pointer.rows[0]?.current_version_id).toBe(versionId);
 
+    const danglingId = randomUUID();
     await db.admin.query("BEGIN");
-    await db.admin.query(
-      `INSERT INTO files.file (file_id, drive_id, user_id, name, is_folder, mime_type, size_bytes, current_version_id)
-       VALUES ($1, $2, $3, 'dangling.txt', false, 'text/plain', 0, $4)`,
-      [randomUUID(), driveE, userE, randomUUID()],
-    );
-    await expect(db.admin.query("COMMIT")).rejects.toThrow(/file_current_version_fk/);
-    await db.admin.query("ROLLBACK").catch(() => undefined);
+    try {
+      await db.admin.query(
+        `INSERT INTO files.file (file_id, drive_id, user_id, name, is_folder, mime_type, size_bytes, current_version_id)
+         VALUES ($1, $2, $3, 'dangling.txt', false, 'text/plain', 0, $4)`,
+        [danglingId, driveE, userE, randomUUID()],
+      );
+      await expect(db.admin.query("COMMIT")).rejects.toThrow(/file_current_version_fk/);
+    } finally {
+      await db.admin.query("ROLLBACK");
+    }
+
+    const rolledBack = await db.admin.query("SELECT file_id FROM files.file WHERE file_id = $1", [
+      danglingId,
+    ]);
+    expect(rolledBack.rows).toEqual([]);
   });
 
   it("lets offgrid_app insert and delete file versions but not update them", async () => {

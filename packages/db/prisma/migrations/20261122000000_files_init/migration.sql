@@ -29,7 +29,7 @@ CREATE TABLE files.file (
     AND name NOT IN ('.', '..')
   ),
   is_folder          boolean     NOT NULL,
-  mime_type          text,
+  mime_type          text        CHECK (mime_type IS NULL OR char_length(mime_type) BETWEEN 1 AND 255),
   size_bytes         bigint      CHECK (size_bytes >= 0),
   current_version_id uuid,
   version            integer     NOT NULL DEFAULT 1 CHECK (version >= 1),
@@ -60,11 +60,12 @@ CREATE TABLE files.file_version (
   number             integer     NOT NULL CHECK (number >= 1),
   storage_key        text        NOT NULL CHECK (char_length(storage_key) BETWEEN 1 AND 128),
   size_bytes         bigint      NOT NULL CHECK (size_bytes >= 0),
-  mime_type          text        NOT NULL,
+  mime_type          text        NOT NULL CHECK (char_length(mime_type) BETWEEN 1 AND 255),
   sha256             text        NOT NULL CHECK (sha256 ~ '^[0-9a-f]{64}$'),
   created_by_user_id uuid        NOT NULL,
   created_at         timestamptz NOT NULL DEFAULT now(),
   UNIQUE (file_id, number),
+  UNIQUE (version_id, file_id),
   FOREIGN KEY (file_id, owner_id) REFERENCES files.file (file_id, owner_id)
 );
 SELECT public.offgrid_declare_scope('files', 'file_version', 'family-or-user');
@@ -73,5 +74,5 @@ REVOKE UPDATE ON files.file_version FROM offgrid_app;
 
 ALTER TABLE files.file
   ADD CONSTRAINT file_current_version_fk
-  FOREIGN KEY (current_version_id) REFERENCES files.file_version (version_id)
+  FOREIGN KEY (current_version_id, file_id) REFERENCES files.file_version (version_id, file_id)
   DEFERRABLE INITIALLY DEFERRED;
