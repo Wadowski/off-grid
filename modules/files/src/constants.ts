@@ -3,3 +3,4 @@
 
 export const STORAGE_KEY_PATTERN = /^[0-9a-f]{32}$/;
 export const STORAGE_SHARD_WIDTH = 2;
+export const STORAGE_KEY_GENERATION_ATTEMPTS = 3;
