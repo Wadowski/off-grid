@@ -28,6 +28,7 @@ export const imageInspectSchema = z.looseObject({
   RepoDigests: z.array(z.string()).nullish(),
   Config: z.looseObject({
     Env: z.array(z.string()).nullish(),
+    Labels: z.record(z.string(), z.string()).nullish(),
   }),
 });
 

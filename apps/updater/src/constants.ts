@@ -116,3 +116,7 @@ export const INIT_SERVICE_NAME = "init";
 export const DOCKER_SUCCESS_STATUSES = [204, 304] as const;
 
 export const DOCKER_MISSING_STATUS = 404;
+
+export const SERVER_VERSION_LABEL = "org.opencontainers.image.version";
+
+export const API_BODY_LIMIT_BYTES = 1024;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { z } from "zod";
+import type { Logger } from "@offgrid/observability";
 import type { releaseManifestSchema } from "@offgrid/contracts";
 import type { updateStatusSchema } from "./apply/update-status-schema.js";
 import type {
@@ -186,3 +187,14 @@ export type ContainerSummary = z.infer<typeof containerSummarySchema>;
 export type ContainerInspect = z.infer<typeof containerInspectSchema>;
 
 export type ImageInspect = z.infer<typeof imageInspectSchema>;
+
+export interface UpdaterServices {
+  readonly apiToken: string;
+  readonly statusFile: string;
+  readonly releaseRepository: string;
+  readonly runLock: RunLock;
+  readonly httpFetch: HttpFetch;
+  readonly logger: Logger;
+  readonly currentVersion: () => Promise<string>;
+  readonly runApply: (request: ApplyRequest) => Promise<UpdateStatus>;
+}
