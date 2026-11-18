@@ -3,10 +3,10 @@
 
 import { Readable } from "node:stream";
 import { listKeyFilesInShard } from "./list-key-files-in-shard.js";
-import { listShardDirectories } from "./list-shard-directories.js";
+import { listTwoLevelShardDirectories } from "./list-two-level-shard-directories.js";
 import { toEntryWithModifiedAt } from "./to-entry-with-modified-at.js";
 
 export const listDiskKeys = (directory: string): Readable =>
-  listShardDirectories(listShardDirectories(Readable.from([directory])))
+  listTwoLevelShardDirectories(directory)
     .flatMap(listKeyFilesInShard)
     .flatMap(toEntryWithModifiedAt);

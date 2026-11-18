@@ -2,12 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleDatabase } from "@offgrid/db";
-import { isValidStorageKey } from "../../domain/storage/is-valid-storage-key.js";
 import type { FileStorage } from "../../types.js";
+import { isPresentInStorage } from "./is-present-in-storage.js";
 import { readStoredKeysBatch } from "./read-stored-keys-batch.js";
-
-const isPresent = (storage: FileStorage, key: string): Promise<boolean> =>
-  isValidStorageKey(key) ? storage.exists(key) : Promise.resolve(false);
 
 export const findMissingKeys = async (
   db: ModuleDatabase,
@@ -21,7 +18,7 @@ export const findMissingKeys = async (
   while (batch.length > 0) {
     checkedRowCount += batch.length;
     for (const key of batch) {
-      if (!(await isPresent(storage, key))) {
+      if (!(await isPresentInStorage(storage, key))) {
         missingKeys.push(key);
       }
     }

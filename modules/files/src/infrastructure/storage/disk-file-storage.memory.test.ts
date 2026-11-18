@@ -4,11 +4,9 @@
 import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  createStorageRoot,
-  createTemporaryDirectory,
-  removeDirectory,
-} from "../../../test/temp-fixture.js";
+import { createStorageRoot } from "../../../test/create-storage-root.js";
+import { createTemporaryDirectory } from "../../../test/create-temporary-directory.js";
+import { removeDirectory } from "../../../test/remove-directory.js";
 import { createDiskFileStorage } from "./disk-file-storage.js";
 
 const MIB = 1024 * 1024;
