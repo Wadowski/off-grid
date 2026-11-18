@@ -4,6 +4,11 @@
 import type { z } from "zod";
 import type { releaseManifestSchema } from "@offgrid/contracts";
 import type { updateStatusSchema } from "./apply/update-status-schema.js";
+import type {
+  containerInspectSchema,
+  containerSummarySchema,
+  imageInspectSchema,
+} from "./docker/engine-schemas.js";
 import type { UPDATE_OUTCOMES, UPDATE_STEP_NAMES, UPDATE_STEP_STATES } from "./constants.js";
 
 export interface DatabaseTarget {
@@ -159,3 +164,25 @@ export interface UpdateCheck {
   readonly updateAvailable: boolean;
   readonly updateAllowed: boolean;
 }
+
+export interface DockerContext {
+  readonly socketPath: string;
+  readonly project: string;
+}
+
+export interface EngineResponse {
+  readonly status: number;
+  readonly text: string;
+}
+
+export interface EngineRequestOptions {
+  readonly operation: string;
+  readonly body?: unknown;
+  readonly acceptedStatuses?: readonly number[];
+}
+
+export type ContainerSummary = z.infer<typeof containerSummarySchema>;
+
+export type ContainerInspect = z.infer<typeof containerInspectSchema>;
+
+export type ImageInspect = z.infer<typeof imageInspectSchema>;

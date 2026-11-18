@@ -106,3 +106,13 @@ export const RELEASE_REDIRECT_STATUS_MIN = 300;
 export const RELEASE_REDIRECT_STATUS_MAX = 399;
 
 export const RELEASE_ALLOWED_HOSTS = [GITHUB_API_HOST, RELEASE_ASSET_DOWNLOAD_HOST] as const;
+
+export const REPLACED_CONTAINER_SUFFIX = "-replaced";
+
+export const DOCKER_SERVICE_NAMES = ["server", "web"] as const;
+
+export const INIT_SERVICE_NAME = "init";
+
+export const DOCKER_SUCCESS_STATUSES = [204, 304] as const;
+
+export const DOCKER_MISSING_STATUS = 404;
