@@ -479,7 +479,11 @@ importers:
         specifier: ^24.19.2
         version: 24.19.2
 
-  modules/files: {}
+  modules/files:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
 
   modules/food: {}
 

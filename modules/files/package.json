@@ -11,5 +11,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2"
   }
 }
