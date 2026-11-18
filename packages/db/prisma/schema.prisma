@@ -382,3 +382,56 @@ model RelationsCrossEntityLink {
   @@map("cross_entity_link")
   @@schema("relations")
 }
+
+model FilesDrive {
+  driveId   String   @id @map("drive_id") @db.Uuid
+  familyId  String?  @map("family_id") @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  kind      String   @db.VarChar(20)
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("drive")
+  @@schema("files")
+}
+
+model FilesFile {
+  fileId           String    @id @map("file_id") @db.Uuid
+  driveId          String    @map("drive_id") @db.Uuid
+  parentId         String?   @map("parent_id") @db.Uuid
+  familyId         String?   @map("family_id") @db.Uuid
+  userId           String?   @map("user_id") @db.Uuid
+  name             String    @db.VarChar(255)
+  isFolder         Boolean   @map("is_folder")
+  mimeType         String?   @map("mime_type") @db.VarChar(255)
+  sizeBytes        BigInt?   @map("size_bytes")
+  currentVersionId String?   @map("current_version_id") @db.Uuid
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@index([driveId, parentId, name], map: "file_children_idx")
+  @@index([deletedAt], map: "file_deleted_at_idx")
+  @@map("file")
+  @@schema("files")
+}
+
+model FilesFileVersion {
+  versionId       String   @id @map("version_id") @db.Uuid
+  fileId          String   @map("file_id") @db.Uuid
+  familyId        String?  @map("family_id") @db.Uuid
+  userId          String?  @map("user_id") @db.Uuid
+  number          Int
+  storageKey      String   @map("storage_key") @db.VarChar(128)
+  sizeBytes       BigInt   @map("size_bytes")
+  mimeType        String   @map("mime_type") @db.VarChar(255)
+  sha256          String   @db.VarChar(64)
+  createdByUserId String   @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([fileId, number])
+  @@index([storageKey], map: "file_version_storage_key_idx")
+  @@map("file_version")
+  @@schema("files")
+}
