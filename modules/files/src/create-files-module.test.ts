@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleDatabase } from "@offgrid/db";
+import type { EventBus } from "@offgrid/event-bus";
 import { createLogger } from "@offgrid/observability";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createFilesModule } from "./create-files-module.js";
 
 describe("createFilesModule", () => {
@@ -16,5 +17,20 @@ describe("createFilesModule", () => {
 
     expect(module.name).toBe("files");
     expect(workers.map((worker) => worker.name)).toEqual(["files-storage-integrity-sweep"]);
+  });
+
+  it("registers one family membership subscription that halts on failure", () => {
+    const module = createFilesModule({ directory: "/data/files" });
+    const subscribeToEvents = vi.fn();
+
+    module.registerSubscribers({
+      eventBus: { subscribeToEvents } as unknown as EventBus,
+      db: {} as ModuleDatabase,
+    });
+
+    expect(subscribeToEvents).toHaveBeenCalledTimes(1);
+    expect(subscribeToEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "files-family-membership", runAs: "files", onFailure: "halt" }),
+    );
   });
 });
