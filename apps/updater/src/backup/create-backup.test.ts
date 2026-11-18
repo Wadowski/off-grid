@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BackupFailedError } from "./errors/backup-failed-error.js";
-import { createBackup, PRUNE_WARNING } from "./create-backup.js";
+import { createBackup } from "./create-backup.js";
 import { pruneBackups } from "./prune-backups.js";
 import type { BackupSettings, DatabaseTools } from "../types.js";
 
@@ -203,7 +203,7 @@ describe("createBackup", () => {
       createdAt: CREATED_AT,
     });
 
-    expect(backup.pruneWarning).toBe(PRUNE_WARNING);
+    expect(backup.pruneWarning).toBe("older backups could not be pruned; the new backup is kept");
     expect(await readFile(join(backup.path, "database.dump"), "utf8")).toBe("dump-bytes");
   });
 

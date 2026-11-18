@@ -4,7 +4,6 @@
 import { describe, expect, it } from "vitest";
 import { runPostgresTool } from "./run-postgres-tool.js";
 
-// A fake tool: node itself, running a script that writes to stderr and exits.
 const fakeTool = (script: string): readonly string[] => ["-e", script];
 
 describe("runPostgresTool", () => {

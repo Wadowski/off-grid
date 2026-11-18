@@ -10,7 +10,7 @@ import { prepareBackupFolder } from "./prepare-backup-folder.js";
 import { pruneBackups } from "./prune-backups.js";
 import { writeBackupContents } from "./write-backup-contents.js";
 
-export const PRUNE_WARNING = "older backups could not be pruned; the new backup is kept";
+const PRUNE_WARNING = "older backups could not be pruned; the new backup is kept";
 
 export const createBackup = async (
   tools: DatabaseTools,
@@ -23,11 +23,9 @@ export const createBackup = async (
   try {
     await writeBackupContents(tools, settings, folder);
   } catch (error) {
-    // A cleanup failure must not hide the error that made the backup fail.
     await rm(folder, { recursive: true, force: true }).catch(() => undefined);
     throw error;
   }
-  // The backup is verified at this point; a failed prune only leaves older backups in place.
   const pruned = await pruneBackups(settings.backupRoot, settings.retention, name).then(
     () => true,
     () => false,
