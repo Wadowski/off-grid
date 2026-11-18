@@ -71,3 +71,14 @@ export const UPDATE_OUTCOMES = [
 export const STATUS_FILE_MODE = 0o600;
 
 export const STATUS_DIRECTORY_MODE = 0o700;
+
+export const UPDATE_OUTCOME_MESSAGES = {
+  in_progress: "Update is running.",
+  succeeded: "Update finished and the new version is healthy.",
+  refused: "Update was refused before any change was made.",
+  failed_before_change: "Update stopped before any change was made.",
+  rolled_back:
+    "Update failed and the previous version was restored. Changes made after the backup were lost.",
+  failed_needs_admin:
+    "Update failed and the automatic rollback did not finish. Restore by hand as described in the updater README.",
+} as const;

@@ -137,3 +137,14 @@ export interface ApplyRequest {
   readonly currentVersion: string;
   readonly manifest: unknown;
 }
+
+export interface ParsedApplyRequest {
+  readonly currentVersion: string;
+  readonly manifest: ReleaseManifest;
+}
+
+export interface UpdateRun {
+  readonly dependencies: ApplyDependencies;
+  readonly manifest: ReleaseManifest;
+  status: UpdateStatus;
+}
