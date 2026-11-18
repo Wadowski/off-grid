@@ -27,6 +27,7 @@ Each subscriber writes the inbox item in its own transaction. The item's id is t
 
 - `GET /api/me/notifications`: the caller's items, newest first, one page at a time. Query: `limit` (1 to 50, default 20), `cursor`, an opaque value that the previous page returned as `nextCursor` (omit it for the first page), `category` (`calendar` or `account-security`) and `unread` (only the value `true`). `category` and `unread` combine. Each item has a `category` taken from `NOTIFICATION_CATEGORY_BY_TYPE` in `src/constants.ts`, which maps every notice type to one category; a new type needs one entry there and fails to compile without it. Response: `{ notifications: [{ id, type, category, data, createdAt, readAt }], unreadCount, nextCursor, total }`. `total` counts the items that match the filters, and the paging walks only those items. `unreadCount` is the caller's unread count across the whole inbox, not the filter and not the page, so the bell badge does not change when a filter is set. `nextCursor` is `null` on the last page. A `limit` outside 1 to 50, an unknown `category`, an `unread` value other than `true`, or a cursor the server did not issue, gets `400 VALIDATION_FAILED`. The cursor carries only a timestamp and an item id, and the error never echoes it. Filters are stored on the existing `type` and `read_at` columns, so no migration is needed.
 - `POST /api/me/notifications/:notificationId/read`: marks one item read and returns `204`. Re-marking keeps the first read time. An item that is not the caller's gets `404 NOT_FOUND`.
+- `POST /api/me/notifications/read-all`: marks every unread item of the caller read, whatever the category, and returns `200 { updated }`, where `updated` is the number of items that were unread (0 when none). Items already read keep their first read time, and another person's items are never touched. It takes no body. Without a signed-in person it gets `401 UNAUTHENTICATED`.
 
 ## Channels
 
@@ -39,12 +40,12 @@ The module registers no channel yet, so `createNotificationsModule()` has an emp
 ```
 src/types.ts                       all types of the module
 src/constants.ts                   module constants
-src/application/inbox/             list, mark read and write the inbox
+src/application/inbox/             list, mark read, mark all read and write the inbox
 src/application/channels/          deliver a notice to the registered channels
 src/application/errors/            NotificationNotFoundError
 src/infrastructure/inbox/          one file per table operation
 src/events/                        one subscriber per domain fact
-src/http/                          the two routes
+src/http/                          the three routes
 ```
 
 ## Not built yet
