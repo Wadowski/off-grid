@@ -482,7 +482,27 @@ importers:
         specifier: ^24.19.2
         version: 24.19.2
 
-  modules/files: {}
+  modules/files:
+    dependencies:
+      '@offgrid/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@offgrid/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
+    devDependencies:
+      '@offgrid/test-db':
+        specifier: workspace:*
+        version: link:../../packages/test-db
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
 
   modules/food: {}
 

@@ -27,7 +27,10 @@ describe("assertValidModules", () => {
 
 describe("modulesFor", () => {
   it("registers the relations module once, alongside the others", () => {
-    const config = { mail: { encryptionKey: Buffer.alloc(32) } } as unknown as ServerConfig;
+    const config = {
+      files: { directory: "/data/files" },
+      mail: { encryptionKey: Buffer.alloc(32) },
+    } as unknown as ServerConfig;
     const names = modulesFor(config).map((module) => module.name);
 
     expect(names).toContain("relations");
@@ -36,7 +39,10 @@ describe("modulesFor", () => {
   });
 
   it("registers the files module with a valid, unique name", () => {
-    const config = { mail: { encryptionKey: Buffer.alloc(32) } } as unknown as ServerConfig;
+    const config = {
+      files: { directory: "/data/files" },
+      mail: { encryptionKey: Buffer.alloc(32) },
+    } as unknown as ServerConfig;
     const names = modulesFor(config).map((module) => module.name);
 
     expect(names.filter((name) => name === "files")).toHaveLength(1);
