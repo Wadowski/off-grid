@@ -27,11 +27,6 @@ export type NotificationList = {
   total: number;
 };
 
-export type NotificationQuery = {
-  category?: string;
-  unread?: "true";
-};
-
 export async function signedInPerson(
   api: APIRequestContext,
   name: string,
@@ -65,8 +60,6 @@ export function changeOwnPassword(
   });
 }
 
-// Regenerating the recovery code is a password-confirmed change that raises a notice,
-// so it gives a person an inbox item without changing their password.
 export function regenerateOwnRecoveryCode(
   api: APIRequestContext,
   person: SignedInPerson,
@@ -81,7 +74,7 @@ export function regenerateOwnRecoveryCode(
 export async function listOwnNotifications(
   api: APIRequestContext,
   session: Session,
-  query: NotificationQuery = {},
+  query: { category?: string; unread?: "true" } = {},
 ): Promise<{ status: number; body: NotificationList }> {
   const response = await api.get("/api/me/notifications", {
     params: query,

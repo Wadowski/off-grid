@@ -10,7 +10,6 @@ import {
   regenerateOwnRecoveryCode,
   signedInPerson,
   waitForOwnNotifications,
-  type NotificationQuery,
   type SignedInPerson,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
@@ -25,28 +24,28 @@ function personOf(world: ScenarioWorld, key: string): SignedInPerson {
   return person;
 }
 
-const INBOX_FILTERS: Record<string, NotificationQuery> = {
+const INBOX_FILTERS: Record<string, NonNullable<Parameters<typeof listOwnNotifications>[2]>> = {
   "the account-security category": { category: "account-security" },
   "the calendar category": { category: "calendar" },
   "unread notices only": { unread: "true" },
   "the calendar category and unread": { category: "calendar", unread: "true" },
 };
 
-function filterNamed(text: string): NotificationQuery {
+const filterNamed = (text: string) => {
   const query = INBOX_FILTERS[text];
   if (query === undefined) {
     throw new Error(`"${text}" is not an inbox filter.`);
   }
   return query;
-}
+};
 
-function listingOf(world: ScenarioWorld) {
+const listingOf = (world: ScenarioWorld) => {
   const list = world.notificationList;
   if (list === undefined) {
     throw new Error("Anna has not opened her inbox in this scenario.");
   }
   return list;
-}
+};
 
 Given("she has a password change notice", async ({ world }) => {
   const anna = personOf(world, "anna");

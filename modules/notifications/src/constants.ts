@@ -7,9 +7,8 @@ import {
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
   type EventDefinition,
-  type NotificationCategory,
-  type NotificationType,
 } from "@offgrid/contracts";
+import type { NotificationCategory, NotificationType } from "@offgrid/contracts";
 import type { z } from "zod";
 
 export const NOTIFICATIONS_MODULE_NAME = "notifications";
