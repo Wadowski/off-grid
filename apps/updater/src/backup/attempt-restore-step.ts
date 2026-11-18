@@ -9,7 +9,7 @@ export const attemptRestoreStep = async (
 ): Promise<void> => {
   try {
     await action();
-  } catch {
-    throw new RestoreFailedError(step);
+  } catch (cause) {
+    throw new RestoreFailedError(step, { cause });
   }
 };

@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export class RestoreFailedError extends Error {
-  constructor(readonly step: string) {
-    super(`restore failed at step ${step}`);
+  constructor(
+    readonly step: string,
+    options?: ErrorOptions,
+  ) {
+    super(`restore failed at step ${step}`, options);
     this.name = "RestoreFailedError";
   }
 }

@@ -120,6 +120,24 @@ describe("createBackup", () => {
     ]);
   });
 
+  it("keeps the dump tool error as the cause of the failure", async () => {
+    const dumpError = new Error("pg_dump exited with code 1\nFATAL: role does not exist");
+    const failingTools: DatabaseTools = {
+      ...workingTools(),
+      dump: async () => {
+        throw dumpError;
+      },
+    };
+
+    const failure = await createBackup(failingTools, settings(), {
+      version: "1.4.0",
+      createdAt: CREATED_AT,
+    }).catch((error: unknown) => error);
+
+    expect((failure as BackupFailedError).step).toBe("dump");
+    expect((failure as Error).cause).toBe(dumpError);
+  });
+
   it("treats a failed dump verification as a failed backup", async () => {
     const tools: DatabaseTools = {
       ...workingTools(),

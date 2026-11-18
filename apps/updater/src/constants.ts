@@ -32,3 +32,5 @@ export const SECRETS_FOLDER_NAME = "secrets";
 export const BACKUP_NAME_PATTERN = /^offgrid-(?<version>[0-9A-Za-z.+_-]+)-(?<stamp>\d{8}T\d{6}Z)$/;
 
 export const MILLISECONDS_PER_SECOND = 1000;
+
+export const STDERR_TAIL_BYTES = 2000;

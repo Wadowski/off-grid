@@ -9,7 +9,7 @@ export const attemptBackupStep = async (
 ): Promise<void> => {
   try {
     await action();
-  } catch {
-    throw new BackupFailedError(step);
+  } catch (cause) {
+    throw new BackupFailedError(step, { cause });
   }
 };
