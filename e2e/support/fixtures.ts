@@ -10,7 +10,7 @@ import { scenarioClientAddress } from "./scenario-client-address.js";
 import type { Family } from "./factories/family.js";
 import type { RegistrationResult } from "./factories/identity.js";
 import type { JsonResponse, Member, Session } from "./factories/instance-admin.js";
-import type { SignedInPerson } from "./factories/notifications.js";
+import type { NotificationList, SignedInPerson } from "./factories/notifications.js";
 import type { CalendarEventsWorld } from "./factories/calendar-events.js";
 import type { CalendarViewsWorld } from "./factories/calendar-views.js";
 import type { EventDetailsWorld } from "./factories/calendar-event-details.js";
@@ -44,6 +44,7 @@ export type ScenarioWorld = {
   adminPasswordChanged?: boolean;
   people?: Record<string, SignedInPerson>;
   notificationId?: string;
+  notificationList?: NotificationList;
   newAccountEmail?: string;
   signInEmail?: string;
   signInFailure?: JsonResponse;

@@ -27,6 +27,32 @@ describe("notificationListQuerySchema", () => {
     },
   );
 
+  it.each(["calendar", "account-security"])("accepts the %s category", (category) => {
+    expect(notificationListQuerySchema.parse({ category })).toEqual({ category, limit: 20 });
+  });
+
+  it("accepts unread=true", () => {
+    expect(notificationListQuerySchema.parse({ unread: "true" })).toEqual({
+      unread: "true",
+      limit: 20,
+    });
+  });
+
+  it.each([{ category: "family" }, { unread: "false" }, { unread: "1" }, { unread: true }])(
+    "rejects %o",
+    (query) => {
+      expect(notificationListQuerySchema.safeParse(query).success).toBe(false);
+    },
+  );
+
+  it("accepts a category together with unread=true", () => {
+    expect(notificationListQuerySchema.parse({ category: "calendar", unread: "true" })).toEqual({
+      category: "calendar",
+      unread: "true",
+      limit: 20,
+    });
+  });
+
   it("rejects a cursor longer than 512 characters", () => {
     expect(notificationListQuerySchema.safeParse({ cursor: "x".repeat(513) }).success).toBe(false);
   });

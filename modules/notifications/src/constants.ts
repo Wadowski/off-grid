@@ -8,11 +8,19 @@ import {
   recoveryCodeRegeneratedV1,
   type EventDefinition,
 } from "@offgrid/contracts";
+import type { NotificationCategory, NotificationType } from "@offgrid/contracts";
 import type { z } from "zod";
 
 export const NOTIFICATIONS_MODULE_NAME = "notifications";
 
 export const INBOX_SUBSCRIBER_PREFIX = "notifications-inbox";
+
+export const NOTIFICATION_CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
+  "password-changed": "account-security",
+  "recovery-code-regenerated": "account-security",
+  "event-invited": "calendar",
+  "event-reminder": "calendar",
+};
 
 type FactEvent = EventDefinition<string, number, z.ZodObject>;
 

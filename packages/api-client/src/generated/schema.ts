@@ -658,6 +658,7 @@ export interface components {
             notifications: {
                 id: string;
                 type: "password-changed" | "recovery-code-regenerated" | "event-invited" | "event-reminder";
+                category: "calendar" | "account-security";
                 data: {
                     [key: string]: string;
                 };
@@ -2193,6 +2194,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                category?: "calendar" | "account-security";
+                unread?: "true";
             };
             header?: never;
             path?: never;

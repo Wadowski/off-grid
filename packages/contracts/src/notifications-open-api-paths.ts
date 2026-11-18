@@ -21,7 +21,7 @@ const notFound = errorResponse(
 );
 
 const validationFailed = errorResponse(
-  "VALIDATION_FAILED: a query value does not match the request schema, or the cursor is not one the server issued.",
+  "VALIDATION_FAILED: a query value does not match the request schema (including an unknown category or an unread value other than true), or the cursor is not one the server issued.",
 );
 
 const listQueryParameters = [
@@ -40,6 +40,22 @@ const listQueryParameters = [
     description: "The number of notifications per page.",
     schema: z.toJSONSchema(notificationListQuerySchema.shape.limit),
   },
+  {
+    name: "category",
+    in: "query",
+    required: false,
+    description:
+      "Only the notifications of this category. Omit it to list every category. Filters combine with unread.",
+    schema: z.toJSONSchema(notificationListQuerySchema.shape.category.unwrap()),
+  },
+  {
+    name: "unread",
+    in: "query",
+    required: false,
+    description:
+      "Set to true to list only unread notifications. Other values are rejected. The unreadCount field always counts the whole inbox.",
+    schema: z.toJSONSchema(notificationListQuerySchema.shape.unread.unwrap()),
+  },
 ];
 
 const notificationIdParameter = {
@@ -54,7 +70,7 @@ export const notificationsOpenApiPaths = {
     get: {
       operationId: "listNotifications",
       summary:
-        "List the signed-in person's notifications, newest first, one page at a time, with the unread and total counts",
+        "List the signed-in person's notifications, newest first, one page at a time. total counts the notifications that match the filters; unreadCount counts the whole inbox.",
       parameters: listQueryParameters,
       responses: {
         "200": {

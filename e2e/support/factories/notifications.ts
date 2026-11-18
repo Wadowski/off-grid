@@ -17,12 +17,14 @@ export type SignedInPerson = Person & { session: Session; recoveryCode?: string 
 export type NotificationItem = {
   id: string;
   type: string;
+  category: string;
   readAt: string | null;
 };
 
 export type NotificationList = {
   notifications: NotificationItem[];
   unreadCount: number;
+  total: number;
 };
 
 export async function signedInPerson(
@@ -58,8 +60,6 @@ export function changeOwnPassword(
   });
 }
 
-// Regenerating the recovery code is a password-confirmed change that raises a notice,
-// so it gives a person an inbox item without changing their password.
 export function regenerateOwnRecoveryCode(
   api: APIRequestContext,
   person: SignedInPerson,
@@ -74,8 +74,10 @@ export function regenerateOwnRecoveryCode(
 export async function listOwnNotifications(
   api: APIRequestContext,
   session: Session,
+  query: { category?: string; unread?: "true" } = {},
 ): Promise<{ status: number; body: NotificationList }> {
   const response = await api.get("/api/me/notifications", {
+    params: query,
     headers: bearer(session),
     failOnStatusCode: false,
   });
