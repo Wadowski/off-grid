@@ -21,6 +21,7 @@ import { updateCalendarRequestSchema } from "./update-calendar-request-schema.js
 import { changePasswordRequestSchema } from "./change-password-request-schema.js";
 import { passwordConfirmationRequestSchema } from "./password-confirmation-request-schema.js";
 import { notificationListSchema } from "./notification-schema.js";
+import { notificationMarkAllReadSchema } from "./notification-mark-all-read-schema.js";
 import { recoveryCodeIssuedSchema } from "./recovery-code-issued-schema.js";
 import { sessionListSchema } from "./session-list-schema.js";
 import { updateProfileRequestSchema } from "./update-profile-request-schema.js";
@@ -108,6 +109,7 @@ export const openApiComponentSchemas = {
   RecoveryCodeIssued: recoveryCodeIssuedSchema,
   SessionList: sessionListSchema,
   NotificationList: notificationListSchema,
+  NotificationsMarkAllRead: notificationMarkAllReadSchema,
   Drive: driveSchema,
   DriveList: driveListSchema,
   File: fileSchema,

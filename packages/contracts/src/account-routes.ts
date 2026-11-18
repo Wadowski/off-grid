@@ -10,4 +10,5 @@ export const accountRoutes = {
   otherSessions: "/me/sessions/sign-out-others",
   notifications: "/me/notifications",
   notificationRead: "/me/notifications/:notificationId/read",
+  notificationsReadAll: "/me/notifications/read-all",
 } as const;

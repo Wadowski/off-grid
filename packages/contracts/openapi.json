@@ -1988,6 +1988,34 @@
         }
       }
     },
+    "/me/notifications/read-all": {
+      "post": {
+        "operationId": "markAllNotificationsRead",
+        "summary": "Mark every unread notification of the signed-in person as read. Notifications already read keep their first read time. updated counts the notifications that were unread.",
+        "responses": {
+          "200": {
+            "description": "The number of notifications that were marked read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationsMarkAllRead"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/links": {
       "get": {
         "operationId": "listCrossEntityLinks",
@@ -3760,6 +3788,21 @@
           "unreadCount",
           "nextCursor",
           "total"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationsMarkAllRead": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "updated": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "updated"
         ],
         "additionalProperties": false
       },
