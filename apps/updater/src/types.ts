@@ -75,7 +75,9 @@ export interface UpdaterConfig {
   readonly backupRoot: string;
   readonly backupRetention: number;
   readonly healthUrl: string;
+  readonly webHealthUrl: string;
   readonly healthTimeoutMilliseconds: number;
+  readonly statusFile: string;
 }
 
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;

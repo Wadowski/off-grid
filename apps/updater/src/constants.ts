@@ -13,7 +13,11 @@ export const DEFAULT_DATABASE_NAME = "offgrid";
 
 export const DEFAULT_DATABASE_USER = "offgrid_migrator";
 
-export const DEFAULT_HEALTH_URL = "http://127.0.0.1:3000/health";
+export const DEFAULT_HEALTH_URL = "http://127.0.0.1:3000/api/health";
+
+export const DEFAULT_WEB_HEALTH_URL = "http://127.0.0.1:8080/";
+
+export const DEFAULT_STATUS_FILE = "data/updater/status.json";
 
 export const DEFAULT_HEALTH_TIMEOUT_SECONDS = 120;
 

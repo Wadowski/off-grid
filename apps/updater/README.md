@@ -12,18 +12,20 @@ This package is the backup and restore core used before an update: it dumps the 
 
 ## Configuration
 
-| Variable                                 | Default                        | Notes                              |
-| ---------------------------------------- | ------------------------------ | ---------------------------------- |
-| `OFFGRID_UPDATER_DATABASE_HOST`          | required                       | Postgres host                      |
-| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                         |                                    |
-| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                      |                                    |
-| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`             |                                    |
-| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                       | File holding the migrator password |
-| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                 | `/run/secrets` in production       |
-| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                 | `/backups` volume in production    |
-| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                            | Newest backups kept, at least 1    |
-| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/health` | http or https only                 |
-| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                          |                                    |
+| Variable                                 | Default                            | Notes                                |
+| ---------------------------------------- | ---------------------------------- | ------------------------------------ |
+| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                        |
+| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                      |
+| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                      |
+| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                      |
+| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password   |
+| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production         |
+| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production      |
+| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1      |
+| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only    |
+| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only       |
+| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                      |
+| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres |
 
 ## Backups
 
@@ -52,6 +54,6 @@ PGPASSWORD="$(cat /path/to/migrator-password)" pg_restore --clean --if-exists \
   <backup-root>/<name>/database.dump
 ```
 
-Then start the server and check `GET /health` returns 2xx.
+Then start the server and check `GET /api/health` returns 2xx.
 
 Manual secrets recovery: secrets are never restored automatically, because a restore after a failed update could overwrite secrets that were rotated since the backup. To recover a secret by hand, copy the file from `<backup-root>/<name>/secrets/` into the secrets directory (`data/secrets` or `/run/secrets`) and keep its mode at `0600`. Only do this when the database is also restored from the same backup, since the secrets must match the data they encrypt or sign.

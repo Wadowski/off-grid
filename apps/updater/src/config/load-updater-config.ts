@@ -37,7 +37,9 @@ export const loadUpdaterConfig = (
     backupRoot: values.OFFGRID_UPDATER_BACKUP_ROOT,
     backupRetention: values.OFFGRID_UPDATER_BACKUP_RETENTION,
     healthUrl: values.OFFGRID_UPDATER_HEALTH_URL,
+    webHealthUrl: values.OFFGRID_UPDATER_WEB_HEALTH_URL,
     healthTimeoutMilliseconds:
       values.OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS * MILLISECONDS_PER_SECOND,
+    statusFile: values.OFFGRID_UPDATER_STATUS_FILE,
   };
 };
