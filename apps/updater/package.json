@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit --composite false --incremental false",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests"
   },

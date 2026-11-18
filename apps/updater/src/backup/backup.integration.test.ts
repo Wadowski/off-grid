@@ -166,9 +166,10 @@ beforeAll(async () => {
 }, 120_000);
 
 beforeEach(async () => {
-  await migrator.query("drop table if exists backup_probe");
-  await migrator.query("create table backup_probe (id integer primary key, note text not null)");
-  await migrator.query("insert into backup_probe (id, note) values (1, $1)", [SEEDED_BEFORE]);
+  const client = requireMigrator();
+  await client.query("drop table if exists backup_probe");
+  await client.query("create table backup_probe (id integer primary key, note text not null)");
+  await client.query("insert into backup_probe (id, note) values (1, $1)", [SEEDED_BEFORE]);
   await rm(backupRoot, { recursive: true, force: true });
 });
 
