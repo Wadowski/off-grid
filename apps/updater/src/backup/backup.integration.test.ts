@@ -18,6 +18,24 @@ import type { BackupSettings, RestoreSettings } from "../types.js";
 const run = promisify(execFile);
 
 const REQUIRED_CLIENT_MAJOR = "17";
+const MODULE_SCHEMAS = [
+  "identity",
+  "family",
+  "access",
+  "calendar",
+  "lists",
+  "notes",
+  "files",
+  "food",
+  "relations",
+  "notifications",
+  "export",
+  "outbox",
+  "observability",
+]
+  .map((name) => `'${name}'`)
+  .join(", ");
+
 const SEEDED_BEFORE = "row-before-backup";
 const SEEDED_AFTER = "row-after-backup";
 const BACKUP_VERSION = "1.4.0";
@@ -97,6 +115,42 @@ const writeProbeValue = async (note: string): Promise<void> => {
 
 const modeOf = async (path: string): Promise<number> => (await stat(path)).mode & 0o777;
 
+const SUPERUSER_OWNED_OBJECTS_QUERY = `
+  select 'database' as kind, d.datname as name
+    from pg_database d join pg_roles r on r.oid = d.datdba
+   where d.datname = current_database() and r.rolsuper
+  union all
+  select 'schema', n.nspname
+    from pg_namespace n join pg_roles r on r.oid = n.nspowner
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+  union all
+  select 'relation', c.relname
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    join pg_roles r on r.oid = c.relowner
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+  union all
+  select 'function', p.proname
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    join pg_roles r on r.oid = p.proowner
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+  union all
+  select 'type', t.typname
+    from pg_type t
+    join pg_namespace n on n.oid = t.typnamespace
+    join pg_roles r on r.oid = t.typowner
+   where (n.nspname = 'public' or n.nspname in (${MODULE_SCHEMAS})) and r.rolsuper
+     and t.typtype <> 'c'
+`;
+
+const findSuperuserOwnedObjects = async (): Promise<string[]> => {
+  const result = await requireMigrator().query<{ kind: string; name: string }>(
+    SUPERUSER_OWNED_OBJECTS_QUERY,
+  );
+  return result.rows.map((row) => `${row.kind} ${row.name}`);
+};
+
 beforeAll(async () => {
   root = await mkdtemp(join(tmpdir(), "offgrid-backup-it-"));
   await requireClientTools();
@@ -110,7 +164,7 @@ beforeAll(async () => {
     requireDatabase().migratorTarget.password,
     { mode: 0o444 },
   );
-});
+}, 120_000);
 
 beforeEach(async () => {
   await migrator.query("drop table if exists backup_probe");
@@ -144,7 +198,7 @@ describe("backup and restore against Postgres 17", () => {
     );
 
     expect(await readProbeValue()).toBe(SEEDED_BEFORE);
-  });
+  }, 60_000);
 
   it("creates the backup folder with mode 0700 and a dump that lists", async () => {
     const backup = await createBackup(
@@ -161,7 +215,7 @@ describe("backup and restore against Postgres 17", () => {
     await expect(
       postgresTools.listDump(join(backup.path, "database.dump")),
     ).resolves.toBeUndefined();
-  });
+  }, 60_000);
 
   it("keeps the newest backups and prunes the oldest when a fourth one is taken", async () => {
     const first = await createBackup(postgresTools, settings(requireDatabase().migratorTarget, 3), {
@@ -179,7 +233,26 @@ describe("backup and restore against Postgres 17", () => {
 
     expect(remaining).toHaveLength(3);
     expect(remaining).not.toContain(first.name);
-  });
+  }, 60_000);
+
+  it("leaves no superuser-owned objects in public or the module schemas after a restore", async () => {
+    const backup = await createBackup(
+      postgresTools,
+      settings(requireDatabase().migratorTarget, 3),
+      {
+        version: BACKUP_VERSION,
+        createdAt: new Date(BASE_TIME),
+      },
+    );
+
+    await restoreBackup(
+      postgresTools,
+      restoreSettings(requireDatabase().migratorTarget),
+      backup.name,
+    );
+
+    expect(await findSuperuserOwnedObjects()).toEqual([]);
+  }, 60_000);
 
   it("refuses to restore a backup name that does not exist", async () => {
     await expect(
