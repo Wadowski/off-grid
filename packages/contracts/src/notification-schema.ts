@@ -17,4 +17,6 @@ export const notificationSchema = z.object({
 export const notificationListSchema = z.object({
   notifications: z.array(notificationSchema),
   unreadCount: z.number().int().nonnegative(),
+  nextCursor: z.string().min(1).max(512).nullable(),
+  total: z.number().int().nonnegative(),
 });
