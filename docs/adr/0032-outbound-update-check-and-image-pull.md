@@ -25,7 +25,7 @@ The forces are these:
   2. when the admin has turned on the **nightly automatic update**. This option is off by default. When it is on, the check runs once a day in the lowest-traffic hour, which the admin can see and change in the settings.
 - No other outbound call is added. The update feature makes no call at any other time, and no call carries app data, user data or identifiers beyond what the HTTP request needs.
 - The exact hosts are:
-  - `api.github.com`: the GitHub Releases API, which returns the release list and the signed release manifest.
+  - `api.github.com`: the GitHub Releases API, which returns the release list and the release manifest.
   - `ghcr.io`: the GitHub Container Registry, which serves image manifests.
   - `pkg-containers.githubusercontent.com`: the host to which GHCR redirects image layer downloads. The implementation must confirm this host against GHCR's current behaviour before it is added to any allow-list.
   - `release-assets.githubusercontent.com`: the host to which the GitHub Releases API redirects the download of the release manifest asset. Observed on 2026-11-18 for a public release asset (`api.github.com` answered with a 302 to this host); the updater follows that one redirect and no other.
