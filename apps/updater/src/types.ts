@@ -144,3 +144,9 @@ export interface UpdateRun {
   readonly manifest: ReleaseManifest;
   status: UpdateStatus;
 }
+
+export type ReleaseRun = () => void;
+
+export interface RunLock {
+  readonly tryAcquire: () => ReleaseRun | null;
+}
