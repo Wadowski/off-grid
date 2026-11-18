@@ -53,4 +53,16 @@ export interface ListedNotification {
 export interface NotificationList {
   readonly notifications: ListedNotification[];
   readonly unreadCount: number;
+  readonly nextCursor: string | null;
+  readonly total: number;
+}
+
+export interface NotificationCursor {
+  readonly createdAt: Date;
+  readonly notificationId: string;
+}
+
+export interface NotificationPageRequest {
+  readonly limit: number;
+  readonly cursor?: string;
 }

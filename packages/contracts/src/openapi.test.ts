@@ -102,6 +102,8 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/files/{id}/versions/{versionId}/restore",
       "/links",
       "/links/{id}",
+      "/me/notifications",
+      "/me/notifications/{notificationId}/read",
       "/system/version",
       "/uploads",
       "/uploads/{id}",
@@ -114,6 +116,10 @@ describe("buildOpenApiDocument calendar paths", () => {
     expect(paths["/calendars"].post.operationId).toBe("createCalendar");
     expect(paths["/calendars/{id}"].patch.operationId).toBe("updateCalendar");
     expect(paths["/calendars/{id}"].delete.operationId).toBe("removeCalendar");
+    expect(paths["/me/notifications"].get.operationId).toBe("listNotifications");
+    expect(paths["/me/notifications/{notificationId}/read"].post.operationId).toBe(
+      "markNotificationRead",
+    );
   });
 });
 

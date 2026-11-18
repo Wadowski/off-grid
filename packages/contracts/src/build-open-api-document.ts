@@ -3,6 +3,7 @@
 
 import { calendarOpenApiPaths } from "./calendar-open-api-paths.js";
 import { filesOpenApiPaths } from "./files-open-api-paths.js";
+import { notificationsOpenApiPaths } from "./notifications-open-api-paths.js";
 import { openApiComponentSchemas } from "./open-api-component-schemas.js";
 import { relationsOpenApiPaths } from "./relations-open-api-paths.js";
 import { systemOpenApiPaths } from "./system-open-api-paths.js";
@@ -19,6 +20,7 @@ export const buildOpenApiDocument = () => {
     paths: {
       ...calendarOpenApiPaths,
       ...filesOpenApiPaths,
+      ...notificationsOpenApiPaths,
       ...relationsOpenApiPaths,
       ...systemOpenApiPaths,
     },

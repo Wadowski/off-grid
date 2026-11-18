@@ -25,7 +25,7 @@ Each subscriber writes the inbox item in its own transaction. The item's id is t
 
 ## Routes
 
-- `GET /api/me/notifications`: the caller's items, newest first, as `{ notifications: [{ id, type, data, createdAt, readAt }], unreadCount }`.
+- `GET /api/me/notifications`: the caller's items, newest first, one page at a time. Query: `limit` (1 to 50, default 20) and `cursor`, an opaque value that the previous page returned as `nextCursor` (omit it for the first page). Order is `createdAt` descending, then `notificationId` descending, so equal timestamps keep a stable order. Response: `{ notifications: [{ id, type, data, createdAt, readAt }], unreadCount, nextCursor, total }`. `unreadCount` is the caller's unread count across the whole inbox, not the page. `total` is the caller's item count across the whole inbox. `nextCursor` is `null` on the last page. A `limit` outside 1 to 50, or a cursor the server did not issue, gets `400 VALIDATION_FAILED`. The cursor carries only a timestamp and an item id, and the error never echoes it.
 - `POST /api/me/notifications/:notificationId/read`: marks one item read and returns `204`. Re-marking keeps the first read time. An item that is not the caller's gets `404 NOT_FOUND`.
 
 ## Channels
