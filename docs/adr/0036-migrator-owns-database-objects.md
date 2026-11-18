@@ -30,3 +30,4 @@ Applied init scripts (`00`, `01`, `02`) and applied Prisma migrations cannot be 
 - Rolling back means removing `03` and the `db-ownership` service. The ownership that has already moved stays. Restoring superuser ownership is a manual `ALTER ... OWNER TO` by an operator.
 - Each later init or migration that creates a superuser-owned object must be added to `03`, or the restore of a backup taken after it will fail. The integration test catches this.
 - [0017](0017-shared-database-roles-and-prisma-migrate.md) is amended by this record: the migration role owns the database and the init-created helper, not only the module schemas and tables.
+- The backup folder holds the secrets in plaintext, including `mail-encryption-key`, so copying a backup folder copies that key with the data. Keep backups on the host or handle them as secrets. The migrator password must never reach `main-server` or any other runtime container.

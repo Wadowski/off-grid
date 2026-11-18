@@ -34,19 +34,21 @@ This package is the backup and restore core used before an update: it dumps the 
 
 Folders are created with mode `0700`. A failed backup removes its partial folder and prunes nothing. After a successful backup only the newest `OFFGRID_UPDATER_BACKUP_RETENTION` backups are kept, ordered by the timestamp in the name.
 
-The updater needs `pg_dump` and `pg_restore` version 17 on its PATH. The password is passed to the tools through `PGPASSWORD`, never on the command line.
+The updater needs `pg_dump` and `pg_restore` version 17 on its PATH. The password is passed to the tools through `PGPASSWORD`, never on the command line. The tools get no other environment variable than `PATH` and `PGPASSWORD`.
+
+The backup folder holds the secrets in plaintext, including `mail-encryption-key`. Copying the folder copies that key with the data, so keep backups on the host or handle them as secrets. The migrator password must never reach `main-server` or any other runtime container.
 
 ## Restore
 
 The restore covers the database only. The server must be stopped before a restore so that no connection holds the database.
 
-The restore runs as `offgrid_migrator` with no superuser login and no `--no-owner`, so the restored objects keep their owners. It needs the database and the scope helper owned by `offgrid_migrator`, which the `db-ownership` compose service (`infra/init/sql/03-migrator-ownership.sql`) sets on fresh and existing installs (ADR 0036). Any install that has not started through `db-ownership` must run it before a restore, or the restore fails with ownership errors. Objects that a later migration or init script creates as the superuser must be added to `03`.
+The restore runs as `offgrid_migrator` with no superuser login and no `--no-owner`, so the restored objects keep their owners. It uses `--clean --if-exists --single-transaction --exit-on-error`, so a failed restore rolls back and leaves the database as it was. It needs the database and the scope helper owned by `offgrid_migrator`, which the `db-ownership` compose service (`infra/init/sql/03-migrator-ownership.sql`) sets on fresh and existing installs (ADR 0036). Any install that has not started through `db-ownership` must run it before a restore, or the restore fails with ownership errors. Objects that a later migration or init script creates as the superuser must be added to `03`.
 
 Manual database restore, run from the host with the backup folder name in place of `<name>`:
 
 ```
 PGPASSWORD="$(cat /path/to/migrator-password)" pg_restore --clean --if-exists \
-  --host <db-host> --port 5432 --username offgrid_migrator --dbname offgrid \
+  --single-transaction --exit-on-error --host <db-host> --port 5432 --username offgrid_migrator --dbname offgrid \
   <backup-root>/<name>/database.dump
 ```
 
