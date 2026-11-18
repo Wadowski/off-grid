@@ -63,3 +63,7 @@ export const UPDATE_OUTCOMES = [
   "rolled_back",
   "failed_needs_admin",
 ] as const;
+
+export const STATUS_FILE_MODE = 0o600;
+
+export const STATUS_DIRECTORY_MODE = 0o700;
