@@ -54,6 +54,7 @@ describe("buildOpenApiDocument", () => {
       "MoveFileRequest",
       "MoveFileResult",
       "NotificationList",
+      "NotificationsMarkAllRead",
       "PasswordConfirmationRequest",
       "PasswordRecoveryOptions",
       "PasswordRecoveryRequest",
@@ -103,6 +104,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/links",
       "/links/{id}",
       "/me/notifications",
+      "/me/notifications/read-all",
       "/me/notifications/{notificationId}/read",
       "/system/version",
       "/uploads",
@@ -125,6 +127,7 @@ describe("buildOpenApiDocument calendar paths", () => {
     expect(paths["/me/notifications/{notificationId}/read"].post.operationId).toBe(
       "markNotificationRead",
     );
+    expect(paths["/me/notifications/read-all"].post.operationId).toBe("markAllNotificationsRead");
   });
 });
 

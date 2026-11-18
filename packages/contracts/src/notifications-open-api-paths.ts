@@ -96,4 +96,18 @@ export const notificationsOpenApiPaths = {
       },
     },
   },
+  "/me/notifications/read-all": {
+    post: {
+      operationId: "markAllNotificationsRead",
+      summary:
+        "Mark every unread notification of the signed-in person as read. Notifications already read keep their first read time. updated counts the notifications that were unread.",
+      responses: {
+        "200": {
+          description: "The number of notifications that were marked read.",
+          content: jsonContent("NotificationsMarkAllRead"),
+        },
+        "401": unauthenticated,
+      },
+    },
+  },
 };

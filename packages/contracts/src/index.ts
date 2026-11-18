@@ -109,6 +109,7 @@ export * from "./notification-category-schema.js";
 export * from "./notification-schema.js";
 export * from "./notification-type-schema.js";
 export * from "./notification-list-query-schema.js";
+export * from "./notification-mark-all-read-schema.js";
 export * from "./redeem-family-invitation-request-schema.js";
 export * from "./family-invitation-preview-schema.js";
 export * from "./joined-family-schema.js";

@@ -6,6 +6,7 @@ import { NEW_PASSWORD } from "../support/factories/instance-admin.js";
 import {
   changeOwnPassword,
   listOwnNotifications,
+  markAllOwnNotificationsRead,
   markOwnNotificationRead,
   regenerateOwnRecoveryCode,
   signedInPerson,
@@ -167,6 +168,29 @@ Then("it no longer counts as unread", async ({ world }) => {
   const item = body.notifications.find((notification) => notification.id === world.notificationId);
   expect(item?.readAt).not.toBeNull();
   expect(body.unreadCount).toBe(0);
+});
+
+When("Anna marks all her notices as read", async ({ world }) => {
+  const anna = personOf(world, "anna");
+  const response = await markAllOwnNotificationsRead(world.api, anna.session);
+  world.response = { status: response.status(), body: await response.json() };
+});
+
+Then("she has no unread notices", async ({ world }) => {
+  const anna = personOf(world, "anna");
+  const { body } = await listOwnNotifications(world.api, anna.session);
+  expect(body.unreadCount).toBe(0);
+});
+
+Then(/^the number of notices marked is (\d+)$/, ({ world }, count: string) => {
+  expect(world.response?.status).toBe(200);
+  expect(world.response?.body).toEqual({ updated: Number(count) });
+});
+
+Then("Tom still has an unread notice", async ({ world }) => {
+  const tom = personOf(world, "tom");
+  const { body } = await listOwnNotifications(world.api, tom.session);
+  expect(body.unreadCount).toBe(1);
 });
 
 Then("Anna cannot see Tom's notifications", async ({ world }) => {

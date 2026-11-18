@@ -111,3 +111,12 @@ export function markOwnNotificationRead(
     failOnStatusCode: false,
   });
 }
+
+export const markAllOwnNotificationsRead = (
+  api: APIRequestContext,
+  session: Session,
+): Promise<APIResponse> =>
+  api.post("/api/me/notifications/read-all", {
+    headers: bearer(session),
+    failOnStatusCode: false,
+  });
