@@ -18,6 +18,28 @@ Feature: Notifications
     When Anna marks an item as read
     Then it no longer counts as unread
 
+  Scenario: Marking everything as read
+    Given Anna is signed in
+    And she has a password change notice
+    And she has a recovery code notice
+    When Anna marks all her notices as read
+    Then she has no unread notices
+    And the number of notices marked is 2
+
+  Scenario: Marking everything keeps notices that were already read
+    Given Anna is signed in
+    And she has a password change notice
+    And she has a recovery code notice
+    And she has marked her password change notice as read
+    When Anna marks all her notices as read
+    Then the number of notices marked is 1
+
+  Scenario: Marking everything leaves other people's notices alone
+    Given Anna is signed in
+    And Tom has an unread inbox item
+    When Anna marks all her notices as read
+    Then Tom still has an unread notice
+
   Scenario: Privacy
     Given Anna is signed in
     And Tom has an unread inbox item
