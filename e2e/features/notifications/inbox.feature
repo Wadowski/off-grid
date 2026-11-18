@@ -23,7 +23,6 @@ Feature: Notifications
     And Tom has an unread inbox item
     Then Anna cannot see Tom's notifications
 
-  @wip
   Scenario: Notices carry their category
     Given Anna is signed in
     And she has a password change notice
@@ -31,7 +30,6 @@ Feature: Notifications
     When Anna opens her inbox
     Then each notice shows the category account-security
 
-  @wip
   Scenario Outline: Filtering the inbox by category and unread state
     Given Anna is signed in
     And she has a password change notice
@@ -48,7 +46,6 @@ Feature: Notifications
       | unread notices only               | 1     |
       | the calendar category and unread  | 0     |
 
-  @wip
   Scenario: Counts reflect the filter
     Given Anna is signed in
     And she has a password change notice

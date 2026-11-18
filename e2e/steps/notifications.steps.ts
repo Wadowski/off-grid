@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { createBdd } from "playwright-bdd";
+import { NEW_PASSWORD } from "../support/factories/instance-admin.js";
 import {
   changeOwnPassword,
   listOwnNotifications,
@@ -9,6 +10,7 @@ import {
   regenerateOwnRecoveryCode,
   signedInPerson,
   waitForOwnNotifications,
+  type NotificationQuery,
   type SignedInPerson,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
@@ -22,6 +24,91 @@ function personOf(world: ScenarioWorld, key: string): SignedInPerson {
   }
   return person;
 }
+
+const INBOX_FILTERS: Record<string, NotificationQuery> = {
+  "the account-security category": { category: "account-security" },
+  "the calendar category": { category: "calendar" },
+  "unread notices only": { unread: "true" },
+  "the calendar category and unread": { category: "calendar", unread: "true" },
+};
+
+function filterNamed(text: string): NotificationQuery {
+  const query = INBOX_FILTERS[text];
+  if (query === undefined) {
+    throw new Error(`"${text}" is not an inbox filter.`);
+  }
+  return query;
+}
+
+function listingOf(world: ScenarioWorld) {
+  const list = world.notificationList;
+  if (list === undefined) {
+    throw new Error("Anna has not opened her inbox in this scenario.");
+  }
+  return list;
+}
+
+Given("she has a password change notice", async ({ world }) => {
+  const anna = personOf(world, "anna");
+  const response = await changeOwnPassword(world.api, anna);
+  expect(response.ok(), "Anna could not change her password").toBe(true);
+  anna.password = NEW_PASSWORD;
+  await waitForOwnNotifications(world.api, anna.session, (list) =>
+    list.notifications.some((notification) => notification.type === "password-changed"),
+  );
+});
+
+Given("she has a recovery code notice", async ({ world }) => {
+  const anna = personOf(world, "anna");
+  const response = await regenerateOwnRecoveryCode(world.api, anna);
+  expect(response.status()).toBe(201);
+  await waitForOwnNotifications(world.api, anna.session, (list) =>
+    list.notifications.some((notification) => notification.type === "recovery-code-regenerated"),
+  );
+});
+
+Given("she has marked her password change notice as read", async ({ world }) => {
+  const anna = personOf(world, "anna");
+  const { body } = await waitForOwnNotifications(world.api, anna.session, (list) =>
+    list.notifications.some((notification) => notification.type === "password-changed"),
+  );
+  const item = body.notifications.find((notification) => notification.type === "password-changed");
+  expect(item, "Anna has no password change notice").toBeDefined();
+  const response = await markOwnNotificationRead(world.api, anna.session, item?.id ?? "");
+  expect(response.status()).toBe(204);
+});
+
+When("Anna opens her inbox", async ({ world }) => {
+  const anna = personOf(world, "anna");
+  const { body } = await listOwnNotifications(world.api, anna.session);
+  world.notificationList = body;
+});
+
+When(/^Anna filters her inbox by (.+)$/, async ({ world }, filter: string) => {
+  const anna = personOf(world, "anna");
+  const { body } = await listOwnNotifications(world.api, anna.session, filterNamed(filter));
+  world.notificationList = body;
+});
+
+Then(/^each notice shows the category (.+)$/, ({ world }, category: string) => {
+  const notices = listingOf(world).notifications;
+  expect(notices.length).toBeGreaterThan(0);
+  for (const notice of notices) {
+    expect(notice.category).toBe(category);
+  }
+});
+
+Then(/^she sees (\d+) notices$/, ({ world }, count: string) => {
+  expect(listingOf(world).notifications).toHaveLength(Number(count));
+});
+
+Then(/^the total is (\d+)$/, ({ world }, total: string) => {
+  expect(listingOf(world).total).toBe(Number(total));
+});
+
+Then(/^her unread count for the bell is still (\d+)$/, ({ world }, unread: string) => {
+  expect(listingOf(world).unreadCount).toBe(Number(unread));
+});
 
 Given("Tom has an unread inbox item", async ({ world }) => {
   world.people ??= {};
