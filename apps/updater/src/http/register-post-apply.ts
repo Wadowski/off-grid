@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
-import { fetchReleaseManifest } from "../release/fetch-release-manifest.js";
 import { runInBackground } from "../run/run-in-background.js";
 import type { UpdaterServices } from "../types.js";
 import { applyBodySchema } from "./apply-body-schema.js";
+import { loadReleaseContext } from "./load-release-context.js";
 
 export const registerPostApply = (app: FastifyInstance, services: UpdaterServices): void => {
   app.post("/apply", async (request, reply) => {
@@ -18,22 +18,13 @@ export const registerPostApply = (app: FastifyInstance, services: UpdaterService
       return reply.code(409).send({ error: "update_already_running" });
     }
     const targetVersion = body.data.version;
-    const currentVersion = await services.currentVersion().catch(() => null);
-    if (currentVersion === null) {
+    const context = await loadReleaseContext(services, targetVersion);
+    if (!context.ok) {
       release();
-      return reply.code(503).send({ error: "current_version_unknown" });
-    }
-    const manifest = await fetchReleaseManifest(
-      services.httpFetch,
-      services.releaseRepository,
-      targetVersion,
-    ).catch(() => null);
-    if (manifest === null) {
-      release();
-      return reply.code(502).send({ error: "release_source_unreachable" });
+      return reply.code(context.statusCode).send({ error: context.error });
     }
     runInBackground(services.logger, release, () =>
-      services.runApply({ currentVersion, manifest }),
+      services.runApply({ currentVersion: context.currentVersion, manifest: context.manifest }),
     );
     return reply.code(202).send({ started: true, targetVersion });
   });

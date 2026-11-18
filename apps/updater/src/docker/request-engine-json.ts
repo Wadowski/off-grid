@@ -14,7 +14,8 @@ export const requestEngineJson = async (
 ): Promise<unknown> => {
   const response = await sendEngineRequest(socketPath, method, path, options.body);
   const accepted =
-    (response.status >= DOCKER_SUCCESS_STATUS_MIN && response.status <= DOCKER_SUCCESS_STATUS_MAX) ||
+    (response.status >= DOCKER_SUCCESS_STATUS_MIN &&
+      response.status <= DOCKER_SUCCESS_STATUS_MAX) ||
     (options.acceptedStatuses ?? []).includes(response.status);
   if (!accepted) {
     throw new DockerApiError(options.operation, response.status);
