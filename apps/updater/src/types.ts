@@ -55,11 +55,6 @@ export interface RestoreSettings {
   readonly healthTimeoutMilliseconds: number;
 }
 
-export interface HealthPollSettings {
-  readonly timeoutMilliseconds: number;
-  readonly intervalMilliseconds: number;
-}
-
 export type ReadSecretFile = (path: string) => string;
 
 export interface UpdaterConfig {
