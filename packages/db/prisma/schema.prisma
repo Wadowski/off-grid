@@ -435,3 +435,14 @@ model FilesFileVersion {
   @@map("file_version")
   @@schema("files")
 }
+
+model FilesFamilyMembership {
+  familyId      String  @map("family_id") @db.Uuid
+  userId        String  @map("user_id") @db.Uuid
+  sourceVersion Int     @map("source_version")
+  isMember      Boolean @map("is_member")
+
+  @@id([familyId, userId])
+  @@map("family_membership")
+  @@schema("files")
+}
