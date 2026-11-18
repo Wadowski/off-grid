@@ -54,6 +54,19 @@ module.exports = {
       },
     },
     {
+      name: "updater-allowed-imports",
+      severity: "error",
+      comment: `apps/updater imports only packages/contracts, packages/observability and packages/test-db from the workspace, and no module code. ${ADR}`,
+      from: { path: "(^|/)apps/updater/" },
+      to: {
+        path: "(^|/)(apps|modules|packages)/",
+        pathNot: [
+          "(^|/)apps/updater/",
+          "(^|/)packages/(contracts|observability|test-db)/",
+        ],
+      },
+    },
+    {
       name: "domain-no-io",
       severity: "error",
       comment: `Module domain/ code does no I/O: no Prisma, Fastify, pg, fs or network libraries. ${ADR}`,
