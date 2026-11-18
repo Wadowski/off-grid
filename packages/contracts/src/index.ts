@@ -105,6 +105,7 @@ export * from "./registration-status-schema.js";
 export * from "./session-access-schema.js";
 export * from "./sign-in-request-schema.js";
 export * from "./signed-in-schema.js";
+export * from "./notification-category-schema.js";
 export * from "./notification-schema.js";
 export * from "./notification-type-schema.js";
 export * from "./notification-list-query-schema.js";

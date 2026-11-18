@@ -1857,7 +1857,7 @@
     "/me/notifications": {
       "get": {
         "operationId": "listNotifications",
-        "summary": "List the signed-in person's notifications, newest first, one page at a time, with the unread and total counts",
+        "summary": "List the signed-in person's notifications, newest first, one page at a time. total counts the notifications that match the filters; unreadCount counts the whole inbox.",
         "parameters": [
           {
             "name": "cursor",
@@ -1883,6 +1883,31 @@
               "minimum": 1,
               "maximum": 50
             }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "Only the notifications of this category. Omit it to list every category. Filters combine with unread.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "enum": [
+                "calendar",
+                "account-security"
+              ]
+            }
+          },
+          {
+            "name": "unread",
+            "in": "query",
+            "required": false,
+            "description": "Set to true to list only unread notifications. Other values are rejected. The unreadCount field always counts the whole inbox.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "const": "true"
+            }
           }
         ],
         "responses": {
@@ -1897,7 +1922,7 @@
             }
           },
           "400": {
-            "description": "VALIDATION_FAILED: a query value does not match the request schema, or the cursor is not one the server issued.",
+            "description": "VALIDATION_FAILED: a query value does not match the request schema (including an unknown category or an unread value other than true), or the cursor is not one the server issued.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3662,6 +3687,13 @@
                     "event-reminder"
                   ]
                 },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "calendar",
+                    "account-security"
+                  ]
+                },
                 "data": {
                   "type": "object",
                   "propertyNames": {
@@ -3692,6 +3724,7 @@
               "required": [
                 "id",
                 "type",
+                "category",
                 "data",
                 "createdAt",
                 "readAt"

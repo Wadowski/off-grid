@@ -12,4 +12,6 @@ export const NOTIFICATION_TYPES = [
 
 export const notificationTypeSchema = z.enum(NOTIFICATION_TYPES);
 
+export type NotificationType = z.infer<typeof notificationTypeSchema>;
+
 export const notificationDataSchema = z.record(z.string(), z.string());
