@@ -47,8 +47,7 @@ const findContainer = (
 const inspectOf = (container: FakeEngineContainerRecord, images: FakeEngineImageRecord[]) => ({
   Id: container.id,
   Name: `/${container.name}`,
-  Image:
-    images.find((image) => image.reference === container.config.FakeEngineImageRecord)?.id ?? "",
+  Image: images.find((image) => image.reference === container.config.Image)?.id ?? "",
   Config: { ...container.config, Env: container.env, Labels: container.labels },
   HostConfig: { PortBindings: {} },
   NetworkSettings: { Networks: { offgrid_default: {} } },
@@ -123,9 +122,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
       if (containers.some((container) => container.name === name)) {
         return { status: 409, json: { message: "name in use" } };
       }
-      const image = images.find(
-        (candidate) => candidate.reference === config.FakeEngineImageRecord,
-      );
+      const image = images.find((candidate) => candidate.reference === config.Image);
       if (image === undefined) {
         return notFound();
       }
@@ -220,7 +217,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
       return container === undefined
         ? undefined
         : {
-            image: String(container.config.FakeEngineImageRecord),
+            image: String(container.config.Image),
             env: container.env,
             running: container.running,
           };
