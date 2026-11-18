@@ -11,6 +11,8 @@ import {
   DEFAULT_HEALTH_TIMEOUT_SECONDS,
   DEFAULT_HEALTH_URL,
   DEFAULT_SECRETS_DIRECTORY,
+  DEFAULT_STATUS_FILE,
+  DEFAULT_WEB_HEALTH_URL,
 } from "../constants.js";
 
 const httpUrlSchema = z
@@ -34,6 +36,8 @@ export const updaterEnvironmentSchema = z.object({
   OFFGRID_UPDATER_BACKUP_ROOT: z.string().min(1).default(DEFAULT_BACKUP_ROOT),
   OFFGRID_UPDATER_BACKUP_RETENTION: positiveIntegerSchema.default(DEFAULT_BACKUP_RETENTION),
   OFFGRID_UPDATER_HEALTH_URL: httpUrlSchema.default(DEFAULT_HEALTH_URL),
+  OFFGRID_UPDATER_WEB_HEALTH_URL: httpUrlSchema.default(DEFAULT_WEB_HEALTH_URL),
+  OFFGRID_UPDATER_STATUS_FILE: z.string().min(1).default(DEFAULT_STATUS_FILE),
   OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS: positiveIntegerSchema.default(
     DEFAULT_HEALTH_TIMEOUT_SECONDS,
   ),

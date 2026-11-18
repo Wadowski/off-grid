@@ -12,18 +12,20 @@ This package is the backup and restore core used before an update: it dumps the 
 
 ## Configuration
 
-| Variable                                 | Default                        | Notes                              |
-| ---------------------------------------- | ------------------------------ | ---------------------------------- |
-| `OFFGRID_UPDATER_DATABASE_HOST`          | required                       | Postgres host                      |
-| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                         |                                    |
-| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                      |                                    |
-| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`             |                                    |
-| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                       | File holding the migrator password |
-| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                 | `/run/secrets` in production       |
-| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                 | `/backups` volume in production    |
-| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                            | Newest backups kept, at least 1    |
-| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/health` | http or https only                 |
-| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                          |                                    |
+| Variable                                 | Default                            | Notes                                |
+| ---------------------------------------- | ---------------------------------- | ------------------------------------ |
+| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                        |
+| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                      |
+| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                      |
+| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                      |
+| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password   |
+| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production         |
+| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production      |
+| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1      |
+| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only    |
+| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only       |
+| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                      |
+| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres |
 
 ## Backups
 
@@ -52,6 +54,43 @@ PGPASSWORD="$(cat /path/to/migrator-password)" pg_restore --clean --if-exists \
   <backup-root>/<name>/database.dump
 ```
 
-Then start the server and check `GET /health` returns 2xx.
+Then start the server and check `GET /api/health` returns 2xx.
 
 Manual secrets recovery: secrets are never restored automatically, because a restore after a failed update could overwrite secrets that were rotated since the backup. To recover a secret by hand, copy the file from `<backup-root>/<name>/secrets/` into the secrets directory (`data/secrets` or `/run/secrets`) and keep its mode at `0600`. Only do this when the database is also restored from the same backup, since the secrets must match the data they encrypt or sign.
+
+## Apply an update
+
+`applyUpdate(dependencies, request)` runs one update. The caller passes the running version and the parsed release manifest as `unknown`; the updater validates both with zod. The Docker runner, the backup service, the status store and the health probes are injected, so the state machine itself does not touch the Docker socket or the network. The real Docker runner belongs to the update API issue, which must implement the contract in `src/types.ts`.
+
+The steps run in this order:
+
+1. `verify_version`: the current version must be at least `minimumPreviousVersion` and the target must be newer. Otherwise the outcome is `refused` and nothing else runs.
+2. `backup`: `createBackup` takes a backup named for the current version. A failure ends the update as `failed_before_change`.
+3. `pull`: the running image references are read and kept as `previousImages`, then both new images are pulled by their digest reference from the manifest. A failure ends the update as `failed_before_change`, with no restore, because no container has changed.
+4. `migrate`: the init job runs the new server image.
+5. `replace`: the server and web containers are replaced with the new images.
+6. `health`: `/api/health` on the server must return 2xx and the web app must return HTTP 200 within `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS`.
+
+A failure in `migrate`, `replace` or `health` starts the rollback:
+
+1. `rollback_stop`: both containers are stopped, so no server connection holds the database.
+2. `rollback_restore`: the database is restored from the backup taken in this run. Secrets are not restored.
+3. `rollback_start`: the previous image references are started.
+4. `rollback_health`: both previous containers must become healthy.
+
+Each rollback step runs once and is never retried. Success ends as `rolled_back`. A failure in any rollback step ends as `failed_needs_admin`, names that rollback step, and skips the steps after it.
+
+Outcomes: `succeeded`, `refused`, `failed_before_change`, `rolled_back`, `failed_needs_admin`. An invalid manifest or request is not a status outcome: `applyUpdate` throws `UpdateRefusedError` and writes nothing.
+
+Rollback restores the database to the backup, so every write made after the backup is lost. The status shows this with `writesAfterBackupLost: true` for `rolled_back`, and for any later outcome where the restore step succeeded.
+
+### Status file
+
+Each run rewrites `OFFGRID_UPDATER_STATUS_FILE` (default `data/updater/status.json`) atomically: a temporary file in the same folder, mode `0600`, then a rename. The status is written before and after each step. It is kept outside Postgres because a rollback restores the database and would erase the record.
+
+The file holds only run identifiers, versions, image references, the backup folder name, step states, timestamps, the outcome and a fixed message per outcome. It never holds error text or secrets. `readUpdateStatus` returns `null` when no update has run and throws when the file does not match the schema. The server reads it through the update API.
+
+### Limits
+
+- If the updater process dies during an update, the status stays `in_progress`. Locking against concurrent runs and recovery of a stale run belong to the update API issue.
+- `failed_needs_admin` means the database and the containers may not match the previous version. Restore by hand: stop the containers, restore the database as described in the Restore section, then start the previous images from the status file.

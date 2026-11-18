@@ -33,8 +33,10 @@ describe("loadUpdaterConfig", () => {
       secretsDirectory: "data/secrets",
       backupRoot: "data/backups",
       backupRetention: 3,
-      healthUrl: "http://127.0.0.1:3000/health",
+      healthUrl: "http://127.0.0.1:3000/api/health",
+      webHealthUrl: "http://127.0.0.1:8080/",
       healthTimeoutMilliseconds: 120000,
+      statusFile: "data/updater/status.json",
     });
   });
 
@@ -46,7 +48,9 @@ describe("loadUpdaterConfig", () => {
         OFFGRID_UPDATER_BACKUP_ROOT: "/backups",
         OFFGRID_UPDATER_SECRETS_DIRECTORY: "/run/secrets",
         OFFGRID_UPDATER_HEALTH_URL: "https://server.internal/health",
+        OFFGRID_UPDATER_WEB_HEALTH_URL: "https://web.internal/",
         OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS: "30",
+        OFFGRID_UPDATER_STATUS_FILE: "/backups/status.json",
       },
       secretFiles("x"),
     );
@@ -56,7 +60,9 @@ describe("loadUpdaterConfig", () => {
       secretsDirectory: "/run/secrets",
       backupRetention: 5,
       healthUrl: "https://server.internal/health",
+      webHealthUrl: "https://web.internal/",
       healthTimeoutMilliseconds: 30000,
+      statusFile: "/backups/status.json",
     });
   });
 
@@ -93,6 +99,8 @@ describe("loadUpdaterConfig", () => {
     ["OFFGRID_UPDATER_BACKUP_RETENTION", "abc"],
     ["OFFGRID_UPDATER_HEALTH_URL", "ftp://server.internal/health"],
     ["OFFGRID_UPDATER_HEALTH_URL", "not a url"],
+    ["OFFGRID_UPDATER_WEB_HEALTH_URL", "ftp://web.internal/"],
+    ["OFFGRID_UPDATER_STATUS_FILE", ""],
     ["OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS", "0"],
     ["OFFGRID_UPDATER_DATABASE_PORT", "70000"],
     ["OFFGRID_UPDATER_DATABASE_USER", "Migrator-Role"],

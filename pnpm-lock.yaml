@@ -359,6 +359,9 @@ importers:
 
   apps/updater:
     dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       zod:
         specifier: ^4.6.7
         version: 4.6.7

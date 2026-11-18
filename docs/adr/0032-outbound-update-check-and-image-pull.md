@@ -46,6 +46,7 @@ The forces are these:
 
 - Before an update starts, the updater takes a backup. The backup and rollback rules are detailed in the backup and updater work, and this record does not restate them. If the backup fails, the update does not start.
 - A failed update leaves the previous images in place, and the admin sees the failure in the update history.
+- Once the database is changed, a failed migrate, replace or health step triggers a rollback. The rollback stops both containers, restores the database from the backup taken in this run, and starts the previous images by their recorded references. The restore discards every write made after the backup, and the update history records that loss. If any rollback step fails, the update ends in a state that needs an admin, and the system does not retry the destructive steps.
 
 ### Release pipeline
 
