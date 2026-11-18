@@ -14,6 +14,9 @@ services:
   db:
     networks: [internal]
 
+  db-ownership:
+    networks: [internal]
+
   init:
     networks: [internal]
 

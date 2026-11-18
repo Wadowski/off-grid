@@ -31,7 +31,7 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0014](0014-subscriber-handlers-on-module-logins.md)     | Subscriber handlers run on their module login, with at-least-once delivery                       | Partly superseded by 0017 |
 | [0015](0015-no-reverse-proxy-cors-on-the-server.md)      | No reverse proxy; the server allows its web origins with CORS                                    | Accepted                  |
 | [0016](0016-local-authentication-model.md)               | Local authentication model: passwords, sessions, registration and recovery                       | Partly superseded by 0018 |
-| [0017](0017-shared-database-roles-and-prisma-migrate.md) | Two database roles for all modules, and Prisma Migrate                                           | Proposed                  |
+| [0017](0017-shared-database-roles-and-prisma-migrate.md) | Two database roles for all modules, and Prisma Migrate                                           | Proposed, amended by 0036 |
 | [0018](0018-outgoing-mail-to-a-chosen-provider.md)       | Outgoing mail to a provider the owner chooses                                                    | Accepted                  |
 | [0019](0019-state-shared-between-instances.md)           | State that must be shared between server instances lives in Postgres                             | Proposed                  |
 | [0020](0020-error-records-in-postgres.md)                | Error records are kept in Postgres for a retention period                                        | Accepted                  |
@@ -50,3 +50,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0033](0033-file-bytes-on-a-disk-volume.md)              | File bytes live on a disk volume behind a storage port                                           | Proposed                  |
 | [0034](0034-files-access-model-trash-and-versions.md)    | Files: family or user drives, row-level access, soft-delete trash and immutable versions         | Proposed                  |
 | [0035](0035-realtime-notifications-over-sse.md)          | Realtime notifications over server-sent events                                                   | Proposed                  |
+| [0036](0036-migrator-owns-database-objects.md)           | The migrator owns the database and the init-created objects                                      | Proposed                  |

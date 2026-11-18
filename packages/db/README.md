@@ -12,11 +12,11 @@ Owner: platform team
 - Generated Prisma client: written to `node_modules/.prisma/offgrid-db`, so it is never committed. Run `pnpm generate` (typecheck, lint, test and build do it).
 - `src/`: `createModuleDb`, `migrateDeploy`, `loadMigrations`, `assertOwnershipScopes`, `withFamilyContext`, `withUserContext`.
 - `test/`: Testcontainers harness on top of `@offgrid/test-db`.
-- The init SQL that creates the roles and schemas is in [`infra/init/sql/`](../../infra/init/sql/): `00-login-roles.sh` (logins from secrets), `01-roles-and-schemas.sql` and `02-scope-helpers.sql` (the `offgrid_declare_scope` function).
+- The init SQL that creates the roles and schemas is in [`infra/init/sql/`](../../infra/init/sql/): `00-login-roles.sh` (logins from secrets), `01-roles-and-schemas.sql` and `02-scope-helpers.sql` (the `offgrid_declare_scope` function), and `03-migrator-ownership.sql`, which gives `offgrid_migrator` ownership of the database and of the helper (ADR 0036). Existing installs run `03` through the `db-ownership` compose service.
 
 ## Roles
 
-- `offgrid_migrator` owns every module schema and table. It runs migrations and is never used by the server at runtime.
+- `offgrid_migrator` owns the database, every module schema and table, and the `offgrid_declare_scope` helper (ADR 0036). It runs migrations and is never used by the server at runtime.
 - `offgrid_app` is the runtime role for every module, the event bus and subscriber handlers. It has DML grants on the tables and owns nothing, so row-level security applies to it.
 
 The two roles are separate because a table owner bypasses row-level security unless the table forces it.

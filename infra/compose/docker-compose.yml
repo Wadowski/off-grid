@@ -41,6 +41,22 @@ services:
       secrets-init:
         condition: service_completed_successfully
 
+  db-ownership:
+    image: postgres:17-alpine
+    restart: "no"
+    command:
+      - sh
+      - -c
+      - PGPASSWORD="$$(cat /run/secrets/postgres-password)" exec psql --host db --username postgres --dbname offgrid --set ON_ERROR_STOP=1 --file /init/03-migrator-ownership.sql
+    volumes:
+      - ../../data/secrets/postgres-password:/run/secrets/postgres-password:ro
+      - ../init/sql/03-migrator-ownership.sql:/init/03-migrator-ownership.sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+
   init:
     image: *server-image
     build: *server-build
@@ -56,8 +72,8 @@ services:
       - ../../data/secrets/migrator-password:/run/secrets/migrator-password:ro
       - ../../data/secrets/mail-encryption-key:/run/secrets/mail-encryption-key:ro
     depends_on:
-      db:
-        condition: service_healthy
+      db-ownership:
+        condition: service_completed_successfully
       secrets-init:
         condition: service_completed_successfully
 
