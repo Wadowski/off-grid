@@ -30,7 +30,11 @@ describe("createFilesModule", () => {
 
     expect(subscribeToEvents).toHaveBeenCalledTimes(1);
     expect(subscribeToEvents).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "files-family-membership", runAs: "files", onFailure: "halt" }),
+      expect.objectContaining({
+        name: "files-family-membership",
+        runAs: "files",
+        onFailure: "halt",
+      }),
     );
   });
 });

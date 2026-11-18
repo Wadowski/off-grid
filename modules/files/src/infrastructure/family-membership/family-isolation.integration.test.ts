@@ -46,7 +46,10 @@ describe("files family isolation", { timeout: 60_000 }, () => {
     return { driveId, fileId, versionId };
   };
 
-  const readAs = <T>(userId: string, read: (tx: Parameters<Parameters<typeof db.db.$transaction>[0]>[0]) => Promise<T>) =>
+  const readAs = <T>(
+    userId: string,
+    read: (tx: Parameters<Parameters<typeof db.db.$transaction>[0]>[0]) => Promise<T>,
+  ) =>
     db.db.$transaction(async (tx) => {
       await withUserContext(tx, userId);
       return read(tx);

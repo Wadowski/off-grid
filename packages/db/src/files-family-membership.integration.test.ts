@@ -99,7 +99,11 @@ describe("files family membership migration", { timeout: 120_000 }, () => {
     await seedMembership(db, familyId, userA, true);
     await seedMembership(db, familyId, userB, true);
 
-    const rows = await queryAs(app, { userId: userA }, "SELECT user_id FROM files.family_membership");
+    const rows = await queryAs(
+      app,
+      { userId: userA },
+      "SELECT user_id FROM files.family_membership",
+    );
 
     expect(rows).toEqual([{ user_id: userA }]);
   });
@@ -219,9 +223,12 @@ describe("files family membership migration", { timeout: 120_000 }, () => {
     const { versionId } = await seedFamilyFile(db, familyId);
 
     await expect(
-      queryAs(app, { userId: member }, "UPDATE files.file_version SET size_bytes = 0 WHERE version_id = $1", [
-        versionId,
-      ]),
+      queryAs(
+        app,
+        { userId: member },
+        "UPDATE files.file_version SET size_bytes = 0 WHERE version_id = $1",
+        [versionId],
+      ),
     ).rejects.toThrow(/permission denied/);
   });
 });
