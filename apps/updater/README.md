@@ -24,3 +24,30 @@ This package is the backup and restore core used before an update: it dumps the 
 | `OFFGRID_UPDATER_BACKUP_RETENTION` | `3` | Newest backups kept, at least 1 |
 | `OFFGRID_UPDATER_HEALTH_URL` | `http://127.0.0.1:3000/health` | http or https only |
 | `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120` | |
+
+## Backups
+
+`createBackup` writes one folder per backup into the backup root:
+
+- `offgrid-<version>-<UTC timestamp>/database.dump`: a `pg_dump --format=custom` dump of the `offgrid` database, taken as `offgrid_migrator`. The dump must pass `pg_restore --list` before the backup counts.
+- `offgrid-<version>-<UTC timestamp>/secrets/`: a copy of the secrets directory, files mode `0600`.
+
+Folders are created with mode `0700`. A failed backup removes its partial folder and prunes nothing. After a successful backup only the newest `OFFGRID_UPDATER_BACKUP_RETENTION` backups are kept, ordered by the timestamp in the name.
+
+The updater needs `pg_dump` and `pg_restore` version 17 on its PATH. The password is passed to the tools through `PGPASSWORD`, never on the command line.
+
+## Restore
+
+The restore covers the database only. The server must be stopped before a restore so that no connection holds the database.
+
+Manual database restore, run from the host with the backup folder name in place of `<name>`:
+
+```
+PGPASSWORD="$(cat /path/to/migrator-password)" pg_restore --clean --if-exists \
+  --host <db-host> --port 5432 --username offgrid_migrator --dbname offgrid \
+  <backup-root>/<name>/database.dump
+```
+
+Then start the server and check `GET /health` returns 2xx.
+
+Manual secrets recovery: secrets are never restored automatically, because a restore after a failed update could overwrite secrets that were rotated since the backup. To recover a secret by hand, copy the file from `<backup-root>/<name>/secrets/` into the secrets directory (`data/secrets` or `/run/secrets`) and keep its mode at `0600`. Only do this when the database is also restored from the same backup, since the secrets must match the data they encrypt or sign.
