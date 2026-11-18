@@ -1,6 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { z } from "zod";
+import type { releaseManifestSchema } from "@offgrid/contracts";
+import type { updateStatusSchema } from "./apply/update-status-schema.js";
+import type {
+  FORWARD_STEP_NAMES,
+  ROLLBACK_STEP_NAMES,
+  UPDATE_OUTCOMES,
+  UPDATE_STEP_NAMES,
+  UPDATE_STEP_STATES,
+} from "./constants.js";
+
 export interface DatabaseTarget {
   readonly host: string;
   readonly port: number;
@@ -65,4 +76,62 @@ export interface UpdaterConfig {
   readonly backupRetention: number;
   readonly healthUrl: string;
   readonly healthTimeoutMilliseconds: number;
+}
+
+export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
+
+export type UpdateStepName = (typeof UPDATE_STEP_NAMES)[number];
+
+export type ForwardStepName = (typeof FORWARD_STEP_NAMES)[number];
+
+export type RollbackStepName = (typeof ROLLBACK_STEP_NAMES)[number];
+
+export type UpdateStepState = (typeof UPDATE_STEP_STATES)[number];
+
+export type UpdateOutcome = (typeof UPDATE_OUTCOMES)[number];
+
+export type UpdateStatus = z.infer<typeof updateStatusSchema>;
+
+export type UpdateStep = UpdateStatus["steps"][number];
+
+export interface ImageReferences {
+  readonly server: string;
+  readonly web: string;
+}
+
+export interface DockerRunner {
+  readonly inspectRunningImages: () => Promise<ImageReferences>;
+  readonly pullImage: (reference: string) => Promise<void>;
+  readonly runInitJob: (serverImage: string) => Promise<void>;
+  readonly replaceContainers: (images: ImageReferences) => Promise<void>;
+  readonly stopContainers: () => Promise<void>;
+  readonly startContainers: (images: ImageReferences) => Promise<void>;
+}
+
+export interface BackupService {
+  readonly create: (version: string) => Promise<{ readonly name: string }>;
+  readonly restore: (name: string) => Promise<void>;
+}
+
+export interface StatusStore {
+  readonly write: (status: UpdateStatus) => Promise<void>;
+}
+
+export interface HealthProbes {
+  readonly server: HealthProbe;
+  readonly web: HealthProbe;
+}
+
+export interface ApplyDependencies {
+  readonly docker: DockerRunner;
+  readonly backup: BackupService;
+  readonly statusStore: StatusStore;
+  readonly health: HealthProbes;
+  readonly clock: Clock;
+  readonly healthTimeoutMilliseconds: number;
+}
+
+export interface ApplyRequest {
+  readonly currentVersion: string;
+  readonly manifest: unknown;
 }
