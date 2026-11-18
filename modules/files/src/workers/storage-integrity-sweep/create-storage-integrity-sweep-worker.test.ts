@@ -31,7 +31,11 @@ const recordingLogger = () => {
   return { logger, lines };
 };
 
-const workerOver = (db: ModuleDatabase, storage = createInMemoryFileStorage(), logger = recordingLogger().logger) =>
+const workerOver = (
+  db: ModuleDatabase,
+  storage = createInMemoryFileStorage(),
+  logger = recordingLogger().logger,
+) =>
   createStorageIntegritySweepWorker({
     db,
     storage,

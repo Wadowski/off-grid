@@ -3,10 +3,7 @@
 
 import { createDiskFileStorage } from "./infrastructure/storage/disk-file-storage.js";
 import { createStorageIntegritySweepWorker } from "./workers/storage-integrity-sweep/create-storage-integrity-sweep-worker.js";
-import {
-  STORAGE_SWEEP_FIRST_RUN_DELAY_MS,
-  STORAGE_SWEEP_INTERVAL_MS,
-} from "./constants.js";
+import { STORAGE_SWEEP_FIRST_RUN_DELAY_MS, STORAGE_SWEEP_INTERVAL_MS } from "./constants.js";
 import type { FilesModuleOptions, FilesWorkerContext } from "./types.js";
 
 export const createFilesModule = (options: FilesModuleOptions) => {

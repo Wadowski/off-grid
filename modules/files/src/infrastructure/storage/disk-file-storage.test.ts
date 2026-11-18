@@ -9,7 +9,11 @@ import { StorageIoError } from "../../application/errors/storage-io-error.js";
 import { StorageKeyInvalidError } from "../../application/errors/storage-key-invalid-error.js";
 import { describeFileStorageContract } from "../../../test/file-storage-contract.js";
 import { listRegularFiles } from "../../../test/list-regular-files.js";
-import { createStorageRoot, createTemporaryDirectory, fixtureAt } from "../../../test/temp-fixture.js";
+import {
+  createStorageRoot,
+  createTemporaryDirectory,
+  fixtureAt,
+} from "../../../test/temp-fixture.js";
 import type { StorageFixture } from "../../../test/types.js";
 import { createDiskFileStorage } from "./disk-file-storage.js";
 import { collectEntries } from "../../../test/collect-entries.js";

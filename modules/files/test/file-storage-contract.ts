@@ -42,7 +42,10 @@ const storedKeyOf = async (fixture: StorageFixture, bytes: Buffer): Promise<stri
   return stored.key;
 };
 
-export const describeFileStorageContract = (name: string, createFixture: StorageFixtureFactory): void => {
+export const describeFileStorageContract = (
+  name: string,
+  createFixture: StorageFixtureFactory,
+): void => {
   describe(`${name} file storage contract`, () => {
     let fixture: StorageFixture | undefined;
 
@@ -129,11 +132,14 @@ export const describeFileStorageContract = (name: string, createFixture: Storage
       await expect(current().storage.delete(generateStorageKey())).resolves.toBeUndefined();
     });
 
-    it.each(INVALID_KEYS)("rejects the key %j before reading, checking or deleting", async (key) => {
-      await expect(current().storage.get(key)).rejects.toThrow(StorageKeyInvalidError);
-      await expect(current().storage.exists(key)).rejects.toThrow(StorageKeyInvalidError);
-      await expect(current().storage.delete(key)).rejects.toThrow(StorageKeyInvalidError);
-    });
+    it.each(INVALID_KEYS)(
+      "rejects the key %j before reading, checking or deleting",
+      async (key) => {
+        await expect(current().storage.get(key)).rejects.toThrow(StorageKeyInvalidError);
+        await expect(current().storage.exists(key)).rejects.toThrow(StorageKeyInvalidError);
+        await expect(current().storage.delete(key)).rejects.toThrow(StorageKeyInvalidError);
+      },
+    );
 
     it("listKeys is empty when nothing is stored", async () => {
       expect(await collectEntries(current().storage.listKeys())).toEqual([]);

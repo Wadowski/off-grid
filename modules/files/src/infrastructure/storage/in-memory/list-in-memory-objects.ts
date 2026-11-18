@@ -4,9 +4,7 @@
 import { Readable } from "node:stream";
 import type { InMemoryObject, StoredObjectEntry } from "../../../types.js";
 
-export const listInMemoryObjects = (
-  objects: Map<string, InMemoryObject>,
-): Readable => {
+export const listInMemoryObjects = (objects: Map<string, InMemoryObject>): Readable => {
   const entries: StoredObjectEntry[] = Array.from(objects, ([key, object]) => ({
     key,
     modifiedAt: object.modifiedAt,

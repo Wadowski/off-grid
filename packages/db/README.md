@@ -10,7 +10,7 @@ Owner: platform team
 - `prisma/migrations/`: every migration, one folder per migration named `<timestamp>_<module>_<name>`, each with a `migration.sql`. Prisma Migrate applies them in folder-name order.
 - `prisma.config.ts`: reads the migration connection from `DATABASE_URL`.
 - Generated Prisma client: written to `node_modules/.prisma/offgrid-db`, so it is never committed. Run `pnpm generate` (typecheck, lint, test and build do it).
-- `src/`: `createModuleDb`, `migrateDeploy`, `loadMigrations`, `assertOwnershipScopes`, `withFamilyContext`, `withUserContext`.
+- `src/`: `createModuleDb`, `migrateDeploy`, `loadMigrations`, `assertOwnershipScopes`, `withFamilyContext`, `withFilesStorageSweepContext`, `withUserContext`.
 - `test/`: Testcontainers harness on top of `@offgrid/test-db`.
 - The init SQL that creates the roles and schemas is in [`infra/init/sql/`](../../infra/init/sql/): `00-login-roles.sh` (logins from secrets), `01-roles-and-schemas.sql` and `02-scope-helpers.sql` (the `offgrid_declare_scope` function), and `03-migrator-ownership.sql`, which gives `offgrid_migrator` ownership of the database and of the helper (ADR 0036). Existing installs run `03` through the `db-ownership` compose service.
 
@@ -36,6 +36,6 @@ Scopes: `family-or-user`, `family`, `user`, `shared` and `instance` (see ADR 000
 
 ## Request context
 
-RLS policies read `app.family_id` and `app.user_id`, set per transaction with `withFamilyContext` and `withUserContext`. Unset means no rows (fail closed). These helpers only set the context. Whether the caller may act for that family is checked by `packages/access-control`.
+RLS policies read `app.family_id` and `app.user_id`, set per transaction with `withFamilyContext` and `withUserContext`. Unset means no rows (fail closed). These helpers only set the context. Whether the caller may act for that family is checked by `packages/access-control`. The one exception is `app.files_storage_sweep`, set by `withFilesStorageSweepContext`, which lets the files module's integrity sweep read `files.file_version` (SELECT only).
 
 RLS limits what a query can see for the context it was given. Module boundaries are enforced by code rules and CI checks, not by separate database roles (ADR 0017).

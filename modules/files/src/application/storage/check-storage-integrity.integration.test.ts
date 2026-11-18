@@ -9,7 +9,11 @@ import type { Client } from "pg";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createDiskFileStorage } from "../../infrastructure/storage/disk-file-storage.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
-import { createStorageRoot, createTemporaryDirectory, removeDirectory } from "../../../test/temp-fixture.js";
+import {
+  createStorageRoot,
+  createTemporaryDirectory,
+  removeDirectory,
+} from "../../../test/temp-fixture.js";
 import type { FilesTestDatabase, SeedScope } from "../../../test/types.js";
 import type { FileStorage } from "../../types.js";
 import { generateStorageKey } from "./generate-storage-key.js";

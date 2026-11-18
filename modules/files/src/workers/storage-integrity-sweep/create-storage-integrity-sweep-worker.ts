@@ -15,11 +15,14 @@ export const createStorageIntegritySweepWorker = (
     if (running !== undefined) {
       return;
     }
-    running = runStorageIntegritySweep(options.db, options.storage, options.now(), options.logger).finally(
-      () => {
-        running = undefined;
-      },
-    );
+    running = runStorageIntegritySweep(
+      options.db,
+      options.storage,
+      options.now(),
+      options.logger,
+    ).finally(() => {
+      running = undefined;
+    });
   };
 
   return {

@@ -9,7 +9,9 @@ const NOW = new Date("2026-12-01T12:00:00Z");
 
 describe("hasGracePeriodElapsed", () => {
   it("is false for an object written less than the grace period ago", () => {
-    expect(hasGracePeriodElapsed(new Date(NOW.getTime() - GRACE_MS + 1), NOW, GRACE_MS)).toBe(false);
+    expect(hasGracePeriodElapsed(new Date(NOW.getTime() - GRACE_MS + 1), NOW, GRACE_MS)).toBe(
+      false,
+    );
   });
 
   it("is true once the grace period has passed, including at the exact boundary", () => {

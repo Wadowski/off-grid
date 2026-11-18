@@ -7,9 +7,7 @@ import { isValidStorageKey } from "../../../domain/storage/is-valid-storage-key.
 import { listEntryNames } from "./list-entry-names.js";
 import { shardPrefixOf } from "./shard-prefix-of.js";
 
-export const listKeyFilesInShard = async (
-  shardPath: string,
-): Promise<ShardKeyFile[]> => {
+export const listKeyFilesInShard = async (shardPath: string): Promise<ShardKeyFile[]> => {
   const prefix = shardPrefixOf(shardPath);
   const acceptsKey = (name: string): boolean => isValidStorageKey(name) && name.startsWith(prefix);
   return (await listEntryNames(shardPath, "file", acceptsKey)).map((key) => ({

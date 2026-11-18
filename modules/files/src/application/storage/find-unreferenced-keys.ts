@@ -3,7 +3,10 @@
 
 import { withFilesStorageSweepContext, type ModuleDatabase } from "@offgrid/db";
 
-export const findUnreferencedKeys = (db: ModuleDatabase, keys: readonly string[]): Promise<string[]> =>
+export const findUnreferencedKeys = (
+  db: ModuleDatabase,
+  keys: readonly string[],
+): Promise<string[]> =>
   db.$transaction(async (tx) => {
     await withFilesStorageSweepContext(tx);
     const rows = await tx.filesFileVersion.findMany({
