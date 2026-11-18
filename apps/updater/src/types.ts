@@ -20,6 +20,7 @@ export interface BackupDescriptor {
   readonly version: string;
   readonly createdAt: Date;
   readonly path: string;
+  readonly pruneWarning?: string;
 }
 
 export interface ParsedBackupName {

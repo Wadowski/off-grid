@@ -4,10 +4,21 @@
 import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BackupFailedError } from "./errors/backup-failed-error.js";
-import { createBackup } from "./create-backup.js";
+import { createBackup, PRUNE_WARNING } from "./create-backup.js";
+import { pruneBackups } from "./prune-backups.js";
 import type { BackupSettings, DatabaseTools } from "../types.js";
+
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs/promises")>();
+  return { ...actual, rm: vi.fn(actual.rm) };
+});
+
+vi.mock("./prune-backups.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./prune-backups.js")>();
+  return { pruneBackups: vi.fn(actual.pruneBackups) };
+});
 
 const TARGET = {
   host: "db.internal",
@@ -182,6 +193,36 @@ describe("createBackup", () => {
 
     expect((failure as BackupFailedError).step).toBe("prepare");
     expect(await readFile(join(backupRoot, NAME, "keep.txt"), "utf8")).toBe("earlier backup");
+  });
+
+  it("keeps the new backup and reports a warning when pruning fails", async () => {
+    vi.mocked(pruneBackups).mockRejectedValueOnce(new Error("EACCES"));
+
+    const backup = await createBackup(workingTools(), settings(2), {
+      version: "1.4.0",
+      createdAt: CREATED_AT,
+    });
+
+    expect(backup.pruneWarning).toBe(PRUNE_WARNING);
+    expect(await readFile(join(backup.path, "database.dump"), "utf8")).toBe("dump-bytes");
+  });
+
+  it("keeps the dump error when removing the partial folder also fails", async () => {
+    vi.mocked(rm).mockRejectedValueOnce(new Error("EACCES"));
+    const failingTools: DatabaseTools = {
+      ...workingTools(),
+      dump: async () => {
+        throw new Error("pg_dump exited with code 1");
+      },
+    };
+
+    const failure = await createBackup(failingTools, settings(), {
+      version: "1.4.0",
+      createdAt: CREATED_AT,
+    }).catch((error: unknown) => error);
+
+    expect(failure).toBeInstanceOf(BackupFailedError);
+    expect((failure as BackupFailedError).step).toBe("dump");
   });
 
   it("prunes older backups beyond the retention after a successful backup", async () => {
