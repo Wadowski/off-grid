@@ -2,11 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { EngineRequestOptions } from "../types.js";
+import { DOCKER_SUCCESS_STATUS_MAX, DOCKER_SUCCESS_STATUS_MIN } from "../constants.js";
 import { DockerApiError } from "./errors/docker-api-error.js";
 import { sendEngineRequest } from "./send-engine-request.js";
-
-const SUCCESS_STATUS_MIN = 200;
-const SUCCESS_STATUS_MAX = 299;
 
 export const requestEngineJson = async (
   socketPath: string,
@@ -16,10 +14,17 @@ export const requestEngineJson = async (
 ): Promise<unknown> => {
   const response = await sendEngineRequest(socketPath, method, path, options.body);
   const accepted =
-    (response.status >= SUCCESS_STATUS_MIN && response.status <= SUCCESS_STATUS_MAX) ||
+    (response.status >= DOCKER_SUCCESS_STATUS_MIN && response.status <= DOCKER_SUCCESS_STATUS_MAX) ||
     (options.acceptedStatuses ?? []).includes(response.status);
   if (!accepted) {
     throw new DockerApiError(options.operation, response.status);
   }
-  return response.text.length === 0 ? null : JSON.parse(response.text);
+  if (response.text.length === 0) {
+    return null;
+  }
+  try {
+    return JSON.parse(response.text);
+  } catch {
+    throw new DockerApiError(options.operation, response.status);
+  }
 };
