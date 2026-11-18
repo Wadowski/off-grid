@@ -28,6 +28,7 @@ The forces are these:
   - `api.github.com`: the GitHub Releases API, which returns the release list and the signed release manifest.
   - `ghcr.io`: the GitHub Container Registry, which serves image manifests.
   - `pkg-containers.githubusercontent.com`: the host to which GHCR redirects image layer downloads. The implementation must confirm this host against GHCR's current behaviour before it is added to any allow-list.
+  - `release-assets.githubusercontent.com`: the host to which the GitHub Releases API redirects the download of the release manifest asset. Observed on 2026-11-18 for a public release asset (`api.github.com` answered with a 302 to this host); the updater follows that one redirect and no other.
 - All calls use HTTPS. The server does not follow redirects to any host outside this list.
 
 ### Owning module and the updater

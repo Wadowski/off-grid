@@ -60,10 +60,7 @@ module.exports = {
       from: { path: "(^|/)apps/updater/" },
       to: {
         path: "(^|/)(apps|modules|packages)/",
-        pathNot: [
-          "(^|/)apps/updater/",
-          "(^|/)packages/(contracts|observability|test-db)/",
-        ],
+        pathNot: ["(^|/)apps/updater/", "(^|/)packages/(contracts|observability|test-db)/"],
       },
     },
     {
