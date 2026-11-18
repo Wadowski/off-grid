@@ -150,3 +150,12 @@ export type ReleaseRun = () => void;
 export interface RunLock {
   readonly tryAcquire: () => ReleaseRun | null;
 }
+
+export type HttpFetch = (url: string, init: RequestInit) => Promise<Response>;
+
+export interface UpdateCheck {
+  readonly currentVersion: string;
+  readonly latestVersion: string;
+  readonly updateAvailable: boolean;
+  readonly updateAllowed: boolean;
+}
