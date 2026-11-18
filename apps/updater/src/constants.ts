@@ -90,3 +90,5 @@ export const UPDATE_OUTCOME_MESSAGES = {
   failed_needs_admin:
     "Update failed and the automatic rollback did not finish. Restore by hand as described in the updater README.",
 } as const;
+
+export const BEARER_TOKEN_PATTERN = /^Bearer (.+)$/;
