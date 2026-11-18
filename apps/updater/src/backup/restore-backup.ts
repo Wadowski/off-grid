@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { RestoreFailedError } from "./errors/restore-failed-error.js";
-import { attemptRestoreStep } from "./attempt-restore-step.js";
-import { locateDumpFile } from "./locate-dump-file.js";
+import { restoreDatabase } from "./restore-database.js";
 import type { DatabaseTools, RestoreSettings } from "../types.js";
 import { waitForHealth } from "./wait-for-health.js";
 
@@ -12,8 +11,7 @@ export const restoreBackup = async (
   settings: RestoreSettings,
   name: string,
 ): Promise<void> => {
-  const dumpFile = await locateDumpFile(settings.backupRoot, name);
-  await attemptRestoreStep("restore", () => tools.restore(settings.target, dumpFile));
+  await restoreDatabase(tools, settings, name);
   const healthy = await waitForHealth(
     settings.healthProbe,
     settings.clock,

@@ -11,3 +11,4 @@ export { RestoreFailedError } from "./backup/errors/restore-failed-error.js";
 export { loadUpdaterConfig } from "./config/load-updater-config.js";
 export { createFileStatusStore } from "./apply/create-file-status-store.js";
 export { readUpdateStatus } from "./apply/read-update-status.js";
+export { createBackupService } from "./apply/create-backup-service.js";
