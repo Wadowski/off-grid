@@ -40,6 +40,8 @@ The updater needs `pg_dump` and `pg_restore` version 17 on its PATH. The passwor
 
 The restore covers the database only. The server must be stopped before a restore so that no connection holds the database.
 
+The restore runs as `offgrid_migrator` with no superuser login and no `--no-owner`, so the restored objects keep their owners. It needs the database and the scope helper owned by `offgrid_migrator`, which the `db-ownership` compose service (`infra/init/sql/03-migrator-ownership.sql`) sets on fresh and existing installs (ADR 0036). Any install that has not started through `db-ownership` must run it before a restore, or the restore fails with ownership errors. Objects that a later migration or init script creates as the superuser must be added to `03`.
+
 Manual database restore, run from the host with the backup folder name in place of `<name>`:
 
 ```
