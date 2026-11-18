@@ -493,9 +493,15 @@ importers:
 
   modules/files:
     dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@offgrid/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@offgrid/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
       '@offgrid/file-storage':
         specifier: workspace:*
         version: link:../../packages/file-storage
