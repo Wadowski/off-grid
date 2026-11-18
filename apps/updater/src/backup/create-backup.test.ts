@@ -46,7 +46,9 @@ beforeEach(async () => {
   secretsDirectory = join(root, "secrets");
   backupRoot = join(root, "backups");
   await mkdir(secretsDirectory);
-  await writeFile(join(secretsDirectory, "migrator-password"), "migrator-secret-value", { mode: 0o444 });
+  await writeFile(join(secretsDirectory, "migrator-password"), "migrator-secret-value", {
+    mode: 0o444,
+  });
   await writeFile(join(secretsDirectory, "mail-encryption-key"), "mail-key-value");
 });
 
@@ -170,9 +172,6 @@ describe("createBackup", () => {
 
     await createBackup(workingTools(), settings(2), { version: "1.4.0", createdAt: CREATED_AT });
 
-    expect(await readdir(backupRoot)).toEqual([
-      "offgrid-1.3.1-20261110T000000Z",
-      NAME,
-    ]);
+    expect(await readdir(backupRoot)).toEqual(["offgrid-1.3.1-20261110T000000Z", NAME]);
   });
 });

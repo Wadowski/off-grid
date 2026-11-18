@@ -34,10 +34,7 @@ const recordingTools = (failure?: Error): DatabaseTools => ({
   },
 });
 
-const settings = (
-  healthy: boolean,
-  clock = createFakeClock(),
-): RestoreSettings => ({
+const settings = (healthy: boolean, clock = createFakeClock()): RestoreSettings => ({
   target: TARGET,
   backupRoot,
   healthProbe: async () => healthy,
@@ -73,7 +70,9 @@ describe("restoreBackup", () => {
   });
 
   it("throws before touching the database for an unknown backup name", async () => {
-    const failure = await failureOf(restoreBackup(recordingTools(), settings(true), "offgrid-9.9.9-20200101T000000Z"));
+    const failure = await failureOf(
+      restoreBackup(recordingTools(), settings(true), "offgrid-9.9.9-20200101T000000Z"),
+    );
 
     expect(failure.step).toBe("lookup");
     expect(restoredFiles).toEqual([]);
@@ -88,7 +87,11 @@ describe("restoreBackup", () => {
 
   it("names the restore step when pg_restore fails", async () => {
     const failure = await failureOf(
-      restoreBackup(recordingTools(new Error("pg_restore exited with code 1")), settings(true), NAME),
+      restoreBackup(
+        recordingTools(new Error("pg_restore exited with code 1")),
+        settings(true),
+        NAME,
+      ),
     );
 
     expect(failure.step).toBe("restore");

@@ -3,7 +3,10 @@
 
 import { HEALTH_REQUEST_TIMEOUT_MILLISECONDS } from "../constants.js";
 
-export const probeHealthUrl = async (fetchResponse: typeof fetch, url: string): Promise<boolean> => {
+export const probeHealthUrl = async (
+  fetchResponse: typeof fetch,
+  url: string,
+): Promise<boolean> => {
   try {
     const response = await fetchResponse(url, {
       signal: AbortSignal.timeout(HEALTH_REQUEST_TIMEOUT_MILLISECONDS),

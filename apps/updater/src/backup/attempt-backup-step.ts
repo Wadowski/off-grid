@@ -3,7 +3,10 @@
 
 import { BackupFailedError } from "./errors/backup-failed-error.js";
 
-export const attemptBackupStep = async (step: string, action: () => Promise<void>): Promise<void> => {
+export const attemptBackupStep = async (
+  step: string,
+  action: () => Promise<void>,
+): Promise<void> => {
   try {
     await action();
   } catch {

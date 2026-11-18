@@ -97,8 +97,8 @@ describe("loadUpdaterConfig", () => {
     ["OFFGRID_UPDATER_DATABASE_PORT", "70000"],
     ["OFFGRID_UPDATER_DATABASE_USER", "Migrator-Role"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
-    expect(() => loadUpdaterConfig({ ...requiredEnv, [variable]: value }, secretFiles("x"))).toThrow(
-      new RegExp(variable),
-    );
+    expect(() =>
+      loadUpdaterConfig({ ...requiredEnv, [variable]: value }, secretFiles("x")),
+    ).toThrow(new RegExp(variable));
   });
 });

@@ -85,7 +85,9 @@ const restoreSettings = (target: DatabaseTarget): RestoreSettings => ({
 });
 
 const readProbeValue = async (): Promise<string | undefined> => {
-  const result = await requireMigrator().query<{ note: string }>("select note from backup_probe where id = 1");
+  const result = await requireMigrator().query<{ note: string }>(
+    "select note from backup_probe where id = 1",
+  );
   return result.rows[0]?.note;
 };
 
@@ -103,7 +105,11 @@ beforeAll(async () => {
   backupRoot = join(root, "backups");
   secretsDirectory = join(root, "secrets");
   await mkdir(secretsDirectory);
-  await writeFile(join(secretsDirectory, "migrator-password"), requireDatabase().migratorTarget.password, { mode: 0o444 });
+  await writeFile(
+    join(secretsDirectory, "migrator-password"),
+    requireDatabase().migratorTarget.password,
+    { mode: 0o444 },
+  );
 });
 
 beforeEach(async () => {
@@ -121,26 +127,40 @@ afterAll(async () => {
 
 describe("backup and restore against Postgres 17", () => {
   it("restores the database row that existed when the backup was taken", async () => {
-    const backup = await createBackup(postgresTools, settings(requireDatabase().migratorTarget, 3), {
-      version: BACKUP_VERSION,
-      createdAt: new Date(BASE_TIME),
-    });
+    const backup = await createBackup(
+      postgresTools,
+      settings(requireDatabase().migratorTarget, 3),
+      {
+        version: BACKUP_VERSION,
+        createdAt: new Date(BASE_TIME),
+      },
+    );
     await writeProbeValue(SEEDED_AFTER);
 
-    await restoreBackup(postgresTools, restoreSettings(requireDatabase().migratorTarget), backup.name);
+    await restoreBackup(
+      postgresTools,
+      restoreSettings(requireDatabase().migratorTarget),
+      backup.name,
+    );
 
     expect(await readProbeValue()).toBe(SEEDED_BEFORE);
   });
 
   it("creates the backup folder with mode 0700 and a dump that lists", async () => {
-    const backup = await createBackup(postgresTools, settings(requireDatabase().migratorTarget, 3), {
-      version: BACKUP_VERSION,
-      createdAt: new Date(BASE_TIME),
-    });
+    const backup = await createBackup(
+      postgresTools,
+      settings(requireDatabase().migratorTarget, 3),
+      {
+        version: BACKUP_VERSION,
+        createdAt: new Date(BASE_TIME),
+      },
+    );
 
     expect(await modeOf(backup.path)).toBe(0o700);
     expect(await modeOf(join(backup.path, "database.dump"))).toBeGreaterThan(0);
-    await expect(postgresTools.listDump(join(backup.path, "database.dump"))).resolves.toBeUndefined();
+    await expect(
+      postgresTools.listDump(join(backup.path, "database.dump")),
+    ).resolves.toBeUndefined();
   });
 
   it("keeps the newest backups and prunes the oldest when a fourth one is taken", async () => {
@@ -163,7 +183,11 @@ describe("backup and restore against Postgres 17", () => {
 
   it("refuses to restore a backup name that does not exist", async () => {
     await expect(
-      restoreBackup(postgresTools, restoreSettings(requireDatabase().migratorTarget), "offgrid-1.4.0-20200101T000000Z"),
+      restoreBackup(
+        postgresTools,
+        restoreSettings(requireDatabase().migratorTarget),
+        "offgrid-1.4.0-20200101T000000Z",
+      ),
     ).rejects.toMatchObject({ name: "RestoreFailedError", step: "lookup" });
     expect(await readProbeValue()).toBe(SEEDED_BEFORE);
   });

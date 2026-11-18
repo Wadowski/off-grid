@@ -3,7 +3,10 @@
 
 import { RestoreFailedError } from "./errors/restore-failed-error.js";
 
-export const attemptRestoreStep = async (step: string, action: () => Promise<void>): Promise<void> => {
+export const attemptRestoreStep = async (
+  step: string,
+  action: () => Promise<void>,
+): Promise<void> => {
   try {
     await action();
   } catch {
