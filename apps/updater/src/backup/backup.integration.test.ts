@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startTestDatabase, type DatabaseTarget, type TestDatabase } from "@offgrid/test-db";
+import { DUMP_FILE_NAME, SECRETS_FOLDER_NAME } from "../constants.js";
 import { createBackup } from "./create-backup.js";
 import { postgresTools } from "./postgres-tools.js";
 import { restoreBackup } from "./restore-backup.js";
@@ -211,10 +212,27 @@ describe("backup and restore against Postgres 17", () => {
     );
 
     expect(await modeOf(backup.path)).toBe(0o700);
-    expect(await modeOf(join(backup.path, "database.dump"))).toBeGreaterThan(0);
     await expect(
-      postgresTools.listDump(join(backup.path, "database.dump")),
+      postgresTools.listDump(join(backup.path, DUMP_FILE_NAME)),
     ).resolves.toBeUndefined();
+  }, 60_000);
+
+  it("copies the secrets folder as 0700 and each secret as 0600 with the source contents", async () => {
+    const backup = await createBackup(
+      postgresTools,
+      settings(requireDatabase().migratorTarget, 3),
+      {
+        version: BACKUP_VERSION,
+        createdAt: new Date(BASE_TIME),
+      },
+    );
+    const copied = join(backup.path, SECRETS_FOLDER_NAME);
+
+    expect(await modeOf(copied)).toBe(0o700);
+    expect(await modeOf(join(copied, "migrator-password"))).toBe(0o600);
+    expect(await readFile(join(copied, "migrator-password"), "utf8")).toBe(
+      await readFile(join(secretsDirectory, "migrator-password"), "utf8"),
+    );
   }, 60_000);
 
   it("keeps the newest backups and prunes the oldest when a fourth one is taken", async () => {
