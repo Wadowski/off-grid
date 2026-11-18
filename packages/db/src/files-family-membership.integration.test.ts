@@ -5,12 +5,10 @@ import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startTestDatabase } from "../test/start-test-database.js";
-import type { TestDatabase } from "../test/types.js";
+import type { Context, TestDatabase } from "../test/types.js";
 import { assertOwnershipScopes, DATABASE_SCHEMAS } from "./index.js";
 
-type Owner = { readonly userId?: string; readonly familyId?: string };
-
-const queryAs = async (client: Client, owner: Owner, sql: string, params: unknown[] = []) => {
+const queryAs = async (client: Client, owner: Context, sql: string, params: unknown[] = []) => {
   await client.query("BEGIN");
   try {
     if (owner.familyId) {
@@ -58,7 +56,7 @@ const seedFamilyFile = async (db: TestDatabase, familyId: string) => {
   return { driveId, fileId, versionId };
 };
 
-const countRows = async (client: Client, owner: Owner, table: string) => {
+const countRows = async (client: Client, owner: Context, table: string) => {
   const rows = await queryAs(client, owner, `SELECT count(*)::int AS n FROM files.${table}`);
   return rows[0]?.n;
 };
