@@ -3,6 +3,7 @@
 
 import { readdir } from "node:fs/promises";
 import type { ParsedBackupName } from "../types.js";
+import { isMissingDirectoryError } from "./is-missing-directory-error.js";
 import { parseBackupName } from "./parse-backup-name.js";
 
 export const listBackups = async (backupRoot: string): Promise<ParsedBackupName[]> => {
@@ -17,6 +18,3 @@ export const listBackups = async (backupRoot: string): Promise<ParsedBackupName[
     .map((entry) => parseBackupName(entry.name))
     .filter((backup): backup is ParsedBackupName => backup !== undefined);
 };
-
-const isMissingDirectoryError = (error: unknown): boolean =>
-  typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";

@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ReadSecretFile, UpdaterConfig } from "../types.js";
+import { MILLISECONDS_PER_SECOND } from "../constants.js";
 import { ConfigError } from "./config-error.js";
 import { readRequiredSecret } from "./read-required-secret.js";
 import { readSecretFileUtf8 } from "./read-secret-file-utf8.js";
 import { updaterEnvironmentSchema } from "./updater-config-schema.js";
-
-const MILLISECONDS_PER_SECOND = 1000;
 
 export const loadUpdaterConfig = (
   env: NodeJS.ProcessEnv = process.env,
