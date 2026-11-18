@@ -6,11 +6,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
+import { z } from "zod";
 import { createLogger } from "@offgrid/observability";
 import { applyUpdate } from "../apply/apply-update.js";
 import { createFileStatusStore } from "../apply/create-file-status-store.js";
 import { createFakeClock } from "../../test/fake-clock.js";
 import { createFakeDockerRunner } from "../../test/fake-docker-runner.js";
+import { waitUntil } from "../../test/wait-until.js";
+import { UPDATE_OUTCOMES } from "../constants.js";
 import type { ApplyDependencies, DockerRunner, HttpFetch, UpdaterServices } from "../types.js";
 import { createRunLock } from "../run/create-run-lock.js";
 import { buildUpdaterApp } from "./build-updater-app.js";
@@ -59,18 +62,9 @@ const releaseSource = (): HttpFetch => async (url) => {
   throw new Error(`unexpected request to ${url}`);
 };
 
-const waitUntil = async (
-  condition: () => Promise<boolean>,
-  timeoutMilliseconds = 5000,
-): Promise<void> => {
-  const deadline = Date.now() + timeoutMilliseconds;
-  while (!(await condition())) {
-    if (Date.now() > deadline) {
-      throw new Error("condition not met before the timeout");
-    }
-    await new Promise((resolve) => setImmediate(resolve));
-  }
-};
+const statusBodySchema = z.object({
+  update: z.object({ outcome: z.enum(UPDATE_OUTCOMES) }).nullable(),
+});
 
 describe("updater HTTP API", () => {
   let directory: string;
@@ -146,7 +140,7 @@ describe("updater HTTP API", () => {
 
   const readStatusOutcome = async (): Promise<string | null> => {
     const response = await app.inject({ method: "GET", url: "/status", headers: authorized() });
-    return (response.json() as { update: { outcome: string } | null }).update?.outcome ?? null;
+    return statusBodySchema.parse(response.json()).update?.outcome ?? null;
   };
 
   describe("authentication", () => {
