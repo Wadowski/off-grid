@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleDatabase } from "@offgrid/db";
-import type { FileStorage } from "../../types.js";
+import type { FileStorage } from "@offgrid/file-storage";
 import { isPresentInStorage } from "./is-present-in-storage.js";
 import { readStoredKeysBatch } from "./read-stored-keys-batch.js";
 

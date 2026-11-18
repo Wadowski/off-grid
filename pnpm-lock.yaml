@@ -487,6 +487,9 @@ importers:
       '@offgrid/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@offgrid/file-storage':
+        specifier: workspace:*
+        version: link:../../packages/file-storage
       '@offgrid/observability':
         specifier: workspace:*
         version: link:../../packages/observability
@@ -711,6 +714,12 @@ importers:
       '@types/pg':
         specifier: ^8.23.1
         version: 8.23.1
+
+  packages/file-storage:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
 
   packages/http:
     dependencies:
