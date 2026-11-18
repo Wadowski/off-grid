@@ -41,5 +41,15 @@ export const loadUpdaterConfig = (
     healthTimeoutMilliseconds:
       values.OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS * MILLISECONDS_PER_SECOND,
     statusFile: values.OFFGRID_UPDATER_STATUS_FILE,
+    httpHost: values.OFFGRID_UPDATER_HTTP_HOST,
+    httpPort: values.OFFGRID_UPDATER_HTTP_PORT,
+    apiToken: readRequiredSecret(
+      "OFFGRID_UPDATER_TOKEN_FILE",
+      values.OFFGRID_UPDATER_TOKEN_FILE,
+      readSecretFile,
+    ),
+    releaseRepository: values.OFFGRID_UPDATER_RELEASE_REPOSITORY,
+    dockerSocket: values.OFFGRID_UPDATER_DOCKER_SOCKET,
+    composeProject: values.OFFGRID_UPDATER_COMPOSE_PROJECT,
   };
 };

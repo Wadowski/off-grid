@@ -72,6 +72,12 @@ export interface UpdaterConfig {
   readonly webHealthUrl: string;
   readonly healthTimeoutMilliseconds: number;
   readonly statusFile: string;
+  readonly httpHost: string;
+  readonly httpPort: number;
+  readonly apiToken: string;
+  readonly releaseRepository: string;
+  readonly dockerSocket: string;
+  readonly composeProject: string;
 }
 
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;

@@ -5,14 +5,17 @@ import { describe, expect, it } from "vitest";
 import { loadUpdaterConfig } from "./load-updater-config.js";
 
 const PASSWORD_PATH = "/run/secrets/migrator-password";
+const TOKEN_PATH = "/run/secrets/updater-token";
 
 const requiredEnv: NodeJS.ProcessEnv = {
   OFFGRID_UPDATER_DATABASE_HOST: "db.internal",
   OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE: PASSWORD_PATH,
+  OFFGRID_UPDATER_TOKEN_FILE: TOKEN_PATH,
+  OFFGRID_UPDATER_RELEASE_REPOSITORY: "owner/offgrid",
 };
 
 const secretFiles = (contents: string) => (path: string) => {
-  if (path !== PASSWORD_PATH) {
+  if (path !== PASSWORD_PATH && path !== TOKEN_PATH) {
     throw new Error(`unexpected path ${path}`);
   }
   return `${contents}\n`;
@@ -37,6 +40,12 @@ describe("loadUpdaterConfig", () => {
       webHealthUrl: "http://127.0.0.1:8080/",
       healthTimeoutMilliseconds: 120000,
       statusFile: "data/updater/status.json",
+      httpHost: "0.0.0.0",
+      httpPort: 3100,
+      apiToken: "m1gr4tor",
+      releaseRepository: "owner/offgrid",
+      dockerSocket: "/var/run/docker.sock",
+      composeProject: "offgrid",
     });
   });
 
@@ -64,6 +73,57 @@ describe("loadUpdaterConfig", () => {
       healthTimeoutMilliseconds: 30000,
       statusFile: "/backups/status.json",
     });
+  });
+
+  it("reads the API token from its file and names the HTTP and Docker settings", () => {
+    const config = loadUpdaterConfig(
+      {
+        ...requiredEnv,
+        OFFGRID_UPDATER_HTTP_HOST: "127.0.0.1",
+        OFFGRID_UPDATER_HTTP_PORT: "3200",
+        OFFGRID_UPDATER_DOCKER_SOCKET: "/run/docker.sock",
+        OFFGRID_UPDATER_COMPOSE_PROJECT: "offgrid-test",
+      },
+      (path) => (path === TOKEN_PATH ? "token-value\n" : "x"),
+    );
+
+    expect(config).toMatchObject({
+      apiToken: "token-value",
+      httpHost: "127.0.0.1",
+      httpPort: 3200,
+      dockerSocket: "/run/docker.sock",
+      composeProject: "offgrid-test",
+    });
+  });
+
+  it("names the missing token file variable", () => {
+    const withoutToken: NodeJS.ProcessEnv = {
+      ...requiredEnv,
+      OFFGRID_UPDATER_TOKEN_FILE: undefined,
+    };
+
+    expect(() => loadUpdaterConfig(withoutToken, secretFiles("x"))).toThrow(
+      /OFFGRID_UPDATER_TOKEN_FILE/,
+    );
+  });
+
+  it("rejects an empty token file without echoing its content", () => {
+    expect(() =>
+      loadUpdaterConfig(requiredEnv, (path) => (path === TOKEN_PATH ? "  \n" : "x")),
+    ).toThrow("secret file named by OFFGRID_UPDATER_TOKEN_FILE is empty");
+  });
+
+  it("reports an unreadable token file by variable name only", () => {
+    const failingRead = (path: string) => {
+      if (path === TOKEN_PATH) {
+        throw new Error(`EACCES: ${TOKEN_PATH}`);
+      }
+      return "x";
+    };
+
+    expect(() => loadUpdaterConfig(requiredEnv, failingRead)).toThrow(
+      "secret file named by OFFGRID_UPDATER_TOKEN_FILE cannot be read",
+    );
   });
 
   it("names the missing password file variable", () => {
@@ -104,6 +164,10 @@ describe("loadUpdaterConfig", () => {
     ["OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS", "0"],
     ["OFFGRID_UPDATER_DATABASE_PORT", "70000"],
     ["OFFGRID_UPDATER_DATABASE_USER", "Migrator-Role"],
+    ["OFFGRID_UPDATER_HTTP_PORT", "0"],
+    ["OFFGRID_UPDATER_HTTP_PORT", "not-a-port"],
+    ["OFFGRID_UPDATER_RELEASE_REPOSITORY", "just-a-name"],
+    ["OFFGRID_UPDATER_RELEASE_REPOSITORY", "owner/name/extra"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
     expect(() =>
       loadUpdaterConfig({ ...requiredEnv, [variable]: value }, secretFiles("x")),

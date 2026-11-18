@@ -19,6 +19,14 @@ export const DEFAULT_WEB_HEALTH_URL = "http://127.0.0.1:8080/";
 
 export const DEFAULT_STATUS_FILE = "data/updater/status.json";
 
+export const DEFAULT_HTTP_HOST = "0.0.0.0";
+
+export const DEFAULT_HTTP_PORT = 3100;
+
+export const DEFAULT_DOCKER_SOCKET = "/var/run/docker.sock";
+
+export const DEFAULT_COMPOSE_PROJECT = "offgrid";
+
 export const DEFAULT_HEALTH_TIMEOUT_SECONDS = 120;
 
 export const HEALTH_POLL_INTERVAL_MILLISECONDS = 1000;

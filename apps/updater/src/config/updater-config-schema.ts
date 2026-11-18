@@ -4,7 +4,11 @@
 import { z } from "zod";
 import {
   DEFAULT_BACKUP_RETENTION,
+  DEFAULT_DOCKER_SOCKET,
+  DEFAULT_HTTP_HOST,
+  DEFAULT_HTTP_PORT,
   DEFAULT_BACKUP_ROOT,
+  DEFAULT_COMPOSE_PROJECT,
   DEFAULT_DATABASE_NAME,
   DEFAULT_DATABASE_PORT,
   DEFAULT_DATABASE_USER,
@@ -20,6 +24,10 @@ const httpUrlSchema = z
   .refine((value) => /^https?:\/\//.test(value), "must be an http or https URL");
 
 const portSchema = z.coerce.number().int().min(1).max(65535);
+
+const releaseRepositorySchema = z
+  .string()
+  .regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/, "must be owner/name");
 
 const positiveIntegerSchema = z.coerce.number().int().min(1);
 
@@ -38,6 +46,12 @@ export const updaterEnvironmentSchema = z.object({
   OFFGRID_UPDATER_HEALTH_URL: httpUrlSchema.default(DEFAULT_HEALTH_URL),
   OFFGRID_UPDATER_WEB_HEALTH_URL: httpUrlSchema.default(DEFAULT_WEB_HEALTH_URL),
   OFFGRID_UPDATER_STATUS_FILE: z.string().min(1).default(DEFAULT_STATUS_FILE),
+  OFFGRID_UPDATER_TOKEN_FILE: z.string().min(1),
+  OFFGRID_UPDATER_HTTP_HOST: z.string().min(1).default(DEFAULT_HTTP_HOST),
+  OFFGRID_UPDATER_HTTP_PORT: portSchema.default(DEFAULT_HTTP_PORT),
+  OFFGRID_UPDATER_RELEASE_REPOSITORY: releaseRepositorySchema,
+  OFFGRID_UPDATER_DOCKER_SOCKET: z.string().min(1).default(DEFAULT_DOCKER_SOCKET),
+  OFFGRID_UPDATER_COMPOSE_PROJECT: z.string().min(1).default(DEFAULT_COMPOSE_PROJECT),
   OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS: positiveIntegerSchema.default(
     DEFAULT_HEALTH_TIMEOUT_SECONDS,
   ),
