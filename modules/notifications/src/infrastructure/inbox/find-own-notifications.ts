@@ -3,17 +3,19 @@
 
 import { notificationDataSchema, notificationTypeSchema } from "@offgrid/contracts";
 import type { ModuleTransaction } from "@offgrid/db";
-import type { NotificationCursor, NotificationRecord } from "../../types.js";
+import type { NotificationCursor, NotificationFilter, NotificationRecord } from "../../types.js";
 import { afterCursorFilter } from "./after-cursor-filter.js";
+import { notificationFilterWhere } from "./notification-filter-where.js";
 
 export const findOwnNotifications = async (
   tx: ModuleTransaction,
   userId: string,
   limit: number,
   after: NotificationCursor | null,
+  filter: NotificationFilter,
 ): Promise<NotificationRecord[]> => {
   const rows = await tx.notificationItem.findMany({
-    where: { userId, OR: afterCursorFilter(after) },
+    where: { userId, ...notificationFilterWhere(filter), OR: afterCursorFilter(after) },
     orderBy: [{ createdAt: "desc" }, { notificationId: "desc" }],
     take: limit + 1,
   });
