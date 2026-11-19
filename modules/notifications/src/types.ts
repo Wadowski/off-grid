@@ -6,18 +6,28 @@ import type { CurrentUserId } from "@offgrid/http";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
+import type { FastifyRequest } from "fastify";
 
 export interface NotificationsModuleContext {
   readonly eventBus: EventBus;
   readonly logger: Logger;
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly verifySession: SessionVerifier;
 }
+
+export type SessionVerifier = (
+  request: FastifyRequest,
+) => Promise<{ userId: string; sessionId: string; accessExpiresAt: Date } | null>;
 
 export interface NotificationRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly hub: NotificationHub;
+  readonly verifySession: SessionVerifier;
 }
+
+export type StreamSessionState = "active" | "ended" | "unknown";
 
 export interface InboxNotice {
   readonly notificationId: string;
@@ -34,6 +44,7 @@ export interface NotificationChannel {
 
 export interface NotificationsModuleOptions {
   readonly channels?: readonly NotificationChannel[];
+  readonly streamHeartbeatMs?: number;
 }
 
 export interface NotificationRecord {
