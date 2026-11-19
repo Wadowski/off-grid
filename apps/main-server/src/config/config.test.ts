@@ -42,6 +42,7 @@ describe("loadConfig", () => {
       outbox: { retentionDays: 7 },
       files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
       version: { version: "dev" },
+      updater: null,
       logLevel: "info",
     });
   });
@@ -148,6 +149,32 @@ describe("loadConfig", () => {
     expect(() => loadConfig(requiredEnv, failingRead)).toThrow(
       "secret file named by OFFGRID_DATABASE_PASSWORD_FILE cannot be read",
     );
+  });
+
+  it("reads the updater URL and its token from a secret file", () => {
+    const config = loadConfig(
+      {
+        ...requiredEnv,
+        OFFGRID_UPDATER_URL: "http://updater:3100",
+        OFFGRID_UPDATER_TOKEN_FILE: "/run/secrets/updater_token",
+      },
+      secretFiles("updater-token"),
+    );
+
+    expect(config.updater).toEqual({ url: "http://updater:3100", token: "updater-token" });
+  });
+
+  it("rejects an updater URL that is not http or https", () => {
+    expect(() =>
+      loadConfig(
+        {
+          ...requiredEnv,
+          OFFGRID_UPDATER_URL: "ftp://updater:3100",
+          OFFGRID_UPDATER_TOKEN_FILE: "/run/secrets/updater_token",
+        },
+        secretFiles("updater-token"),
+      ),
+    ).toThrow(/OFFGRID_UPDATER_URL/);
   });
 
   it.each([

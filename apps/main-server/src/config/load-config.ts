@@ -7,6 +7,7 @@ import { environmentSchema } from "./environment-schema.js";
 import { ConfigError } from "./config-error.js";
 import { readMailEncryptionKey } from "./read-mail-encryption-key.js";
 import { readRequiredSecret } from "./read-required-secret.js";
+import { readUpdaterSettings } from "./read-updater-settings.js";
 
 export const loadConfig = (
   env: NodeJS.ProcessEnv = process.env,
@@ -50,6 +51,11 @@ export const loadConfig = (
       version: values.OFFGRID_VERSION,
       ...(values.OFFGRID_COMMIT === undefined ? {} : { commit: values.OFFGRID_COMMIT }),
     },
+    updater: readUpdaterSettings(
+      values.OFFGRID_UPDATER_URL,
+      values.OFFGRID_UPDATER_TOKEN_FILE,
+      readSecretFile,
+    ),
     logLevel: values.OFFGRID_LOG_LEVEL,
   };
 };
