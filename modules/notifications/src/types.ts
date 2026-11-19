@@ -75,3 +75,37 @@ export interface NotificationFilter {
   readonly types?: readonly NotificationType[];
   readonly unreadOnly: boolean;
 }
+
+export interface NoticeSubscriber {
+  send(notice: InboxNotice): Promise<void>;
+  close(): void;
+}
+
+export interface NotificationHub {
+  subscribe(userId: string, subscriber: NoticeSubscriber): () => void;
+  publish(userId: string, notice: InboxNotice): void;
+  close(): void;
+}
+
+export type SubscriberPushResult = "queued" | "overflow" | "stopped";
+
+export interface SubscriberQueue {
+  push(notice: InboxNotice): SubscriberPushResult;
+  stop(): void;
+}
+
+export interface SubscriberEntry {
+  readonly userId: string;
+  readonly subscriber: NoticeSubscriber;
+  readonly queue: SubscriberQueue;
+}
+
+export interface NotificationsWorkerContext {
+  readonly logger: Logger;
+}
+
+export interface NotificationsWorker {
+  readonly name: string;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+}
