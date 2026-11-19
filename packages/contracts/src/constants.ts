@@ -74,3 +74,13 @@ export const UPDATE_OUTCOMES = [
   "rolled_back",
   "failed_needs_admin",
 ] as const;
+
+export const UPDATE_RUN_STATES = [
+  "idle",
+  "running",
+  "succeeded",
+  "failed",
+  "rolled_back",
+  "needs_admin",
+  "interrupted",
+] as const;

@@ -2229,6 +2229,234 @@
           }
         }
       }
+    },
+    "/system/update": {
+      "get": {
+        "operationId": "getSystemUpdate",
+        "responses": {
+          "200": {
+            "description": "The running version, the last check, the last update run and the nightly setting. No outbound call is made.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemUpdate"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ACCESS_DENIED: the signed-in person is not an instance admin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/update/check": {
+      "post": {
+        "operationId": "checkSystemUpdate",
+        "responses": {
+          "200": {
+            "description": "The result of a fresh check against the release source, now stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemUpdateCheck"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ACCESS_DENIED: the signed-in person is not an instance admin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CURRENT_VERSION_UNKNOWN: the running version is not a release version, so updates cannot be checked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "RELEASE_SOURCE_UNREACHABLE: the updater could not read the release source. UPDATER_ERROR: the updater answered with something this server cannot use.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "UPDATER_UNAVAILABLE: the updater is not configured, is unreachable or did not answer in time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/update/apply": {
+      "post": {
+        "operationId": "applySystemUpdate",
+        "responses": {
+          "202": {
+            "description": "The update run has started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemUpdateApplyResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ACCESS_DENIED: the signed-in person is not an instance admin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "NO_UPDATE_AVAILABLE: no newer release exists. UPDATE_NOT_ALLOWED: the running version is below the minimum this release accepts. UPDATE_ALREADY_RUNNING: an update run is active. CURRENT_VERSION_UNKNOWN: the running version is not a release version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "RELEASE_SOURCE_UNREACHABLE: the updater could not read the release source. UPDATER_ERROR: the updater answered with something this server cannot use.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "UPDATER_UNAVAILABLE: the updater is not configured, is unreachable or did not answer in time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/update/nightly": {
+      "put": {
+        "operationId": "setSystemUpdateNightly",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemUpdateNightly"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The stored nightly setting.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemUpdateNightly"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_FAILED: the request body does not match the request schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ACCESS_DENIED: the signed-in person is not an instance admin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5161,6 +5389,337 @@
         },
         "required": [
           "version"
+        ],
+        "additionalProperties": false
+      },
+      "SystemUpdate": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "currentVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "latestVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updateAvailable": {
+            "type": "boolean"
+          },
+          "updateAllowed": {
+            "type": "boolean"
+          },
+          "checkedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runState": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "running",
+              "succeeded",
+              "failed",
+              "rolled_back",
+              "needs_admin",
+              "interrupted"
+            ]
+          },
+          "lastRun": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "runId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "currentVersion": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+                  },
+                  "targetVersion": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+                  },
+                  "startedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "finishedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "enum": [
+                      "in_progress",
+                      "succeeded",
+                      "refused",
+                      "failed_before_change",
+                      "rolled_back",
+                      "failed_needs_admin"
+                    ]
+                  },
+                  "failedStep": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "verify_version",
+                          "backup",
+                          "pull",
+                          "migrate",
+                          "replace",
+                          "health",
+                          "rollback_stop",
+                          "rollback_restore",
+                          "rollback_start",
+                          "rollback_health"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "verify_version",
+                            "backup",
+                            "pull",
+                            "migrate",
+                            "replace",
+                            "health",
+                            "rollback_stop",
+                            "rollback_restore",
+                            "rollback_start",
+                            "rollback_health"
+                          ]
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "pending",
+                            "running",
+                            "succeeded",
+                            "failed",
+                            "skipped"
+                          ]
+                        },
+                        "startedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "finishedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "state",
+                        "startedAt",
+                        "finishedAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "backupName": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "previousImages": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "server": {
+                            "type": "string",
+                            "pattern": "^ghcr\\.io\\/[a-z0-9][a-z0-9-]*\\/offgrid-main-server@sha256:[0-9a-f]{64}$"
+                          },
+                          "web": {
+                            "type": "string",
+                            "pattern": "^ghcr\\.io\\/[a-z0-9][a-z0-9-]*\\/offgrid-main-web@sha256:[0-9a-f]{64}$"
+                          }
+                        },
+                        "required": [
+                          "server",
+                          "web"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "writesAfterBackupLost": {
+                    "type": "boolean"
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "runId",
+                  "currentVersion",
+                  "targetVersion",
+                  "startedAt",
+                  "finishedAt",
+                  "outcome",
+                  "failedStep",
+                  "steps",
+                  "backupName",
+                  "previousImages",
+                  "writesAfterBackupLost",
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "nightlyEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "currentVersion",
+          "latestVersion",
+          "updateAvailable",
+          "updateAllowed",
+          "checkedAt",
+          "runState",
+          "lastRun",
+          "running",
+          "nightlyEnabled"
+        ],
+        "additionalProperties": false
+      },
+      "SystemUpdateCheck": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "currentVersion": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+          },
+          "latestVersion": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+          },
+          "updateAvailable": {
+            "type": "boolean"
+          },
+          "updateAllowed": {
+            "type": "boolean"
+          },
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "currentVersion",
+          "latestVersion",
+          "updateAvailable",
+          "updateAllowed",
+          "checkedAt"
+        ],
+        "additionalProperties": false
+      },
+      "SystemUpdateApplyResult": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "started": {
+            "type": "boolean",
+            "const": true
+          },
+          "targetVersion": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+          }
+        },
+        "required": [
+          "started",
+          "targetVersion"
+        ],
+        "additionalProperties": false
+      },
+      "SystemUpdateNightly": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
         ],
         "additionalProperties": false
       }
