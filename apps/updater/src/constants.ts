@@ -101,3 +101,7 @@ export const DOCKER_MISSING_STATUS = 404;
 export const SERVER_VERSION_LABEL = "org.opencontainers.image.version";
 
 export const API_BODY_LIMIT_BYTES = 1024;
+
+export const NIGHTLY_SETTING_TIMEOUT_MILLISECONDS = 10000;
+
+export const NIGHTLY_SETTING_UNREADABLE_MESSAGE = "nightly setting could not be read";
