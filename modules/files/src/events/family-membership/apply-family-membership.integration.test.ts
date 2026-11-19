@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase } from "../../../test/types.js";
+import { readFamilyMembership } from "../../../test/family-membership.js";
 import { applyFamilyMembership } from "./apply-family-membership.js";
 
 describe("family membership projection", { timeout: 60_000 }, () => {
@@ -29,13 +30,7 @@ describe("family membership projection", { timeout: 60_000 }, () => {
       applyFamilyMembership(tx, { familyId, userId, sourceVersion, isMember }),
     );
 
-  const stored = async () => {
-    const { rows } = await db.admin.query<{ source_version: number; is_member: boolean }>(
-      "SELECT source_version, is_member FROM files.family_membership WHERE family_id = $1 AND user_id = $2",
-      [familyId, userId],
-    );
-    return rows[0];
-  };
+  const stored = () => readFamilyMembership(db.admin, familyId, userId);
 
   it("makes a person a member when the join is applied", async () => {
     await apply(1, true);

@@ -22,6 +22,7 @@
     "@offgrid/contracts": "workspace:*",
     "@offgrid/db": "workspace:*",
     "@offgrid/event-bus": "workspace:*",
+    "@offgrid/family-projection": "workspace:*",
     "@offgrid/file-storage": "workspace:*",
     "@offgrid/observability": "workspace:*"
   }

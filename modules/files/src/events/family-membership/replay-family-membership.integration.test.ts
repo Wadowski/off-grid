@@ -3,6 +3,7 @@
 
 import { randomUUID } from "node:crypto";
 import { familyMemberAddedV1, familyMemberRemovedV1 } from "@offgrid/contracts";
+import { familyMembershipSubscriptionOf } from "@offgrid/family-projection";
 import {
   createEventBus,
   publishOwnedEvent,
@@ -12,6 +13,7 @@ import {
 import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
+import { readFamilyMembership } from "../../../test/family-membership.js";
 import type { FilesTestDatabase } from "../../../test/types.js";
 import { familyMembershipHandler } from "./family-membership-handler.js";
 import { registerFamilyMembershipSubscribers } from "./register-family-membership-subscribers.js";
@@ -52,8 +54,7 @@ describe("family membership replay", { timeout: 60_000 }, () => {
   const replayMembership = () =>
     replayEvents(
       {
-        events: [familyMemberAddedV1, familyMemberRemovedV1],
-        runAs: "files",
+        ...familyMembershipSubscriptionOf("files"),
         handler: (event) => familyMembershipHandler(db.db, event),
       },
       { pool: db.pool },
@@ -61,13 +62,7 @@ describe("family membership replay", { timeout: 60_000 }, () => {
 
   const clearProjection = () => db.admin.query("TRUNCATE files.family_membership");
 
-  const stored = async () => {
-    const { rows } = await db.admin.query<{ source_version: number; is_member: boolean }>(
-      "SELECT source_version, is_member FROM files.family_membership WHERE family_id = $1 AND user_id = $2",
-      [familyId, userId],
-    );
-    return rows[0];
-  };
+  const stored = () => readFamilyMembership(db.admin, familyId, userId);
 
   it("rebuilds a join, a leave and a rejoin into the same row as the live projection", async () => {
     await publishJoin(1);

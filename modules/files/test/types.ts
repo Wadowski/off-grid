@@ -13,3 +13,8 @@ export interface FilesTestDatabase {
 }
 
 export type SeedScope = "user" | "family";
+
+export interface FamilyMembershipRow {
+  readonly source_version: number;
+  readonly is_member: boolean;
+}

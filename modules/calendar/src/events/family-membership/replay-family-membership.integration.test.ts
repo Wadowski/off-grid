@@ -13,7 +13,7 @@ import {
 import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
-import { readFamilyMembership } from "../../../test/read-family-membership.js";
+import { readFamilyMembership } from "../../../test/family-membership.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
 import { familyMembershipHandler } from "./family-membership-handler.js";
 import { registerFamilyMembershipSubscribers } from "./register-family-membership-subscribers.js";

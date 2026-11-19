@@ -24,13 +24,6 @@ export interface FilesSubscriberContext {
   readonly db: ModuleDatabase;
 }
 
-export interface MembershipChange {
-  readonly familyId: string;
-  readonly userId: string;
-  readonly sourceVersion: number;
-  readonly isMember: boolean;
-}
-
 export interface FilesWorkerContext {
   readonly db: ModuleDatabase;
   readonly logger: Logger;

@@ -6,6 +6,7 @@ import { familyMemberAddedV1, familyMemberRemovedV1 } from "@offgrid/contracts";
 import { createEventBus, publishOwnedEvent, withTransaction } from "@offgrid/event-bus";
 import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { readFamilyMembership } from "../../../test/family-membership.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase } from "../../../test/types.js";
 import { registerFamilyMembershipSubscribers } from "./register-family-membership-subscribers.js";
@@ -50,13 +51,7 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
       retryDelayMs: () => 0,
     });
 
-  const stored = async (member = userId) => {
-    const { rows } = await db.admin.query<{ source_version: number; is_member: boolean }>(
-      "SELECT source_version, is_member FROM files.family_membership WHERE family_id = $1 AND user_id = $2",
-      [familyId, member],
-    );
-    return rows[0];
-  };
+  const stored = (member = userId) => readFamilyMembership(db.admin, familyId, member);
 
   it("does not apply membership events published before the projection, so a person who left earlier stays denied", async () => {
     const legacyUser = randomUUID();

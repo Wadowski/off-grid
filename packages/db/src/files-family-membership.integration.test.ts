@@ -4,6 +4,7 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { seedFamilyFile } from "../test/family-membership.js";
 import { startTestDatabase } from "../test/start-test-database.js";
 import type { Context, TestDatabase } from "../test/types.js";
 import { assertOwnershipScopes, DATABASE_SCHEMAS } from "./index.js";
@@ -31,30 +32,6 @@ const seedMembership = (db: TestDatabase, familyId: string, userId: string, isMe
     "INSERT INTO files.family_membership (family_id, user_id, source_version, is_member) VALUES ($1, $2, 1, $3)",
     [familyId, userId, isMember],
   );
-
-const seedFamilyFile = async (db: TestDatabase, familyId: string) => {
-  const driveId = randomUUID();
-  const fileId = randomUUID();
-  const versionId = randomUUID();
-  await db.admin.query("BEGIN");
-  await db.admin.query(
-    "INSERT INTO files.drive (drive_id, family_id, kind, name) VALUES ($1, $2, 'family', 'Family')",
-    [driveId, familyId],
-  );
-  await db.admin.query(
-    `INSERT INTO files.file (file_id, drive_id, family_id, name, is_folder, mime_type, size_bytes, current_version_id)
-     VALUES ($1, $2, $3, 'doc.txt', false, 'text/plain', 3, $4)`,
-    [fileId, driveId, familyId, versionId],
-  );
-  await db.admin.query(
-    `INSERT INTO files.file_version
-       (version_id, file_id, family_id, number, storage_key, size_bytes, mime_type, sha256, created_by_user_id)
-     VALUES ($1, $2, $3, 1, $4, 3, 'text/plain', $5, $6)`,
-    [versionId, fileId, familyId, `key-${versionId}`, "0".repeat(64), randomUUID()],
-  );
-  await db.admin.query("COMMIT");
-  return { driveId, fileId, versionId };
-};
 
 const countRows = async (client: Client, owner: Context, table: string) => {
   const rows = await queryAs(client, owner, `SELECT count(*)::int AS n FROM files.${table}`);

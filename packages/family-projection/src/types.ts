@@ -28,8 +28,7 @@ export interface FamilyMembershipStore {
 }
 
 export type FamilyMembershipEvent =
-  | EventOf<typeof familyMemberAddedV1>
-  | EventOf<typeof familyMemberRemovedV1>;
+  EventOf<typeof familyMemberAddedV1> | EventOf<typeof familyMemberRemovedV1>;
 
 export type FamilyMembershipHandler = (
   db: ModuleDatabase,

@@ -58,9 +58,9 @@ describe("applyMembershipChange", () => {
   it("does not write when a version arrives out of order", async () => {
     const { store, written } = memoryStore({ sourceVersion: 1 });
 
-    await expect(
-      applyMembershipChange(fakeTransaction(), change(3, true), store),
-    ).rejects.toThrow("arrived before an earlier change");
+    await expect(applyMembershipChange(fakeTransaction(), change(3, true), store)).rejects.toThrow(
+      "arrived before an earlier change",
+    );
     expect(written).toEqual([]);
   });
 });

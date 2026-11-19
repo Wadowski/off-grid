@@ -67,7 +67,7 @@ Decision record: [ADR 0029](../../docs/adr/0029-event-guest-access.md).
 
 `src/events/default-calendar` subscribes to `user-created-v1` (from identity) and creates the user's default calendar. The insert is idempotent, so a repeated event creates nothing.
 
-`src/events/family-membership` subscribes to `family-member-added-v1` and `family-member-removed-v1` and keeps `calendar.family_membership` in step. That table is how the calendar module knows which family calendars a person may manage. Each family creator also gets a `family-member-added-v1` event, so the creator appears in the table too.
+`src/events/family-membership` subscribes to `family-member-added-v1` and `family-member-removed-v1` and keeps `calendar.family_membership` in step. The version check, the event mapping and the subscriber wiring come from `@offgrid/family-projection`, and this module supplies only its table accessor. That table is how the calendar module knows which family calendars a person may manage. Each family creator also gets a `family-member-added-v1` event, so the creator appears in the table too.
 
 Each change is applied in the order the family made it. A change that was already applied is ignored. A change that arrives before an earlier change it depends on halts the subscriber until that change arrives. The projection starts after the events that existed at migration time, so those old events are never replayed.
 
