@@ -23,8 +23,14 @@ describe("createNotificationHubProvider", () => {
   });
 
   it("builds a separate hub for each provider", () => {
-    const first = createNotificationHubProvider(10, MAX_NOTIFICATION_STREAMS_PER_USER)(loggerStub());
-    const second = createNotificationHubProvider(10, MAX_NOTIFICATION_STREAMS_PER_USER)(loggerStub());
+    const first = createNotificationHubProvider(
+      10,
+      MAX_NOTIFICATION_STREAMS_PER_USER,
+    )(loggerStub());
+    const second = createNotificationHubProvider(
+      10,
+      MAX_NOTIFICATION_STREAMS_PER_USER,
+    )(loggerStub());
 
     expect(first).not.toBe(second);
   });

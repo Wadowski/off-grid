@@ -73,7 +73,9 @@ describe("notification stream on the real stack", { timeout: 120_000 }, () => {
     await admin.query(RESET_SQL);
     runtime = createRuntime(config);
     const modules = modulesFor(config).map((module) =>
-      module.name === "notifications" ? createNotificationsModule({ streamHeartbeatMs: 20 }) : module,
+      module.name === "notifications"
+        ? createNotificationsModule({ streamHeartbeatMs: 20 })
+        : module,
     );
     app = await buildApp({
       config,
@@ -81,7 +83,11 @@ describe("notification stream on the real stack", { timeout: 120_000 }, () => {
       modules,
       identity: (request) => resolveRequestIdentity(runtime, request),
     });
-    const registered = await app.inject({ method: "POST", url: "/api/auth/register", payload: ANNA });
+    const registered = await app.inject({
+      method: "POST",
+      url: "/api/auth/register",
+      payload: ANNA,
+    });
     if (registered.statusCode !== 201) {
       throw new Error(`register failed: ${registered.statusCode} ${registered.body}`);
     }

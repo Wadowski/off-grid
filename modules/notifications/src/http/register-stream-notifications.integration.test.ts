@@ -20,7 +20,7 @@ const BEN = "0b1c2d3e-4f5a-4b6c-8d7e-9f0a1b2c3d4e";
 const TRACE_ID = "3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c";
 const FAR_FUTURE = new Date("2099-01-01T00:00:00.000Z");
 
-const notice = (id: string, userId: string): ListedNotification => ({
+const notice = (id: string): ListedNotification => ({
   id,
   type: "event-invited",
   category: "calendar",
@@ -206,7 +206,7 @@ describe("notification stream route", { timeout: 30_000 }, () => {
     it("delivers a notice published to the person as one notification frame", async () => {
       await startApp(1000);
       const { stream } = await openStream(ANNA);
-      const published = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f", ANNA);
+      const published = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
 
       hub.publish(ANNA, published);
 
@@ -218,8 +218,8 @@ describe("notification stream route", { timeout: 30_000 }, () => {
       await startApp(1000);
       const anna = await openStream(ANNA);
       const ben = await openStream(BEN);
-      const forAnna = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f", ANNA);
-      const forBen = notice("1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d", BEN);
+      const forAnna = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
+      const forBen = notice("1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d");
 
       hub.publish(ANNA, forAnna);
       await waitFor(() => anna.stream.text.includes(forAnna.id));
@@ -237,7 +237,7 @@ describe("notification stream route", { timeout: 30_000 }, () => {
 
       abort();
       await waitFor(() => unsubscribeCalls.mock.calls.length === 1);
-      hub.publish(ANNA, notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f", ANNA));
+      hub.publish(ANNA, notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f"));
 
       expect(unsubscribeCalls).toHaveBeenCalledTimes(1);
       expect(stream.text).not.toContain("event: notification");
@@ -286,7 +286,7 @@ describe("notification stream route", { timeout: 30_000 }, () => {
 
       session.throws = true;
       await waitFor(() => countOccurrences(stream.text, ": heartbeat") >= 2);
-      const published = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f", ANNA);
+      const published = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
       hub.publish(ANNA, published);
 
       await waitFor(() => stream.text.includes(published.id));

@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import {
-  startIdentityTestDatabase,
-  type IdentityTestDatabase,
-} from "../../../test/start-identity-test-database.js";
+import { startIdentityTestDatabase } from "../../../test/start-identity-test-database.js";
+import type { IdentityTestDatabase } from "../../../test/types.js";
 import { registerAccount } from "../registration/register-account.js";
 import { signIn } from "./sign-in.js";
 import { verifyAccessToken } from "./verify-access-token.js";

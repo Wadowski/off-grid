@@ -17,9 +17,8 @@ const loggerSpy = () => {
   return { logger: logger as unknown as Logger, warn };
 };
 
-const verifierReturning = (
-  session: Awaited<ReturnType<SessionVerifier>>,
-): SessionVerifier => vi.fn(async () => session);
+const verifierReturning = (session: Awaited<ReturnType<SessionVerifier>>): SessionVerifier =>
+  vi.fn(async () => session);
 
 describe("checkStreamSession", () => {
   it("reports active while the session still belongs to the stream's person", async () => {
