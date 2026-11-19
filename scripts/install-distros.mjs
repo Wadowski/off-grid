@@ -31,6 +31,10 @@ const images = requestedImages.length > 0 ? requestedImages : DISTRO_IMAGES;
 const failedImages = images.filter((image) => {
   console.log(`install-distros: ${image}`);
   const result = spawnSync("docker", dockerRunArguments(image), { stdio: "inherit" });
+  if (result.status === null) {
+    const cause = result.error?.message ?? `stopped by signal ${result.signal}`;
+    console.error(`install-distros: docker did not finish for ${image}: ${cause}`);
+  }
   return result.status !== 0;
 });
 
