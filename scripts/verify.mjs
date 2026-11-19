@@ -29,6 +29,7 @@ export const planChecks = (files) => {
     ["rules", ["check:rules"]],
   ];
   if (touches(/\.feature$/)) checks.push(["features", ["lint:features"]]);
+  if (touches(/\.sh$/)) checks.push(["shell", ["lint:shell"]]);
   if (touches(/^packages\/contracts\//)) checks.push(["contracts", ["check:contracts"]]);
   if (touches(/^(packages|apps)\//)) checks.push(["build", ["build"]]);
   if (touches(/^infra\/compose\/|^scripts\/check-compose-/))
