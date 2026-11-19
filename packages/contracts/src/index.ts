@@ -106,6 +106,7 @@ export * from "./system-update-schema.js";
 export * from "./system-update-check-schema.js";
 export * from "./system-update-apply-result-schema.js";
 export * from "./system-update-nightly-schema.js";
+export * from "./system-update-error-code-schema.js";
 export * from "./registration-status-schema.js";
 export * from "./session-access-schema.js";
 export * from "./sign-in-request-schema.js";

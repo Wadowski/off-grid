@@ -84,3 +84,14 @@ export const UPDATE_RUN_STATES = [
   "needs_admin",
   "interrupted",
 ] as const;
+
+export const UPDATE_ERROR_CODES = [
+  "ACCESS_DENIED",
+  "UPDATER_UNAVAILABLE",
+  "UPDATER_ERROR",
+  "RELEASE_SOURCE_UNREACHABLE",
+  "CURRENT_VERSION_UNKNOWN",
+  "UPDATE_ALREADY_RUNNING",
+  "NO_UPDATE_AVAILABLE",
+  "UPDATE_NOT_ALLOWED",
+] as const;

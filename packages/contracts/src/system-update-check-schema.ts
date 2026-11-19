@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { RELEASE_VERSION_PATTERN } from "./constants.js";
 
-const updaterCheckSchema = z.strictObject({
+export const updaterCheckSchema = z.strictObject({
   currentVersion: z.string().regex(RELEASE_VERSION_PATTERN),
   latestVersion: z.string().regex(RELEASE_VERSION_PATTERN),
   updateAvailable: z.boolean(),
