@@ -43,6 +43,7 @@ export interface ModuleContext {
   readonly currentUserId: (request: FastifyRequest) => string | null;
   readonly currentFamilyId: (request: FastifyRequest) => string | null;
   readonly currentSessionId: (request: FastifyRequest) => string | null;
+  readonly isInstanceAdmin: (userId: string) => Promise<boolean>;
 }
 
 export interface Worker {
