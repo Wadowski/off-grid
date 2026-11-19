@@ -114,6 +114,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/system/update/apply",
       "/system/update/check",
       "/system/update/nightly",
+      "/system/updater/nightly",
       "/system/version",
       "/uploads",
       "/uploads/{id}",
@@ -136,6 +137,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "markNotificationRead",
     );
     expect(paths["/me/notifications/read-all"].post.operationId).toBe("markAllNotificationsRead");
+    expect(paths["/system/updater/nightly"].get.operationId).toBe("getSystemUpdaterNightly");
   });
 });
 

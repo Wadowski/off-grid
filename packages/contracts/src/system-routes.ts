@@ -7,4 +7,5 @@ export const systemRoutes = {
   updateCheck: "/system/update/check",
   updateApply: "/system/update/apply",
   updateNightly: "/system/update/nightly",
+  updaterNightly: "/system/updater/nightly",
 } as const;
