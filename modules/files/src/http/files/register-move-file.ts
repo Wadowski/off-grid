@@ -22,7 +22,13 @@ export const registerMoveFile = (api: FastifyInstance, context: FilesRouteContex
         return sendValidationFailed(reply, body.error);
       }
       try {
-        const outcome = await moveFile(context.db, userId, params.data.id, body.data);
+        const outcome = await moveFile(
+          context.db,
+          context.storage,
+          userId,
+          params.data.id,
+          body.data,
+        );
         if (outcome.outcome === "not-found") {
           return sendNotFound(reply);
         }

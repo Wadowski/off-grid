@@ -68,6 +68,30 @@ describe("POST /files/:id/move", { timeout: 60_000 }, () => {
     });
   });
 
+  it("answers 200 with the cross-owner notice when a folder moves to a family drive", async () => {
+    const personal = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const familyOwner = { userId: null, familyId: randomUUID() };
+    await db.admin.query(
+      "INSERT INTO files.family_membership (family_id, user_id, source_version, is_member) VALUES ($1, $2, 1, true)",
+      [familyOwner.familyId, anna],
+    );
+    const family = await seedDrive(db.admin, { owner: familyOwner, name: "The Smiths" });
+    const holiday = await seedFolder(db.admin, {
+      driveId: personal,
+      owner: annaOwner,
+      parentId: null,
+      name: "Holiday",
+    });
+
+    const response = await move(holiday, { driveId: family, parentId: null });
+
+    expect(response.statusCode).toBe(200);
+    expect(moveFileResultSchema.parse(response.json())).toMatchObject({
+      crossOwnerNotice: true,
+      file: { name: "Holiday", parentId: null, version: 1, driveId: family },
+    });
+  });
+
   it("answers 409 INVALID_MOVE for a move into itself", async () => {
     const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
     const holiday = await seedFolder(db.admin, {

@@ -263,20 +263,72 @@ Then(/^Anna is told the name is taken$/, async ({ world }) => {
   expect(world.response?.body).toMatchObject({ code: "NAME_TAKEN" });
 });
 
-const notImplemented = (step: string): never => {
-  throw new Error(`Step not implemented yet (OG-113 cross-owner move): ${step}`);
-};
-
 When(
-  /^Anna renames the folder "([^"]*)" to "([^"]*)"$/,
-  async ({ world }, name: string, newName: string) => {
-    const driveId = await personalDriveOf(world, "Anna");
-    const folderId = await folderIdInDrive(world, sessionOf(world, "Anna"), driveId, [name]);
-    world.response = await patchAs(world.api, sessionOf(world, "Anna"), `/api/files/${folderId}`, {
-      name: newName,
+  /^Anna moves the folder "([^"]*)" to the family drive of "([^"]*)"$/,
+  async ({ world }, name: string, familyName: string) => {
+    const annaSession = sessionOf(world, "Anna");
+    const personalId = await personalDriveOf(world, "Anna");
+    const familyDriveId = await familyDriveOf(world, familyName);
+    const folderId = await folderIdInDrive(world, annaSession, personalId, [name]);
+    world.response = await postAs(world.api, annaSession, `/api/files/${folderId}/move`, {
+      driveId: familyDriveId,
+      parentId: null,
     });
   },
 );
+
+When(
+  /^Anna moves the folder "([^"]*)" to the personal drive of Ben$/,
+  async ({ world }, name: string) => {
+    const annaSession = sessionOf(world, "Anna");
+    const personalId = await personalDriveOf(world, "Anna");
+    const bensDriveId = await personalDriveOf(world, "Ben");
+    const folderId = await folderIdInDrive(world, annaSession, personalId, [name]);
+    world.response = await postAs(world.api, annaSession, `/api/files/${folderId}/move`, {
+      driveId: bensDriveId,
+      parentId: null,
+    });
+  },
+);
+
+Then("Anna is told the folder was moved to another owner", async ({ world }) => {
+  expect(world.response?.status).toBe(200);
+  expect(world.response?.body).toMatchObject({ crossOwnerNotice: true });
+});
+
+Then(
+  /^Anna sees the folder "([^"]*)" inside "([^"]*)" in the family drive of "([^"]*)"$/,
+  async ({ world }, name: string, parentName: string, familyName: string) => {
+    const familyDriveId = await familyDriveOf(world, familyName);
+    const parentId = await folderIdInDrive(world, sessionOf(world, "Anna"), familyDriveId, [
+      parentName,
+    ]);
+    const items = await listItemsAs(world.api, sessionOf(world, "Anna"), {
+      kind: "folder",
+      id: parentId,
+    });
+    expect(items.map((item: FileItem) => item.name)).toContain(name);
+  },
+);
+
+When(
+  /^Ben moves the folder "([^"]*)" from the family drive of "([^"]*)" to his personal drive$/,
+  async ({ world }, name: string, familyName: string) => {
+    const familyDriveId = await familyDriveOf(world, familyName);
+    const folderId = await folderIdInDrive(world, sessionOf(world, "Anna"), familyDriveId, [name]);
+    const bensDriveId = await personalDriveOf(world, "Ben");
+    world.response = await postAs(
+      world.api,
+      sessionOf(world, "Ben"),
+      `/api/files/${folderId}/move`,
+      {
+        driveId: bensDriveId,
+        parentId: null,
+      },
+    );
+  },
+);
+
 When(
   /^Anna moves the folder "([^"]*)" into "([^"]*)"$/,
   async ({ world }, name: string, targetName: string) => {
@@ -290,22 +342,23 @@ When(
     });
   },
 );
+
+When(
+  /^Anna renames the folder "([^"]*)" to "([^"]*)"$/,
+  async ({ world }, name: string, newName: string) => {
+    const driveId = await personalDriveOf(world, "Anna");
+    const folderId = await folderIdInDrive(world, sessionOf(world, "Anna"), driveId, [name]);
+    world.response = await patchAs(world.api, sessionOf(world, "Anna"), `/api/files/${folderId}`, {
+      name: newName,
+    });
+  },
+);
+
 Then("Anna is told the move is not allowed", async ({ world }) => {
   expect(world.response?.status).toBe(409);
   expect(world.response?.body).toMatchObject({ code: "INVALID_MOVE" });
 });
-When(/^Anna moves the folder "[^"]*" to the family drive of "[^"]*"$/, () =>
-  notImplemented("Anna moves the folder to the family drive"),
-);
-Then("Anna is told the folder was moved to another owner", () =>
-  notImplemented("the folder was moved to another owner"),
-);
-Then(/^Anna sees the folder "[^"]*" inside "[^"]*" in the family drive of "[^"]*"$/, () =>
-  notImplemented("Anna sees the folder inside in the family drive"),
-);
-When(/^Anna moves the folder "[^"]*" to the personal drive of Ben$/, () =>
-  notImplemented("Anna moves the folder to the personal drive of Ben"),
-);
+
 When(
   /^Ben renames the folder "([^"]*)" in the family drive of "([^"]*)" to "([^"]*)"$/,
   async ({ world }, name: string, familyName: string, newName: string) => {
@@ -315,7 +368,4 @@ When(
       name: newName,
     });
   },
-);
-When(/^Ben moves the folder "[^"]*" from the family drive of "[^"]*" to his personal drive$/, () =>
-  notImplemented("Ben moves the folder"),
 );

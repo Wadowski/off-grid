@@ -182,3 +182,35 @@ export interface NewFileVersionInput {
   readonly sha256: string;
   readonly createdByUserId: string;
 }
+
+export interface FileVersionRecord {
+  readonly versionId: string;
+  readonly fileId: string;
+  readonly storageKey: string;
+  readonly sizeBytes: bigint;
+  readonly mimeType: string;
+  readonly sha256: string;
+}
+
+export interface SourceTree {
+  readonly entries: readonly FileRecord[];
+  readonly versions: readonly FileVersionRecord[];
+}
+
+export interface SameDrivePlan {
+  readonly kind: "same-drive";
+  readonly file: FileRecord;
+  readonly owner: FileOwner;
+  readonly parentId: string | null;
+}
+
+export interface CrossOwnerPlan {
+  readonly kind: "cross-owner";
+  readonly file: FileRecord;
+  readonly sourceOwner: FileOwner;
+  readonly target: DriveRecord;
+  readonly parentId: string | null;
+  readonly tree: SourceTree;
+}
+
+export type MovePlan = { readonly kind: "no-op"; readonly file: FileRecord } | SameDrivePlan | CrossOwnerPlan;

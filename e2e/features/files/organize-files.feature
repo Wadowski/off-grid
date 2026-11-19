@@ -66,7 +66,6 @@ Feature: Organising folders
     When Anna moves the folder "Holiday" into "Photos"
     Then Anna is told the name is taken
 
-  @wip
   Scenario: Anna moves a folder from her personal drive to the family drive
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -74,7 +73,6 @@ Feature: Organising folders
     When Anna moves the folder "Holiday" to the family drive of "The Smiths"
     Then Anna is told the folder was moved to another owner
 
-  @wip
   Scenario: A moved folder keeps its subfolders in the family drive
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -82,7 +80,6 @@ Feature: Organising folders
     When Anna moves the folder "Holiday" to the family drive of "The Smiths"
     Then Anna sees the folder "Beach" inside "Holiday" in the family drive of "The Smiths"
 
-  @wip
   Scenario: A moved folder leaves her personal drive
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -90,7 +87,6 @@ Feature: Organising folders
     When Anna moves the folder "Holiday" to the family drive of "The Smiths"
     Then Anna does not see the folder "Holiday" in her personal drive
 
-  @wip
   Scenario: Anna cannot move a folder to a drive she cannot see
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -123,7 +119,6 @@ Feature: Organising folders
     When Ben renames the folder "Holiday" in the family drive of "The Smiths" to "Summer"
     Then Ben is told the folder was not found
 
-  @wip
   Scenario: Ben cannot move a folder out of the family drive of another family
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna

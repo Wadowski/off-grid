@@ -48,4 +48,5 @@ export interface SeedEntryInput {
 export interface SeedRegularFileInput extends SeedEntryInput {
   readonly sizeBytes: number;
   readonly createdByUserId: string;
+  readonly storageKey?: string;
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import { createInMemoryFileStorage } from "@offgrid/file-storage";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import { seedDrive } from "../../../test/seed-drive.js";
@@ -14,6 +15,7 @@ import { moveFile } from "./move-file.js";
 
 describe("moveFile within a drive", { timeout: 60_000 }, () => {
   let db: FilesTestDatabase;
+  const storage = createInMemoryFileStorage();
   const familyId = randomUUID();
   const anna = randomUUID();
   const ben = randomUUID();
@@ -67,7 +69,7 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
       name: "Photos",
     });
 
-    const result = await moveFile(db.db, anna, holiday, { driveId, parentId: photos });
+    const result = await moveFile(db.db, storage, anna, holiday, { driveId, parentId: photos });
 
     expect(result.outcome === "found" && result.value.crossOwnerNotice).toBe(false);
     expect(await parentOf(holiday)).toEqual({ parent_id: photos, version: 2 });
@@ -89,7 +91,7 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
       name: "Holiday",
     });
 
-    await moveFile(db.db, anna, holiday, { driveId, parentId: null });
+    await moveFile(db.db, storage, anna, holiday, { driveId, parentId: null });
 
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 2 });
   });
@@ -103,7 +105,7 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
       name: "Holiday",
     });
 
-    const result = await moveFile(db.db, anna, holiday, { driveId, parentId: null });
+    const result = await moveFile(db.db, storage, anna, holiday, { driveId, parentId: null });
 
     expect(result.outcome).toBe("found");
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 1 });
@@ -132,12 +134,12 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
     });
 
     await expect(
-      moveFile(db.db, anna, holiday, { driveId, parentId: holiday }),
+      moveFile(db.db, storage, anna, holiday, { driveId, parentId: holiday }),
     ).rejects.toBeInstanceOf(InvalidMoveError);
     await expect(
-      moveFile(db.db, anna, holiday, { driveId, parentId: beach }),
+      moveFile(db.db, storage, anna, holiday, { driveId, parentId: beach }),
     ).rejects.toBeInstanceOf(InvalidMoveError);
-    await expect(moveFile(db.db, anna, holiday, { driveId, parentId: day })).rejects.toBeInstanceOf(
+    await expect(moveFile(db.db, storage, anna, holiday, { driveId, parentId: day })).rejects.toBeInstanceOf(
       InvalidMoveError,
     );
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 1 });
@@ -161,7 +163,7 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
     await seedFolder(db.admin, { driveId, owner: annaOwner, parentId: photos, name: "HOLIDAY" });
 
     await expect(
-      moveFile(db.db, anna, holiday, { driveId, parentId: photos }),
+      moveFile(db.db, storage, anna, holiday, { driveId, parentId: photos }),
     ).rejects.toBeInstanceOf(NameTakenError);
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 1 });
   });
@@ -190,13 +192,13 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
       trashed: true,
     });
 
-    expect(await moveFile(db.db, anna, holiday, { driveId, parentId: file })).toEqual({
+    expect(await moveFile(db.db, storage, anna, holiday, { driveId, parentId: file })).toEqual({
       outcome: "not-found",
     });
-    expect(await moveFile(db.db, anna, holiday, { driveId, parentId: trashed })).toEqual({
+    expect(await moveFile(db.db, storage, anna, holiday, { driveId, parentId: trashed })).toEqual({
       outcome: "not-found",
     });
-    expect(await moveFile(db.db, anna, holiday, { driveId, parentId: randomUUID() })).toEqual({
+    expect(await moveFile(db.db, storage, anna, holiday, { driveId, parentId: randomUUID() })).toEqual({
       outcome: "not-found",
     });
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 1 });
@@ -217,7 +219,7 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
       name: "Photos",
     });
 
-    expect(await moveFile(db.db, ben, holiday, { driveId, parentId: photos })).toEqual({
+    expect(await moveFile(db.db, storage, ben, holiday, { driveId, parentId: photos })).toEqual({
       outcome: "not-found",
     });
     expect(await updatedEventCount()).toBe(0);
