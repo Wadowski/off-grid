@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { createManualClock } from "../../test/manual-clock.js";
 import { createSilentLogger } from "../../test/silent-logger.js";
 import { waitUntil } from "../../test/wait-until.js";
+import type { SchedulerTestHarness } from "../../test/types.js";
 import type { NightlyRunResult } from "../types.js";
 import { startNightlyScheduler } from "./start-nightly-scheduler.js";
 
@@ -14,15 +15,9 @@ const FIRST_SLOT = new Date(2026, 10, 20, 3, 30);
 const SECOND_SLOT = new Date(2026, 10, 21, 3, 30);
 const ONE_MINUTE_BEFORE_FIRST_SLOT = new Date(2026, 10, 20, 3, 29);
 
-interface SchedulerHarness {
-  readonly clock: ReturnType<typeof createManualClock>;
-  readonly ticks: number[];
-  readonly stop: () => void;
-}
-
 const startWith = (
   runTick: (tickNumber: number) => Promise<NightlyRunResult>,
-): SchedulerHarness => {
+): SchedulerTestHarness => {
   const clock = createManualClock(START);
   const ticks: number[] = [];
   const stop = startNightlyScheduler({

@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ApplyDependencies, Clock, DockerRunner, UpdateStatus } from "../src/types.js";
+import type {
+  ApplyDependencies,
+  ApplyRequest,
+  Clock,
+  DockerRunner,
+  UpdateStatus,
+  UpdaterServices,
+} from "../src/types.js";
 
 export type FakeDockerMethod = keyof DockerRunner;
 
@@ -96,4 +103,30 @@ export interface CannedReply {
 export interface ManualClock extends Clock {
   readonly advanceTo: (time: Date) => void;
   readonly pendingSleeps: () => number;
+}
+
+export interface PendingSleep {
+  readonly dueAt: number;
+  readonly resolve: () => void;
+}
+
+export interface NightlyTickHarness {
+  readonly services: UpdaterServices;
+  readonly releaseCalls: string[];
+  readonly applyRequests: ApplyRequest[];
+}
+
+export interface SchedulerTestHarness {
+  readonly clock: ManualClock;
+  readonly ticks: number[];
+  readonly stop: () => void;
+}
+
+export interface NightlyIntegrationHarness {
+  readonly clock: ManualClock;
+  readonly statusFile: string;
+  readonly githubCalls: string[];
+  readonly serverCalls: string[];
+  readonly dockerCalls: string[];
+  readonly stop: () => void;
 }

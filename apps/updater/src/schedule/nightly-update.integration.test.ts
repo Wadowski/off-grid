@@ -15,7 +15,7 @@ import { fakeReleaseSource, RELEASE_REPOSITORY } from "../../test/fake-release-s
 import { createSilentLogger } from "../../test/silent-logger.js";
 import { waitUntil } from "../../test/wait-until.js";
 import { createRunLock } from "../run/create-run-lock.js";
-import type { ManualClock } from "../../test/types.js";
+import type { ManualClock, NightlyIntegrationHarness } from "../../test/types.js";
 import type { ApplyDependencies, DockerRunner, HttpFetch, UpdaterServices } from "../types.js";
 import { runNightlyUpdate } from "./run-nightly-update.js";
 import { readNightlySetting } from "./read-nightly-setting.js";
@@ -31,15 +31,6 @@ const NIGHTLY_TIME = { hour: 3, minute: 30 };
 const START = new Date(2026, 10, 19, 10, 0);
 const NIGHT_SLOT = new Date(2026, 10, 20, 3, 30);
 const LATER_SAME_NIGHT = new Date(2026, 10, 20, 4, 10);
-
-interface NightlyHarness {
-  readonly clock: ManualClock;
-  readonly statusFile: string;
-  readonly githubCalls: string[];
-  readonly serverCalls: string[];
-  readonly dockerCalls: string[];
-  readonly stop: () => void;
-}
 
 const jsonResponse = (body: unknown): Response =>
   new Response(JSON.stringify(body), {
@@ -92,7 +83,7 @@ describe("nightly update through the scheduler", () => {
     rmSync(directory, { recursive: true, force: true });
   });
 
-  const startHarness = (enabled: boolean, pullFails = false): NightlyHarness => {
+  const startHarness = (enabled: boolean, pullFails = false): NightlyIntegrationHarness => {
     const statusFile = join(directory, "status.json");
     const githubCalls: string[] = [];
     const serverCalls: string[] = [];

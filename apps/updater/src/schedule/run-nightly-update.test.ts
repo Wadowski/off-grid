@@ -8,6 +8,7 @@ import {
   releaseManifestFixture,
 } from "../../test/fake-release-source.js";
 import { createSilentLogger } from "../../test/silent-logger.js";
+import type { NightlyTickHarness } from "../../test/types.js";
 import { createRunLock } from "../run/create-run-lock.js";
 import type { ApplyRequest, HttpFetch, UpdateStatus, UpdaterServices } from "../types.js";
 import { runNightlyUpdate } from "./run-nightly-update.js";
@@ -31,19 +32,13 @@ const statusFixture = (): UpdateStatus => ({
   message: "Update finished and the new version is healthy.",
 });
 
-interface NightlyHarness {
-  readonly services: UpdaterServices;
-  readonly releaseCalls: string[];
-  readonly applyRequests: ApplyRequest[];
-}
-
 const buildHarness = (
   overrides: {
     readonly currentVersion?: string;
     readonly httpFetch?: HttpFetch;
     readonly runApply?: (request: ApplyRequest) => Promise<UpdateStatus>;
   } = {},
-): NightlyHarness => {
+): NightlyTickHarness => {
   const releaseCalls: string[] = [];
   const applyRequests: ApplyRequest[] = [];
   const releaseSource = fakeReleaseSource();

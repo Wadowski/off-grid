@@ -1,12 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { ManualClock } from "./types.js";
-
-interface PendingSleep {
-  readonly dueAt: number;
-  readonly resolve: () => void;
-}
+import type { ManualClock, PendingSleep } from "./types.js";
 
 export const createManualClock = (start: Date): ManualClock => {
   let current = start.getTime();
