@@ -41,6 +41,21 @@ describe("release workflow", () => {
     }
   });
 
+  it("publishes the updater image with version and minor tags", () => {
+    const updaterJob = WORKFLOW.slice(
+      WORKFLOW.indexOf("  build-updater:"),
+      WORKFLOW.indexOf("  publish-release:"),
+    );
+    assert.match(updaterJob, /images: ghcr\.io\/\$\{\{ needs\.verify-tag\.outputs\.owner \}\}\/offgrid-updater/);
+    assert.match(updaterJob, /file: apps\/updater\/Dockerfile/);
+    assert.match(updaterJob, /type=semver,pattern=\{\{version\}\}/);
+    assert.match(updaterJob, /type=semver,pattern=\{\{major\}\}\.\{\{minor\}\}/);
+  });
+
+  it("waits for the updater image before publishing the release", () => {
+    assert.match(WORKFLOW, /needs: \[verify-tag, build-server, build-web, build-updater\]/);
+  });
+
   it("never pushes a latest tag", () => {
     const tagLines = WORKFLOW.split("\n").filter((line) => /tags:|type=/.test(line));
     for (const line of tagLines) {
