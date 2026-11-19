@@ -4,4 +4,9 @@
 export { applyMembershipChange } from "./apply-membership-change.js";
 export { createFamilyMembershipHandler } from "./create-family-membership-handler.js";
 export { familyMembershipSubscriptionOf } from "./family-membership-subscription-of.js";
-export type { FamilyMembershipStore, MembershipChange, StoredMembership } from "./types.js";
+export type {
+  FamilyMembershipHandler,
+  FamilyMembershipStore,
+  MembershipChange,
+  StoredMembership,
+} from "./types.js";
