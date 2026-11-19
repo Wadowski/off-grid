@@ -46,20 +46,45 @@ describe("NotificationCard", () => {
     vi.useRealTimers();
   });
 
-  it("names the card by its title and unread state", () => {
+  it("names the card by its title, category, time and unread state", () => {
     renderCard(notice({ type: "password-changed", category: "account-security" }));
 
-    expect(
-      screen.getByRole("button", { name: "Your password was changed, unread" }),
-    ).toBeInTheDocument();
+    const activator = screen.getByRole("button", { name: /Your password was changed/ });
+    expect(activator).toHaveAccessibleName(/Account & security/);
+    expect(activator).toHaveAccessibleName(/3m ago/);
+    expect(activator).toHaveAccessibleName(/unread$/);
   });
 
-  it("names the card by its title and read state once read", () => {
-    renderCard(readNotice("password-changed"));
+  it("names the card by its title, category, time and read state once read", () => {
+    renderCard(
+      notice({
+        type: "password-changed",
+        category: "account-security",
+        readAt: "2026-11-19T10:01:00Z",
+      }),
+    );
+
+    const activator = screen.getByRole("button", { name: /Your password was changed/ });
+    expect(activator).toHaveAccessibleName(/Account & security/);
+    expect(activator).toHaveAccessibleName(/3m ago/);
+    expect(activator).toHaveAccessibleName(/read$/);
+    expect(activator).not.toHaveAccessibleName(/unread/);
+  });
+
+  it("keeps the body visible and part of the accessible name", () => {
+    renderCard(notice({ type: "event-invited" }));
+
+    const activator = screen.getByTestId("notification-card-activate");
+    expect(activator).toHaveAccessibleName(/Open the event to see the details and respond\./);
+  });
+
+  it("does not nest the View Event action inside the activator", () => {
+    renderCard(notice({ type: "event-invited" }));
 
     expect(
-      screen.getByRole("button", { name: "Your password was changed, read" }),
-    ).toBeInTheDocument();
+      screen.getByTestId("notification-card-activate").querySelector("button"),
+    ).toBeNull();
+    expect(screen.getByRole("button", { name: "View Event" })).toBeInTheDocument();
   });
 
   it("shows the unread dot only for an unread notice", () => {
@@ -114,33 +139,17 @@ describe("NotificationCard", () => {
     expect(onMarkRead).toHaveBeenCalledWith(subject.id);
   });
 
-  it("marks an unread notice read on Enter and on Space", () => {
-    const subject = notice();
-    const { onMarkRead } = renderCard(subject);
-    const activator = screen.getByTestId("notification-card-activate");
+  it("activates as a native button, so Enter and Space work without a key handler", () => {
+    renderCard(notice());
 
-    fireEvent.keyDown(activator, { key: "Enter" });
-    fireEvent.keyDown(activator, { key: " " });
-
-    expect(onMarkRead).toHaveBeenCalledTimes(2);
-    expect(onMarkRead).toHaveBeenCalledWith(subject.id);
+    expect(screen.getByTestId("notification-card-activate").tagName).toBe("BUTTON");
+    expect(screen.getByTestId("notification-card-activate")).toHaveAttribute("type", "button");
   });
 
   it("does not mark a read notice read on activation", () => {
     const { onMarkRead } = renderCard(readNotice());
-    const activator = screen.getByTestId("notification-card-activate");
 
-    fireEvent.click(activator);
-    fireEvent.keyDown(activator, { key: "Enter" });
-    fireEvent.keyDown(activator, { key: " " });
-
-    expect(onMarkRead).not.toHaveBeenCalled();
-  });
-
-  it("ignores other keys", () => {
-    const { onMarkRead } = renderCard(notice());
-
-    fireEvent.keyDown(screen.getByTestId("notification-card-activate"), { key: "a" });
+    fireEvent.click(screen.getByTestId("notification-card-activate"));
 
     expect(onMarkRead).not.toHaveBeenCalled();
   });

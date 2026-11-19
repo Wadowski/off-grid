@@ -1,10 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useTranslation } from "react-i18next";
-import { Card, cssVar, IconTile, MaterialIcon, Text } from "@offgrid/ui";
+import { Card, cssVar, IconTile, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
 import { formatRelativeTime } from "../format-relative-time.js";
-import { handleActivateKeyDown } from "./handle-activate-key-down.js";
 import { noticeCopy } from "./notice-copy.js";
 import { NotificationCardAction } from "./components/notification-card-action/notification-card-action.js";
 import {
@@ -28,14 +26,9 @@ export const NotificationCard = ({
   onOpen,
   onMarkRead,
 }: NotificationCardProps) => {
-  const { t } = useTranslation();
   const copy = noticeCopy(notice.type);
   const isUnread = notice.readAt === null;
   const relativeTime = formatRelativeTime(new Date(), notice.createdAt);
-  const accessibleName = t("notifications.card.nameWithState", {
-    title: t(copy.titleId),
-    state: t(isUnread ? "notifications.card.unread" : "notifications.card.read"),
-  });
 
   const markReadOnActivate = () => {
     if (isUnread) {
@@ -57,15 +50,12 @@ export const NotificationCard = ({
           aria-hidden="true"
         />
       ) : null}
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         className="og-focusable"
-        aria-label={accessibleName}
         style={notificationCardActivatorStyle}
         data-testid="notification-card-activate"
         onClick={markReadOnActivate}
-        onKeyDown={(event) => handleActivateKeyDown(markReadOnActivate, event)}
       >
         <IconTile
           size={cssVar("space-9")}
@@ -74,16 +64,18 @@ export const NotificationCard = ({
         >
           <MaterialIcon name={copy.iconName} size="1.125rem" color={cssVar("color-primary")} />
         </IconTile>
-        <div style={notificationCardTextStyle}>
-          <div style={notificationCardHeaderStyle}>
+        <span style={notificationCardTextStyle}>
+          <span style={notificationCardHeaderStyle}>
             <Text
+              element="span"
               variant="caption"
               textId={`notifications.categories.${notice.category}`}
               style={notificationCardCategoryStyle(notice.category)}
               data-testid="notification-card-category"
             />
-            <div style={notificationCardMetaStyle}>
+            <span style={notificationCardMetaStyle}>
               <Text
+                element="span"
                 variant="caption"
                 textId={relativeTime.textId}
                 values={relativeTime.values}
@@ -94,24 +86,34 @@ export const NotificationCard = ({
                 <span
                   style={notificationCardUnreadDotStyle}
                   data-testid="notification-card-unread-dot"
+                  aria-hidden="true"
                 />
               ) : null}
-            </div>
-          </div>
+            </span>
+          </span>
           <Text
+            element="span"
             variant="body"
             textId={copy.titleId}
             style={notificationCardTitleStyle(isUnread)}
             data-testid="notification-card-title"
           />
           <Text
+            element="span"
             variant="status"
             textId={copy.bodyId}
             style={notificationCardBodyStyle}
             data-testid="notification-card-body"
           />
-        </div>
-      </div>
+          <VisuallyHidden>
+            <Text
+              element="span"
+              variant="caption"
+              textId={isUnread ? "notifications.card.unread" : "notifications.card.read"}
+            />
+          </VisuallyHidden>
+        </span>
+      </button>
       {copy.actionId === undefined ? null : (
         <NotificationCardAction actionId={copy.actionId} onActivate={() => onOpen(notice)} />
       )}

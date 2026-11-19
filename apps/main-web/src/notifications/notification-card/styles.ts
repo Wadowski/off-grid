@@ -19,8 +19,16 @@ export const notificationCardActivatorStyle: CSSProperties = {
   display: "flex",
   alignItems: "flex-start",
   gap: cssVar("space-3"),
+  width: "100%",
   minWidth: 0,
+  margin: 0,
+  padding: 0,
+  border: "none",
   borderRadius: cssVar("radius-md"),
+  background: "none",
+  color: "inherit",
+  font: "inherit",
+  textAlign: "start",
   cursor: "pointer",
 };
 

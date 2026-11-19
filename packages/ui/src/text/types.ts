@@ -34,6 +34,6 @@ type DynamicTextContent = {
 
 export type TextProps = Omit<HTMLAttributes<HTMLElement>, "children" | "style" | "className"> & {
   readonly variant: TextVariant;
-  // Extra styles, merged over the variant's styles for this one use.
   readonly style?: CSSProperties;
+  readonly element?: "span" | "p";
 } & (StaticTextContent | DynamicTextContent);
