@@ -164,3 +164,21 @@ export interface MoveOutcome {
   readonly file: FileRecord;
   readonly crossOwnerNotice: boolean;
 }
+
+export interface CopyPlanEntry {
+  readonly sourceFileId: string;
+  readonly copyFileId: string;
+  readonly copyParentId: string | null;
+}
+
+export interface NewFileVersionInput {
+  readonly versionId: string;
+  readonly fileId: string;
+  readonly owner: FileOwner;
+  readonly number: number;
+  readonly storageKey: string;
+  readonly sizeBytes: bigint;
+  readonly mimeType: string;
+  readonly sha256: string;
+  readonly createdByUserId: string;
+}
