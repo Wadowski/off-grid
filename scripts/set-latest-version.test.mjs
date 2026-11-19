@@ -3,7 +3,14 @@
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
@@ -137,6 +144,32 @@ describe("set-latest-version", () => {
 
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /could not read the latest release of Wadowski\/off-grid/);
+    assert.equal(readFileSync(state.envFile, "utf8"), content);
+  });
+
+  it("rejects a release repository with extra path segments or a query without calling GitHub", () => {
+    for (const repository of ["Wadowski/off-grid/extra", "Wadowski/off-grid?per_page=1"]) {
+      const content = `OFFGRID_RELEASE_REPOSITORY=${repository}\nOFFGRID_VERSION=\n`;
+      const state = withEnvFile(content);
+
+      const result = runScript(state);
+
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /invalid release repository/);
+      assert.equal(existsSync(state.argsFile), false);
+      assert.equal(readFileSync(state.envFile, "utf8"), content);
+    }
+  });
+
+  it("rejects an image owner that is not a single name without calling GitHub", () => {
+    const content = "OFFGRID_IMAGE_OWNER=wadowski/evil\nOFFGRID_VERSION=\n";
+    const state = withEnvFile(content);
+
+    const result = runScript(state);
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /invalid image owner/);
+    assert.equal(existsSync(state.argsFile), false);
     assert.equal(readFileSync(state.envFile, "utf8"), content);
   });
 

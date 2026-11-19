@@ -5,6 +5,9 @@
 set -eu
 
 DEFAULT_REPOSITORY=Wadowski/off-grid
+DEFAULT_IMAGE_OWNER=wadowski
+REPOSITORY_PATTERN='^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'
+OWNER_PATTERN='^[A-Za-z0-9._-]+$'
 SEMVER_PATTERN='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 
 fail() {
@@ -33,6 +36,18 @@ parse_arguments() {
 configured_repository() {
   repository=$(sed -n 's/^OFFGRID_RELEASE_REPOSITORY=//p' "$env_file" | tail -n 1)
   printf '%s\n' "${repository:-$DEFAULT_REPOSITORY}"
+}
+
+configured_image_owner() {
+  owner=$(sed -n 's/^OFFGRID_IMAGE_OWNER=//p' "$env_file" | tail -n 1)
+  printf '%s\n' "${owner:-$DEFAULT_IMAGE_OWNER}"
+}
+
+validate_configuration() {
+  printf '%s\n' "$1" | grep -Eq "$REPOSITORY_PATTERN" \
+    || fail "invalid release repository: $1"
+  printf '%s\n' "$2" | grep -Eq "$OWNER_PATTERN" \
+    || fail "invalid image owner: $2"
 }
 
 latest_tag() {
@@ -66,6 +81,8 @@ main() {
   parse_arguments "$@"
   command -v curl > /dev/null 2>&1 || fail "curl is required on this host"
   repository=$(configured_repository)
+  owner=$(configured_image_owner)
+  validate_configuration "$repository" "$owner"
   tag=$(latest_tag "$repository")
   [ -n "$tag" ] || fail "the latest release of $repository has no tag"
   version=$(version_from_tag "$tag")
