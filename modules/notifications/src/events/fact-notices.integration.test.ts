@@ -8,7 +8,13 @@ import {
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
 } from "@offgrid/contracts";
-import { createEventBus, publish, replayEvents } from "@offgrid/event-bus";
+import {
+  createEventBus,
+  publish,
+  replayEvents,
+  type EventBus,
+  type Subscription,
+} from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
 import { createMemoryErrorSink, currentTraceId, resolveTraceId } from "@offgrid/observability";
 import { rawSqlExecutor, withUserContext, type ModuleTransaction } from "@offgrid/db";
@@ -16,6 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { publishFact } from "../../test/publish-fact.js";
 import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
 import type { NotificationsTestDatabase } from "../../test/types.js";
+import type { InboxNotice, NotificationChannel } from "../types.js";
 import { registerFactSubscribers } from "./register-fact-subscribers.js";
 
 const fakeLogger = (): Logger =>
@@ -222,14 +229,10 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
     expect(await inboxRowsOf(guest)).toEqual([]);
   });
 
-  it("writes no second invite item when the same invite fact is redelivered", async () => {
-    const host = randomUUID();
-    const guest = randomUUID();
-    const bus = createEventBus({
-      pool: db.pool,
-      errorSink: createMemoryErrorSink(),
-      retryDelayMs: () => 0,
-    });
+  const registerInviteSubscription = (
+    bus: EventBus,
+    channels: readonly NotificationChannel[],
+  ): Subscription => {
     const subscribe = vi.spyOn(bus, "subscribe");
     registerFactSubscribers(
       {
@@ -238,7 +241,7 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
         db: db.db,
         currentUserId: () => null,
       },
-      [],
+      channels,
     );
     const inviteSubscription = subscribe.mock.calls
       .map(([subscription]) => subscription)
@@ -246,6 +249,41 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
     if (inviteSubscription === undefined) {
       throw new Error("the invite fact subscriber is not registered");
     }
+    return inviteSubscription;
+  };
+
+  it("calls the channels once when the same invite fact is redelivered", async () => {
+    const host = randomUUID();
+    const guest = randomUUID();
+    const bus = createEventBus({
+      pool: db.pool,
+      errorSink: createMemoryErrorSink(),
+      retryDelayMs: () => 0,
+    });
+    const deliver = vi.fn(async (_notice: InboxNotice) => undefined);
+    const inviteSubscription = registerInviteSubscription(bus, [{ name: "recording", deliver }]);
+
+    await db.db.$transaction(async (tx) => {
+      await withUserContext(tx, host);
+      await inviteFact(tx, host, guest);
+    });
+    await bus.deliverPending();
+    expect(deliver).toHaveBeenCalledTimes(1);
+
+    expect(await replayEvents(inviteSubscription, { pool: db.pool })).toBe(1);
+
+    expect(deliver).toHaveBeenCalledTimes(1);
+  });
+
+  it("writes no second invite item when the same invite fact is redelivered", async () => {
+    const host = randomUUID();
+    const guest = randomUUID();
+    const bus = createEventBus({
+      pool: db.pool,
+      errorSink: createMemoryErrorSink(),
+      retryDelayMs: () => 0,
+    });
+    const inviteSubscription = registerInviteSubscription(bus, []);
 
     await db.db.$transaction(async (tx) => {
       await withUserContext(tx, host);

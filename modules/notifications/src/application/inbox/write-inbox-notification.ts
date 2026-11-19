@@ -5,8 +5,8 @@ import { withUserContext, type ModuleDatabase } from "@offgrid/db";
 import { insertInboxNotification } from "../../infrastructure/inbox/insert-inbox-notification.js";
 import type { InboxNotice } from "../../types.js";
 
-export const writeInboxNotification = (db: ModuleDatabase, notice: InboxNotice): Promise<void> =>
+export const writeInboxNotification = (db: ModuleDatabase, notice: InboxNotice): Promise<boolean> =>
   db.$transaction(async (tx) => {
     await withUserContext(tx, notice.userId);
-    await insertInboxNotification(tx, notice);
+    return insertInboxNotification(tx, notice);
   });

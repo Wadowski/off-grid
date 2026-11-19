@@ -13,6 +13,8 @@ export const handleFactNotice = async (
   logger: Logger,
   notice: InboxNotice,
 ): Promise<void> => {
-  await writeInboxNotification(db, notice);
-  await deliverToChannels(channels, notice, logger);
+  const inserted = await writeInboxNotification(db, notice);
+  if (inserted) {
+    await deliverToChannels(channels, notice, logger);
+  }
 };
