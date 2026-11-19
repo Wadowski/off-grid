@@ -6,7 +6,7 @@ import { chmod, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { STATUS_DIRECTORY_MODE, STATUS_FILE_MODE } from "../constants.js";
 import type { UpdateStatus } from "../types.js";
-import { updateStatusSchema } from "./update-status-schema.js";
+import { updateStatusSchema } from "@offgrid/contracts";
 
 export const writeUpdateStatus = async (
   statusFile: string,

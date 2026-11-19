@@ -13,7 +13,7 @@ import { createFileStatusStore } from "../apply/create-file-status-store.js";
 import { createFakeClock } from "../../test/fake-clock.js";
 import { createFakeDockerRunner } from "../../test/fake-docker-runner.js";
 import { waitUntil } from "../../test/wait-until.js";
-import { UPDATE_OUTCOMES } from "../constants.js";
+import { UPDATE_OUTCOMES } from "@offgrid/contracts";
 import type { ApplyDependencies, DockerRunner, HttpFetch, UpdaterServices } from "../types.js";
 import { createRunLock } from "../run/create-run-lock.js";
 import { buildUpdaterApp } from "./build-updater-app.js";
