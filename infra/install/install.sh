@@ -79,11 +79,63 @@ check_disk_space() {
   info_ok "disk: $((available_kib / KIB_PER_GIB)) GB free in $probe_dir"
 }
 
+docker_is_ready() {
+  docker info >/dev/null 2>&1
+}
+
+docker_compose_version() {
+  docker compose version --short 2>/dev/null | sed "s/^v//"
+}
+
+compose_version_is_supported() {
+  printf "%s\n" "$1" | grep -Eq "^[0-9]+\.[0-9]+" || return 1
+  compose_major=$(printf "%s\n" "$1" | cut -d . -f 1)
+  compose_minor=$(printf "%s\n" "$1" | cut -d . -f 2)
+  [ "$compose_major" -gt 2 ] && return 0
+  [ "$compose_major" -eq 2 ] && [ "$compose_minor" -ge 23 ]
+}
+
+install_docker_engine() {
+  case "$os_family" in
+    debian) install_docker_debian ;;
+    fedora) install_docker_fedora ;;
+    rhel) install_docker_rhel ;;
+    *) fail "docker: no install branch for the $os_family family" ;;
+  esac
+}
+
+check_docker() {
+  if ! docker_is_ready; then
+    install_docker_engine
+    return 0
+  fi
+  compose_version=$(docker_compose_version)
+  if [ -z "$compose_version" ]; then
+    install_docker_engine
+    return 0
+  fi
+  compose_version_is_supported "$compose_version" \
+    || fail "docker: Compose $compose_version is older than 2.23, which the production stack needs. Upgrade the Compose plugin yourself; this script does not change an existing Docker install."
+  info_ok "docker: Docker and Compose $compose_version are working, nothing to install"
+}
+
+print_group_step() {
+  if [ -z "${SUDO_USER:-}" ] || [ "$SUDO_USER" = root ]; then
+    return 0
+  fi
+  if id -nG "$SUDO_USER" | tr " " "\n" | grep -qx docker; then
+    return 0
+  fi
+  printf "note  docker group: %s is not in the docker group. To run docker without sudo, run: sudo usermod -aG docker %s (then log in again)\n" "$SUDO_USER" "$SUDO_USER"
+}
+
 main() {
   require_root
   detect_architecture
   detect_os_family
   check_disk_space
+  check_docker
+  print_group_step
 }
 
 if [ "${OFFGRID_INSTALL_SOURCE_ONLY:-0}" != 1 ]; then

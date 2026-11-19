@@ -43,10 +43,10 @@ function writeStubs(root, stubs) {
   return binDir;
 }
 
-function callFunction(name, { args = [], env = {}, stubs = {}, root } = {}) {
+function callFunction(name, { args = [], env = {}, stubs = {}, root, prelude = ":" } = {}) {
   const run = (workspace) => {
     const binDir = writeStubs(workspace, stubs);
-    return spawnSync("sh", ["-c", '. "$1"; shift; "$@"', "sh", SCRIPT, name, ...args], {
+    return spawnSync("sh", ["-c", `. "$1"; shift; ${prelude}; "$@"`, "sh", SCRIPT, name, ...args], {
       encoding: "utf8",
       env: {
         ...process.env,
@@ -209,3 +209,117 @@ test("rejects a relative OFFGRID_INSTALL_DIR", () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /absolute path/);
 });
+
+const INSTALL_MARKER = "INSTALL_BRANCH_CHOSEN";
+const installStub = `install_docker_debian() { printf '%s\\n' ${INSTALL_MARKER}; }`;
+
+function stubDocker({ info = 0, compose = "2.27.0" } = {}) {
+  const composeBody =
+    compose === null ? "exit 1" : `echo ${compose}`;
+  return {
+    docker: [
+      'case "$1" in',
+      `  info) exit ${info} ;;`,
+      `  compose) ${composeBody} ;;`,
+      "esac",
+    ].join("\n"),
+  };
+}
+
+test("reports Docker and Compose as working and installs nothing", () => {
+  const result = callFunction("check_docker", {
+    prelude: `os_family=debian; ${installStub}`,
+    stubs: stubDocker(),
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim().split("\n").length, 1);
+  assert.match(result.stdout, /^ok {2}docker: .*nothing to install/);
+  assert.ok(!result.stdout.includes(INSTALL_MARKER));
+});
+
+for (const [label, stubs] of [
+  ["the daemon is not reachable", stubDocker({ info: 1 })],
+  ["the Compose plugin is missing", stubDocker({ compose: null })],
+]) {
+  test(`runs the install branch when ${label}`, () => {
+    const result = callFunction("check_docker", {
+      prelude: `os_family=debian; ${installStub}`,
+      stubs,
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(result.stdout.includes(INSTALL_MARKER), result.stdout);
+  });
+}
+
+test("fails without changing an install when Compose is older than 2.23", () => {
+  const result = callFunction("check_docker", {
+    prelude: `os_family=debian; ${installStub}`,
+    stubs: stubDocker({ compose: "2.22.1" }),
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /2\.22\.1.*2\.23/);
+  assert.ok(!result.stdout.includes(INSTALL_MARKER));
+});
+
+for (const [version, supported] of [
+  ["2.23.0", true],
+  ["v2.23.0", true],
+  ["2.27.0", true],
+  ["3.0.0", true],
+  ["10.1.0", true],
+  ["2.22.9", false],
+  ["1.29.2", false],
+]) {
+  test(`compose ${version} supported: ${supported}`, () => {
+    const result = callFunction("compose_version_is_supported", { args: [version.replace(/^v/, "")] });
+
+    assert.equal(result.status === 0, supported, result.stderr);
+  });
+}
+
+test("prints the usermod step for a sudo user outside the docker group", () => {
+  const result = callFunction("print_group_step", {
+    env: { SUDO_USER: "alice" },
+    stubs: { id: 'echo "alice users wheel"', usermod: "touch \"$OFFGRID_TEST_MARKER\"" },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /usermod -aG docker alice/);
+});
+
+test("never runs usermod itself", () => {
+  withWorkspace((root) => {
+    const marker = join(root, "usermod-ran");
+    const result = callFunction("print_group_step", {
+      root,
+      env: { SUDO_USER: "alice", OFFGRID_TEST_MARKER: marker },
+      stubs: { id: 'echo "alice users"', usermod: `touch "${marker}"` },
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(spawnSync("test", ["-e", marker]).status, 1, "usermod was invoked");
+  });
+});
+
+test("prints nothing when the sudo user is already in the docker group", () => {
+  const result = callFunction("print_group_step", {
+    env: { SUDO_USER: "alice" },
+    stubs: { id: 'echo "alice users docker"' },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, "");
+});
+
+for (const sudoUser of [undefined, "root"]) {
+  test(`prints nothing when SUDO_USER is ${sudoUser ?? "unset"}`, () => {
+    const env = sudoUser === undefined ? {} : { SUDO_USER: sudoUser };
+    const result = callFunction("print_group_step", { env, stubs: { id: 'echo "users"' } });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, "");
+  });
+}
