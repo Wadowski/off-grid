@@ -26,7 +26,6 @@ Feature: Organising folders
     When Anna creates the folder "holiday" in her personal drive
     Then Anna is told the name is taken
 
-  @wip
   Scenario: Anna renames a folder
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
@@ -34,7 +33,6 @@ Feature: Organising folders
     Then Anna sees the folder "Summer" in her personal drive
     And Anna does not see the folder "Holiday" in her personal drive
 
-  @wip
   Scenario: Anna cannot rename a folder to the name of a sibling
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
@@ -42,7 +40,6 @@ Feature: Organising folders
     When Anna renames the folder "Work" to "holiday"
     Then Anna is told the name is taken
 
-  @wip
   Scenario: Anna moves a folder into another folder
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
@@ -50,21 +47,18 @@ Feature: Organising folders
     When Anna moves the folder "Holiday" into "Photos"
     Then Anna sees the folder "Holiday" inside "Photos"
 
-  @wip
   Scenario: Anna cannot move a folder into itself
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
     When Anna moves the folder "Holiday" into "Holiday"
     Then Anna is told the move is not allowed
 
-  @wip
   Scenario: Anna cannot move a folder into one of its subfolders
     Given a new person Anna signs up
     And Anna has the folders "Holiday" and "Beach" nested in her personal drive
     When Anna moves the folder "Holiday" into "Beach"
     Then Anna is told the move is not allowed
 
-  @wip
   Scenario: Anna cannot move a folder into a folder that already has its name
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
@@ -121,7 +115,6 @@ Feature: Organising folders
     When Ben creates the folder "Holiday" in the family drive of "The Smiths"
     Then Ben is told the drive was not found
 
-  @wip
   Scenario: Ben cannot rename a folder in the family drive of another family
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna

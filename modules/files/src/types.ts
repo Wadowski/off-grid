@@ -148,3 +148,18 @@ export interface FileUpdateInput {
   readonly parentId?: string | null;
   readonly updatedAt: Date;
 }
+
+export interface CreateFolderInput {
+  readonly parentId: string | null;
+  readonly name: string;
+}
+
+export interface MoveFileInput {
+  readonly driveId: string;
+  readonly parentId: string | null;
+}
+
+export interface MoveOutcome {
+  readonly file: FileRecord;
+  readonly crossOwnerNotice: boolean;
+}

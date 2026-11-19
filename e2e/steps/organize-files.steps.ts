@@ -3,8 +3,11 @@
 
 import { createBdd } from "playwright-bdd";
 import {
+  findFolderFrom,
   joinFamilyAs,
   listItemsAs,
+  type Container,
+  patchAs,
   postAs,
   waitForDrives,
   type FileItem,
@@ -14,8 +17,6 @@ import type { Session } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
-
-type Container = { kind: "drive" | "folder"; id: string };
 
 const ensurePerson = async (world: ScenarioWorld, name: string): Promise<void> => {
   if (world.people?.[name] === undefined) {
@@ -93,10 +94,15 @@ const createFolderIn = async (
   driveId: string,
   name: string,
 ): Promise<void> => {
-  const response = await postAs(world.api, sessionOf(world, actor), `/api/drives/${driveId}/folders`, {
-    parentId,
-    name,
-  });
+  const response = await postAs(
+    world.api,
+    sessionOf(world, actor),
+    `/api/drives/${driveId}/folders`,
+    {
+      parentId,
+      name,
+    },
+  );
   if (response.status !== 201) {
     throw new Error(`The folder ${name} could not be created (${response.status}).`);
   }
@@ -160,23 +166,36 @@ Given(/^Ben joins the family "([^"]*)"$/, async ({ world }, familyName: string) 
   );
 });
 
-When(/^Anna creates the folder "([^"]*)" in her personal drive$/, async ({ world }, name: string) => {
-  const driveId = await personalDriveOf(world, "Anna");
-  world.response = await postAs(world.api, sessionOf(world, "Anna"), `/api/drives/${driveId}/folders`, {
-    parentId: null,
-    name,
-  });
-});
+When(
+  /^Anna creates the folder "([^"]*)" in her personal drive$/,
+  async ({ world }, name: string) => {
+    const driveId = await personalDriveOf(world, "Anna");
+    world.response = await postAs(
+      world.api,
+      sessionOf(world, "Anna"),
+      `/api/drives/${driveId}/folders`,
+      {
+        parentId: null,
+        name,
+      },
+    );
+  },
+);
 
 When(
   /^Anna creates the folder "([^"]*)" inside "([^"]*)"$/,
   async ({ world }, name: string, parentName: string) => {
     const driveId = await personalDriveOf(world, "Anna");
     const parentId = await parentPathOf(world, driveId, parentName);
-    world.response = await postAs(world.api, sessionOf(world, "Anna"), `/api/drives/${driveId}/folders`, {
-      parentId,
-      name,
-    });
+    world.response = await postAs(
+      world.api,
+      sessionOf(world, "Anna"),
+      `/api/drives/${driveId}/folders`,
+      {
+        parentId,
+        name,
+      },
+    );
   },
 );
 
@@ -184,29 +203,48 @@ When(
   /^Ben creates the folder "([^"]*)" in the family drive of "([^"]*)"$/,
   async ({ world }, name: string, familyName: string) => {
     const driveId = await familyDriveOf(world, familyName);
-    world.response = await postAs(world.api, sessionOf(world, "Ben"), `/api/drives/${driveId}/folders`, {
-      parentId: null,
-      name,
-    });
+    world.response = await postAs(
+      world.api,
+      sessionOf(world, "Ben"),
+      `/api/drives/${driveId}/folders`,
+      {
+        parentId: null,
+        name,
+      },
+    );
   },
 );
 
 Then(/^Anna sees the folder "([^"]*)" in her personal drive$/, async ({ world }, name: string) => {
-  const items = await listItemsAs(world.api, sessionOf(world, "Anna"), rootOf(await personalDriveOf(world, "Anna")));
+  const items = await listItemsAs(
+    world.api,
+    sessionOf(world, "Anna"),
+    rootOf(await personalDriveOf(world, "Anna")),
+  );
   expect(items.map((item: FileItem) => item.name)).toContain(name);
 });
 
-Then(/^Anna does not see the folder "([^"]*)" in her personal drive$/, async ({ world }, name: string) => {
-  const items = await listItemsAs(world.api, sessionOf(world, "Anna"), rootOf(await personalDriveOf(world, "Anna")));
-  expect(items.map((item: FileItem) => item.name)).not.toContain(name);
-});
+Then(
+  /^Anna does not see the folder "([^"]*)" in her personal drive$/,
+  async ({ world }, name: string) => {
+    const items = await listItemsAs(
+      world.api,
+      sessionOf(world, "Anna"),
+      rootOf(await personalDriveOf(world, "Anna")),
+    );
+    expect(items.map((item: FileItem) => item.name)).not.toContain(name);
+  },
+);
 
 Then(
   /^Anna sees the folder "([^"]*)" inside "([^"]*)"$/,
   async ({ world }, name: string, parentName: string) => {
     const driveId = await personalDriveOf(world, "Anna");
     const parentId = await folderIdInDrive(world, sessionOf(world, "Anna"), driveId, [parentName]);
-    const items = await listItemsAs(world.api, sessionOf(world, "Anna"), { kind: "folder", id: parentId });
+    const items = await listItemsAs(world.api, sessionOf(world, "Anna"), {
+      kind: "folder",
+      id: parentId,
+    });
     expect(items.map((item: FileItem) => item.name)).toContain(name);
   },
 );
@@ -220,22 +258,42 @@ Then(
   },
 );
 
-Then(
-  /^Anna is told the name is taken$/,
-  async ({ world }) => {
-    expect(world.response?.status).toBe(409);
-    expect(world.response?.body).toMatchObject({ code: "NAME_TAKEN" });
-  },
-);
-
+Then(/^Anna is told the name is taken$/, async ({ world }) => {
+  expect(world.response?.status).toBe(409);
+  expect(world.response?.body).toMatchObject({ code: "NAME_TAKEN" });
+});
 
 const notImplemented = (step: string): never => {
-  throw new Error(`Step not implemented yet (OG-113 rename and move): ${step}`);
+  throw new Error(`Step not implemented yet (OG-113 cross-owner move): ${step}`);
 };
 
-When(/^Anna renames the folder "[^"]*" to "[^"]*"$/, () => notImplemented("Anna renames the folder"));
-When(/^Anna moves the folder "[^"]*" into "[^"]*"$/, () => notImplemented("Anna moves the folder into"));
-Then("Anna is told the move is not allowed", () => notImplemented("the move is not allowed"));
+When(
+  /^Anna renames the folder "([^"]*)" to "([^"]*)"$/,
+  async ({ world }, name: string, newName: string) => {
+    const driveId = await personalDriveOf(world, "Anna");
+    const folderId = await folderIdInDrive(world, sessionOf(world, "Anna"), driveId, [name]);
+    world.response = await patchAs(world.api, sessionOf(world, "Anna"), `/api/files/${folderId}`, {
+      name: newName,
+    });
+  },
+);
+When(
+  /^Anna moves the folder "([^"]*)" into "([^"]*)"$/,
+  async ({ world }, name: string, targetName: string) => {
+    const driveId = await personalDriveOf(world, "Anna");
+    const annaSession = sessionOf(world, "Anna");
+    const folderId = await findFolderFrom(world.api, annaSession, [rootOf(driveId)], name);
+    const parentId = await findFolderFrom(world.api, annaSession, [rootOf(driveId)], targetName);
+    world.response = await postAs(world.api, annaSession, `/api/files/${folderId}/move`, {
+      driveId,
+      parentId,
+    });
+  },
+);
+Then("Anna is told the move is not allowed", async ({ world }) => {
+  expect(world.response?.status).toBe(409);
+  expect(world.response?.body).toMatchObject({ code: "INVALID_MOVE" });
+});
 When(/^Anna moves the folder "[^"]*" to the family drive of "[^"]*"$/, () =>
   notImplemented("Anna moves the folder to the family drive"),
 );
@@ -248,8 +306,15 @@ Then(/^Anna sees the folder "[^"]*" inside "[^"]*" in the family drive of "[^"]*
 When(/^Anna moves the folder "[^"]*" to the personal drive of Ben$/, () =>
   notImplemented("Anna moves the folder to the personal drive of Ben"),
 );
-When(/^Ben renames the folder "[^"]*" in the family drive of "[^"]*" to "[^"]*"$/, () =>
-  notImplemented("Ben renames the folder"),
+When(
+  /^Ben renames the folder "([^"]*)" in the family drive of "([^"]*)" to "([^"]*)"$/,
+  async ({ world }, name: string, familyName: string, newName: string) => {
+    const driveId = await familyDriveOf(world, familyName);
+    const folderId = await folderIdInDrive(world, sessionOf(world, "Anna"), driveId, [name]);
+    world.response = await patchAs(world.api, sessionOf(world, "Ben"), `/api/files/${folderId}`, {
+      name: newName,
+    });
+  },
 );
 When(/^Ben moves the folder "[^"]*" from the family drive of "[^"]*" to his personal drive$/, () =>
   notImplemented("Ben moves the folder"),

@@ -75,7 +75,11 @@ export const postAs = async (
   path: string,
   data: unknown,
 ): Promise<JsonResponse> => {
-  const response = await api.post(path, { headers: bearer(session), data, failOnStatusCode: false });
+  const response = await api.post(path, {
+    headers: bearer(session),
+    data,
+    failOnStatusCode: false,
+  });
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
 
@@ -85,7 +89,11 @@ export const patchAs = async (
   path: string,
   data: unknown,
 ): Promise<JsonResponse> => {
-  const response = await api.patch(path, { headers: bearer(session), data, failOnStatusCode: false });
+  const response = await api.patch(path, {
+    headers: bearer(session),
+    data,
+    failOnStatusCode: false,
+  });
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
 
@@ -124,16 +132,15 @@ export const joinFamilyAs = async (
   }
 };
 
-export const findFolderAcrossDrives = async (
+export type Container = { kind: "drive" | "folder"; id: string };
+
+export const findFolderFrom = async (
   api: APIRequestContext,
   session: Session,
-  drives: Drive[],
+  starts: Container[],
   name: string,
 ): Promise<string> => {
-  const queue: Array<{ kind: "drive" | "folder"; id: string }> = drives.map((drive) => ({
-    kind: "drive",
-    id: drive.id,
-  }));
+  const queue: Container[] = [...starts];
   while (queue.length > 0) {
     const container = queue.shift();
     if (container === undefined) {
@@ -144,7 +151,24 @@ export const findFolderAcrossDrives = async (
     if (match !== undefined) {
       return match.id;
     }
-    queue.push(...items.filter((item) => item.isFolder).map((item) => ({ kind: "folder" as const, id: item.id })));
+    queue.push(
+      ...items
+        .filter((item) => item.isFolder)
+        .map((item) => ({ kind: "folder" as const, id: item.id })),
+    );
   }
-  throw new Error(`The folder ${name} is not in any drive`);
+  throw new Error(`The folder ${name} is not found`);
 };
+
+export const findFolderAcrossDrives = (
+  api: APIRequestContext,
+  session: Session,
+  drives: Drive[],
+  name: string,
+): Promise<string> =>
+  findFolderFrom(
+    api,
+    session,
+    drives.map((drive) => ({ kind: "drive" as const, id: drive.id })),
+    name,
+  );
