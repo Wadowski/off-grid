@@ -3,30 +3,14 @@
 
 import { describe, expect, it } from "vitest";
 import { en } from "./catalogs/en.js";
+import { flattenCatalogKeys } from "../test-support/flatten-catalog-keys.js";
+import { resolveCatalogKey } from "../test-support/resolve-catalog-key.js";
 
-const flattenKeys = (node: Record<string, unknown>, prefix: string): string[] =>
-  Object.entries(node).flatMap(([key, value]) =>
-    typeof value === "object" && value !== null
-      ? flattenKeys(value as Record<string, unknown>, `${prefix}.${key}`)
-      : [`${prefix}.${key}`],
-  );
-
-const calendarCatalogKeys = flattenKeys(en.calendar, "calendar");
-
-const resolve = (path: string): unknown =>
-  path
-    .split(".")
-    .reduce<unknown>(
-      (node, key) =>
-        typeof node === "object" && node !== null
-          ? (node as Record<string, unknown>)[key]
-          : undefined,
-      en,
-    );
+const calendarCatalogKeys = flattenCatalogKeys(en.calendar, "calendar");
 
 describe("calendar message catalog", () => {
   it.each(calendarCatalogKeys)("resolves %s to a non-empty string", (key) => {
-    const value = resolve(key);
+    const value = resolveCatalogKey(en, key);
 
     expect(typeof value).toBe("string");
     expect(value).not.toBe("");
