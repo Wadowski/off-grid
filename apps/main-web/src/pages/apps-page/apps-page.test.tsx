@@ -21,7 +21,12 @@ describe("AppsPage", () => {
     expect(screen.getByRole("heading", { name: "Apps" })).toBeInTheDocument();
     const list = screen.getByTestId("apps-list");
     const links = within(list).getAllByRole("link");
-    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/", "/calendar", "/files", "/settings"]);
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "/",
+      "/calendar",
+      "/files",
+      "/settings",
+    ]);
     expect(container.querySelectorAll('[aria-disabled="true"]')).toHaveLength(3);
   });
 });
