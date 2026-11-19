@@ -3,7 +3,7 @@
 
 import type { Logger } from "@offgrid/observability";
 import type {
-  InboxNotice,
+  ListedNotification,
   NoticeSubscriber,
   NotificationHub,
   SubscriberEntry,
@@ -60,14 +60,14 @@ export const createNotificationHub = (logger: Logger, queueLimit: number): Notif
     return () => removeEntry(entry);
   };
 
-  const publishToEntry = (entry: SubscriberEntry, notice: InboxNotice): void => {
+  const publishToEntry = (entry: SubscriberEntry, notice: ListedNotification): void => {
     if (entry.queue.push(notice) === "overflow") {
       logger.warn("notification stream closed because its queue is full");
       closeEntry(entry);
     }
   };
 
-  const publish = (userId: string, notice: InboxNotice): void => {
+  const publish = (userId: string, notice: ListedNotification): void => {
     if (closed) {
       return;
     }

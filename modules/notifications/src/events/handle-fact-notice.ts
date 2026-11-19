@@ -12,8 +12,7 @@ export const handleFactNotice = async (
   channels: readonly NotificationChannel[],
   logger: Logger,
   notice: InboxNotice,
-  occurredAt: Date,
 ): Promise<void> => {
-  await writeInboxNotification(db, notice, occurredAt);
+  await writeInboxNotification(db, notice);
   await deliverToChannels(channels, notice, logger);
 };

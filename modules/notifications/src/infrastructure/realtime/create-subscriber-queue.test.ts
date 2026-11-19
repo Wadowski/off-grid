@@ -2,14 +2,16 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it, vi } from "vitest";
-import type { InboxNotice, NoticeSubscriber } from "../../types.js";
+import type { ListedNotification, NoticeSubscriber } from "../../types.js";
 import { createSubscriberQueue } from "./create-subscriber-queue.js";
 
-const notice = (notificationId: string): InboxNotice => ({
-  notificationId,
-  userId: "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d",
+const notice = (id: string): ListedNotification => ({
+  id,
   type: "password-changed",
+  category: "account-security",
   data: {},
+  createdAt: "2026-05-01T10:00:00.000Z",
+  readAt: null,
 });
 
 const deferred = () => {
@@ -33,7 +35,7 @@ describe("createSubscriberQueue", () => {
     const subscriber: NoticeSubscriber = {
       send: async (item) => {
         await gate.promise;
-        sent.push(item.notificationId);
+        sent.push(item.id);
       },
       close: vi.fn(),
     };

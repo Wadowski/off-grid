@@ -16,20 +16,15 @@ export const registerFactSubscribers = (
       event,
       runAs: NOTIFICATIONS_MODULE_NAME,
       handler: async (received) =>
-        handleFactNotice(
-          context.db,
-          channels,
-          context.logger,
-          {
-            notificationId: received.id,
-            userId: payloadField(received.payload, recipientKey),
-            type: noticeType,
-            data: Object.fromEntries(
-              dataKeys.map((key) => [key, payloadField(received.payload, key)]),
-            ),
-          },
-          new Date(received.occurredAt),
-        ),
+        handleFactNotice(context.db, channels, context.logger, {
+          notificationId: received.id,
+          userId: payloadField(received.payload, recipientKey),
+          type: noticeType,
+          data: Object.fromEntries(
+            dataKeys.map((key) => [key, payloadField(received.payload, key)]),
+          ),
+          createdAt: new Date(received.occurredAt),
+        }),
     });
   }
 };

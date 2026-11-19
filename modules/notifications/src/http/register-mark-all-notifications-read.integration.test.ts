@@ -16,6 +16,7 @@ const notice = (userId: string, type = "password-changed") => ({
   userId,
   type,
   data: {},
+  createdAt: new Date(),
 });
 
 describe("mark all notifications read route", { timeout: 60_000 }, () => {
@@ -56,12 +57,14 @@ describe("mark all notifications read route", { timeout: 60_000 }, () => {
 
   it("marks the caller's unread notices and returns how many", async () => {
     const anna = randomUUID();
-    await writeInboxNotification(db.db, notice(anna), new Date("2026-11-01T10:00:00Z"));
-    await writeInboxNotification(
-      db.db,
-      notice(anna, "recovery-code-regenerated"),
-      new Date("2026-11-02T10:00:00Z"),
-    );
+    await writeInboxNotification(db.db, {
+      ...notice(anna),
+      createdAt: new Date("2026-11-01T10:00:00Z"),
+    });
+    await writeInboxNotification(db.db, {
+      ...notice(anna, "recovery-code-regenerated"),
+      createdAt: new Date("2026-11-02T10:00:00Z"),
+    });
 
     const response = await postReadAll(anna);
     const list = await listOwnNotifications(db.db, anna, { limit: 20 });
@@ -74,7 +77,10 @@ describe("mark all notifications read route", { timeout: 60_000 }, () => {
   it("leaves another person's notices unread", async () => {
     const anna = randomUUID();
     const tom = randomUUID();
-    await writeInboxNotification(db.db, notice(tom), new Date("2026-11-01T10:00:00Z"));
+    await writeInboxNotification(db.db, {
+      ...notice(tom),
+      createdAt: new Date("2026-11-01T10:00:00Z"),
+    });
 
     await postReadAll(anna);
     const tomList = await listOwnNotifications(db.db, tom, { limit: 20 });

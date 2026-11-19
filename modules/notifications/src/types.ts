@@ -24,6 +24,7 @@ export interface InboxNotice {
   readonly userId: string;
   readonly type: string;
   readonly data: Record<string, string>;
+  readonly createdAt: Date;
 }
 
 export interface NotificationChannel {
@@ -77,20 +78,20 @@ export interface NotificationFilter {
 }
 
 export interface NoticeSubscriber {
-  send(notice: InboxNotice): Promise<void>;
+  send(notice: ListedNotification): Promise<void>;
   close(): void;
 }
 
 export interface NotificationHub {
   subscribe(userId: string, subscriber: NoticeSubscriber): () => void;
-  publish(userId: string, notice: InboxNotice): void;
+  publish(userId: string, notice: ListedNotification): void;
   close(): void;
 }
 
 export type SubscriberPushResult = "queued" | "overflow" | "stopped";
 
 export interface SubscriberQueue {
-  push(notice: InboxNotice): SubscriberPushResult;
+  push(notice: ListedNotification): SubscriberPushResult;
   stop(): void;
 }
 

@@ -15,6 +15,7 @@ const notice = (userId: string, type = "password-changed") => ({
   userId,
   type,
   data: {},
+  createdAt: new Date(),
 });
 
 describe("mark all own notifications read", { timeout: 60_000 }, () => {
@@ -36,8 +37,8 @@ describe("mark all own notifications read", { timeout: 60_000 }, () => {
     const anna = randomUUID();
     const first = notice(anna);
     const second = notice(anna, "recovery-code-regenerated");
-    await writeInboxNotification(db.db, first, new Date("2026-11-01T10:00:00Z"));
-    await writeInboxNotification(db.db, second, new Date("2026-11-02T10:00:00Z"));
+    await writeInboxNotification(db.db, { ...first, createdAt: new Date("2026-11-01T10:00:00Z") });
+    await writeInboxNotification(db.db, { ...second, createdAt: new Date("2026-11-02T10:00:00Z") });
 
     const result = await markAllOwnNotificationsRead(db.db, anna, new Date("2026-11-03T10:00:00Z"));
     const list = await listOwnNotifications(db.db, anna, { limit: 20 });
@@ -51,8 +52,8 @@ describe("mark all own notifications read", { timeout: 60_000 }, () => {
     const anna = randomUUID();
     const read = notice(anna);
     const unread = notice(anna, "recovery-code-regenerated");
-    await writeInboxNotification(db.db, read, new Date("2026-11-01T10:00:00Z"));
-    await writeInboxNotification(db.db, unread, new Date("2026-11-02T10:00:00Z"));
+    await writeInboxNotification(db.db, { ...read, createdAt: new Date("2026-11-01T10:00:00Z") });
+    await writeInboxNotification(db.db, { ...unread, createdAt: new Date("2026-11-02T10:00:00Z") });
     const firstReadAt = new Date("2026-11-04T08:00:00Z");
     await markOwnNotificationRead(db.db, anna, read.notificationId, firstReadAt);
 
@@ -67,8 +68,14 @@ describe("mark all own notifications read", { timeout: 60_000 }, () => {
   it("leaves another person's notices unread and does not count them", async () => {
     const anna = randomUUID();
     const tom = randomUUID();
-    await writeInboxNotification(db.db, notice(anna), new Date("2026-11-01T10:00:00Z"));
-    await writeInboxNotification(db.db, notice(tom), new Date("2026-11-01T11:00:00Z"));
+    await writeInboxNotification(db.db, {
+      ...notice(anna),
+      createdAt: new Date("2026-11-01T10:00:00Z"),
+    });
+    await writeInboxNotification(db.db, {
+      ...notice(tom),
+      createdAt: new Date("2026-11-01T11:00:00Z"),
+    });
 
     const result = await markAllOwnNotificationsRead(db.db, anna);
     const tomList = await listOwnNotifications(db.db, tom, { limit: 20 });
@@ -79,7 +86,10 @@ describe("mark all own notifications read", { timeout: 60_000 }, () => {
 
   it("returns zero when the caller has nothing unread", async () => {
     const anna = randomUUID();
-    await writeInboxNotification(db.db, notice(anna), new Date("2026-11-01T10:00:00Z"));
+    await writeInboxNotification(db.db, {
+      ...notice(anna),
+      createdAt: new Date("2026-11-01T10:00:00Z"),
+    });
     await markAllOwnNotificationsRead(db.db, anna);
 
     const result = await markAllOwnNotificationsRead(db.db, anna);

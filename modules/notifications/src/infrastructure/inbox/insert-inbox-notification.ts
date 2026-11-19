@@ -7,7 +7,6 @@ import type { InboxNotice } from "../../types.js";
 export const insertInboxNotification = async (
   tx: ModuleTransaction,
   notice: InboxNotice,
-  createdAt: Date,
 ): Promise<void> => {
   await tx.notificationItem.createMany({
     data: [
@@ -16,7 +15,7 @@ export const insertInboxNotification = async (
         userId: notice.userId,
         type: notice.type,
         data: notice.data,
-        createdAt,
+        createdAt: notice.createdAt,
       },
     ],
     skipDuplicates: true,
