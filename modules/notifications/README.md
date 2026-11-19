@@ -35,6 +35,12 @@ A channel is a way to reach a person besides the inbox: `NotificationChannel` in
 
 The module registers no channel yet, so `createNotificationsModule()` has an empty channel list. Mobile push, web push ([ADR 0024](../../docs/adr/0024-browser-notifications-web-push.md)) and email each register one by passing it in the options. No caller changes.
 
+## Realtime
+
+`src/realtime/` holds an in-process hub with the open realtime streams of each person. `createNotificationHub` lets code subscribe per user, publish a notice to that user's open subscribers in publish order, unsubscribe, and close all of them. Each subscriber has a bounded queue of 100 pending notices (`SUBSCRIBER_QUEUE_LIMIT`). A subscriber whose queue overflows, or whose send fails, is closed once and removed. The other subscribers keep receiving. A send failure is logged by its error type only. `publish` never throws and never waits for a stream to send.
+
+The module creates one hub per process and closes it through its realtime worker when the server stops. The hub is not exported from `src/index.ts`. Its open streams are in process memory only, which is per instance by nature. See [ADR 0035](../../docs/adr/0035-realtime-notifications-over-sse.md) and [ADR 0019](../../docs/adr/0019-state-shared-between-instances.md). A second instance would not see these streams, so multi-instance fan-out needs its own ADR.
+
 ## Layout
 
 ```
@@ -46,9 +52,12 @@ src/application/errors/            NotificationNotFoundError
 src/infrastructure/inbox/          one file per table operation
 src/events/                        one subscriber per domain fact
 src/http/                          the three routes
+src/realtime/                      in-process hub of open streams per person
 ```
 
 ## Not built yet
 
+- The HTTP stream route, the publish after commit from the inbox writer, a cap on open streams per person, a heartbeat and replay from `Last-Event-ID`. The stream route and publish are added by OG-147 and OG-148.
+- Fan-out across instances. This needs its own ADR.
 - Delivery state per channel. A table with one row per notice and channel is added with the first channel, since the inbox row is the only delivery state today.
 - Any web app screen for the inbox. None is shown for now.
