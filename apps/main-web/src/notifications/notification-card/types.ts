@@ -13,9 +13,11 @@ export type NotificationCardProps = {
   readonly onMarkRead: (noticeId: Notice["id"]) => void;
 };
 
+export type NoticeIconName = "key" | "encrypted" | "calendar_clock";
+
 export type NoticeCopy = {
   readonly titleId: ParseKeys;
   readonly bodyId: ParseKeys;
-  readonly iconName: string;
+  readonly iconName: NoticeIconName;
   readonly actionId?: ParseKeys;
 };
