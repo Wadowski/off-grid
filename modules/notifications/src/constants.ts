@@ -15,6 +15,10 @@ export const NOTIFICATIONS_MODULE_NAME = "notifications";
 
 export const INBOX_SUBSCRIBER_PREFIX = "notifications-inbox";
 
+export const SUBSCRIBER_QUEUE_LIMIT = 100;
+
+export const REALTIME_WORKER_NAME = "notifications-realtime";
+
 export const NOTIFICATION_CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
   "password-changed": "account-security",
   "recovery-code-regenerated": "account-security",
