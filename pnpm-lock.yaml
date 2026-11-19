@@ -426,6 +426,9 @@ importers:
       '@offgrid/event-bus':
         specifier: workspace:*
         version: link:../../packages/event-bus
+      '@offgrid/family-projection':
+        specifier: workspace:*
+        version: link:../../packages/family-projection
       '@offgrid/http':
         specifier: workspace:*
         version: link:../../packages/http
@@ -729,6 +732,18 @@ importers:
       '@types/pg':
         specifier: ^8.23.1
         version: 8.23.1
+
+  packages/family-projection:
+    dependencies:
+      '@offgrid/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@offgrid/db':
+        specifier: workspace:*
+        version: link:../db
+      '@offgrid/event-bus':
+        specifier: workspace:*
+        version: link:../event-bus
 
   packages/file-storage:
     devDependencies:

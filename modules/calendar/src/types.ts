@@ -66,13 +66,6 @@ export type RemoveCalendarOutcome =
   | { readonly outcome: "not-found" }
   | { readonly outcome: "default-calendar" };
 
-export interface MembershipChange {
-  readonly familyId: string;
-  readonly userId: string;
-  readonly sourceVersion: number;
-  readonly isMember: boolean;
-}
-
 export interface CalendarEventRecord {
   readonly eventId: string;
   readonly calendarId: string;
