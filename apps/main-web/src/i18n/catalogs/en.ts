@@ -593,6 +593,10 @@ export const en = {
       video: "Video",
       generic: "File",
     },
+    layout: {
+      heading: "Files",
+      placeholder: "Your drives and folders will appear here.",
+    },
     itemCount_one: "{{count}} item",
     itemCount_other: "{{count}} items",
     date: {
