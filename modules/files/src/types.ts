@@ -71,6 +71,7 @@ export interface FilesRouteContext {
 
 export interface DriveRecord {
   readonly driveId: string;
+  readonly userId: string | null;
   readonly familyId: string | null;
   readonly name: string;
   readonly createdAt: Date;
@@ -122,4 +123,28 @@ export interface ListedChildren {
 export interface FileDetails {
   readonly file: FileRecord;
   readonly breadcrumbs: readonly BreadcrumbRecord[];
+}
+
+export interface FileOwner {
+  readonly userId: string | null;
+  readonly familyId: string | null;
+}
+
+export interface FileEventInput {
+  readonly file: FileRecord;
+  readonly owner: FileOwner;
+}
+
+export interface NewFolderInput {
+  readonly fileId: string;
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly owner: FileOwner;
+}
+
+export interface FileUpdateInput {
+  readonly name?: string;
+  readonly parentId?: string | null;
+  readonly updatedAt: Date;
 }

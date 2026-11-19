@@ -9,3 +9,5 @@ export const PERSONAL_DRIVE_NAME = "Personal";
 export const MAX_ANCESTOR_DEPTH = 256;
 export const NAME_TAKEN_MESSAGE = "A file or folder with this name already exists here.";
 export const INVALID_MOVE_MESSAGE = "This entry cannot be moved there.";
+export const UNIQUE_VIOLATION_CODE = "P2002";
+export const FILES_FILE_MODEL = "FilesFile";
