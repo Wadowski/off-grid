@@ -34,8 +34,8 @@ The forces are these:
 ### Owning module and the updater
 
 - The update API and the admin settings live in a new `system` module at `modules/system`, created with the `new-module` skill. The module owns its own schema and holds the update settings and the record of update runs.
-- The updater is an app at `apps/updater`, not a module. It is the only container that mounts the Docker socket. It holds no module schema, and it reads its instructions only from the `system` module's events and from the release manifest it verifies.
-- The server never mounts the Docker socket. The `system` module asks the updater to act through a versioned event, using the outbox pattern in [ADR 0002](0002-outbox-events-and-projections.md) and [ADR 0010](0010-pluggable-event-transport.md) as the transport for events.
+- The updater is an app at `apps/updater`, not a module. It is the only container that mounts the Docker socket. It holds no module schema, and it takes instructions only from authenticated HTTP requests from the server and from the release manifest it verifies.
+- The server never mounts the Docker socket. The `system` module asks the updater to act over HTTP on the internal Compose network, with a bearer token that the server reads from a secret file. The updater's API is not published and accepts no request without the token. No versioned event is published for this, so the outbox and the event bus ([ADR 0002](0002-outbox-events-and-projections.md), [ADR 0010](0010-pluggable-event-transport.md)) are not used for update requests.
 
 ### Trust
 

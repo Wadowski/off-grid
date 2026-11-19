@@ -10,7 +10,7 @@ Offgrid is a self-hosted app suite. It runs as one server process with one Postg
 - **Read-only projections** ([ADR 0013](../adr/0013-projections-for-other-modules-only.md)). When a module needs data from another module, it keeps its own read-only copy, built from events. It never reads another module's tables.
 - **Web app and API** ([ADR 0015](../adr/0015-no-reverse-proxy-cors-on-the-server.md)). A React + Vite web app is served as static files. It calls the server's HTTP API directly. The server accepts browser requests only from the origins it is configured with. This is a browser rule, not an access control: it does not stop other clients.
 
-- **Updater** ([ADR 0032](../adr/0032-outbound-update-check-and-image-pull.md)). `apps/updater` is a separate container with an internal-only HTTP API on port 3100. It is the only container that mounts the Docker socket. It checks for a release, takes a backup, pulls images by digest, runs the migration job, replaces the containers and rolls back when a step fails. It is an app, not a module, so it has no schema and no events. The server reaches it with a shared bearer token.
+- **Updater** ([ADR 0032](../adr/0032-outbound-update-check-and-image-pull.md)). `apps/updater` is a separate container with an internal-only HTTP API on port 3100. It is the only container that mounts the Docker socket. It checks for a release, takes a backup, pulls images by digest, runs the migration job, replaces the containers and rolls back when a step fails. It is an app, not a module, so it has no schema and no events. The `system` module (`modules/system`) holds the admin update API and reaches it over HTTP with a shared bearer token. Update requests are not events.
 
 ## Diagram
 
