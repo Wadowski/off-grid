@@ -47,35 +47,6 @@ export const MILLISECONDS_PER_SECOND = 1000;
 
 export const STDERR_TAIL_BYTES = 2000;
 
-export const FORWARD_STEP_NAMES = [
-  "verify_version",
-  "backup",
-  "pull",
-  "migrate",
-  "replace",
-  "health",
-] as const;
-
-export const ROLLBACK_STEP_NAMES = [
-  "rollback_stop",
-  "rollback_restore",
-  "rollback_start",
-  "rollback_health",
-] as const;
-
-export const UPDATE_STEP_NAMES = [...FORWARD_STEP_NAMES, ...ROLLBACK_STEP_NAMES] as const;
-
-export const UPDATE_STEP_STATES = ["pending", "running", "succeeded", "failed", "skipped"] as const;
-
-export const UPDATE_OUTCOMES = [
-  "in_progress",
-  "succeeded",
-  "refused",
-  "failed_before_change",
-  "rolled_back",
-  "failed_needs_admin",
-] as const;
-
 export const STATUS_FILE_MODE = 0o600;
 
 export const STATUS_DIRECTORY_MODE = 0o700;

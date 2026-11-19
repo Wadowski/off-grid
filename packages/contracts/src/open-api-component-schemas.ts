@@ -63,6 +63,10 @@ import { createUploadRequestSchema } from "./create-upload-request-schema.js";
 import { uploadSchema } from "./upload-schema.js";
 import { filesErrorCodeSchema } from "./files-error-code-schema.js";
 import { systemVersionSchema } from "./system-version-schema.js";
+import { systemUpdateSchema } from "./system-update-schema.js";
+import { systemUpdateCheckSchema } from "./system-update-check-schema.js";
+import { systemUpdateApplyResultSchema } from "./system-update-apply-result-schema.js";
+import { systemUpdateNightlySchema } from "./system-update-nightly-schema.js";
 
 export const openApiComponentSchemas = {
   FamilyId: familyIdSchema,
@@ -126,4 +130,8 @@ export const openApiComponentSchemas = {
   Upload: uploadSchema,
   FilesErrorCode: filesErrorCodeSchema,
   SystemVersion: systemVersionSchema,
+  SystemUpdate: systemUpdateSchema,
+  SystemUpdateCheck: systemUpdateCheckSchema,
+  SystemUpdateApplyResult: systemUpdateApplyResultSchema,
+  SystemUpdateNightly: systemUpdateNightlySchema,
 } satisfies Record<string, z.ZodType>;

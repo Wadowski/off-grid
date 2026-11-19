@@ -29,7 +29,13 @@ export interface ServerConfig {
   readonly outbox: { readonly retentionDays: number };
   readonly files: { readonly directory: string; readonly maxUploadBytes: number };
   readonly version: SystemVersionOptions;
+  readonly updater: UpdaterSettings | null;
   readonly logLevel: LogLevel;
+}
+
+export interface UpdaterSettings {
+  readonly url: string;
+  readonly token: string;
 }
 
 export type ReadSecretFile = (path: string) => string;
@@ -43,6 +49,7 @@ export interface ModuleContext {
   readonly currentUserId: (request: FastifyRequest) => string | null;
   readonly currentFamilyId: (request: FastifyRequest) => string | null;
   readonly currentSessionId: (request: FastifyRequest) => string | null;
+  readonly isInstanceAdmin: (userId: string) => Promise<boolean>;
 }
 
 export interface Worker {

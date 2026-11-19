@@ -3,6 +3,7 @@
 
 export { createIdentityModule } from "./identity-module.js";
 export { verifyAccessToken } from "./application/sessions/verify-access-token.js";
+export { isActiveInstanceAdmin } from "./application/admin/is-active-instance-admin.js";
 export { getOwnProfile } from "./application/account/get-own-profile.js";
 export { createRecoveryAdmin } from "./application/registration/create-recovery-admin.js";
 export { resetAdminPasswordByEmail } from "./application/password-reset/reset-admin-password-by-email.js";

@@ -4,7 +4,7 @@
 import type { UpdateStatus } from "../types.js";
 import { parseStatusJson } from "./parse-status-json.js";
 import { readStatusFileText } from "./read-status-file-text.js";
-import { updateStatusSchema } from "./update-status-schema.js";
+import { updateStatusSchema } from "@offgrid/contracts";
 
 export const readUpdateStatus = async (statusFile: string): Promise<UpdateStatus | null> => {
   const statusText = await readStatusFileText(statusFile);

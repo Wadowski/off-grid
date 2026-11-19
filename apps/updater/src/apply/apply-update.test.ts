@@ -11,7 +11,7 @@ import type {
   HealthMode,
   BackupFailures,
 } from "../../test/types.js";
-import { FORWARD_STEP_NAMES, ROLLBACK_STEP_NAMES } from "../constants.js";
+import { FORWARD_STEP_NAMES, ROLLBACK_STEP_NAMES } from "@offgrid/contracts";
 import type {
   ApplyDependencies,
   BackupService,

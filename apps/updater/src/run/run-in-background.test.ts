@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { updateStatusSchema } from "../apply/update-status-schema.js";
+import { updateStatusSchema } from "@offgrid/contracts";
 import { createSilentLogger } from "../../test/silent-logger.js";
 import { waitUntil } from "../../test/wait-until.js";
 import type { UpdateStatus } from "../types.js";

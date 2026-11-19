@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { FORWARD_STEP_NAMES, UPDATE_OUTCOME_MESSAGES } from "../constants.js";
+import { FORWARD_STEP_NAMES } from "@offgrid/contracts";
+import { UPDATE_OUTCOME_MESSAGES } from "../constants.js";
 import type { UpdateStatus } from "../types.js";
 
 export const createInitialStatus = (

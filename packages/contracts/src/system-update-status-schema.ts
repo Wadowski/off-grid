@@ -5,9 +5,11 @@ import { z } from "zod";
 import {
   RELEASE_VERSION_PATTERN,
   SERVER_IMAGE_REFERENCE_PATTERN,
+  UPDATE_OUTCOMES,
+  UPDATE_STEP_NAMES,
+  UPDATE_STEP_STATES,
   WEB_IMAGE_REFERENCE_PATTERN,
-} from "@offgrid/contracts";
-import { UPDATE_OUTCOMES, UPDATE_STEP_NAMES, UPDATE_STEP_STATES } from "../constants.js";
+} from "./constants.js";
 
 const imageReferencesSchema = z.strictObject({
   server: z.string().regex(SERVER_IMAGE_REFERENCE_PATTERN),

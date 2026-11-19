@@ -33,6 +33,7 @@ const MODULE_SCHEMAS = [
   "export",
   "outbox",
   "observability",
+  "system",
 ]
   .map((name) => `'${name}'`)
   .join(", ");

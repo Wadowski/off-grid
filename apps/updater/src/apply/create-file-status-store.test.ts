@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { STATUS_FILE_MODE } from "../constants.js";
 import { createFileStatusStore } from "./create-file-status-store.js";
 import { readUpdateStatus } from "./read-update-status.js";
-import { updateStatusSchema } from "./update-status-schema.js";
+import { updateStatusSchema } from "@offgrid/contracts";
 
 const RUN_ID = "0b6f5a3e-2d4c-4f1a-9a8b-7c6d5e4f3a21";
 

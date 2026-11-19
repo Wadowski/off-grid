@@ -45,3 +45,53 @@ export const WEB_IMAGE_REFERENCE_PATTERN =
   /^ghcr\.io\/[a-z0-9][a-z0-9-]*\/offgrid-main-web@sha256:[0-9a-f]{64}$/;
 
 export const RELEASE_PLATFORMS = ["linux/amd64", "linux/arm64"] as const;
+
+export const FORWARD_STEP_NAMES = [
+  "verify_version",
+  "backup",
+  "pull",
+  "migrate",
+  "replace",
+  "health",
+] as const;
+
+export const ROLLBACK_STEP_NAMES = [
+  "rollback_stop",
+  "rollback_restore",
+  "rollback_start",
+  "rollback_health",
+] as const;
+
+export const UPDATE_STEP_NAMES = [...FORWARD_STEP_NAMES, ...ROLLBACK_STEP_NAMES] as const;
+
+export const UPDATE_STEP_STATES = ["pending", "running", "succeeded", "failed", "skipped"] as const;
+
+export const UPDATE_OUTCOMES = [
+  "in_progress",
+  "succeeded",
+  "refused",
+  "failed_before_change",
+  "rolled_back",
+  "failed_needs_admin",
+] as const;
+
+export const UPDATE_RUN_STATES = [
+  "idle",
+  "running",
+  "succeeded",
+  "failed",
+  "rolled_back",
+  "needs_admin",
+  "interrupted",
+] as const;
+
+export const UPDATE_ERROR_CODES = [
+  "ACCESS_DENIED",
+  "UPDATER_UNAVAILABLE",
+  "UPDATER_ERROR",
+  "RELEASE_SOURCE_UNREACHABLE",
+  "CURRENT_VERSION_UNKNOWN",
+  "UPDATE_ALREADY_RUNNING",
+  "NO_UPDATE_AVAILABLE",
+  "UPDATE_NOT_ALLOWED",
+] as const;

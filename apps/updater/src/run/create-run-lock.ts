@@ -15,5 +15,6 @@ export const createRunLock = (): RunLock => {
         held = false;
       };
     },
+    isHeld: () => held,
   };
 };

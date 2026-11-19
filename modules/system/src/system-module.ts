@@ -2,13 +2,25 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
+import { createUpdaterClient } from "./infrastructure/updater/create-updater-client.js";
 import { SYSTEM_MODULE_NAME } from "./constants.js";
 import { registerSystemRoutes } from "./http/register-system-routes.js";
-import type { SystemVersionOptions } from "./types.js";
+import type { SystemModuleContext, SystemModuleOptions } from "./types.js";
 
-export const createSystemModule = (options: SystemVersionOptions) => ({
-  name: SYSTEM_MODULE_NAME,
-  registerRoutes: (api: FastifyInstance): void => {
-    registerSystemRoutes(api, options);
-  },
-});
+export const createSystemModule = (options: SystemModuleOptions) => {
+  const updater = createUpdaterClient(options.updater);
+  return {
+    name: SYSTEM_MODULE_NAME,
+    registerRoutes: (api: FastifyInstance, context: SystemModuleContext): void => {
+      registerSystemRoutes(api, options, {
+        currentUserId: context.currentUserId,
+        deps: {
+          db: context.db,
+          updater,
+          isInstanceAdmin: context.isInstanceAdmin,
+          currentVersion: options.version,
+        },
+      });
+    },
+  };
+};

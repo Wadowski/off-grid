@@ -3,4 +3,8 @@
 
 export const systemRoutes = {
   version: "/system/version",
+  update: "/system/update",
+  updateCheck: "/system/update/check",
+  updateApply: "/system/update/apply",
+  updateNightly: "/system/update/nightly",
 } as const;

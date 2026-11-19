@@ -6,7 +6,8 @@ DECLARE
   m text;
   modules text[] := ARRAY[
     'identity', 'family', 'access', 'calendar', 'lists', 'notes',
-    'files', 'food', 'relations', 'notifications', 'export', 'outbox', 'observability'
+    'files', 'food', 'relations', 'notifications', 'export', 'outbox', 'observability',
+    'system'
   ];
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'offgrid_migrator') THEN

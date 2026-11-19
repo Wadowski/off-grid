@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { FORWARD_STEP_NAMES } from "../constants.js";
-import { updateStatusSchema } from "./update-status-schema.js";
+import { FORWARD_STEP_NAMES } from "./constants.js";
+import { updateStatusSchema } from "./system-update-status-schema.js";
 
 const RUN_ID = "0b6f5a3e-2d4c-4f1a-9a8b-7c6d5e4f3a21";
 const STARTED_AT = "2026-11-17T19:45:00.000Z";

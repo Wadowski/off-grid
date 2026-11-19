@@ -93,6 +93,8 @@ services:
       OFFGRID_MAIL_ENCRYPTION_KEY_FILE: /run/secrets/mail-encryption-key
       OFFGRID_CORS_ORIGINS: ${OFFGRID_CORS_ORIGINS:-http://localhost:8080}
       OFFGRID_FILES_DIRECTORY: /data/files
+      OFFGRID_UPDATER_URL: http://updater:3100
+      OFFGRID_UPDATER_TOKEN_FILE: /run/secrets/updater-token
       TZ: ${TZ:-UTC}
     volumes:
       - offgrid-secrets:/run/secrets:ro
@@ -181,7 +183,8 @@ configs:
         m text;
         modules text[] := ARRAY[
           'identity', 'family', 'access', 'calendar', 'lists', 'notes',
-          'files', 'food', 'relations', 'notifications', 'export', 'outbox', 'observability'
+          'files', 'food', 'relations', 'notifications', 'export', 'outbox', 'observability',
+          'system'
         ];
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'offgrid_migrator') THEN

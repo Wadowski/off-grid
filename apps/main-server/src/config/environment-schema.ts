@@ -56,5 +56,11 @@ export const environmentSchema = z.object({
     .string()
     .regex(/^[0-9a-f]{7,40}$/)
     .optional(),
+  OFFGRID_UPDATER_URL: z
+    .string()
+    .url()
+    .refine((value) => /^https?:\/\//.test(value), "must be an http or https URL")
+    .optional(),
+  OFFGRID_UPDATER_TOKEN_FILE: z.string().min(1).optional(),
   OFFGRID_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

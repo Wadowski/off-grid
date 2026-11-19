@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["identity", "family", "access", "calendar", "lists", "notes", "files", "food", "relations", "notifications", "export", "outbox", "observability"]
+  schemas  = ["identity", "family", "access", "calendar", "lists", "notes", "files", "food", "relations", "notifications", "export", "outbox", "observability", "system"]
 }
 
 model Family {
@@ -189,6 +189,18 @@ model InstanceSettings {
 
   @@map("instance_settings")
   @@schema("identity")
+}
+
+model SystemUpdateSettings {
+  settingKey      String    @id @map("setting_key")
+  nightlyEnabled  Boolean   @default(false) @map("nightly_enabled")
+  latestVersion   String?   @map("latest_version")
+  updateAvailable Boolean?  @map("update_available")
+  updateAllowed   Boolean?  @map("update_allowed")
+  checkedAt       DateTime? @map("checked_at") @db.Timestamptz(6)
+
+  @@map("update_settings")
+  @@schema("system")
 }
 
 model MailSettings {

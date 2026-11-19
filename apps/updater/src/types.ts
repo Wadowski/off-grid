@@ -3,14 +3,18 @@
 
 import type { z } from "zod";
 import type { Logger } from "@offgrid/observability";
-import type { releaseManifestSchema } from "@offgrid/contracts";
-import type { updateStatusSchema } from "./apply/update-status-schema.js";
+import type {
+  releaseManifestSchema,
+  updateStatusSchema,
+  UPDATE_OUTCOMES,
+  UPDATE_STEP_NAMES,
+  UPDATE_STEP_STATES,
+} from "@offgrid/contracts";
 import type {
   containerInspectSchema,
   containerSummarySchema,
   imageInspectSchema,
 } from "./docker/engine-schemas.js";
-import type { UPDATE_OUTCOMES, UPDATE_STEP_NAMES, UPDATE_STEP_STATES } from "./constants.js";
 
 export interface DatabaseTarget {
   readonly host: string;
@@ -155,6 +159,7 @@ export type ReleaseRun = () => void;
 
 export interface RunLock {
   readonly tryAcquire: () => ReleaseRun | null;
+  readonly isHeld: () => boolean;
 }
 
 export type HttpFetch = (url: string, init: RequestInit) => Promise<Response>;
