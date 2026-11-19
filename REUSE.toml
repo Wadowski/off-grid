@@ -39,3 +39,8 @@ SPDX-License-Identifier = "FSL-1.1-ALv2"
 path = "MINIMUM_UPDATE_FROM"
 SPDX-FileCopyrightText = "2026 Dominik Wadowski"
 SPDX-License-Identifier = "FSL-1.1-ALv2"
+
+[[annotations]]
+path = "scripts/fixtures/**"
+SPDX-FileCopyrightText = "2026 Dominik Wadowski"
+SPDX-License-Identifier = "FSL-1.1-ALv2"
