@@ -46,6 +46,9 @@ describe("loadUpdaterConfig", () => {
       releaseRepository: "owner/offgrid",
       dockerSocket: "/var/run/docker.sock",
       composeProject: "offgrid",
+      serverUrl: "http://127.0.0.1:3000",
+      nightlyHour: 3,
+      nightlyMinute: 30,
     });
   });
 
@@ -72,6 +75,23 @@ describe("loadUpdaterConfig", () => {
       webHealthUrl: "https://web.internal/",
       healthTimeoutMilliseconds: 30000,
       statusFile: "/backups/status.json",
+    });
+  });
+
+  it("reads the nightly time and the server URL", () => {
+    const config = loadUpdaterConfig(
+      {
+        ...requiredEnv,
+        OFFGRID_UPDATER_NIGHTLY_TIME: "23:05",
+        OFFGRID_UPDATER_SERVER_URL: "http://server:3000",
+      },
+      secretFiles("x"),
+    );
+
+    expect(config).toMatchObject({
+      nightlyHour: 23,
+      nightlyMinute: 5,
+      serverUrl: "http://server:3000",
     });
   });
 
@@ -169,6 +189,12 @@ describe("loadUpdaterConfig", () => {
     ["OFFGRID_UPDATER_RELEASE_REPOSITORY", ""],
     ["OFFGRID_UPDATER_RELEASE_REPOSITORY", "just-a-name"],
     ["OFFGRID_UPDATER_RELEASE_REPOSITORY", "owner/name/extra"],
+    ["OFFGRID_UPDATER_NIGHTLY_TIME", "24:00"],
+    ["OFFGRID_UPDATER_NIGHTLY_TIME", "3:30"],
+    ["OFFGRID_UPDATER_NIGHTLY_TIME", "03:60"],
+    ["OFFGRID_UPDATER_NIGHTLY_TIME", ""],
+    ["OFFGRID_UPDATER_SERVER_URL", "ftp://server.internal:3000"],
+    ["OFFGRID_UPDATER_SERVER_URL", "not a url"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
     expect(() =>
       loadUpdaterConfig({ ...requiredEnv, [variable]: value }, secretFiles("x")),

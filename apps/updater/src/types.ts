@@ -73,6 +73,11 @@ export interface RestoreSettings {
 
 export type ReadSecretFile = (path: string) => string;
 
+export interface NightlyTime {
+  readonly hour: number;
+  readonly minute: number;
+}
+
 export interface UpdaterConfig {
   readonly database: DatabaseTarget;
   readonly secretsDirectory: string;
@@ -88,6 +93,9 @@ export interface UpdaterConfig {
   readonly releaseRepository: string;
   readonly dockerSocket: string;
   readonly composeProject: string;
+  readonly serverUrl: string;
+  readonly nightlyHour: number;
+  readonly nightlyMinute: number;
 }
 
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;

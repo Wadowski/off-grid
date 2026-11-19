@@ -15,6 +15,12 @@ export const DEFAULT_DATABASE_USER = "offgrid_migrator";
 
 export const DEFAULT_HEALTH_URL = "http://127.0.0.1:3000/api/health";
 
+export const DEFAULT_SERVER_URL = "http://127.0.0.1:3000";
+
+export const DEFAULT_NIGHTLY_TIME = "03:30";
+
+export const NIGHTLY_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
 export const DEFAULT_WEB_HEALTH_URL = "http://127.0.0.1:8080/";
 
 export const DEFAULT_STATUS_FILE = "data/updater/status.json";
