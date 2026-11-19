@@ -16,10 +16,16 @@ export const formatRelativeTime = (
     return { textId: "notifications.time.justNow" };
   }
   if (ageMs < HOUR_MS) {
-    return { textId: "notifications.time.minutesAgo", values: { count: Math.floor(ageMs / MINUTE_MS) } };
+    return {
+      textId: "notifications.time.minutesAgo",
+      values: { count: Math.floor(ageMs / MINUTE_MS) },
+    };
   }
   if (ageMs < DAY_MS) {
-    return { textId: "notifications.time.hoursAgo", values: { count: Math.floor(ageMs / HOUR_MS) } };
+    return {
+      textId: "notifications.time.hoursAgo",
+      values: { count: Math.floor(ageMs / HOUR_MS) },
+    };
   }
   return formatDateLabel(now, iso, timeZone);
 };

@@ -20,23 +20,29 @@ describe("formatRelativeTime", () => {
     expect(formatRelativeTime(NOW, NOW.toISOString(), WARSAW)).toEqual({
       textId: "notifications.time.justNow",
     });
-    expect(formatRelativeTime(NOW, new Date(NOW.getTime() - 59_000).toISOString(), WARSAW)).toEqual({
-      textId: "notifications.time.justNow",
-    });
-  });
-
-  it("reads a future timestamp as just now", () => {
-    expect(formatRelativeTime(NOW, new Date(NOW.getTime() + 300_000).toISOString(), WARSAW)).toEqual(
-      { textId: "notifications.time.justNow" },
+    expect(formatRelativeTime(NOW, new Date(NOW.getTime() - 59_000).toISOString(), WARSAW)).toEqual(
+      {
+        textId: "notifications.time.justNow",
+      },
     );
   });
 
+  it("reads a future timestamp as just now", () => {
+    expect(
+      formatRelativeTime(NOW, new Date(NOW.getTime() + 300_000).toISOString(), WARSAW),
+    ).toEqual({ textId: "notifications.time.justNow" });
+  });
+
   it("counts whole minutes from one minute up to an hour", () => {
-    expect(formatRelativeTime(NOW, new Date(NOW.getTime() - 60_000).toISOString(), WARSAW)).toEqual({
-      textId: "notifications.time.minutesAgo",
-      values: { count: 1 },
-    });
-    expect(formatRelativeTime(NOW, new Date(NOW.getTime() - 3_599_000).toISOString(), WARSAW)).toEqual({
+    expect(formatRelativeTime(NOW, new Date(NOW.getTime() - 60_000).toISOString(), WARSAW)).toEqual(
+      {
+        textId: "notifications.time.minutesAgo",
+        values: { count: 1 },
+      },
+    );
+    expect(
+      formatRelativeTime(NOW, new Date(NOW.getTime() - 3_599_000).toISOString(), WARSAW),
+    ).toEqual({
       textId: "notifications.time.minutesAgo",
       values: { count: 59 },
     });
@@ -63,7 +69,9 @@ describe("formatRelativeTime", () => {
 
   it("reads an item from yesterday seen 26 hours later as Yesterday with the time", () => {
     const item = new Date("2026-11-18T15:42:00Z");
-    expect(formatRelativeTime(new Date(item.getTime() + 26 * 3_600_000), item.toISOString(), WARSAW)).toEqual({
+    expect(
+      formatRelativeTime(new Date(item.getTime() + 26 * 3_600_000), item.toISOString(), WARSAW),
+    ).toEqual({
       textId: "notifications.time.yesterdayAt",
       values: { time: "16:42" },
     });
