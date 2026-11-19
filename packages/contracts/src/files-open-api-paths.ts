@@ -220,12 +220,16 @@ export const filesOpenApiPaths = {
       parameters: [fileIdParameter],
       requestBody: { required: true, content: jsonContent("MoveFileRequest") },
       responses: {
-        "200": { description: "The moved entry.", content: jsonContent("MoveFileResult") },
+        "200": {
+          description:
+            "The moved entry. A move to a drive of another owner copies the entry and its subtree, removes the source, and sets crossOwnerNotice to true.",
+          content: jsonContent("MoveFileResult"),
+        },
         "400": validationFailed,
         "401": unauthenticated,
         "404": notFound,
         "409": errorResponse(
-          "INVALID_MOVE: a folder cannot move into itself or into its own subtree. NAME_TAKEN: the target folder already has this name.",
+          "INVALID_MOVE: a folder cannot move into itself or into its own subtree, the subtree is larger than the move limit, or the source changed during a cross-owner move. NAME_TAKEN: the target folder already has this name.",
         ),
       },
     },
