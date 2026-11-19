@@ -2,21 +2,16 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Card, cssVar, IconTile, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
-import { formatRelativeTime } from "../format-relative-time.js";
 import { noticeCopy } from "./notice-copy.js";
 import { NotificationCardAction } from "./components/notification-card-action/notification-card-action.js";
+import { NotificationCardHeader } from "./components/notification-card-header/notification-card-header.js";
 import {
   notificationCardActivatorStyle,
   notificationCardAccentBarStyle,
   notificationCardBodyStyle,
-  notificationCardCategoryStyle,
-  notificationCardHeaderStyle,
-  notificationCardMetaStyle,
   notificationCardRootStyle,
   notificationCardTextStyle,
-  notificationCardTimeStyle,
   notificationCardTitleStyle,
-  notificationCardUnreadDotStyle,
 } from "./styles.js";
 import type { NotificationCardProps } from "./types.js";
 
@@ -28,7 +23,6 @@ export const NotificationCard = ({
 }: NotificationCardProps) => {
   const copy = noticeCopy(notice.type);
   const isUnread = notice.readAt === null;
-  const relativeTime = formatRelativeTime(new Date(), notice.createdAt);
 
   const markReadOnActivate = () => {
     if (isUnread) {
@@ -65,32 +59,11 @@ export const NotificationCard = ({
           <MaterialIcon name={copy.iconName} size="1.125rem" color={cssVar("color-primary")} />
         </IconTile>
         <span style={notificationCardTextStyle}>
-          <span style={notificationCardHeaderStyle}>
-            <Text
-              element="span"
-              variant="caption"
-              textId={`notifications.categories.${notice.category}`}
-              style={notificationCardCategoryStyle(notice.category)}
-              data-testid="notification-card-category"
-            />
-            <span style={notificationCardMetaStyle}>
-              <Text
-                element="span"
-                variant="caption"
-                textId={relativeTime.textId}
-                values={relativeTime.values}
-                style={notificationCardTimeStyle}
-                data-testid="notification-card-time"
-              />
-              {isUnread ? (
-                <span
-                  style={notificationCardUnreadDotStyle}
-                  data-testid="notification-card-unread-dot"
-                  aria-hidden="true"
-                />
-              ) : null}
-            </span>
-          </span>
+          <NotificationCardHeader
+            category={notice.category}
+            createdAt={notice.createdAt}
+            isUnread={isUnread}
+          />
           <Text
             element="span"
             variant="body"
