@@ -11,3 +11,8 @@ export interface CalendarTestDatabase {
   reset(): Promise<void>;
   stop(): Promise<void>;
 }
+
+export interface FamilyMembershipRow {
+  readonly source_version: number;
+  readonly is_member: boolean;
+}

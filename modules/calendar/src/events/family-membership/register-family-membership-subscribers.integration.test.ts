@@ -8,6 +8,7 @@ import { createMemoryErrorSink } from "@offgrid/observability";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startCalendarTestDatabase } from "../../../test/start-calendar-test-database.js";
 import type { CalendarTestDatabase } from "../../../test/types.js";
+import { readFamilyMembership } from "../../../test/family-membership.js";
 import { registerFamilyMembershipSubscribers } from "./register-family-membership-subscribers.js";
 
 describe("family membership subscriber", { timeout: 60_000 }, () => {
@@ -73,11 +74,7 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
 
     await bus.deliverPending();
 
-    const { rows } = await db.admin.query(
-      "SELECT is_member FROM calendar.family_membership WHERE family_id = $1 AND user_id = $2",
-      [familyId, legacyUser],
-    );
-    expect(rows).toEqual([]);
+    expect(await readFamilyMembership(db.admin, familyId, legacyUser)).toBeUndefined();
   });
 
   it("applies a removal and a later rejoin, pending together, in the order the family made them", async () => {
@@ -93,11 +90,10 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
 
     await bus.deliverPending();
 
-    const { rows } = await db.admin.query<{ source_version: number; is_member: boolean }>(
-      "SELECT source_version, is_member FROM calendar.family_membership WHERE family_id = $1 AND user_id = $2",
-      [familyId, userId],
-    );
-    expect(rows[0]).toEqual({ source_version: 3, is_member: true });
+    expect(await readFamilyMembership(db.admin, familyId, userId)).toEqual({
+      source_version: 3,
+      is_member: true,
+    });
   });
 
   it("follows a join, a leave and a rejoin delivered one at a time", async () => {
@@ -107,13 +103,7 @@ describe("family membership subscriber", { timeout: 60_000 }, () => {
       retryDelayMs: () => 0,
     });
     registerFamilyMembershipSubscribers({ eventBus: bus, db: db.db });
-    const row = async () => {
-      const { rows } = await db.admin.query<{ source_version: number; is_member: boolean }>(
-        "SELECT source_version, is_member FROM calendar.family_membership WHERE family_id = $1 AND user_id = $2",
-        [familyId, userId],
-      );
-      return rows[0];
-    };
+    const row = () => readFamilyMembership(db.admin, familyId, userId);
 
     await publishJoin(1);
     await bus.deliverPending();

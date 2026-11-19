@@ -3,6 +3,7 @@
 
 import type { FileStorage } from "@offgrid/file-storage";
 import type { ModuleDatabase } from "@offgrid/db";
+import type { EventBus } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
 
 export interface StorageIntegrityReport {
@@ -16,6 +17,11 @@ export interface StorageIntegrityReport {
 
 export interface FilesModuleOptions {
   readonly directory: string;
+}
+
+export interface FilesSubscriberContext {
+  readonly eventBus: EventBus;
+  readonly db: ModuleDatabase;
 }
 
 export interface FilesWorkerContext {

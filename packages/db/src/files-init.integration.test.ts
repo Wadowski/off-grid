@@ -108,11 +108,16 @@ describe("files init migration", () => {
     await db?.stop();
   });
 
-  it("declares family-or-user on the three tables and passes assertOwnershipScopes", async () => {
+  it("declares family-or-user on the three drive tables and passes assertOwnershipScopes", async () => {
     const { rows } = await db.admin.query<{ table_name: string }>(
       "SELECT table_name FROM information_schema.tables WHERE table_schema = 'files' ORDER BY table_name",
     );
-    expect(rows.map((row) => row.table_name)).toEqual(["drive", "file", "file_version"]);
+    expect(rows.map((row) => row.table_name)).toEqual([
+      "drive",
+      "family_membership",
+      "file",
+      "file_version",
+    ]);
     await expect(assertOwnershipScopes(db.migrator, DATABASE_SCHEMAS)).resolves.toBeUndefined();
   });
 

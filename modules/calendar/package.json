@@ -16,6 +16,7 @@
     "@offgrid/contracts": "workspace:*",
     "@offgrid/db": "workspace:*",
     "@offgrid/event-bus": "workspace:*",
+    "@offgrid/family-projection": "workspace:*",
     "@offgrid/http": "workspace:*",
     "@offgrid/observability": "workspace:*",
     "fastify": "5.12.7",

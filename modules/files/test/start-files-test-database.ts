@@ -11,6 +11,7 @@ export const startFilesTestDatabase = async (): Promise<FilesTestDatabase> => {
   const db = createModuleDb(database.connect());
   return {
     admin: database.admin,
+    pool: database.connect(),
     db,
     reset: database.reset,
     stop: async () => {
