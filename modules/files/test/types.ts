@@ -18,3 +18,16 @@ export interface FamilyMembershipRow {
   readonly source_version: number;
   readonly is_member: boolean;
 }
+
+export interface DriveRow {
+  readonly drive_id: string;
+  readonly family_id: string | null;
+  readonly user_id: string | null;
+  readonly kind: string;
+  readonly name: string;
+}
+
+export interface DriveCreatedEventRow {
+  readonly sequence: string;
+  readonly payload: { driveId: string; ownerUserId: string | null; ownerFamilyId: string | null };
+}
