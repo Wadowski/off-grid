@@ -24,8 +24,36 @@ describe("AppNav", () => {
       "href",
       "/calendar",
     );
-    expect(nav.querySelectorAll(".og-app-nav-item-disabled")).toHaveLength(4);
+    expect(nav.querySelectorAll(".og-app-nav-item-disabled")).toHaveLength(3);
   });
+
+  it("links to the Files screen", () => {
+    render(
+      <MemoryRouter>
+        <AppNav />
+      </MemoryRouter>,
+    );
+
+    const nav = screen.getByRole("navigation", { name: "Main navigation" });
+    expect(within(nav).getByRole("link", { name: "Files" })).toHaveAttribute("href", "/files");
+  });
+
+  it.each(["/files", "/files/drive-1/folder-2"])(
+    "keeps the Files item active on %s",
+    (path) => {
+      render(
+        <MemoryRouter initialEntries={[path]}>
+          <AppNav />
+        </MemoryRouter>,
+      );
+
+      const nav = screen.getByRole("navigation", { name: "Main navigation" });
+      expect(within(nav).getByRole("link", { name: "Files" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+    },
+  );
 
   it.each(["/calendar/agenda", "/calendar/day", "/calendar/calendars"])(
     "keeps the Calendar item active on %s",

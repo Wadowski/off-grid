@@ -10,7 +10,7 @@ export const en = {
     calendar: "Calendar",
     notes: "Notes",
     smartLists: "Smart Lists",
-    vault: "Vault Storage",
+    files: "Files",
     meals: "Meal Planner",
     settings: "Settings",
   },
