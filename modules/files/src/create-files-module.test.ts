@@ -24,7 +24,7 @@ describe("createFilesModule", () => {
     const subscribeToEvents = vi.fn();
 
     module.registerSubscribers({
-      eventBus: { subscribeToEvents } as unknown as EventBus,
+      eventBus: { subscribeToEvents, subscribe: vi.fn() } as unknown as EventBus,
       db: {} as ModuleDatabase,
     });
 
@@ -36,5 +36,20 @@ describe("createFilesModule", () => {
         onFailure: "halt",
       }),
     );
+  });
+
+  it("registers the personal and family drive subscriptions", () => {
+    const module = createFilesModule({ directory: "/data/files" });
+    const subscribe = vi.fn();
+
+    module.registerSubscribers({
+      eventBus: { subscribeToEvents: vi.fn(), subscribe } as unknown as EventBus,
+      db: {} as ModuleDatabase,
+    });
+
+    expect(subscribe.mock.calls.map(([subscription]) => subscription.name)).toEqual([
+      "files-personal-drive-from-user-created",
+      "files-family-drive-from-family-created",
+    ]);
   });
 });
