@@ -9,7 +9,7 @@ import {
   releaseManifestFixture,
 } from "../../test/fake-release-source.js";
 import { createRunLock } from "../run/create-run-lock.js";
-import type { HttpFetch, UpdateStatus, UpdaterServices } from "../types.js";
+import type { UpdateStatus, UpdaterServices } from "../types.js";
 import { loadReleaseContext } from "./load-release-context.js";
 
 const manifest = releaseManifestFixture();
