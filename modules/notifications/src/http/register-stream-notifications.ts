@@ -11,7 +11,7 @@ export const registerStreamNotifications = (
   api: FastifyInstance,
   context: NotificationRouteContext,
 ): void => {
-  api.addHook("onClose", async () => {
+  api.addHook("preClose", async () => {
     context.hub.close();
   });
   api.get(
