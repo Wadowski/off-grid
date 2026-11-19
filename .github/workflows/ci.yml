@@ -37,6 +37,7 @@ jobs:
           restore-keys: turbo-lint-
       - run: pnpm lint
       - run: pnpm lint:features
+      - run: pnpm lint:shell
       - run: pnpm check:no-telemetry
       - run: pnpm format:check
 
@@ -339,3 +340,20 @@ jobs:
       - name: Start the egress-blocked stack and check it
         if: steps.scope.outputs.relevant == 'true'
         run: pnpm check:stack-egress
+
+  install-script:
+    name: install-script (${{ matrix.image }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - debian:12
+          - fedora:41
+          - quay.io/centos/centos:stream9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: node scripts/install-distros.mjs "${{ matrix.image }}"
