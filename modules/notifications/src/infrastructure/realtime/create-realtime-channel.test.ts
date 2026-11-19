@@ -12,6 +12,7 @@ import type {
 } from "../../types.js";
 import { createNotificationHub } from "./create-notification-hub.js";
 import { createRealtimeChannel } from "./create-realtime-channel.js";
+import { MAX_NOTIFICATION_STREAMS_PER_USER } from "../../constants.js";
 
 const USER_A = "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d";
 const USER_B = "0b1c2d3e-4f5a-4b6c-8d7e-9f0a1b2c3d4e";
@@ -113,7 +114,7 @@ describe("createRealtimeChannel", () => {
   });
 
   it("delivers each notice only to subscribers of the notice's user", async () => {
-    const hub = createNotificationHub(loggerSpy(), 10);
+    const hub = createNotificationHub(loggerSpy(), 10, MAX_NOTIFICATION_STREAMS_PER_USER);
     const userA = recordingSubscriber();
     const userB = recordingSubscriber();
     hub.subscribe(USER_A, userA.subscriber);

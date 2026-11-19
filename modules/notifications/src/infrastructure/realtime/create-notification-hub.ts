@@ -12,7 +12,11 @@ import { closeSubscriberSafely } from "./close-subscriber-safely.js";
 import { createSubscriberQueue } from "./create-subscriber-queue.js";
 import { errorTypeName } from "./error-type-name.js";
 
-export const createNotificationHub = (logger: Logger, queueLimit: number): NotificationHub => {
+export const createNotificationHub = (
+  logger: Logger,
+  queueLimit: number,
+  maxStreamsPerUser: number,
+): NotificationHub => {
   const entriesByUser = new Map<string, Set<SubscriberEntry>>();
   let closed = false;
 
@@ -48,6 +52,17 @@ export const createNotificationHub = (logger: Logger, queueLimit: number): Notif
     return entry;
   };
 
+  const evictOldestStreams = (entries: Set<SubscriberEntry>, keep: number): void => {
+    while (entries.size > keep) {
+      const oldest = entries.values().next().value;
+      if (oldest === undefined) {
+        return;
+      }
+      logger.warn("notification stream closed because the person has too many open streams");
+      closeEntry(oldest);
+    }
+  };
+
   const subscribe = (userId: string, subscriber: NoticeSubscriber): (() => void) => {
     if (closed) {
       closeSubscriberSafely(subscriber, logger);
@@ -55,6 +70,7 @@ export const createNotificationHub = (logger: Logger, queueLimit: number): Notif
     }
     const entry = createEntry(userId, subscriber);
     const entries = entriesByUser.get(userId) ?? new Set<SubscriberEntry>();
+    evictOldestStreams(entries, maxStreamsPerUser - 1);
     entries.add(entry);
     entriesByUser.set(userId, entries);
     return () => removeEntry(entry);

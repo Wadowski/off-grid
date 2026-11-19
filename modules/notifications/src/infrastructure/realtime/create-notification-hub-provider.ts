@@ -7,10 +7,11 @@ import { createNotificationHub } from "./create-notification-hub.js";
 
 export const createNotificationHubProvider = (
   queueLimit: number,
+  maxStreamsPerUser: number,
 ): ((logger: Logger) => NotificationHub) => {
   let hub: NotificationHub | undefined;
   return (logger: Logger): NotificationHub => {
-    hub ??= createNotificationHub(logger, queueLimit);
+    hub ??= createNotificationHub(logger, queueLimit, maxStreamsPerUser);
     return hub;
   };
 };

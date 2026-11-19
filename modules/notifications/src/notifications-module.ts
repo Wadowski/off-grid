@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FastifyInstance } from "fastify";
-import { NOTIFICATIONS_MODULE_NAME, SUBSCRIBER_QUEUE_LIMIT } from "./constants.js";
+import {
+  MAX_NOTIFICATION_STREAMS_PER_USER,
+  NOTIFICATIONS_MODULE_NAME,
+  SUBSCRIBER_QUEUE_LIMIT,
+} from "./constants.js";
 import { registerNotificationRoutes } from "./http/register-notification-routes.js";
 import { registerFactSubscribers } from "./events/register-fact-subscribers.js";
 import { createNotificationHubProvider } from "./infrastructure/realtime/create-notification-hub-provider.js";
@@ -16,7 +20,10 @@ import type {
 } from "./types.js";
 
 export const createNotificationsModule = (options: NotificationsModuleOptions = {}) => {
-  const provideRealtimeHub = createNotificationHubProvider(SUBSCRIBER_QUEUE_LIMIT);
+  const provideRealtimeHub = createNotificationHubProvider(
+    SUBSCRIBER_QUEUE_LIMIT,
+    MAX_NOTIFICATION_STREAMS_PER_USER,
+  );
   return {
     name: NOTIFICATIONS_MODULE_NAME,
     registerRoutes: (api: FastifyInstance, context: NotificationsModuleContext): void => {

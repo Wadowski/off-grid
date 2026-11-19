@@ -4,6 +4,7 @@
 import type { Logger } from "@offgrid/observability";
 import { describe, expect, it, vi } from "vitest";
 import { createNotificationHubProvider } from "./create-notification-hub-provider.js";
+import { MAX_NOTIFICATION_STREAMS_PER_USER } from "../../constants.js";
 
 const loggerStub = (): Logger =>
   ({
@@ -16,14 +17,14 @@ const loggerStub = (): Logger =>
 
 describe("createNotificationHubProvider", () => {
   it("returns one shared hub for every caller", () => {
-    const provide = createNotificationHubProvider(10);
+    const provide = createNotificationHubProvider(10, MAX_NOTIFICATION_STREAMS_PER_USER);
 
     expect(provide(loggerStub())).toBe(provide(loggerStub()));
   });
 
   it("builds a separate hub for each provider", () => {
-    const first = createNotificationHubProvider(10)(loggerStub());
-    const second = createNotificationHubProvider(10)(loggerStub());
+    const first = createNotificationHubProvider(10, MAX_NOTIFICATION_STREAMS_PER_USER)(loggerStub());
+    const second = createNotificationHubProvider(10, MAX_NOTIFICATION_STREAMS_PER_USER)(loggerStub());
 
     expect(first).not.toBe(second);
   });
