@@ -25,10 +25,11 @@ The script never changes group membership. When the user who ran `sudo` is not i
 
 Supported systems are RHEL, CentOS Stream, Fedora, Debian and Ubuntu. Rocky Linux and AlmaLinux are not supported: on those systems, install Docker by hand and use the paste-in path in the production Compose section above. Other Debian derivatives, such as Kali, are refused unless their release is Debian bookworm, trixie or bullseye, because Docker publishes no repository for other releases.
 
+On a host, run the script as root with `sudo sh infra/install/install.sh`.
+
 Manual test of the Docker install branch in containers (needs Docker on the machine running it):
 
 ```bash
-sh infra/install/install.sh   # on a host
 for image in debian:12 fedora:41 quay.io/centos/centos:stream9; do
   docker run --rm -v "$PWD:/src:ro" "$image" sh /src/infra/install/install.sh
 done
