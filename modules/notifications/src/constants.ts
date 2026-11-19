@@ -35,6 +35,8 @@ export const MAX_TIMER_DELAY_MS = 2_147_483_647;
 
 export const HEARTBEAT_COMMENT = ": heartbeat\n\n";
 
+export const STREAM_CONNECTED_COMMENT = ": connected\n\n";
+
 export const NOTIFICATION_CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
   "password-changed": "account-security",
   "recovery-code-regenerated": "account-security",

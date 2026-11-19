@@ -4,6 +4,7 @@
 import type { FastifyInstance } from "fastify";
 import {
   MAX_NOTIFICATION_STREAMS_PER_USER,
+  NOTIFICATION_STREAM_HEARTBEAT_MS,
   NOTIFICATIONS_MODULE_NAME,
   SUBSCRIBER_QUEUE_LIMIT,
 } from "./constants.js";
@@ -27,7 +28,14 @@ export const createNotificationsModule = (options: NotificationsModuleOptions = 
   return {
     name: NOTIFICATIONS_MODULE_NAME,
     registerRoutes: (api: FastifyInstance, context: NotificationsModuleContext): void => {
-      registerNotificationRoutes(api, { db: context.db, currentUserId: context.currentUserId });
+      registerNotificationRoutes(api, {
+        db: context.db,
+        currentUserId: context.currentUserId,
+        logger: context.logger,
+        hub: provideRealtimeHub(context.logger),
+        verifySession: context.verifySession,
+        streamHeartbeatMs: options.streamHeartbeatMs ?? NOTIFICATION_STREAM_HEARTBEAT_MS,
+      });
     },
     registerSubscribers: (context: NotificationsModuleContext): void => {
       const realtimeChannel = createRealtimeChannel(provideRealtimeHub(context.logger));

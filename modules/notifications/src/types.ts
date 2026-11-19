@@ -23,11 +23,24 @@ export type SessionVerifier = (
 export interface NotificationRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly logger: Logger;
   readonly hub: NotificationHub;
   readonly verifySession: SessionVerifier;
+  readonly streamHeartbeatMs: number;
+}
+
+export interface NotificationStream {
+  readonly hub: NotificationHub;
+  readonly verifySession: SessionVerifier;
+  readonly logger: Logger;
+  readonly userId: string;
+  readonly accessExpiresAt: Date;
+  readonly heartbeatMs: number;
 }
 
 export type StreamSessionState = "active" | "ended" | "unknown";
+
+export type StreamStop = () => void;
 
 export interface InboxNotice {
   readonly notificationId: string;
