@@ -1,0 +1,336 @@
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+name: offgrid
+
+x-server-image: &server-image ghcr.io/${OFFGRID_IMAGE_OWNER:-wadowski}/offgrid-main-server:${OFFGRID_VERSION:?set OFFGRID_VERSION to a released version}
+
+services:
+  secrets-init:
+    image: alpine:3.22
+    restart: "no"
+    command: ["sh", "/init/secrets-init.sh"]
+    configs:
+      - source: secrets-init.sh
+        target: /init/secrets-init.sh
+    volumes:
+      - offgrid-secrets:/data/secrets
+      - offgrid-files:/data/files
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: offgrid
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+    configs:
+      - source: init-00-login-roles.sh
+        target: /docker-entrypoint-initdb.d/00-login-roles.sh
+      - source: init-01-roles-and-schemas.sql
+        target: /docker-entrypoint-initdb.d/01-roles-and-schemas.sql
+      - source: init-02-scope-helpers.sql
+        target: /docker-entrypoint-initdb.d/02-scope-helpers.sql
+      - source: init-03-migrator-ownership.sql
+        target: /docker-entrypoint-initdb.d/03-migrator-ownership.sql
+    volumes:
+      - offgrid-db:/var/lib/postgresql/data
+      - offgrid-secrets:/run/secrets:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d offgrid"]
+      interval: 5s
+      retries: 30
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+
+  db-ownership:
+    image: postgres:17-alpine
+    restart: "no"
+    command:
+      - sh
+      - -c
+      - PGPASSWORD="$$(cat /run/secrets/postgres-password)" exec psql --host db --username postgres --dbname offgrid --set ON_ERROR_STOP=1 --file /init/03-migrator-ownership.sql
+    configs:
+      - source: init-03-migrator-ownership.sql
+        target: /init/03-migrator-ownership.sql
+    volumes:
+      - offgrid-secrets:/run/secrets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+
+  init:
+    image: *server-image
+    restart: "no"
+    command: ["node", "--import", "tsx", "src/migrate.ts"]
+    environment:
+      OFFGRID_DATABASE_HOST: db
+      OFFGRID_DATABASE_NAME: offgrid
+      OFFGRID_DATABASE_USER: offgrid_migrator
+      OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/migrator-password
+      OFFGRID_MAIL_ENCRYPTION_KEY_FILE: /run/secrets/mail-encryption-key
+    volumes:
+      - offgrid-secrets:/run/secrets:ro
+    depends_on:
+      db-ownership:
+        condition: service_completed_successfully
+      secrets-init:
+        condition: service_completed_successfully
+
+  server:
+    image: *server-image
+    restart: unless-stopped
+    environment:
+      OFFGRID_HTTP_HOST: 0.0.0.0
+      OFFGRID_HTTP_PORT: 3000
+      OFFGRID_DATABASE_HOST: db
+      OFFGRID_DATABASE_NAME: offgrid
+      OFFGRID_DATABASE_USER: offgrid_app
+      OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/app-password
+      OFFGRID_MAIL_ENCRYPTION_KEY_FILE: /run/secrets/mail-encryption-key
+      OFFGRID_CORS_ORIGINS: ${OFFGRID_CORS_ORIGINS:-http://localhost:8080}
+      OFFGRID_FILES_DIRECTORY: /data/files
+      TZ: ${TZ:-UTC}
+    volumes:
+      - offgrid-secrets:/run/secrets:ro
+      - offgrid-files:/data/files
+    ports:
+      - "${OFFGRID_SERVER_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 10s
+      retries: 6
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  updater:
+    image: ghcr.io/${OFFGRID_IMAGE_OWNER:-wadowski}/offgrid-updater:${OFFGRID_VERSION:?set OFFGRID_VERSION to a released version}
+    restart: unless-stopped
+    group_add:
+      - "${OFFGRID_DOCKER_GID:-0}"
+    environment:
+      OFFGRID_UPDATER_DATABASE_HOST: db
+      OFFGRID_UPDATER_DATABASE_NAME: offgrid
+      OFFGRID_UPDATER_DATABASE_USER: offgrid_migrator
+      OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE: /run/secrets/migrator-password
+      OFFGRID_UPDATER_SECRETS_DIRECTORY: /run/secrets
+      OFFGRID_UPDATER_TOKEN_FILE: /run/secrets/updater-token
+      OFFGRID_UPDATER_BACKUP_ROOT: /backups
+      OFFGRID_UPDATER_STATUS_FILE: /var/lib/offgrid-updater/status.json
+      OFFGRID_UPDATER_HEALTH_URL: http://server:3000/api/health
+      OFFGRID_UPDATER_WEB_HEALTH_URL: http://web:8080/
+      OFFGRID_UPDATER_RELEASE_REPOSITORY: ${OFFGRID_RELEASE_REPOSITORY:-Wadowski/off-grid}
+      OFFGRID_UPDATER_HTTP_HOST: 0.0.0.0
+      OFFGRID_UPDATER_DOCKER_SOCKET: /var/run/docker.sock
+      OFFGRID_UPDATER_COMPOSE_PROJECT: offgrid
+      TZ: ${TZ:-UTC}
+    volumes:
+      - offgrid-secrets:/run/secrets:ro
+      - offgrid-backups:/backups
+      - offgrid-updater-state:/var/lib/offgrid-updater
+      - ${OFFGRID_DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+
+  web:
+    image: ghcr.io/${OFFGRID_IMAGE_OWNER:-wadowski}/offgrid-main-web:${OFFGRID_VERSION:?set OFFGRID_VERSION to a released version}
+    restart: unless-stopped
+    ports:
+      - "${OFFGRID_WEB_PORT:-8080}:8080"
+
+volumes:
+  offgrid-db:
+  offgrid-secrets:
+  offgrid-files:
+  offgrid-backups:
+  offgrid-updater-state:
+
+configs:
+  init-00-login-roles.sh:
+    content: |
+      set -eu
+
+      for secret in app-password migrator-password; do
+        if [ ! -s "/run/secrets/$$secret" ]; then
+          echo "$$secret is empty" >&2
+          exit 1
+        fi
+      done
+
+      {
+        cat <<'SQL'
+      \set app_password `cat /run/secrets/app-password`
+      \set migrator_password `cat /run/secrets/migrator-password`
+      CREATE ROLE offgrid_migrator LOGIN PASSWORD :'migrator_password';
+      CREATE ROLE offgrid_app LOGIN PASSWORD :'app_password';
+      SQL
+      } | psql -v ON_ERROR_STOP=1 --username "$$POSTGRES_USER" --dbname "$$POSTGRES_DB"
+  init-01-roles-and-schemas.sql:
+    content: |
+      DO $$$$
+      DECLARE
+        m text;
+        modules text[] := ARRAY[
+          'identity', 'family', 'access', 'calendar', 'lists', 'notes',
+          'files', 'food', 'relations', 'notifications', 'export', 'outbox', 'observability'
+        ];
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'offgrid_migrator') THEN
+          CREATE ROLE offgrid_migrator NOLOGIN;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'offgrid_app') THEN
+          CREATE ROLE offgrid_app NOLOGIN;
+        END IF;
+
+        FOREACH m IN ARRAY modules LOOP
+          EXECUTE format('CREATE SCHEMA IF NOT EXISTS %I AUTHORIZATION offgrid_migrator', m);
+          EXECUTE format('REVOKE ALL ON SCHEMA %I FROM PUBLIC', m);
+          EXECUTE format('GRANT USAGE ON SCHEMA %I TO offgrid_app', m);
+        END LOOP;
+      END $$$$;
+
+      GRANT CREATE ON SCHEMA public TO offgrid_migrator;
+  init-02-scope-helpers.sql:
+    content: |
+      CREATE OR REPLACE FUNCTION public.offgrid_declare_scope(
+        p_schema text,
+        p_table text,
+        p_scope text
+      ) RETURNS void
+      LANGUAGE plpgsql
+      AS $$fn$$
+      DECLARE
+        rel text := format('%I.%I', p_schema, p_table);
+        app_role text := 'offgrid_app';
+        has_family boolean;
+        has_user boolean;
+        family_required boolean;
+        user_required boolean;
+      BEGIN
+        IF p_scope NOT IN ('family-or-user', 'family', 'user', 'shared', 'instance') THEN
+          RAISE EXCEPTION 'unknown ownership scope %', p_scope;
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = p_schema AND tablename = p_table) THEN
+          RAISE EXCEPTION 'table % does not exist', rel;
+        END IF;
+
+        SELECT
+          EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema = p_schema AND table_name = p_table AND column_name = 'family_id'),
+          EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema = p_schema AND table_name = p_table AND column_name = 'user_id')
+        INTO has_family, has_user;
+
+        EXECUTE format('COMMENT ON TABLE %s IS %L', rel, 'offgrid:scope=' || p_scope);
+
+        IF p_scope = 'instance' THEN
+          IF has_family OR has_user THEN
+            RAISE EXCEPTION 'instance table % must not have an owner column', rel;
+          END IF;
+          EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %s TO %I', rel, app_role);
+          RETURN;
+        END IF;
+
+        IF p_scope = 'shared' THEN
+          IF has_family OR has_user THEN
+            RAISE EXCEPTION 'shared table % must not have an owner column', rel;
+          END IF;
+          EXECUTE format('GRANT SELECT ON %s TO %I', rel, app_role);
+          RETURN;
+        END IF;
+
+        family_required := p_scope IN ('family', 'family-or-user');
+        user_required := p_scope IN ('user', 'family-or-user');
+
+        IF family_required AND NOT has_family THEN
+          RAISE EXCEPTION 'scope % needs a family_id column on %', p_scope, rel;
+        END IF;
+        IF user_required AND NOT has_user THEN
+          RAISE EXCEPTION 'scope % needs a user_id column on %', p_scope, rel;
+        END IF;
+
+        IF p_scope = 'family-or-user' THEN
+          EXECUTE format(
+            'ALTER TABLE %s ADD CONSTRAINT %I CHECK ((family_id IS NULL) <> (user_id IS NULL))',
+            rel, p_table || '_one_owner'
+          );
+        ELSIF p_scope = 'family' THEN
+          EXECUTE format('ALTER TABLE %s ALTER COLUMN family_id SET NOT NULL', rel);
+        ELSE
+          EXECUTE format('ALTER TABLE %s ALTER COLUMN user_id SET NOT NULL', rel);
+        END IF;
+
+        EXECUTE format('ALTER TABLE %s ENABLE ROW LEVEL SECURITY', rel);
+        EXECUTE format(
+          'CREATE POLICY %I ON %s USING (%s) WITH CHECK (%s)',
+          p_table || '_scope',
+          rel,
+          CASE p_scope
+            WHEN 'family' THEN 'family_id = NULLIF(current_setting(''app.family_id'', true), '''')::uuid'
+            WHEN 'user' THEN 'user_id = NULLIF(current_setting(''app.user_id'', true), '''')::uuid'
+            ELSE '(family_id IS NOT NULL AND family_id = NULLIF(current_setting(''app.family_id'', true), '''')::uuid)'
+              || ' OR (user_id IS NOT NULL AND user_id = NULLIF(current_setting(''app.user_id'', true), '''')::uuid)'
+          END,
+          CASE p_scope
+            WHEN 'family' THEN 'family_id = NULLIF(current_setting(''app.family_id'', true), '''')::uuid'
+            WHEN 'user' THEN 'user_id = NULLIF(current_setting(''app.user_id'', true), '''')::uuid'
+            ELSE '(family_id IS NOT NULL AND family_id = NULLIF(current_setting(''app.family_id'', true), '''')::uuid)'
+              || ' OR (user_id IS NOT NULL AND user_id = NULLIF(current_setting(''app.user_id'', true), '''')::uuid)'
+          END
+        );
+
+        EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %s TO %I', rel, app_role);
+      END;
+      $$fn$$;
+  init-03-migrator-ownership.sql:
+    content: |
+      DO $$$$
+      BEGIN
+        EXECUTE format('ALTER DATABASE %I OWNER TO offgrid_migrator', current_database());
+        EXECUTE 'ALTER FUNCTION public.offgrid_declare_scope(text, text, text) OWNER TO offgrid_migrator';
+      END $$$$;
+  secrets-init.sh:
+    content: |
+      set -eu
+
+      secrets_dir=$${SECRETS_DIR:-/data/secrets}
+      mkdir -p "$$secrets_dir"
+      umask 077
+
+      random_secret() {
+        head -c 32 /dev/urandom | base64 | tr -d '\n'
+      }
+
+      write_if_missing() {
+        file="$$secrets_dir/$$1"
+        if [ ! -s "$$file" ]; then
+          printf '%s' "$$2" > "$$file"
+          chmod 0444 "$$file"
+        fi
+      }
+
+      write_if_missing postgres-password "$$(random_secret)"
+      write_if_missing migrator-password "$$(random_secret)"
+      write_if_missing app-password "$$(random_secret)"
+      write_if_missing mail-encryption-key "$$(random_secret)"
+      write_if_missing updater-token "$$(random_secret)"
+      write_if_missing instance-id "$$(cat /proc/sys/kernel/random/uuid)"
+
+      files_root=$${FILES_ROOT:-/data}
+      for files_dir in "$$files_root/files" "$$files_root/files-e2e"; do
+        mkdir -p "$$files_dir"
+        if [ "$$(id -u)" = 0 ]; then
+          chown 1000:1000 "$$files_dir"
+        fi
+        chmod 0700 "$$files_dir"
+      done
