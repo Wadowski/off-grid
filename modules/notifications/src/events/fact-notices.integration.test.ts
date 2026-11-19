@@ -22,7 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { publishFact } from "../../test/publish-fact.js";
 import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
 import type { NotificationsTestDatabase } from "../../test/types.js";
-import type { InboxNotice, NotificationChannel } from "../types.js";
+import type { NotificationChannel } from "../types.js";
 import { registerFactSubscribers } from "./register-fact-subscribers.js";
 
 const fakeLogger = (): Logger =>
@@ -260,7 +260,7 @@ describe("domain fact subscribers", { timeout: 60_000 }, () => {
       errorSink: createMemoryErrorSink(),
       retryDelayMs: () => 0,
     });
-    const deliver = vi.fn(async (_notice: InboxNotice) => undefined);
+    const deliver = vi.fn(async () => undefined);
     const inviteSubscription = registerInviteSubscription(bus, [{ name: "recording", deliver }]);
 
     await db.db.$transaction(async (tx) => {
