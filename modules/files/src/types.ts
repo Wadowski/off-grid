@@ -43,3 +43,22 @@ export interface StorageIntegritySweepOptions {
   readonly intervalMs: number;
   readonly firstRunDelayMs: number;
 }
+
+export interface DriveInsertInput {
+  readonly driveId: string;
+  readonly name: string;
+}
+
+export interface PersonalDriveInsertInput extends DriveInsertInput {
+  readonly userId: string;
+}
+
+export interface FamilyDriveInsertInput extends DriveInsertInput {
+  readonly familyId: string;
+}
+
+export interface DriveCreatedInput {
+  readonly driveId: string;
+  readonly ownerUserId: string | null;
+  readonly ownerFamilyId: string | null;
+}

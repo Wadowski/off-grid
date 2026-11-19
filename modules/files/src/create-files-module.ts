@@ -4,6 +4,7 @@
 import { createDiskFileStorage } from "@offgrid/file-storage";
 import { createStorageIntegritySweepWorker } from "./workers/storage-integrity-sweep/create-storage-integrity-sweep-worker.js";
 import { registerFamilyMembershipSubscribers } from "./events/family-membership/register-family-membership-subscribers.js";
+import { registerDriveSubscribers } from "./events/drives/register-drive-subscribers.js";
 import { STORAGE_SWEEP_FIRST_RUN_DELAY_MS, STORAGE_SWEEP_INTERVAL_MS } from "./constants.js";
 import type { FilesModuleOptions, FilesSubscriberContext, FilesWorkerContext } from "./types.js";
 
@@ -13,6 +14,7 @@ export const createFilesModule = (options: FilesModuleOptions) => {
     name: "files",
     registerSubscribers: (context: FilesSubscriberContext) => {
       registerFamilyMembershipSubscribers(context);
+      registerDriveSubscribers(context);
     },
     workers: (context: FilesWorkerContext) => [
       createStorageIntegritySweepWorker({
