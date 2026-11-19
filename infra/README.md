@@ -23,7 +23,7 @@ The `updater` service (`apps/updater`) runs in the base Compose file. It has no 
 
 The script never changes group membership. When the user who ran `sudo` is not in the `docker` group, it prints the `usermod -aG docker <user>` command for the owner to run.
 
-Supported systems are RHEL, CentOS Stream, Fedora, Debian and Ubuntu. Rocky Linux and AlmaLinux are not supported: on those systems, install Docker by hand and use the paste-in path in the production Compose section above.
+Supported systems are RHEL, CentOS Stream, Fedora, Debian and Ubuntu. Rocky Linux and AlmaLinux are not supported: on those systems, install Docker by hand and use the paste-in path in the production Compose section above. Other Debian derivatives, such as Kali, are refused unless their release is Debian bookworm, trixie or bullseye, because Docker publishes no repository for other releases.
 
 Manual test of the Docker install branch in containers (needs Docker on the machine running it):
 

@@ -29,7 +29,7 @@ const OS_FAMILIES = {
   "rhel-9": "rhel",
   "centos-9": "rhel",
 };
-const UNSUPPORTED_FIXTURES = ["rocky-9", "alma-9", "alpine-3", "arch"];
+const UNSUPPORTED_FIXTURES = ["rocky-9", "alma-9", "alpine-3", "arch", "kali-rolling"];
 
 const withWorkspace = (run) => {
   const root = mkdtempSync(join(tmpdir(), "offgrid-install-"));
@@ -123,6 +123,16 @@ for (const fixture of UNSUPPORTED_FIXTURES) {
     assert.match(result.stderr, /docker-compose\.production\.yml/);
   });
 }
+
+test("names a Debian derivative without a Docker codename and points at the paste-in path", () => {
+  const result = callFunction("detect_os_family", {
+    env: { OFFGRID_OS_RELEASE_FILE: join(FIXTURES, "kali-rolling") },
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /^FAIL os: kali \(kali-rolling\) is not a supported system/m);
+  assert.match(result.stderr, /docker-compose\.production\.yml/);
+});
 
 test("reads os-release values without executing the file", () => {
   withWorkspace((root) => {

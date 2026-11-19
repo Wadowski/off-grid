@@ -46,6 +46,10 @@ unsupported_system() {
   fail "os: $os_id is not a supported system. Supported systems: $SUPPORTED_SYSTEMS. To run the production stack here, $PASTE_IN_POINTER."
 }
 
+unsupported_debian_derivative() {
+  fail "os: $os_id ($os_codename) is not a supported system: Docker publishes no repository for its release. Supported systems: $SUPPORTED_SYSTEMS. To run the production stack here, $PASTE_IN_POINTER."
+}
+
 detect_os_family() {
   os_release_file=${OFFGRID_OS_RELEASE_FILE:-/etc/os-release}
   [ -r "$os_release_file" ] || fail "os: cannot read $os_release_file"
@@ -57,7 +61,15 @@ detect_os_family() {
     rhel | centos) os_family=rhel ;;
     *)
       case " $os_id_like " in
-        *" debian "* | *" ubuntu "*) os_family=debian ;;
+        *" ubuntu "*) os_family=debian ;;
+        *" debian "*)
+          os_codename=$(os_release_value VERSION_CODENAME)
+          case "$os_codename" in
+            bookworm | trixie | bullseye) ;;
+            *) unsupported_debian_derivative ;;
+          esac
+          os_family=debian
+          ;;
         *) unsupported_system ;;
       esac
       ;;
