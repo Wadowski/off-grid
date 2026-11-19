@@ -9,6 +9,7 @@ export const accountRoutes = {
   session: "/me/sessions/:sessionId",
   otherSessions: "/me/sessions/sign-out-others",
   notifications: "/me/notifications",
+  notificationsStream: "/me/notifications/stream",
   notificationRead: "/me/notifications/:notificationId/read",
   notificationsReadAll: "/me/notifications/read-all",
 } as const;
