@@ -3,7 +3,7 @@
 
 import { randomUUID } from "node:crypto";
 import { createBdd } from "playwright-bdd";
-import { createFamilyAs, getAs, waitForDrives } from "../support/factories/files.js";
+import { getAs, waitForDrives } from "../support/factories/files.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -35,11 +35,6 @@ const lastFamilyOf = (world: ScenarioWorld) => {
   }
   return family;
 };
-
-Given(/^Anna creates a family named "([^"]*)"$/, async ({ world }, name: string) => {
-  const family = await createFamilyAs(world.api, personNamed(world, "Anna").session, name);
-  world.families.push(family);
-});
 
 When("Anna lists her drives", async ({ world }) => {
   const family = lastFamilyOf(world);
@@ -87,9 +82,24 @@ When(/^Ben opens the family drive of "([^"]*)"$/, async ({ world }, familyName: 
   );
 });
 
-Then("Ben gets not found", async ({ world }) => {
-  expect(world.response?.status).toBe(404);
+When("Ben opens the personal drive of Anna", async ({ world }) => {
+  const driveId = world.files?.personalDriveIds.Anna;
+  if (!driveId) {
+    throw new Error("Anna has no personal drive");
+  }
+  world.response = await getAs(
+    world.api,
+    personNamed(world, "Ben").session,
+    `/api/drives/${driveId}/children`,
+  );
 });
+
+Then(
+  /^(Anna|Ben) is told the (drive|folder|file) was not found$/,
+  async ({ world }, person: string, kind: string) => {
+    expect(world.response?.status, `${person} is told the ${kind} was not found`).toBe(404);
+  },
+);
 
 When("Anna opens a folder that does not exist", async ({ world }) => {
   world.response = await getAs(
@@ -107,15 +117,11 @@ When("Anna opens a file that does not exist", async ({ world }) => {
   );
 });
 
-Then("Anna gets not found", async ({ world }) => {
-  expect(world.response?.status).toBe(404);
-});
-
 Given(/^Anna has a folder "[^"]*" with a folder "[^"]*" and a file "[^"]*"$/, () =>
   notImplemented("Anna has a folder … with a folder … and a file …"),
 );
 
-When(/^Anna opens the folder "[^"]*"$/, () => notImplemented("Anna opens the folder …"));
+When(/^(?:Anna|Ben) opens the folder "[^"]*"$/, () => notImplemented("opens the folder …"));
 
 Then(/^Anna sees the entries "[^"]*" and "[^"]*" in that order$/, () =>
   notImplemented("Anna sees the entries … and … in that order"),
@@ -137,7 +143,19 @@ Given(/^Anna has a file "[^"]*" in the folder "[^"]*"$/, () =>
   notImplemented("Anna has a file … in the folder …"),
 );
 
-When(/^Anna opens the file "[^"]*"$/, () => notImplemented("Anna opens the file …"));
+Given(/^Anna has a file "[^"]*" in the family drive of "[^"]*"$/, () =>
+  notImplemented("Anna has a file … in the family drive of …"),
+);
+
+Given(/^Anna has a folder "[^"]*" in the family drive of "[^"]*"$/, () =>
+  notImplemented("Anna has a folder … in the family drive of …"),
+);
+
+Given(/^Anna has a trashed folder "[^"]*" in her personal drive$/, () =>
+  notImplemented("Anna has a trashed folder … in her personal drive"),
+);
+
+When(/^(?:Anna|Ben) opens the file "[^"]*"$/, () => notImplemented("opens the file …"));
 
 Then(/^Anna sees the file "[^"]*" with the breadcrumbs "[^"]*" and "[^"]*"$/, () =>
   notImplemented("Anna sees the file … with the breadcrumbs … and …"),
