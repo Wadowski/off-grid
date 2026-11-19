@@ -418,6 +418,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSystemUpdate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/update/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["checkSystemUpdate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/update/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applySystemUpdate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/update/nightly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setSystemUpdateNightly"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -887,6 +951,52 @@ export interface components {
         SystemVersion: {
             version: string;
             commit?: string;
+        };
+        SystemUpdate: {
+            currentVersion: string;
+            latestVersion: string | null;
+            updateAvailable: boolean;
+            updateAllowed: boolean;
+            checkedAt: string | null;
+            runState: "idle" | "running" | "succeeded" | "failed" | "rolled_back" | "needs_admin" | "interrupted";
+            lastRun: {
+                runId: string;
+                currentVersion: string;
+                targetVersion: string;
+                startedAt: string;
+                finishedAt: string | null;
+                outcome: "in_progress" | "succeeded" | "refused" | "failed_before_change" | "rolled_back" | "failed_needs_admin";
+                failedStep: ("verify_version" | "backup" | "pull" | "migrate" | "replace" | "health" | "rollback_stop" | "rollback_restore" | "rollback_start" | "rollback_health") | null;
+                steps: {
+                    name: "verify_version" | "backup" | "pull" | "migrate" | "replace" | "health" | "rollback_stop" | "rollback_restore" | "rollback_start" | "rollback_health";
+                    state: "pending" | "running" | "succeeded" | "failed" | "skipped";
+                    startedAt: string | null;
+                    finishedAt: string | null;
+                }[];
+                backupName: string | null;
+                previousImages: {
+                    server: string;
+                    web: string;
+                } | null;
+                writesAfterBackupLost: boolean;
+                message: string;
+            } | null;
+            running: boolean;
+            nightlyEnabled: boolean;
+        };
+        SystemUpdateCheck: {
+            currentVersion: string;
+            latestVersion: string;
+            updateAvailable: boolean;
+            updateAllowed: boolean;
+            checkedAt: string;
+        };
+        SystemUpdateApplyResult: {
+            started: true;
+            targetVersion: string;
+        };
+        SystemUpdateNightly: {
+            enabled: boolean;
         };
     };
     responses: never;
@@ -2477,6 +2587,206 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SystemVersion"];
+                };
+            };
+        };
+    };
+    getSystemUpdate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemUpdate"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    checkSystemUpdate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemUpdateCheck"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    applySystemUpdate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemUpdateApplyResult"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setSystemUpdateNightly: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SystemUpdateNightly"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemUpdateNightly"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
