@@ -159,6 +159,7 @@ export type ReleaseRun = () => void;
 
 export interface RunLock {
   readonly tryAcquire: () => ReleaseRun | null;
+  readonly isHeld: () => boolean;
 }
 
 export type HttpFetch = (url: string, init: RequestInit) => Promise<Response>;

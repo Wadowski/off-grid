@@ -12,6 +12,15 @@ describe("createRunLock", () => {
     expect(lock.tryAcquire()).toBeNull();
   });
 
+  it("reports whether a run holds the lock", () => {
+    const lock = createRunLock();
+    const release = lock.tryAcquire();
+
+    expect(lock.isHeld()).toBe(true);
+    release?.();
+    expect(lock.isHeld()).toBe(false);
+  });
+
   it("accepts an acquire again after release", () => {
     const lock = createRunLock();
     const release = lock.tryAcquire();

@@ -194,7 +194,15 @@ describe("updater HTTP API", () => {
       const response = await app.inject({ method: "GET", url: "/status", headers: authorized() });
 
       expect(response.statusCode).toBe(200);
-      expect(response.json()).toEqual({ update: null });
+      expect(response.json()).toEqual({ update: null, running: false });
+    });
+
+    it("reports running while the run lock is held", async () => {
+      const release = releaseLockOwner.tryAcquire();
+      const response = await app.inject({ method: "GET", url: "/status", headers: authorized() });
+      release?.();
+
+      expect(response.json()).toEqual({ update: null, running: true });
     });
 
     it("reports the latest release without changing anything", async () => {

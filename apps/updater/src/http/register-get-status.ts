@@ -9,7 +9,7 @@ export const registerGetStatus = (app: FastifyInstance, services: UpdaterService
   app.get("/status", async (_request, reply) => {
     try {
       const update = await readUpdateStatus(services.statusFile);
-      return reply.code(200).send({ update });
+      return reply.code(200).send({ update, running: services.runLock.isHeld() });
     } catch {
       services.logger.error("update status file could not be read");
       return reply.code(500).send({ error: "status_unreadable" });

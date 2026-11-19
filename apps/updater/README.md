@@ -44,11 +44,11 @@ A missing, unreadable or empty token file, or a missing release repository, stop
 
 The API listens on `OFFGRID_UPDATER_HTTP_PORT`. Every route needs `Authorization: Bearer <token>`. A missing, malformed or wrong token gets `401` with the body `{ "error": "unauthorized" }` and `www-authenticate: Bearer`. The token is compared in constant time on SHA-256 digests. Any other route gets `404 { "error": "not_found" }`, also with a token.
 
-| Method and path | Success                                                                                  | Errors                                                            |
-| --------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `GET /status`   | `200 { "update": UpdateStatus \| null }`, read from the status file                      | `500 status_unreadable` when the file does not match the schema   |
-| `POST /check`   | `200 { currentVersion, latestVersion, updateAvailable, updateAllowed }`, changes nothing | `502 release_source_unreachable`, `503 current_version_unknown`   |
-| `POST /apply`   | `202 { started: true, targetVersion }`, body `{ "version": "X.Y.Z" }` only               | `400 invalid_request`, `409 update_already_running`, `502`, `503` |
+| Method and path | Success                                                                                                  | Errors                                                            |
+| --------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `GET /status`   | `200 { "update": UpdateStatus \| null, "running": boolean }`, read from the status file and the run lock | `500 status_unreadable` when the file does not match the schema   |
+| `POST /check`   | `200 { currentVersion, latestVersion, updateAvailable, updateAllowed }`, changes nothing                 | `502 release_source_unreachable`, `503 current_version_unknown`   |
+| `POST /apply`   | `202 { started: true, targetVersion }`, body `{ "version": "X.Y.Z" }` only                               | `400 invalid_request`, `409 update_already_running`, `502`, `503` |
 
 `POST /apply` takes the lock, reads the running version and the release manifest for the requested version, then returns `202` and runs `applyUpdate` in the background. The lock is released when the run ends in any outcome, including a thrown error. A release lookup that fails before the run starts gives `502` and leaves no status. `POST /check` works while a run is active. Error bodies are fixed and carry no error text.
 
@@ -143,6 +143,6 @@ The file holds only run identifiers, versions, image references, the backup fold
 
 ### Limits
 
-- If the updater process dies during an update, the status stays `in_progress`. The lock is in memory, so a restarted updater accepts a new run while the status still reads `in_progress`. Recovery of a stale run is not implemented yet and is owned by the server integration (OG-170).
+- If the updater process dies during an update, the status stays `in_progress`. The lock is in memory, so a restarted updater accepts a new run while the status still reads `in_progress`. `GET /status` reports `running: false` in that case, so the server can show the run as interrupted and allow a new apply.
 - A rolled-back or replaced container stays as `<name>-replaced`, stopped, until the next update replaces it. Compose may report it as an extra container of the service.
 - `failed_needs_admin` means the database and the containers may not match the previous version. Restore by hand: stop the containers, restore the database as described in the Restore section, then start the previous images from the status file.
