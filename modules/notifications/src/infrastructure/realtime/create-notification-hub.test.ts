@@ -3,21 +3,19 @@
 
 import type { Logger } from "@offgrid/observability";
 import { describe, expect, it, vi } from "vitest";
-import type { InboxNotice, NoticeSubscriber } from "../../types.js";
+import type { ListedNotification, NoticeSubscriber } from "../../types.js";
 import { createNotificationHub } from "./create-notification-hub.js";
 
 const USER_A = "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d";
 const USER_B = "0b1c2d3e-4f5a-4b6c-8d7e-9f0a1b2c3d4e";
 
-const notice = (
-  notificationId: string,
-  userId: string,
-  data: Record<string, string> = {},
-): InboxNotice => ({
-  notificationId,
-  userId,
+const notice = (id: string, data: Record<string, string> = {}): ListedNotification => ({
+  id,
   type: "password-changed",
+  category: "account-security",
   data,
+  createdAt: "2026-05-01T10:00:00.000Z",
+  readAt: null,
 });
 
 const recordingSubscriber = () => {
@@ -25,7 +23,7 @@ const recordingSubscriber = () => {
   const close = vi.fn();
   const subscriber: NoticeSubscriber = {
     send: async (item) => {
-      received.push(item.notificationId);
+      received.push(item.id);
     },
     close,
   };
@@ -67,8 +65,8 @@ describe("createNotificationHub", () => {
       hub.subscribe(USER_A, first.subscriber);
       hub.subscribe(USER_A, second.subscriber);
 
-      hub.publish(USER_A, notice("n1", USER_A));
-      hub.publish(USER_A, notice("n2", USER_A));
+      hub.publish(USER_A, notice("n1"));
+      hub.publish(USER_A, notice("n2"));
 
       await waitUntil(() => first.received.length === 2 && second.received.length === 2);
       expect(first.received).toEqual(["n1", "n2"]);
@@ -83,8 +81,8 @@ describe("createNotificationHub", () => {
       hub.subscribe(USER_A, userA.subscriber);
       hub.subscribe(USER_B, userB.subscriber);
 
-      hub.publish(USER_A, notice("for-a", USER_A));
-      hub.publish(USER_B, notice("for-b", USER_B));
+      hub.publish(USER_A, notice("for-a"));
+      hub.publish(USER_B, notice("for-b"));
 
       await waitUntil(() => userA.received.length === 1 && userB.received.length === 1);
       expect(userA.received).toEqual(["for-a"]);
@@ -103,7 +101,7 @@ describe("createNotificationHub", () => {
 
       unsubscribe();
       unsubscribe();
-      hub.publish(USER_A, notice("after", USER_A));
+      hub.publish(USER_A, notice("after"));
 
       await waitUntil(() => kept.received.length === 1);
       expect(removed.received).toEqual([]);
@@ -120,11 +118,11 @@ describe("createNotificationHub", () => {
       hub.subscribe(USER_A, slow.subscriber);
       hub.subscribe(USER_A, healthy.subscriber);
 
-      hub.publish(USER_A, notice("n1", USER_A));
-      hub.publish(USER_A, notice("n2", USER_A));
+      hub.publish(USER_A, notice("n1"));
+      hub.publish(USER_A, notice("n2"));
       await waitUntil(() => healthy.received.length === 2);
-      hub.publish(USER_A, notice("n3", USER_A));
-      hub.publish(USER_A, notice("n4", USER_A));
+      hub.publish(USER_A, notice("n3"));
+      hub.publish(USER_A, notice("n4"));
 
       await waitUntil(() => healthy.received.length === 4);
       expect(healthy.received).toEqual(["n1", "n2", "n3", "n4"]);
@@ -147,7 +145,7 @@ describe("createNotificationHub", () => {
       hub.subscribe(USER_A, failing);
       hub.subscribe(USER_A, healthy.subscriber);
 
-      hub.publish(USER_A, notice("n1", USER_A, { eventId: "private-event" }));
+      hub.publish(USER_A, notice("n1", { eventId: "private-event" }));
 
       await waitUntil(() => healthy.received.length === 1 && failing.close.mock.calls.length === 1);
       expect(warn).toHaveBeenCalledWith("notification stream closed after a failed send", {
@@ -170,7 +168,7 @@ describe("createNotificationHub", () => {
       hub.subscribe(USER_B, second.subscriber);
 
       hub.close();
-      hub.publish(USER_A, notice("late", USER_A));
+      hub.publish(USER_A, notice("late"));
       const lateSubscriber = recordingSubscriber();
       const unsubscribe = hub.subscribe(USER_A, lateSubscriber.subscriber);
       unsubscribe();

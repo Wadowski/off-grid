@@ -15,6 +15,7 @@ const notice = (userId: string, type = "password-changed") => ({
   userId,
   type,
   data: {},
+  createdAt: new Date(),
 });
 
 describe("list notifications route", { timeout: 60_000 }, () => {
@@ -54,7 +55,10 @@ describe("list notifications route", { timeout: 60_000 }, () => {
   it("returns the first page of 20 with the paging fields when no query is given", async () => {
     const anna = randomUUID();
     for (let index = 0; index < 21; index += 1) {
-      await writeInboxNotification(db.db, notice(anna), new Date(Date.UTC(2026, 10, 1, 0, index)));
+      await writeInboxNotification(db.db, {
+        ...notice(anna),
+        createdAt: new Date(Date.UTC(2026, 10, 1, 0, index)),
+      });
     }
 
     const response = await getList(anna);
@@ -70,9 +74,18 @@ describe("list notifications route", { timeout: 60_000 }, () => {
     const reminder = notice(anna, "event-reminder");
     const invited = notice(anna, "event-invited");
     const recovery = notice(anna, "recovery-code-regenerated");
-    await writeInboxNotification(db.db, reminder, new Date("2026-11-01T10:00:00Z"));
-    await writeInboxNotification(db.db, invited, new Date("2026-11-02T10:00:00Z"));
-    await writeInboxNotification(db.db, recovery, new Date("2026-11-03T10:00:00Z"));
+    await writeInboxNotification(db.db, {
+      ...reminder,
+      createdAt: new Date("2026-11-01T10:00:00Z"),
+    });
+    await writeInboxNotification(db.db, {
+      ...invited,
+      createdAt: new Date("2026-11-02T10:00:00Z"),
+    });
+    await writeInboxNotification(db.db, {
+      ...recovery,
+      createdAt: new Date("2026-11-03T10:00:00Z"),
+    });
     await markOwnNotificationRead(db.db, anna, invited.notificationId);
 
     const response = await getList(anna, "?category=calendar&unread=true");

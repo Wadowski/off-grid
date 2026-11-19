@@ -17,6 +17,7 @@ const notice = (userId: string, type = "password-changed") => ({
   userId,
   type,
   data: {},
+  createdAt: new Date(),
 });
 
 describe("inbox", { timeout: 60_000 }, () => {
@@ -38,8 +39,8 @@ describe("inbox", { timeout: 60_000 }, () => {
     const anna = randomUUID();
     const older = notice(anna);
     const newer = notice(anna, "recovery-code-regenerated");
-    await writeInboxNotification(db.db, older, new Date("2026-11-01T10:00:00Z"));
-    await writeInboxNotification(db.db, newer, new Date("2026-11-02T10:00:00Z"));
+    await writeInboxNotification(db.db, { ...older, createdAt: new Date("2026-11-01T10:00:00Z") });
+    await writeInboxNotification(db.db, { ...newer, createdAt: new Date("2026-11-02T10:00:00Z") });
 
     await markOwnNotificationRead(db.db, anna, older.notificationId);
     const list = await listOwnNotifications(db.db, anna, { limit: 20 });
@@ -55,8 +56,8 @@ describe("inbox", { timeout: 60_000 }, () => {
   it("writes the same notice once when it arrives twice", async () => {
     const anna = randomUUID();
     const item = notice(anna);
-    await writeInboxNotification(db.db, item, new Date());
-    await writeInboxNotification(db.db, item, new Date());
+    await writeInboxNotification(db.db, { ...item, createdAt: new Date() });
+    await writeInboxNotification(db.db, { ...item, createdAt: new Date() });
 
     const list = await listOwnNotifications(db.db, anna, { limit: 20 });
 
@@ -67,7 +68,7 @@ describe("inbox", { timeout: 60_000 }, () => {
     const anna = randomUUID();
     const tom = randomUUID();
     const item = notice(tom);
-    await writeInboxNotification(db.db, item, new Date());
+    await writeInboxNotification(db.db, { ...item, createdAt: new Date() });
 
     await expect(markOwnNotificationRead(db.db, anna, item.notificationId)).rejects.toBeInstanceOf(
       NotificationNotFoundError,
@@ -77,7 +78,7 @@ describe("inbox", { timeout: 60_000 }, () => {
   it("keeps one person's inbox out of another person's list", async () => {
     const anna = randomUUID();
     const tom = randomUUID();
-    await writeInboxNotification(db.db, notice(tom), new Date());
+    await writeInboxNotification(db.db, { ...notice(tom), createdAt: new Date() });
 
     const list = await listOwnNotifications(db.db, anna, { limit: 20 });
 
@@ -108,10 +109,22 @@ describe("inbox", { timeout: 60_000 }, () => {
       const recovery = notice(userId, "recovery-code-regenerated");
       const invited = notice(userId, "event-invited");
       const reminder = notice(userId, "event-reminder");
-      await writeInboxNotification(db.db, passwordChanged, new Date("2026-11-01T10:00:00Z"));
-      await writeInboxNotification(db.db, recovery, new Date("2026-11-02T10:00:00Z"));
-      await writeInboxNotification(db.db, invited, new Date("2026-11-03T10:00:00Z"));
-      await writeInboxNotification(db.db, reminder, new Date("2026-11-04T10:00:00Z"));
+      await writeInboxNotification(db.db, {
+        ...passwordChanged,
+        createdAt: new Date("2026-11-01T10:00:00Z"),
+      });
+      await writeInboxNotification(db.db, {
+        ...recovery,
+        createdAt: new Date("2026-11-02T10:00:00Z"),
+      });
+      await writeInboxNotification(db.db, {
+        ...invited,
+        createdAt: new Date("2026-11-03T10:00:00Z"),
+      });
+      await writeInboxNotification(db.db, {
+        ...reminder,
+        createdAt: new Date("2026-11-04T10:00:00Z"),
+      });
       await markOwnNotificationRead(db.db, userId, passwordChanged.notificationId);
       await markOwnNotificationRead(db.db, userId, invited.notificationId);
       return { passwordChanged, recovery, invited, reminder };
@@ -200,9 +213,15 @@ describe("inbox", { timeout: 60_000 }, () => {
         if (day % 2 === 1) {
           written.push(item.notificationId);
         }
-        await writeInboxNotification(db.db, item, new Date(`2026-11-0${day}T10:00:00Z`));
+        await writeInboxNotification(db.db, {
+          ...item,
+          createdAt: new Date(`2026-11-0${day}T10:00:00Z`),
+        });
       }
-      await writeInboxNotification(db.db, notice(tom, "password-changed"), new Date());
+      await writeInboxNotification(db.db, {
+        ...notice(tom, "password-changed"),
+        createdAt: new Date(),
+      });
 
       const { ids, lastPage } = await walkPages(anna, 2, { category: "account-security" });
 
@@ -214,7 +233,10 @@ describe("inbox", { timeout: 60_000 }, () => {
     it("never returns another person's rows under a filter", async () => {
       const anna = randomUUID();
       const tom = randomUUID();
-      await writeInboxNotification(db.db, notice(tom, "event-invited"), new Date());
+      await writeInboxNotification(db.db, {
+        ...notice(tom, "event-invited"),
+        createdAt: new Date(),
+      });
 
       const list = await listOwnNotifications(db.db, anna, { limit: 20, category: "calendar" });
 
@@ -227,7 +249,10 @@ describe("inbox", { timeout: 60_000 }, () => {
     it("returns the page size, a next cursor, and the total and unread counts for the whole inbox", async () => {
       const anna = randomUUID();
       for (let day = 1; day <= 5; day += 1) {
-        await writeInboxNotification(db.db, notice(anna), new Date(`2026-11-0${day}T10:00:00Z`));
+        await writeInboxNotification(db.db, {
+          ...notice(anna),
+          createdAt: new Date(`2026-11-0${day}T10:00:00Z`),
+        });
       }
 
       const first = await listOwnNotifications(db.db, anna, { limit: 2 });
@@ -244,7 +269,10 @@ describe("inbox", { timeout: 60_000 }, () => {
       for (let day = 1; day <= 5; day += 1) {
         const item = notice(anna);
         written.push(item.notificationId);
-        await writeInboxNotification(db.db, item, new Date(`2026-11-0${day}T10:00:00Z`));
+        await writeInboxNotification(db.db, {
+          ...item,
+          createdAt: new Date(`2026-11-0${day}T10:00:00Z`),
+        });
       }
 
       const { ids, lastPage } = await walkPages(anna, 2);
@@ -260,7 +288,7 @@ describe("inbox", { timeout: 60_000 }, () => {
       for (let index = 0; index < 5; index += 1) {
         const item = notice(anna);
         written.push(item.notificationId);
-        await writeInboxNotification(db.db, item, sameMoment);
+        await writeInboxNotification(db.db, { ...item, createdAt: sameMoment });
       }
 
       const { ids } = await walkPages(anna, 2);
@@ -274,10 +302,16 @@ describe("inbox", { timeout: 60_000 }, () => {
       for (let day = 1; day <= 4; day += 1) {
         const item = notice(anna);
         written.push(item.notificationId);
-        await writeInboxNotification(db.db, item, new Date(`2026-11-0${day}T10:00:00Z`));
+        await writeInboxNotification(db.db, {
+          ...item,
+          createdAt: new Date(`2026-11-0${day}T10:00:00Z`),
+        });
       }
       const first = await listOwnNotifications(db.db, anna, { limit: 2 });
-      await writeInboxNotification(db.db, notice(anna), new Date("2026-11-09T10:00:00Z"));
+      await writeInboxNotification(db.db, {
+        ...notice(anna),
+        createdAt: new Date("2026-11-09T10:00:00Z"),
+      });
 
       const second = await listOwnNotifications(db.db, anna, {
         limit: 2,
@@ -291,9 +325,18 @@ describe("inbox", { timeout: 60_000 }, () => {
     it("never counts or returns another person's rows", async () => {
       const anna = randomUUID();
       const tom = randomUUID();
-      await writeInboxNotification(db.db, notice(anna), new Date("2026-11-01T10:00:00Z"));
-      await writeInboxNotification(db.db, notice(tom), new Date("2026-11-02T10:00:00Z"));
-      await writeInboxNotification(db.db, notice(tom), new Date("2026-11-03T10:00:00Z"));
+      await writeInboxNotification(db.db, {
+        ...notice(anna),
+        createdAt: new Date("2026-11-01T10:00:00Z"),
+      });
+      await writeInboxNotification(db.db, {
+        ...notice(tom),
+        createdAt: new Date("2026-11-02T10:00:00Z"),
+      });
+      await writeInboxNotification(db.db, {
+        ...notice(tom),
+        createdAt: new Date("2026-11-03T10:00:00Z"),
+      });
 
       const list = await listOwnNotifications(db.db, anna, { limit: 1 });
 

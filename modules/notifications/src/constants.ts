@@ -19,6 +19,8 @@ export const SUBSCRIBER_QUEUE_LIMIT = 100;
 
 export const REALTIME_WORKER_NAME = "notifications-realtime";
 
+export const REALTIME_CHANNEL_NAME = "realtime";
+
 export const NOTIFICATION_CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
   "password-changed": "account-security",
   "recovery-code-regenerated": "account-security",

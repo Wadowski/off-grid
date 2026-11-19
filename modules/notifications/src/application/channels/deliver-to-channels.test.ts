@@ -11,6 +11,7 @@ const notice: InboxNotice = {
   userId: "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d",
   type: "password-changed",
   data: {},
+  createdAt: new Date("2026-05-01T10:00:00.000Z"),
 };
 
 const loggerSpy = () => {

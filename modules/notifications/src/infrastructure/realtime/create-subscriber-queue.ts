@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type {
-  InboxNotice,
+  ListedNotification,
   NoticeSubscriber,
   SubscriberPushResult,
   SubscriberQueue,
@@ -13,7 +13,7 @@ export const createSubscriberQueue = (
   limit: number,
   onSendFailure: (error: unknown) => void,
 ): SubscriberQueue => {
-  const pending: InboxNotice[] = [];
+  const pending: ListedNotification[] = [];
   let draining = false;
   let stopped = false;
 
@@ -44,7 +44,7 @@ export const createSubscriberQueue = (
     draining = false;
   };
 
-  const push = (notice: InboxNotice): SubscriberPushResult => {
+  const push = (notice: ListedNotification): SubscriberPushResult => {
     if (stopped) {
       return "stopped";
     }
