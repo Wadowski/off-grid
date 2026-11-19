@@ -67,6 +67,7 @@ export interface DriveCreatedInput {
 export interface FilesRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly storage: FileStorage;
 }
 
 export interface DriveRecord {
