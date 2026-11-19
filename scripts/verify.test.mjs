@@ -14,6 +14,8 @@ test("planChecks adds checks by what changed", () => {
   assert.ok(names(planChecks(["infra/compose/docker-compose.yml"])).includes("compose"));
   assert.ok(!names(planChecks(["docs/a.md"])).includes("compose"));
   assert.ok(names(planChecks(["packages/contracts/src/a.ts"])).includes("contracts"));
+  assert.ok(names(planChecks(["infra/install/install.sh"])).includes("shell"));
+  assert.ok(!names(planChecks(["docs/a.md"])).includes("shell"));
 });
 
 test("pendingChecks skips checks that passed on the same tree", () => {

@@ -16,3 +16,23 @@ The `updater` service (`apps/updater`) runs in the base Compose file. It has no 
 - The `configs` block is generated from `init/sql/*` and `compose/secrets-init.sh`. After changing either, run `pnpm compose:production:generate`. `pnpm check:compose` fails when the committed file differs from the generated output.
 - `OFFGRID_VERSION` must follow the installed version. After an update from the app, the updater replaces the server and web images by digest, so the value in the file goes stale. Running `up` with an older value would downgrade the containers while the database is already migrated. Set the value to the installed version by hand after an update. Keeping it in step automatically is tracked in OG-174.
 - The release images must be public on GHCR, or the pulls need credentials.
+
+## Install script (Linux)
+
+`install/install.sh` prepares a Linux host for the production Compose file. Run it as root on the host, not in the server or in local mode. It checks that the user is root, the CPU is `amd64` or `arm64`, the OS is RHEL, CentOS, Fedora, Debian or Ubuntu, at least 2 GB is free in `/opt/offgrid` (override with an absolute `OFFGRID_INSTALL_DIR`), and that `docker` and `docker compose` 2.23 or newer work. When Docker is missing, it installs Docker Engine and the Compose plugin from the official Docker repository. The repository key is downloaded from `download.docker.com` and its fingerprint is compared with the pinned Docker fingerprint before the repository is added. This download is an owner-run, one-time host setup step; the server never makes it.
+
+The script never changes group membership. When the user who ran `sudo` is not in the `docker` group, it prints the `usermod -aG docker <user>` command for the owner to run.
+
+Supported systems are RHEL, CentOS Stream, Fedora, Debian and Ubuntu. Rocky Linux and AlmaLinux are not supported: on those systems, install Docker by hand and use the paste-in path in the production Compose section above. Other Debian derivatives, such as Kali, are refused unless their release is Debian bookworm, trixie or bullseye, because Docker publishes no repository for other releases.
+
+On a host, run the script as root with `sudo sh infra/install/install.sh`.
+
+Manual test of the Docker install branch in containers (needs Docker on the machine running it):
+
+```bash
+for image in debian:12 fedora:41 quay.io/centos/centos:stream9; do
+  docker run --rm -v "$PWD:/src:ro" "$image" sh /src/infra/install/install.sh
+done
+```
+
+`pnpm test:install-distros` runs the same three containers, and the `install-script` CI job runs them too.
