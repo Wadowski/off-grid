@@ -54,10 +54,13 @@ const writeStubs = (root, stubs) => {
 const callFunction = (name, { args = [], env = {}, stubs = {}, root, prelude = ":" } = {}) => {
   const run = (workspace) => {
     const binDir = writeStubs(workspace, stubs);
+    // A host running under sudo exports SUDO_USER; drop it so only a test sets it.
+    const hostEnv = { ...process.env };
+    delete hostEnv.SUDO_USER;
     return spawnSync("sh", ["-c", `. "$1"; shift; ${prelude}; "$@"`, "sh", SCRIPT, name, ...args], {
       encoding: "utf8",
       env: {
-        ...process.env,
+        ...hostEnv,
         ...env,
         OFFGRID_INSTALL_SOURCE_ONLY: "1",
         PATH: `${binDir}:${process.env.PATH}`,
@@ -146,7 +149,7 @@ test("reads os-release values without executing the file", () => {
     });
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(spawnSync("test", ["-e", marker]).status, 1, "os-release content was executed");
+    assert.equal(existsSync(marker), false, "os-release content was executed");
   });
 });
 
@@ -308,7 +311,7 @@ for (const [version, supported] of [
 test("prints the usermod step for a sudo user outside the docker group", () => {
   const result = callFunction("print_group_step", {
     env: { SUDO_USER: "alice" },
-    stubs: { id: 'echo "alice users wheel"', usermod: 'touch "$OFFGRID_TEST_MARKER"' },
+    stubs: { id: 'echo "alice users wheel"' },
   });
 
   assert.equal(result.status, 0, result.stderr);
@@ -320,12 +323,12 @@ test("never runs usermod itself", () => {
     const marker = join(root, "usermod-ran");
     const result = callFunction("print_group_step", {
       root,
-      env: { SUDO_USER: "alice", OFFGRID_TEST_MARKER: marker },
+      env: { SUDO_USER: "alice" },
       stubs: { id: 'echo "alice users"', usermod: `touch "${marker}"` },
     });
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(spawnSync("test", ["-e", marker]).status, 1, "usermod was invoked");
+    assert.equal(existsSync(marker), false, "usermod was invoked");
   });
 });
 
@@ -418,7 +421,7 @@ test(
       });
 
       assert.equal(result.status, 0, result.stderr);
-      assert.equal(spawnSync("test", ["-s", output]).status, 0);
+      assert.ok(readFileSync(output).length > 0, "the verified key was not written");
     });
   },
 );
@@ -470,9 +473,7 @@ for (const [label, fixture, branch, packageManager] of [
 
         assert.notEqual(result.status, 0);
         assert.match(result.stderr, /does not match the pinned/);
-        const installed = spawnSync("sh", ["-c", `test -e "$1" && cat "$1" || true`, "sh", log], {
-          encoding: "utf8",
-        }).stdout;
+        const installed = existsSync(log) ? readFileSync(log, "utf8") : "";
         assert.ok(!installed.includes("docker-ce"), installed);
       });
     },
