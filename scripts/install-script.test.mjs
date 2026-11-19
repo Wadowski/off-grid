@@ -23,16 +23,16 @@ const OS_FAMILIES = {
 };
 const UNSUPPORTED_FIXTURES = ["rocky-9", "alma-9", "alpine-3", "arch"];
 
-function withWorkspace(run) {
+const withWorkspace = (run) => {
   const root = mkdtempSync(join(tmpdir(), "offgrid-install-"));
   try {
     return run(root);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
-}
+};
 
-function writeStubs(root, stubs) {
+const writeStubs = (root, stubs) => {
   const binDir = join(root, "bin");
   mkdirSync(binDir, { recursive: true });
   for (const [name, body] of Object.entries(stubs)) {
@@ -41,9 +41,9 @@ function writeStubs(root, stubs) {
     chmodSync(path, 0o755);
   }
   return binDir;
-}
+};
 
-function callFunction(name, { args = [], env = {}, stubs = {}, root, prelude = ":" } = {}) {
+const callFunction = (name, { args = [], env = {}, stubs = {}, root, prelude = ":" } = {}) => {
   const run = (workspace) => {
     const binDir = writeStubs(workspace, stubs);
     return spawnSync("sh", ["-c", `. "$1"; shift; ${prelude}; "$@"`, "sh", SCRIPT, name, ...args], {
@@ -57,27 +57,17 @@ function callFunction(name, { args = [], env = {}, stubs = {}, root, prelude = "
     });
   };
   return root ? run(root) : withWorkspace(run);
-}
+};
 
-function runScript(env, stubs = {}) {
-  return withWorkspace((root) => {
-    const binDir = writeStubs(root, stubs);
-    return spawnSync("sh", [SCRIPT], {
-      encoding: "utf8",
-      env: { ...process.env, ...env, PATH: `${binDir}:${process.env.PATH}` },
-    });
-  });
-}
-
-function stubUid(uid) {
+const stubUid = (uid) => {
   return { id: `[ "$1" = -u ] && echo ${uid}` };
-}
+};
 
-function stubArchitecture(machine) {
+const stubArchitecture = (machine) => {
   return { uname: `echo ${machine}` };
-}
+};
 
-function stubDiskAvailableKib(kib) {
+const stubDiskAvailableKib = (kib) => {
   return {
     df: [
       "for probe; do :; done",
@@ -85,7 +75,7 @@ function stubDiskAvailableKib(kib) {
       `printf '/dev/test 1 1 ${kib} 1%% %s\\n' "$probe"`,
     ].join("\n"),
   };
-}
+};
 
 test("refuses to run without root and suggests sudo", () => {
   const result = callFunction("require_root", { stubs: stubUid(1000) });
@@ -213,9 +203,8 @@ test("rejects a relative OFFGRID_INSTALL_DIR", () => {
 const INSTALL_MARKER = "INSTALL_BRANCH_CHOSEN";
 const installStub = `install_docker_debian() { printf '%s\\n' ${INSTALL_MARKER}; }`;
 
-function stubDocker({ info = 0, compose = "2.27.0" } = {}) {
-  const composeBody =
-    compose === null ? "exit 1" : `echo ${compose}`;
+const stubDocker = ({ info = 0, compose = "2.27.0" } = {}) => {
+  const composeBody = compose === null ? "exit 1" : `echo ${compose}`;
   return {
     docker: [
       'case "$1" in',
@@ -224,7 +213,7 @@ function stubDocker({ info = 0, compose = "2.27.0" } = {}) {
       "esac",
     ].join("\n"),
   };
-}
+};
 
 test("reports Docker and Compose as working and installs nothing", () => {
   const result = callFunction("check_docker", {
@@ -274,7 +263,9 @@ for (const [version, supported] of [
   ["1.29.2", false],
 ]) {
   test(`compose ${version} supported: ${supported}`, () => {
-    const result = callFunction("compose_version_is_supported", { args: [version.replace(/^v/, "")] });
+    const result = callFunction("compose_version_is_supported", {
+      args: [version.replace(/^v/, "")],
+    });
 
     assert.equal(result.status === 0, supported, result.stderr);
   });
@@ -283,7 +274,7 @@ for (const [version, supported] of [
 test("prints the usermod step for a sudo user outside the docker group", () => {
   const result = callFunction("print_group_step", {
     env: { SUDO_USER: "alice" },
-    stubs: { id: 'echo "alice users wheel"', usermod: "touch \"$OFFGRID_TEST_MARKER\"" },
+    stubs: { id: 'echo "alice users wheel"', usermod: 'touch "$OFFGRID_TEST_MARKER"' },
   });
 
   assert.equal(result.status, 0, result.stderr);
@@ -333,84 +324,108 @@ const CURL_COPIES_TEST_KEY = [
 ].join("\n");
 const APT_AND_DNF_LOG = 'echo "$0 $*" >> "$OFFGRID_TEST_LOG"';
 
-function makeThrowawayKey(root) {
+const makeThrowawayKey = (root) => {
   const home = join(root, "gnupg");
   mkdirSync(home, { mode: 0o700 });
   execFileSync("gpg", [
-    "--homedir", home, "--batch", "--pinentry-mode", "loopback", "--passphrase", "",
-    "--quick-gen-key", "Offgrid Test <offgrid-test@example.invalid>", "ed25519", "default", "never",
+    "--homedir",
+    home,
+    "--batch",
+    "--pinentry-mode",
+    "loopback",
+    "--passphrase",
+    "",
+    "--quick-gen-key",
+    "Offgrid Test <offgrid-test@example.invalid>",
+    "ed25519",
+    "default",
+    "never",
   ]);
   const keyFile = join(root, "throwaway.asc");
   writeFileSync(keyFile, execFileSync("gpg", ["--homedir", home, "--armor", "--export"]));
-  const fingerprint = execFileSync("gpg", ["--with-colons", "--show-keys", keyFile], { encoding: "utf8" })
+  const fingerprint = execFileSync("gpg", ["--with-colons", "--show-keys", keyFile], {
+    encoding: "utf8",
+  })
     .split("\n")
     .find((line) => line.startsWith("fpr:"))
     .split(":")[9];
   return { keyFile, fingerprint };
-}
+};
 
-test("accepts a downloaded key whose fingerprint matches the pinned one", { skip: !HAS_GPG }, () => {
-  withWorkspace((root) => {
-    const { keyFile, fingerprint } = makeThrowawayKey(root);
-    const output = join(root, "docker.asc");
+test(
+  "accepts a downloaded key whose fingerprint matches the pinned one",
+  { skip: !HAS_GPG },
+  () => {
+    withWorkspace((root) => {
+      const { keyFile, fingerprint } = makeThrowawayKey(root);
+      const output = join(root, "docker.asc");
 
-    const result = callFunction("fetch_docker_key", {
-      root,
-      args: ["https://download.docker.com/linux/debian/gpg", output, fingerprint],
-      env: { OFFGRID_TEST_KEY: keyFile },
-      stubs: { curl: CURL_COPIES_TEST_KEY },
+      const result = callFunction("fetch_docker_key", {
+        root,
+        args: ["https://download.docker.com/linux/debian/gpg", output, fingerprint],
+        env: { OFFGRID_TEST_KEY: keyFile },
+        stubs: { curl: CURL_COPIES_TEST_KEY },
+      });
+
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(spawnSync("test", ["-s", output]).status, 0);
     });
+  },
+);
 
-    assert.equal(result.status, 0, result.stderr);
-    assert.equal(spawnSync("test", ["-s", output]).status, 0);
-  });
-});
+test(
+  "aborts when the downloaded key fingerprint differs from the pinned one",
+  { skip: !HAS_GPG },
+  () => {
+    withWorkspace((root) => {
+      const { keyFile } = makeThrowawayKey(root);
+      const output = join(root, "docker.asc");
 
-test("aborts when the downloaded key fingerprint differs from the pinned one", { skip: !HAS_GPG }, () => {
-  withWorkspace((root) => {
-    const { keyFile } = makeThrowawayKey(root);
-    const output = join(root, "docker.asc");
+      const result = callFunction("fetch_docker_key", {
+        root,
+        args: ["https://download.docker.com/linux/debian/gpg", output, "0".repeat(40)],
+        env: { OFFGRID_TEST_KEY: keyFile },
+        stubs: { curl: CURL_COPIES_TEST_KEY },
+      });
 
-    const result = callFunction("fetch_docker_key", {
-      root,
-      args: ["https://download.docker.com/linux/debian/gpg", output, "0".repeat(40)],
-      env: { OFFGRID_TEST_KEY: keyFile },
-      stubs: { curl: CURL_COPIES_TEST_KEY },
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /does not match the pinned/);
     });
-
-    assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /does not match the pinned/);
-  });
-});
+  },
+);
 
 for (const [label, fixture, branch, packageManager] of [
   ["debian", "debian-12", "install_docker_debian", "apt-get"],
   ["fedora", "fedora-41", "install_docker_fedora", "dnf"],
 ]) {
-  test(`${label} install branch adds no repository when the key does not match`, { skip: !HAS_GPG }, () => {
-    withWorkspace((root) => {
-      const { keyFile } = makeThrowawayKey(root);
-      const log = join(root, "package-manager.log");
+  test(
+    `${label} install branch adds no repository when the key does not match`,
+    { skip: !HAS_GPG },
+    () => {
+      withWorkspace((root) => {
+        const { keyFile } = makeThrowawayKey(root);
+        const log = join(root, "package-manager.log");
 
-      const result = callFunction(branch, {
-        root,
-        env: {
-          OFFGRID_OS_RELEASE_FILE: join(FIXTURES, fixture),
-          OFFGRID_TEST_KEY: keyFile,
-          OFFGRID_TEST_LOG: log,
-        },
-        stubs: { curl: CURL_COPIES_TEST_KEY, [packageManager]: APT_AND_DNF_LOG, rpm: "exit 0" },
-        prelude: "detect_os_family >/dev/null",
+        const result = callFunction(branch, {
+          root,
+          env: {
+            OFFGRID_OS_RELEASE_FILE: join(FIXTURES, fixture),
+            OFFGRID_TEST_KEY: keyFile,
+            OFFGRID_TEST_LOG: log,
+          },
+          stubs: { curl: CURL_COPIES_TEST_KEY, [packageManager]: APT_AND_DNF_LOG, rpm: "exit 0" },
+          prelude: "detect_os_family >/dev/null",
+        });
+
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /does not match the pinned/);
+        const installed = spawnSync("sh", ["-c", `test -e "$1" && cat "$1" || true`, "sh", log], {
+          encoding: "utf8",
+        }).stdout;
+        assert.ok(!installed.includes("docker-ce"), installed);
       });
-
-      assert.notEqual(result.status, 0);
-      assert.match(result.stderr, /does not match the pinned/);
-      const installed = spawnSync("sh", ["-c", `test -e "$1" && cat "$1" || true`, "sh", log], {
-        encoding: "utf8",
-      }).stdout;
-      assert.ok(!installed.includes("docker-ce"), installed);
-    });
-  });
+    },
+  );
 }
 
 test("never pipes a downloaded script into a shell", () => {
