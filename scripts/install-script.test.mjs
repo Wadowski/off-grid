@@ -3,7 +3,15 @@
 
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -324,32 +332,48 @@ const CURL_COPIES_TEST_KEY = [
 ].join("\n");
 const APT_AND_DNF_LOG = 'echo "$0 $*" >> "$OFFGRID_TEST_LOG"';
 
-const makeThrowawayKey = (root) => {
-  const home = join(root, "gnupg");
-  mkdirSync(home, { mode: 0o700 });
-  execFileSync("gpg", [
-    "--homedir",
-    home,
-    "--batch",
-    "--pinentry-mode",
-    "loopback",
-    "--passphrase",
-    "",
-    "--quick-gen-key",
-    "Offgrid Test <offgrid-test@example.invalid>",
-    "ed25519",
-    "default",
-    "never",
-  ]);
-  const keyFile = join(root, "throwaway.asc");
-  writeFileSync(keyFile, execFileSync("gpg", ["--homedir", home, "--armor", "--export"]));
-  const fingerprint = execFileSync("gpg", ["--with-colons", "--show-keys", keyFile], {
-    encoding: "utf8",
-  })
+const primaryFingerprint = (keyFile) =>
+  execFileSync("gpg", ["--with-colons", "--show-keys", keyFile], { encoding: "utf8" })
     .split("\n")
     .find((line) => line.startsWith("fpr:"))
     .split(":")[9];
-  return { keyFile, fingerprint };
+
+// Writes count throwaway keys, in order, into one armored file and returns each key's fingerprint.
+const makeThrowawayKeys = (root, count) => {
+  const home = join(root, "gnupg");
+  mkdirSync(home, { mode: 0o700 });
+  const keyFile = join(root, "throwaway.asc");
+  const fingerprints = [];
+  const parts = [];
+  for (let index = 0; index < count; index += 1) {
+    const email = `offgrid-test-${index}@example.invalid`;
+    execFileSync("gpg", [
+      "--homedir",
+      home,
+      "--batch",
+      "--pinentry-mode",
+      "loopback",
+      "--passphrase",
+      "",
+      "--quick-gen-key",
+      `Offgrid Test ${index} <${email}>`,
+      "ed25519",
+      "default",
+      "never",
+    ]);
+    const part = execFileSync("gpg", ["--homedir", home, "--armor", "--export", email]);
+    const partFile = join(root, `throwaway-${index}.asc`);
+    writeFileSync(partFile, part);
+    fingerprints.push(primaryFingerprint(partFile));
+    parts.push(part);
+  }
+  writeFileSync(keyFile, Buffer.concat(parts));
+  return { keyFile, fingerprints };
+};
+
+const makeThrowawayKey = (root) => {
+  const { keyFile, fingerprints } = makeThrowawayKeys(root, 1);
+  return { keyFile, fingerprint: fingerprints[0] };
 };
 
 test(
@@ -397,6 +421,7 @@ test(
 for (const [label, fixture, branch, packageManager] of [
   ["debian", "debian-12", "install_docker_debian", "apt-get"],
   ["fedora", "fedora-41", "install_docker_fedora", "dnf"],
+  ["rhel", "rhel-9", "install_docker_rhel", "dnf"],
 ]) {
   test(
     `${label} install branch adds no repository when the key does not match`,
@@ -423,6 +448,61 @@ for (const [label, fixture, branch, packageManager] of [
           encoding: "utf8",
         }).stdout;
         assert.ok(!installed.includes("docker-ce"), installed);
+      });
+    },
+  );
+}
+
+test(
+  "aborts when a second key follows the pinned one in the downloaded file",
+  { skip: !HAS_GPG },
+  () => {
+    withWorkspace((root) => {
+      const { keyFile, fingerprints } = makeThrowawayKeys(root, 2);
+      const output = join(root, "docker.asc");
+
+      const result = callFunction("fetch_docker_key", {
+        root,
+        args: ["https://download.docker.com/linux/debian/gpg", output, fingerprints[0]],
+        env: { OFFGRID_TEST_KEY: keyFile },
+        stubs: { curl: CURL_COPIES_TEST_KEY },
+      });
+
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /holds 2 keys, expected exactly one/);
+    });
+  },
+);
+
+// The pinned fingerprint is overridden in the prelude, after the script is sourced, so the first key of the
+// file matches it and only the foreign second key is left to reject.
+for (const [label, fixture, branch, packageManager, pinVariable] of [
+  ["debian", "debian-12", "install_docker_debian", "apt-get", "DOCKER_DEB_FINGERPRINT"],
+  ["fedora", "fedora-41", "install_docker_fedora", "dnf", "DOCKER_RPM_FINGERPRINT"],
+  ["rhel", "rhel-9", "install_docker_rhel", "dnf", "DOCKER_RPM_FINGERPRINT"],
+]) {
+  test(
+    `${label} install branch installs nothing when the key file has a foreign second key`,
+    { skip: !HAS_GPG },
+    () => {
+      withWorkspace((root) => {
+        const { keyFile, fingerprints } = makeThrowawayKeys(root, 2);
+        const log = join(root, "package-manager.log");
+
+        const result = callFunction(branch, {
+          root,
+          env: {
+            OFFGRID_OS_RELEASE_FILE: join(FIXTURES, fixture),
+            OFFGRID_TEST_KEY: keyFile,
+            OFFGRID_TEST_LOG: log,
+          },
+          stubs: { curl: CURL_COPIES_TEST_KEY, [packageManager]: APT_AND_DNF_LOG, rpm: "exit 0" },
+          prelude: `detect_os_family >/dev/null; ${pinVariable}=${fingerprints[0]}`,
+        });
+
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /holds 2 keys, expected exactly one/);
+        assert.ok(!existsSync(log) || !readFileSync(log, "utf8").includes("docker-ce"));
       });
     },
   );

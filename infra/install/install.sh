@@ -138,7 +138,12 @@ fetch_docker_key() {
   key_file=$2
   expected_fingerprint=$3
   curl -fsSL -o "$key_file" "$key_url" || fail "docker key: could not download $key_url"
-  actual_fingerprint=$(gpg --show-keys --with-colons "$key_file" | sed -n 's/^fpr:::::::::\([0-9A-F]*\):$/\1/p' | head -n 1)
+  key_listing=$(gpg --show-keys --with-colons "$key_file") \
+    || fail "docker key: $key_url is not a readable OpenPGP key, nothing was installed"
+  key_count=$(printf '%s\n' "$key_listing" | awk -F: '$1 == "pub" { count++ } END { print count + 0 }')
+  [ "$key_count" -eq 1 ] \
+    || fail "docker key: $key_url holds $key_count keys, expected exactly one, nothing was installed"
+  actual_fingerprint=$(printf '%s\n' "$key_listing" | awk -F: '$1 == "fpr" { print $10; exit }')
   [ "$actual_fingerprint" = "$expected_fingerprint" ] \
     || fail "docker key: fingerprint $actual_fingerprint from $key_url does not match the pinned $expected_fingerprint, nothing was installed"
 }
