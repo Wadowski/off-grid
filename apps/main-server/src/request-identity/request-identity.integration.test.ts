@@ -17,6 +17,7 @@ import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
 import { DEFAULT_FILES_MAX_UPLOAD_BYTES, FAMILY_HEADER } from "../constants.js";
 import { modulesFor } from "../module-wiring/modules-for.js";
+import { moduleContextFor } from "../module-wiring/module-context-for.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
 
 const PASSWORD = "correct horse battery staple";
@@ -393,6 +394,48 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       sessionId: expect.any(String),
       familyId: null,
       accessGroupIds: [expect.any(String)],
+    });
+  });
+
+  describe("verifying a session for a long-lived request", () => {
+    const verifySession = (token: string) =>
+      moduleContextFor(runtime, "probe").verifySession({
+        headers: { authorization: `Bearer ${token}` },
+      } as never);
+
+    it("returns the session and when its access token expires", async () => {
+      const token = await signInToken();
+
+      const session = await verifySession(token);
+
+      expect(session).toEqual({
+        userId: expect.any(String),
+        sessionId: expect.any(String),
+        accessExpiresAt: expect.any(Date),
+      });
+    });
+
+    it("returns nothing once the session is ended", async () => {
+      const token = await signInToken();
+      const session = await verifySession(token);
+
+      const ended = await app.inject({
+        method: "DELETE",
+        url: `/api/me/sessions/${session?.sessionId}`,
+        headers: bearer(token),
+      });
+
+      expect(ended.statusCode).toBeLessThan(300);
+      await expect(verifySession(token)).resolves.toBeNull();
+    });
+
+    it("returns nothing once the access token has expired", async () => {
+      const token = await signInToken();
+      await admin.query(
+        "UPDATE identity.session SET access_expires_at = now() - interval '1 second'",
+      );
+
+      await expect(verifySession(token)).resolves.toBeNull();
     });
   });
 });

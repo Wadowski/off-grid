@@ -3,6 +3,7 @@
 
 import { isActiveInstanceAdmin } from "@offgrid/identity";
 import type { ServerRuntime, ModuleContext } from "../types.js";
+import { requestIdentityFromBearer } from "../request-identity/request-identity-from-bearer.js";
 import { moduleDatabaseFor } from "./module-database-for.js";
 
 export const moduleContextFor = (runtime: ServerRuntime, moduleName: string): ModuleContext => {
@@ -17,5 +18,6 @@ export const moduleContextFor = (runtime: ServerRuntime, moduleName: string): Mo
     currentSessionId: (request) => request.requestContext.sessionId,
     isInstanceAdmin: (userId) =>
       isActiveInstanceAdmin(moduleDatabaseFor(runtime, "identity"), userId),
+    verifySession: (request) => requestIdentityFromBearer(request, runtime),
   };
 };

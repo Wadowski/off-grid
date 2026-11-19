@@ -19,6 +19,13 @@ describe("moduleContextFor", () => {
     expect(typeof context.isInstanceAdmin).toBe("function");
   });
 
+  it("re-verifies the bearer session for long-lived requests", async () => {
+    const context = moduleContextFor(runtime, "notifications");
+    const request = { headers: {} };
+
+    await expect(context.verifySession(request as never)).resolves.toBeNull();
+  });
+
   it("reads the caller from the request context", () => {
     const context = moduleContextFor(runtime, "system");
     const request = { requestContext: { userId: "user-1", familyId: null, sessionId: "s-1" } };
