@@ -3,53 +3,16 @@
 
 import { describe, expect, it } from "vitest";
 import { createSilentLogger } from "../../test/silent-logger.js";
+import {
+  fakeReleaseSource,
+  RELEASE_REPOSITORY,
+  releaseManifestFixture,
+} from "../../test/fake-release-source.js";
 import { createRunLock } from "../run/create-run-lock.js";
 import type { HttpFetch, UpdateStatus, UpdaterServices } from "../types.js";
 import { loadReleaseContext } from "./load-release-context.js";
 
-const TARGET_VERSION = "1.2.4";
-const RELEASES_URL = "https://api.github.com/repos/owner/offgrid/releases/";
-const MANIFEST_ASSET_URL = "https://api.github.com/repos/owner/offgrid/releases/assets/7";
-const MANIFEST_DOWNLOAD_URL = "https://release-assets.githubusercontent.com/asset/7";
-
-const manifest = {
-  schemaVersion: 1,
-  version: TARGET_VERSION,
-  commit: "b".repeat(40),
-  images: {
-    server: {
-      reference: `ghcr.io/owner/offgrid-main-server@sha256:${"c".repeat(64)}`,
-      platforms: ["linux/amd64"],
-    },
-    web: {
-      reference: `ghcr.io/owner/offgrid-main-web@sha256:${"d".repeat(64)}`,
-      platforms: ["linux/amd64"],
-    },
-  },
-  minimumPreviousVersion: "1.0.0",
-};
-
-const jsonResponse = (body: unknown): Response =>
-  new Response(JSON.stringify(body), {
-    status: 200,
-    headers: { "content-type": "application/json" },
-  });
-
-const releaseSource = (): HttpFetch => async (url) => {
-  if (url === MANIFEST_ASSET_URL) {
-    return new Response(null, { status: 302, headers: { location: MANIFEST_DOWNLOAD_URL } });
-  }
-  if (url === MANIFEST_DOWNLOAD_URL) {
-    return jsonResponse(manifest);
-  }
-  if (url.startsWith(RELEASES_URL)) {
-    return jsonResponse({
-      tag_name: `v${TARGET_VERSION}`,
-      assets: [{ id: 7, name: "release-manifest.json" }],
-    });
-  }
-  throw new Error(`unexpected request to ${url}`);
-};
+const manifest = releaseManifestFixture();
 
 const unusedRunApply = async (): Promise<UpdateStatus> => {
   throw new Error("runApply is not used by loadReleaseContext");
@@ -60,9 +23,9 @@ const buildServices = (
 ): UpdaterServices => ({
   apiToken: "updater-test-token-value",
   statusFile: "unused/status.json",
-  releaseRepository: "owner/offgrid",
+  releaseRepository: RELEASE_REPOSITORY,
   runLock: createRunLock(),
-  httpFetch: releaseSource(),
+  httpFetch: fakeReleaseSource(),
   logger: createSilentLogger(),
   currentVersion: async () => "1.2.3",
   runApply: unusedRunApply,

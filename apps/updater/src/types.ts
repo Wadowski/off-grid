@@ -223,3 +223,15 @@ export interface ReleaseContextFailure {
   readonly statusCode: 502 | 503;
   readonly error: "current_version_unknown" | "release_source_unreachable";
 }
+
+export type ReadNightlySetting = () => Promise<boolean>;
+
+export type NightlyRunResult =
+  | "disabled"
+  | "setting_unreadable"
+  | "run_in_progress"
+  | "release_unavailable"
+  | "no_update"
+  | "update_not_allowed"
+  | "applied"
+  | "failed";
