@@ -5,8 +5,8 @@ import type { FastifyInstance } from "fastify";
 import { NOTIFICATIONS_MODULE_NAME, SUBSCRIBER_QUEUE_LIMIT } from "./constants.js";
 import { registerNotificationRoutes } from "./http/register-notification-routes.js";
 import { registerFactSubscribers } from "./events/register-fact-subscribers.js";
-import { createNotificationHubProvider } from "./realtime/create-notification-hub-provider.js";
-import { createRealtimeWorker } from "./realtime/create-realtime-worker.js";
+import { createNotificationHubProvider } from "./infrastructure/realtime/create-notification-hub-provider.js";
+import { createRealtimeWorker } from "./workers/realtime/create-realtime-worker.js";
 import type {
   NotificationsModuleContext,
   NotificationsModuleOptions,

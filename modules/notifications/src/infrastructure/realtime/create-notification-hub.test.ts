@@ -3,7 +3,7 @@
 
 import type { Logger } from "@offgrid/observability";
 import { describe, expect, it, vi } from "vitest";
-import type { InboxNotice, NoticeSubscriber } from "../types.js";
+import type { InboxNotice, NoticeSubscriber } from "../../types.js";
 import { createNotificationHub } from "./create-notification-hub.js";
 
 const USER_A = "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d";

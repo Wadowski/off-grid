@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Logger } from "@offgrid/observability";
-import type { NotificationHub } from "../types.js";
+import type { NotificationHub } from "../../types.js";
 import { createNotificationHub } from "./create-notification-hub.js";
 
 export const createNotificationHubProvider = (

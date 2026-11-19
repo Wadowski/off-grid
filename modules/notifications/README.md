@@ -37,7 +37,7 @@ The module registers no channel yet, so `createNotificationsModule()` has an emp
 
 ## Realtime
 
-`src/realtime/` holds an in-process hub with the open realtime streams of each person. `createNotificationHub` lets code subscribe per user, publish a notice to that user's open subscribers in publish order, unsubscribe, and close all of them. Each subscriber has a bounded queue of 100 pending notices (`SUBSCRIBER_QUEUE_LIMIT`). A subscriber whose queue overflows, or whose send fails, is closed once and removed. The other subscribers keep receiving. A send failure is logged by its error type only. `publish` never throws and never waits for a stream to send.
+The hub lives in `src/infrastructure/realtime/` and its worker in `src/workers/realtime/`. The hub holds the open realtime streams of each person. `createNotificationHub` lets code subscribe per user, publish a notice to that user's open subscribers in publish order, unsubscribe, and close all of them. Each subscriber has a bounded queue of 100 pending notices (`SUBSCRIBER_QUEUE_LIMIT`). A subscriber whose queue overflows, or whose send fails, is closed once and removed. The other subscribers keep receiving. A send failure is logged by its error type only. `publish` never throws and never waits for a stream to send.
 
 The module creates one hub per process and closes it through its realtime worker when the server stops. The hub is not exported from `src/index.ts`. Its open streams are in process memory only, which is per instance by nature. See [ADR 0035](../../docs/adr/0035-realtime-notifications-over-sse.md) and [ADR 0019](../../docs/adr/0019-state-shared-between-instances.md). A second instance would not see these streams, so multi-instance fan-out needs its own ADR.
 
@@ -50,9 +50,10 @@ src/application/inbox/             list, mark read, mark all read and write the 
 src/application/channels/          deliver a notice to the registered channels
 src/application/errors/            NotificationNotFoundError
 src/infrastructure/inbox/          one file per table operation
+src/infrastructure/realtime/       in-process hub of open streams per person
 src/events/                        one subscriber per domain fact
 src/http/                          the three routes
-src/realtime/                      in-process hub of open streams per person
+src/workers/realtime/              starts and stops the hub with the server
 ```
 
 ## Not built yet

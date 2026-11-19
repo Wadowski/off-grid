@@ -6,7 +6,7 @@ import type {
   NoticeSubscriber,
   SubscriberPushResult,
   SubscriberQueue,
-} from "../types.js";
+} from "../../types.js";
 
 export const createSubscriberQueue = (
   subscriber: NoticeSubscriber,

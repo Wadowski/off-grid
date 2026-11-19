@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it, vi } from "vitest";
-import type { InboxNotice, NoticeSubscriber } from "../types.js";
+import type { InboxNotice, NoticeSubscriber } from "../../types.js";
 import { createSubscriberQueue } from "./create-subscriber-queue.js";
 
 const notice = (notificationId: string): InboxNotice => ({

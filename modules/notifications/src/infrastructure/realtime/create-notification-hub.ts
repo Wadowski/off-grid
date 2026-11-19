@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Logger } from "@offgrid/observability";
-import type { InboxNotice, NoticeSubscriber, NotificationHub, SubscriberEntry } from "../types.js";
+import type {
+  InboxNotice,
+  NoticeSubscriber,
+  NotificationHub,
+  SubscriberEntry,
+} from "../../types.js";
 import { closeSubscriberSafely } from "./close-subscriber-safely.js";
 import { createSubscriberQueue } from "./create-subscriber-queue.js";
 import { errorTypeName } from "./error-type-name.js";
