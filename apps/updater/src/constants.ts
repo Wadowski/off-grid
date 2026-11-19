@@ -68,8 +68,6 @@ export const UPDATE_OUTCOME_MESSAGES = {
     "Update failed and the automatic rollback did not finish. Restore by hand as described in the updater README.",
 } as const;
 
-export const BEARER_TOKEN_PATTERN = /^Bearer (.+)$/;
-
 export const GITHUB_API_HOST = "api.github.com";
 
 const RELEASE_ASSET_DOWNLOAD_HOST = "release-assets.githubusercontent.com";
