@@ -32,5 +32,9 @@ export const verifyAccessToken = (
     if (account?.status !== "active") {
       return null;
     }
-    return { userId: session.userId, sessionId: session.sessionId };
+    return {
+      userId: session.userId,
+      sessionId: session.sessionId,
+      accessExpiresAt: session.accessExpiresAt,
+    };
   });

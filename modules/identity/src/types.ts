@@ -255,6 +255,7 @@ export interface EmailChannelDependencies {
 export interface VerifiedAccessToken {
   readonly userId: string;
   readonly sessionId: string;
+  readonly accessExpiresAt: Date;
 }
 
 export interface IssuedPasswordReset {
