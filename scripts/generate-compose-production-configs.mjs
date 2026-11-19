@@ -57,11 +57,20 @@ const generate = (productionText) => {
 
 const optionValue = (argv, option) => {
   const position = argv.indexOf(option);
-  return position === -1 ? undefined : argv[position + 1];
+  if (position === -1) {
+    return undefined;
+  }
+  const value = argv[position + 1];
+  return value === undefined || value.startsWith("--") ? null : value;
 };
 
 const main = (argv) => {
-  const file = optionValue(argv, "--file") ?? join(ROOT, PRODUCTION_FILE);
+  const override = optionValue(argv, "--file");
+  if (override === null) {
+    process.stderr.write("generate-compose-production-configs: --file needs a path\n");
+    return 1;
+  }
+  const file = override ?? join(ROOT, PRODUCTION_FILE);
   const current = readFileSync(file, "utf8");
   const next = generate(current);
   if (argv.includes("--check")) {

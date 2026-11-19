@@ -77,6 +77,17 @@ describe("generate compose production configs", () => {
     assert.doesNotMatch(configsSection, /SPDX-FileCopyrightText/);
   });
 
+  it("exits 1 with a message and writes nothing when --file has no value", () => {
+    const before = readFileSync(PRODUCTION_FILE, "utf8");
+
+    const result = runGenerator(["--file"]);
+
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /--file needs a path/);
+    assert.equal(readFileSync(PRODUCTION_FILE, "utf8"), before);
+  });
+
   it("refuses a production file without a configs key", () => {
     const file = temporaryCopy();
     writeFileSync(file, "name: offgrid\n");
