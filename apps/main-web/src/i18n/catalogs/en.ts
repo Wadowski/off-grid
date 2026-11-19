@@ -641,5 +641,30 @@ export const en = {
       labelUnread: "Notifications, {{count}} unread",
       unreadOverflow: "99+",
     },
+    types: {
+      "password-changed": {
+        title: "Your password was changed",
+        body: "If this wasn't you, reset your password and check your account.",
+      },
+      "recovery-code-regenerated": {
+        title: "Your recovery code was regenerated",
+        body: "Your old recovery code no longer works. Store the new one safely.",
+      },
+      "event-invited": {
+        title: "You were invited to an event",
+        body: "Open the event to see the details and respond.",
+      },
+      "event-reminder": {
+        title: "Event reminder",
+        body: "An event you set a reminder for is coming up.",
+      },
+    },
+    actions: {
+      viewEvent: "View Event",
+    },
+    card: {
+      unread: "unread",
+      read: "read",
+    },
   },
 } as const;

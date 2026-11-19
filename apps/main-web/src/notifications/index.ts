@@ -4,3 +4,4 @@
 export { browserTimeZone } from "./browser-time-zone.js";
 export { formatRelativeTime } from "./format-relative-time.js";
 export { groupByDay } from "./group-by-day.js";
+export { NotificationCard } from "./notification-card/notification-card.js";

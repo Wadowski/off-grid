@@ -4,6 +4,7 @@
 import type { z } from "zod";
 import type { notificationCategorySchema } from "./notification-category-schema.js";
 import type { notificationTypeSchema } from "./notification-type-schema.js";
+import type { notificationSchema } from "./notification-schema.js";
 import type { eventEnvelopeSchema } from "./event-envelope-schema.js";
 import type { accessGroupIdSchema } from "./access-group-id-schema.js";
 import type { emailCodeRequestSchema } from "./email-code-request-schema.js";
@@ -103,3 +104,4 @@ export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
 
 export type NotificationCategory = z.infer<typeof notificationCategorySchema>;
 export type NotificationType = z.infer<typeof notificationTypeSchema>;
+export type Notice = z.infer<typeof notificationSchema>;
