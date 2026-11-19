@@ -46,7 +46,10 @@ describe("release workflow", () => {
       WORKFLOW.indexOf("  build-updater:"),
       WORKFLOW.indexOf("  publish-release:"),
     );
-    assert.match(updaterJob, /images: ghcr\.io\/\$\{\{ needs\.verify-tag\.outputs\.owner \}\}\/offgrid-updater/);
+    assert.match(
+      updaterJob,
+      /images: ghcr\.io\/\$\{\{ needs\.verify-tag\.outputs\.owner \}\}\/offgrid-updater/,
+    );
     assert.match(updaterJob, /file: apps\/updater\/Dockerfile/);
     assert.match(updaterJob, /type=semver,pattern=\{\{version\}\}/);
     assert.match(updaterJob, /type=semver,pattern=\{\{major\}\}\.\{\{minor\}\}/);

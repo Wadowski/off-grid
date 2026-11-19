@@ -55,7 +55,10 @@ const composeConfigOf = (files) =>
       {
         cwd: ROOT,
         encoding: "utf8",
-        env: { ...process.env, OFFGRID_VERSION: process.env.OFFGRID_VERSION || PLACEHOLDER_VERSION },
+        env: {
+          ...process.env,
+          OFFGRID_VERSION: process.env.OFFGRID_VERSION || PLACEHOLDER_VERSION,
+        },
       },
     ),
   );

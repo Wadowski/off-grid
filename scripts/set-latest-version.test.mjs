@@ -60,14 +60,20 @@ describe("set-latest-version", () => {
 
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stdout, "1.2.3\n");
-    assert.equal(readFileSync(state.envFile, "utf8"), "OFFGRID_WEB_PORT=8080\nOFFGRID_VERSION=1.2.3\n");
+    assert.equal(
+      readFileSync(state.envFile, "utf8"),
+      "OFFGRID_WEB_PORT=8080\nOFFGRID_VERSION=1.2.3\n",
+    );
   });
 
   it("appends the version when the env file has no OFFGRID_VERSION line", () => {
     const state = withEnvFile("OFFGRID_WEB_PORT=8080\n");
 
     assert.equal(runScript(state).status, 0);
-    assert.equal(readFileSync(state.envFile, "utf8"), "OFFGRID_WEB_PORT=8080\nOFFGRID_VERSION=1.2.3\n");
+    assert.equal(
+      readFileSync(state.envFile, "utf8"),
+      "OFFGRID_WEB_PORT=8080\nOFFGRID_VERSION=1.2.3\n",
+    );
   });
 
   it("replaces an existing version and keeps the other lines", () => {
@@ -88,7 +94,10 @@ describe("set-latest-version", () => {
     const state = withEnvFile("OFFGRID_VERSION=\n");
 
     assert.equal(runScript(state).status, 0);
-    assert.match(readFileSync(state.argsFile, "utf8"), /repos\/Wadowski\/off-grid\/releases\/latest/);
+    assert.match(
+      readFileSync(state.argsFile, "utf8"),
+      /repos\/Wadowski\/off-grid\/releases\/latest/,
+    );
   });
 
   it("rejects the latest tag name and leaves the file unchanged", () => {

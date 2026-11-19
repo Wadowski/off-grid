@@ -26,14 +26,21 @@ describe("generate compose production configs", () => {
   it("keeps the committed production file in sync with the repo init sources", () => {
     const result = runGenerator(["--check"]);
 
-    assert.equal(result.status, 0, "run node scripts/generate-compose-production-configs.mjs to refresh the configs block");
+    assert.equal(
+      result.status,
+      0,
+      "run node scripts/generate-compose-production-configs.mjs to refresh the configs block",
+    );
     assert.equal(result.stdout, "");
     assert.equal(result.stderr, "");
   });
 
   it("exits 1 silently when the file differs from the generated output", () => {
     const file = temporaryCopy();
-    writeFileSync(file, readFileSync(file, "utf8").replace("content: |", "content: |\n      drift"));
+    writeFileSync(
+      file,
+      readFileSync(file, "utf8").replace("content: |", "content: |\n      drift"),
+    );
 
     const result = runGenerator(["--check", "--file", file]);
 
@@ -44,7 +51,13 @@ describe("generate compose production configs", () => {
 
   it("rewrites the configs block so that --check passes again", () => {
     const file = temporaryCopy();
-    writeFileSync(file, readFileSync(file, "utf8").replace(/\nconfigs:\n[\s\S]*$/, "\nconfigs:\n  stale:\n    content: |\n      old\n"));
+    writeFileSync(
+      file,
+      readFileSync(file, "utf8").replace(
+        /\nconfigs:\n[\s\S]*$/,
+        "\nconfigs:\n  stale:\n    content: |\n      old\n",
+      ),
+    );
 
     assert.equal(runGenerator(["--check", "--file", file]).status, 1);
     assert.equal(runGenerator(["--file", file]).status, 0);

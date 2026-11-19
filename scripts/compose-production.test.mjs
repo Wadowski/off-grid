@@ -65,10 +65,15 @@ describe("production compose file", () => {
   it("has the services of the dev file, without any build key", () => {
     const config = productionConfig();
 
-    assert.deepEqual(
-      Object.keys(config.services).sort(),
-      ["db", "db-ownership", "init", "secrets-init", "server", "updater", "web"],
-    );
+    assert.deepEqual(Object.keys(config.services).sort(), [
+      "db",
+      "db-ownership",
+      "init",
+      "secrets-init",
+      "server",
+      "updater",
+      "web",
+    ]);
     for (const service of Object.values(config.services)) {
       assert.equal(service.build, undefined);
     }
@@ -78,7 +83,10 @@ describe("production compose file", () => {
     const { services } = productionConfig();
 
     for (const name of IMAGE_SERVICES) {
-      assert.match(services[name].image, new RegExp(`^ghcr\\.io/wadowski/offgrid-[a-z-]+:${VERSION}$`));
+      assert.match(
+        services[name].image,
+        new RegExp(`^ghcr\\.io/wadowski/offgrid-[a-z-]+:${VERSION}$`),
+      );
     }
     for (const service of Object.values(services)) {
       assert.doesNotMatch(service.image ?? "", /:latest$/);
@@ -93,7 +101,11 @@ describe("production compose file", () => {
         if (name === "updater" && isSocketBind(volume)) {
           continue;
         }
-        assert.equal(volume.type, "volume", `${name} mounts a ${volume.type} from ${volume.source}`);
+        assert.equal(
+          volume.type,
+          "volume",
+          `${name} mounts a ${volume.type} from ${volume.source}`,
+        );
         assert.ok(NAMED_VOLUMES.includes(volume.source), `${name} mounts ${volume.source}`);
       }
     }
@@ -162,7 +174,9 @@ describe("production compose file", () => {
 
     assert.deepEqual(services.updater.group_add, ["0"]);
     assert.ok(
-      services.updater.volumes.some((volume) => volume.target === SOCKET && volume.source === SOCKET),
+      services.updater.volumes.some(
+        (volume) => volume.target === SOCKET && volume.source === SOCKET,
+      ),
     );
   });
 });
