@@ -17,6 +17,7 @@ export const createSystemModule = (options: SystemModuleOptions) => {
         deps: {
           db: context.db,
           updater,
+          updaterToken: options.updater?.token ?? null,
           isInstanceAdmin: context.isInstanceAdmin,
           currentVersion: options.version,
         },
