@@ -3,15 +3,31 @@
 
 import { notificationCategorySchema } from "@offgrid/contracts";
 import { describe, expect, it } from "vitest";
-import { flattenCatalogKeys } from "../test-support/flatten-catalog-keys.js";
-import { resolveCatalogKey } from "../test-support/resolve-catalog-key.js";
 import { en } from "./catalogs/en.js";
 
-const notificationsCatalogKeys = flattenCatalogKeys(en.notifications, "notifications");
+const flattenKeys = (node: Record<string, unknown>, prefix: string): string[] =>
+  Object.entries(node).flatMap(([key, value]) =>
+    typeof value === "object" && value !== null
+      ? flattenKeys(value as Record<string, unknown>, `${prefix}.${key}`)
+      : [`${prefix}.${key}`],
+  );
+
+const resolve = (path: string): unknown =>
+  path
+    .split(".")
+    .reduce<unknown>(
+      (node, key) =>
+        typeof node === "object" && node !== null
+          ? (node as Record<string, unknown>)[key]
+          : undefined,
+      en,
+    );
+
+const notificationsCatalogKeys = flattenKeys(en.notifications, "notifications");
 
 describe("notifications message catalog", () => {
   it.each(notificationsCatalogKeys)("resolves %s to a non-empty string", (key) => {
-    const value = resolveCatalogKey(en, key);
+    const value = resolve(key);
 
     expect(typeof value).toBe("string");
     expect(value).not.toBe("");
@@ -23,9 +39,7 @@ describe("notifications message catalog", () => {
   });
 
   it.each(notificationCategorySchema.options)("has a category label for %s", (category) => {
-    expect(resolveCatalogKey(en, `notifications.categories.${category}`)).toEqual(
-      expect.any(String),
-    );
-    expect(resolveCatalogKey(en, `notifications.filters.${category}`)).toEqual(expect.any(String));
+    expect(resolve(`notifications.categories.${category}`)).toEqual(expect.any(String));
+    expect(resolve(`notifications.filters.${category}`)).toEqual(expect.any(String));
   });
 });
