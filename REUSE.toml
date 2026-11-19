@@ -21,6 +21,7 @@ path = [
   ".dockerignore",
   ".editorconfig",
   ".env.example",
+  "infra/compose/production.env.example",
   ".gitignore",
   ".npmrc",
   ".nvmrc",

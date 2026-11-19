@@ -9,11 +9,14 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const BASE_COMPOSE = "infra/compose/docker-compose.yml";
 const E2E_COMPOSE = "infra/compose/docker-compose.e2e.yml";
 const EGRESS_COMPOSE = "infra/compose/docker-compose.egress-blocked.yml";
+const PRODUCTION_COMPOSE = "infra/compose/docker-compose.production.yml";
 const CONFIGURATIONS = [
   [BASE_COMPOSE],
   [BASE_COMPOSE, E2E_COMPOSE],
   [BASE_COMPOSE, EGRESS_COMPOSE],
+  [PRODUCTION_COMPOSE],
 ];
+const PLACEHOLDER_VERSION = "0.0.0";
 const UPDATER = "updater";
 const DOCKER_SOCKET = "/var/run/docker.sock";
 
@@ -49,7 +52,14 @@ const composeConfigOf = (files) =>
     execFileSync(
       "docker",
       ["compose", ...files.flatMap((file) => ["-f", file]), "config", "--format", "json"],
-      { cwd: ROOT, encoding: "utf8" },
+      {
+        cwd: ROOT,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          OFFGRID_VERSION: process.env.OFFGRID_VERSION || PLACEHOLDER_VERSION,
+        },
+      },
     ),
   );
 
