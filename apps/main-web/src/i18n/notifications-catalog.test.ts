@@ -52,6 +52,5 @@ describe("notifications message catalog", () => {
     expect(resolve("notifications.actions.viewEvent")).toEqual(expect.any(String));
     expect(resolve("notifications.card.unread")).toEqual(expect.any(String));
     expect(resolve("notifications.card.read")).toEqual(expect.any(String));
-    expect(resolve("notifications.card.nameWithState")).toEqual(expect.any(String));
   });
 });

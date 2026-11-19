@@ -665,7 +665,6 @@ export const en = {
     card: {
       unread: "unread",
       read: "read",
-      nameWithState: "{{title}}, {{state}}",
     },
   },
 } as const;
