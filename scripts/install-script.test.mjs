@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -323,3 +323,99 @@ for (const sudoUser of [undefined, "root"]) {
     assert.equal(result.stdout, "");
   });
 }
+
+const HAS_GPG = spawnSync("gpg", ["--version"]).status === 0;
+const CURL_COPIES_TEST_KEY = [
+  "while [ $# -gt 0 ]; do",
+  '  if [ "$1" = -o ]; then cp "$OFFGRID_TEST_KEY" "$2"; fi',
+  "  shift",
+  "done",
+].join("\n");
+const APT_AND_DNF_LOG = 'echo "$0 $*" >> "$OFFGRID_TEST_LOG"';
+
+function makeThrowawayKey(root) {
+  const home = join(root, "gnupg");
+  mkdirSync(home, { mode: 0o700 });
+  execFileSync("gpg", [
+    "--homedir", home, "--batch", "--pinentry-mode", "loopback", "--passphrase", "",
+    "--quick-gen-key", "Offgrid Test <offgrid-test@example.invalid>", "ed25519", "default", "never",
+  ]);
+  const keyFile = join(root, "throwaway.asc");
+  writeFileSync(keyFile, execFileSync("gpg", ["--homedir", home, "--armor", "--export"]));
+  const fingerprint = execFileSync("gpg", ["--with-colons", "--show-keys", keyFile], { encoding: "utf8" })
+    .split("\n")
+    .find((line) => line.startsWith("fpr:"))
+    .split(":")[9];
+  return { keyFile, fingerprint };
+}
+
+test("accepts a downloaded key whose fingerprint matches the pinned one", { skip: !HAS_GPG }, () => {
+  withWorkspace((root) => {
+    const { keyFile, fingerprint } = makeThrowawayKey(root);
+    const output = join(root, "docker.asc");
+
+    const result = callFunction("fetch_docker_key", {
+      root,
+      args: ["https://download.docker.com/linux/debian/gpg", output, fingerprint],
+      env: { OFFGRID_TEST_KEY: keyFile },
+      stubs: { curl: CURL_COPIES_TEST_KEY },
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(spawnSync("test", ["-s", output]).status, 0);
+  });
+});
+
+test("aborts when the downloaded key fingerprint differs from the pinned one", { skip: !HAS_GPG }, () => {
+  withWorkspace((root) => {
+    const { keyFile } = makeThrowawayKey(root);
+    const output = join(root, "docker.asc");
+
+    const result = callFunction("fetch_docker_key", {
+      root,
+      args: ["https://download.docker.com/linux/debian/gpg", output, "0".repeat(40)],
+      env: { OFFGRID_TEST_KEY: keyFile },
+      stubs: { curl: CURL_COPIES_TEST_KEY },
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /does not match the pinned/);
+  });
+});
+
+for (const [label, fixture, branch, packageManager] of [
+  ["debian", "debian-12", "install_docker_debian", "apt-get"],
+  ["fedora", "fedora-41", "install_docker_fedora", "dnf"],
+]) {
+  test(`${label} install branch adds no repository when the key does not match`, { skip: !HAS_GPG }, () => {
+    withWorkspace((root) => {
+      const { keyFile } = makeThrowawayKey(root);
+      const log = join(root, "package-manager.log");
+
+      const result = callFunction(branch, {
+        root,
+        env: {
+          OFFGRID_OS_RELEASE_FILE: join(FIXTURES, fixture),
+          OFFGRID_TEST_KEY: keyFile,
+          OFFGRID_TEST_LOG: log,
+        },
+        stubs: { curl: CURL_COPIES_TEST_KEY, [packageManager]: APT_AND_DNF_LOG, rpm: "exit 0" },
+        prelude: "detect_os_family >/dev/null",
+      });
+
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /does not match the pinned/);
+      const installed = spawnSync("sh", ["-c", `test -e "$1" && cat "$1" || true`, "sh", log], {
+        encoding: "utf8",
+      }).stdout;
+      assert.ok(!installed.includes("docker-ce"), installed);
+    });
+  });
+}
+
+test("never pipes a downloaded script into a shell", () => {
+  const source = readFileSync(SCRIPT, "utf8");
+
+  assert.doesNotMatch(source, /\|\s*(sudo\s+)?(sh|bash)\b/);
+  assert.doesNotMatch(source, /get\.docker\.com/);
+});

@@ -9,6 +9,9 @@ MINIMUM_FREE_KIB=2097152
 KIB_PER_GIB=1048576
 SUPPORTED_SYSTEMS="RHEL, CentOS Stream, Fedora, Debian, Ubuntu"
 PASTE_IN_POINTER="install Docker yourself and follow the paste-in path in infra/README.md (infra/compose/docker-compose.production.yml)"
+DOCKER_DOWNLOAD_URL=https://download.docker.com/linux
+DOCKER_DEB_FINGERPRINT=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+DOCKER_RPM_FINGERPRINT=060A61C51B558A7F742B77AAC52FEB6B621E9F35
 
 fail() {
   printf 'FAIL %s\n' "$1" >&2
@@ -102,6 +105,7 @@ install_docker_engine() {
     rhel) install_docker_rhel ;;
     *) fail "docker: no install branch for the $os_family family" ;;
   esac
+  info_ok "docker: installed Docker Engine and the Compose plugin from the official Docker repository"
 }
 
 check_docker() {
@@ -129,7 +133,93 @@ print_group_step() {
   printf "note  docker group: %s is not in the docker group. To run docker without sudo, run: sudo usermod -aG docker %s (then log in again)\n" "$SUDO_USER" "$SUDO_USER"
 }
 
+fetch_docker_key() {
+  key_url=$1
+  key_file=$2
+  expected_fingerprint=$3
+  curl -fsSL -o "$key_file" "$key_url" || fail "docker key: could not download $key_url"
+  actual_fingerprint=$(gpg --show-keys --with-colons "$key_file" | sed -n 's/^fpr:::::::::\([0-9A-F]*\):$/\1/p' | head -n 1)
+  [ "$actual_fingerprint" = "$expected_fingerprint" ] \
+    || fail "docker key: fingerprint $actual_fingerprint from $key_url does not match the pinned $expected_fingerprint, nothing was installed"
+}
+
+docker_repo_distro() {
+  case " $os_id $os_id_like " in
+    *" ubuntu "*) printf '%s\n' ubuntu ;;
+    *) printf '%s\n' debian ;;
+  esac
+}
+
+debian_codename() {
+  if [ "$(docker_repo_distro)" = ubuntu ]; then
+    os_release_value UBUNTU_CODENAME
+  else
+    os_release_value VERSION_CODENAME
+  fi
+}
+
+write_docker_apt_source() {
+  printf 'deb [arch=%s signed-by=/etc/apt/keyrings/docker.asc] %s/%s %s stable\n' \
+    "$(dpkg --print-architecture)" "$DOCKER_DOWNLOAD_URL" "$1" "$2" > /etc/apt/sources.list.d/docker.list
+}
+
+write_docker_yum_repo() {
+  cat > /etc/yum.repos.d/docker-ce.repo <<EOF
+[docker-ce-stable]
+name=Docker CE Stable
+baseurl=$DOCKER_DOWNLOAD_URL/$1/\$releasever/\$basearch/stable
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-docker-ce
+EOF
+}
+
+start_docker_service() {
+  if [ -d /run/systemd/system ]; then
+    systemctl enable --now docker
+  fi
+}
+
+install_docker_debian() {
+  distro=$(docker_repo_distro)
+  codename=$(debian_codename)
+  [ -n "$codename" ] || fail "docker: no release codename in $os_release_file for $os_id"
+  key_dir=$(mktemp -d)
+  trap 'rm -rf "$key_dir"' EXIT
+  apt-get update -qq
+  apt-get install -y -qq ca-certificates curl gnupg
+  fetch_docker_key "$DOCKER_DOWNLOAD_URL/$distro/gpg" "$key_dir/docker.asc" "$DOCKER_DEB_FINGERPRINT"
+  install -d -m 0755 /etc/apt/keyrings
+  install -m 0644 "$key_dir/docker.asc" /etc/apt/keyrings/docker.asc
+  write_docker_apt_source "$distro" "$codename"
+  apt-get update -qq
+  apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  start_docker_service
+}
+
+install_docker_rpm() {
+  repo_path=$1
+  key_dir=$(mktemp -d)
+  trap 'rm -rf "$key_dir"' EXIT
+  dnf install -y ca-certificates curl gnupg2
+  fetch_docker_key "$DOCKER_DOWNLOAD_URL/$repo_path/gpg" "$key_dir/docker.asc" "$DOCKER_RPM_FINGERPRINT"
+  install -m 0644 "$key_dir/docker.asc" /etc/pki/rpm-gpg/RPM-GPG-KEY-docker-ce
+  rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-docker-ce
+  write_docker_yum_repo "$repo_path"
+  dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  start_docker_service
+}
+
+install_docker_fedora() {
+  install_docker_rpm fedora
+}
+
+install_docker_rhel() {
+  install_docker_rpm "$os_id"
+}
+
 main() {
+  umask 022
   require_root
   detect_architecture
   detect_os_family
