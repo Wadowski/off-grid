@@ -13,7 +13,7 @@ const UPLOAD_ID = "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d";
 const USER_ID = "2e3f4a5b-6c7d-4e8f-9a0b-1c2d3e4f5a6b";
 const TIMESTAMP = "2026-01-02T03:04:05.000Z";
 
-const DRIVE = { id: DRIVE_ID, familyId: null, createdAt: TIMESTAMP };
+const DRIVE = { id: DRIVE_ID, familyId: null, name: "Personal", createdAt: TIMESTAMP };
 
 const FOLDER = {
   id: FOLDER_ID,
@@ -112,7 +112,7 @@ describe("createFilesClient listing", () => {
   it("lists the children of a folder", async () => {
     const page = {
       items: [FILE],
-      breadcrumbs: [{ id: FOLDER_ID, name: "Photos" }],
+      breadcrumbs: [{ kind: "folder", id: FOLDER_ID, name: "Photos" }],
       nextCursor: null,
     };
     const { files, transport } = filesWith(jsonResponse(page));
@@ -142,7 +142,10 @@ describe("createFilesClient entries", () => {
   });
 
   it("gets a file with its breadcrumbs", async () => {
-    const details = { file: FILE, breadcrumbs: [{ id: FOLDER_ID, name: "Photos" }] };
+    const details = {
+      file: FILE,
+      breadcrumbs: [{ kind: "folder", id: FOLDER_ID, name: "Photos" }],
+    };
     const { files, transport } = filesWith(jsonResponse(details));
 
     await expect(files.getFile(FILE_ID)).resolves.toEqual(details);

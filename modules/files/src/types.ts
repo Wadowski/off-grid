@@ -4,6 +4,7 @@
 import type { FileStorage } from "@offgrid/file-storage";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
+import type { CurrentUserId } from "@offgrid/http";
 import type { Logger } from "@offgrid/observability";
 
 export interface StorageIntegrityReport {
@@ -61,4 +62,64 @@ export interface DriveCreatedInput {
   readonly driveId: string;
   readonly ownerUserId: string | null;
   readonly ownerFamilyId: string | null;
+}
+
+export interface FilesRouteContext {
+  readonly db: ModuleDatabase;
+  readonly currentUserId: CurrentUserId;
+}
+
+export interface DriveRecord {
+  readonly driveId: string;
+  readonly familyId: string | null;
+  readonly name: string;
+  readonly createdAt: Date;
+}
+
+export interface FileRecord {
+  readonly fileId: string;
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly isFolder: boolean;
+  readonly mimeType: string | null;
+  readonly sizeBytes: bigint | null;
+  readonly currentVersionId: string | null;
+  readonly version: number;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly deletedAt: Date | null;
+}
+
+export interface ChildrenCursor {
+  readonly isFolder: boolean;
+  readonly name: string;
+  readonly fileId: string;
+}
+
+export interface ChildrenQuery {
+  readonly cursor: ChildrenCursor | null;
+  readonly limit: number;
+}
+
+export interface ChildrenPage {
+  readonly records: readonly FileRecord[];
+  readonly nextCursor: ChildrenCursor | null;
+}
+
+export type BreadcrumbRecord =
+  | { readonly kind: "drive"; readonly id: string; readonly name: string }
+  | { readonly kind: "folder"; readonly id: string; readonly name: string };
+
+export type FilesOutcome<Value> =
+  { readonly outcome: "found"; readonly value: Value } | { readonly outcome: "not-found" };
+
+export interface ListedChildren {
+  readonly page: ChildrenPage;
+  readonly breadcrumbs: readonly BreadcrumbRecord[];
+}
+
+export interface FileDetails {
+  readonly file: FileRecord;
+  readonly breadcrumbs: readonly BreadcrumbRecord[];
 }

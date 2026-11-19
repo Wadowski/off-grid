@@ -24,6 +24,9 @@
     "@offgrid/event-bus": "workspace:*",
     "@offgrid/family-projection": "workspace:*",
     "@offgrid/file-storage": "workspace:*",
-    "@offgrid/observability": "workspace:*"
+    "@offgrid/http": "workspace:*",
+    "@offgrid/observability": "workspace:*",
+    "fastify": "5.12.7",
+    "zod": "^4.6.7"
   }
 }

@@ -31,3 +31,21 @@ export interface DriveCreatedEventRow {
   readonly sequence: string;
   readonly payload: { driveId: string; ownerUserId: string | null; ownerFamilyId: string | null };
 }
+
+export interface SeedOwner {
+  readonly userId: string | null;
+  readonly familyId: string | null;
+}
+
+export interface SeedEntryInput {
+  readonly driveId: string;
+  readonly owner: SeedOwner;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly trashed?: boolean;
+}
+
+export interface SeedRegularFileInput extends SeedEntryInput {
+  readonly sizeBytes: number;
+  readonly createdByUserId: string;
+}
