@@ -33,13 +33,17 @@ Each subscriber writes the inbox item in its own transaction. The item's id is t
 
 A channel is a way to reach a person besides the inbox: `NotificationChannel` in `src/types.ts`, with `deliver(notice)`. The inbox is always written, in the subscriber's transaction. Channels run after that transaction commits, through `deliverToChannels`, which never throws. A channel that fails is logged by its name and error type only, and the other channels still run.
 
-The module registers no channel yet, so `createNotificationsModule()` has an empty channel list. Mobile push, web push ([ADR 0024](../../docs/adr/0024-browser-notifications-web-push.md)) and email each register one by passing it in the options. No caller changes.
+The realtime channel is always registered first, in front of any channels passed in the options (`createRealtimeChannel` in `src/infrastructure/realtime/`, name `REALTIME_CHANNEL_NAME`). Mobile push, web push ([ADR 0024](../../docs/adr/0024-browser-notifications-web-push.md)) and email each register one by passing it in the options. No caller changes.
+
+A subscriber calls the channels only when its inbox insert actually added a row. A fact that is redelivered (same notification id, so `skipDuplicates` inserts nothing) calls no channel a second time. Any future channel inherits this, so mail and push do not repeat either.
 
 ## Realtime
 
 The hub lives in `src/infrastructure/realtime/` and its worker in `src/workers/realtime/`. The hub holds the open realtime streams of each person. `createNotificationHub` lets code subscribe per user, publish a notice to that user's open subscribers in publish order, unsubscribe, and close all of them. Each subscriber has a bounded queue of 100 pending notices (`SUBSCRIBER_QUEUE_LIMIT`). A subscriber whose queue overflows, or whose send fails, is closed once and removed. The other subscribers keep receiving. A send failure is logged by its error type only. `publish` never throws and never waits for a stream to send.
 
-The module creates one hub per process and closes it through its realtime worker when the server stops. The hub is not exported from `src/index.ts`. Its open streams are in process memory only, which is per instance by nature. See [ADR 0035](../../docs/adr/0035-realtime-notifications-over-sse.md) and [ADR 0019](../../docs/adr/0019-state-shared-between-instances.md). A second instance would not see these streams, so multi-instance fan-out needs its own ADR.
+The realtime channel publishes each new notice to the hub after the inbox transaction commits. The payload is the list item that `GET /api/me/notifications` returns (`id`, `type`, `category`, `data`, `createdAt`, `readAt: null`), and it goes only to the subscribers of the notice's user. A rolled-back change publishes nothing, and a failed publish is logged by name and error type while the inbox row stays.
+
+The module creates one hub per process, shared by the realtime channel and the realtime worker, and closes it through that worker when the server stops. The hub is not exported from `src/index.ts`. Its open streams are in process memory only, which is per instance by nature. See [ADR 0035](../../docs/adr/0035-realtime-notifications-over-sse.md) and [ADR 0019](../../docs/adr/0019-state-shared-between-instances.md). A second instance would not see these streams, so multi-instance fan-out needs its own ADR.
 
 ## Layout
 
@@ -58,7 +62,7 @@ src/workers/realtime/              starts and stops the hub with the server
 
 ## Not built yet
 
-- The HTTP stream route, the publish after commit from the inbox writer, a cap on open streams per person, a heartbeat and replay from `Last-Event-ID`. The stream route and publish are added by OG-147 and OG-148.
+- The HTTP stream route, a cap on open streams per person, a heartbeat and replay from `Last-Event-ID`. The stream route is added by OG-148.
 - Fan-out across instances. This needs its own ADR.
 - Delivery state per channel. A table with one row per notice and channel is added with the first channel, since the inbox row is the only delivery state today.
 - Any web app screen for the inbox. None is shown for now.
