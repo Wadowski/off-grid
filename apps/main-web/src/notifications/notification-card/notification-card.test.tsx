@@ -81,9 +81,7 @@ describe("NotificationCard", () => {
   it("does not nest the View Event action inside the activator", () => {
     renderCard(notice({ type: "event-invited" }));
 
-    expect(
-      screen.getByTestId("notification-card-activate").querySelector("button"),
-    ).toBeNull();
+    expect(screen.getByTestId("notification-card-activate").querySelector("button")).toBeNull();
     expect(screen.getByRole("button", { name: "View Event" })).toBeInTheDocument();
   });
 

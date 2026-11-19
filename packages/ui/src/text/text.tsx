@@ -8,15 +8,7 @@ import type { TextProps, TextValues } from "./types.js";
 
 type Translate = (key: string, values?: TextValues) => string;
 
-export const Text = ({
-  variant,
-  textId,
-  value,
-  values,
-  style,
-  element,
-  ...rest
-}: TextProps) => {
+export const Text = ({ variant, textId, value, values, style, element, ...rest }: TextProps) => {
   const { t } = useTranslation();
   const translate = t as unknown as Translate;
   const Element = element ?? TEXT_VARIANT_ELEMENTS[variant];
