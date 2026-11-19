@@ -8,13 +8,8 @@ import {
   passwordChangedV1,
   recoveryCodeRegeneratedV1,
 } from "@offgrid/contracts";
-import {
-  createEventBus,
-  publish,
-  replayEvents,
-  type EventBus,
-  type Subscription,
-} from "@offgrid/event-bus";
+import { createEventBus, publish, replayEvents } from "@offgrid/event-bus";
+import type { EventBus, Subscription } from "@offgrid/event-bus";
 import type { Logger } from "@offgrid/observability";
 import { createMemoryErrorSink, currentTraceId, resolveTraceId } from "@offgrid/observability";
 import { rawSqlExecutor, withUserContext, type ModuleTransaction } from "@offgrid/db";
