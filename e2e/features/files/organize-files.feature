@@ -9,20 +9,17 @@ Feature: Organising folders
   a folder never moves into itself. Anything the person may not see is shown
   as not found.
 
-  @wip
   Scenario: Anna creates a folder in her personal drive
     Given a new person Anna signs up
     When Anna creates the folder "Holiday" in her personal drive
     Then Anna sees the folder "Holiday" in her personal drive
 
-  @wip
   Scenario: Anna creates a folder inside a folder
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
     When Anna creates the folder "Beach" inside "Holiday"
     Then Anna sees the folder "Beach" inside "Holiday"
 
-  @wip
   Scenario: Anna cannot create a second folder with the same name in the same folder
     Given a new person Anna signs up
     And Anna has a folder "Holiday" in her personal drive
@@ -109,7 +106,6 @@ Feature: Organising folders
     When Anna moves the folder "Holiday" to the personal drive of Ben
     Then Anna is told the folder was not found
 
-  @wip
   Scenario: A family member creates a folder in the family drive
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -118,7 +114,6 @@ Feature: Organising folders
     When Ben creates the folder "Holiday" in the family drive of "The Smiths"
     Then Anna sees the folder "Holiday" in the family drive of "The Smiths"
 
-  @wip
   Scenario: Ben cannot create a folder in the family drive of another family
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna

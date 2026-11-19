@@ -94,8 +94,6 @@ Feature: Browsing drives and folders
     When Anna opens the folder "Old photos"
     Then Anna is told the folder was not found
 
-  # Blocked: needs folders and files created through the API, blocked on OG-113 and OG-114
-  @wip
   Scenario: Ben cannot open a folder inside the family drive of another family
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
