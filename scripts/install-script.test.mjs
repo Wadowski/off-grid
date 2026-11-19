@@ -55,7 +55,6 @@ const writeStubs = (root, stubs) => {
 const callFunction = (name, { args = [], env = {}, stubs = {}, root, prelude = ":" } = {}) => {
   const run = (workspace) => {
     const binDir = writeStubs(workspace, stubs);
-    // A host running under sudo exports SUDO_USER; drop it so only a test sets it.
     const hostEnv = { ...process.env };
     delete hostEnv.SUDO_USER;
     return spawnSync("sh", ["-c", `. "$1"; shift; ${prelude}; "$@"`, "sh", SCRIPT, name, ...args], {
@@ -368,7 +367,6 @@ const primaryFingerprint = (keyFile) =>
     .find((line) => line.startsWith("fpr:"))
     .split(":")[9];
 
-// Writes count throwaway keys, in order, into one armored file and returns each key's fingerprint.
 const makeThrowawayKeys = (root, count) => {
   const home = join(root, "gnupg");
   mkdirSync(home, { mode: 0o700 });
@@ -502,8 +500,6 @@ test(
   },
 );
 
-// The pinned fingerprint is overridden in the prelude, after the script is sourced, so the first key of the
-// file matches it and only the foreign second key is left to reject.
 for (const [label, fixture, branch, packageManager, pinVariable] of [
   ["debian", "debian-12", "install_docker_debian", "apt-get", "DOCKER_DEB_FINGERPRINT"],
   ["fedora", "fedora-41", "install_docker_fedora", "dnf", "DOCKER_RPM_FINGERPRINT"],
