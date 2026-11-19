@@ -139,9 +139,9 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
     await expect(
       moveFile(db.db, storage, anna, holiday, { driveId, parentId: beach }),
     ).rejects.toBeInstanceOf(InvalidMoveError);
-    await expect(moveFile(db.db, storage, anna, holiday, { driveId, parentId: day })).rejects.toBeInstanceOf(
-      InvalidMoveError,
-    );
+    await expect(
+      moveFile(db.db, storage, anna, holiday, { driveId, parentId: day }),
+    ).rejects.toBeInstanceOf(InvalidMoveError);
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 1 });
     expect(await updatedEventCount()).toBe(0);
   });
@@ -198,7 +198,9 @@ describe("moveFile within a drive", { timeout: 60_000 }, () => {
     expect(await moveFile(db.db, storage, anna, holiday, { driveId, parentId: trashed })).toEqual({
       outcome: "not-found",
     });
-    expect(await moveFile(db.db, storage, anna, holiday, { driveId, parentId: randomUUID() })).toEqual({
+    expect(
+      await moveFile(db.db, storage, anna, holiday, { driveId, parentId: randomUUID() }),
+    ).toEqual({
       outcome: "not-found",
     });
     expect(await parentOf(holiday)).toEqual({ parent_id: null, version: 1 });

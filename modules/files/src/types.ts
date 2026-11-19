@@ -213,4 +213,12 @@ export interface CrossOwnerPlan {
   readonly tree: SourceTree;
 }
 
-export type MovePlan = { readonly kind: "no-op"; readonly file: FileRecord } | SameDrivePlan | CrossOwnerPlan;
+export type MovePlan =
+  { readonly kind: "no-op"; readonly file: FileRecord } | SameDrivePlan | CrossOwnerPlan;
+
+export interface SiblingNameQuery {
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly excludeFileId: string;
+}

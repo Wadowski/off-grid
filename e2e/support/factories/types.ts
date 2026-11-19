@@ -13,3 +13,7 @@ export type FilesWorld = {
   personalDriveIds: Record<string, string>;
   familyDriveIds: Record<string, string>;
 };
+
+export type FileItem = { id: string; name: string; isFolder: boolean; parentId: string | null };
+
+export type Container = { kind: "drive" | "folder"; id: string };

@@ -4,7 +4,7 @@
 import type { APIRequestContext } from "@playwright/test";
 import { eventually } from "../eventually.js";
 import type { JsonResponse, Session } from "./instance-admin.js";
-import type { Drive } from "./types.js";
+import type { Container, Drive, FileItem } from "./types.js";
 
 const bearer = (session: Session): Record<string, string> => ({
   authorization: `Bearer ${session.accessToken}`,
@@ -97,8 +97,6 @@ export const patchAs = async (
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
 
-export type FileItem = { id: string; name: string; isFolder: boolean; parentId: string | null };
-
 export const listItemsAs = async (
   api: APIRequestContext,
   session: Session,
@@ -131,8 +129,6 @@ export const joinFamilyAs = async (
     throw new Error(`The family could not be joined (${joined.status}).`);
   }
 };
-
-export type Container = { kind: "drive" | "folder"; id: string };
 
 export const findFolderFrom = async (
   api: APIRequestContext,

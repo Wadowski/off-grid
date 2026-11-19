@@ -2,15 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleTransaction } from "@offgrid/db";
-import type { FileRecord } from "../../types.js";
+import type { FileRecord, SiblingNameQuery } from "../../types.js";
 import { toFileRecord } from "./to-file-record.js";
-
-export interface SiblingNameQuery {
-  readonly driveId: string;
-  readonly parentId: string | null;
-  readonly name: string;
-  readonly excludeFileId: string;
-}
 
 export const findSiblingByName = async (
   tx: ModuleTransaction,

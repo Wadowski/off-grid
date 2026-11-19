@@ -6,14 +6,13 @@ import {
   findFolderFrom,
   joinFamilyAs,
   listItemsAs,
-  type Container,
   patchAs,
   postAs,
   waitForDrives,
-  type FileItem,
 } from "../support/factories/files.js";
 import { signedInPerson } from "../support/factories/notifications.js";
 import type { Session } from "../support/factories/instance-admin.js";
+import type { Container, FileItem } from "../support/factories/types.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
