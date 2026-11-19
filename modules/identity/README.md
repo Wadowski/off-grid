@@ -25,7 +25,7 @@ Owner: module team (identity)
 
 Sign-in and refresh look up one row before anyone is signed in. They do this with read-only RLS policies (`user_account_sign_in_lookup`, `credential_sign_in_lookup`, `session_refresh_lookup`). Each policy matches a value the transaction sets with `set_config` (`app.sign_in_email`, `app.refresh_token_hash`), so the lookups are ordinary Prisma queries and no other row becomes visible.
 
-The server middleware checks a bearer access token with `verifyAccessToken`. It uses the read-only policy `session_access_lookup` (migration `20261102000200_identity_access_token_lookup`), keyed on `app.access_token_hash`. The session must not be revoked or expired, and the account must be active. The function returns the user id and session id, or `null`.
+The server middleware checks a bearer access token with `verifyAccessToken`. It uses the read-only policy `session_access_lookup` (migration `20261102000200_identity_access_token_lookup`), keyed on `app.access_token_hash`. The session must not be revoked or expired, and the account must be active. The function returns the user id, the session id and the access token expiry (`accessExpiresAt`), or `null`. The notification stream uses the expiry to end a stream when its token expires.
 
 Admin access uses `identity.is_active_admin()`, a `SECURITY DEFINER` function that returns true only when the request's user is an active admin. Admin policies on `user_account`, `session` and `password_reset` build on it (migration `20261102000300_identity_admin`). `identity.active_admin_count()` returns only a number, for the host recovery command.
 
