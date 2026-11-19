@@ -10,7 +10,9 @@ const notImplemented = (step: string): never => {
   throw new Error(`Step not implemented yet (OG-112 exposes drives): ${step}`);
 };
 
-Given(/^a new person Anna signs up$/, () => notImplemented("a new person Anna signs up"));
+Given(/^a new person (?:Anna|Ben) signs up$/, () =>
+  notImplemented("a new person … signs up"),
+);
 
 When(/^her personal drive is created$/, () => notImplemented("her personal drive is created"));
 

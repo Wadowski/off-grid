@@ -691,12 +691,14 @@ export interface components {
         Drive: {
             id: string;
             familyId: string | null;
+            name: string;
             createdAt: string;
         };
         DriveList: {
             drives: {
                 id: string;
                 familyId: string | null;
+                name: string;
                 createdAt: string;
             }[];
         };
@@ -749,10 +751,15 @@ export interface components {
                 size: number;
                 currentVersionId: string;
             })[];
-            breadcrumbs: {
+            breadcrumbs: ({
+                kind: "drive";
                 id: string;
                 name: string;
-            }[];
+            } | {
+                kind: "folder";
+                id: string;
+                name: string;
+            })[];
             nextCursor: string | null;
         };
         FileDetails: {
@@ -780,12 +787,22 @@ export interface components {
                 size: number;
                 currentVersionId: string;
             };
-            breadcrumbs: {
+            breadcrumbs: ({
+                kind: "drive";
                 id: string;
                 name: string;
-            }[];
+            } | {
+                kind: "folder";
+                id: string;
+                name: string;
+            })[];
         };
         Breadcrumb: {
+            kind: "drive";
+            id: string;
+            name: string;
+        } | {
+            kind: "folder";
             id: string;
             name: string;
         };

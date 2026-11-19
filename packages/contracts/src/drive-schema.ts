@@ -4,10 +4,12 @@
 import { z } from "zod";
 import { driveIdSchema } from "./drive-id-schema.js";
 import { familyIdSchema } from "./family-id-schema.js";
+import { nameSchema } from "./name-schema.js";
 import { timestampSchema } from "./timestamp-schema.js";
 
 export const driveSchema = z.object({
   id: driveIdSchema,
   familyId: familyIdSchema.nullable(),
+  name: nameSchema,
   createdAt: timestampSchema,
 });
