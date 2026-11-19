@@ -3,11 +3,14 @@
 
 import type { ModuleDatabase } from "@offgrid/db";
 import type {
+  systemUpdateApplyResultSchema,
+  systemUpdateCheckSchema,
   systemUpdateErrorCodeSchema,
+  systemUpdateNightlySchema,
+  systemUpdateSchema,
   UPDATE_RUN_STATES,
   updateStatusSchema,
   updaterCheckSchema,
-  systemUpdateApplyResultSchema,
 } from "@offgrid/contracts";
 import type { FastifyRequest } from "fastify";
 import type { z } from "zod";
@@ -82,3 +85,19 @@ export interface UpdateDependencies {
   readonly isInstanceAdmin: (userId: string) => Promise<boolean>;
   readonly currentVersion: string;
 }
+
+export interface UpdateErrorResponse {
+  readonly status: number;
+  readonly message: string;
+}
+
+export interface SystemUpdateRouteContext {
+  readonly currentUserId: (request: FastifyRequest) => string | null;
+  readonly deps: UpdateDependencies;
+}
+
+export type SystemUpdateOverview = z.infer<typeof systemUpdateSchema>;
+
+export type SystemUpdateCheck = z.infer<typeof systemUpdateCheckSchema>;
+
+export type SystemNightlySetting = z.infer<typeof systemUpdateNightlySchema>;

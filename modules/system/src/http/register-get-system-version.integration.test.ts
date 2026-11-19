@@ -4,10 +4,17 @@
 import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
 import { createSystemModule } from "../index.js";
+import type { SystemModuleContext } from "../types.js";
+
+const unusedContext = {
+  db: undefined as never,
+  currentUserId: () => null,
+  isInstanceAdmin: async () => false,
+} satisfies SystemModuleContext;
 
 const buildApp = async (version: { version: string; commit?: string }) => {
   const app = Fastify();
-  createSystemModule(version).registerRoutes(app);
+  createSystemModule({ ...version, updater: null }).registerRoutes(app, unusedContext);
   await app.ready();
   return app;
 };

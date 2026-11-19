@@ -17,5 +17,5 @@ export const modulesFor = (config: ServerConfig): readonly ModuleDescriptor[] =>
   createNotificationsModule(),
   relationsModule,
   createFilesModule({ directory: config.files.directory }),
-  createSystemModule(config.version),
+  createSystemModule({ ...config.version, updater: config.updater }),
 ];

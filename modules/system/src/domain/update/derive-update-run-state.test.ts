@@ -37,7 +37,9 @@ describe("deriveUpdateRunState", () => {
   it("maps each finished outcome to its run state", () => {
     expect(deriveUpdateRunState(statusWithOutcome("succeeded"), false)).toBe("succeeded");
     expect(deriveUpdateRunState(statusWithOutcome("rolled_back"), false)).toBe("rolled_back");
-    expect(deriveUpdateRunState(statusWithOutcome("failed_needs_admin"), false)).toBe("needs_admin");
+    expect(deriveUpdateRunState(statusWithOutcome("failed_needs_admin"), false)).toBe(
+      "needs_admin",
+    );
     expect(deriveUpdateRunState(statusWithOutcome("refused"), false)).toBe("failed");
     expect(deriveUpdateRunState(statusWithOutcome("failed_before_change"), false)).toBe("failed");
   });
