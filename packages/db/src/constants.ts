@@ -21,6 +21,7 @@ export const DATABASE_SCHEMAS = [
   "export",
   "outbox",
   "observability",
+  "system",
 ] as const;
 
 export const OWNERSHIP_SCOPES = ["family-or-user", "family", "user", "shared", "instance"] as const;
