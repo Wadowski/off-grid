@@ -235,3 +235,14 @@ export type NightlyRunResult =
   | "update_not_allowed"
   | "applied"
   | "failed";
+
+export interface NightlySchedulerDependencies {
+  readonly clock: Clock;
+  readonly nightlyTime: NightlyTime;
+  readonly logger: Logger;
+  readonly runTick: () => Promise<NightlyRunResult>;
+}
+
+export interface NightlySchedulerControl {
+  stopped: boolean;
+}
