@@ -82,6 +82,10 @@ check_disk_space() {
   info_ok "disk: $((available_kib / KIB_PER_GIB)) GB free in $probe_dir"
 }
 
+docker_binary_present() {
+  command -v docker >/dev/null 2>&1
+}
+
 docker_is_ready() {
   docker info >/dev/null 2>&1
 }
@@ -109,9 +113,12 @@ install_docker_engine() {
 }
 
 check_docker() {
-  if ! docker_is_ready; then
+  if ! docker_binary_present; then
     install_docker_engine
     return 0
+  fi
+  if ! docker_is_ready; then
+    fail "docker: the docker command is installed but the daemon is not reachable. Start the Docker daemon and run this script again, or if this is a podman shim, $PASTE_IN_POINTER. Nothing was changed."
   fi
   compose_version=$(docker_compose_version)
   if [ -z "$compose_version" ]; then

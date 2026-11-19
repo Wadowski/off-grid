@@ -235,20 +235,36 @@ test("reports Docker and Compose as working and installs nothing", () => {
   assert.ok(!result.stdout.includes(INSTALL_MARKER));
 });
 
-for (const [label, stubs] of [
-  ["the daemon is not reachable", stubDocker({ info: 1 })],
-  ["the Compose plugin is missing", stubDocker({ compose: null })],
-]) {
-  test(`runs the install branch when ${label}`, () => {
-    const result = callFunction("check_docker", {
-      prelude: `os_family=debian; ${installStub}`,
-      stubs,
-    });
-
-    assert.equal(result.status, 0, result.stderr);
-    assert.ok(result.stdout.includes(INSTALL_MARKER), result.stdout);
+test("runs the install branch when no docker command exists", () => {
+  const result = callFunction("check_docker", {
+    prelude: `os_family=debian; docker_binary_present() { return 1; }; ${installStub}`,
+    stubs: stubDocker({ info: 1 }),
   });
-}
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(result.stdout.includes(INSTALL_MARKER), result.stdout);
+});
+
+test("fails without changing an install when docker is installed but its daemon is not reachable", () => {
+  const result = callFunction("check_docker", {
+    prelude: `os_family=debian; ${installStub}`,
+    stubs: stubDocker({ info: 1 }),
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /^FAIL docker: .*daemon is not reachable/m);
+  assert.ok(!result.stdout.includes(INSTALL_MARKER));
+});
+
+test("runs the install branch when the Compose plugin is missing", () => {
+  const result = callFunction("check_docker", {
+    prelude: `os_family=debian; ${installStub}`,
+    stubs: stubDocker({ compose: null }),
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(result.stdout.includes(INSTALL_MARKER), result.stdout);
+});
 
 test("fails without changing an install when Compose is older than 2.23", () => {
   const result = callFunction("check_docker", {
