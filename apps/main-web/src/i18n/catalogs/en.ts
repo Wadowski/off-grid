@@ -600,4 +600,46 @@ export const en = {
       yesterday: "Yesterday",
     },
   },
+  notifications: {
+    categories: {
+      calendar: "Calendar",
+      "account-security": "Account & security",
+    },
+    filters: {
+      all: "All",
+      unread: "Unread",
+      calendar: "Calendar",
+      "account-security": "Account & security",
+    },
+    markAllRead: "Mark all as read",
+    loadOlder: "Load older",
+    updates_one: "{{count}} update",
+    updates_other: "{{count}} updates",
+    groups: {
+      today: "Today",
+      yesterday: "Yesterday",
+    },
+    time: {
+      justNow: "just now",
+      minutesAgo: "{{count}}m ago",
+      hoursAgo: "{{count}}h ago",
+      yesterdayAt: "Yesterday {{time}}",
+      dateAt: "{{date}} {{time}}",
+      dateWithYearAt: "{{date}} {{time}}",
+    },
+    empty: {
+      title: "You are all caught up",
+      body: "New notifications will show up here.",
+    },
+    error: {
+      title: "Notifications could not be loaded",
+      retry: "Try again",
+    },
+    liveUpdatesUnavailable: "Live updates are unavailable. Reload to see new notifications.",
+    bell: {
+      label: "Notifications",
+      labelUnread: "Notifications, {{count}} unread",
+      unreadOverflow: "99+",
+    },
+  },
 } as const;
