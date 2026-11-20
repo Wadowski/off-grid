@@ -2410,7 +2410,9 @@ export interface operations {
     streamNotifications: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "Last-Event-ID"?: string;
+            };
             path?: never;
             cookie?: never;
         };
