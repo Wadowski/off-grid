@@ -24,6 +24,10 @@ export const createSystemClient = (client: ApiClient) => ({
 
   setNightlyUpdate: async (enabled: boolean) =>
     systemUpdateNightlySchema.parse(
-      await client.request("PUT", systemRoutes.updateNightly, systemUpdateNightlySchema.parse({ enabled })),
+      await client.request(
+        "PUT",
+        systemRoutes.updateNightly,
+        systemUpdateNightlySchema.parse({ enabled }),
+      ),
     ),
 });

@@ -247,7 +247,9 @@ const UPDATE_API = "**/api/system/update**";
 const UPDATE_NIGHTLY_PATH = "/api/system/update/nightly";
 const UPDATE_STATUS_CHECKED_AT = "2026-11-20T10:00:00.000Z";
 
-const updateStatusFor = (overrides: Readonly<Record<string, unknown>>): Record<string, unknown> => ({
+const updateStatusFor = (
+  overrides: Readonly<Record<string, unknown>>,
+): Record<string, unknown> => ({
   currentVersion: "1.2.3",
   latestVersion: "1.2.3",
   updateAvailable: false,
@@ -265,7 +267,11 @@ const mockUpdateSystem = async (page: Page, status: Record<string, unknown>): Pr
     const request = route.request();
     const url = request.url();
     if (request.method() === "GET") {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(status) });
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(status),
+      });
       return;
     }
     if (url.endsWith("/nightly") && request.method() === "PUT") {
@@ -281,10 +287,7 @@ const mockUpdateSystem = async (page: Page, status: Record<string, unknown>): Pr
 };
 
 Given("a newer version is available", async ({ page }) => {
-  await mockUpdateSystem(
-    page,
-    updateStatusFor({ latestVersion: "1.3.0", updateAvailable: true }),
-  );
+  await mockUpdateSystem(page, updateStatusFor({ latestVersion: "1.3.0", updateAvailable: true }));
 });
 
 Given("the system is up to date", async ({ page }) => {
@@ -334,11 +337,18 @@ Then("{string} is disabled", async ({ page }, label: string) => {
   await expect(page.getByRole("button", { name: label, exact: true })).toBeDisabled();
 });
 
-Then("the confirmation says the database is backed up and a failed update rolls back", async ({ page }) => {
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText("The database is backed up first.", { exact: false })).toBeVisible();
-  await expect(dialog.getByText("goes back to the current version automatically", { exact: false })).toBeVisible();
-});
+Then(
+  "the confirmation says the database is backed up and a failed update rolls back",
+  async ({ page }) => {
+    const dialog = page.getByRole("dialog");
+    await expect(
+      dialog.getByText("The database is backed up first.", { exact: false }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByText("goes back to the current version automatically", { exact: false }),
+    ).toBeVisible();
+  },
+);
 
 Then("{string} is off", async ({ page }, label: string) => {
   await expect(page.getByLabel(label, { exact: true })).not.toBeChecked();
