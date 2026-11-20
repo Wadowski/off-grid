@@ -9,6 +9,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -826,9 +827,10 @@ test("changes only the OFFGRID_VERSION line of an existing .env when pinning", (
 const DOCKER_STUB = [
   'echo "$*" >> "$OFFGRID_TEST_DOCKER_LOG"',
   'case "$1" in',
-  "  inspect) echo \"$OFFGRID_TEST_RUNNING_IMAGE\" ;;",
+  '  inspect) echo "$OFFGRID_TEST_RUNNING_IMAGE" ;;',
   "esac",
   'case "$*" in',
+  '  *" ps -a -q server"*) [ -z "${OFFGRID_TEST_RUNNING_IMAGE:-}" ] || echo server-container ;;',
   '  *" pull"*) [ -z "${OFFGRID_TEST_PULL_FAILS:-}" ] || exit 1 ;;',
   '  *" up "*) [ -z "${OFFGRID_TEST_UP_FAILS:-}" ] || exit 1 ;;',
   "esac",
@@ -903,5 +905,174 @@ test("stops with a message about public packages when the pull fails", () => {
 
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /^FAIL images: .*ghcr\.io packages are public/m);
+  });
+});
+
+const RUNNING_IMAGE = (version) => `ghcr.io/wadowski/offgrid-main-server:${version}`;
+
+const installCall = (root, { env = {}, releaseDir = RELEASE_FIXTURES } = {}) =>
+  callFunction("run_install", {
+    root,
+    env: {
+      OFFGRID_INSTALL_DIR: join(root, "install"),
+      OFFGRID_VERSION: "",
+      OFFGRID_RELEASE_REPOSITORY: "",
+      OFFGRID_TEST_LOG: join(root, "curl.log"),
+      OFFGRID_TEST_RELEASE: releaseDir,
+      OFFGRID_TEST_DOCKER_LOG: join(root, "docker.log"),
+      OFFGRID_TEST_RUNNING_IMAGE: "",
+      ...env,
+    },
+    stubs: { curl: CURL_SERVES_RELEASE, docker: DOCKER_STUB },
+  });
+
+const installFile = (root, name) => join(root, "install", name);
+
+const installedEnv = (root) => readFileSync(installFile(root, ".env"), "utf8");
+
+test("fresh install puts the files in the install folder, pins .env, then pulls before starting", () => {
+  withWorkspace((root) => {
+    const result = installCall(root, { env: { OFFGRID_VERSION: "1.2.3" } });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(installFile(root, "docker-compose.production.yml"), "utf8"), "name: offgrid\n");
+    assert.match(installedEnv(root), /^OFFGRID_VERSION=1\.2\.3$/m);
+    const calls = dockerCalls(root);
+    const pullIndex = calls.findIndex((call) => / pull$/.test(call));
+    const upIndex = calls.findIndex((call) => / up -d --wait/.test(call));
+    assert.ok(pullIndex >= 0 && upIndex > pullIndex, calls.join("\n"));
+    assert.deepEqual(
+      readdirSync(installFile(root, ".")).filter((name) => name.startsWith(".install.")),
+      [],
+    );
+  });
+});
+
+test("a checksum mismatch installs nothing and never calls docker", () => {
+  withWorkspace((root) => {
+    const tampered = join(root, "tampered");
+    mkdirSync(tampered);
+    for (const name of ["docker-compose.production.yml", "production.env.example", "SHA256SUMS"]) {
+      writeFileSync(join(tampered, name), readFileSync(join(RELEASE_FIXTURES, name)));
+    }
+    writeFileSync(join(tampered, "docker-compose.production.yml"), "name: evil\n");
+
+    const result = installCall(root, {
+      env: { OFFGRID_VERSION: "1.2.3" },
+      releaseDir: tampered,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /^FAIL checksum: docker-compose\.production\.yml/m);
+    assert.equal(existsSync(installFile(root, "docker-compose.production.yml")), false);
+    assert.equal(existsSync(installFile(root, ".env")), false);
+    assert.deepEqual(dockerCalls(root), []);
+  });
+});
+
+test("a missing release asset installs nothing and never calls docker", () => {
+  withWorkspace((root) => {
+    const empty = join(root, "empty");
+    mkdirSync(empty);
+
+    const result = installCall(root, { env: { OFFGRID_VERSION: "1.2.3" }, releaseDir: empty });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /could not download docker-compose\.production\.yml/);
+    assert.equal(existsSync(installFile(root, "docker-compose.production.yml")), false);
+    assert.deepEqual(dockerCalls(root), []);
+  });
+});
+
+test("an existing .env is kept byte-identical when its pin already matches the release", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    const custom = CUSTOM_ENV.replace("OFFGRID_VERSION=1.0.0", "OFFGRID_VERSION=1.2.3");
+    writeFileSync(installFile(root, ".env"), custom);
+
+    const result = installCall(root);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(installedEnv(root), custom);
+  });
+});
+
+test("re-run with the same pin and a running stack pulls nothing and keeps .env", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    const env = "OFFGRID_VERSION=1.2.3\nTZ=UTC\n";
+    writeFileSync(installFile(root, ".env"), env);
+
+    const result = installCall(root, { env: { OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") } });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(installedEnv(root), env);
+    const calls = dockerCalls(root);
+    assert.equal(calls.some((call) => / pull$/.test(call)), false, calls.join("\n"));
+    assert.equal(calls.some((call) => /volume|secret/.test(call)), false, calls.join("\n"));
+  });
+});
+
+test("re-run with a higher pinned version updates the pin, pulls, then restarts", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    writeFileSync(installFile(root, ".env"), "OFFGRID_VERSION=1.0.0\nTZ=UTC\n");
+
+    const result = installCall(root, {
+      env: { OFFGRID_VERSION: "1.2.3", OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.0.0") },
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(installedEnv(root), "OFFGRID_VERSION=1.2.3\nTZ=UTC\n");
+    const calls = dockerCalls(root);
+    const pullIndex = calls.findIndex((call) => / pull$/.test(call));
+    const upIndex = calls.findIndex((call) => / up -d --wait/.test(call));
+    assert.ok(pullIndex >= 0 && upIndex > pullIndex, calls.join("\n"));
+  });
+});
+
+test("refuses a requested version lower than the installed one and changes nothing", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    const env = "OFFGRID_VERSION=1.2.3\n";
+    writeFileSync(installFile(root, ".env"), env);
+
+    const result = installCall(root, {
+      env: { OFFGRID_VERSION: "1.0.0", OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") },
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /^FAIL downgrade: .*Downgrades are not supported/m);
+    assert.equal(installedEnv(root), env);
+    const calls = dockerCalls(root);
+    assert.equal(calls.some((call) => / pull$| up /.test(call)), false, calls.join("\n"));
+  });
+});
+
+test("a pin older than the installed version is corrected to the installed version without pull or restart", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    writeFileSync(installFile(root, ".env"), "OFFGRID_VERSION=1.0.0\nTZ=UTC\n");
+
+    const result = installCall(root, { env: { OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") } });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(installedEnv(root), "OFFGRID_VERSION=1.2.3\nTZ=UTC\n");
+    const calls = dockerCalls(root);
+    assert.equal(calls.some((call) => / pull$| up /.test(call)), false, calls.join("\n"));
+  });
+});
+
+test("a failing health wait keeps .env and leaves the stack as it is", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    const env = "OFFGRID_VERSION=1.2.3\nTZ=UTC\n";
+    writeFileSync(installFile(root, ".env"), env);
+
+    const result = installCall(root, { env: { OFFGRID_TEST_UP_FAILS: "1" } });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /^FAIL stack: Offgrid 1\.2\.3 is not healthy/m);
+    assert.equal(installedEnv(root), env);
   });
 });

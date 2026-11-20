@@ -367,6 +367,92 @@ start_stack() {
   compose_command "$1" up -d --wait --wait-timeout "$WAIT_TIMEOUT_SECONDS" || wait_failed_message
 }
 
+version_number() {
+  major=${1%%.*}
+  rest=${1#*.}
+  minor=${rest%%.*}
+  patch=${rest#*.}
+  printf '%s\n' $((major * 1000000000000 + minor * 1000000 + patch))
+}
+
+version_order() {
+  first=$(version_number "$1")
+  second=$(version_number "$2")
+  if [ "$first" -gt "$second" ]; then
+    printf '%s\n' gt
+  elif [ "$first" -eq "$second" ]; then
+    printf '%s\n' eq
+  else
+    printf '%s\n' lt
+  fi
+}
+
+installed_version() {
+  container=$(compose_command "$1" ps -a -q server)
+  [ -n "$container" ] || return 0
+  image=$(docker inspect --format '{{.Config.Image}}' "$container")
+  check_release_version "${image##*:}" "the installed server image tag"
+}
+
+adopt_release_files() {
+  mv "$1/docker-compose.production.yml" "$install_home/docker-compose.production.yml"
+  mv "$1/production.env.example" "$install_home/production.env.example"
+}
+
+ensure_pin() {
+  if [ "$(read_pinned_version)" != "$release_version" ]; then
+    pin_env_version "$1" "$release_version"
+  fi
+}
+
+refuse_downgrade() {
+  if [ -n "${OFFGRID_VERSION:-}" ]; then
+    fail "downgrade: OFFGRID_VERSION $release_version is older than the installed Offgrid $1. Downgrades are not supported, nothing was changed"
+  fi
+  pin_env_version "$2" "$1"
+  release_version=$1
+  info_ok "stack: .env pin was older than the installed Offgrid $1, corrected it to $1. Nothing was pulled or restarted"
+}
+
+reconcile_stack() {
+  installed=$(installed_version "$1/docker-compose.production.yml")
+  if [ -z "$installed" ]; then
+    adopt_release_files "$1"
+    ensure_pin "$1"
+    pull_images "$install_home/docker-compose.production.yml"
+    start_stack "$install_home/docker-compose.production.yml"
+    return 0
+  fi
+  case $(version_order "$release_version" "$installed") in
+    eq)
+      adopt_release_files "$1"
+      ensure_pin "$1"
+      start_stack "$install_home/docker-compose.production.yml"
+      ;;
+    gt)
+      adopt_release_files "$1"
+      ensure_pin "$1"
+      pull_images "$install_home/docker-compose.production.yml"
+      start_stack "$install_home/docker-compose.production.yml"
+      ;;
+    lt)
+      refuse_downgrade "$installed" "$1"
+      ;;
+  esac
+}
+
+run_install() {
+  install_home=$(resolve_install_home)
+  mkdir -p "$install_home"
+  staging_dir=$(mktemp -d "$install_home/.install.XXXXXX")
+  trap 'rm -rf "$staging_dir"' EXIT
+  release_version=$(resolve_release_version "$staging_dir")
+  download_release_files "$staging_dir" "$release_version"
+  verify_release_files "$staging_dir"
+  create_env_file_if_missing "$staging_dir" "$release_version"
+  reconcile_stack "$staging_dir"
+}
+
 main() {
   umask 022
   require_root
