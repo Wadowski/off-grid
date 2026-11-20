@@ -83,6 +83,8 @@ The install script, `infra/install/install.sh`, makes outbound calls of its own.
 
 - `github.com`: the release files `docker-compose.production.yml`, `production.env.example` and `SHA256SUMS` are downloaded from `https://github.com/<repository>/releases/download/v<version>/`, or from `releases/latest/download/` for the first release manifest when no version is pinned. GitHub redirects these to `release-assets.githubusercontent.com`, the host already listed above. curl follows only HTTPS redirects.
 - `ghcr.io` and the hosts behind it: `docker compose pull` fetches the images, as the updater does.
+- `download.docker.com`: only when Docker is missing. The script downloads the Docker repository key from it, checks the key against a pinned fingerprint, and installs Docker from that repository.
+- The distribution's package mirrors: only when Docker is missing, for the base packages (`ca-certificates`, `curl`, `gnupg` or `gnupg2`) that the Docker install needs.
 
 The script checks the two downloaded files against `SHA256SUMS` from the same release before it uses them. That guards against corrupted and swapped downloads. It does not guard against a compromised release, for the same reason as the manifest above: nothing is signed.
 
