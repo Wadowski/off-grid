@@ -90,4 +90,4 @@ the required checks list. Keep the local command here in step with the job.
 
 ## Release workflow
 
-`.github/workflows/release.yml` runs only when a `vX.Y.Z` tag is pushed. It publishes the server and web images to GitHub Container Registry and creates the GitHub Release with the release manifest. It is not part of the pull request checks. See [Cutting a release](../CONTRIBUTING.md#cutting-a-release).
+`.github/workflows/release.yml` runs only when a `vX.Y.Z` tag is pushed. It publishes the server and web images to GitHub Container Registry and creates the GitHub Release with the release manifest and the install script's files (`docker-compose.production.yml`, `production.env.example` and `SHA256SUMS`). It is not part of the pull request checks. See [Cutting a release](../CONTRIBUTING.md#cutting-a-release).
