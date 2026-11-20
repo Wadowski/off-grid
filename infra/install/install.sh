@@ -330,7 +330,7 @@ write_pinned_env() {
   if grep -q '^OFFGRID_VERSION=' "$1"; then
     sed "s/^OFFGRID_VERSION=.*/OFFGRID_VERSION=$2/" "$1" > "$temporary"
   else
-    { cat "$1"; printf 'OFFGRID_VERSION=%s\n' "$2"; } > "$temporary"
+    { cat "$1"; if [ -n "$(tail -c 1 "$1")" ]; then printf '\n'; fi; printf 'OFFGRID_VERSION=%s\n' "$2"; } > "$temporary"
   fi
   chmod 600 "$temporary"
   mv "$temporary" "$4"

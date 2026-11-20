@@ -862,6 +862,23 @@ test("never modifies an existing .env when creating", () => {
   });
 });
 
+test("ends the last line before appending the pin when .env has no trailing newline", () => {
+  withWorkspace((root) => {
+    const staging = withInstallHome(root, {
+      envFile: "OFFGRID_IMAGE_OWNER=someone\nOFFGRID_WEB_PORT=9090",
+      staging: stagedRelease(root),
+    });
+
+    const result = releaseCall(root, "pin_env_version", { args: [staging, "1.1.0"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      readFileSync(join(root, "install", ".env"), "utf8"),
+      "OFFGRID_IMAGE_OWNER=someone\nOFFGRID_WEB_PORT=9090\nOFFGRID_VERSION=1.1.0\n",
+    );
+  });
+});
+
 test("changes only the OFFGRID_VERSION line of an existing .env when pinning", () => {
   withWorkspace((root) => {
     const staging = withInstallHome(root, { envFile: CUSTOM_ENV, staging: stagedRelease(root) });
