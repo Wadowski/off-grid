@@ -5,6 +5,12 @@ import type { components } from "@offgrid/api-client";
 
 export type SystemUpdate = components["schemas"]["SystemUpdate"];
 
+export type UpdateRun = NonNullable<SystemUpdate["lastRun"]>;
+
+export type UpdateStep = UpdateRun["steps"][number];
+
+export type UpdateStepName = UpdateStep["name"];
+
 export type UpdateStatusState =
   | { readonly status: "loading" }
   | { readonly status: "failed" }

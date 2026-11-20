@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { act, renderHook } from "@testing-library/react";
-import type { SystemUpdate } from "./types.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { SystemUpdate } from "./types.js";
 import { webSystemClient } from "../../../../api/web-api-client.js";
 import { UPDATE_STATUS_POLL_INTERVAL_MS } from "./constants.js";
 import { useUpdateStatus } from "./use-update-status.js";
@@ -14,7 +14,9 @@ vi.mock("../../../../api/web-api-client.js", () => ({
 
 const updateMock = vi.mocked(webSystemClient.update);
 
-const statusWith = (overrides: Partial<SystemUpdate>): SystemUpdate => ({
+const flushInitialLoad = () => act(() => vi.advanceTimersByTimeAsync(0));
+
+const systemUpdateWith = (overrides: Partial<SystemUpdate>): SystemUpdate => ({
   currentVersion: "1.2.3",
   latestVersion: "1.2.3",
   updateAvailable: false,
@@ -27,8 +29,6 @@ const statusWith = (overrides: Partial<SystemUpdate>): SystemUpdate => ({
   ...overrides,
 });
 
-const flushInitialLoad = () => act(() => vi.advanceTimersByTimeAsync(0));
-
 describe("useUpdateStatus", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -40,7 +40,7 @@ describe("useUpdateStatus", () => {
   });
 
   it("loads the status once and does not poll while no update runs", async () => {
-    updateMock.mockResolvedValue(statusWith({}));
+    updateMock.mockResolvedValue(systemUpdateWith({}));
 
     const { result } = renderHook(() => useUpdateStatus());
     await flushInitialLoad();
@@ -49,15 +49,15 @@ describe("useUpdateStatus", () => {
     expect(updateMock).toHaveBeenCalledTimes(1);
     expect(result.current.state).toEqual({
       status: "ready",
-      update: statusWith({}),
+      update: systemUpdateWith({}),
       unreachable: false,
     });
   });
 
   it("polls at the poll interval while an update runs and stops when it finishes", async () => {
     updateMock
-      .mockResolvedValueOnce(statusWith({ running: true, runState: "running" }))
-      .mockResolvedValueOnce(statusWith({ running: false, runState: "succeeded" }));
+      .mockResolvedValueOnce(systemUpdateWith({ running: true, runState: "running" }))
+      .mockResolvedValueOnce(systemUpdateWith({ running: false, runState: "succeeded" }));
 
     renderHook(() => useUpdateStatus());
     await flushInitialLoad();
@@ -69,9 +69,9 @@ describe("useUpdateStatus", () => {
 
   it("keeps polling after a failed poll and marks the server as unreachable until it answers", async () => {
     updateMock
-      .mockResolvedValueOnce(statusWith({ running: true, runState: "running" }))
+      .mockResolvedValueOnce(systemUpdateWith({ running: true, runState: "running" }))
       .mockRejectedValueOnce(new Error("restarting"))
-      .mockResolvedValueOnce(statusWith({ running: true, runState: "running" }));
+      .mockResolvedValueOnce(systemUpdateWith({ running: true, runState: "running" }));
 
     const { result } = renderHook(() => useUpdateStatus());
     await flushInitialLoad();
@@ -98,8 +98,8 @@ describe("useUpdateStatus", () => {
 
   it("shows the update as running right after apply and polls until the server says it ended", async () => {
     updateMock
-      .mockResolvedValueOnce(statusWith({ latestVersion: "1.3.0", updateAvailable: true }))
-      .mockResolvedValueOnce(statusWith({ running: false }));
+      .mockResolvedValueOnce(systemUpdateWith({ latestVersion: "1.3.0", updateAvailable: true }))
+      .mockResolvedValueOnce(systemUpdateWith({ running: false }));
 
     const { result } = renderHook(() => useUpdateStatus());
     await flushInitialLoad();

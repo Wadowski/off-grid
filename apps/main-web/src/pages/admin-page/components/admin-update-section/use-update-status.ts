@@ -23,7 +23,11 @@ export const useUpdateStatus = () => {
   const markRunning = useCallback(() => {
     setState((current) =>
       current.status === "ready"
-        ? { ...current, unreachable: false, update: { ...current.update, running: true, runState: "running" } }
+        ? {
+            ...current,
+            unreachable: false,
+            update: { ...current.update, running: true, runState: "running" },
+          }
         : current,
     );
   }, []);
