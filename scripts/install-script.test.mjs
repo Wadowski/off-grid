@@ -750,7 +750,10 @@ test("stops with a non-zero exit when a release asset is missing", () => {
     });
 
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /^FAIL release: could not download docker-compose\.production\.yml/m);
+    assert.match(
+      result.stderr,
+      /^FAIL release: could not download docker-compose\.production\.yml/m,
+    );
   });
 });
 
@@ -763,7 +766,10 @@ test("downloads the three release files of the pinned version over https", () =>
 
     assert.equal(result.status, 0, result.stderr);
     for (const name of ["docker-compose.production.yml", "production.env.example", "SHA256SUMS"]) {
-      assert.match(requestedUrls(root), new RegExp(`/releases/download/v1\\.2\\.3/${name.replace(/\./g, "\\.")}`));
+      assert.match(
+        requestedUrls(root),
+        new RegExp(`/releases/download/v1\\.2\\.3/${name.replace(/\./g, "\\.")}`),
+      );
     }
   });
 });
@@ -935,7 +941,10 @@ test("fresh install puts the files in the install folder, pins .env, then pulls 
     const result = installCall(root, { env: { OFFGRID_VERSION: "1.2.3" } });
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(readFileSync(installFile(root, "docker-compose.production.yml"), "utf8"), "name: offgrid\n");
+    assert.equal(
+      readFileSync(installFile(root, "docker-compose.production.yml"), "utf8"),
+      "name: offgrid\n",
+    );
     assert.match(installedEnv(root), /^OFFGRID_VERSION=1\.2\.3$/m);
     const calls = dockerCalls(root);
     const pullIndex = calls.findIndex((call) => / pull$/.test(call));
@@ -1003,13 +1012,23 @@ test("re-run with the same pin and a running stack pulls nothing and keeps .env"
     const env = "OFFGRID_VERSION=1.2.3\nTZ=UTC\n";
     writeFileSync(installFile(root, ".env"), env);
 
-    const result = installCall(root, { env: { OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") } });
+    const result = installCall(root, {
+      env: { OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") },
+    });
 
     assert.equal(result.status, 0, result.stderr);
     assert.equal(installedEnv(root), env);
     const calls = dockerCalls(root);
-    assert.equal(calls.some((call) => / pull$/.test(call)), false, calls.join("\n"));
-    assert.equal(calls.some((call) => /volume|secret/.test(call)), false, calls.join("\n"));
+    assert.equal(
+      calls.some((call) => / pull$/.test(call)),
+      false,
+      calls.join("\n"),
+    );
+    assert.equal(
+      calls.some((call) => /volume|secret/.test(call)),
+      false,
+      calls.join("\n"),
+    );
   });
 });
 
@@ -1045,7 +1064,11 @@ test("refuses a requested version lower than the installed one and changes nothi
     assert.match(result.stderr, /^FAIL downgrade: .*Downgrades are not supported/m);
     assert.equal(installedEnv(root), env);
     const calls = dockerCalls(root);
-    assert.equal(calls.some((call) => / pull$| up /.test(call)), false, calls.join("\n"));
+    assert.equal(
+      calls.some((call) => / pull$| up /.test(call)),
+      false,
+      calls.join("\n"),
+    );
   });
 });
 
@@ -1054,12 +1077,18 @@ test("a pin older than the installed version is corrected to the installed versi
     mkdirSync(join(root, "install"));
     writeFileSync(installFile(root, ".env"), "OFFGRID_VERSION=1.0.0\nTZ=UTC\n");
 
-    const result = installCall(root, { env: { OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") } });
+    const result = installCall(root, {
+      env: { OFFGRID_TEST_RUNNING_IMAGE: RUNNING_IMAGE("1.2.3") },
+    });
 
     assert.equal(result.status, 0, result.stderr);
     assert.equal(installedEnv(root), "OFFGRID_VERSION=1.2.3\nTZ=UTC\n");
     const calls = dockerCalls(root);
-    assert.equal(calls.some((call) => / pull$| up /.test(call)), false, calls.join("\n"));
+    assert.equal(
+      calls.some((call) => / pull$| up /.test(call)),
+      false,
+      calls.join("\n"),
+    );
   });
 });
 
@@ -1078,10 +1107,15 @@ test("a failing health wait keeps .env and leaves the stack as it is", () => {
 });
 
 test("names the package to install when a required command is missing", () => {
-  const result = callFunction("require_command", { args: ["offgrid-no-such-tool", "some-package"] });
+  const result = callFunction("require_command", {
+    args: ["offgrid-no-such-tool", "some-package"],
+  });
 
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /^FAIL tools: offgrid-no-such-tool is not installed\. Install the some-package package/m);
+  assert.match(
+    result.stderr,
+    /^FAIL tools: offgrid-no-such-tool is not installed\. Install the some-package package/m,
+  );
 });
 
 test("passes when the required command exists", () => {
