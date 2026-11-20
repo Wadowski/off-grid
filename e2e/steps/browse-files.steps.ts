@@ -128,8 +128,17 @@ Given(/^Anna has a folder "[^"]*" with a folder "[^"]*" and a file "[^"]*"$/, ()
 
 When(/^(Anna|Ben) opens the folder "([^"]*)"$/, async ({ world }, actor: string, name: string) => {
   const drives = await listDrivesAs(world.api, personNamed(world, "Anna").session);
-  const folderId = await findFolderAcrossDrives(world.api, personNamed(world, "Anna").session, drives, name);
-  world.response = await getAs(world.api, personNamed(world, actor).session, `/api/files/${folderId}/children`);
+  const folderId = await findFolderAcrossDrives(
+    world.api,
+    personNamed(world, "Anna").session,
+    drives,
+    name,
+  );
+  world.response = await getAs(
+    world.api,
+    personNamed(world, actor).session,
+    `/api/files/${folderId}/children`,
+  );
 });
 
 Then(/^Anna sees the entries "[^"]*" and "[^"]*" in that order$/, () =>
