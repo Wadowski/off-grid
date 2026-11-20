@@ -533,6 +533,51 @@ for (const [label, fixture, branch, packageManager, pinVariable] of [
   );
 }
 
+for (const [label, fixture, branch, packageManager, pinVariable] of [
+  ["debian", "debian-12", "install_docker_debian", "apt-get", "DOCKER_DEB_FINGERPRINT"],
+  ["fedora", "fedora-41", "install_docker_fedora", "dnf", "DOCKER_RPM_FINGERPRINT"],
+  ["rhel", "rhel-9", "install_docker_rhel", "dnf", "DOCKER_RPM_FINGERPRINT"],
+]) {
+  test(
+    `${label} install branch removes its key temp dir before it returns`,
+    { skip: !HAS_GPG },
+    () => {
+      withWorkspace((root) => {
+        const { keyFile, fingerprint } = makeThrowawayKey(root);
+        const tmp = join(root, "tmp");
+        mkdirSync(tmp);
+
+        const result = callFunction("leftover_probe", {
+          root,
+          env: {
+            OFFGRID_OS_RELEASE_FILE: join(FIXTURES, fixture),
+            OFFGRID_TEST_KEY: keyFile,
+            OFFGRID_TEST_LOG: join(root, "package-manager.log"),
+            TMPDIR: tmp,
+          },
+          stubs: {
+            curl: CURL_COPIES_TEST_KEY,
+            [packageManager]: APT_AND_DNF_LOG,
+            rpm: "exit 0",
+            install: "exit 0",
+          },
+          prelude: [
+            "detect_os_family >/dev/null",
+            `${pinVariable}=${fingerprint}`,
+            "write_docker_apt_source() { :; }",
+            "write_docker_yum_repo() { :; }",
+            "start_docker_service() { :; }",
+            `leftover_probe() { ${branch}; if [ -n "$(ls -A "$TMPDIR")" ]; then printf 'LEFT\\n'; fi; }`,
+          ].join("; "),
+        });
+
+        assert.equal(result.status, 0, result.stderr);
+        assert.doesNotMatch(result.stdout, /LEFT/);
+      });
+    },
+  );
+}
+
 test("never pipes a downloaded script into a shell", () => {
   const source = readFileSync(SCRIPT, "utf8");
 

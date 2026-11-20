@@ -217,7 +217,6 @@ install_docker_debian() {
   codename=$(debian_codename)
   [ -n "$codename" ] || fail "docker: no release codename in $os_release_file for $os_id"
   key_dir=$(mktemp -d)
-  trap 'rm -rf "$key_dir"' EXIT
   apt-get update -qq
   apt-get install -y -qq ca-certificates curl gnupg
   fetch_docker_key "$DOCKER_DOWNLOAD_URL/$distro/gpg" "$key_dir/docker.asc" "$DOCKER_DEB_FINGERPRINT"
@@ -227,12 +226,12 @@ install_docker_debian() {
   apt-get update -qq
   apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   start_docker_service
+  rm -rf "$key_dir"
 }
 
 install_docker_rpm() {
   repo_path=$1
   key_dir=$(mktemp -d)
-  trap 'rm -rf "$key_dir"' EXIT
   dnf install -y ca-certificates gnupg2
   fetch_docker_key "$DOCKER_DOWNLOAD_URL/$repo_path/gpg" "$key_dir/docker.asc" "$DOCKER_RPM_FINGERPRINT"
   install -m 0644 "$key_dir/docker.asc" /etc/pki/rpm-gpg/RPM-GPG-KEY-docker-ce
@@ -240,6 +239,7 @@ install_docker_rpm() {
   write_docker_yum_repo "$repo_path"
   dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   start_docker_service
+  rm -rf "$key_dir"
 }
 
 install_docker_fedora() {
