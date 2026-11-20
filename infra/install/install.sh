@@ -442,6 +442,8 @@ reconcile_stack() {
 }
 
 run_install() {
+  require_command curl curl
+  require_command sha256sum coreutils
   install_home=$(resolve_install_home)
   mkdir -p "$install_home"
   staging_dir=$(mktemp -d "$install_home/.install.XXXXXX")
@@ -451,6 +453,24 @@ run_install() {
   verify_release_files "$staging_dir"
   create_env_file_if_missing "$staging_dir" "$release_version"
   reconcile_stack "$staging_dir"
+  print_next_steps
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "tools: $1 is not installed. Install the $2 package and run this script again"
+}
+
+first_non_loopback_address() {
+  address=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -Ev '^(127\.|::1$)|^$' | head -n 1)
+  printf '%s\n' "${address:-localhost}"
+}
+
+print_next_steps() {
+  web_port=$(sed -n 's/^OFFGRID_WEB_PORT=//p' "$install_home/.env" | tail -n 1)
+  info_ok "stack: Offgrid $release_version is running"
+  printf 'Open Offgrid: http://%s:%s\n' "$(first_non_loopback_address)" "${web_port:-8080}"
+  printf '%s\n' 'Next: open that address and create the admin account (the first account becomes the admin).'
+  printf '%s\n' 'Back up: see infra/README.md, Backups'
 }
 
 main() {
@@ -460,6 +480,10 @@ main() {
   detect_os_family
   check_disk_space
   check_docker
+  if [ "${OFFGRID_INSTALL_PREREQUISITES_ONLY:-0}" = 1 ]; then
+    return 0
+  fi
+  run_install
   print_group_step
 }
 

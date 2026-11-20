@@ -19,6 +19,8 @@ const dockerRunArguments = (image) => [
   "--rm",
   "-v",
   `${REPO_ROOT}:/src:ro`,
+  "-e",
+  "OFFGRID_INSTALL_PREREQUISITES_ONLY=1",
   image,
   "sh",
   "-c",

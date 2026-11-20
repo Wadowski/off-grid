@@ -1076,3 +1076,28 @@ test("a failing health wait keeps .env and leaves the stack as it is", () => {
     assert.equal(installedEnv(root), env);
   });
 });
+
+test("names the package to install when a required command is missing", () => {
+  const result = callFunction("require_command", { args: ["offgrid-no-such-tool", "some-package"] });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /^FAIL tools: offgrid-no-such-tool is not installed\. Install the some-package package/m);
+});
+
+test("passes when the required command exists", () => {
+  const result = callFunction("require_command", { args: ["sh", "shell"] });
+
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test("a fresh install prints the address, the admin step and the backup pointer", () => {
+  withWorkspace((root) => {
+    const result = installCall(root, { env: { OFFGRID_VERSION: "1.2.3" } });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /^ok {2}stack: Offgrid 1\.2\.3 is running$/m);
+    assert.match(result.stdout, /^Open Offgrid: http:\/\/\S+:8080$/m);
+    assert.match(result.stdout, /create the admin account \(the first account becomes the admin\)/);
+    assert.match(result.stdout, /^Back up: see infra\/README\.md, Backups$/m);
+  });
+});
