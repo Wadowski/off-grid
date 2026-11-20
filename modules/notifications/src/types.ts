@@ -50,8 +50,7 @@ export type LastEventId =
   | { readonly kind: "valid"; readonly id: string };
 
 export type MissedNotifications =
-  | { readonly kind: "replay"; readonly notices: ListedNotification[] }
-  | { readonly kind: "reset" };
+  { readonly kind: "replay"; readonly notices: ListedNotification[] } | { readonly kind: "reset" };
 
 export interface ReplayBuffer {
   readonly subscriber: NoticeSubscriber;
@@ -98,6 +97,14 @@ export interface NotificationList {
   readonly unreadCount: number;
   readonly nextCursor: string | null;
   readonly total: number;
+}
+
+export interface NotificationItemRow {
+  readonly notificationId: string;
+  readonly type: string;
+  readonly data: unknown;
+  readonly createdAt: Date;
+  readonly readAt: Date | null;
 }
 
 export interface NotificationCursor {
