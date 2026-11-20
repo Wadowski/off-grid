@@ -37,6 +37,10 @@ export const HEARTBEAT_COMMENT = ": heartbeat\n\n";
 
 export const STREAM_CONNECTED_COMMENT = ": connected\n\n";
 
+export const STREAM_RESET_COMMENT = ": reset\n\n";
+
+export const MAX_REPLAY_NOTICES = 200;
+
 export const NOTIFICATION_CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
   "password-changed": "account-security",
   "recovery-code-regenerated": "account-security",

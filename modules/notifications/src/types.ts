@@ -42,6 +42,22 @@ export type StreamSessionState = "active" | "ended" | "unknown";
 
 export type StreamStop = () => void;
 
+export type LastEventIdHeader = string | string[] | undefined;
+
+export type LastEventId =
+  | { readonly kind: "absent" }
+  | { readonly kind: "invalid" }
+  | { readonly kind: "valid"; readonly id: string };
+
+export type MissedNotifications =
+  | { readonly kind: "replay"; readonly notices: ListedNotification[] }
+  | { readonly kind: "reset" };
+
+export interface ReplayBuffer {
+  readonly subscriber: NoticeSubscriber;
+  flush(replayedIds: ReadonlySet<string>, target: NoticeSubscriber): Promise<void>;
+}
+
 export interface InboxNotice {
   readonly notificationId: string;
   readonly userId: string;
