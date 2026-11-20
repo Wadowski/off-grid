@@ -12,6 +12,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -872,6 +873,29 @@ test("changes only the OFFGRID_VERSION line of an existing .env when pinning", (
       readFileSync(join(root, "install", ".env"), "utf8"),
       CUSTOM_ENV.replace("OFFGRID_VERSION=1.0.0", "OFFGRID_VERSION=1.1.0"),
     );
+  });
+});
+
+test("creates .env readable by the owner only", () => {
+  withWorkspace((root) => {
+    const staging = withInstallHome(root, { staging: stagedRelease(root) });
+
+    const result = releaseCall(root, "create_env_file_if_missing", { args: [staging, "1.2.3"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(statSync(join(root, "install", ".env")).mode & 0o777, 0o600);
+  });
+});
+
+test("keeps .env at mode 600 when a re-run changes the pin", () => {
+  withWorkspace((root) => {
+    const staging = withInstallHome(root, { staging: stagedRelease(root) });
+    releaseCall(root, "create_env_file_if_missing", { args: [staging, "1.2.3"] });
+
+    const result = releaseCall(root, "pin_env_version", { args: [staging, "1.2.4"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(statSync(join(root, "install", ".env")).mode & 0o777, 0o600);
   });
 });
 

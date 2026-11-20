@@ -332,6 +332,7 @@ write_pinned_env() {
   else
     { cat "$1"; printf 'OFFGRID_VERSION=%s\n' "$2"; } > "$temporary"
   fi
+  chmod 600 "$temporary"
   mv "$temporary" "$4"
 }
 
