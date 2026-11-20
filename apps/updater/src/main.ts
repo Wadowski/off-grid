@@ -25,7 +25,7 @@ const app = buildUpdaterApp(services);
 await app.listen({ host: config.httpHost, port: config.httpPort }).catch(failStartup);
 const stopNightlyScheduler = startNightlyScheduler({
   clock: systemClock,
-  nightlyTime: { hour: config.nightlyHour, minute: config.nightlyMinute },
+  nightlyTime: config.nightlyTime,
   logger,
   runTick: () =>
     runNightlyUpdate(services, () =>

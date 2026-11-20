@@ -21,8 +21,6 @@ export const loadUpdaterConfig = (
     throw new ConfigError(`invalid configuration: ${problems}`);
   }
   const values = parsed.data;
-  const nightlyTime = parseNightlyTime(values.OFFGRID_UPDATER_NIGHTLY_TIME);
-
   return {
     database: {
       host: values.OFFGRID_UPDATER_DATABASE_HOST,
@@ -54,7 +52,6 @@ export const loadUpdaterConfig = (
     dockerSocket: values.OFFGRID_UPDATER_DOCKER_SOCKET,
     composeProject: values.OFFGRID_UPDATER_COMPOSE_PROJECT,
     serverUrl: values.OFFGRID_UPDATER_SERVER_URL,
-    nightlyHour: nightlyTime.hour,
-    nightlyMinute: nightlyTime.minute,
+    nightlyTime: parseNightlyTime(values.OFFGRID_UPDATER_NIGHTLY_TIME),
   };
 };

@@ -94,8 +94,7 @@ export interface UpdaterConfig {
   readonly dockerSocket: string;
   readonly composeProject: string;
   readonly serverUrl: string;
-  readonly nightlyHour: number;
-  readonly nightlyMinute: number;
+  readonly nightlyTime: NightlyTime;
 }
 
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;

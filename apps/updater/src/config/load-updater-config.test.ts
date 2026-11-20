@@ -47,8 +47,7 @@ describe("loadUpdaterConfig", () => {
       dockerSocket: "/var/run/docker.sock",
       composeProject: "offgrid",
       serverUrl: "http://127.0.0.1:3000",
-      nightlyHour: 3,
-      nightlyMinute: 30,
+      nightlyTime: { hour: 3, minute: 30 },
     });
   });
 
@@ -89,8 +88,7 @@ describe("loadUpdaterConfig", () => {
     );
 
     expect(config).toMatchObject({
-      nightlyHour: 23,
-      nightlyMinute: 5,
+      nightlyTime: { hour: 23, minute: 5 },
       serverUrl: "http://server:3000",
     });
   });
