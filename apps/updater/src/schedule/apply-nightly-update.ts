@@ -13,7 +13,7 @@ export const applyNightlyUpdate = async (
       manifest: context.manifest,
     });
     services.logger.info("nightly update finished", { outcome: status.outcome });
-    return "applied";
+    return status.outcome === "succeeded" ? "applied" : "failed";
   } catch {
     services.logger.error("nightly update ended with an error");
     return "failed";

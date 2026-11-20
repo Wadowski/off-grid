@@ -148,6 +148,21 @@ describe("runNightlyUpdate", () => {
     heldRelease?.();
   });
 
+  it.each(["rolled_back", "failed_before_change", "failed_needs_admin", "refused"] as const)(
+    "does not report applied when the apply ends with outcome %s",
+    async (outcome) => {
+      const harness = buildHarness({
+        runApply: async () => ({ ...statusFixture(), outcome }),
+      });
+
+      const result = await runNightlyUpdate(harness.services, settingReturning(true));
+
+      expect(result).not.toBe("applied");
+      expect(result).toBe("failed");
+      expect(harness.services.runLock.isHeld()).toBe(false);
+    },
+  );
+
   it("does not apply when the release source cannot be read", async () => {
     const harness = buildHarness({
       httpFetch: async () => {
