@@ -12,6 +12,9 @@ PASTE_IN_POINTER="install Docker yourself and follow the paste-in path in infra/
 DOCKER_DOWNLOAD_URL=https://download.docker.com/linux
 DOCKER_DEB_FINGERPRINT=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 DOCKER_RPM_FINGERPRINT=060A61C51B558A7F742B77AAC52FEB6B621E9F35
+DEFAULT_RELEASE_REPOSITORY=Wadowski/off-grid
+RELEASE_REPOSITORY_PATTERN='^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'
+SEMVER_PATTERN='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 
 fail() {
   printf 'FAIL %s\n' "$1" >&2
@@ -77,12 +80,16 @@ detect_os_family() {
   info_ok "os: $os_id is the $os_family family"
 }
 
-check_disk_space() {
+resolve_install_home() {
   install_dir=${OFFGRID_INSTALL_DIR:-$DEFAULT_INSTALL_DIR}
   case "$install_dir" in
-    /*) ;;
-    *) fail "disk: OFFGRID_INSTALL_DIR must be an absolute path, got $install_dir" ;;
+    /*) printf '%s\n' "$install_dir" ;;
+    *) fail "install folder: OFFGRID_INSTALL_DIR must be an absolute path, got $install_dir" ;;
   esac
+}
+
+check_disk_space() {
+  install_dir=$(resolve_install_home)
   probe_dir=$install_dir
   while [ ! -e "$probe_dir" ]; do
     probe_dir=$(dirname "$probe_dir")
@@ -240,6 +247,62 @@ install_docker_fedora() {
 
 install_docker_rhel() {
   install_docker_rpm "$os_id"
+}
+
+resolve_release_repository() {
+  repository=${OFFGRID_RELEASE_REPOSITORY:-$DEFAULT_RELEASE_REPOSITORY}
+  printf '%s\n' "$repository" | grep -Eq "$RELEASE_REPOSITORY_PATTERN" \
+    || fail "release: OFFGRID_RELEASE_REPOSITORY must be owner/name, got $repository"
+  printf '%s\n' "$repository"
+}
+
+is_semver() {
+  printf '%s\n' "$1" | grep -Eq "$SEMVER_PATTERN"
+}
+
+check_release_version() {
+  is_semver "$1" || fail "release: $2 must be X.Y.Z, got $1"
+  printf '%s\n' "$1"
+}
+
+read_pinned_version() {
+  env_file=$install_home/.env
+  [ -f "$env_file" ] || return 0
+  sed -n 's/^OFFGRID_VERSION=//p' "$env_file" | tail -n 1
+}
+
+release_download_url() {
+  if [ -n "$1" ]; then
+    printf 'https://github.com/%s/releases/download/v%s\n' "$release_repository" "$1"
+  else
+    printf 'https://github.com/%s/releases/latest/download\n' "$release_repository"
+  fi
+}
+
+download_release_file() {
+  curl -fsSL --proto '=https' --tlsv1.2 -o "$3/$2" "$1/$2" \
+    || fail "release: could not download $2 from $1. Check that the release exists and has this file; nothing was installed"
+}
+
+manifest_version() {
+  version=$(sed -n 's/^  "version": "\([^"]*\)".*/\1/p' "$1" | head -n 1)
+  check_release_version "$version" "the release manifest version"
+}
+
+resolve_release_version() {
+  staging_dir=$1
+  release_repository=$(resolve_release_repository)
+  if [ -n "${OFFGRID_VERSION:-}" ]; then
+    check_release_version "${OFFGRID_VERSION#v}" OFFGRID_VERSION
+    return 0
+  fi
+  pinned=$(read_pinned_version)
+  if [ -n "$pinned" ]; then
+    check_release_version "$pinned" "OFFGRID_VERSION in $install_home/.env"
+    return 0
+  fi
+  download_release_file "$(release_download_url "")" release-manifest.json "$staging_dir"
+  manifest_version "$staging_dir/release-manifest.json"
 }
 
 main() {

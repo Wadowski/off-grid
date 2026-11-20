@@ -538,3 +538,145 @@ test("never pipes a downloaded script into a shell", () => {
   assert.doesNotMatch(source, /\|\s*(sudo\s+)?(sh|bash)\b/);
   assert.doesNotMatch(source, /get\.docker\.com/);
 });
+
+const RELEASE_FIXTURES = fileURLToPath(new URL("./fixtures/release/", import.meta.url));
+const CURL_SERVES_RELEASE = [
+  "out=''",
+  "url=''",
+  "while [ $# -gt 0 ]; do",
+  '  case "$1" in',
+  "    -o) out=$2; shift ;;",
+  "    https://*) url=$1 ;;",
+  "  esac",
+  "  shift",
+  "done",
+  'printf \'%s\\n\' "$url" >> "$OFFGRID_TEST_LOG"',
+  "name=${url##*/}",
+  '[ -f "$OFFGRID_TEST_RELEASE/$name" ] || exit 22',
+  'cp "$OFFGRID_TEST_RELEASE/$name" "$out"',
+].join("\n");
+
+const releaseCall = (root, name, { args = [], env = {}, releaseDir = RELEASE_FIXTURES } = {}) =>
+  callFunction(name, {
+    root,
+    args,
+    prelude: "install_home=$(resolve_install_home)",
+    env: {
+      OFFGRID_INSTALL_DIR: join(root, "install"),
+      OFFGRID_VERSION: "",
+      OFFGRID_RELEASE_REPOSITORY: "",
+      OFFGRID_TEST_LOG: join(root, "curl.log"),
+      OFFGRID_TEST_RELEASE: releaseDir,
+      ...env,
+    },
+    stubs: { curl: CURL_SERVES_RELEASE },
+  });
+
+const requestedUrls = (root) => {
+  const log = join(root, "curl.log");
+  return existsSync(log) ? readFileSync(log, "utf8") : "";
+};
+
+test("resolves the latest version from the release manifest", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "staging"));
+    const result = releaseCall(root, "resolve_release_version", { args: [join(root, "staging")] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), "1.2.3");
+    assert.match(requestedUrls(root), /\/releases\/latest\/download\/release-manifest\.json/);
+  });
+});
+
+test("rejects an OFFGRID_VERSION that is not X.Y.Z", () => {
+  withWorkspace((root) => {
+    const result = releaseCall(root, "resolve_release_version", {
+      args: [root],
+      env: { OFFGRID_VERSION: "1.2" },
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /^FAIL release: OFFGRID_VERSION must be X\.Y\.Z, got 1\.2$/m);
+    assert.equal(requestedUrls(root), "");
+  });
+});
+
+test("uses OFFGRID_VERSION without looking up the latest release", () => {
+  withWorkspace((root) => {
+    const result = releaseCall(root, "resolve_release_version", {
+      args: [root],
+      env: { OFFGRID_VERSION: "v1.2.3" },
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), "1.2.3");
+    assert.equal(requestedUrls(root), "");
+  });
+});
+
+test("keeps the pinned version of an existing .env and never looks up the latest release", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "install"));
+    writeFileSync(join(root, "install", ".env"), "OFFGRID_VERSION=1.0.0\n");
+
+    const result = releaseCall(root, "resolve_release_version", { args: [root] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), "1.0.0");
+    assert.equal(requestedUrls(root), "");
+  });
+});
+
+test("fails with a clear message when the latest release has no manifest", () => {
+  withWorkspace((root) => {
+    const empty = join(root, "empty");
+    mkdirSync(empty);
+
+    const result = releaseCall(root, "resolve_release_version", {
+      args: [root],
+      releaseDir: empty,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /^FAIL release: could not download release-manifest\.json/m);
+  });
+});
+
+test("rejects a release repository that is not owner/name", () => {
+  withWorkspace((root) => {
+    const result = releaseCall(root, "resolve_release_version", {
+      args: [root],
+      env: { OFFGRID_RELEASE_REPOSITORY: "not-a-repository" },
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /must be owner\/name/);
+  });
+});
+
+test("uses OFFGRID_INSTALL_DIR as the install folder and ignores OFFGRID_HOME", () => {
+  const result = callFunction("resolve_install_home", {
+    env: { OFFGRID_INSTALL_DIR: "/srv/offgrid", OFFGRID_HOME: "/elsewhere" },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), "/srv/offgrid");
+});
+
+test("defaults the install folder to /opt/offgrid", () => {
+  const result = callFunction("resolve_install_home", {
+    env: { OFFGRID_INSTALL_DIR: "", OFFGRID_HOME: "/elsewhere" },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), "/opt/offgrid");
+});
+
+test("rejects a relative install folder when resolving it", () => {
+  const result = callFunction("resolve_install_home", {
+    env: { OFFGRID_INSTALL_DIR: "relative/offgrid" },
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /absolute path/);
+});
