@@ -2457,6 +2457,44 @@
           }
         }
       }
+    },
+    "/system/updater/nightly": {
+      "get": {
+        "operationId": "getSystemUpdaterNightly",
+        "description": "Read by the updater with the shared updater bearer token, never by a browser or a signed-in person. The token is compared in constant time.",
+        "responses": {
+          "200": {
+            "description": "The stored nightly setting.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemUpdateNightly"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the bearer token is missing or wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "UPDATER_UNAVAILABLE: the updater is not configured, is unreachable or did not answer in time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

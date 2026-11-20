@@ -68,6 +68,15 @@ describe("Text", () => {
     expect(screen.getByText("+2 more")).toBeInTheDocument();
   });
 
+  it("renders the element given instead of the variant's element", () => {
+    const { container } = renderWithI18n(
+      <Text variant="body" element="span" textId="greeting.hello" />,
+    );
+
+    expect(container.querySelector("span")).toHaveTextContent("Hello there");
+    expect(container.querySelector("p")).toBeNull();
+  });
+
   it("merges extra styles over the variant styles", () => {
     renderWithI18n(
       <Text variant="caption" value="Lakeside" data-testid="caption" style={{ color: "red" }} />,

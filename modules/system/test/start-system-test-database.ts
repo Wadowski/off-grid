@@ -9,6 +9,7 @@ import type { SystemTestDatabase } from "./types.js";
 export const startSystemTestDatabase = async (): Promise<SystemTestDatabase> => {
   const database = await startMigratedTestDatabase({ migrate: migrateDeploy, resetSql: RESET_SQL });
   const db = createModuleDb(database.connect());
+  await db.systemUpdateSettings.findUnique({ where: { settingKey: "instance" } });
   return {
     admin: database.admin,
     pool: database.connect(),

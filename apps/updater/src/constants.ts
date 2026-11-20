@@ -15,6 +15,12 @@ export const DEFAULT_DATABASE_USER = "offgrid_migrator";
 
 export const DEFAULT_HEALTH_URL = "http://127.0.0.1:3000/api/health";
 
+export const DEFAULT_SERVER_URL = "http://127.0.0.1:3000";
+
+export const DEFAULT_NIGHTLY_TIME = "03:30";
+
+export const NIGHTLY_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
 export const DEFAULT_WEB_HEALTH_URL = "http://127.0.0.1:8080/";
 
 export const DEFAULT_STATUS_FILE = "data/updater/status.json";
@@ -62,8 +68,6 @@ export const UPDATE_OUTCOME_MESSAGES = {
     "Update failed and the automatic rollback did not finish. Restore by hand as described in the updater README.",
 } as const;
 
-export const BEARER_TOKEN_PATTERN = /^Bearer (.+)$/;
-
 export const GITHUB_API_HOST = "api.github.com";
 
 const RELEASE_ASSET_DOWNLOAD_HOST = "release-assets.githubusercontent.com";
@@ -97,3 +101,7 @@ export const DOCKER_MISSING_STATUS = 404;
 export const SERVER_VERSION_LABEL = "org.opencontainers.image.version";
 
 export const API_BODY_LIMIT_BYTES = 1024;
+
+export const NIGHTLY_SETTING_TIMEOUT_MILLISECONDS = 10000;
+
+export const NIGHTLY_SETTING_UNREADABLE_MESSAGE = "nightly setting could not be read";

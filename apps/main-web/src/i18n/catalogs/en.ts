@@ -10,7 +10,7 @@ export const en = {
     calendar: "Calendar",
     notes: "Notes",
     smartLists: "Smart Lists",
-    vault: "Vault Storage",
+    files: "Files",
     meals: "Meal Planner",
     settings: "Settings",
   },
@@ -593,6 +593,10 @@ export const en = {
       video: "Video",
       generic: "File",
     },
+    layout: {
+      heading: "Files",
+      placeholder: "Your drives and folders will appear here.",
+    },
     itemCount_one: "{{count}} item",
     itemCount_other: "{{count}} items",
     date: {
@@ -640,6 +644,31 @@ export const en = {
       label: "Notifications",
       labelUnread: "Notifications, {{count}} unread",
       unreadOverflow: "99+",
+    },
+    types: {
+      "password-changed": {
+        title: "Your password was changed",
+        body: "If this wasn't you, reset your password and check your account.",
+      },
+      "recovery-code-regenerated": {
+        title: "Your recovery code was regenerated",
+        body: "Your old recovery code no longer works. Store the new one safely.",
+      },
+      "event-invited": {
+        title: "You were invited to an event",
+        body: "Open the event to see the details and respond.",
+      },
+      "event-reminder": {
+        title: "Event reminder",
+        body: "An event you set a reminder for is coming up.",
+      },
+    },
+    actions: {
+      viewEvent: "View Event",
+    },
+    card: {
+      unread: "unread",
+      read: "read",
     },
   },
 } as const;

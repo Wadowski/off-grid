@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { notificationCategorySchema } from "@offgrid/contracts";
+import { notificationCategorySchema, notificationTypeSchema } from "@offgrid/contracts";
 import { describe, expect, it } from "vitest";
 import { en } from "./catalogs/en.js";
 
@@ -41,5 +41,16 @@ describe("notifications message catalog", () => {
   it.each(notificationCategorySchema.options)("has a category label for %s", (category) => {
     expect(resolve(`notifications.categories.${category}`)).toEqual(expect.any(String));
     expect(resolve(`notifications.filters.${category}`)).toEqual(expect.any(String));
+  });
+
+  it.each(notificationTypeSchema.options)("has a title and body for %s", (type) => {
+    expect(resolve(`notifications.types.${type}.title`)).toEqual(expect.any(String));
+    expect(resolve(`notifications.types.${type}.body`)).toEqual(expect.any(String));
+  });
+
+  it("has the card action and state labels", () => {
+    expect(resolve("notifications.actions.viewEvent")).toEqual(expect.any(String));
+    expect(resolve("notifications.card.unread")).toEqual(expect.any(String));
+    expect(resolve("notifications.card.read")).toEqual(expect.any(String));
   });
 });

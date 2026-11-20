@@ -4,7 +4,7 @@
 import type { FastifyInstance } from "fastify";
 import { checkForUpdate } from "../release/check-for-update.js";
 import type { UpdaterServices } from "../types.js";
-import { loadReleaseContext } from "./load-release-context.js";
+import { loadReleaseContext } from "../release/load-release-context.js";
 
 export const registerPostCheck = (app: FastifyInstance, services: UpdaterServices): void => {
   app.post("/check", async (_request, reply) => {

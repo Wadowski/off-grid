@@ -12,31 +12,34 @@ It has three parts. The backup and restore core dumps the `offgrid` database and
 - `src/docker/`: the Docker runner over the Engine API on the unix socket (`node:http`, no docker CLI in the image).
 - `src/release/`: the release manifest from GitHub Releases, checked with `releaseManifestSchema`.
 - `src/run/`: the single-run lock and the background run.
+- `src/schedule/`: the nightly scheduler, the next run time, the server call that reads the nightly setting, and one nightly tick.
 - `src/http/`: the Fastify API, the bearer token check and the fixed error bodies.
 - `src/types.ts` and `src/constants.ts`: shared types and constants.
 
 ## Configuration
 
-| Variable                                 | Default                            | Notes                                      |
-| ---------------------------------------- | ---------------------------------- | ------------------------------------------ |
-| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                              |
-| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                            |
-| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                            |
-| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                            |
-| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password         |
-| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production               |
-| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production            |
-| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1            |
-| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only          |
-| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only             |
-| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                            |
-| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres       |
-| `OFFGRID_UPDATER_TOKEN_FILE`             | required                           | File holding the API bearer token          |
-| `OFFGRID_UPDATER_HTTP_HOST`              | `127.0.0.1`                        | API listen address, Compose sets `0.0.0.0` |
-| `OFFGRID_UPDATER_HTTP_PORT`              | `3100`                             | API port, never published                  |
-| `OFFGRID_UPDATER_RELEASE_REPOSITORY`     | required                           | `owner/name` of the release repo           |
-| `OFFGRID_UPDATER_DOCKER_SOCKET`          | `/var/run/docker.sock`             | Docker Engine unix socket                  |
-| `OFFGRID_UPDATER_COMPOSE_PROJECT`        | `offgrid`                          | Compose project of the containers          |
+| Variable                                 | Default                            | Notes                                                     |
+| ---------------------------------------- | ---------------------------------- | --------------------------------------------------------- |
+| `OFFGRID_UPDATER_DATABASE_HOST`          | required                           | Postgres host                                             |
+| `OFFGRID_UPDATER_DATABASE_PORT`          | `5432`                             |                                                           |
+| `OFFGRID_UPDATER_DATABASE_NAME`          | `offgrid`                          |                                                           |
+| `OFFGRID_UPDATER_DATABASE_USER`          | `offgrid_migrator`                 |                                                           |
+| `OFFGRID_UPDATER_MIGRATOR_PASSWORD_FILE` | required                           | File holding the migrator password                        |
+| `OFFGRID_UPDATER_SECRETS_DIRECTORY`      | `data/secrets`                     | `/run/secrets` in production                              |
+| `OFFGRID_UPDATER_BACKUP_ROOT`            | `data/backups`                     | `/backups` volume in production                           |
+| `OFFGRID_UPDATER_BACKUP_RETENTION`       | `3`                                | Newest backups kept, at least 1                           |
+| `OFFGRID_UPDATER_HEALTH_URL`             | `http://127.0.0.1:3000/api/health` | Server health, http or https only                         |
+| `OFFGRID_UPDATER_WEB_HEALTH_URL`         | `http://127.0.0.1:8080/`           | Web health, http or https only                            |
+| `OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS` | `120`                              |                                                           |
+| `OFFGRID_UPDATER_STATUS_FILE`            | `data/updater/status.json`         | Update status file, outside Postgres                      |
+| `OFFGRID_UPDATER_TOKEN_FILE`             | required                           | File holding the API bearer token                         |
+| `OFFGRID_UPDATER_HTTP_HOST`              | `127.0.0.1`                        | API listen address, Compose sets `0.0.0.0`                |
+| `OFFGRID_UPDATER_HTTP_PORT`              | `3100`                             | API port, never published                                 |
+| `OFFGRID_UPDATER_RELEASE_REPOSITORY`     | required                           | `owner/name` of the release repo                          |
+| `OFFGRID_UPDATER_DOCKER_SOCKET`          | `/var/run/docker.sock`             | Docker Engine unix socket                                 |
+| `OFFGRID_UPDATER_COMPOSE_PROJECT`        | `offgrid`                          | Compose project of the containers                         |
+| `OFFGRID_UPDATER_SERVER_URL`             | `http://127.0.0.1:3000`            | Server origin for the nightly setting, http or https only |
+| `OFFGRID_UPDATER_NIGHTLY_TIME`           | `03:30`                            | Nightly check time, `HH:MM` in the process `TZ`           |
 
 A missing, unreadable or empty token file, or a missing release repository, stops the process at start with a `ConfigError` that names the variable. The token and the file content never appear in an error message or a log line.
 
@@ -53,6 +56,21 @@ The API listens on `OFFGRID_UPDATER_HTTP_PORT`. Every route needs `Authorization
 `POST /apply` takes the lock, reads the running version and the release manifest for the requested version, then returns `202` and runs `applyUpdate` in the background. The lock is released when the run ends in any outcome, including a thrown error. A release lookup that fails before the run starts gives `502` and leaves no status. `POST /check` works while a run is active. Error bodies are fixed and carry no error text.
 
 The current version comes from the `org.opencontainers.image.version` label of the running server image. A local build without a release version label cannot be updated.
+
+## Nightly update
+
+The nightly automatic update is off by default. The updater starts a scheduler at process start, and the scheduler runs one tick per day at `OFFGRID_UPDATER_NIGHTLY_TIME` (default `03:30`) in the process time zone. Compose sets `TZ`; without it the slot is UTC. A fresh start does not run at once: it waits for the next slot.
+
+One tick does this, in order:
+
+1. Takes the run lock. A manual update that holds it makes the tick skip, so nightly and manual runs never overlap.
+2. Reads the nightly setting from the server: `GET /api/system/updater/nightly` on `OFFGRID_UPDATER_SERVER_URL`, with the updater token. The updater keeps no copy of the setting. When the setting is off, or the reply is not readable, the tick stops here and makes no call to GitHub.
+3. Loads the release manifest for the latest release, the same call as `POST /check`.
+4. If a newer release exists and the running version may update to it, runs `applyUpdate` once. The backup, pull, replace, health and rollback steps are the ones described above, and the outcome is written to the status file.
+
+A failed night is not retried that night. The scheduler computes the next slot from the slot that just ran, not from the time the run ended, so a long run that passes 03:30 does not start a second run that night. The next night tries again only if a newer release is still pending, because the check decides that by itself. Apply failures show in `lastRun` through `GET /status`. A failure before a run starts (setting unreadable, release source unreachable, no newer release, not allowed) is logged only and writes no status. The logs never carry the token or the server's reply text.
+
+Limits: the scheduler keeps its timer in memory. If the updater restarts across 03:30, that night is missed and the next slot runs. The updater is a single container, so there is no other instance to coordinate with.
 
 ## Docker
 

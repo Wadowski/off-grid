@@ -82,6 +82,7 @@ export interface UpdateCheckRecord {
 export interface UpdateDependencies {
   readonly db: ModuleDatabase;
   readonly updater: UpdaterClient;
+  readonly updaterToken: string | null;
   readonly isInstanceAdmin: (userId: string) => Promise<boolean>;
   readonly currentVersion: string;
 }

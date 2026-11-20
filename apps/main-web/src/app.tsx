@@ -25,6 +25,8 @@ import { AppShell } from "./layouts/app-shell/app-shell.js";
 import { CalendarsPage } from "./pages/calendars-page/calendars-page.js";
 import { CalendarViewsPage } from "./pages/calendar-views-page/calendar-views-page.js";
 import { CalendarLayout } from "./layouts/calendar-layout/calendar-layout.js";
+import { FilesLayout } from "./layouts/files-layout/files-layout.js";
+import { FilesPage } from "./pages/files-page/files-page.js";
 import { CreateCalendarPage } from "./pages/create-calendar-page/create-calendar-page.js";
 import { EditCalendarPage } from "./pages/edit-calendar-page/edit-calendar-page.js";
 import { NewCalendarEventPage } from "./pages/new-calendar-event-page/new-calendar-event-page.js";
@@ -72,6 +74,10 @@ export const App = () => {
                   <Route path="month" element={<CalendarViewsPage view="month" />} />
                   <Route path="event/new" element={<NewCalendarEventPage />} />
                   <Route path={EVENT_DETAILS_ROUTE} element={<CalendarEventDetailsPage />} />
+                </Route>
+                <Route path="files" element={<FilesLayout />}>
+                  <Route index element={<FilesPage />} />
+                  <Route path=":driveId/*" element={<FilesPage />} />
                 </Route>
                 <Route path="calendar/calendars" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />

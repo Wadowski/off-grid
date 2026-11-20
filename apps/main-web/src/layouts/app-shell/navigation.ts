@@ -7,7 +7,7 @@ export type AppNavLabelTextId =
   | "nav.calendar"
   | "nav.notes"
   | "nav.smartLists"
-  | "nav.vault"
+  | "nav.files"
   | "nav.meals"
   | "nav.settings";
 
@@ -37,7 +37,13 @@ export const appNavItems: readonly AppNavItem[] = [
   },
   { id: "notes", labelTextId: "nav.notes", iconName: "description" },
   { id: "smart-lists", labelTextId: "nav.smartLists", iconName: "checklist" },
-  { id: "vault", labelTextId: "nav.vault", iconName: "lock" },
+  {
+    id: "vault",
+    labelTextId: "nav.files",
+    iconName: "folder",
+    path: "/files",
+    matchSubpaths: true,
+  },
   { id: "meals", labelTextId: "nav.meals", iconName: "restaurant" },
 ];
 

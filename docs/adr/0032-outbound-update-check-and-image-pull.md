@@ -22,8 +22,9 @@ The forces are these:
 
 - We will allow the system to make outbound calls for updates in exactly two cases:
   1. when an admin clicks **Check for updates** or **Update**;
-  2. when the admin has turned on the **nightly automatic update**. This option is off by default. When it is on, the check runs once a day in the lowest-traffic hour, which the admin can see and change in the settings.
+  2. when the admin has turned on the **nightly automatic update**. This option is off by default. When it is on, the updater checks once a day at a fixed hour, 03:30 local time by default. The hour is set on the host with `OFFGRID_UPDATER_NIGHTLY_TIME`; the admin does not choose it in the UI in this version. The updater reads the on or off setting from the server on each run and keeps no copy of it.
 - No other outbound call is added. The update feature makes no call at any other time, and no call carries app data, user data or identifiers beyond what the HTTP request needs.
+- The updater reads the nightly setting from the server over the internal Compose network, with the updater bearer token. That call is not outbound and does not leave the host. The reply is one boolean.
 - The exact hosts are:
   - `api.github.com`: the GitHub Releases API, which returns the release list and the release manifest.
   - `ghcr.io`: the GitHub Container Registry, which serves image manifests.
@@ -66,6 +67,7 @@ This record is an exception to the no-outbound-calls rule, so the following are 
 ## Consequences
 
 - Easier: the owner can see every outbound host and the two triggers for each. An update cannot run unless the admin asks for it or has turned on the nightly option.
+- Harder: the nightly hour is fixed on the host, not chosen in the UI. The admin can change it only by setting `OFFGRID_UPDATER_NIGHTLY_TIME` and restarting the updater. A settings screen for the hour is a later issue (OG-173).
 - Easier: a compromised server does not hold the Docker socket, so it cannot start containers or read the host filesystem through Docker.
 - Harder: the updater is a second service to build, secure and test. It needs its own container, its own image and its own tests.
 - Harder: without manifest signing, a compromised GitHub account or a compromised release pipeline can publish an image and a matching manifest. Digest pinning protects against a moved tag and a tampered image, but not against a fully controlled release. The privacy statement and the admin's settings must not claim more than this.
