@@ -26,6 +26,10 @@ info_ok() {
   printf 'ok  %s\n' "$1"
 }
 
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "tools: $1 is not installed. Install the $2 package and run this script again"
+}
+
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
     fail "root: run this script as root, for example: sudo sh install.sh"
@@ -455,10 +459,6 @@ run_install() {
   create_env_file_if_missing "$staging_dir" "$release_version"
   reconcile_stack "$staging_dir"
   print_next_steps
-}
-
-require_command() {
-  command -v "$1" >/dev/null 2>&1 || fail "tools: $1 is not installed. Install the $2 package and run this script again"
 }
 
 first_non_loopback_address() {
