@@ -12,6 +12,10 @@ PASTE_IN_POINTER="install Docker yourself and follow the paste-in path in infra/
 DOCKER_DOWNLOAD_URL=https://download.docker.com/linux
 DOCKER_DEB_FINGERPRINT=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 DOCKER_RPM_FINGERPRINT=060A61C51B558A7F742B77AAC52FEB6B621E9F35
+DEFAULT_RELEASE_REPOSITORY=Wadowski/off-grid
+WAIT_TIMEOUT_SECONDS=300
+RELEASE_REPOSITORY_PATTERN='^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'
+SEMVER_PATTERN='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 
 fail() {
   printf 'FAIL %s\n' "$1" >&2
@@ -20,6 +24,10 @@ fail() {
 
 info_ok() {
   printf 'ok  %s\n' "$1"
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "tools: $1 is not installed. Install the $2 package and run this script again"
 }
 
 require_root() {
@@ -77,12 +85,16 @@ detect_os_family() {
   info_ok "os: $os_id is the $os_family family"
 }
 
-check_disk_space() {
+resolve_install_home() {
   install_dir=${OFFGRID_INSTALL_DIR:-$DEFAULT_INSTALL_DIR}
   case "$install_dir" in
-    /*) ;;
-    *) fail "disk: OFFGRID_INSTALL_DIR must be an absolute path, got $install_dir" ;;
+    /*) printf '%s\n' "$install_dir" ;;
+    *) fail "install folder: OFFGRID_INSTALL_DIR must be an absolute path, got $install_dir" ;;
   esac
+}
+
+check_disk_space() {
+  install_dir=$(resolve_install_home)
   probe_dir=$install_dir
   while [ ! -e "$probe_dir" ]; do
     probe_dir=$(dirname "$probe_dir")
@@ -209,7 +221,6 @@ install_docker_debian() {
   codename=$(debian_codename)
   [ -n "$codename" ] || fail "docker: no release codename in $os_release_file for $os_id"
   key_dir=$(mktemp -d)
-  trap 'rm -rf "$key_dir"' EXIT
   apt-get update -qq
   apt-get install -y -qq ca-certificates curl gnupg
   fetch_docker_key "$DOCKER_DOWNLOAD_URL/$distro/gpg" "$key_dir/docker.asc" "$DOCKER_DEB_FINGERPRINT"
@@ -219,12 +230,12 @@ install_docker_debian() {
   apt-get update -qq
   apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   start_docker_service
+  rm -rf "$key_dir"
 }
 
 install_docker_rpm() {
   repo_path=$1
   key_dir=$(mktemp -d)
-  trap 'rm -rf "$key_dir"' EXIT
   dnf install -y ca-certificates gnupg2
   fetch_docker_key "$DOCKER_DOWNLOAD_URL/$repo_path/gpg" "$key_dir/docker.asc" "$DOCKER_RPM_FINGERPRINT"
   install -m 0644 "$key_dir/docker.asc" /etc/pki/rpm-gpg/RPM-GPG-KEY-docker-ce
@@ -232,6 +243,7 @@ install_docker_rpm() {
   write_docker_yum_repo "$repo_path"
   dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   start_docker_service
+  rm -rf "$key_dir"
 }
 
 install_docker_fedora() {
@@ -242,6 +254,226 @@ install_docker_rhel() {
   install_docker_rpm "$os_id"
 }
 
+resolve_release_repository() {
+  repository=${OFFGRID_RELEASE_REPOSITORY:-$DEFAULT_RELEASE_REPOSITORY}
+  printf '%s\n' "$repository" | grep -Eq "$RELEASE_REPOSITORY_PATTERN" \
+    || fail "release: OFFGRID_RELEASE_REPOSITORY must be owner/name, got $repository"
+  printf '%s\n' "$repository"
+}
+
+is_semver() {
+  printf '%s\n' "$1" | grep -Eq "$SEMVER_PATTERN"
+}
+
+check_release_version() {
+  is_semver "$1" || fail "release: $2 must be X.Y.Z, got $1"
+  printf '%s\n' "$1"
+}
+
+read_pinned_version() {
+  env_file=$install_home/.env
+  [ -f "$env_file" ] || return 0
+  sed -n 's/^OFFGRID_VERSION=//p' "$env_file" | tail -n 1
+}
+
+release_download_url() {
+  repository=$(resolve_release_repository)
+  if [ -n "$1" ]; then
+    printf 'https://github.com/%s/releases/download/v%s\n' "$repository" "$1"
+  else
+    printf 'https://github.com/%s/releases/latest/download\n' "$repository"
+  fi
+}
+
+download_release_file() {
+  curl -fsSL --proto '=https' --proto-redir '=https' --tlsv1.2 -o "$3/$2" "$1/$2" \
+    || fail "release: could not download $2 from $1. Check that the release exists and has this file; nothing was installed"
+}
+
+manifest_version() {
+  version=$(sed -n 's/^  "version": "\([^"]*\)".*/\1/p' "$1" | head -n 1)
+  check_release_version "$version" "the release manifest version"
+}
+
+resolve_release_version() {
+  staging_dir=$1
+  if [ -n "${OFFGRID_VERSION:-}" ]; then
+    check_release_version "${OFFGRID_VERSION#v}" OFFGRID_VERSION
+    return 0
+  fi
+  pinned=$(read_pinned_version)
+  if [ -n "$pinned" ]; then
+    check_release_version "$pinned" "OFFGRID_VERSION in $install_home/.env"
+    return 0
+  fi
+  download_release_file "$(release_download_url "")" release-manifest.json "$staging_dir"
+  manifest_version "$staging_dir/release-manifest.json"
+}
+
+download_release_files() {
+  base_url=$(release_download_url "$2")
+  download_release_file "$base_url" docker-compose.production.yml "$1"
+  download_release_file "$base_url" production.env.example "$1"
+  download_release_file "$base_url" SHA256SUMS "$1"
+}
+
+verify_release_file() {
+  expected=$(awk -v name="$2" '$2 == name && length($1) == 64 && $1 ~ /^[0-9a-f]+$/ { print $1 }' "$1/SHA256SUMS")
+  actual=$(sha256sum "$1/$2" | cut -d ' ' -f 1)
+  [ -n "$expected" ] && [ "$actual" = "$expected" ] \
+    || fail "checksum: $2 is missing from SHA256SUMS or does not match it, nothing was installed"
+}
+
+verify_release_files() {
+  verify_release_file "$1" docker-compose.production.yml
+  verify_release_file "$1" production.env.example
+}
+
+write_pinned_env() {
+  temporary=$3/env.tmp
+  if grep -q '^OFFGRID_VERSION=' "$1"; then
+    sed "s/^OFFGRID_VERSION=.*/OFFGRID_VERSION=$2/" "$1" > "$temporary"
+  else
+    { cat "$1"; if [ -n "$(tail -c 1 "$1")" ]; then printf '\n'; fi; printf 'OFFGRID_VERSION=%s\n' "$2"; } > "$temporary"
+  fi
+  chmod 600 "$temporary"
+  mv "$temporary" "$4"
+}
+
+create_env_file_if_missing() {
+  [ -e "$install_home/.env" ] && return 0
+  write_pinned_env "$1/production.env.example" "$2" "$1" "$install_home/.env"
+  info_ok "config: created $install_home/.env from production.env.example, pinned to $2"
+}
+
+pin_env_version() {
+  write_pinned_env "$install_home/.env" "$2" "$1" "$install_home/.env"
+}
+
+compose_command() {
+  compose_file=$1
+  shift
+  OFFGRID_VERSION=$release_version docker compose --project-name offgrid --project-directory "$install_home" \
+    --env-file "$install_home/.env" -f "$compose_file" "$@"
+}
+
+pull_images() {
+  compose_command "$1" pull \
+    || fail "images: could not pull the Offgrid $release_version images. Check the network, and that the ghcr.io packages are public (see CONTRIBUTING.md, Cutting a release)"
+}
+
+wait_failed_message() {
+  printf 'FAIL stack: Offgrid %s is not healthy after %s seconds. The stack was left as it is. Look at it with: cd %s && docker compose --project-name offgrid ps, and docker compose --project-name offgrid logs --tail 50. Run this script again once the cause is fixed.\n' \
+    "$release_version" "$WAIT_TIMEOUT_SECONDS" "$install_home" >&2
+  exit 1
+}
+
+start_stack() {
+  compose_command "$1" up -d --wait --wait-timeout "$WAIT_TIMEOUT_SECONDS" || wait_failed_message
+}
+
+version_number() {
+  major=${1%%.*}
+  rest=${1#*.}
+  minor=${rest%%.*}
+  patch=${rest#*.}
+  printf '%s\n' $((major * 1000000000000 + minor * 1000000 + patch))
+}
+
+version_order() {
+  first=$(version_number "$1")
+  second=$(version_number "$2")
+  if [ "$first" -gt "$second" ]; then
+    printf '%s\n' gt
+  elif [ "$first" -eq "$second" ]; then
+    printf '%s\n' eq
+  else
+    printf '%s\n' lt
+  fi
+}
+
+installed_version() {
+  container=$(compose_command "$1" ps -a -q server)
+  [ -n "$container" ] || return 0
+  image=$(docker inspect --format '{{.Config.Image}}' "$container")
+  check_release_version "${image##*:}" "the installed server image tag"
+}
+
+adopt_release_files() {
+  mv "$1/docker-compose.production.yml" "$install_home/docker-compose.production.yml"
+  mv "$1/production.env.example" "$install_home/production.env.example"
+}
+
+ensure_pin() {
+  if [ "$(read_pinned_version)" != "$release_version" ]; then
+    pin_env_version "$1" "$release_version"
+  fi
+}
+
+refuse_downgrade() {
+  if [ -n "${OFFGRID_VERSION:-}" ]; then
+    fail "downgrade: OFFGRID_VERSION $release_version is older than the installed Offgrid $1. Downgrades are not supported, nothing was changed"
+  fi
+  pin_env_version "$2" "$1"
+  release_version=$1
+  info_ok "stack: .env pin was older than the installed Offgrid $1, corrected it to $1. Nothing was pulled or restarted"
+}
+
+reconcile_stack() {
+  installed=$(installed_version "$1/docker-compose.production.yml")
+  if [ -z "$installed" ]; then
+    adopt_release_files "$1"
+    ensure_pin "$1"
+    pull_images "$install_home/docker-compose.production.yml"
+    start_stack "$install_home/docker-compose.production.yml"
+    return 0
+  fi
+  case $(version_order "$release_version" "$installed") in
+    eq)
+      adopt_release_files "$1"
+      ensure_pin "$1"
+      start_stack "$install_home/docker-compose.production.yml"
+      ;;
+    gt)
+      adopt_release_files "$1"
+      ensure_pin "$1"
+      pull_images "$install_home/docker-compose.production.yml"
+      start_stack "$install_home/docker-compose.production.yml"
+      ;;
+    lt)
+      refuse_downgrade "$installed" "$1"
+      ;;
+  esac
+}
+
+run_install() {
+  require_command curl curl
+  require_command sha256sum coreutils
+  install_home=$(resolve_install_home)
+  mkdir -p "$install_home"
+  staging_dir=$(mktemp -d "$install_home/.install.XXXXXX")
+  trap 'rm -rf "$staging_dir"' EXIT
+  release_version=$(resolve_release_version "$staging_dir")
+  download_release_files "$staging_dir" "$release_version"
+  verify_release_files "$staging_dir"
+  create_env_file_if_missing "$staging_dir" "$release_version"
+  reconcile_stack "$staging_dir"
+  print_next_steps
+}
+
+first_non_loopback_address() {
+  address=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -Ev '^(127\.|::1$)|^$' | head -n 1)
+  printf '%s\n' "${address:-localhost}"
+}
+
+print_next_steps() {
+  web_port=$(sed -n 's/^OFFGRID_WEB_PORT=//p' "$install_home/.env" | tail -n 1)
+  info_ok "stack: Offgrid $release_version is running"
+  printf 'Open Offgrid: http://%s:%s\n' "$(first_non_loopback_address)" "${web_port:-8080}"
+  printf '%s\n' 'Next: open that address and create the admin account (the first account becomes the admin).'
+  printf '%s\n' 'Back up: see infra/README.md, Backups'
+}
+
 main() {
   umask 022
   require_root
@@ -249,6 +481,10 @@ main() {
   detect_os_family
   check_disk_space
   check_docker
+  if [ "${OFFGRID_INSTALL_PREREQUISITES_ONLY:-0}" = 1 ]; then
+    return 0
+  fi
+  run_install
   print_group_step
 }
 

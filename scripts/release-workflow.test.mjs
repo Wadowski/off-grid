@@ -65,4 +65,23 @@ describe("release workflow", () => {
       assert.doesNotMatch(line, LATEST_TAG);
     }
   });
+
+  it("attaches the install script files and their checksums to the release", () => {
+    const releaseCommand = WORKFLOW.split("\n").find((line) => line.includes("gh release create"));
+    assert.ok(releaseCommand, "no gh release create command");
+    for (const asset of [
+      "release-manifest.json",
+      "docker-compose.production.yml",
+      "production.env.example",
+      "SHA256SUMS",
+    ]) {
+      assert.ok(releaseCommand.includes(asset), `release does not attach ${asset}`);
+    }
+    assert.ok(
+      WORKFLOW.includes(
+        "sha256sum docker-compose.production.yml production.env.example > SHA256SUMS",
+      ),
+      "SHA256SUMS is not written from the attached files",
+    );
+  });
 });

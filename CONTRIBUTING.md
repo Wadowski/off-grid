@@ -124,7 +124,7 @@ A release is a `vX.Y.Z` tag on a commit of `main`. The release workflow in `.git
    git push origin v1.2.3
    ```
 
-4. The workflow refuses the tag if it is not on `main`, if the version is below `MINIMUM_UPDATE_FROM`, or if a release for the tag already exists. Otherwise it builds `offgrid-main-server`, `offgrid-main-web` and `offgrid-updater` for `linux/amd64` and `linux/arm64`, pushes them to `ghcr.io/<owner>/offgrid-main-server`, `ghcr.io/<owner>/offgrid-main-web` and `ghcr.io/<owner>/offgrid-updater` with the tags `1.2.3` and `1.2`, and creates a GitHub Release with `release-manifest.json` attached.
+4. The workflow refuses the tag if it is not on `main`, if the version is below `MINIMUM_UPDATE_FROM`, or if a release for the tag already exists. Otherwise it builds `offgrid-main-server`, `offgrid-main-web` and `offgrid-updater` for `linux/amd64` and `linux/arm64`, pushes them to `ghcr.io/<owner>/offgrid-main-server`, `ghcr.io/<owner>/offgrid-main-web` and `ghcr.io/<owner>/offgrid-updater` with the tags `1.2.3` and `1.2`, and creates a GitHub Release with `release-manifest.json`, `docker-compose.production.yml`, `production.env.example` and `SHA256SUMS` attached. The last three are the install script's files; `SHA256SUMS` holds their SHA-256 checksums, which the install script checks before it uses them.
 5. On the first push GitHub creates the three packages as private. Set each package to public in the repository's package settings, or the updater cannot pull the images without credentials.
 
 The workflow never pushes a `latest` tag. Images are referenced by digest in the manifest, and the manifest is not signed yet; see [ADR 0032](docs/adr/0032-outbound-update-check-and-image-pull.md).

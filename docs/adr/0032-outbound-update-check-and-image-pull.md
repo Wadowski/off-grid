@@ -76,3 +76,16 @@ This record is an exception to the no-outbound-calls rule, so the following are 
 - Follow-up: manifest signing is deferred and needs its own record.
 - Follow-up: cloud deployment update policy is a separate decision and is not covered here.
 - Status moves to Accepted when the release pipeline and the updater are merged.
+
+## Amendment: install script (OG-174)
+
+The install script, `infra/install/install.sh`, makes outbound calls of its own. The owner runs it once as root on a host to install the production stack. The server and the updater do not run it, and it makes no call at any other time. Its calls are:
+
+- `github.com`: the release files `docker-compose.production.yml`, `production.env.example` and `SHA256SUMS` are downloaded from `https://github.com/<repository>/releases/download/v<version>/`, or from `releases/latest/download/` for the first release manifest when no version is pinned. GitHub redirects these to `release-assets.githubusercontent.com`, the host already listed above. curl follows only HTTPS redirects.
+- `ghcr.io` and the hosts behind it: `docker compose pull` fetches the images, as the updater does.
+- `download.docker.com`: only when Docker is missing. The script downloads the Docker repository key from it, checks the key against a pinned fingerprint, and installs Docker from that repository.
+- The distribution's package mirrors: only when Docker is missing, for the base packages (`ca-certificates`, `curl`, `gnupg` or `gnupg2`) that the Docker install needs.
+
+The script checks the two downloaded files against `SHA256SUMS` from the same release before it uses them. That guards against corrupted and swapped downloads. It does not guard against a compromised release, for the same reason as the manifest above: nothing is signed.
+
+The install-time calls are the owner's host setup, the same class as the Docker repository key download in OG-172. The rule that a call happens only on an admin's action does not apply to them, because no admin account exists before the first install.

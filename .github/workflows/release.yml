@@ -210,8 +210,13 @@ jobs:
           OFFGRID_SERVER_DIGEST: ${{ needs.build-server.outputs.digest }}
           OFFGRID_WEB_DIGEST: ${{ needs.build-web.outputs.digest }}
         run: node --import tsx scripts/release-manifest.mjs --out release-manifest.json
-      - name: create GitHub release with the manifest attached
+      - name: write install script assets and checksums
+        run: |
+          cp infra/compose/docker-compose.production.yml docker-compose.production.yml
+          cp infra/compose/production.env.example production.env.example
+          sha256sum docker-compose.production.yml production.env.example > SHA256SUMS
+      - name: create GitHub release with the manifest and install assets attached
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" release-manifest.json --verify-tag --title "OffGrid $TAG" --generate-notes
+        run: gh release create "$TAG" release-manifest.json docker-compose.production.yml production.env.example SHA256SUMS --verify-tag --title "OffGrid $TAG" --generate-notes

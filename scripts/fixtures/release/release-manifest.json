@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "version": "1.2.3",
+  "commit": "0000000000000000000000000000000000000000",
+  "images": {
+    "server": {
+      "reference": "ghcr.io/wadowski/offgrid-main-server@sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+    "web": {
+      "reference": "ghcr.io/wadowski/offgrid-main-web@sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    }
+  },
+  "minimumPreviousVersion": "0.0.0"
+}
