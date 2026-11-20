@@ -282,7 +282,7 @@ release_download_url() {
 }
 
 download_release_file() {
-  curl -fsSL --proto '=https' --tlsv1.2 -o "$3/$2" "$1/$2" \
+  curl -fsSL --proto '=https' --proto-redir '=https' --tlsv1.2 -o "$3/$2" "$1/$2" \
     || fail "release: could not download $2 from $1. Check that the release exists and has this file; nothing was installed"
 }
 
