@@ -16,21 +16,28 @@ import type { UpdateNightlyToggleProps } from "./types.js";
 
 export const UpdateNightlyToggle = ({ nightlyEnabled }: UpdateNightlyToggleProps) => {
   const [enabled, setEnabled] = useState(nightlyEnabled);
+  const [confirmed, setConfirmed] = useState(nightlyEnabled);
+  const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
 
   useEffect(() => {
     setEnabled(nightlyEnabled);
+    setConfirmed(nightlyEnabled);
   }, [nightlyEnabled]);
 
   const handleToggle = async (next: boolean) => {
     setSaveFailed(false);
+    setSaving(true);
     setEnabled(next);
     try {
       const saved = await webSystemClient.setNightlyUpdate(next);
+      setConfirmed(saved.enabled);
       setEnabled(saved.enabled);
     } catch {
-      setEnabled(!next);
+      setEnabled(confirmed);
       setSaveFailed(true);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -45,6 +52,7 @@ export const UpdateNightlyToggle = ({ nightlyEnabled }: UpdateNightlyToggleProps
             <Checkbox
               data-testid="admin-update-nightly-toggle"
               checked={enabled}
+              disabled={saving}
               onChange={(event) => void handleToggle(event.target.checked)}
               label={<Text variant="label" textId="admin.update.nightlyToggle" />}
             />

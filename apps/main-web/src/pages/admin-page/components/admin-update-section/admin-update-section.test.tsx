@@ -234,6 +234,23 @@ describe("AdminUpdateSection", () => {
     expect(nightlyMock).toHaveBeenCalledWith(true);
   });
 
+  it("disables the nightly toggle while the save is in flight", async () => {
+    await renderLoaded(systemUpdateWith({}));
+    let resolveSave: (value: { enabled: boolean }) => void = () => undefined;
+    nightlyMock.mockReturnValue(
+      new Promise<{ enabled: boolean }>((resolve) => {
+        resolveSave = resolve;
+      }),
+    );
+
+    fireEvent.click(nightlyToggle());
+
+    expect(nightlyToggle()).toBeDisabled();
+    resolveSave({ enabled: true });
+    await waitFor(() => expect(nightlyToggle()).toBeEnabled());
+    expect(nightlyToggle()).toBeChecked();
+  });
+
   it("reverts the nightly toggle and shows a notice when saving fails", async () => {
     await renderLoaded(systemUpdateWith({}));
     nightlyMock.mockRejectedValue(new Error("network down"));
