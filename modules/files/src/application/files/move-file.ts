@@ -6,6 +6,7 @@ import type { FileStorage } from "@offgrid/file-storage";
 import { readAsUser } from "../read-as-user.js";
 import { writeAsUser } from "../write-as-user.js";
 import type { FilesOutcome, MoveFileInput, MoveOutcome } from "../../types.js";
+import { InvalidMoveError } from "../errors/invalid-move-error.js";
 import { moveAcrossOwners } from "./move-across-owners.js";
 import { moveWithinDrive } from "./move-within-drive.js";
 import { readMovePlan } from "./read-move-plan.js";
@@ -26,8 +27,22 @@ export const moveFile = async (
     return { outcome: "found", value: { file: plan.file, crossOwnerNotice: false } };
   }
   if (plan.kind === "same-drive") {
-    const moved = await writeAsUser(db, userId, (tx) => moveWithinDrive(tx, plan));
-    return { outcome: "found", value: { file: moved, crossOwnerNotice: false } };
+    const moved = await writeAsUser(db, userId, async (tx) => {
+      const fresh = await readMovePlan(tx, fileId, input);
+      if (fresh.outcome === "not-found") {
+        return null;
+      }
+      if (fresh.value.kind === "same-drive") {
+        return moveWithinDrive(tx, fresh.value);
+      }
+      if (fresh.value.kind === "no-op") {
+        return fresh.value.file;
+      }
+      throw new InvalidMoveError();
+    });
+    return moved === null
+      ? { outcome: "not-found" }
+      : { outcome: "found", value: { file: moved, crossOwnerNotice: false } };
   }
   const moved = await moveAcrossOwners(db, storage, userId, plan);
   return { outcome: "found", value: { file: moved, crossOwnerNotice: true } };

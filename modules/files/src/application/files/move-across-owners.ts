@@ -8,6 +8,7 @@ import type { CrossOwnerPlan, FileRecord } from "../../types.js";
 import { copyFileBytes } from "./copy-file-bytes.js";
 import { copyFileTree } from "./copy-file-tree.js";
 import { deleteStoredBytes } from "./delete-stored-bytes.js";
+import { isCurrentVersion } from "./is-current-version.js";
 
 export const moveAcrossOwners = async (
   db: ModuleDatabase,
@@ -36,6 +37,3 @@ export const moveAcrossOwners = async (
     throw error;
   }
 };
-
-const isCurrentVersion = (plan: CrossOwnerPlan, versionId: string): boolean =>
-  plan.tree.entries.some((entry) => entry.currentVersionId === versionId);

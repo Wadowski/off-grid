@@ -1,6 +1,6 @@
 # 0037. Cross-owner moves copy the subtree and remove the source, with an entry limit
 
-- **Status:** Proposed
+- **Status:** Accepted
 
 ## Context
 
