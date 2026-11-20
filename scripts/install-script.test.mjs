@@ -822,3 +822,86 @@ test("changes only the OFFGRID_VERSION line of an existing .env when pinning", (
     );
   });
 });
+
+const DOCKER_STUB = [
+  'echo "$*" >> "$OFFGRID_TEST_DOCKER_LOG"',
+  'case "$1" in',
+  "  inspect) echo \"$OFFGRID_TEST_RUNNING_IMAGE\" ;;",
+  "esac",
+  'case "$*" in',
+  '  *" pull"*) [ -z "${OFFGRID_TEST_PULL_FAILS:-}" ] || exit 1 ;;',
+  '  *" up "*) [ -z "${OFFGRID_TEST_UP_FAILS:-}" ] || exit 1 ;;',
+  "esac",
+].join("\n");
+
+const dockerCall = (root, name, { args = [], env = {} } = {}) =>
+  callFunction(name, {
+    root,
+    args,
+    prelude: "install_home=$(resolve_install_home); release_version=1.2.3",
+    env: {
+      OFFGRID_INSTALL_DIR: join(root, "install"),
+      OFFGRID_TEST_DOCKER_LOG: join(root, "docker.log"),
+      ...env,
+    },
+    stubs: { docker: DOCKER_STUB },
+  });
+
+const dockerCalls = (root) => {
+  const log = join(root, "docker.log");
+  return existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [];
+};
+
+test("starts the stack under the offgrid project with a bounded wait", () => {
+  withWorkspace((root) => {
+    const composeFile = join(root, "install", "docker-compose.production.yml");
+
+    const result = dockerCall(root, "start_stack", { args: [composeFile] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(dockerCalls(root), [
+      `compose --project-name offgrid --project-directory ${join(root, "install")} --env-file ${join(root, "install", ".env")} -f ${composeFile} up -d --wait --wait-timeout 300`,
+    ]);
+  });
+});
+
+test("prints the timeout message with the ps and logs hints when the stack is not healthy", () => {
+  withWorkspace((root) => {
+    const composeFile = join(root, "install", "docker-compose.production.yml");
+
+    const result = dockerCall(root, "start_stack", {
+      args: [composeFile],
+      env: { OFFGRID_TEST_UP_FAILS: "1" },
+    });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /^FAIL stack: Offgrid 1\.2\.3 is not healthy after 300 seconds/m);
+    assert.match(result.stderr, /docker compose --project-name offgrid ps/);
+    assert.match(result.stderr, /docker compose --project-name offgrid logs --tail 50/);
+  });
+});
+
+test("pulls the pinned images before the stack is started", () => {
+  withWorkspace((root) => {
+    const composeFile = join(root, "install", "docker-compose.production.yml");
+
+    const result = dockerCall(root, "pull_images", { args: [composeFile] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(dockerCalls(root)[0], / pull$/);
+  });
+});
+
+test("stops with a message about public packages when the pull fails", () => {
+  withWorkspace((root) => {
+    const composeFile = join(root, "install", "docker-compose.production.yml");
+
+    const result = dockerCall(root, "pull_images", {
+      args: [composeFile],
+      env: { OFFGRID_TEST_PULL_FAILS: "1" },
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /^FAIL images: .*ghcr\.io packages are public/m);
+  });
+});

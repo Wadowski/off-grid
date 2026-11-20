@@ -13,6 +13,7 @@ DOCKER_DOWNLOAD_URL=https://download.docker.com/linux
 DOCKER_DEB_FINGERPRINT=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 DOCKER_RPM_FINGERPRINT=060A61C51B558A7F742B77AAC52FEB6B621E9F35
 DEFAULT_RELEASE_REPOSITORY=Wadowski/off-grid
+WAIT_TIMEOUT_SECONDS=300
 RELEASE_REPOSITORY_PATTERN='^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'
 SEMVER_PATTERN='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 
@@ -342,6 +343,28 @@ create_env_file_if_missing() {
 
 pin_env_version() {
   write_pinned_env "$install_home/.env" "$2" "$1" "$install_home/.env"
+}
+
+compose_command() {
+  compose_file=$1
+  shift
+  OFFGRID_VERSION=$release_version docker compose --project-name offgrid --project-directory "$install_home" \
+    --env-file "$install_home/.env" -f "$compose_file" "$@"
+}
+
+pull_images() {
+  compose_command "$1" pull \
+    || fail "images: could not pull the Offgrid $release_version images. Check the network, and that the ghcr.io packages are public (see CONTRIBUTING.md, Cutting a release)"
+}
+
+wait_failed_message() {
+  printf 'FAIL stack: Offgrid %s is not healthy after %s seconds. The stack was left as it is. Look at it with: cd %s && docker compose --project-name offgrid ps, and docker compose --project-name offgrid logs --tail 50. Run this script again once the cause is fixed.\n' \
+    "$release_version" "$WAIT_TIMEOUT_SECONDS" "$install_home" >&2
+  exit 1
+}
+
+start_stack() {
+  compose_command "$1" up -d --wait --wait-timeout "$WAIT_TIMEOUT_SECONDS" || wait_failed_message
 }
 
 main() {
