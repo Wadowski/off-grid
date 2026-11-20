@@ -7,6 +7,7 @@ import {
   createAuthClient,
   createCalendarClient,
   createFamilyClient,
+  createFilesClient,
   createSystemClient,
 } from "@offgrid/api-client";
 import { API_PATH } from "../constants.js";
@@ -22,4 +23,5 @@ export const webAuthClient = createAuthClient(webApiClient);
 export const webAdminClient = createAdminClient(webApiClient);
 export const webCalendarClient = createCalendarClient(webApiClient);
 export const webFamilyClient = createFamilyClient(webApiClient);
+export const webFilesClient = createFilesClient(webApiClient);
 export const webSystemClient = createSystemClient(webApiClient);

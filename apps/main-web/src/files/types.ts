@@ -58,3 +58,8 @@ export type FileDetailsState = {
   readonly errorTextId: FilesErrorTextId | null;
   readonly refresh: () => Promise<void>;
 };
+
+export type FileListOptions = {
+  readonly cursor?: string;
+  readonly limit?: number;
+};
