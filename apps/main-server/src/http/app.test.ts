@@ -179,6 +179,23 @@ describe("CORS", () => {
     expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-request");
   });
 
+  it("lets an allowed origin send the Last-Event-ID header for a stream reconnect", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
+
+    const response = await app.inject({
+      method: "OPTIONS",
+      url: "/api/me/notifications/stream",
+      headers: {
+        origin: WEB_ORIGIN,
+        "access-control-request-method": "GET",
+        "access-control-request-headers": "authorization,last-event-id",
+      },
+    });
+
+    expect(response.headers["access-control-allow-headers"]).toContain("last-event-id");
+  });
+
   it("lets an allowed origin end a session with DELETE and send the forwarded client address", async () => {
     const { runtime } = stubRuntime();
     const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);

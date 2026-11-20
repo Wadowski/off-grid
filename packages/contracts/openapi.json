@@ -1947,10 +1947,24 @@
     "/me/notifications/stream": {
       "get": {
         "operationId": "streamNotifications",
-        "summary": "Open a live stream of the signed-in person's new notifications as Server-Sent Events. Use fetch with the bearer header: EventSource cannot send it. Each notice is one notification frame, and a heartbeat comment is sent about every 25 seconds. The stream ends when the session is signed out or expires, when the access token expires, or when the person has more than 10 open streams and this is the oldest.",
+        "summary": "Open a live stream of the signed-in person's new notifications as Server-Sent Events. Use fetch with the bearer header: EventSource cannot send it. Each notice is one notification frame, and a heartbeat comment is sent about every 25 seconds. A reconnect that sends Last-Event-ID first receives the notices newer than that one, oldest first, up to 200. The stream ends when the session is signed out or expires, when the access token expires, or when the person has more than 10 open streams and this is the oldest.",
+        "parameters": [
+          {
+            "name": "Last-Event-ID",
+            "in": "header",
+            "required": false,
+            "description": "The id of the last notification the client received. When it is a notification of the caller, the notifications newer than it are replayed before live ones. An invalid, unknown or other person's id gets a `: reset` comment instead and no replay.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "A text/event-stream. A notice is sent as `event: notification`, `id: <notification id>` and `data: <notification JSON on one line>`, ended by a blank line. A comment line `: heartbeat` is sent about every 25 seconds and carries no data.",
+            "description": "A text/event-stream. A notice is sent as `event: notification`, `id: <notification id>` and `data: <notification JSON on one line>`, ended by a blank line. Replayed notices use the same frame. A comment line `: reset` is sent when Last-Event-ID cannot be replayed: it is invalid, unknown, another person's, or more than 200 notices are newer. A comment line `: heartbeat` is sent about every 25 seconds and carries no data.",
             "content": {
               "text/event-stream": {
                 "schema": {
