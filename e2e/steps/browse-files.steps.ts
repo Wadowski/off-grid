@@ -3,7 +3,12 @@
 
 import { randomUUID } from "node:crypto";
 import { createBdd } from "playwright-bdd";
-import { getAs, waitForDrives } from "../support/factories/files.js";
+import {
+  findFolderAcrossDrives,
+  getAs,
+  listDrivesAs,
+  waitForDrives,
+} from "../support/factories/files.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -121,7 +126,20 @@ Given(/^Anna has a folder "[^"]*" with a folder "[^"]*" and a file "[^"]*"$/, ()
   notImplemented("Anna has a folder … with a folder … and a file …"),
 );
 
-When(/^(?:Anna|Ben) opens the folder "[^"]*"$/, () => notImplemented("opens the folder …"));
+When(/^(Anna|Ben) opens the folder "([^"]*)"$/, async ({ world }, actor: string, name: string) => {
+  const drives = await listDrivesAs(world.api, personNamed(world, "Anna").session);
+  const folderId = await findFolderAcrossDrives(
+    world.api,
+    personNamed(world, "Anna").session,
+    drives,
+    name,
+  );
+  world.response = await getAs(
+    world.api,
+    personNamed(world, actor).session,
+    `/api/files/${folderId}/children`,
+  );
+});
 
 Then(/^Anna sees the entries "[^"]*" and "[^"]*" in that order$/, () =>
   notImplemented("Anna sees the entries … and … in that order"),
@@ -129,10 +147,6 @@ Then(/^Anna sees the entries "[^"]*" and "[^"]*" in that order$/, () =>
 
 Then(/^the breadcrumbs of the folder are "[^"]*" then "[^"]*"$/, () =>
   notImplemented("the breadcrumbs of the folder are … then …"),
-);
-
-Given(/^Anna has the folders "[^"]*" and "[^"]*" nested in her personal drive$/, () =>
-  notImplemented("Anna has the folders … and … nested in her personal drive"),
 );
 
 Then(/^the breadcrumbs of the folder are "[^"]*", "[^"]*" and "[^"]*"$/, () =>
@@ -145,10 +159,6 @@ Given(/^Anna has a file "[^"]*" in the folder "[^"]*"$/, () =>
 
 Given(/^Anna has a file "[^"]*" in the family drive of "[^"]*"$/, () =>
   notImplemented("Anna has a file … in the family drive of …"),
-);
-
-Given(/^Anna has a folder "[^"]*" in the family drive of "[^"]*"$/, () =>
-  notImplemented("Anna has a folder … in the family drive of …"),
 );
 
 Given(/^Anna has a trashed folder "[^"]*" in her personal drive$/, () =>

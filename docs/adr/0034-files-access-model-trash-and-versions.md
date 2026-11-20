@@ -62,6 +62,8 @@ We chose immutable versions so that a restore is an ordinary write, and so that 
 
 ### 8. Cross-owner moves are allowed with a notice
 
+> Refined by [ADR 0037](0037-cross-owner-move-copy-and-removal.md): the copy takes the current version only, the source subtree is hard-removed with a removed event per entry, and the move has an entry limit.
+
 A move inside one drive keeps the same file row. A move to a drive with a different owner is allowed when the caller can see the target drive. If the target is not visible, the answer is 404 ([ADR 0029](0029-event-guest-access.md)). A move of a folder into its own subtree is refused.
 
 A cross-owner move is treated as a new upload. The target gets a new file row and a first version whose bytes are copied to new storage. It has no reference to the source's versions or bytes. The source item is then removed. The response tells the caller that people with access to the source drive may have seen the file, and the client shows that notice to the caller.

@@ -51,3 +51,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0034](0034-files-access-model-trash-and-versions.md)    | Files: family or user drives, row-level access, soft-delete trash and immutable versions         | Proposed                  |
 | [0035](0035-realtime-notifications-over-sse.md)          | Realtime notifications over server-sent events                                                   | Proposed                  |
 | [0036](0036-migrator-owns-database-objects.md)           | The migrator owns the database and the init-created objects                                      | Proposed                  |
+| [0037](0037-cross-owner-move-copy-and-removal.md)        | Cross-owner moves copy the subtree and remove the source, with an entry limit                    | Accepted                  |

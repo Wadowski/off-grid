@@ -29,7 +29,7 @@ Feature: Browsing drives and folders
     When Ben opens the personal drive of Anna
     Then Ben is told the drive was not found
 
-  # Blocked: needs folders and files created through the API, blocked on OG-113 and OG-114
+  # Blocked: needs files created through the API, blocked on OG-114
   @wip
   Scenario: Ben cannot open a file in the family drive of another family
     Given a new person Anna signs up
@@ -78,7 +78,7 @@ Feature: Browsing drives and folders
     When Anna opens the folder "Documents"
     Then Anna does not see "Old receipt.pdf"
 
-  # Blocked: needs folders and files created through the API, blocked on OG-113 and OG-114
+  # Blocked: needs files created through the API, blocked on OG-114
   @wip
   Scenario: Anna cannot open a trashed file
     Given a new person Anna signs up
@@ -86,7 +86,7 @@ Feature: Browsing drives and folders
     When Anna opens the file "Old receipt.pdf"
     Then Anna is told the file was not found
 
-  # Blocked: needs folders and files created through the API, blocked on OG-113 and OG-114
+  # Blocked: needs files created through the API, blocked on OG-114
   @wip
   Scenario: Anna cannot open a trashed folder
     Given a new person Anna signs up
@@ -94,8 +94,6 @@ Feature: Browsing drives and folders
     When Anna opens the folder "Old photos"
     Then Anna is told the folder was not found
 
-  # Blocked: needs folders and files created through the API, blocked on OG-113 and OG-114
-  @wip
   Scenario: Ben cannot open a folder inside the family drive of another family
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna

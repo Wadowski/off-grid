@@ -37,7 +37,7 @@ export const seedRegularFile = async (
       fileId,
       input.owner.userId,
       input.owner.familyId,
-      `key-${versionId}`,
+      input.storageKey ?? `key-${versionId}`,
       input.sizeBytes,
       "0".repeat(64),
       input.createdByUserId,

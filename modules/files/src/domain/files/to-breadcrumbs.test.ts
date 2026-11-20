@@ -7,6 +7,7 @@ import { toBreadcrumbs } from "./to-breadcrumbs.js";
 
 const DRIVE: DriveRecord = {
   driveId: "11111111-1111-4111-8111-111111111111",
+  userId: "55555555-5555-4555-8555-555555555555",
   familyId: null,
   name: "Personal",
   createdAt: new Date("2026-11-01T10:00:00Z"),

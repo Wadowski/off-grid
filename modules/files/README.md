@@ -57,10 +57,22 @@ Owner: module team (files)
 - Breadcrumbs always start with the drive (`kind: "drive"`). A drive listing has only the drive crumb. A folder listing has the drive and then each folder from the root down to and including the listed folder. File details have the drive and then the ancestors, without the file itself.
 - The ancestor walk reads one parent per query and stops at 256 levels, answering 404 when a parent is missing, trashed or invisible.
 - Responses never include bytes, `storage_key`, checksums or versions beyond `version` and `currentVersionId`. Regular file sizes are numbers, and a size above the safe integer range fails the response.
-- Not in this route set yet: create, rename, move, trash, restore, versions, uploads and downloads (OG-113 and OG-114), the trash listing, and the `parent` and `sort` parameters.
+- Not in this route set yet: trash, restore, versions, uploads and downloads (OG-114 and OG-117), the trash listing, and the `parent` and `sort` parameters.
+
+## Organising API
+
+- `POST /drives/:id/folders` creates a folder at the drive root (`parentId` null) or inside a live folder of the drive. It answers 201 with the folder and publishes `file-created-v1`.
+- `PATCH /files/:id` renames a file or folder. It answers 200 with the entry, bumps `version` and publishes `file-updated-v1`. A rename to the same name changes nothing: no bump and no event.
+- `POST /files/:id/move` moves an entry to a folder or to the root of a drive. It answers 200 with `{ file, crossOwnerNotice }` and publishes one event per changed row.
+  - Inside one drive, the row keeps its id. It bumps `version`, publishes `file-updated-v1`, and `crossOwnerNotice` is false. A move to the current place changes nothing.
+  - To a drive of another owner, the subtree is copied. Each entry gets a new id, version 1, and each regular file gets its current version copied to new storage. The source rows are removed, and each source entry publishes `file-removed-v1`. Each copy publishes `file-created-v1`. `crossOwnerNotice` is true. The copy and the removal are one transaction. The source bytes are deleted after the commit. If the copy fails, the copied bytes are deleted on a best-effort basis. See [ADR 0037](../../docs/adr/0037-cross-owner-move-copy-and-removal.md).
+- A name is refused with 409 `NAME_TAKEN` when a live sibling has it, ignoring case. A race on the unique index gives the same answer.
+- A folder cannot move into itself or into its own subtree, and a subtree above `MAX_MOVE_ENTRY_COUNT` entries cannot move across owners. Both answer 409 `INVALID_MOVE`.
+- A target folder that is missing, trashed, a regular file, or in another drive answers 404, and so does a target drive the caller cannot see. The drive is checked first.
+- Names and storage keys: event payloads carry names, ids and versions, as [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md) section 9 allows. Storage keys, paths and checksums never leave the database or the storage port, and logs never carry names.
 
 ## Contracts
 
-- Serves the browse routes above from `filesRoutes` in `@offgrid/contracts`. Will serve the rest of `filesRoutes` (folders, trash, versions, downloads and resumable uploads) with their issues.
-- Publishes `drive-created-v1` when a drive is created (see Drive creation above). Will publish `file-created-v1`, `file-updated-v1` and `file-removed-v1` with the payloads defined in `@offgrid/contracts`. The payloads carry ids, owners and versions. Created and updated file events also carry the name. No event carries file contents, storage keys, paths or checksums ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md), [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)).
-- The outbox writes, projection consumers, and replay, idempotency and dead-letter tests belong to the issues that publish and consume these events; this package ships only the contract and its payload tests.
+- Serves the browse and organising routes above from `filesRoutes` in `@offgrid/contracts`. The rest of `filesRoutes` (trash, versions, downloads and resumable uploads) comes with its issues.
+- Publishes `drive-created-v1` when a drive is created (see Drive creation above), and `file-created-v1`, `file-updated-v1` and `file-removed-v1` for the organising routes, with the payloads defined in `@offgrid/contracts`. The payloads carry ids, owners and versions. Created and updated file events also carry the name. No event carries file contents, storage keys, paths or checksums ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md), [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)).
+- The outbox writes for these events are in the same transaction as the change they describe. Projection consumers of these events, and their replay, idempotency and dead-letter tests, belong to the issues that consume them.

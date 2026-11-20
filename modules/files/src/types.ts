@@ -67,10 +67,12 @@ export interface DriveCreatedInput {
 export interface FilesRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
+  readonly storage: FileStorage;
 }
 
 export interface DriveRecord {
   readonly driveId: string;
+  readonly userId: string | null;
   readonly familyId: string | null;
   readonly name: string;
   readonly createdAt: Date;
@@ -122,4 +124,101 @@ export interface ListedChildren {
 export interface FileDetails {
   readonly file: FileRecord;
   readonly breadcrumbs: readonly BreadcrumbRecord[];
+}
+
+export interface FileOwner {
+  readonly userId: string | null;
+  readonly familyId: string | null;
+}
+
+export interface FileEventInput {
+  readonly file: FileRecord;
+  readonly owner: FileOwner;
+}
+
+export interface NewFolderInput {
+  readonly fileId: string;
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly owner: FileOwner;
+}
+
+export interface FileUpdateInput {
+  readonly name?: string;
+  readonly parentId?: string | null;
+  readonly updatedAt: Date;
+}
+
+export interface CreateFolderInput {
+  readonly parentId: string | null;
+  readonly name: string;
+}
+
+export interface MoveFileInput {
+  readonly driveId: string;
+  readonly parentId: string | null;
+}
+
+export interface MoveOutcome {
+  readonly file: FileRecord;
+  readonly crossOwnerNotice: boolean;
+}
+
+export interface CopyPlanEntry {
+  readonly sourceFileId: string;
+  readonly copyFileId: string;
+  readonly copyParentId: string | null;
+}
+
+export interface NewFileVersionInput {
+  readonly versionId: string;
+  readonly fileId: string;
+  readonly owner: FileOwner;
+  readonly number: number;
+  readonly storageKey: string;
+  readonly sizeBytes: bigint;
+  readonly mimeType: string;
+  readonly sha256: string;
+  readonly createdByUserId: string;
+}
+
+export interface FileVersionRecord {
+  readonly versionId: string;
+  readonly fileId: string;
+  readonly storageKey: string;
+  readonly sizeBytes: bigint;
+  readonly mimeType: string;
+  readonly sha256: string;
+}
+
+export interface SourceTree {
+  readonly entries: readonly FileRecord[];
+  readonly versions: readonly FileVersionRecord[];
+}
+
+export interface SameDrivePlan {
+  readonly kind: "same-drive";
+  readonly file: FileRecord;
+  readonly owner: FileOwner;
+  readonly parentId: string | null;
+}
+
+export interface CrossOwnerPlan {
+  readonly kind: "cross-owner";
+  readonly file: FileRecord;
+  readonly sourceOwner: FileOwner;
+  readonly target: DriveRecord;
+  readonly parentId: string | null;
+  readonly tree: SourceTree;
+}
+
+export type MovePlan =
+  { readonly kind: "no-op"; readonly file: FileRecord } | SameDrivePlan | CrossOwnerPlan;
+
+export interface SiblingNameQuery {
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly excludeFileId: string;
 }
