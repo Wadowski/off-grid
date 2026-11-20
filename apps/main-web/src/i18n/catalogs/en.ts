@@ -613,7 +613,7 @@ export const en = {
       failedStepLabel: "Failed step",
       writesLost: "Changes made after the backup were lost.",
       lastResult: "Last update",
-      never: "No update yet",
+      never: "No update has been run yet",
       confirmHeading: "Update to {{version}}?",
       confirmBody:
         "The database is backed up first. If the update fails, the system goes back to the current version automatically. The system restarts, so you may be signed out for a moment.",
