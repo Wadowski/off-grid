@@ -3,7 +3,7 @@
 
 import { ApiError } from "@offgrid/api-client";
 import { Text } from "@offgrid/ui";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { webSystemClient } from "../../../../api/web-api-client.js";
 import {
   sectionCardStyle,
@@ -30,7 +30,6 @@ export const AdminUpdateSection = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applyErrorTextId, setApplyErrorTextId] = useState<UpdateErrorTextId>();
-  const updateButtonRef = useRef<HTMLButtonElement>(null);
 
   if (state.status === "loading") {
     return null;
@@ -109,7 +108,6 @@ export const AdminUpdateSection = () => {
           checking={checking}
           canCheck={canCheck}
           canUpdate={canUpdate}
-          updateButtonRef={updateButtonRef}
           onCheck={() => void handleCheck()}
           onUpdate={() => setConfirmOpen(true)}
         />

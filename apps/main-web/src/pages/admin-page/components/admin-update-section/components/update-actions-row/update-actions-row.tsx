@@ -11,7 +11,6 @@ export const UpdateActionsRow = ({
   checking,
   canCheck,
   canUpdate,
-  updateButtonRef,
   onCheck,
   onUpdate,
 }: UpdateActionsRowProps) => (
@@ -35,7 +34,6 @@ export const UpdateActionsRow = ({
         variant="primary"
         fullWidth
         data-testid="admin-update-start"
-        ref={updateButtonRef}
         disabled={!canUpdate}
         onClick={onUpdate}
       >
