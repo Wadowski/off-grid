@@ -272,10 +272,11 @@ read_pinned_version() {
 }
 
 release_download_url() {
+  repository=$(resolve_release_repository)
   if [ -n "$1" ]; then
-    printf 'https://github.com/%s/releases/download/v%s\n' "$release_repository" "$1"
+    printf 'https://github.com/%s/releases/download/v%s\n' "$repository" "$1"
   else
-    printf 'https://github.com/%s/releases/latest/download\n' "$release_repository"
+    printf 'https://github.com/%s/releases/latest/download\n' "$repository"
   fi
 }
 
@@ -291,7 +292,6 @@ manifest_version() {
 
 resolve_release_version() {
   staging_dir=$1
-  release_repository=$(resolve_release_repository)
   if [ -n "${OFFGRID_VERSION:-}" ]; then
     check_release_version "${OFFGRID_VERSION#v}" OFFGRID_VERSION
     return 0
@@ -303,6 +303,25 @@ resolve_release_version() {
   fi
   download_release_file "$(release_download_url "")" release-manifest.json "$staging_dir"
   manifest_version "$staging_dir/release-manifest.json"
+}
+
+download_release_files() {
+  base_url=$(release_download_url "$2")
+  download_release_file "$base_url" docker-compose.production.yml "$1"
+  download_release_file "$base_url" production.env.example "$1"
+  download_release_file "$base_url" SHA256SUMS "$1"
+}
+
+verify_release_file() {
+  expected=$(awk -v name="$2" '$2 == name && length($1) == 64 && $1 ~ /^[0-9a-f]+$/ { print $1 }' "$1/SHA256SUMS")
+  actual=$(sha256sum "$1/$2" | cut -d ' ' -f 1)
+  [ -n "$expected" ] && [ "$actual" = "$expected" ] \
+    || fail "checksum: $2 is missing from SHA256SUMS or does not match it, nothing was installed"
+}
+
+verify_release_files() {
+  verify_release_file "$1" docker-compose.production.yml
+  verify_release_file "$1" production.env.example
 }
 
 main() {

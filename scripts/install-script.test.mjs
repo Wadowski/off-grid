@@ -680,3 +680,89 @@ test("rejects a relative install folder when resolving it", () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /absolute path/);
 });
+
+const stagedRelease = (root, { tamper } = {}) => {
+  const staging = join(root, "staging");
+  mkdirSync(staging);
+  for (const name of ["docker-compose.production.yml", "production.env.example", "SHA256SUMS"]) {
+    writeFileSync(join(staging, name), readFileSync(join(RELEASE_FIXTURES, name)));
+  }
+  if (tamper) {
+    writeFileSync(join(staging, tamper.name), tamper.content);
+  }
+  return staging;
+};
+
+const verifyStaged = (root, staging) =>
+  callFunction("verify_release_files", { root, args: [staging] });
+
+test("accepts release files that match SHA256SUMS", () => {
+  withWorkspace((root) => {
+    const result = verifyStaged(root, stagedRelease(root));
+
+    assert.equal(result.status, 0, result.stderr);
+  });
+});
+
+test("stops when a downloaded file does not match SHA256SUMS", () => {
+  withWorkspace((root) => {
+    const staging = stagedRelease(root, {
+      tamper: { name: "docker-compose.production.yml", content: "name: evil\n" },
+    });
+
+    const result = verifyStaged(root, staging);
+
+    assert.notEqual(result.status, 0);
+    assert.match(
+      result.stderr,
+      /^FAIL checksum: docker-compose\.production\.yml is missing from SHA256SUMS or does not match it/m,
+    );
+  });
+});
+
+test("stops when SHA256SUMS has no entry for a downloaded file", () => {
+  withWorkspace((root) => {
+    const staging = stagedRelease(root);
+    const sums = readFileSync(join(staging, "SHA256SUMS"), "utf8")
+      .split("\n")
+      .filter((line) => !line.endsWith("production.env.example"))
+      .join("\n");
+    writeFileSync(join(staging, "SHA256SUMS"), sums);
+
+    const result = verifyStaged(root, staging);
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /production\.env\.example is missing from SHA256SUMS/);
+  });
+});
+
+test("stops with a non-zero exit when a release asset is missing", () => {
+  withWorkspace((root) => {
+    const staging = join(root, "staging");
+    mkdirSync(staging);
+    const empty = join(root, "empty");
+    mkdirSync(empty);
+
+    const result = releaseCall(root, "download_release_files", {
+      args: [staging, "1.2.3"],
+      releaseDir: empty,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /^FAIL release: could not download docker-compose\.production\.yml/m);
+  });
+});
+
+test("downloads the three release files of the pinned version over https", () => {
+  withWorkspace((root) => {
+    const staging = join(root, "staging");
+    mkdirSync(staging);
+
+    const result = releaseCall(root, "download_release_files", { args: [staging, "1.2.3"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    for (const name of ["docker-compose.production.yml", "production.env.example", "SHA256SUMS"]) {
+      assert.match(requestedUrls(root), new RegExp(`/releases/download/v1\\.2\\.3/${name.replace(/\./g, "\\.")}`));
+    }
+  });
+});
