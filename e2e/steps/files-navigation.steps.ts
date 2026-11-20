@@ -7,7 +7,7 @@ import { test, type ScenarioWorld } from "../support/fixtures.js";
 import { webBaseUrl } from "../support/stack.js";
 import type { WebAccount } from "../support/web-session.js";
 
-const { Given, When, Then } = createBdd(test);
+const { When, Then } = createBdd(test);
 
 const FILES_PATH = "/files";
 const SIGN_IN_PATH = "/sign-in";
