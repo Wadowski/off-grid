@@ -3,6 +3,7 @@
 
 import type { ReadSecretFile, UpdaterConfig } from "../types.js";
 import { MILLISECONDS_PER_SECOND } from "../constants.js";
+import { parseNightlyTime } from "../schedule/parse-nightly-time.js";
 import { ConfigError } from "./config-error.js";
 import { readRequiredSecret } from "./read-required-secret.js";
 import { readSecretFileUtf8 } from "./read-secret-file-utf8.js";
@@ -20,7 +21,6 @@ export const loadUpdaterConfig = (
     throw new ConfigError(`invalid configuration: ${problems}`);
   }
   const values = parsed.data;
-
   return {
     database: {
       host: values.OFFGRID_UPDATER_DATABASE_HOST,
@@ -51,5 +51,7 @@ export const loadUpdaterConfig = (
     releaseRepository: values.OFFGRID_UPDATER_RELEASE_REPOSITORY,
     dockerSocket: values.OFFGRID_UPDATER_DOCKER_SOCKET,
     composeProject: values.OFFGRID_UPDATER_COMPOSE_PROJECT,
+    serverUrl: values.OFFGRID_UPDATER_SERVER_URL,
+    nightlyTime: parseNightlyTime(values.OFFGRID_UPDATER_NIGHTLY_TIME),
   };
 };

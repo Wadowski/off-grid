@@ -73,6 +73,11 @@ export interface RestoreSettings {
 
 export type ReadSecretFile = (path: string) => string;
 
+export interface NightlyTime {
+  readonly hour: number;
+  readonly minute: number;
+}
+
 export interface UpdaterConfig {
   readonly database: DatabaseTarget;
   readonly secretsDirectory: string;
@@ -88,6 +93,8 @@ export interface UpdaterConfig {
   readonly releaseRepository: string;
   readonly dockerSocket: string;
   readonly composeProject: string;
+  readonly serverUrl: string;
+  readonly nightlyTime: NightlyTime;
 }
 
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
@@ -214,4 +221,27 @@ export interface ReleaseContextFailure {
   readonly ok: false;
   readonly statusCode: 502 | 503;
   readonly error: "current_version_unknown" | "release_source_unreachable";
+}
+
+export type ReadNightlySetting = () => Promise<boolean>;
+
+export type NightlyRunResult =
+  | "disabled"
+  | "setting_unreadable"
+  | "run_in_progress"
+  | "release_unavailable"
+  | "no_update"
+  | "update_not_allowed"
+  | "applied"
+  | "failed";
+
+export interface NightlySchedulerDependencies {
+  readonly clock: Clock;
+  readonly nightlyTime: NightlyTime;
+  readonly logger: Logger;
+  readonly runTick: () => Promise<NightlyRunResult>;
+}
+
+export interface NightlySchedulerControl {
+  stopped: boolean;
 }

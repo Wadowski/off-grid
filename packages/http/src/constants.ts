@@ -2,3 +2,5 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 export const MAX_MESSAGE_LENGTH = 500;
+
+export const BEARER_TOKEN_PATTERN = /^Bearer (.+)$/;

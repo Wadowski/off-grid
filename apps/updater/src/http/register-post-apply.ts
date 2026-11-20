@@ -5,7 +5,7 @@ import type { FastifyInstance } from "fastify";
 import { runInBackground } from "../run/run-in-background.js";
 import type { UpdaterServices } from "../types.js";
 import { applyBodySchema } from "./apply-body-schema.js";
-import { loadReleaseContext } from "./load-release-context.js";
+import { loadReleaseContext } from "../release/load-release-context.js";
 
 export const registerPostApply = (app: FastifyInstance, services: UpdaterServices): void => {
   app.post("/apply", async (request, reply) => {

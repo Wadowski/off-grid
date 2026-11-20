@@ -102,4 +102,19 @@ export const systemOpenApiPaths = {
       },
     },
   },
+  "/system/updater/nightly": {
+    get: {
+      operationId: "getSystemUpdaterNightly",
+      description:
+        "Read by the updater with the shared updater bearer token, never by a browser or a signed-in person. The token is compared in constant time.",
+      responses: {
+        "200": {
+          description: "The stored nightly setting.",
+          content: jsonContent("SystemUpdateNightly"),
+        },
+        "401": errorResponse("UNAUTHENTICATED: the bearer token is missing or wrong."),
+        "503": updaterUnavailable,
+      },
+    },
+  },
 };

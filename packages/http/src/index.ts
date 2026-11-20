@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+export { matchesBearerToken } from "./matches-bearer-token.js";
 export { sendAccessDenied } from "./send-access-denied.js";
 export { sendError } from "./send-error.js";
 export { sendNotFound } from "./send-not-found.js";
