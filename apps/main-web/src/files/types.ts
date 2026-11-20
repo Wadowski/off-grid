@@ -1,0 +1,60 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import type {
+  breadcrumbSchema,
+  driveSchema,
+  fileDetailsSchema,
+  fileListSchema,
+  fileSchema,
+  filesErrorCodeSchema,
+} from "@offgrid/contracts";
+import type { ListStatus } from "../types.js";
+
+export type Drive = ReturnType<typeof driveSchema.parse>;
+export type FileEntry = ReturnType<typeof fileSchema.parse>;
+export type Breadcrumb = ReturnType<typeof breadcrumbSchema.parse>;
+export type FileDetails = ReturnType<typeof fileDetailsSchema.parse>;
+export type FileListPage = ReturnType<typeof fileListSchema.parse>;
+export type FilesErrorCode = (typeof filesErrorCodeSchema.options)[number];
+
+export type FolderTarget =
+  | { readonly kind: "drive"; readonly driveId: Drive["id"] }
+  | { readonly kind: "folder"; readonly folderId: FileEntry["id"] };
+
+export type FilesErrorTextId =
+  | "files.errors.notFound"
+  | "files.errors.validationFailed"
+  | "files.errors.unauthenticated"
+  | "files.errors.nameTaken"
+  | "files.errors.invalidMove"
+  | "files.errors.notTrashed"
+  | "files.errors.isFolder"
+  | "files.errors.uploadIncomplete"
+  | "files.errors.uploadOffsetMismatch"
+  | "files.errors.failed";
+
+export type DrivesState = {
+  readonly drives: readonly Drive[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
+};
+
+export type FolderContentsState = {
+  readonly items: readonly FileEntry[];
+  readonly breadcrumbs: readonly Breadcrumb[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly hasMore: boolean;
+  readonly loadMore: () => Promise<void>;
+  readonly refresh: () => Promise<void>;
+};
+
+export type FileDetailsState = {
+  readonly file: FileEntry | null;
+  readonly breadcrumbs: readonly Breadcrumb[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
+};

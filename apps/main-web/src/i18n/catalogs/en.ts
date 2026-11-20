@@ -603,6 +603,18 @@ export const en = {
       today: "Today {{time}}",
       yesterday: "Yesterday",
     },
+    errors: {
+      notFound: "This file or folder is no longer available.",
+      validationFailed: "Check the details and try again.",
+      unauthenticated: "Your session has ended. Sign in again.",
+      nameTaken: "A file or folder with this name already exists here.",
+      invalidMove: "This item can't be moved there.",
+      notTrashed: "This item isn't in the trash.",
+      isFolder: "This is a folder, not a file.",
+      uploadIncomplete: "The upload didn't finish. Try again.",
+      uploadOffsetMismatch: "The upload got out of sync. Try again.",
+      failed: "Something went wrong. Try again.",
+    },
   },
   notifications: {
     categories: {
