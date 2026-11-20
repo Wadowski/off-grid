@@ -6,6 +6,7 @@ import type { NotificationRouteContext } from "../types.js";
 import { registerListNotifications } from "./register-list-notifications.js";
 import { registerMarkAllNotificationsRead } from "./register-mark-all-notifications-read.js";
 import { registerMarkNotificationRead } from "./register-mark-notification-read.js";
+import { registerStreamNotifications } from "./register-stream-notifications.js";
 
 export const registerNotificationRoutes = (
   api: FastifyInstance,
@@ -14,4 +15,5 @@ export const registerNotificationRoutes = (
   registerListNotifications(api, context);
   registerMarkNotificationRead(api, context);
   registerMarkAllNotificationsRead(api, context);
+  registerStreamNotifications(api, context);
 };

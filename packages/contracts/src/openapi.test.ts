@@ -109,6 +109,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/links/{id}",
       "/me/notifications",
       "/me/notifications/read-all",
+      "/me/notifications/stream",
       "/me/notifications/{notificationId}/read",
       "/system/update",
       "/system/update/apply",
@@ -138,6 +139,11 @@ describe("buildOpenApiDocument calendar paths", () => {
     );
     expect(paths["/me/notifications/read-all"].post.operationId).toBe("markAllNotificationsRead");
     expect(paths["/system/updater/nightly"].get.operationId).toBe("getSystemUpdaterNightly");
+    expect(paths["/me/notifications/stream"].get.operationId).toBe("streamNotifications");
+    expect(Object.keys(paths["/me/notifications/stream"].get.responses["200"].content)).toEqual([
+      "text/event-stream",
+    ]);
+    expect(paths["/me/notifications/stream"].get.responses["401"]).toBeDefined();
   });
 });
 

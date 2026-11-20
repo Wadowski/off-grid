@@ -20,6 +20,7 @@ import type {
   NotificationHub,
 } from "../types.js";
 import { registerFactSubscribers } from "./register-fact-subscribers.js";
+import { MAX_NOTIFICATION_STREAMS_PER_USER } from "../constants.js";
 
 const OCCURRED_AT = new Date("2026-05-01T10:00:00.000Z");
 
@@ -106,7 +107,7 @@ describe("realtime channel after the inbox commit", { timeout: 60_000 }, () => {
 
   it("publishes exactly one list item after the inbox row is committed and visible", async () => {
     const anna = randomUUID();
-    const hub = createNotificationHub(spiedLogger().logger, 10);
+    const hub = createNotificationHub(spiedLogger().logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
     const subscriber = recordingSubscriber();
     hub.subscribe(anna, subscriber.subscriber);
     const rowVisibleWhenDelivered: boolean[] = [];
@@ -140,7 +141,7 @@ describe("realtime channel after the inbox commit", { timeout: 60_000 }, () => {
 
   it("publishes nothing when the change that published the fact rolls back", async () => {
     const anna = randomUUID();
-    const hub = createNotificationHub(spiedLogger().logger, 10);
+    const hub = createNotificationHub(spiedLogger().logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
     const subscriber = recordingSubscriber();
     hub.subscribe(anna, subscriber.subscriber);
     const { bus } = setup(hub, [], spiedLogger().logger);
@@ -160,7 +161,7 @@ describe("realtime channel after the inbox commit", { timeout: 60_000 }, () => {
 
   it("publishes nothing and fails the handler when the inbox write fails", async () => {
     const anna = randomUUID();
-    const hub = createNotificationHub(spiedLogger().logger, 10);
+    const hub = createNotificationHub(spiedLogger().logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
     const subscriber = recordingSubscriber();
     hub.subscribe(anna, subscriber.subscriber);
     const failingDatabase = {
@@ -207,7 +208,7 @@ describe("realtime channel after the inbox commit", { timeout: 60_000 }, () => {
 
   it("publishes once when the same fact is redelivered", async () => {
     const anna = randomUUID();
-    const hub = createNotificationHub(spiedLogger().logger, 10);
+    const hub = createNotificationHub(spiedLogger().logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
     const subscriber = recordingSubscriber();
     hub.subscribe(anna, subscriber.subscriber);
     const { bus, subscribe } = setup(hub, [], spiedLogger().logger);

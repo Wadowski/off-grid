@@ -1944,6 +1944,34 @@
         }
       }
     },
+    "/me/notifications/stream": {
+      "get": {
+        "operationId": "streamNotifications",
+        "summary": "Open a live stream of the signed-in person's new notifications as Server-Sent Events. Use fetch with the bearer header: EventSource cannot send it. Each notice is one notification frame, and a heartbeat comment is sent about every 25 seconds. The stream ends when the session is signed out or expires, when the access token expires, or when the person has more than 10 open streams and this is the oldest.",
+        "responses": {
+          "200": {
+            "description": "A text/event-stream. A notice is sent as `event: notification`, `id: <notification id>` and `data: <notification JSON on one line>`, ended by a blank line. A comment line `: heartbeat` is sent about every 25 seconds and carries no data.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/notifications/{notificationId}/read": {
       "post": {
         "operationId": "markNotificationRead",

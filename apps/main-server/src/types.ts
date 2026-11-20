@@ -42,6 +42,12 @@ export type ReadSecretFile = (path: string) => string;
 
 export type DirectoryKind = "missing" | "directory" | "other";
 
+export interface SessionCheck {
+  readonly userId: string;
+  readonly sessionId: string;
+  readonly accessExpiresAt: Date;
+}
+
 export interface ModuleContext {
   readonly eventBus: EventBus;
   readonly logger: Logger;
@@ -50,6 +56,7 @@ export interface ModuleContext {
   readonly currentFamilyId: (request: FastifyRequest) => string | null;
   readonly currentSessionId: (request: FastifyRequest) => string | null;
   readonly isInstanceAdmin: (userId: string) => Promise<boolean>;
+  readonly verifySession: (request: FastifyRequest) => Promise<SessionCheck | null>;
 }
 
 export interface Worker {

@@ -5,6 +5,7 @@ import type { Logger } from "@offgrid/observability";
 import { describe, expect, it, vi } from "vitest";
 import type { ListedNotification, NoticeSubscriber } from "../../types.js";
 import { createNotificationHub } from "./create-notification-hub.js";
+import { MAX_NOTIFICATION_STREAMS_PER_USER } from "../../constants.js";
 
 const USER_A = "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d";
 const USER_B = "0b1c2d3e-4f5a-4b6c-8d7e-9f0a1b2c3d4e";
@@ -59,7 +60,7 @@ describe("createNotificationHub", () => {
   describe("delivery to a person's subscribers", () => {
     it("delivers each notice to every subscriber of that user, in publish order", async () => {
       const { logger } = loggerSpy();
-      const hub = createNotificationHub(logger, 10);
+      const hub = createNotificationHub(logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
       const first = recordingSubscriber();
       const second = recordingSubscriber();
       hub.subscribe(USER_A, first.subscriber);
@@ -75,7 +76,7 @@ describe("createNotificationHub", () => {
 
     it("never delivers a notice for one user to a subscriber of another user", async () => {
       const { logger } = loggerSpy();
-      const hub = createNotificationHub(logger, 10);
+      const hub = createNotificationHub(logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
       const userA = recordingSubscriber();
       const userB = recordingSubscriber();
       hub.subscribe(USER_A, userA.subscriber);
@@ -93,7 +94,7 @@ describe("createNotificationHub", () => {
   describe("unsubscribe", () => {
     it("stops delivery to that subscriber and is safe to call twice", async () => {
       const { logger } = loggerSpy();
-      const hub = createNotificationHub(logger, 10);
+      const hub = createNotificationHub(logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
       const removed = recordingSubscriber();
       const kept = recordingSubscriber();
       const unsubscribe = hub.subscribe(USER_A, removed.subscriber);
@@ -112,7 +113,7 @@ describe("createNotificationHub", () => {
   describe("bounded queue", () => {
     it("closes and removes an overflowing subscriber once, and leaves the others delivering", async () => {
       const { logger } = loggerSpy();
-      const hub = createNotificationHub(logger, 2);
+      const hub = createNotificationHub(logger, 2, MAX_NOTIFICATION_STREAMS_PER_USER);
       const slow = blockedSubscriber();
       const healthy = recordingSubscriber();
       hub.subscribe(USER_A, slow.subscriber);
@@ -134,7 +135,7 @@ describe("createNotificationHub", () => {
   describe("failing send", () => {
     it("closes the subscriber whose send rejects and logs only the error type", async () => {
       const { logger, warn } = loggerSpy();
-      const hub = createNotificationHub(logger, 10);
+      const hub = createNotificationHub(logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
       const failing = {
         send: vi.fn(async () => {
           throw new TypeError("secret detail");
@@ -161,7 +162,7 @@ describe("createNotificationHub", () => {
   describe("close", () => {
     it("closes every subscriber, ignores later publishes and closes later subscribers at once", async () => {
       const { logger } = loggerSpy();
-      const hub = createNotificationHub(logger, 10);
+      const hub = createNotificationHub(logger, 10, MAX_NOTIFICATION_STREAMS_PER_USER);
       const first = recordingSubscriber();
       const second = recordingSubscriber();
       hub.subscribe(USER_A, first.subscriber);
@@ -178,6 +179,58 @@ describe("createNotificationHub", () => {
       expect(first.received).toEqual([]);
       expect(lateSubscriber.close).toHaveBeenCalledTimes(1);
       expect(lateSubscriber.received).toEqual([]);
+    });
+  });
+
+  describe("streams per person", () => {
+    it("closes the oldest stream of a person who opens one more than the cap", async () => {
+      const { logger } = loggerSpy();
+      const hub = createNotificationHub(logger, 10, 2);
+      const first = recordingSubscriber();
+      const second = recordingSubscriber();
+      const third = recordingSubscriber();
+      hub.subscribe(USER_A, first.subscriber);
+      hub.subscribe(USER_A, second.subscriber);
+      hub.subscribe(USER_A, third.subscriber);
+
+      hub.publish(USER_A, notice("n1"));
+
+      await waitUntil(() => second.received.length === 1 && third.received.length === 1);
+      expect(first.close).toHaveBeenCalledTimes(1);
+      expect(first.received).toEqual([]);
+      expect(second.close).not.toHaveBeenCalled();
+      expect(second.received).toEqual(["n1"]);
+    });
+
+    it("leaves another person's streams open when one person is over the cap", async () => {
+      const { logger } = loggerSpy();
+      const hub = createNotificationHub(logger, 10, 1);
+      const anna = recordingSubscriber();
+      const ben = recordingSubscriber();
+      const annaNew = recordingSubscriber();
+      hub.subscribe(USER_A, anna.subscriber);
+      hub.subscribe(USER_B, ben.subscriber);
+      hub.subscribe(USER_A, annaNew.subscriber);
+
+      expect(anna.close).toHaveBeenCalledTimes(1);
+      expect(ben.close).not.toHaveBeenCalled();
+
+      hub.publish(USER_B, notice("for-b"));
+      await waitUntil(() => ben.received.length === 1);
+      expect(ben.received).toEqual(["for-b"]);
+    });
+
+    it("closes an evicted stream only once and tolerates its late unsubscribe", () => {
+      const { logger } = loggerSpy();
+      const hub = createNotificationHub(logger, 10, 1);
+      const evicted = recordingSubscriber();
+      const unsubscribeEvicted = hub.subscribe(USER_A, evicted.subscriber);
+      hub.subscribe(USER_A, recordingSubscriber().subscriber);
+
+      unsubscribeEvicted();
+      unsubscribeEvicted();
+
+      expect(evicted.close).toHaveBeenCalledTimes(1);
     });
   });
 });

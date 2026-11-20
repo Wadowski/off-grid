@@ -21,6 +21,22 @@ export const REALTIME_WORKER_NAME = "notifications-realtime";
 
 export const REALTIME_CHANNEL_NAME = "realtime";
 
+export const NOTIFICATION_STREAM_HEARTBEAT_MS = 25_000;
+
+export const MAX_NOTIFICATION_STREAMS_PER_USER = 10;
+
+export const NOTIFICATION_STREAM_HEADERS = {
+  "content-type": "text/event-stream",
+  "cache-control": "no-cache",
+  "x-accel-buffering": "no",
+} as const;
+
+export const MAX_TIMER_DELAY_MS = 2_147_483_647;
+
+export const HEARTBEAT_COMMENT = ": heartbeat\n\n";
+
+export const STREAM_CONNECTED_COMMENT = ": connected\n\n";
+
 export const NOTIFICATION_CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
   "password-changed": "account-security",
   "recovery-code-regenerated": "account-security",
