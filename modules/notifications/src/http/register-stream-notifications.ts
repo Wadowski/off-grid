@@ -22,12 +22,14 @@ export const registerStreamNotifications = (
         return sendUnauthenticated(reply);
       }
       return openNotificationStream(request, reply, {
+        db: context.db,
         hub: context.hub,
         verifySession: context.verifySession,
         logger: context.logger,
         userId,
         accessExpiresAt: session.accessExpiresAt,
         heartbeatMs: context.streamHeartbeatMs,
+        lastEventId: request.headers["last-event-id"],
       });
     }),
   );

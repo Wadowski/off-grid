@@ -30,12 +30,14 @@ export interface NotificationRouteContext {
 }
 
 export interface NotificationStream {
+  readonly db: ModuleDatabase;
   readonly hub: NotificationHub;
   readonly verifySession: SessionVerifier;
   readonly logger: Logger;
   readonly userId: string;
   readonly accessExpiresAt: Date;
   readonly heartbeatMs: number;
+  readonly lastEventId: LastEventIdHeader;
 }
 
 export type StreamSessionState = "active" | "ended" | "unknown";
