@@ -766,3 +766,59 @@ test("downloads the three release files of the pinned version over https", () =>
     }
   });
 });
+
+const withInstallHome = (root, { envFile, staging }) => {
+  mkdirSync(join(root, "install"), { recursive: true });
+  if (envFile !== undefined) {
+    writeFileSync(join(root, "install", ".env"), envFile);
+  }
+  return staging;
+};
+
+const EXAMPLE_ENV = readFileSync(join(RELEASE_FIXTURES, "production.env.example"), "utf8");
+const CUSTOM_ENV = [
+  "OFFGRID_VERSION=1.0.0",
+  "OFFGRID_IMAGE_OWNER=someone",
+  "OFFGRID_WEB_PORT=9090",
+  "TZ=Europe/Warsaw",
+  "",
+].join("\n");
+
+test("creates .env from production.env.example pinned to the release when it is missing", () => {
+  withWorkspace((root) => {
+    const staging = withInstallHome(root, { staging: stagedRelease(root) });
+
+    const result = releaseCall(root, "create_env_file_if_missing", { args: [staging, "1.2.3"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      readFileSync(join(root, "install", ".env"), "utf8"),
+      EXAMPLE_ENV.replace("OFFGRID_VERSION=\n", "OFFGRID_VERSION=1.2.3\n"),
+    );
+  });
+});
+
+test("never modifies an existing .env when creating", () => {
+  withWorkspace((root) => {
+    const staging = withInstallHome(root, { envFile: CUSTOM_ENV, staging: stagedRelease(root) });
+
+    const result = releaseCall(root, "create_env_file_if_missing", { args: [staging, "1.2.3"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(join(root, "install", ".env"), "utf8"), CUSTOM_ENV);
+  });
+});
+
+test("changes only the OFFGRID_VERSION line of an existing .env when pinning", () => {
+  withWorkspace((root) => {
+    const staging = withInstallHome(root, { envFile: CUSTOM_ENV, staging: stagedRelease(root) });
+
+    const result = releaseCall(root, "pin_env_version", { args: [staging, "1.1.0"] });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      readFileSync(join(root, "install", ".env"), "utf8"),
+      CUSTOM_ENV.replace("OFFGRID_VERSION=1.0.0", "OFFGRID_VERSION=1.1.0"),
+    );
+  });
+});

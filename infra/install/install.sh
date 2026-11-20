@@ -324,6 +324,26 @@ verify_release_files() {
   verify_release_file "$1" production.env.example
 }
 
+write_pinned_env() {
+  temporary=$3/env.tmp
+  if grep -q '^OFFGRID_VERSION=' "$1"; then
+    sed "s/^OFFGRID_VERSION=.*/OFFGRID_VERSION=$2/" "$1" > "$temporary"
+  else
+    { cat "$1"; printf 'OFFGRID_VERSION=%s\n' "$2"; } > "$temporary"
+  fi
+  mv "$temporary" "$4"
+}
+
+create_env_file_if_missing() {
+  [ -e "$install_home/.env" ] && return 0
+  write_pinned_env "$1/production.env.example" "$2" "$1" "$install_home/.env"
+  info_ok "config: created $install_home/.env from production.env.example, pinned to $2"
+}
+
+pin_env_version() {
+  write_pinned_env "$install_home/.env" "$2" "$1" "$install_home/.env"
+}
+
 main() {
   umask 022
   require_root
