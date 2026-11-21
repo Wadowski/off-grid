@@ -4,6 +4,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotificationsInbox } from "./use-notifications-inbox.js";
+import type { subscribeToNotificationStream } from "../subscribe-to-notification-stream.js";
 import type { NotificationItem, NotificationPage } from "./types.js";
 
 const mocks = vi.hoisted(() => ({
@@ -22,13 +23,6 @@ vi.mock("../notifications-api.js", () => ({
 vi.mock("../subscribe-to-notification-stream.js", () => ({
   subscribeToNotificationStream: mocks.subscribe,
 }));
-
-type StreamOptions = {
-  readonly signal: AbortSignal;
-  readonly onNotification: (notification: NotificationItem) => void;
-  readonly onReset: () => void;
-  readonly onError: (error: Error) => void;
-};
 
 const notice = (id: string, readAt: string | null = null): NotificationItem => ({
   id,
@@ -50,7 +44,8 @@ const pageOf = (
   ...overrides,
 });
 
-const streamOptions = (): StreamOptions => mocks.subscribe.mock.calls[0]?.[0] as StreamOptions;
+const streamOptions = () =>
+  mocks.subscribe.mock.calls[0]?.[0] as Parameters<typeof subscribeToNotificationStream>[0];
 
 const renderInbox = async (page: NotificationPage) => {
   mocks.list.mockResolvedValueOnce(page);
