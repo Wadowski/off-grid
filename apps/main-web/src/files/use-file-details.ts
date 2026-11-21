@@ -15,6 +15,7 @@ export const useFileDetails = (
   const [breadcrumbs, setBreadcrumbs] = useState<readonly Breadcrumb[]>([]);
   const [status, setStatus] = useState<ListStatus>("loading");
   const [errorTextId, setErrorTextId] = useState<FilesErrorTextId | null>(null);
+  const [loadedFor, setLoadedFor] = useState<FileEntry["id"] | null>(null);
   const latestRequest = useRef(0);
 
   const refresh = useCallback(async () => {
@@ -23,6 +24,7 @@ export const useFileDetails = (
     }
     const request = ++latestRequest.current;
     const isLatest = () => request === latestRequest.current;
+    setLoadedFor(fileId);
     setFile(null);
     setBreadcrumbs([]);
     setStatus("loading");
@@ -48,5 +50,9 @@ export const useFileDetails = (
     }
   }, [enabled, refresh]);
 
+  if (loadedFor !== fileId) {
+    // The state still belongs to the previous folder until refresh() runs for this one.
+    return { file: null, breadcrumbs: [], status: "loading", errorTextId: null, refresh };
+  }
   return { file, breadcrumbs, status, errorTextId, refresh };
 };

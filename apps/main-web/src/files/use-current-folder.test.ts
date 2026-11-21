@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useNavigate, type NavigateFunction } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getFile, listDrives } from "./files-api.js";
 import { useCurrentFolder } from "./use-current-folder.js";
-import type { Drive, FileDetails, FileEntry } from "./types.js";
+import type { CurrentFolderState, Drive, FileDetails, FileEntry } from "./types.js";
 
 vi.mock("./files-api.js", () => ({
   getFile: vi.fn(),
@@ -19,6 +19,7 @@ const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
 const OTHER_DRIVE_ID = "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f" as Drive["id"];
 const FOLDER_ID = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a" as FileEntry["id"];
 const MISSING_FOLDER_ID = "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b";
+const CHILD_FOLDER_ID = "2f3a4b5c-6d7e-4f8a-9b0c-1d2e3f4a5b6c" as FileEntry["id"];
 const DRIVE: Drive = {
   id: DRIVE_ID,
   familyId: null,
@@ -63,6 +64,41 @@ const folderPath = (driveId: Drive["id"], folderId: string) =>
 
 const rootPath = (driveId: Drive["id"]) => `/files/${driveId}/folder`;
 
+const renderWithNavigation = (path: string) => {
+  const seen: CurrentFolderState[] = [];
+  let navigate: NavigateFunction | undefined;
+  const hook = renderHook(
+    () => {
+      const state = useCurrentFolder();
+      navigate = useNavigate();
+      seen.push(state);
+      return state;
+    },
+    {
+      wrapper: ({ children }: { children: ReactNode }) =>
+        createElement(
+          MemoryRouter,
+          { initialEntries: [path] },
+          createElement(
+            Routes,
+            null,
+            createElement(Route, { path: "/files/:driveId/folder/:folderId?", element: children }),
+          ),
+        ),
+    },
+  );
+  return {
+    ...hook,
+    seen,
+    navigateTo: (target: string) => {
+      if (navigate === undefined) {
+        throw new Error("The router has not rendered.");
+      }
+      act(() => navigate?.(target));
+    },
+  };
+};
+
 describe("useCurrentFolder", () => {
   beforeEach(() => {
     vi.mocked(getFile).mockReset();
@@ -95,6 +131,34 @@ describe("useCurrentFolder", () => {
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(result.current.breadcrumbs).toEqual(FOLDER_BREADCRUMBS);
     expect(result.current.driveId).toBe(DRIVE_ID);
+  });
+
+  it("does not show the previous folder's crumbs on the first render after the folder changes", async () => {
+    vi.mocked(getFile).mockImplementation(async (fileId) =>
+      fileId === CHILD_FOLDER_ID
+        ? {
+            file: {
+              ...FOLDER,
+              id: CHILD_FOLDER_ID,
+              parentId: FOLDER_ID,
+              name: "Summer",
+            } as FileEntry,
+            breadcrumbs: FOLDER_BREADCRUMBS,
+          }
+        : { file: FOLDER as FileEntry, breadcrumbs: ANCESTOR_BREADCRUMBS },
+    );
+
+    const { result, seen, navigateTo } = renderWithNavigation(folderPath(DRIVE_ID, FOLDER_ID));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    const renderedBeforeChange = seen.length;
+    navigateTo(folderPath(DRIVE_ID, CHILD_FOLDER_ID));
+    const firstAfterChange = seen[renderedBeforeChange];
+
+    expect(firstAfterChange?.status).not.toBe("ready");
+    expect(firstAfterChange?.breadcrumbs).not.toEqual(FOLDER_BREADCRUMBS);
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(result.current.breadcrumbs.at(-1)?.name).toBe("Summer");
   });
 
   it("is not found when the folder id is malformed, without a request", async () => {
