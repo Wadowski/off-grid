@@ -84,7 +84,7 @@ describe("NotificationsPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Notifications" })).toBeInTheDocument();
     expect(screen.getByText("Newest first")).toBeInTheDocument();
-    expect(screen.getByTestId("notifications-showing")).toHaveTextContent("Showing 2 of 7");
+    expect(await screen.findByTestId("notifications-showing")).toHaveTextContent("Showing 2 of 7");
   });
 
   it("groups today's notices under a heading that counts the updates", async () => {
