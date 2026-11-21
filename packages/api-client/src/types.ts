@@ -1,7 +1,36 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { paths } from "./generated/schema.js";
+import type { components, paths } from "./generated/schema.js";
+
+export type Notification = components["schemas"]["NotificationList"]["notifications"][number];
+
+export type SseFrame = {
+  readonly event: string | undefined;
+  readonly id: string | undefined;
+  readonly data: string | undefined;
+  readonly comments: readonly string[];
+};
+
+export type SseParseResult = {
+  readonly frames: readonly SseFrame[];
+  readonly pending: string;
+};
+
+export type NotificationStreamHandlers = {
+  readonly onNotification: (notification: Notification) => void;
+  readonly onReset: () => void;
+  readonly onError: (error: Error) => void;
+};
+
+export type SubscribeNotificationsOptions = NotificationStreamHandlers & {
+  readonly baseUrl: string;
+  readonly fetch?: typeof fetch;
+  readonly signal: AbortSignal;
+  readonly random?: () => number;
+};
+
+export type StreamOutcome = "ended" | "unauthorized" | "aborted";
 
 export type ByteBody = Uint8Array<ArrayBuffer> | Blob;
 
