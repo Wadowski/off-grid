@@ -8,5 +8,6 @@ export const applyFiltersChanged = (state: InboxState, filters: InboxFilters): I
   filters,
   items: [],
   nextCursor: null,
+  total: 0,
   errorKind: undefined,
 });

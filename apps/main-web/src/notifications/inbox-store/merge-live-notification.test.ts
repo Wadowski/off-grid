@@ -72,4 +72,19 @@ describe("mergeLiveNotification", () => {
     expect(state.items.map((item) => item.id)).toEqual(["a"]);
     expect(state.unreadCount).toBe(1);
   });
+
+  it("adds one to the total for a matching notice", () => {
+    const state = mergeLiveNotification({ ...stateWith([notice("a")]), total: 4 }, notice("b"));
+
+    expect(state.total).toBe(5);
+  });
+
+  it("keeps the total for a notice that does not match the filters", () => {
+    const state = mergeLiveNotification(
+      { ...stateWith([notice("a")], { category: "calendar" }), total: 4 },
+      notice("b", { category: "account-security" }),
+    );
+
+    expect(state.total).toBe(4);
+  });
 });

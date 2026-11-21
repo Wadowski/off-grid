@@ -68,4 +68,13 @@ describe("applyMoreLoaded", () => {
 
     expect(state.errorKind).toBe("markRead");
   });
+
+  it("takes the API total from the newest page", () => {
+    const state = applyMoreLoaded(stateWith([item("a")]), {
+      ...pageOf([item("b")], null),
+      total: 12,
+    });
+
+    expect(state.total).toBe(12);
+  });
 });

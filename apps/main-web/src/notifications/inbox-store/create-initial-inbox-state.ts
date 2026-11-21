@@ -8,6 +8,7 @@ export const createInitialInboxState = (filters: InboxFilters): InboxState => ({
   filters,
   nextCursor: null,
   unreadCount: 0,
+  total: 0,
   status: "loading",
   errorKind: undefined,
 });

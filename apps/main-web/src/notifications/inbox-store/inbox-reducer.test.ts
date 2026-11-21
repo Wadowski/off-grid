@@ -118,4 +118,13 @@ describe("inboxReducer", () => {
     expect(streamFailed.errorKind).toBe("stream");
     expect(streamFailed.status).toBe("ready");
   });
+
+  it("resets the total when filters change until the new page loads", () => {
+    const changed = inboxReducer(loadedState(), {
+      type: "filtersChanged",
+      filters: { unread: true },
+    });
+
+    expect(changed.total).toBe(0);
+  });
 });
