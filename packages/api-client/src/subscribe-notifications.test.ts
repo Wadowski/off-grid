@@ -113,8 +113,8 @@ describe("subscribeNotifications", () => {
   describe("reading frames", () => {
     it("calls onNotification once for a frame split across chunks", async () => {
       const frame = notificationFrame(FIRST_ID);
-      const transport = sequenceOf(
-        () => streamResponse([frame.slice(0, 17), frame.slice(17, 90), frame.slice(90)]),
+      const transport = sequenceOf(() =>
+        streamResponse([frame.slice(0, 17), frame.slice(17, 90), frame.slice(90)]),
       );
       const { controller, calls, done } = subscribeWith(transport, {
         onNotification: (notification) => {
@@ -155,7 +155,10 @@ describe("subscribeNotifications", () => {
 
     it("calls onError for a frame that is not JSON and keeps the stream open", async () => {
       const transport = sequenceOf(() =>
-        openStreamResponse([`event: notification\ndata: {"secret":\n\n`, notificationFrame(FIRST_ID)]),
+        openStreamResponse([
+          `event: notification\ndata: {"secret":\n\n`,
+          notificationFrame(FIRST_ID),
+        ]),
       );
       const { controller, calls, done } = subscribeWith(transport, {
         onNotification: (notification) => {
