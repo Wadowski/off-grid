@@ -31,6 +31,10 @@ export const filterChipSelectedStyle: CSSProperties = {
   color: cssVar("color-primary"),
 };
 
+export const filterChipCountStyle: CSSProperties = {
+  fontVariantNumeric: "tabular-nums",
+};
+
 export const filterChipDotStyle: CSSProperties = {
   width: "8px",
   height: "8px",

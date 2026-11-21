@@ -6,5 +6,6 @@ export type FilterChipProps = {
   readonly selected: boolean;
   readonly onToggle: () => void;
   readonly dotColor?: string;
+  readonly count?: number;
   readonly "data-testid"?: string;
 };
