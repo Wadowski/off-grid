@@ -19,7 +19,9 @@ export const containerInspectSchema = z.looseObject({
   }),
   HostConfig: z.record(z.string(), z.unknown()),
   NetworkSettings: z.looseObject({
-    Networks: z.record(z.string(), z.unknown()).nullish(),
+    Networks: z
+      .record(z.string(), z.looseObject({ Aliases: z.array(z.string()).nullish() }))
+      .nullish(),
   }),
 });
 

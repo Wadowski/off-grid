@@ -37,6 +37,7 @@ const seed = (overrides: Partial<FakeEngineOptions> = {}): FakeEngineOptions => 
       env: ["NODE_ENV=production", "OFFGRID_VERSION=1.0.0", "OFFGRID_HTTP_PORT=3000"],
       running: true,
       exitCode: 0,
+      aliases: ["server", "id-offgrid-server-1"],
     },
     {
       name: "offgrid-web-1",
@@ -163,6 +164,17 @@ describe("createDockerRunner", () => {
 
       expect(engine?.containerNamed("offgrid-server-1")?.running).toBe(false);
       expect(engine?.containerNamed("offgrid-web-1")?.running).toBe(false);
+    });
+  });
+
+  describe("service aliases", () => {
+    it("gives the replacement the service alias of the container it replaces", async () => {
+      const runner = await startWith(seed());
+      await pulledNewImages(runner);
+
+      await runner.replaceContainers({ server: NEW_SERVER_DIGEST, web: NEW_WEB_DIGEST });
+
+      expect(engine?.containerNamed("offgrid-server-1")?.aliases).toEqual(["server"]);
     });
   });
 
