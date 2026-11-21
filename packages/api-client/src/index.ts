@@ -12,5 +12,10 @@ export { createRelationsClient } from "./relations-client.js";
 export { createSystemClient } from "./system-client.js";
 export { createFamilyClient } from "./family-client.js";
 export { createApiClient } from "./create-api-client.js";
-export type { SignInInput, SubscribeNotificationsOptions } from "./types.js";
+export type {
+  Notification,
+  NotificationListOptions,
+  SignInInput,
+  SubscribeNotificationsOptions,
+} from "./types.js";
 export type { components, paths } from "./generated/schema.js";
