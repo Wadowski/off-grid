@@ -86,6 +86,112 @@ Do not copy over an existing `.env`. Edit it instead.
 
 The settings in `.env` are `OFFGRID_VERSION`, `OFFGRID_IMAGE_OWNER`, `OFFGRID_RELEASE_REPOSITORY`, `OFFGRID_WEB_PORT`, `OFFGRID_SERVER_PORT`, `OFFGRID_CORS_ORIGINS`, `OFFGRID_DOCKER_GID`, `OFFGRID_DOCKER_SOCKET_PATH` and `TZ`. The defaults work unchanged on a Linux host.
 
+## Updating
+
+Updates run from the app. Only an admin can start one. Nothing contacts GitHub until an admin asks, or until the nightly option is on.
+
+1. Sign in as the admin and open **Settings**, then **Software update**. The page shows the running version, the latest version and when the check last ran. The running version is also returned by `GET /api/system/version`, which needs no sign-in.
+2. Choose **Check for updates**. This asks GitHub for the latest release. Together with **Update system**, it is one of the two outbound actions an admin can trigger (see [privacy](docs/privacy.md#what-it-does-not-do)).
+3. If a newer version exists, choose **Update system**. A dialog asks **Update to X.Y.Z?**. It says that the database is backed up first and that the system goes back to the current version if the update fails. Confirm with **Update now**.
+4. The page shows the steps as they run: checking the version, backing up the database, downloading the new version, updating the database, starting the new version and checking that it works. The system restarts, so you may be signed out for a moment. When it is done, the page says **Updated to version X.Y.Z. Reload this page to use the new version.**
+
+What the updater does, in order: it checks that the new version is allowed, backs up the database and the secrets into the `offgrid-backups` volume (the newest 3 backups are kept), pulls the new images by their digest, runs the database migrations, replaces the server and web containers, and checks their health. If the migration, the replacement or the health check fails, it rolls back to the previous images and restores the database from that backup. The details are in [apps/updater/README.md](apps/updater/README.md).
+
+**Nightly update.** Under **Software update**, the option **Update automatically every night** checks once a day and updates when a newer version exists. It is off by default. The check runs at 03:30 in the time zone set by `TZ` in `.env`. When the option is off, the updater makes no call to GitHub.
+
+**Keep `OFFGRID_VERSION` in `.env` in step.** An update from the app changes the running images, but not the `OFFGRID_VERSION` line in `.env`. That line goes stale. Running `docker compose up` with an older value would downgrade the containers against a migrated database. After an update, either set `OFFGRID_VERSION` in `.env` to the installed version by hand, or re-run the install script without `OFFGRID_VERSION`: it reads the installed version, corrects the pin and does not pull or restart anything.
+
+## Backup and restore
+
+Update backups are made automatically before each update and stored in the `offgrid_offgrid-backups` volume. Each backup is a folder named `offgrid-<version>-<UTC time>` with `database.dump` and a `secrets/` folder. The updater creates the folders with mode `0700`, and the files in them are private to the updater.
+
+Two things hold your data and must be backed up: the database and the secrets. Uploaded files are added when the files module ships, and then they must be backed up too. Keep the backups off the host as well, because they hold secrets in plain text.
+
+Manual backup. The commands run in the install folder, where `docker-compose.production.yml` and `.env` are. The backup folder is named after the UTC time it was taken:
+
+```bash
+cd /opt/offgrid
+umask 077
+BACKUP_DIR="$HOME/offgrid-backup/$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$BACKUP_DIR" && chmod 700 "$BACKUP_DIR"
+
+docker compose -f docker-compose.production.yml stop server
+docker compose -f docker-compose.production.yml exec -T db pg_dump -U postgres --format=custom offgrid > "$BACKUP_DIR/database.dump"
+docker run --rm -v offgrid_offgrid-secrets:/src:ro -v "$BACKUP_DIR":/dst:Z alpine sh -c "mkdir /dst/secrets && cp -R /src/. /dst/secrets/ && chown -R $(id -u):$(id -g) /dst/secrets"
+docker run --rm -v offgrid_offgrid-files:/src:ro -v "$BACKUP_DIR":/dst:Z alpine sh -c "mkdir /dst/files && cp -R /src/. /dst/files/ && chown -R $(id -u):$(id -g) /dst/files"
+docker compose -f docker-compose.production.yml start server
+```
+
+The server is stopped only while the dump and the copies are taken, so the file names in the database match the files on disk. If a command fails, run `docker compose -f docker-compose.production.yml start server` before you look at the error. The volume names have the prefix `offgrid_`, the Compose project name. Check them with `docker volume ls`.
+
+Restore the database. The server must be stopped, so that no connection holds the database. Restore into the database the stack already has, from a folder that holds `database.dump`:
+
+```bash
+cd /opt/offgrid
+BACKUP_DIR="$HOME/offgrid-backup/<folder>"
+
+docker compose -f docker-compose.production.yml stop server web
+docker compose -f docker-compose.production.yml exec -T db sh -c 'export PGPASSWORD="$(cat /run/secrets/migrator-password)"; exec pg_restore --clean --if-exists --single-transaction --exit-on-error --host 127.0.0.1 --username offgrid_migrator --dbname offgrid' < "$BACKUP_DIR/database.dump"
+docker compose -f docker-compose.production.yml start server web
+```
+
+The restore runs as the migrator role, not as a superuser, so the restored tables keep their owner. It runs in one transaction: if it fails, the database stays as it was. The password is read inside the container and never printed. Check that the server is healthy with `docker compose -f docker-compose.production.yml ps`.
+
+To restore a backup from the `offgrid_offgrid-backups` volume, first copy its folder to the host, then use the commands above with that folder:
+
+```bash
+mkdir -p "$HOME/offgrid-backup"
+docker run --rm -v offgrid_offgrid-backups:/src:ro -v "$HOME/offgrid-backup":/dst:Z alpine sh -c "cp -R /src/<folder> /dst/"
+```
+
+Secrets are never restored by these commands. Restoring a secret by hand is only safe together with the database from the same backup, because the secrets must match the data they encrypt or sign. See [apps/updater/README.md](apps/updater/README.md#restore).
+
+## Recovery
+
+**The update failed and the system went back to the previous version.** The updater restored the previous images and the database from the backup it took before the update. Every change made after that backup is lost, and the page says **Changes made after the backup were lost.** Sign in again and check the version under **Software update**. Then check the stack with `docker compose -f docker-compose.production.yml ps`.
+
+**The last update was interrupted.** The updater stopped while an update was running, for example because the host restarted. Check that the server and web containers are running and that the app opens. If they do, run **Check for updates** again. If they do not, follow the steps for a failed update below.
+
+**The update failed and the system needs your help.** The rollback failed at one step, so the database and the containers may not match the previous version. Stop the stack, restore the database from the backup named in the status file, and start the previous version.
+
+```bash
+cd /opt/offgrid
+docker run --rm -v offgrid_offgrid-updater-state:/state:ro alpine cat /state/status.json
+```
+
+The status file holds the `currentVersion` (the previous version), `backupName` (the backup folder), `failedStep` and `previousImages`. Copy the `backupName` folder from `offgrid_offgrid-backups` to the host as shown in [Backup and restore](#backup-and-restore), then:
+
+```bash
+docker compose -f docker-compose.production.yml stop server web updater
+# restore the database from that folder, as shown in Backup and restore
+# then set OFFGRID_VERSION in .env to currentVersion, and start the stack:
+docker compose -f docker-compose.production.yml up -d --wait
+```
+
+The status file lists the exact image references in `previousImages`. If the release for `currentVersion` cannot be pulled, use those references instead. Containers that the updater replaced stay as `<name>-replaced`. After the stack is healthy, remove them with `docker rm` after checking the names with `docker ps -a`. Details are in [apps/updater/README.md](apps/updater/README.md#apply-an-update).
+
+**Recover the admin.** If the admin cannot sign in, run this on the server host. It creates a one-time reset code for the admin account. Give the code to the admin in person; it is shown once and expires after 24 hours:
+
+```bash
+cd /opt/offgrid
+docker compose -f docker-compose.production.yml exec server node --import tsx src/recover-admin.ts reset-password --email <admin-email>
+```
+
+If no active admin exists at all, create one. The command refuses while an active admin exists:
+
+```bash
+docker compose -f docker-compose.production.yml exec server node --import tsx src/recover-admin.ts create-admin --email <admin-email> --name "<display name>"
+```
+
+**Stop the stack.** This stops the containers and keeps the volumes:
+
+```bash
+cd /opt/offgrid
+docker compose -f docker-compose.production.yml down
+```
+
+Add `-v` only if you want to delete the database and all volumes. That deletes your data.
+
 ### Outgoing email
 
 Email is optional. Offgrid uses it for emailed recovery codes and for notices about account changes. Until you set it up, the app works without email.
