@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import { applyPageLoaded } from "./apply-page-loaded.js";
 import { createInitialInboxState } from "./create-initial-inbox-state.js";
-import type { InboxState, NotificationItem, NotificationPage } from "./types.js";
+import type { NotificationItem, NotificationPage } from "./types.js";
 
 const item = (id: string, createdAt: string, readAt: string | null = null): NotificationItem => ({
   id,
