@@ -155,8 +155,9 @@ describe("useCurrentFolder", () => {
     navigateTo(folderPath(DRIVE_ID, CHILD_FOLDER_ID));
     const firstAfterChange = seen[renderedBeforeChange];
 
-    expect(firstAfterChange?.status).not.toBe("ready");
-    expect(firstAfterChange?.breadcrumbs).not.toEqual(FOLDER_BREADCRUMBS);
+    expect(firstAfterChange).toBeDefined();
+    expect(firstAfterChange?.status).toBe("loading");
+    expect(firstAfterChange?.breadcrumbs).toEqual([]);
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(result.current.breadcrumbs.at(-1)?.name).toBe("Summer");
   });
