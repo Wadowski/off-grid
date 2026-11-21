@@ -134,7 +134,7 @@ When("Anna goes forward in the browser", async ({ page }) => {
 Given(
   /^another family named "([^"]*)" has a folder "([^"]*)" in its family drive$/,
   async ({ world }, familyName: string, folderName: string) => {
-    const owner = await signedInPerson(world.api, "Ben Owner");
+    const owner = await signedInPerson(world.api, "Ben");
     const family = await createFamilyAs(world.api, owner.session, familyName);
     const drives = await waitForDrives(world.api, owner.session, (listed) =>
       listed.some((drive) => drive.familyId === family.id),
