@@ -1,0 +1,20 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+set -eu
+
+previous=
+count=$#
+while [ "$count" -gt 0 ]; do
+  argument=$1
+  shift
+  replaced=$argument
+  if [ "$previous" = --project-name ] && [ "$argument" = offgrid ]; then
+    replaced=$E2E_INSTALL_PROJECT
+  fi
+  previous=$argument
+  set -- "$@" "$replaced"
+  count=$((count - 1))
+done
+exec /opt/docker-real/docker "$@"

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@wip @infra @module:system
+@infra @module:system
 Feature: Installation
 
   The owner installs Offgrid on a Linux host with one script. The install

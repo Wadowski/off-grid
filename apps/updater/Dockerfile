@@ -13,6 +13,8 @@ ENV NODE_ENV=production
 ENV OFFGRID_VERSION=${OFFGRID_VERSION}
 LABEL org.opencontainers.image.version=${OFFGRID_VERSION}
 RUN apk add --no-cache postgresql17-client
+RUN mkdir -p /backups /var/lib/offgrid-updater \
+ && chown node:node /backups /var/lib/offgrid-updater
 COPY --from=build --chown=node:node /repo /repo
 WORKDIR /repo/apps/updater
 USER node

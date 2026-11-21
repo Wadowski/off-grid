@@ -3,6 +3,7 @@
 
 import type { ContainerInspect } from "../types.js";
 import { composeEnvironment } from "./compose-environment.js";
+import { serviceAliasesOf } from "./service-aliases-of.js";
 
 export const buildCreateBody = (
   source: ContainerInspect,
@@ -16,7 +17,10 @@ export const buildCreateBody = (
   HostConfig: source.HostConfig,
   NetworkingConfig: {
     EndpointsConfig: Object.fromEntries(
-      Object.keys(source.NetworkSettings.Networks ?? {}).map((network) => [network, {}]),
+      Object.entries(source.NetworkSettings.Networks ?? {}).map(([network, endpoint]) => [
+        network,
+        { Aliases: serviceAliasesOf(source, endpoint.Aliases ?? []) },
+      ]),
     ),
   },
 });

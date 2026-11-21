@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { HttpFetch } from "../types.js";
-import { GITHUB_API_HOST } from "../constants.js";
 import { ReleaseSourceError } from "./errors/release-source-error.js";
 import { fetchAllowingHosts } from "./fetch-allowing-hosts.js";
 import { githubReleaseSchema } from "./github-release-schema.js";
@@ -11,13 +10,14 @@ import { releaseApiUrl } from "./release-api-url.js";
 export const fetchGithubRelease = async (
   httpFetch: HttpFetch,
   repository: string,
+  apiBaseUrl: string,
   version: string | null,
 ) => {
   const response = await fetchAllowingHosts(
     httpFetch,
-    releaseApiUrl(repository, version),
+    releaseApiUrl(apiBaseUrl, repository, version),
     { accept: "application/vnd.github+json", "user-agent": "offgrid-updater" },
-    [GITHUB_API_HOST],
+    [new URL(apiBaseUrl).hostname],
   );
   if (!response.ok) {
     throw new ReleaseSourceError("release lookup failed");

@@ -1,0 +1,10 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+set -eu
+
+printf 'apt-get %s\n' "$*" >> /var/log/e2e-package-manager.log
+case " $* " in
+  *" docker-ce "*) ln -sf /e2e/container/docker /usr/local/bin/docker ;;
+esac
