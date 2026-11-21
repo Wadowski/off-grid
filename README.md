@@ -30,7 +30,7 @@ less install.sh
 sudo env OFFGRID_VERSION="${VERSION}" sh install.sh
 ```
 
-The `sha256sum` line must print `install.sh: OK`. `SHA256SUMS` comes from the same release as the script, so the check catches a corrupted or swapped download. It does not protect against a compromised release, because the release manifest and checksums are not signed yet ([ADR 0032](docs/adr/0032-outbound-update-check-and-image-pull.md)).
+The `sha256sum` line must print `install.sh: OK`. `SHA256SUMS` comes from the same release as the script, so the check catches a corrupted or swapped download. It does not protect against a compromised release, because the release manifest and checksums are not signed yet ([ADR 0032](docs/adr/0032-outbound-update-check-and-image-pull.md)). The URLs in this option work only for releases that attach `install.sh` (the next tag onward). For earlier releases, see [infra/README.md](infra/README.md).
 
 The script:
 
@@ -65,14 +65,13 @@ curl -fsSLO --proto '=https' --tlsv1.2 "${BASE_URL}/production.env.example"
 curl -fsSLO --proto '=https' --tlsv1.2 "${BASE_URL}/SHA256SUMS"
 sha256sum -c --ignore-missing SHA256SUMS
 
-cp production.env.example .env
-chmod 600 .env
+install -m 600 production.env.example .env
 sed -i "s/^OFFGRID_VERSION=.*/OFFGRID_VERSION=${VERSION}/" .env
 
 docker compose --env-file .env -f docker-compose.production.yml up -d --wait
 ```
 
-Both `sha256sum` results must print `OK`. Set `OFFGRID_VERSION` in `.env` to the version you installed. Compose refuses to start without it, and the `latest` tag is never used. Keep the file pinned to the installed version: after an update from the app the value goes stale, see [Updating](#updating).
+Every line that `sha256sum` prints must end in `OK`. Set `OFFGRID_VERSION` in `.env` to the version you installed. Compose refuses to start without it, and the `latest` tag is never used. Keep the file pinned to the installed version: after an update from the app the value goes stale, see [Updating](#updating). The URLs in this option work only for releases that attach `install.sh` (the next tag onward). For earlier releases, see [infra/README.md](infra/README.md).
 
 Do not copy over an existing `.env`. Edit it instead.
 
