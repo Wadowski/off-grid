@@ -1,11 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { randomUUID } from "node:crypto";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { Logger } from "@offgrid/observability";
 import Fastify, { type FastifyInstance } from "fastify";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MAX_NOTIFICATION_STREAMS_PER_USER, SUBSCRIBER_QUEUE_LIMIT } from "../constants.js";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { startNotificationsTestDatabase } from "../../test/start-notifications-test-database.js";
+import type { NotificationsTestDatabase } from "../../test/types.js";
+import { writeInboxNotification } from "../application/inbox/write-inbox-notification.js";
+import {
+  MAX_NOTIFICATION_STREAMS_PER_USER,
+  MAX_REPLAY_NOTICES,
+  SUBSCRIBER_QUEUE_LIMIT,
+} from "../constants.js";
 import { createNotificationHub } from "../infrastructure/realtime/create-notification-hub.js";
 import type {
   ListedNotification,
@@ -32,10 +40,18 @@ const notice = (id: string): ListedNotification => ({
 const frameFor = (item: ListedNotification): string =>
   `event: notification\nid: ${item.id}\ndata: ${JSON.stringify(item)}\n\n`;
 
+let lastLogger: { error: ReturnType<typeof vi.fn> } | null = null;
+
 const loggerSpy = (): Logger => {
   const logger = { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn() };
+  lastLogger = logger;
   return logger as unknown as Logger;
 };
+
+const BASE_TIME = Date.parse("2026-11-01T00:00:00Z");
+
+const secondsAfterBase = (seconds: number): string =>
+  new Date(BASE_TIME + seconds * 1000).toISOString();
 
 const waitFor = async (condition: () => boolean): Promise<void> => {
   const deadline = Date.now() + 2000;
@@ -75,8 +91,9 @@ const collectBody = (response: Response) => {
 
 const countOccurrences = (text: string, part: string): number => text.split(part).length - 1;
 
-describe("notification stream route", { timeout: 30_000 }, () => {
+describe("notification stream route", { timeout: 60_000 }, () => {
   const controllers: AbortController[] = [];
+  let database: NotificationsTestDatabase;
   let app: FastifyInstance;
   let appClosed: boolean;
   let baseUrl: string;
@@ -97,14 +114,14 @@ describe("notification stream route", { timeout: 30_000 }, () => {
     },
   });
 
-  const startApp = async (heartbeatMs: number): Promise<void> => {
+  const startApp = async (heartbeatMs: number, db: ModuleDatabase = database.db): Promise<void> => {
     app = Fastify();
     appClosed = false;
     app.addHook("onRequest", async (_request, reply) => {
       reply.header("x-trace-id", TRACE_ID);
     });
     const context: NotificationRouteContext = {
-      db: {} as ModuleDatabase,
+      db,
       currentUserId: (request) => {
         const header = request.headers["x-user-id"];
         return typeof header === "string" ? header : null;
@@ -140,7 +157,16 @@ describe("notification stream route", { timeout: 30_000 }, () => {
     return { response, stream: collectBody(response), abort: () => controller.abort() };
   };
 
-  beforeEach(() => {
+  beforeAll(async () => {
+    database = await startNotificationsTestDatabase();
+  }, 120_000);
+
+  afterAll(async () => {
+    await database.stop();
+  }, 120_000);
+
+  beforeEach(async () => {
+    await database.reset();
     unsubscribeCalls = vi.fn();
     session = { revoked: false, throws: false, accessExpiresAt: FAR_FUTURE };
     verifySession = vi.fn(async (request) => {
@@ -187,6 +213,156 @@ describe("notification stream route", { timeout: 30_000 }, () => {
       const { response } = await openStream(ANNA);
 
       expect(response.status).toBe(401);
+    });
+  });
+
+  const seedNotice = async (
+    userId: string,
+    createdAt: string,
+    notificationId = randomUUID(),
+  ): Promise<string> => {
+    await writeInboxNotification(database.db, {
+      notificationId,
+      userId,
+      type: "password-changed",
+      data: {},
+      createdAt: new Date(createdAt),
+    });
+    return notificationId;
+  };
+
+  describe("replay on reconnect", () => {
+    it("replays the notices newer than Last-Event-ID oldest first, before live frames", async () => {
+      await startApp(1000);
+      const cursor = await seedNotice(ANNA, secondsAfterBase(0));
+      const second = await seedNotice(ANNA, secondsAfterBase(1));
+      const third = await seedNotice(ANNA, secondsAfterBase(2));
+      const { stream } = await openStream(ANNA, { "last-event-id": cursor });
+      await waitFor(() => stream.text.includes(`id: ${third}\n`));
+
+      const live = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
+      hub.publish(ANNA, live);
+      await waitFor(() => stream.text.includes(`id: ${live.id}\n`));
+
+      expect(stream.text.indexOf(`id: ${second}\n`)).toBeLessThan(
+        stream.text.indexOf(`id: ${third}\n`),
+      );
+      expect(stream.text.indexOf(`id: ${third}\n`)).toBeLessThan(
+        stream.text.indexOf(`id: ${live.id}\n`),
+      );
+      expect(stream.text).not.toContain(": reset");
+      expect(countOccurrences(stream.text, `id: ${cursor}\n`)).toBe(0);
+    });
+
+    it("sends a notice that is both replayed and published live exactly once", async () => {
+      await startApp(1000);
+      const cursor = await seedNotice(ANNA, secondsAfterBase(0));
+      const missed = await seedNotice(ANNA, secondsAfterBase(1));
+      const { stream } = await openStream(ANNA, { "last-event-id": cursor });
+
+      hub.publish(ANNA, notice(missed));
+      const marker = await seedNotice(ANNA, secondsAfterBase(2));
+      hub.publish(ANNA, notice(marker));
+      await waitFor(() => stream.text.includes(`id: ${marker}\n`));
+
+      expect(countOccurrences(stream.text, `id: ${missed}\n`)).toBe(1);
+    });
+
+    it("sends a reset comment for an unknown Last-Event-ID and keeps the stream live", async () => {
+      await startApp(1000);
+      const { stream } = await openStream(ANNA, { "last-event-id": randomUUID() });
+
+      const live = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
+      hub.publish(ANNA, live);
+
+      await waitFor(() => stream.text.includes(`id: ${live.id}\n`));
+      expect(stream.text).toContain(": reset\n\n");
+      expect(stream.ended).toBe(false);
+    });
+
+    it("sends a reset comment for another person's notice id, with no leak of their notices", async () => {
+      await startApp(1000);
+      const bensCursor = await seedNotice(BEN, secondsAfterBase(0));
+      const bensLater = await seedNotice(BEN, secondsAfterBase(1));
+      const { stream } = await openStream(ANNA, { "last-event-id": bensCursor });
+
+      const live = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
+      hub.publish(ANNA, live);
+
+      await waitFor(() => stream.text.includes(`id: ${live.id}\n`));
+      expect(stream.text).toContain(": reset\n\n");
+      expect(stream.text).not.toContain(bensLater);
+    });
+
+    it("sends a reset comment for an id that is not a UUID", async () => {
+      await startApp(1000);
+      const { stream } = await openStream(ANNA, { "last-event-id": "not-a-uuid" });
+
+      await waitFor(() => stream.text.includes(": reset"));
+      expect(stream.text).toContain(": reset\n\n");
+      expect(countOccurrences(stream.text, "event: notification")).toBe(0);
+    });
+
+    it("sends a reset comment when more than the cap of notices are newer", async () => {
+      await startApp(1000);
+      const cursor = await seedNotice(ANNA, secondsAfterBase(0));
+      for (let index = 1; index <= MAX_REPLAY_NOTICES + 1; index += 1) {
+        await seedNotice(ANNA, secondsAfterBase(index));
+      }
+      const { stream } = await openStream(ANNA, { "last-event-id": cursor });
+
+      await waitFor(() => stream.text.includes(": reset"));
+      expect(countOccurrences(stream.text, "event: notification")).toBe(0);
+    });
+
+    it("sends a reset comment and keeps the stream live when the replay read fails", async () => {
+      const failingDb = {
+        $transaction: async () => {
+          throw new TypeError("database unavailable");
+        },
+      } as unknown as ModuleDatabase;
+      await startApp(1000, failingDb);
+      const { stream } = await openStream(ANNA, { "last-event-id": randomUUID() });
+
+      const live = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
+      hub.publish(ANNA, live);
+
+      await waitFor(() => stream.text.includes(`id: ${live.id}\n`));
+      expect(stream.text).toContain(": reset\n\n");
+      expect(stream.ended).toBe(false);
+      expect(lastLogger?.error).toHaveBeenCalledWith(expect.any(String), {
+        error: "TypeError",
+      });
+    });
+
+    it("never logs the Last-Event-ID value or notice text", async () => {
+      const failingDb = {
+        $transaction: async () => {
+          throw new TypeError("database unavailable");
+        },
+      } as unknown as ModuleDatabase;
+      await startApp(1000, failingDb);
+      const lastEventId = randomUUID();
+      const { stream } = await openStream(ANNA, { "last-event-id": lastEventId });
+      await waitFor(() => stream.text.includes(": reset"));
+
+      expect(JSON.stringify(lastLogger?.error.mock.calls)).not.toContain(lastEventId);
+    });
+
+    it("does not replay or reset when no Last-Event-ID is sent", async () => {
+      await startApp(1000);
+      const cursor = await seedNotice(ANNA, secondsAfterBase(0));
+      const newer = await seedNotice(ANNA, secondsAfterBase(1));
+      const { stream } = await openStream(ANNA);
+      await waitFor(() => stream.text.includes(": connected"));
+
+      const live = notice("9d3c1f2e-7a6b-4c5d-8e9f-0a1b2c3d4e5f");
+      hub.publish(ANNA, live);
+      await waitFor(() => stream.text.includes(`id: ${live.id}\n`));
+
+      expect(stream.text).not.toContain(`id: ${cursor}\n`);
+      expect(stream.text).not.toContain(`id: ${newer}\n`);
+      expect(stream.text).not.toContain(": reset");
     });
   });
 

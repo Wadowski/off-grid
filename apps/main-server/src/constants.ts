@@ -12,6 +12,7 @@ export const CORS_ALLOWED_HEADERS = [
   "accept",
   "authorization",
   "content-type",
+  "last-event-id",
   "x-offgrid-dev-user-id",
   "x-offgrid-request",
   FAMILY_HEADER,

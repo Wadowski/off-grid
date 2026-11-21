@@ -30,17 +30,34 @@ export interface NotificationRouteContext {
 }
 
 export interface NotificationStream {
+  readonly db: ModuleDatabase;
   readonly hub: NotificationHub;
   readonly verifySession: SessionVerifier;
   readonly logger: Logger;
   readonly userId: string;
   readonly accessExpiresAt: Date;
   readonly heartbeatMs: number;
+  readonly lastEventId: LastEventIdHeader;
 }
 
 export type StreamSessionState = "active" | "ended" | "unknown";
 
 export type StreamStop = () => void;
+
+export type LastEventIdHeader = string | string[] | undefined;
+
+export type LastEventId =
+  | { readonly kind: "absent" }
+  | { readonly kind: "invalid" }
+  | { readonly kind: "valid"; readonly id: string };
+
+export type MissedNotifications =
+  { readonly kind: "replay"; readonly notices: ListedNotification[] } | { readonly kind: "reset" };
+
+export interface ReplayBuffer {
+  readonly subscriber: NoticeSubscriber;
+  flush(replayedIds: ReadonlySet<string>, target: NoticeSubscriber): Promise<void>;
+}
 
 export interface InboxNotice {
   readonly notificationId: string;
@@ -82,6 +99,14 @@ export interface NotificationList {
   readonly unreadCount: number;
   readonly nextCursor: string | null;
   readonly total: number;
+}
+
+export interface NotificationItemRow {
+  readonly notificationId: string;
+  readonly type: string;
+  readonly data: unknown;
+  readonly createdAt: Date;
+  readonly readAt: Date | null;
 }
 
 export interface NotificationCursor {

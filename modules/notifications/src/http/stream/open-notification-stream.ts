@@ -10,6 +10,7 @@ import { createStreamLifecycle } from "./create-stream-lifecycle.js";
 import { createStreamSubscriber } from "./create-stream-subscriber.js";
 import { scheduleStreamExpiry } from "./schedule-stream-expiry.js";
 import { startHeartbeat } from "./start-heartbeat.js";
+import { subscribeWithReplay } from "./subscribe-with-replay.js";
 
 export const openNotificationStream = (
   request: FastifyRequest,
@@ -25,7 +26,9 @@ export const openNotificationStream = (
 
   const { endStream, addStop } = createStreamLifecycle(response);
   response.on("close", endStream);
-  addStop(stream.hub.subscribe(stream.userId, createStreamSubscriber(response, endStream)));
+  addStop(
+    subscribeWithReplay(stream, response, createStreamSubscriber(response, endStream), endStream),
+  );
   addStop(
     startHeartbeat(
       response,
