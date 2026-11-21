@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { paths } from "./generated/schema.js";
+
 export type ByteBody = Uint8Array<ArrayBuffer> | Blob;
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -29,6 +31,10 @@ export type FileListOptions = {
   readonly cursor?: string;
   readonly limit?: number;
 };
+
+export type NotificationListOptions = NonNullable<
+  paths["/me/notifications"]["get"]["parameters"]["query"]
+>;
 
 export type SignInInput = {
   readonly email: string;
