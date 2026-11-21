@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { notificationsListFooterRowStyle, notificationsListFooterStyle } from "./styles.js";
 import type { NotificationsListFooterProps } from "./types.js";
 
@@ -14,13 +14,23 @@ export const NotificationsListFooter = ({
   onLoadOlder,
 }: NotificationsListFooterProps) => {
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const loadOlder = async () => {
     setIsLoadingOlder(true);
     try {
       await onLoadOlder();
     } finally {
-      setIsLoadingOlder(false);
+      if (isMounted.current) {
+        setIsLoadingOlder(false);
+      }
     }
   };
 
