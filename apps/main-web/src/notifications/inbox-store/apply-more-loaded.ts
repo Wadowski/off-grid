@@ -8,6 +8,7 @@ export const applyMoreLoaded = (state: InboxState, page: NotificationPage): Inbo
   ...state,
   items: [...state.items, ...addUnseenItems(state.items, page.notifications)],
   nextCursor: page.nextCursor,
+  total: page.total,
   status: "ready",
   errorKind: state.errorKind === "loadMore" ? undefined : state.errorKind,
 });

@@ -21,6 +21,7 @@ export type InboxState = {
   readonly filters: InboxFilters;
   readonly nextCursor: string | null;
   readonly unreadCount: number;
+  readonly total: number;
   readonly status: InboxStatus;
   readonly errorKind: InboxErrorKind | undefined;
 };

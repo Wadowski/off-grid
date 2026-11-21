@@ -693,6 +693,13 @@ export const en = {
     },
     markAllRead: "Mark all as read",
     loadOlder: "Load older",
+    page: {
+      heading: "Notifications",
+      description: "Everything that needs your attention, newest first.",
+      sortNewest: "Newest first",
+      showing: "Showing {{shown}} of {{total}}",
+      loading: "Loading notifications…",
+    },
     updates_one: "{{count}} update",
     updates_other: "{{count}} updates",
     groups: {
@@ -714,6 +721,7 @@ export const en = {
     error: {
       title: "Notifications could not be loaded",
       retry: "Try again",
+      loadMore: "Older notifications could not be loaded.",
     },
     liveUpdatesUnavailable: "Live updates are unavailable. Reload to see new notifications.",
     bell: {

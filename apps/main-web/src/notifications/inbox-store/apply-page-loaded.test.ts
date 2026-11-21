@@ -75,4 +75,13 @@ describe("applyPageLoaded", () => {
     expect(state.status).toBe("ready");
     expect(state.errorKind).toBeUndefined();
   });
+
+  it("takes the API total for the current filter", () => {
+    const state = applyPageLoaded(
+      loadingState,
+      pageOf([item("a", "2026-11-19T09:00:00Z")], { total: 42 }),
+    );
+
+    expect(state.total).toBe(42);
+  });
 });

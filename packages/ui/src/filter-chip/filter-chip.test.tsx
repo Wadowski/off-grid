@@ -60,4 +60,16 @@ describe("FilterChip", () => {
 
     expect(results.violations).toEqual([]);
   }, 30_000);
+
+  it("shows the count and includes it in the accessible name", () => {
+    render(<FilterChip label="Unread" selected onToggle={vi.fn()} count={12} />);
+
+    expect(screen.getByRole("button", { name: "Unread 12" })).toBeInTheDocument();
+  });
+
+  it("shows no count when none is given", () => {
+    render(<FilterChip label="Unread" selected onToggle={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "Unread" })).toHaveTextContent(/^Unread$/);
+  });
 });

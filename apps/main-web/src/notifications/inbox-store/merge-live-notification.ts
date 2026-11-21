@@ -13,11 +13,11 @@ export const mergeLiveNotification = (
     return state;
   }
   const isUnread = notification.readAt === null;
+  const isVisible = matchesFilters(state.filters, notification);
   return {
     ...state,
-    items: matchesFilters(state.filters, notification)
-      ? [notification, ...state.items]
-      : state.items,
+    items: isVisible ? [notification, ...state.items] : state.items,
+    total: isVisible ? state.total + 1 : state.total,
     unreadCount: isUnread ? state.unreadCount + 1 : state.unreadCount,
   };
 };

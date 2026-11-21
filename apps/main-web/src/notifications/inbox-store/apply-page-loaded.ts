@@ -14,6 +14,7 @@ export const applyPageLoaded = (state: InboxState, page: NotificationPage): Inbo
     items: [...liveItemsAhead, ...page.notifications],
     nextCursor: page.nextCursor,
     unreadCount: page.unreadCount,
+    total: page.total,
     status: "ready",
     errorKind: undefined,
   };

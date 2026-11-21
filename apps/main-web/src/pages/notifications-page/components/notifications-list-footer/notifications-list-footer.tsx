@@ -1,0 +1,63 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { Button, Text } from "@offgrid/ui";
+import { useEffect, useRef, useState } from "react";
+import { notificationsListFooterRowStyle, notificationsListFooterStyle } from "./styles.js";
+import type { NotificationsListFooterProps } from "./types.js";
+
+export const NotificationsListFooter = ({
+  shown,
+  total,
+  hasNextPage,
+  loadMoreFailed,
+  onLoadOlder,
+}: NotificationsListFooterProps) => {
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  const loadOlder = async () => {
+    setIsLoadingOlder(true);
+    try {
+      await onLoadOlder();
+    } finally {
+      if (isMounted.current) {
+        setIsLoadingOlder(false);
+      }
+    }
+  };
+
+  return (
+    <div style={notificationsListFooterStyle} data-testid="notifications-list-footer">
+      <div style={notificationsListFooterRowStyle}>
+        <Text
+          element="span"
+          variant="caption"
+          textId="notifications.page.showing"
+          values={{ shown, total }}
+          data-testid="notifications-showing"
+        />
+        {hasNextPage ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="small"
+            disabled={isLoadingOlder}
+            onClick={loadOlder}
+            data-testid="notifications-load-older"
+          >
+            <Text variant="action" textId="notifications.loadOlder" />
+          </Button>
+        ) : null}
+      </div>
+      {loadMoreFailed ? <Text variant="error" textId="notifications.error.loadMore" /> : null}
+    </div>
+  );
+};
