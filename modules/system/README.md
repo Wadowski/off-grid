@@ -25,4 +25,6 @@ Trust trade-off: the server holds the updater token, so a compromised server can
 
 Imports: `@offgrid/contracts`, `@offgrid/db` and `@offgrid/http`.
 
+User documentation: the admin's **Settings**, **Software update** page calls the routes above. It shows the running version, checks for a release, starts an update and holds the nightly switch. The steps are in [README, Updating](../../README.md#updating), and the rollback and failed-update messages are in [README, Recovery](../../README.md#recovery). The updater's behaviour is in [apps/updater/README.md](../../apps/updater/README.md). These documents describe the module as it is; the module's behaviour is unchanged.
+
 Owner: module team (system)
