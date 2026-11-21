@@ -701,6 +701,34 @@ test("rejects a release repository that is not owner/name", () => {
   });
 });
 
+test("downloads release files from OFFGRID_RELEASE_DOWNLOAD_BASE_URL when it is set", () => {
+  withWorkspace((root) => {
+    mkdirSync(join(root, "staging"));
+    const result = releaseCall(root, "resolve_release_version", {
+      args: [join(root, "staging")],
+      env: { OFFGRID_RELEASE_DOWNLOAD_BASE_URL: "https://releases.test:8443" },
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(
+      requestedUrls(root),
+      /^https:\/\/releases\.test:8443\/.+\/releases\/latest\/download\/release-manifest\.json$/m,
+    );
+  });
+});
+
+test("rejects a download base URL that is not https", () => {
+  withWorkspace((root) => {
+    const result = releaseCall(root, "resolve_release_version", {
+      args: [root],
+      env: { OFFGRID_RELEASE_DOWNLOAD_BASE_URL: "http://releases.test" },
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /OFFGRID_RELEASE_DOWNLOAD_BASE_URL must be an https URL/);
+  });
+});
+
 test("uses OFFGRID_INSTALL_DIR as the install folder and ignores OFFGRID_HOME", () => {
   const result = callFunction("resolve_install_home", {
     env: { OFFGRID_INSTALL_DIR: "/srv/offgrid", OFFGRID_HOME: "/elsewhere" },
