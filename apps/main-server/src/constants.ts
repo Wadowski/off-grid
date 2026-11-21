@@ -7,6 +7,8 @@ export const RATE_WINDOW_MS = 60_000;
 export const CORS_ALLOWED_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"];
 
 export const FAMILY_HEADER = "x-offgrid-family-id";
+export const FILE_NAME_HEADER = "x-offgrid-file-name";
+export const PARENT_ID_HEADER = "x-offgrid-parent-id";
 
 export const CORS_ALLOWED_HEADERS = [
   "accept",
@@ -18,6 +20,8 @@ export const CORS_ALLOWED_HEADERS = [
   FAMILY_HEADER,
   "x-forwarded-for",
   "x-trace-id",
+  FILE_NAME_HEADER,
+  PARENT_ID_HEADER,
 ];
 
 export const CORS_EXPOSED_HEADERS = ["x-trace-id"];

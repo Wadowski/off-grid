@@ -179,6 +179,24 @@ describe("CORS", () => {
     expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-request");
   });
 
+  it("lets an allowed origin send the file name and parent headers of an upload", async () => {
+    const { runtime } = stubRuntime();
+    const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
+
+    const response = await app.inject({
+      method: "OPTIONS",
+      url: "/api/files/drives/11111111-1111-4111-8111-111111111111/files",
+      headers: {
+        origin: WEB_ORIGIN,
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type,x-offgrid-file-name,x-offgrid-parent-id",
+      },
+    });
+
+    expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-file-name");
+    expect(response.headers["access-control-allow-headers"]).toContain("x-offgrid-parent-id");
+  });
+
   it("lets an allowed origin send the Last-Event-ID header for a stream reconnect", async () => {
     const { runtime } = stubRuntime();
     const app = await build({ corsOrigins: [WEB_ORIGIN] }, runtime, []);
