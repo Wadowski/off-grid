@@ -5,11 +5,16 @@ import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
 export const notificationsHeaderStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
+  display: "grid",
   gap: tokens.space[3],
+  minWidth: 0,
+};
+
+export const notificationsHeaderActionsStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  flexWrap: "wrap",
+  gap: tokens.space[2],
 };
 
 export const notificationsHeaderTextStyle: CSSProperties = {

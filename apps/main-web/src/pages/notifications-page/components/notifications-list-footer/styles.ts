@@ -6,6 +6,14 @@ import type { CSSProperties } from "react";
 
 export const notificationsListFooterStyle: CSSProperties = {
   display: "grid",
-  justifyItems: "center",
   gap: tokens.space[2],
+  minWidth: 0,
+};
+
+export const notificationsListFooterRowStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: tokens.space[3],
 };

@@ -3,7 +3,7 @@
 
 import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
-import { notificationsListFooterStyle } from "./styles.js";
+import { notificationsListFooterRowStyle, notificationsListFooterStyle } from "./styles.js";
 import type { NotificationsListFooterProps } from "./types.js";
 
 export const NotificationsListFooter = ({
@@ -26,26 +26,28 @@ export const NotificationsListFooter = ({
 
   return (
     <div style={notificationsListFooterStyle} data-testid="notifications-list-footer">
-      <Text
-        element="span"
-        variant="caption"
-        textId="notifications.page.showing"
-        values={{ shown, total }}
-        data-testid="notifications-showing"
-      />
+      <div style={notificationsListFooterRowStyle}>
+        <Text
+          element="span"
+          variant="caption"
+          textId="notifications.page.showing"
+          values={{ shown, total }}
+          data-testid="notifications-showing"
+        />
+        {hasNextPage ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="small"
+            disabled={isLoadingOlder}
+            onClick={loadOlder}
+            data-testid="notifications-load-older"
+          >
+            <Text variant="action" textId="notifications.loadOlder" />
+          </Button>
+        ) : null}
+      </div>
       {loadMoreFailed ? <Text variant="error" textId="notifications.error.loadMore" /> : null}
-      {hasNextPage ? (
-        <Button
-          type="button"
-          variant="secondary"
-          size="small"
-          disabled={isLoadingOlder}
-          onClick={loadOlder}
-          data-testid="notifications-load-older"
-        >
-          <Text variant="action" textId="notifications.loadOlder" />
-        </Button>
-      ) : null}
     </div>
   );
 };
