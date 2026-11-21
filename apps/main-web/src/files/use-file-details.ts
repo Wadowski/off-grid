@@ -51,7 +51,6 @@ export const useFileDetails = (
   }, [enabled, refresh]);
 
   if (loadedFor !== fileId) {
-    // The state still belongs to the previous folder until refresh() runs for this one.
     return { file: null, breadcrumbs: [], status: "loading", errorTextId: null, refresh };
   }
   return { file, breadcrumbs, status, errorTextId, refresh };
