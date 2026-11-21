@@ -677,6 +677,7 @@ export const en = {
       isFolder: "This is a folder, not a file.",
       uploadIncomplete: "The upload didn't finish. Try again.",
       uploadOffsetMismatch: "The upload got out of sync. Try again.",
+      payloadTooLarge: "This file is too large to upload.",
       failed: "Something went wrong. Try again.",
     },
   },
