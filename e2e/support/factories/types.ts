@@ -12,6 +12,7 @@ export type FilesWorld = {
   drives: Record<string, Drive[]>;
   personalDriveIds: Record<string, string>;
   familyDriveIds: Record<string, string>;
+  folderIds?: Record<string, string>;
 };
 
 export type FileItem = { id: string; name: string; isFolder: boolean; parentId: string | null };
