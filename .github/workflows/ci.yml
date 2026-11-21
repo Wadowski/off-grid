@@ -339,7 +339,7 @@ jobs:
       - name: Bring up the compose stack
         run: pnpm --filter @offgrid/e2e e2e:stack:up
       - name: Run the update and install scenarios
-        run: pnpm --filter @offgrid/e2e e2e -- --project=system-update --no-deps
+        run: pnpm --filter @offgrid/e2e e2e -- --project=system-update
       - name: Tear down the compose stack
         if: always()
         run: pnpm --filter @offgrid/e2e e2e:stack:down

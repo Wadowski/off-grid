@@ -12,6 +12,7 @@ import type { FilesWorld } from "./factories/types.js";
 import type { RegistrationResult } from "./factories/identity.js";
 import type { JsonResponse, Member, Session } from "./factories/instance-admin.js";
 import type { NotificationList, SignedInPerson } from "./factories/notifications.js";
+import type { SystemUpdateWorld } from "./system-update/types.js";
 import type { CalendarEventsWorld } from "./factories/calendar-events.js";
 import type { CalendarViewsWorld } from "./factories/calendar-views.js";
 import type { EventDetailsWorld } from "./factories/calendar-event-details.js";
@@ -69,6 +70,7 @@ export type ScenarioWorld = {
   calendarViews?: CalendarViewsWorld;
   eventDetails?: EventDetailsWorld;
   releaseBuild?: { version: string; serverDigest?: string; webDigest?: string };
+  systemUpdate?: SystemUpdateWorld;
   releaseManifestRun?: { exitCode: number; stderr: string; outPath: string };
 };
 

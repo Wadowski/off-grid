@@ -11,12 +11,7 @@ const SYSTEM_UPDATE_SPECS = /system\/(install|system-update)\.feature\.spec\.js$
 
 const testDir = defineBddConfig({
   featuresRoot: "features",
-  features: [
-    "features/**/*.feature",
-    "!features/system/install.feature",
-    "!features/system/system-update.feature",
-    "!features/notifications/inbox-surfaces.feature",
-  ],
+  features: ["features/**/*.feature", "!features/notifications/inbox-surfaces.feature"],
   steps: ["steps/**/*.ts", "support/fixtures.ts"],
 });
 
@@ -49,7 +44,6 @@ export default defineConfig({
     {
       name: "system-update",
       testMatch: SYSTEM_UPDATE_SPECS,
-      dependencies: ["chromium"],
       fullyParallel: false,
       timeout: SYSTEM_UPDATE_TIMEOUT_MS,
       use: { ...devices["Desktop Chrome"] },

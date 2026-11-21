@@ -8,21 +8,21 @@ branch is cancelled when a new commit lands.
 
 ## Jobs
 
-| Job                 | What it checks                                                                             | Local command                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `lint`              | ESLint across the workspace, Prettier formatting, and the telemetry denylist               | `pnpm lint && pnpm format:check && pnpm check:no-telemetry`                                                      |
-| `typecheck`         | TypeScript across the workspace                                                            | `pnpm typecheck`                                                                                                 |
-| `test`              | Vitest in every package, and the repo script tests                                         | `pnpm test`                                                                                                      |
-| `contracts`         | Released event schemas and the committed `openapi.json`                                    | `pnpm check:contracts`                                                                                           |
-| `boundaries`        | Module boundary rules, see `docs/architecture/boundaries.md`                               | `pnpm check:boundaries`                                                                                          |
-| `license`           | SPDX headers, REUSE compliance and the DCO sign-off                                        | `pnpm license:headers:check && pnpm reuse:lint && pnpm dco:check`                                                |
-| `secrets`           | gitleaks over the full git history                                                         | `gitleaks git --config .gitleaks.toml --redact --exit-code 1 .` (or the Docker command in `ci.yml`)              |
-| `audit`             | Known vulnerabilities in dependencies, high severity and up                                | `pnpm audit:deps`                                                                                                |
-| `wip-tags`          | Changed feature files that still carry `@wip` are named in the PR body                     | `pnpm check:wip-tags` (reads `BASE_REF` and `PR_BODY` from the environment)                                      |
-| `e2e-smoke`         | Builds the server image, starts the compose stack, runs `@smoke` scenarios                 | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm e2e:smoke`                                                      |
-| `e2e-full`          | Builds the stack, runs every non-`@wip` scenario of the main project, reports stack memory | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm --filter @offgrid/e2e e2e -- --project=chromium`                |
-| `e2e-system-update` | Builds the stack and runs the update and install scenarios against a fake release source   | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm --filter @offgrid/e2e e2e -- --project=system-update --no-deps` |
-| `stack-guard`       | Stack with no outbound network still answers `/api/health/ready`                           | `pnpm check:stack-egress` (needs Docker)                                                                         |
+| Job                 | What it checks                                                                             | Local command                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `lint`              | ESLint across the workspace, Prettier formatting, and the telemetry denylist               | `pnpm lint && pnpm format:check && pnpm check:no-telemetry`                                            |
+| `typecheck`         | TypeScript across the workspace                                                            | `pnpm typecheck`                                                                                       |
+| `test`              | Vitest in every package, and the repo script tests                                         | `pnpm test`                                                                                            |
+| `contracts`         | Released event schemas and the committed `openapi.json`                                    | `pnpm check:contracts`                                                                                 |
+| `boundaries`        | Module boundary rules, see `docs/architecture/boundaries.md`                               | `pnpm check:boundaries`                                                                                |
+| `license`           | SPDX headers, REUSE compliance and the DCO sign-off                                        | `pnpm license:headers:check && pnpm reuse:lint && pnpm dco:check`                                      |
+| `secrets`           | gitleaks over the full git history                                                         | `gitleaks git --config .gitleaks.toml --redact --exit-code 1 .` (or the Docker command in `ci.yml`)    |
+| `audit`             | Known vulnerabilities in dependencies, high severity and up                                | `pnpm audit:deps`                                                                                      |
+| `wip-tags`          | Changed feature files that still carry `@wip` are named in the PR body                     | `pnpm check:wip-tags` (reads `BASE_REF` and `PR_BODY` from the environment)                            |
+| `e2e-smoke`         | Builds the server image, starts the compose stack, runs `@smoke` scenarios                 | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm e2e:smoke`                                            |
+| `e2e-full`          | Builds the stack, runs every non-`@wip` scenario of the main project, reports stack memory | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm --filter @offgrid/e2e e2e -- --project=chromium`      |
+| `e2e-system-update` | Builds the stack and runs the update and install scenarios against a fake release source   | `pnpm --filter @offgrid/e2e e2e:stack:up && pnpm --filter @offgrid/e2e e2e -- --project=system-update` |
+| `stack-guard`       | Stack with no outbound network still answers `/api/health/ready`                           | `pnpm check:stack-egress` (needs Docker)                                                               |
 
 `stack-guard` runs on changes to `infra/`, `apps/`, `modules/`, `packages/`,
 `pnpm-lock.yaml` or a `Dockerfile`, and always on nightly and manual runs. On other

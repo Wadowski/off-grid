@@ -46,11 +46,11 @@ Manual commands use the project name `offgrid-e2e-local` and the `E2E_SERVER_POR
 
 ## Update and install scenarios
 
-`features/system/system-update.feature` and `features/system/install.feature` run in the `system-update` Playwright project, after the main project, one scenario at a time, because they replace the running server and web containers.
+`features/system/system-update.feature` and `features/system/install.feature` run in the `system-update` Playwright project, after the main project in the configuration order, one scenario at a time, because they replace the running server and web containers.
 
 The stack includes the `updater` service and a local `registry:2`. `support/release-source/` holds the fake release source: an https server (per-run certificate from `scripts/e2e-release-certificate.mjs`, trusted only by the updater and the install script through the e2e Compose override) that serves GitHub-shaped release data for versions `1.0.0` (the running stack), `1.1.0`, `1.2.0`, `1.3.0` and `1.9.0`, whose server image answers its health check with an error. Release images are derived from the stack images, pushed to the local registry and pinned by digest in each manifest. The fake source logs every request to `artifacts/release-source/requests.log`; it is the only release host the updater and the install script contact. See [ADR 0032](../docs/adr/0032-outbound-update-check-and-image-pull.md), amendment OG-175.
 
-`pnpm e2e -- --project=system-update --no-deps` runs only these scenarios.
+`pnpm e2e -- --project=system-update` runs only these scenarios. The project has no Playwright dependency on the main project, because command-line filters do not narrow a dependency and `e2e:changed` would run the whole main suite first; the single worker keeps the order.
 
 ## Debugging a failure
 
