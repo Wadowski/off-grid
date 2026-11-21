@@ -6,6 +6,7 @@ export { createAdminClient } from "./admin-client.js";
 export { createAuthClient } from "./auth-client.js";
 export { createCalendarClient } from "./calendar-client.js";
 export { createFilesClient } from "./files-client.js";
+export { createNotificationsClient } from "./notifications-client.js";
 export { createRelationsClient } from "./relations-client.js";
 export { createSystemClient } from "./system-client.js";
 export { createFamilyClient } from "./family-client.js";
