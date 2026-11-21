@@ -34,7 +34,11 @@ export const registerUploadFile = (api: FastifyInstance, context: FilesRouteCont
           return sendPayloadTooLarge(reply);
         }
         const abortController = new AbortController();
-        request.raw.once("close", () => abortController.abort());
+        request.raw.once("close", () => {
+          if (!request.raw.complete) {
+            abortController.abort();
+          }
+        });
         try {
           const outcome = await uploadFile(
             { db: context.db, storage: context.storage, maxUploadBytes: context.maxUploadBytes },

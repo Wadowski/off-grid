@@ -259,4 +259,29 @@ describe("uploadFile", { timeout: 60_000 }, () => {
     ).rejects.toBeInstanceOf(NameTakenError);
     expect(await storedKeys()).toEqual([]);
   });
+
+  it("stores nothing when the request is aborted while the bytes are written", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const controller = new AbortController();
+    const abortingStorage: FileStorage = {
+      ...storage,
+      put: (source, options) => {
+        controller.abort();
+        return storage.put(source, options);
+      },
+    };
+
+    await expect(
+      uploadFile({ db: db.db, storage: abortingStorage, maxUploadBytes: MAX_UPLOAD_BYTES }, anna, {
+        driveId,
+        parentId: null,
+        name: "Cut.txt",
+        mimeType: "text/plain",
+        body: bodyOf("partial"),
+        signal: controller.signal,
+      }),
+    ).rejects.toThrow();
+    expect(await storedKeys()).toEqual([]);
+    expect(await fileRows()).toEqual([]);
+  });
 });
