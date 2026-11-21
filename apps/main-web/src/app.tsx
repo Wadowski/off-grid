@@ -27,6 +27,7 @@ import { CalendarViewsPage } from "./pages/calendar-views-page/calendar-views-pa
 import { CalendarLayout } from "./layouts/calendar-layout/calendar-layout.js";
 import { FilesLayout } from "./layouts/files-layout/files-layout.js";
 import { FilesPage } from "./pages/files-page/files-page.js";
+import { DriveRootRedirect } from "./pages/files-page/components/drive-root-redirect/drive-root-redirect.js";
 import { CreateCalendarPage } from "./pages/create-calendar-page/create-calendar-page.js";
 import { EditCalendarPage } from "./pages/edit-calendar-page/edit-calendar-page.js";
 import { NewCalendarEventPage } from "./pages/new-calendar-event-page/new-calendar-event-page.js";
@@ -77,7 +78,8 @@ export const App = () => {
                 </Route>
                 <Route path="files" element={<FilesLayout />}>
                   <Route index element={<FilesPage />} />
-                  <Route path=":driveId/*" element={<FilesPage />} />
+                  <Route path=":driveId" element={<DriveRootRedirect />} />
+                  <Route path=":driveId/folder/:folderId?" element={<FilesPage />} />
                 </Route>
                 <Route path="calendar/calendars" element={<CalendarsPage />} />
                 <Route path="calendar/new" element={<CreateCalendarPage />} />
