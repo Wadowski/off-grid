@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FileStorage } from "@offgrid/file-storage";
+import type { FileStorage, StoredObject } from "@offgrid/file-storage";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { CurrentUserId } from "@offgrid/http";
@@ -18,6 +18,7 @@ export interface StorageIntegrityReport {
 
 export interface FilesModuleOptions {
   readonly directory: string;
+  readonly maxUploadBytes: number;
 }
 
 export interface FilesSubscriberContext {
@@ -68,6 +69,7 @@ export interface FilesRouteContext {
   readonly db: ModuleDatabase;
   readonly currentUserId: CurrentUserId;
   readonly storage: FileStorage;
+  readonly maxUploadBytes: number;
 }
 
 export interface DriveRecord {
@@ -221,4 +223,38 @@ export interface SiblingNameQuery {
   readonly parentId: string | null;
   readonly name: string;
   readonly excludeFileId: string;
+}
+
+export interface UploadTarget {
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+}
+
+export interface UploadFileInput extends UploadTarget {
+  readonly mimeType: string;
+  readonly body: AsyncIterable<Uint8Array>;
+  readonly signal: AbortSignal;
+}
+
+export interface UploadFileDependencies {
+  readonly db: ModuleDatabase;
+  readonly storage: FileStorage;
+  readonly maxUploadBytes: number;
+}
+
+export interface RecordUploadInput extends UploadTarget {
+  readonly mimeType: string;
+  readonly stored: StoredObject;
+}
+
+export interface NewRegularFileInput {
+  readonly fileId: string;
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly mimeType: string;
+  readonly sizeBytes: bigint;
+  readonly currentVersionId: string;
+  readonly owner: FileOwner;
 }

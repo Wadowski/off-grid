@@ -16,6 +16,9 @@ export const modulesFor = (config: ServerConfig): readonly ModuleDescriptor[] =>
   createIdentityModule({ mailEncryptionKey: config.mail.encryptionKey }),
   createNotificationsModule(),
   relationsModule,
-  createFilesModule({ directory: config.files.directory }),
+  createFilesModule({
+    directory: config.files.directory,
+    maxUploadBytes: config.files.maxUploadBytes,
+  }),
   createSystemModule({ ...config.version, updater: config.updater }),
 ];

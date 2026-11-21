@@ -13,4 +13,5 @@ export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   IS_FOLDER: "files.errors.isFolder",
   UPLOAD_INCOMPLETE: "files.errors.uploadIncomplete",
   UPLOAD_OFFSET_MISMATCH: "files.errors.uploadOffsetMismatch",
+  PAYLOAD_TOO_LARGE: "files.errors.payloadTooLarge",
 };

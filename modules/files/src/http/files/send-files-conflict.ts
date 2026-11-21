@@ -6,6 +6,8 @@ import type { FastifyReply } from "fastify";
 import { INVALID_MOVE_MESSAGE, NAME_TAKEN_MESSAGE } from "../../constants.js";
 import { InvalidMoveError } from "../../application/errors/invalid-move-error.js";
 import { NameTakenError } from "../../application/errors/name-taken-error.js";
+import { UploadTooLargeError } from "../../application/errors/upload-too-large-error.js";
+import { sendPayloadTooLarge } from "./send-payload-too-large.js";
 
 export const sendFilesConflict = (reply: FastifyReply, error: unknown) => {
   if (error instanceof NameTakenError) {
@@ -13,6 +15,9 @@ export const sendFilesConflict = (reply: FastifyReply, error: unknown) => {
   }
   if (error instanceof InvalidMoveError) {
     return sendError(reply, 409, "INVALID_MOVE", INVALID_MOVE_MESSAGE);
+  }
+  if (error instanceof UploadTooLargeError) {
+    return sendPayloadTooLarge(reply);
   }
   throw error;
 };

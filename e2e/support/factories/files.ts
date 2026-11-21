@@ -2,9 +2,18 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { APIRequestContext } from "@playwright/test";
+import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "@offgrid/contracts";
 import { eventually } from "../eventually.js";
 import type { JsonResponse, Session } from "./instance-admin.js";
 import type { Container, Drive, FileItem } from "./types.js";
+
+const DEFAULT_E2E_UPLOAD_LIMIT_BYTES = 1024 * 1024;
+
+export const E2E_UPLOAD_LIMIT_BYTES = Number(
+  process.env.OFFGRID_FILES_MAX_UPLOAD_BYTES ?? DEFAULT_E2E_UPLOAD_LIMIT_BYTES,
+);
+
+export const oversizedUploadBody = (): string => "x".repeat(E2E_UPLOAD_LIMIT_BYTES + 1);
 
 const bearer = (session: Session): Record<string, string> => ({
   authorization: `Bearer ${session.accessToken}`,
@@ -168,3 +177,25 @@ export const findFolderAcrossDrives = (
     drives.map((drive) => ({ kind: "drive" as const, id: drive.id })),
     name,
   );
+
+export const uploadFileAs = async (
+  api: APIRequestContext,
+  session: Session,
+  driveId: string,
+  upload: { readonly name: string; readonly parentId: string | null; readonly body: string },
+): Promise<JsonResponse> => {
+  const headers: Record<string, string> = {
+    ...bearer(session),
+    "content-type": "text/plain",
+    [FILE_NAME_HEADER]: encodeURIComponent(upload.name),
+  };
+  if (upload.parentId !== null) {
+    headers[PARENT_ID_HEADER] = upload.parentId;
+  }
+  const response = await api.post(`/api/drives/${driveId}/files`, {
+    headers,
+    data: upload.body,
+    failOnStatusCode: false,
+  });
+  return { status: response.status(), body: await response.json().catch(() => null) };
+};

@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "@offgrid/contracts";
+
 export const BEARER_PATTERN = /^Bearer (.+)$/;
 export const RATE_WINDOW_MS = 60_000;
 
@@ -18,6 +20,8 @@ export const CORS_ALLOWED_HEADERS = [
   FAMILY_HEADER,
   "x-forwarded-for",
   "x-trace-id",
+  FILE_NAME_HEADER,
+  PARENT_ID_HEADER,
 ];
 
 export const CORS_EXPOSED_HEADERS = ["x-trace-id"];

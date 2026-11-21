@@ -23,7 +23,12 @@ export const createFilesModule = (options: FilesModuleOptions) => {
       api: FastifyInstance,
       context: Pick<FilesRouteContext, "db" | "currentUserId">,
     ) =>
-      registerFilesRoutes(api, { db: context.db, currentUserId: context.currentUserId, storage }),
+      registerFilesRoutes(api, {
+        db: context.db,
+        currentUserId: context.currentUserId,
+        storage,
+        maxUploadBytes: options.maxUploadBytes,
+      }),
     registerSubscribers: (context: FilesSubscriberContext) => {
       registerFamilyMembershipSubscribers(context);
       registerDriveSubscribers(context);

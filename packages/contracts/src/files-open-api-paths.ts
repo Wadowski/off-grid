@@ -3,10 +3,12 @@
 
 import { z } from "zod";
 import { driveParamsSchema } from "./drive-params-schema.js";
+import { fileIdSchema } from "./file-id-schema.js";
 import { fileListQuerySchema } from "./file-list-query-schema.js";
 import { fileParamsSchema } from "./file-params-schema.js";
 import { fileVersionParamsSchema } from "./file-version-params-schema.js";
 import { uploadParamsSchema } from "./upload-params-schema.js";
+import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "./upload-headers.js";
 
 const jsonContent = (schemaName: string) => ({
   "application/json": { schema: { $ref: `#/components/schemas/${schemaName}` } },
@@ -33,6 +35,10 @@ const validationFailed = errorResponse(
 
 const nameTaken = errorResponse(
   "NAME_TAKEN: another live entry in the same folder already has this name.",
+);
+
+const payloadTooLarge = errorResponse(
+  "PAYLOAD_TOO_LARGE: the file is larger than the configured upload limit. Nothing is stored.",
 );
 
 const notTrashed = errorResponse("NOT_TRASHED: the file is not in the trash.");
@@ -91,6 +97,22 @@ const uploadOffsetHeader = {
   schema: { type: "integer", minimum: 0 },
 };
 
+const uploadFileNameHeader = {
+  name: FILE_NAME_HEADER,
+  in: "header",
+  required: true,
+  description: "The name of the new file, percent-encoded (RFC 3986).",
+  schema: { type: "string" },
+};
+
+const uploadParentIdHeader = {
+  name: PARENT_ID_HEADER,
+  in: "header",
+  required: false,
+  description: "The id of the folder that receives the file. Absent means the root of the drive.",
+  schema: z.toJSONSchema(fileIdSchema),
+};
+
 const contentHeaders = {
   "Content-Disposition": {
     description: "The file name for the download, as an attachment.",
@@ -146,6 +168,28 @@ export const filesOpenApiPaths = {
         "401": unauthenticated,
         "404": notFound,
         "409": nameTaken,
+      },
+    },
+  },
+  "/drives/{id}/files": {
+    post: {
+      operationId: "uploadFile",
+      summary:
+        "Upload a file as a new entry at the root of a drive or inside a folder of the drive",
+      description:
+        "The body is the file bytes as they are. The declared Content-Type is the media type of the file; without it the type comes from the file name extension, then application/octet-stream.",
+      parameters: [driveIdParameter, uploadFileNameHeader, uploadParentIdHeader],
+      requestBody: {
+        required: true,
+        content: { "*/*": { schema: { type: "string", format: "binary" } } },
+      },
+      responses: {
+        "201": { description: "The created file.", content: jsonContent("File") },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+        "409": nameTaken,
+        "413": payloadTooLarge,
       },
     },
   },

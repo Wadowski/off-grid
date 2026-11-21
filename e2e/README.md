@@ -29,6 +29,7 @@ The stack is `infra/compose/docker-compose.yml`, limited to the `db`, `init` and
 ### Environment
 
 - `E2E_SERVER_PORT` is the host port the stack publishes the server on (default `3000`). Set it when another stack already uses 3000, for example `E2E_SERVER_PORT=3100 pnpm e2e`.
+- `OFFGRID_FILES_MAX_UPLOAD_BYTES` sets the upload limit of the e2e server (default `1048576`, 1 MiB, set in `infra/compose/docker-compose.e2e.yml`). Set it to choose another limit for the upload scenarios.
 - `BASE_URL` overrides the URL the tests target (default `http://127.0.0.1:<E2E_SERVER_PORT>`).
 - The e2e stack builds the server from the same `runtime` image as production. It has no test-only routes or switches.
 - `E2E_RELEASE_SOURCE_PORT` (default `18443`) and `E2E_REGISTRY_PORT` (default `5000`) are the host ports of the fake release source and the local image registry.

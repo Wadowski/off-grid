@@ -32,6 +32,7 @@ export type FilesErrorTextId =
   | "files.errors.isFolder"
   | "files.errors.uploadIncomplete"
   | "files.errors.uploadOffsetMismatch"
+  | "files.errors.payloadTooLarge"
   | "files.errors.failed";
 
 export type DrivesState = {

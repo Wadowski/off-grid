@@ -678,6 +678,120 @@
         }
       }
     },
+    "/drives/{id}/files": {
+      "post": {
+        "operationId": "uploadFile",
+        "summary": "Upload a file as a new entry at the root of a drive or inside a folder of the drive",
+        "description": "The body is the file bytes as they are. The declared Content-Type is the media type of the file; without it the type comes from the file name extension, then application/octet-stream.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "x-offgrid-file-name",
+            "in": "header",
+            "required": true,
+            "description": "The name of the new file, percent-encoded (RFC 3986).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-offgrid-parent-id",
+            "in": "header",
+            "required": false,
+            "description": "The id of the folder that receives the file. Absent means the root of the drive.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/File"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_FAILED: a path parameter, query value or body does not match the request schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the drive, file or version does not exist or the person cannot see it. Hidden items are never reported as forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "NAME_TAKEN: another live entry in the same folder already has this name.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: the file is larger than the configured upload limit. Nothing is stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/drives/{id}/trash": {
       "get": {
         "operationId": "listDriveTrash",
@@ -5565,7 +5679,8 @@
           "NOT_TRASHED",
           "IS_FOLDER",
           "UPLOAD_INCOMPLETE",
-          "UPLOAD_OFFSET_MISMATCH"
+          "UPLOAD_OFFSET_MISMATCH",
+          "PAYLOAD_TOO_LARGE"
         ]
       },
       "SystemVersion": {
