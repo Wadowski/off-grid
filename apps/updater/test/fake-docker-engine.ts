@@ -5,6 +5,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { z } from "zod";
 import type {
   FakeEngine,
   FakeEngineContainerRecord,
@@ -44,10 +45,13 @@ const findContainer = (
 ): FakeEngineContainerRecord | undefined =>
   containers.find((container) => container.id === reference || container.name === reference);
 
+const createdNetworkingSchema = z.object({
+  EndpointsConfig: z.record(z.string(), z.object({ Aliases: z.array(z.string()).optional() })),
+});
+
 const readCreatedAliases = (networking: unknown): string[] => {
-  const endpoints = (networking as { EndpointsConfig?: Record<string, { Aliases?: string[] }> })
-    ?.EndpointsConfig;
-  return Object.values(endpoints ?? {})[0]?.Aliases ?? [];
+  const parsed = createdNetworkingSchema.safeParse(networking);
+  return parsed.success ? (Object.values(parsed.data.EndpointsConfig)[0]?.Aliases ?? []) : [];
 };
 
 const inspectOf = (container: FakeEngineContainerRecord, images: FakeEngineImageRecord[]) => ({

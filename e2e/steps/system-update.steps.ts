@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { systemUpdateSchema } from "@offgrid/contracts";
 import { createBdd } from "playwright-bdd";
 import { ensureRunAdmin, signInWith } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
@@ -141,9 +142,9 @@ Then("the update does not start", async ({ page, world }) => {
   const { previousVersion } = updateWorldOf(world);
   if (isRegularUserScenario(world)) {
     const admin = await ensureRunAdmin(world.api);
-    const overview = (await (await requestUpdateOverview(world.api, admin)).json()) as {
-      running: boolean;
-    };
+    const overview = systemUpdateSchema.parse(
+      await (await requestUpdateOverview(world.api, admin)).json(),
+    );
     expect(overview.running).toBe(false);
   } else {
     await expect(page.getByTestId(RESULT_ID)).toContainText("The update did not finish.", {
