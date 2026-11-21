@@ -74,7 +74,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
     });
 
   it("answers 201 with the file and stores its bytes", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
     const content = "Holiday notes";
 
     const response = await upload(driveId, content, {
@@ -100,7 +103,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("uploads into a folder of the family drive for a member", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: null, familyId }, name: "The Smiths" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: null, familyId },
+      name: "The Smiths",
+    });
     const folderId = await seedFolder(db.admin, {
       driveId,
       owner: { userId: null, familyId },
@@ -108,22 +114,21 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
       name: "Photos",
     });
 
-    const response = await upload(
-      driveId,
-      "pixels",
-      {
-        "x-offgrid-file-name": "Beach.jpg",
-        "x-offgrid-parent-id": folderId,
-        "content-type": "image/jpeg; charset=binary",
-      },
-    );
+    const response = await upload(driveId, "pixels", {
+      "x-offgrid-file-name": "Beach.jpg",
+      "x-offgrid-parent-id": folderId,
+      "content-type": "image/jpeg; charset=binary",
+    });
 
     expect(response.statusCode).toBe(201);
     expect(response.json()).toMatchObject({ parentId: folderId, mimeType: "image/jpeg" });
   });
 
   it("takes the media type from the extension when no content type is sent", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
     const request = app.inject({
       method: "POST",
       url: `/drives/${driveId}/files`,
@@ -138,7 +143,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 415 for a content type that cannot be parsed as a media type", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
 
     const response = await upload(driveId, "x", {
       "x-offgrid-file-name": "A.txt",
@@ -150,7 +158,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("accepts an empty body as an empty file", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
 
     const response = await upload(driveId, "", { "x-offgrid-file-name": "Empty.txt" });
 
@@ -159,7 +170,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 404 for a person outside the family and stores no bytes", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: null, familyId }, name: "The Smiths" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: null, familyId },
+      name: "The Smiths",
+    });
 
     const response = await upload(
       driveId,
@@ -174,7 +188,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 401 without a signed-in person", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
 
     const response = await upload(driveId, "x", { "x-offgrid-file-name": "A.txt" }, {});
 
@@ -182,7 +199,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 400 when the name header is missing or malformed", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
 
     const missing = await upload(driveId, "x", {});
     const badEncoding = await upload(driveId, "x", { "x-offgrid-file-name": "%E0%A4%A" });
@@ -195,7 +215,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 400 for a malformed parent id", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
 
     const response = await upload(driveId, "x", {
       "x-offgrid-file-name": "A.txt",
@@ -207,7 +230,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 413 from the declared length before reading the body", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
     const oversized = "x".repeat(DEFAULT_TEST_MAX_UPLOAD_BYTES + 1);
 
     const response = await upload(driveId, oversized, {
@@ -222,11 +248,11 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 413 for a streamed body that grows past the limit, and keeps no bytes or rows", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
-    const oversized = Readable.from([
-      Buffer.alloc(DEFAULT_TEST_MAX_UPLOAD_BYTES),
-      Buffer.alloc(1),
-    ]);
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
+    const oversized = Readable.from([Buffer.alloc(DEFAULT_TEST_MAX_UPLOAD_BYTES), Buffer.alloc(1)]);
 
     const response = await upload(driveId, oversized, { "x-offgrid-file-name": "Big.txt" });
 
@@ -237,7 +263,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("answers 409 for a taken name and stores no bytes for the second upload", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
     await upload(driveId, "first", { "x-offgrid-file-name": "Holiday.txt" });
 
     const response = await upload(driveId, "second", { "x-offgrid-file-name": "holiday.txt" });
@@ -249,7 +278,10 @@ describe("POST /drives/:id/files", { timeout: 60_000 }, () => {
   });
 
   it("keeps the JSON body parser on the folder route", async () => {
-    const driveId = await seedDrive(db.admin, { owner: { userId: anna, familyId: null }, name: "Personal" });
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
 
     const response = await app.inject({
       method: "POST",

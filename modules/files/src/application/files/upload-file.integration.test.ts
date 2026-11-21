@@ -52,18 +52,14 @@ describe("uploadFile", { timeout: 60_000 }, () => {
     body: AsyncIterable<Uint8Array>,
     parentId: string | null = null,
   ) =>
-    uploadFile(
-      { db: db.db, storage, maxUploadBytes: MAX_UPLOAD_BYTES },
-      userId,
-      {
-        driveId,
-        parentId,
-        name,
-        mimeType: "text/plain",
-        body,
-        signal: new AbortController().signal,
-      },
-    );
+    uploadFile({ db: db.db, storage, maxUploadBytes: MAX_UPLOAD_BYTES }, userId, {
+      driveId,
+      parentId,
+      name,
+      mimeType: "text/plain",
+      body,
+      signal: new AbortController().signal,
+    });
 
   const storedKeys = async (): Promise<string[]> => {
     const keys: string[] = [];
@@ -195,12 +191,7 @@ describe("uploadFile", { timeout: 60_000 }, () => {
   it("accepts a body of exactly the limit", async () => {
     const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
 
-    const result = await upload(
-      anna,
-      driveId,
-      "Exact.txt",
-      bodyOf("x".repeat(MAX_UPLOAD_BYTES)),
-    );
+    const result = await upload(anna, driveId, "Exact.txt", bodyOf("x".repeat(MAX_UPLOAD_BYTES)));
 
     expect(result.outcome).toBe("found");
   });
@@ -257,18 +248,14 @@ describe("uploadFile", { timeout: 60_000 }, () => {
     };
 
     await expect(
-      uploadFile(
-        { db: db.db, storage: racingStorage, maxUploadBytes: MAX_UPLOAD_BYTES },
-        anna,
-        {
-          driveId,
-          parentId: null,
-          name: "Race.txt",
-          mimeType: "text/plain",
-          body: bodyOf("late"),
-          signal: new AbortController().signal,
-        },
-      ),
+      uploadFile({ db: db.db, storage: racingStorage, maxUploadBytes: MAX_UPLOAD_BYTES }, anna, {
+        driveId,
+        parentId: null,
+        name: "Race.txt",
+        mimeType: "text/plain",
+        body: bodyOf("late"),
+        signal: new AbortController().signal,
+      }),
     ).rejects.toBeInstanceOf(NameTakenError);
     expect(await storedKeys()).toEqual([]);
   });

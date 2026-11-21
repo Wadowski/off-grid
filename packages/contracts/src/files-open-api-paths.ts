@@ -173,14 +173,11 @@ export const filesOpenApiPaths = {
   "/drives/{id}/files": {
     post: {
       operationId: "uploadFile",
-      summary: "Upload a file as a new entry at the root of a drive or inside a folder of the drive",
+      summary:
+        "Upload a file as a new entry at the root of a drive or inside a folder of the drive",
       description:
         "The body is the file bytes as they are. The declared Content-Type is the media type of the file; without it the type comes from the file name extension, then application/octet-stream.",
-      parameters: [
-        driveIdParameter,
-        uploadFileNameHeader,
-        uploadParentIdHeader,
-      ],
+      parameters: [driveIdParameter, uploadFileNameHeader, uploadParentIdHeader],
       requestBody: {
         required: true,
         content: { "*/*": { schema: { type: "string", format: "binary" } } },

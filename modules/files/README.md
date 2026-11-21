@@ -37,7 +37,7 @@ Owner: module team (files)
 - Adapters: `createDiskFileStorage(directory)` is the one the server uses, and `createInMemoryFileStorage()` is the fake for tests. Both are exported from `@offgrid/file-storage`. The disk layout (`<root>/ab/cd/<key>`, temporary writes, fsync, rename), the errors and the memory budget test are described in the package README.
 - Errors carry fixed messages and never a key, path, hash or name. The error classes are the package's, so every adapter throws the same ones.
 - Testing: the disk adapter and the fake both run the shared contract suite, `describeFileStorageContract` from `@offgrid/file-storage/testing`.
-- Not in this port: a maximum upload size (the upload route, OG-114, owns `maxUploadBytes`), startup cleanup of `.tmp/`, and the S3-compatible adapter.
+- Not in this port: startup cleanup of `.tmp/`, and the S3-compatible adapter. The upload size limit is applied by the upload route, not by the port.
 
 ## Integrity sweep
 
@@ -57,7 +57,7 @@ Owner: module team (files)
 - Breadcrumbs always start with the drive (`kind: "drive"`). A drive listing has only the drive crumb. A folder listing has the drive and then each folder from the root down to and including the listed folder. File details have the drive and then the ancestors, without the file itself.
 - The ancestor walk reads one parent per query and stops at 256 levels, answering 404 when a parent is missing, trashed or invisible.
 - Responses never include bytes, `storage_key`, checksums or versions beyond `version` and `currentVersionId`. Regular file sizes are numbers, and a size above the safe integer range fails the response.
-- Not in this route set yet: trash, restore, versions, uploads and downloads (OG-114 and OG-117), the trash listing, and the `parent` and `sort` parameters.
+- Not in this route set yet: trash, restore, versions, downloads (OG-116 and OG-117), the trash listing, the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
 
 ## Organising API
 
@@ -70,6 +70,19 @@ Owner: module team (files)
 - A folder cannot move into itself or into its own subtree, and a subtree above `MAX_MOVE_ENTRY_COUNT` entries cannot move across owners. Both answer 409 `INVALID_MOVE`.
 - A target folder that is missing, trashed, a regular file, or in another drive answers 404, and so does a target drive the caller cannot see. The drive is checked first.
 - Names and storage keys: event payloads carry names, ids and versions, as [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md) section 9 allows. Storage keys, paths and checksums never leave the database or the storage port, and logs never carry names.
+
+## Upload API
+
+- `POST /drives/:id/files` stores a new regular file at the root of a drive or inside a live folder of the drive. The body is the file bytes as they are; there is no multipart wrapper ([ADR 0038](../../docs/adr/0038-streamed-upload-request-shape.md)).
+- Headers: `X-Offgrid-File-Name` is required and carries the percent-encoded name, validated with `fileNameSchema` after decoding (a malformed encoding is 400). `X-Offgrid-Parent-Id` is optional; absent means the drive root. `Content-Type` is the declared media type, validated and stripped of parameters; without it the type comes from the name extension (a small built-in map), then `application/octet-stream`. No bytes are sniffed.
+- The raw body parser is registered in an encapsulated Fastify scope for this route only, so the JSON routes keep their parsing.
+- Answers 201 with the `File` schema, with `version` 1. An empty body is an empty file. Errors: 400 `VALIDATION_FAILED`, 401, 404 `NOT_FOUND` for a drive or parent the caller cannot see (including a parent in another drive, a file, or a trashed folder), 409 `NAME_TAKEN` for a live sibling with the same name (ignoring case), and 413 `PAYLOAD_TOO_LARGE` above `OFFGRID_FILES_MAX_UPLOAD_BYTES`.
+- Name conflicts answer 409 and are not renamed with a suffix. This follows the rule in [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md): every create path refuses collisions.
+- Size: a `Content-Length` above the limit is refused before the body is read. For a body without a length, the stream wrapper counts bytes as they arrive and stops at the first byte past the limit. The storage write is aborted, its temporary file is removed, and the connection is closed after the 413.
+- Order of operations: (a) a read transaction as the caller checks the drive, the parent and the name, so a non-member or a taken name never writes bytes; (b) `storage.put` streams the limited body to the storage port; (c) one write transaction re-checks the drive, the parent and the name, inserts the file and its first version (number 1, storage key, size, mime type, SHA-256, creator) and publishes `file-created-v1`; (d) if (b) succeeded and (c) fails or finds the entry gone, the stored bytes are deleted. A concurrent create of the same name fails the unique index and gives 409, and its bytes are deleted the same way.
+- A crash between (b) and (c) leaves orphan bytes. The storage integrity sweep reports them ([Integrity sweep](#integrity-sweep)); nothing deletes them automatically.
+- The event carries the file id, drive, owner, name, mime type, size and version, never the storage key, path or checksum.
+- Tests: the stream limiter and the mime resolver are unit tested in `domain/files`; `upload-file.integration.test.ts` covers the application flow against real Postgres; `register-upload-file.integration.test.ts` covers the route; `test/upload-memory-budget.integration.test.ts` streams 512 MiB through the disk adapter and asserts the heap growth stays under 64 MiB.
 
 ## Contracts
 

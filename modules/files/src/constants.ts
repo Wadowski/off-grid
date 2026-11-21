@@ -12,7 +12,8 @@ export const INVALID_MOVE_MESSAGE = "This entry cannot be moved there.";
 export const UNIQUE_VIOLATION_CODE = "P2002";
 export const FILES_FILE_MODEL = "FilesFile";
 export const MAX_MOVE_ENTRY_COUNT = 10000;
-export const PAYLOAD_TOO_LARGE_MESSAGE = "The file is larger than the upload limit. Nothing was stored.";
+export const PAYLOAD_TOO_LARGE_MESSAGE =
+  "The file is larger than the upload limit. Nothing was stored.";
 export const DEFAULT_MIME_TYPE = "application/octet-stream";
 export const FILE_NAME_HEADER = "x-offgrid-file-name";
 export const PARENT_ID_HEADER = "x-offgrid-parent-id";

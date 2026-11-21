@@ -27,7 +27,10 @@ export const registerUploadFile = (api: FastifyInstance, context: FilesRouteCont
         if (!headers.success) {
           return sendValidationFailed(reply, headers.error);
         }
-        if (headers.data.declaredLength !== null && headers.data.declaredLength > context.maxUploadBytes) {
+        if (
+          headers.data.declaredLength !== null &&
+          headers.data.declaredLength > context.maxUploadBytes
+        ) {
           return sendPayloadTooLarge(reply);
         }
         const abortController = new AbortController();

@@ -69,20 +69,16 @@ describe("streamed upload memory budget", { timeout: TEST_TIMEOUT_MS }, () => {
     const baselineHeap = process.memoryUsage().heapUsed;
     let peakHeap = baselineHeap;
 
-    const result = await uploadFile(
-      { db: db.db, storage, maxUploadBytes: UPLOAD_BYTES },
-      anna,
-      {
-        driveId,
-        parentId: null,
-        name: "Large.bin",
-        mimeType: "application/octet-stream",
-        body: generatedBody(() => {
-          peakHeap = Math.max(peakHeap, process.memoryUsage().heapUsed);
-        }),
-        signal: new AbortController().signal,
-      },
-    );
+    const result = await uploadFile({ db: db.db, storage, maxUploadBytes: UPLOAD_BYTES }, anna, {
+      driveId,
+      parentId: null,
+      name: "Large.bin",
+      mimeType: "application/octet-stream",
+      body: generatedBody(() => {
+        peakHeap = Math.max(peakHeap, process.memoryUsage().heapUsed);
+      }),
+      signal: new AbortController().signal,
+    });
 
     expect(result).toEqual({
       outcome: "found",
