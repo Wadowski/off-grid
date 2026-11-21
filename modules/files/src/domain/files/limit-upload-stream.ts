@@ -22,9 +22,9 @@ export const limitUploadStream = (
         }
         return result;
       },
-      return: async (value?: unknown) => {
+      return: async () => {
         await iterator.return?.();
-        return { done: true, value: value as undefined };
+        return { done: true, value: undefined };
       },
     };
   },
