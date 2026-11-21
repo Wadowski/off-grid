@@ -92,6 +92,7 @@ export interface UpdaterConfig {
   readonly apiToken: string;
   readonly releaseRepository: string;
   readonly releaseApiBaseUrl: string;
+  readonly imageRegistry: string | null;
   readonly dockerSocket: string;
   readonly composeProject: string;
   readonly serverUrl: string;
@@ -182,6 +183,7 @@ export interface UpdateCheck {
 export interface DockerContext {
   readonly socketPath: string;
   readonly project: string;
+  readonly imageRegistry: string | null;
 }
 
 export interface EngineResponse {

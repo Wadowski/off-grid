@@ -14,7 +14,11 @@ import type { ApplyDependencies, UpdaterConfig, UpdaterServices } from "./types.
 import type { Logger } from "@offgrid/observability";
 
 export const createUpdaterServices = (config: UpdaterConfig, logger: Logger): UpdaterServices => {
-  const dockerContext = { socketPath: config.dockerSocket, project: config.composeProject };
+  const dockerContext = {
+    socketPath: config.dockerSocket,
+    project: config.composeProject,
+    imageRegistry: config.imageRegistry,
+  };
   const applyDependencies: ApplyDependencies = {
     docker: createDockerRunner(dockerContext),
     backup: createBackupService(

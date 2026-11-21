@@ -32,6 +32,10 @@ const httpsUrlSchema = z
   .refine((value) => value.startsWith("https://"), "must be an https URL")
   .transform((value) => value.replace(/\/+$/, ""));
 
+const imageRegistrySchema = z
+  .string()
+  .regex(/^[a-z0-9.-]+(:\d{1,5})?$/, "must be host or host:port");
+
 const portSchema = z.coerce.number().int().min(1).max(65535);
 
 const releaseRepositorySchema = z
@@ -60,6 +64,7 @@ export const updaterEnvironmentSchema = z.object({
   OFFGRID_UPDATER_HTTP_PORT: portSchema.default(DEFAULT_HTTP_PORT),
   OFFGRID_UPDATER_RELEASE_REPOSITORY: releaseRepositorySchema,
   OFFGRID_UPDATER_RELEASE_API_BASE_URL: httpsUrlSchema.default(DEFAULT_RELEASE_API_BASE_URL),
+  OFFGRID_UPDATER_IMAGE_REGISTRY: imageRegistrySchema.optional(),
   OFFGRID_UPDATER_DOCKER_SOCKET: z.string().min(1).default(DEFAULT_DOCKER_SOCKET),
   OFFGRID_UPDATER_COMPOSE_PROJECT: z.string().min(1).default(DEFAULT_COMPOSE_PROJECT),
   OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS: positiveIntegerSchema.default(

@@ -45,6 +45,7 @@ describe("loadUpdaterConfig", () => {
       apiToken: "m1gr4tor",
       releaseRepository: "owner/offgrid",
       releaseApiBaseUrl: "https://api.github.com",
+      imageRegistry: null,
       dockerSocket: "/var/run/docker.sock",
       composeProject: "offgrid",
       serverUrl: "http://127.0.0.1:3000",
@@ -216,5 +217,20 @@ describe("loadUpdaterConfig", () => {
         secretFiles("x"),
       ),
     ).toThrow("OFFGRID_UPDATER_RELEASE_API_BASE_URL");
+  });
+
+  it("reads an optional image registry and rejects a value with a scheme", () => {
+    const config = loadUpdaterConfig(
+      { ...requiredEnv, OFFGRID_UPDATER_IMAGE_REGISTRY: "127.0.0.1:5000" },
+      secretFiles("x"),
+    );
+
+    expect(config.imageRegistry).toBe("127.0.0.1:5000");
+    expect(() =>
+      loadUpdaterConfig(
+        { ...requiredEnv, OFFGRID_UPDATER_IMAGE_REGISTRY: "http://127.0.0.1:5000" },
+        secretFiles("x"),
+      ),
+    ).toThrow("OFFGRID_UPDATER_IMAGE_REGISTRY");
   });
 });

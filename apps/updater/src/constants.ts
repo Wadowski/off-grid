@@ -86,6 +86,8 @@ export const REDIRECT_FORWARDED_HEADER_NAMES = ["accept", "user-agent"] as const
 
 export const RELEASE_ALLOWED_HOSTS = [GITHUB_API_HOST, RELEASE_ASSET_DOWNLOAD_HOST] as const;
 
+export const MANIFEST_IMAGE_REGISTRY = "ghcr.io";
+
 export const REPLACED_CONTAINER_SUFFIX = "-replaced";
 
 export const DOCKER_SERVICE_NAMES = ["server", "web"] as const;
