@@ -17,6 +17,11 @@ export type SseParseResult = {
   readonly pending: string;
 };
 
+export type LineEnd = {
+  readonly end: number;
+  readonly next: number;
+};
+
 export type NotificationStreamHandlers = {
   readonly onNotification: (notification: Notification) => void;
   readonly onReset: () => void;

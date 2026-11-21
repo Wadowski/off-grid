@@ -7,6 +7,8 @@ export const CLIENT_REQUEST_HEADERS: Readonly<Record<string, string>> = {
   "x-offgrid-request": "1",
 };
 
+export const LINE_BREAK_PATTERN = /\r\n|\r|\n/;
+
 export const STREAM_BACKOFF_INITIAL_MS = 1000;
 
 export const STREAM_BACKOFF_MAX_MS = 30000;
