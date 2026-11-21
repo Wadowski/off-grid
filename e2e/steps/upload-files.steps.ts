@@ -31,13 +31,9 @@ const personalDriveIdOf = async (world: ScenarioWorld, name: string): Promise<st
   return drives.find((drive) => drive.familyId === null)?.id ?? "";
 };
 
-const familyDriveIdOf = async (
-  world: ScenarioWorld,
-  name: string,
-  familyName: string,
-): Promise<string> => {
+const familyDriveIdOf = async (world: ScenarioWorld, familyName: string): Promise<string> => {
   const family = familyNamed(world, familyName);
-  const drives = await waitForDrives(world.api, sessionOf(world, name), (listed) =>
+  const drives = await waitForDrives(world.api, sessionOf(world, "Anna"), (listed) =>
     listed.some((drive) => drive.familyId === family.id),
   );
   return drives.find((drive) => drive.familyId === family.id)?.id ?? "";
@@ -103,7 +99,7 @@ When(
 When(
   /^(Anna|Ben) uploads the file "([^"]*)" to the family drive of "([^"]*)"$/,
   async ({ world }, person: string, name: string, familyName: string) => {
-    const driveId = await familyDriveIdOf(world, person, familyName);
+    const driveId = await familyDriveIdOf(world, familyName);
     await uploadTo(world, person, driveId, name, null);
   },
 );
@@ -124,7 +120,7 @@ Then(
 Then(
   /^Ben sees the file "([^"]*)" in the family drive of "([^"]*)"$/,
   async ({ world }, name: string, familyName: string) => {
-    const driveId = await familyDriveIdOf(world, "Ben", familyName);
+    const driveId = await familyDriveIdOf(world, familyName);
     expect(await namesIn(world, "Ben", { kind: "drive", id: driveId })).toContain(name);
   },
 );
