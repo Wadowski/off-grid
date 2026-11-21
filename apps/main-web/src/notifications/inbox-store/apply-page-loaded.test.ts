@@ -50,6 +50,16 @@ describe("applyPageLoaded", () => {
     expect(state.items.map((notification) => notification.id)).toEqual(["live", "a"]);
   });
 
+  it("compares createdAt as instants, so a later local time with an earlier instant is not kept", () => {
+    const live = item("live", "2026-11-19T10:00:00+02:00");
+    const state = applyPageLoaded(
+      { ...loadingState, items: [live] },
+      pageOf([item("a", "2026-11-19T09:00:00Z")]),
+    );
+
+    expect(state.items.map((notification) => notification.id)).toEqual(["a"]);
+  });
+
   it("drops a live item that the page already contains, without duplicating it", () => {
     const shared = item("a", "2026-11-19T09:00:00Z");
     const state = applyPageLoaded({ ...loadingState, items: [shared] }, pageOf([shared]));

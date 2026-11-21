@@ -24,6 +24,8 @@ vi.mock("../subscribe-to-notification-stream.js", () => ({
   subscribeToNotificationStream: mocks.subscribe,
 }));
 
+const READ_AT = "2026-11-19T10:00:00Z";
+
 const notice = (id: string, readAt: string | null = null): NotificationItem => ({
   id,
   type: "event-reminder",
@@ -91,15 +93,29 @@ describe("useNotificationsInbox", () => {
     expect(result.current.errorKind).toBe("markRead");
   });
 
+  it("does not call the server when the notice is already read", async () => {
+    const { result } = await renderInbox(pageOf([notice("a", READ_AT)]));
+
+    await act(() => result.current.markRead("a"));
+
+    expect(mocks.markRead).not.toHaveBeenCalled();
+    expect(result.current.errorKind).toBeUndefined();
+  });
+
   it("marks all notices read and reloads the first page when the request fails", async () => {
     mocks.markAllRead.mockRejectedValueOnce(new Error("offline"));
+    mocks.list
+      .mockResolvedValueOnce(pageOf([notice("a")]))
+      .mockResolvedValueOnce(pageOf([notice("a"), notice("b")]));
     const { result } = await renderInbox(pageOf([notice("a")]));
 
     await act(() => result.current.markAllRead());
 
     expect(mocks.markAllRead).toHaveBeenCalledTimes(1);
     expect(mocks.list).toHaveBeenCalledTimes(2);
-    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(result.current.items.map((item) => item.id)).toEqual(["a", "b"]);
+    expect(result.current.errorKind).toBe("markAllRead");
+    expect(result.current.status).toBe("ready");
   });
 
   it("reloads the first page when the stream asks for a reset", async () => {
@@ -118,6 +134,23 @@ describe("useNotificationsInbox", () => {
     await waitFor(() => expect(mocks.list).toHaveBeenLastCalledWith({ limit: 20, unread: "true" }));
   });
 
+  it("reloads with the filters set earlier in the same tick", async () => {
+    const { result } = await renderInbox(pageOf([notice("a")]));
+
+    act(() => {
+      result.current.setFilters({ category: "calendar", unread: true });
+      void result.current.reload();
+    });
+
+    await waitFor(() =>
+      expect(mocks.list).toHaveBeenLastCalledWith({
+        limit: 20,
+        category: "calendar",
+        unread: "true",
+      }),
+    );
+  });
+
   it("appends the next page when loading more", async () => {
     const { result } = await renderInbox(pageOf([notice("a")], { nextCursor: "cursor-1" }));
     mocks.list.mockResolvedValueOnce(pageOf([notice("b")]));
@@ -126,6 +159,17 @@ describe("useNotificationsInbox", () => {
 
     expect(mocks.list).toHaveBeenLastCalledWith({ limit: 20, cursor: "cursor-1" });
     expect(result.current.items.map((item) => item.id)).toEqual(["a", "b"]);
+  });
+
+  it("keeps the loaded items and reports a load-more error", async () => {
+    const { result } = await renderInbox(pageOf([notice("a")], { nextCursor: "cursor-1" }));
+    mocks.list.mockRejectedValueOnce(new Error("offline"));
+
+    await act(() => result.current.loadMore());
+
+    expect(result.current.errorKind).toBe("loadMore");
+    expect(result.current.status).toBe("ready");
+    expect(result.current.items.map((item) => item.id)).toEqual(["a"]);
   });
 
   it("surfaces a stream error as state", async () => {

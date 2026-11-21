@@ -5,5 +5,5 @@ import type { NotificationItem, NotificationPage } from "./types.js";
 
 export const isNewerThanPageHead = (item: NotificationItem, page: NotificationPage): boolean => {
   const [head] = page.notifications;
-  return head === undefined || item.createdAt > head.createdAt;
+  return head === undefined || Date.parse(item.createdAt) > Date.parse(head.createdAt);
 };

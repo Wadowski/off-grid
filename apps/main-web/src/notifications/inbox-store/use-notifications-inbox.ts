@@ -10,7 +10,7 @@ import { loadInboxPage } from "./load-inbox-page.js";
 import { loadMoreInboxPage } from "./load-more-inbox-page.js";
 import { markAllReadWithReload } from "./mark-all-read-with-reload.js";
 import { markReadWithRollback } from "./mark-read-with-rollback.js";
-import type { InboxFilters, InboxState, NotificationsInbox } from "./types.js";
+import type { InboxAction, InboxFilters, InboxState, NotificationsInbox } from "./types.js";
 
 export const useNotificationsInbox = (): NotificationsInbox => {
   const [state, dispatch] = useReducer(
@@ -21,14 +21,18 @@ export const useNotificationsInbox = (): NotificationsInbox => {
   const latestState = useRef<InboxState>(state);
   const latestGeneration = useRef(0);
 
-  useEffect(() => {
-    latestState.current = state;
-  }, [state]);
-
-  const loadWithFilters = useCallback((filters: InboxFilters): Promise<void> => {
-    const generation = ++latestGeneration.current;
-    return loadInboxPage(dispatch, filters, () => generation === latestGeneration.current);
+  const dispatchInbox = useCallback((action: InboxAction) => {
+    latestState.current = inboxReducer(latestState.current, action);
+    dispatch(action);
   }, []);
+
+  const loadWithFilters = useCallback(
+    (filters: InboxFilters): Promise<void> => {
+      const generation = ++latestGeneration.current;
+      return loadInboxPage(dispatchInbox, filters, () => generation === latestGeneration.current);
+    },
+    [dispatchInbox],
+  );
 
   const reload = useCallback(() => loadWithFilters(latestState.current.filters), [loadWithFilters]);
 
@@ -41,19 +45,19 @@ export const useNotificationsInbox = (): NotificationsInbox => {
     void subscribeToNotificationStream({
       signal: controller.signal,
       onNotification: (notification) =>
-        dispatch({ type: "liveNotificationReceived", notification }),
+        dispatchInbox({ type: "liveNotificationReceived", notification }),
       onReset: () => void reload(),
-      onError: () => dispatch({ type: "streamFailed" }),
+      onError: () => dispatchInbox({ type: "streamFailed" }),
     });
     return () => controller.abort();
-  }, [reload]);
+  }, [reload, dispatchInbox]);
 
   const setFilters = useCallback(
     (filters: InboxFilters) => {
-      dispatch({ type: "filtersChanged", filters });
+      dispatchInbox({ type: "filtersChanged", filters });
       void loadWithFilters(filters);
     },
-    [loadWithFilters],
+    [dispatchInbox, loadWithFilters],
   );
 
   const loadMore = useCallback(async () => {
@@ -63,22 +67,32 @@ export const useNotificationsInbox = (): NotificationsInbox => {
     }
     const generation = latestGeneration.current;
     await loadMoreInboxPage(
-      dispatch,
+      dispatchInbox,
       filters,
       nextCursor,
       () => generation === latestGeneration.current,
     );
-  }, []);
+  }, [dispatchInbox]);
 
-  const markRead = useCallback(async (notificationId: string) => {
-    const previousReadAt =
-      latestState.current.items.find((item) => item.id === notificationId)?.readAt ?? null;
-    await markReadWithRollback(dispatch, notificationId, previousReadAt, new Date().toISOString());
-  }, []);
+  const markRead = useCallback(
+    async (notificationId: string) => {
+      const item = latestState.current.items.find((candidate) => candidate.id === notificationId);
+      if (item !== undefined && item.readAt !== null) {
+        return;
+      }
+      await markReadWithRollback(
+        dispatchInbox,
+        notificationId,
+        item?.readAt ?? null,
+        new Date().toISOString(),
+      );
+    },
+    [dispatchInbox],
+  );
 
   const markAllRead = useCallback(
-    () => markAllReadWithReload(dispatch, new Date().toISOString(), reload),
-    [reload],
+    () => markAllReadWithReload(dispatchInbox, new Date().toISOString(), reload),
+    [dispatchInbox, reload],
   );
 
   return { ...state, setFilters, reload, loadMore, markRead, markAllRead };

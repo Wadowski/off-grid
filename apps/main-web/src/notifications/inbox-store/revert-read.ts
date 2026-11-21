@@ -10,12 +10,12 @@ export const revertRead = (
   previousReadAt: string | null,
 ): InboxState => {
   const target = state.items.find((item) => item.id === notificationId);
-  const wasOptimisticallyRead = previousReadAt === null && target?.readAt !== null;
+  const wasReadOptimistically =
+    target !== undefined && target.readAt !== null && previousReadAt === null;
   return {
     ...state,
     items: updateItem(state.items, notificationId, (item) => ({ ...item, readAt: previousReadAt })),
-    unreadCount:
-      target !== undefined && wasOptimisticallyRead ? state.unreadCount + 1 : state.unreadCount,
+    unreadCount: wasReadOptimistically ? state.unreadCount + 1 : state.unreadCount,
     errorKind: "markRead",
   };
 };

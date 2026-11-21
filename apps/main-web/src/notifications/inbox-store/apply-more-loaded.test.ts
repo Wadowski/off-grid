@@ -51,4 +51,21 @@ describe("applyMoreLoaded", () => {
 
     expect(state.unreadCount).toBe(3);
   });
+
+  it("clears a previous loadMore error once a page loads", () => {
+    const failed = { ...stateWith([item("a")]), errorKind: "loadMore" as const };
+
+    const state = applyMoreLoaded(failed, pageOf([item("b")], null));
+
+    expect(state.errorKind).toBeUndefined();
+    expect(state.items.map((notification) => notification.id)).toEqual(["a", "b"]);
+  });
+
+  it("keeps an error from another action", () => {
+    const failed = { ...stateWith([item("a")]), errorKind: "markRead" as const };
+
+    const state = applyMoreLoaded(failed, pageOf([item("b")], null));
+
+    expect(state.errorKind).toBe("markRead");
+  });
 });

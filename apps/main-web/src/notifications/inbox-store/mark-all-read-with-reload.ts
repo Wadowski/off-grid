@@ -14,7 +14,7 @@ export const markAllReadWithReload = async (
   try {
     await markAllNotificationsRead();
   } catch {
-    dispatch({ type: "markAllReadFailed" });
     await reload();
+    dispatch({ type: "markAllReadFailed" });
   }
 };

@@ -55,7 +55,14 @@ describe("inboxReducer", () => {
 
     expect(state.items).toEqual([]);
     expect(state.filters).toEqual({ unread: true });
-    expect(state.status).toBe("loading");
+  });
+
+  it("clears a previous error when filters change", () => {
+    const failed = inboxReducer(loadedState(), { type: "loadMoreFailed" });
+
+    const state = inboxReducer(failed, { type: "filtersChanged", filters: { unread: true } });
+
+    expect(state.errorKind).toBeUndefined();
   });
 
   it("appends a loaded page after the current items", () => {
