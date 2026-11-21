@@ -20,6 +20,7 @@ describe("filesRoutes", () => {
       drives: "/drives",
       driveChildren: "/drives/:id/children",
       driveFolders: "/drives/:id/folders",
+      driveFiles: "/drives/:id/files",
       driveTrash: "/drives/:id/trash",
       file: "/files/:id",
       fileChildren: "/files/:id/children",

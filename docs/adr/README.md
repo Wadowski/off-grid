@@ -52,3 +52,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0035](0035-realtime-notifications-over-sse.md)          | Realtime notifications over server-sent events                                                   | Proposed                  |
 | [0036](0036-migrator-owns-database-objects.md)           | The migrator owns the database and the init-created objects                                      | Proposed                  |
 | [0037](0037-cross-owner-move-copy-and-removal.md)        | Cross-owner moves copy the subtree and remove the source, with an entry limit                    | Accepted                  |
+| [0038](0038-streamed-upload-request-shape.md)            | Uploads send the raw file bytes with the name and parent in headers                              | Accepted                  |

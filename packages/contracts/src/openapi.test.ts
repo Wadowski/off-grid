@@ -92,6 +92,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/calendars/{id}/events",
       "/drives",
       "/drives/{id}/children",
+      "/drives/{id}/files",
       "/drives/{id}/folders",
       "/drives/{id}/trash",
       "/events/{id}/guests",
