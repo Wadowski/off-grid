@@ -89,3 +89,13 @@ The install script, `infra/install/install.sh`, makes outbound calls of its own.
 The script checks the two downloaded files against `SHA256SUMS` from the same release before it uses them. That guards against corrupted and swapped downloads. It does not guard against a compromised release, for the same reason as the manifest above: nothing is signed.
 
 The install-time calls are the owner's host setup, the same class as the Docker repository key download in OG-172. The rule that a call happens only on an admin's action does not apply to them, because no admin account exists before the first install.
+
+## Amendment: release source for tests (OG-175)
+
+The end-to-end suite must run the update and install flows without any outbound call. The updater and the install script therefore accept an optional release source. All three settings are empty by default, and an empty value keeps the hosts listed in this record.
+
+- `OFFGRID_UPDATER_RELEASE_API_BASE_URL`: an https URL that replaces `https://api.github.com`. The updater allows exactly the host of this URL for the release lookup, the manifest download and any redirect. The `release-assets.githubusercontent.com` entry applies only to the default.
+- `OFFGRID_UPDATER_IMAGE_REGISTRY`: a `host[:port]` that replaces `ghcr.io` when the updater pulls an image and creates a container from it. The manifest, the status file and the contracts keep the `ghcr.io` form of every reference. The updater maps a reference to the registry form only at the Docker boundary, and maps the registry digests of running images back to the `ghcr.io` form before it checks them. Docker cannot tag an image by digest, so a retag is not used.
+- `OFFGRID_RELEASE_DOWNLOAD_BASE_URL` for the install script: an https URL that replaces `https://github.com`.
+
+The e2e Compose override sets them to a fake release source and a local registry on the test host, and trusts the fake source's per-run certificate authority there only. The production Compose file sets none of them. The https-only rule and the host allow-list stay in force, so the override cannot send a request to a host that the owner did not configure.
