@@ -58,7 +58,7 @@ ADR 0032 lists the only hosts that an update may contact. For the release lookup
 - `ghcr.io`: the image manifests.
 - `pkg-containers.githubusercontent.com`: the redirect target of the image downloads.
 
-The updater makes these calls only for an admin's action (Check for updates, Update system) or for the opt-in nightly run. The install script and `set-latest-version.sh` call `github.com`, `api.github.com`, `ghcr.io`, `download.docker.com` and the distribution's package mirrors, only when the owner runs them. The privacy statement, [privacy.md](privacy.md), lists the same hosts. A change to this list needs an update of ADR 0032, the privacy statement and the updater's allow-list in the same pull request.
+The updater makes these calls only for an admin's action (Check for updates, Update system) or for the opt-in nightly run. The install script and `set-latest-version.sh` call `github.com` (whose release downloads redirect to `release-assets.githubusercontent.com`), `api.github.com`, `ghcr.io`, `download.docker.com` and the distribution's package mirrors, only when the owner runs them. The privacy statement, [privacy.md](privacy.md), lists the same hosts. A change to this list needs an update of ADR 0032, the privacy statement and the updater's allow-list in the same pull request.
 
 The end-to-end suite replaces these hosts with the fake release source described below. The production Compose file sets none of the override variables, so the allow-list above applies unchanged on a host.
 
