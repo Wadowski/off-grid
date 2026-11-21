@@ -5,13 +5,14 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationItem, NotificationPage } from "../../notifications/inbox-store/types.js";
+import type { subscribeToNotificationStream } from "../../notifications/subscribe-to-notification-stream.js";
 import { NotificationsPage } from "./notifications-page.js";
 
 const mocks = vi.hoisted(() => ({
   list: vi.fn(),
   markRead: vi.fn(),
   markAllRead: vi.fn(),
-  subscribe: vi.fn(),
+  subscribe: vi.fn<typeof subscribeToNotificationStream>(),
 }));
 
 vi.mock("../../notifications/notifications-api.js", () => ({
@@ -164,8 +165,8 @@ describe("NotificationsPage", () => {
 
     renderPage();
     await waitFor(() => expect(cardCount()).toBe(1));
-    const options = mocks.subscribe.mock.calls[0]?.[0] as { onError: () => void };
-    act(() => options.onError());
+    const [streamOptions] = mocks.subscribe.mock.calls[0]!;
+    act(() => streamOptions.onError(new Error("stream failed")));
 
     expect(
       screen.getByText("Live updates are unavailable. Reload to see new notifications."),
