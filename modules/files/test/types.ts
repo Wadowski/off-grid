@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleDatabase } from "@offgrid/db";
+import type { FileStorage } from "@offgrid/file-storage";
 import type { Client, Pool } from "pg";
 
 export interface FilesTestDatabase {
@@ -49,4 +50,9 @@ export interface SeedRegularFileInput extends SeedEntryInput {
   readonly sizeBytes: number;
   readonly createdByUserId: string;
   readonly storageKey?: string;
+}
+
+export interface FilesTestAppOptions {
+  readonly storage?: FileStorage;
+  readonly maxUploadBytes?: number;
 }
