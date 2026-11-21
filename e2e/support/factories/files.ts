@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { APIRequestContext } from "@playwright/test";
+import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "@offgrid/contracts";
 import { eventually } from "../eventually.js";
 import type { JsonResponse, Session } from "./instance-admin.js";
 import type { Container, Drive, FileItem } from "./types.js";
@@ -178,10 +179,10 @@ export const uploadFileAs = async (
   const headers: Record<string, string> = {
     ...bearer(session),
     "content-type": "text/plain",
-    "x-offgrid-file-name": encodeURIComponent(upload.name),
+    [FILE_NAME_HEADER]: encodeURIComponent(upload.name),
   };
   if (upload.parentId !== null) {
-    headers["x-offgrid-parent-id"] = upload.parentId;
+    headers[PARENT_ID_HEADER] = upload.parentId;
   }
   const response = await api.post(`/api/drives/${driveId}/files`, {
     headers,

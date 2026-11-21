@@ -1579,8 +1579,8 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                "X-Offgrid-File-Name": string;
-                "X-Offgrid-Parent-Id"?: string;
+                "x-offgrid-file-name": string;
+                "x-offgrid-parent-id"?: string;
             };
             path: {
                 id: string;

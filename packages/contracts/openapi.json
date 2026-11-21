@@ -696,7 +696,7 @@
             }
           },
           {
-            "name": "X-Offgrid-File-Name",
+            "name": "x-offgrid-file-name",
             "in": "header",
             "required": true,
             "description": "The name of the new file, percent-encoded (RFC 3986).",
@@ -705,7 +705,7 @@
             }
           },
           {
-            "name": "X-Offgrid-Parent-Id",
+            "name": "x-offgrid-parent-id",
             "in": "header",
             "required": false,
             "description": "The id of the folder that receives the file. Absent means the root of the drive.",

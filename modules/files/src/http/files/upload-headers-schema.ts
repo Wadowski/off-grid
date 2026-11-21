@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { fileIdSchema, fileNameSchema } from "@offgrid/contracts";
+import {
+  FILE_NAME_HEADER,
+  PARENT_ID_HEADER,
+  fileIdSchema,
+  fileNameSchema,
+} from "@offgrid/contracts";
 import { z } from "zod";
-import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "../../constants.js";
 
 const MEDIA_TYPE_PATTERN = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/;
 

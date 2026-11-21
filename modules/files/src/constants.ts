@@ -15,8 +15,6 @@ export const MAX_MOVE_ENTRY_COUNT = 10000;
 export const PAYLOAD_TOO_LARGE_MESSAGE =
   "The file is larger than the upload limit. Nothing was stored.";
 export const DEFAULT_MIME_TYPE = "application/octet-stream";
-export const FILE_NAME_HEADER = "x-offgrid-file-name";
-export const PARENT_ID_HEADER = "x-offgrid-parent-id";
 export const MIME_TYPE_BY_EXTENSION: ReadonlyMap<string, string> = new Map([
   ["txt", "text/plain"],
   ["md", "text/markdown"],

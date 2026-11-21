@@ -8,6 +8,7 @@ import { fileListQuerySchema } from "./file-list-query-schema.js";
 import { fileParamsSchema } from "./file-params-schema.js";
 import { fileVersionParamsSchema } from "./file-version-params-schema.js";
 import { uploadParamsSchema } from "./upload-params-schema.js";
+import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "./upload-headers.js";
 
 const jsonContent = (schemaName: string) => ({
   "application/json": { schema: { $ref: `#/components/schemas/${schemaName}` } },
@@ -97,7 +98,7 @@ const uploadOffsetHeader = {
 };
 
 const uploadFileNameHeader = {
-  name: "X-Offgrid-File-Name",
+  name: FILE_NAME_HEADER,
   in: "header",
   required: true,
   description: "The name of the new file, percent-encoded (RFC 3986).",
@@ -105,7 +106,7 @@ const uploadFileNameHeader = {
 };
 
 const uploadParentIdHeader = {
-  name: "X-Offgrid-Parent-Id",
+  name: PARENT_ID_HEADER,
   in: "header",
   required: false,
   description: "The id of the folder that receives the file. Absent means the root of the drive.",
