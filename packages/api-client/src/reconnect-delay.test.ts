@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { reconnectDelay } from "./notifications-stream-delay.js";
+import { reconnectDelay } from "./reconnect-delay.js";
 
 const NO_JITTER_MIN = () => 0;
 const NO_JITTER_MAX = () => 1;

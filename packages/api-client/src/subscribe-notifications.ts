@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { reconnectDelay } from "./notifications-stream-delay.js";
+import { reconnectDelay } from "./reconnect-delay.js";
 import { openNotificationStream } from "./open-notification-stream.js";
 import { waitOrAbort } from "./wait-or-abort.js";
 import type { SubscribeNotificationsOptions } from "./types.js";
