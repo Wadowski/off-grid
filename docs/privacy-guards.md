@@ -39,3 +39,7 @@ This is the one outbound request in the repository. The probe sends a plain GET 
 It always tears the stack down, and it needs Docker and Docker Compose 2.24.4 or newer, which the `!reset` tag in the override requires.
 
 The `stack-guard` CI job runs this check on changes to `infra/`, `apps/`, `modules/`, `packages/`, `pnpm-lock.yaml` and `Dockerfile*`. On other changes it reports success without starting the stack. On a nightly or manual run, where there is no base commit to diff, it always runs.
+
+## Fake release source in the e2e suite
+
+The e2e update and install scenarios never contact GitHub or `ghcr.io`. `e2e/support` starts a fake release source on the test host over https with a per-run certificate authority, and the e2e Compose override points the updater (`OFFGRID_UPDATER_RELEASE_API_BASE_URL`, `OFFGRID_UPDATER_IMAGE_REGISTRY`) and the install script (`OFFGRID_RELEASE_DOWNLOAD_BASE_URL`) at it and at a local registry. The fake source logs every request, and the steps assert that the logged hosts are only the fake one. See [ADR 0032](adr/0032-outbound-update-check-and-image-pull.md), amendment OG-175.

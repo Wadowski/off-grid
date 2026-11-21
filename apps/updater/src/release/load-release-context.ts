@@ -16,6 +16,7 @@ export const loadReleaseContext = async (
   const manifest = await fetchReleaseManifest(
     services.httpFetch,
     services.releaseRepository,
+    services.releaseApiBaseUrl,
     requestedVersion,
   ).catch(() => null);
   if (manifest === null) {

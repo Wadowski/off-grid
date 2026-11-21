@@ -24,6 +24,7 @@ const buildServices = (
   apiToken: "updater-test-token-value",
   statusFile: "unused/status.json",
   releaseRepository: RELEASE_REPOSITORY,
+  releaseApiBaseUrl: "https://api.github.com",
   runLock: createRunLock(),
   httpFetch: fakeReleaseSource(),
   logger: createSilentLogger(),

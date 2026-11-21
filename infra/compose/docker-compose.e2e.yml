@@ -23,3 +23,29 @@ services:
     restart: "no"
     ports:
       - "127.0.0.1:${OFFGRID_MAIL_UI_PORT:-8025}:8025"
+
+  updater:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      OFFGRID_UPDATER_COMPOSE_PROJECT: ${E2E_COMPOSE_PROJECT:-offgrid-e2e-local}
+      OFFGRID_UPDATER_RELEASE_REPOSITORY: offgrid-e2e/offgrid
+      OFFGRID_UPDATER_RELEASE_API_BASE_URL: https://host.docker.internal:${E2E_RELEASE_SOURCE_PORT:-18443}
+      OFFGRID_UPDATER_IMAGE_REGISTRY: 127.0.0.1:${E2E_REGISTRY_PORT:-5000}
+      OFFGRID_UPDATER_HEALTH_TIMEOUT_SECONDS: 30
+      NODE_EXTRA_CA_CERTS: /etc/offgrid-e2e/ca.pem
+    volumes: !override
+      - ../../data/secrets:/run/secrets:ro
+      - offgrid-e2e-backups:/backups
+      - offgrid-updater:/var/lib/offgrid-updater
+      - ${OFFGRID_DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - ../../e2e/artifacts/release-source/ca.pem:/etc/offgrid-e2e/ca.pem:ro
+
+  registry:
+    image: registry:2
+    restart: "no"
+    ports:
+      - "127.0.0.1:${E2E_REGISTRY_PORT:-5000}:5000"
+
+volumes:
+  offgrid-e2e-backups:

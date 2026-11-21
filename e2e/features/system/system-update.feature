@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@wip @module:system
+@module:system
 Feature: System update
 
   The admin keeps the server up to date. The admin can see which version runs
@@ -17,14 +17,14 @@ Feature: System update
 
   Scenario: Admin starts an update
     Given I am the admin
-    And a newer version is available
+    And a newer release has been published
     When I start the update
     Then I can see the update in progress
     And I can see the new version running
 
   Scenario: Update does not start when the backup fails
     Given I am the admin
-    And a newer version is available
+    And a newer release has been published
     And the database backup fails
     When I start the update
     Then the update does not start
@@ -32,7 +32,7 @@ Feature: System update
 
   Scenario: Update rolls back when the new version fails its health check
     Given I am the admin
-    And a newer version is available
+    And a newer release has been published
     And the new version fails its health check
     When I start the update
     Then the previous version is running again
@@ -45,7 +45,7 @@ Feature: System update
 
   Scenario: Regular user cannot start an update
     Given I am a regular user
-    And a newer version is available
+    And a newer release has been published
     When I try to start the update
     Then I see that only an admin can start an update
     And the update does not start

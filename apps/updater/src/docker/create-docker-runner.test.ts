@@ -10,6 +10,8 @@ const OLD_SERVER_DIGEST = `ghcr.io/owner/offgrid-main-server@sha256:${"a".repeat
 const OLD_WEB_DIGEST = `ghcr.io/owner/offgrid-main-web@sha256:${"b".repeat(64)}`;
 const NEW_SERVER_DIGEST = `ghcr.io/owner/offgrid-main-server@sha256:${"c".repeat(64)}`;
 const NEW_WEB_DIGEST = `ghcr.io/owner/offgrid-main-web@sha256:${"d".repeat(64)}`;
+const REGISTRY = "127.0.0.1:5000";
+const onRegistry = (reference: string): string => reference.replace("ghcr.io/", `${REGISTRY}/`);
 
 const oldServerImage = (repoDigests: string[] = [OLD_SERVER_DIGEST]): FakeEngineImage => ({
   reference: "offgrid-main-server:local",
@@ -35,6 +37,7 @@ const seed = (overrides: Partial<FakeEngineOptions> = {}): FakeEngineOptions => 
       env: ["NODE_ENV=production", "OFFGRID_VERSION=1.0.0", "OFFGRID_HTTP_PORT=3000"],
       running: true,
       exitCode: 0,
+      aliases: ["server", "id-offgrid-server-1"],
     },
     {
       name: "offgrid-web-1",
@@ -59,9 +62,9 @@ const seed = (overrides: Partial<FakeEngineOptions> = {}): FakeEngineOptions => 
 describe("createDockerRunner", () => {
   let engine: FakeEngine | undefined;
 
-  const startWith = async (options: FakeEngineOptions) => {
+  const startWith = async (options: FakeEngineOptions, imageRegistry: string | null = null) => {
     engine = await startFakeDockerEngine(options);
-    return createDockerRunner({ socketPath: engine.socketPath, project: "offgrid" });
+    return createDockerRunner({ socketPath: engine.socketPath, project: "offgrid", imageRegistry });
   };
 
   const pulledNewImages = async (runner: ReturnType<typeof createDockerRunner>) => {
@@ -164,6 +167,17 @@ describe("createDockerRunner", () => {
     });
   });
 
+  describe("service aliases", () => {
+    it("gives the replacement the service alias of the container it replaces", async () => {
+      const runner = await startWith(seed());
+      await pulledNewImages(runner);
+
+      await runner.replaceContainers({ server: NEW_SERVER_DIGEST, web: NEW_WEB_DIGEST });
+
+      expect(engine?.containerNamed("offgrid-server-1")?.aliases).toEqual(["server"]);
+    });
+  });
+
   describe("runInitJob", () => {
     it("runs the init job with the new server image and removes it afterwards", async () => {
       const runner = await startWith(seed());
@@ -185,6 +199,40 @@ describe("createDockerRunner", () => {
       await expect(runner.runInitJob(NEW_SERVER_DIGEST)).rejects.toThrow(
         "init job exited with a failure",
       );
+    });
+  });
+
+  describe("with an image registry override", () => {
+    it("pulls from the override registry and runs containers from the pulled images", async () => {
+      const runner = await startWith(seed(), REGISTRY);
+      await pulledNewImages(runner);
+
+      await runner.replaceContainers({ server: NEW_SERVER_DIGEST, web: NEW_WEB_DIGEST });
+
+      expect(
+        engine?.requests.some((request) =>
+          request.path.includes(
+            encodeURIComponent(onRegistry(NEW_SERVER_DIGEST).split("@")[0] ?? ""),
+          ),
+        ),
+      ).toBe(true);
+      expect(engine?.containerNamed("offgrid-server-1")).toMatchObject({
+        image: onRegistry(NEW_SERVER_DIGEST),
+        running: true,
+      });
+    });
+
+    it("reports running images in the manifest registry form", async () => {
+      const runner = await startWith(
+        seed({
+          images: [oldServerImage([onRegistry(OLD_SERVER_DIGEST)]), oldWebImage],
+        }),
+        REGISTRY,
+      );
+
+      await expect(runner.inspectRunningImages()).resolves.toMatchObject({
+        server: OLD_SERVER_DIGEST,
+      });
     });
   });
 });

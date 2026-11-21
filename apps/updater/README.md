@@ -89,7 +89,7 @@ The Compose environment is copied; variables that came from the old image are no
 
 ## Release source
 
-The manifest is `release-manifest.json` on the GitHub release (ADR 0032). The updater calls `api.github.com` for the release, downloads the asset through the API, and follows one redirect to `release-assets.githubusercontent.com`. Any other host is refused. The manifest is validated with `releaseManifestSchema`, and its version must match the requested version. The manifest is not signed; digest pinning is the trust mechanism (ADR 0032).
+The manifest is `release-manifest.json` on the GitHub release (ADR 0032). The updater calls `api.github.com` for the release, downloads the asset through the API, and follows one redirect to `release-assets.githubusercontent.com`. Any other host is refused. When `OFFGRID_UPDATER_RELEASE_API_BASE_URL` (https) is set, the release lookup, the asset download and any redirect are allowed only for the host of that URL instead. When `OFFGRID_UPDATER_IMAGE_REGISTRY` (`host[:port]`) is set, images are pulled from that registry instead of `ghcr.io`, and the manifest and status keep the `ghcr.io` references. Both settings are empty by default and exist for the end-to-end suite (ADR 0032, amendment OG-175). The manifest is validated with `releaseManifestSchema`, and its version must match the requested version. The manifest is not signed; digest pinning is the trust mechanism (ADR 0032).
 
 ## Run
 

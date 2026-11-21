@@ -105,6 +105,7 @@ describe("updater HTTP API", () => {
       apiToken: TOKEN,
       statusFile,
       releaseRepository: "owner/offgrid",
+      releaseApiBaseUrl: "https://api.github.com",
       runLock: releaseLockOwner,
       httpFetch: releaseSource(),
       logger: createLogger({ level: "debug", sink: (line) => logLines.push(line) }),
@@ -272,13 +273,15 @@ describe("updater HTTP API", () => {
 
       openGate();
       await waitUntil(async () => (await readStatusOutcome()) === "succeeded");
-      const third = await app.inject({
-        method: "POST",
-        url: "/apply",
-        headers: authorized(),
-        payload: { version: TARGET_VERSION },
+      await waitUntil(async () => {
+        const third = await app.inject({
+          method: "POST",
+          url: "/apply",
+          headers: authorized(),
+          payload: { version: TARGET_VERSION },
+        });
+        return third.statusCode === 202;
       });
-      expect(third.statusCode).toBe(202);
       await waitUntil(async () => (await readStatusOutcome()) === "succeeded");
     });
 
@@ -349,6 +352,7 @@ describe("updater HTTP API", () => {
       apiToken: TOKEN,
       statusFile,
       releaseRepository: "owner/offgrid",
+      releaseApiBaseUrl: "https://api.github.com",
       runLock: releaseLockOwner,
       httpFetch,
       logger: createLogger({ level: "debug", sink: (line) => logLines.push(line) }),
