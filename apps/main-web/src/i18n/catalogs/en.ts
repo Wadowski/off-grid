@@ -651,6 +651,16 @@ export const en = {
       heading: "Files",
       placeholder: "Your drives and folders will appear here.",
     },
+    breadcrumbs: {
+      label: "Folder path",
+    },
+    folder: {
+      loading: "Loading...",
+    },
+    notFound: {
+      heading: "Folder not found",
+      back: "Go to Files",
+    },
     itemCount_one: "{{count}} item",
     itemCount_other: "{{count}} items",
     date: {
