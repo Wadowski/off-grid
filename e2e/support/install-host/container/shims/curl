@@ -1,0 +1,24 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 Dominik Wadowski
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+set -eu
+
+output=
+previous=
+for argument in "$@"; do
+  if [ "$previous" = -o ]; then
+    output=$argument
+  fi
+  previous=$argument
+done
+for argument in "$@"; do
+  case "$argument" in
+    https://download.docker.com/*)
+      printf 'curl %s\n' "$argument" >> /var/log/e2e-package-manager.log
+      printf 'recorded docker repository key\n' > "$output"
+      exit 0
+      ;;
+  esac
+done
+exec /usr/bin/curl "$@"

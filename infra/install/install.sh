@@ -13,6 +13,8 @@ DOCKER_DOWNLOAD_URL=https://download.docker.com/linux
 DOCKER_DEB_FINGERPRINT=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 DOCKER_RPM_FINGERPRINT=060A61C51B558A7F742B77AAC52FEB6B621E9F35
 DEFAULT_RELEASE_REPOSITORY=Wadowski/off-grid
+DEFAULT_RELEASE_DOWNLOAD_BASE_URL=https://github.com
+RELEASE_DOWNLOAD_BASE_URL_PATTERN='^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?$'
 WAIT_TIMEOUT_SECONDS=300
 RELEASE_REPOSITORY_PATTERN='^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'
 SEMVER_PATTERN='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
@@ -276,12 +278,20 @@ read_pinned_version() {
   sed -n 's/^OFFGRID_VERSION=//p' "$env_file" | tail -n 1
 }
 
+resolve_release_download_base_url() {
+  base_url=${OFFGRID_RELEASE_DOWNLOAD_BASE_URL:-$DEFAULT_RELEASE_DOWNLOAD_BASE_URL}
+  printf '%s\n' "$base_url" | grep -Eq "$RELEASE_DOWNLOAD_BASE_URL_PATTERN" \
+    || fail "release: OFFGRID_RELEASE_DOWNLOAD_BASE_URL must be an https URL with a host and an optional port, got $base_url"
+  printf '%s\n' "$base_url"
+}
+
 release_download_url() {
   repository=$(resolve_release_repository)
+  download_base_url=$(resolve_release_download_base_url)
   if [ -n "$1" ]; then
-    printf 'https://github.com/%s/releases/download/v%s\n' "$repository" "$1"
+    printf '%s/%s/releases/download/v%s\n' "$download_base_url" "$repository" "$1"
   else
-    printf 'https://github.com/%s/releases/latest/download\n' "$repository"
+    printf '%s/%s/releases/latest/download\n' "$download_base_url" "$repository"
   fi
 }
 

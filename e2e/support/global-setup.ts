@@ -3,6 +3,7 @@
 
 import { request } from "@playwright/test";
 import { provisionRunAdmin } from "./factories/instance-admin.js";
+import { startReleaseSource } from "./release-source/start-release-source.js";
 import {
   assertPortsFree,
   bringUpStack,
@@ -26,12 +27,14 @@ async function provisionOnRunningStack(): Promise<void> {
 
 export default async function globalSetup(): Promise<() => Promise<void>> {
   if (process.env.E2E_REUSE_STACK === "1") {
+    const releaseSource = await startReleaseSource();
     await provisionOnRunningStack();
-    return async () => {};
+    return releaseSource.close;
   }
 
   await stopLeftoverRunStacks();
   await assertPortsFree(e2ePortChecks());
+  const releaseSource = await startReleaseSource();
 
   const project = newComposeProjectName();
   process.env.E2E_COMPOSE_PROJECT = project;
@@ -41,11 +44,13 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     await provisionOnRunningStack();
   } catch (error) {
     await tearDownStack(project);
+    await releaseSource.close();
     throw error;
   }
 
   return async () => {
     await tearDownStack(project);
+    await releaseSource.close();
     delete process.env.E2E_COMPOSE_PROJECT;
   };
 }

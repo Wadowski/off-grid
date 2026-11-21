@@ -26,6 +26,8 @@ Then it installs the stack. The release is `OFFGRID_VERSION` (`X.Y.Z`, a leading
 
 Re-running is safe. With the same version it pulls and restarts nothing and keeps `.env` and the secrets. A higher version updates the pin, pulls and restarts. A version lower than the installed one is refused, because a downgrade can break a migrated database. When the pin in `.env` is older than the installed version, for example after an in-app update, the script changes only the `OFFGRID_VERSION` line to the installed version and does not pull or restart.
 
+`OFFGRID_RELEASE_DOWNLOAD_BASE_URL` (https, default `https://github.com`) replaces the download host of the install script. It exists for the end-to-end suite and is not needed on a normal host.
+
 The checksums come from the same GitHub release as the files. They catch corrupted or swapped downloads. They do not protect against a compromised release, because the release manifest and checksums are not signed yet, see [ADR 0032](../docs/adr/0032-outbound-update-check-and-image-pull.md).
 
 The script never changes group membership. When the user who ran `sudo` is not in the `docker` group, it prints the `usermod -aG docker <user>` command for the owner to run.

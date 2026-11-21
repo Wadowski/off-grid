@@ -5,6 +5,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { z } from "zod";
 import type {
   FakeEngine,
   FakeEngineContainerRecord,
@@ -44,13 +45,22 @@ const findContainer = (
 ): FakeEngineContainerRecord | undefined =>
   containers.find((container) => container.id === reference || container.name === reference);
 
+const createdNetworkingSchema = z.object({
+  EndpointsConfig: z.record(z.string(), z.object({ Aliases: z.array(z.string()).optional() })),
+});
+
+const readCreatedAliases = (networking: unknown): string[] => {
+  const parsed = createdNetworkingSchema.safeParse(networking);
+  return parsed.success ? (Object.values(parsed.data.EndpointsConfig)[0]?.Aliases ?? []) : [];
+};
+
 const inspectOf = (container: FakeEngineContainerRecord, images: FakeEngineImageRecord[]) => ({
   Id: container.id,
   Name: `/${container.name}`,
   Image: images.find((image) => image.reference === container.config.Image)?.id ?? "",
   Config: { ...container.config, Env: container.env, Labels: container.labels },
   HostConfig: { PortBindings: {} },
-  NetworkSettings: { Networks: { offgrid_default: {} } },
+  NetworkSettings: { Networks: { offgrid_default: { Aliases: container.aliases } } },
 });
 
 export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise<FakeEngine> => {
@@ -75,6 +85,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
     },
     running: container.running,
     exitCode: container.exitCode,
+    aliases: [...(container.aliases ?? [])],
   }));
 
   const handle = (method: string, url: URL, body: string): FakeEngineReply => {
@@ -116,6 +127,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
       const payload = JSON.parse(body) as Record<string, unknown>;
       const config = { ...payload };
       const env = config.Env;
+      const aliases = readCreatedAliases(config.NetworkingConfig);
       delete config.Env;
       delete config.HostConfig;
       delete config.NetworkingConfig;
@@ -136,6 +148,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
         labels: (config.Labels as Record<string, string> | undefined) ?? {},
         running: false,
         exitCode: 0,
+        aliases,
       });
       return { status: 201, json: { Id: id } };
     }
@@ -220,6 +233,7 @@ export const startFakeDockerEngine = async (options: FakeEngineOptions): Promise
             image: String(container.config.Image),
             env: container.env,
             running: container.running,
+            aliases: container.aliases,
           };
     },
     close: async () => {

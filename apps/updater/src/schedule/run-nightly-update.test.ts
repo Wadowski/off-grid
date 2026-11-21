@@ -46,6 +46,7 @@ const buildHarness = (
     apiToken: "updater-test-token-value",
     statusFile: "unused/status.json",
     releaseRepository: RELEASE_REPOSITORY,
+    releaseApiBaseUrl: "https://api.github.com",
     runLock: createRunLock(),
     httpFetch: async (url, init) => {
       releaseCalls.push(url);

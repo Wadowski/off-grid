@@ -4,12 +4,12 @@
 import { expect } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { test } from "../support/fixtures.js";
+import { VERSION_PATH } from "../support/system-update/constants.js";
 import { webBaseUrl } from "../support/stack.js";
 
 const { When, Then } = createBdd(test);
 
 const SETTINGS_PATH = "/settings";
-const VERSION_PATH = "/api/system/version";
 const ALLOWED_KEYS = ["version", "commit"];
 
 When("I open my settings", async ({ page }) => {

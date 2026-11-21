@@ -5,16 +5,13 @@ import { defineConfig, devices } from "@playwright/test";
 import { defineBddConfig } from "playwright-bdd";
 import { targetBaseUrl } from "./support/stack.js";
 
+const SYSTEM_UPDATE_TIMEOUT_MS = 600_000;
+
+const SYSTEM_UPDATE_SPECS = /system\/(install|system-update)\.feature\.spec\.js$/;
+
 const testDir = defineBddConfig({
   featuresRoot: "features",
-  // Feature files that are still @wip have no step definitions yet. Remove each
-  // exclusion when its step definitions land (OG-175).
-  features: [
-    "features/**/*.feature",
-    "!features/system/install.feature",
-    "!features/system/system-update.feature",
-    "!features/notifications/inbox-surfaces.feature",
-  ],
+  features: ["features/**/*.feature", "!features/notifications/inbox-surfaces.feature"],
   steps: ["steps/**/*.ts", "support/fixtures.ts"],
 });
 
@@ -41,6 +38,14 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: SYSTEM_UPDATE_SPECS,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "system-update",
+      testMatch: SYSTEM_UPDATE_SPECS,
+      fullyParallel: false,
+      timeout: SYSTEM_UPDATE_TIMEOUT_MS,
       use: { ...devices["Desktop Chrome"] },
     },
   ],

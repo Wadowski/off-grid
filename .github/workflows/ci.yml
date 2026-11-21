@@ -278,7 +278,7 @@ jobs:
       - name: Start suite timer
         run: echo "SUITE_STARTED_AT=$(date +%s)" >> "$GITHUB_ENV"
       - name: Run full suite
-        run: pnpm --filter @offgrid/e2e e2e -- --shard=${{ matrix.shard }}/${{ matrix.total }}
+        run: pnpm --filter @offgrid/e2e e2e -- --project=chromium --shard=${{ matrix.shard }}/${{ matrix.total }}
       - name: Report suite run time
         if: always()
         run: |
@@ -304,6 +304,59 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-full-failure-shard-${{ matrix.shard }}
+          path: |
+            e2e/artifacts/service-logs.txt
+            e2e/artifacts/test-results/**/trace.zip
+          retention-days: 7
+          if-no-files-found: warn
+
+  e2e-system-update:
+    name: e2e-system-update
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      E2E_COMPOSE_PROJECT: offgrid-e2e-local
+      E2E_REUSE_STACK: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @offgrid/e2e exec playwright install --with-deps chromium
+      - name: Install Chromium system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @offgrid/e2e exec playwright install-deps chromium
+      - name: Bring up the compose stack
+        run: pnpm --filter @offgrid/e2e e2e:stack:up
+      - name: Run the update and install scenarios
+        run: pnpm --filter @offgrid/e2e e2e -- --project=system-update
+      - name: Tear down the compose stack
+        if: always()
+        run: pnpm --filter @offgrid/e2e e2e:stack:down
+      - name: Add service logs to the job summary
+        if: failure()
+        run: |
+          {
+            echo "### Service logs (last 200 lines)"
+            echo '```'
+            tail -n 200 e2e/artifacts/service-logs.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload traces and service logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-system-update-failure
           path: |
             e2e/artifacts/service-logs.txt
             e2e/artifacts/test-results/**/trace.zip

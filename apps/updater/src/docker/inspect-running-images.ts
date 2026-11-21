@@ -7,6 +7,7 @@ import { DockerStateError } from "./errors/docker-state-error.js";
 import { findCurrentContainer } from "./find-current-container.js";
 import { inspectContainer } from "./inspect-container.js";
 import { inspectImage } from "./inspect-image.js";
+import { manifestImageReference } from "./manifest-image-reference.js";
 import { registryDigestFor } from "./registry-digest-for.js";
 
 export const inspectRunningImages = async (context: DockerContext): Promise<ImageReferences> => ({
@@ -27,7 +28,10 @@ const runningDigestOf = async (
     context.socketPath,
     (await inspectContainer(context.socketPath, container.Id)).Image,
   );
-  const digest = registryDigestFor(image.RepoDigests ?? [], referencePattern);
+  const digest = registryDigestFor(
+    (image.RepoDigests ?? []).map((reference) => manifestImageReference(context, reference)),
+    referencePattern,
+  );
   if (digest === null) {
     throw new DockerStateError(`${service} image has no registry digest`);
   }

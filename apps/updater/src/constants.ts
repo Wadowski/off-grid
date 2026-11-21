@@ -70,6 +70,8 @@ export const UPDATE_OUTCOME_MESSAGES = {
 
 export const GITHUB_API_HOST = "api.github.com";
 
+export const DEFAULT_RELEASE_API_BASE_URL = `https://${GITHUB_API_HOST}`;
+
 const RELEASE_ASSET_DOWNLOAD_HOST = "release-assets.githubusercontent.com";
 
 export const RELEASE_MANIFEST_ASSET_NAME = "release-manifest.json";
@@ -83,6 +85,8 @@ export const RELEASE_REDIRECT_STATUS_MAX = 399;
 export const REDIRECT_FORWARDED_HEADER_NAMES = ["accept", "user-agent"] as const;
 
 export const RELEASE_ALLOWED_HOSTS = [GITHUB_API_HOST, RELEASE_ASSET_DOWNLOAD_HOST] as const;
+
+export const MANIFEST_IMAGE_REGISTRY = "ghcr.io";
 
 export const REPLACED_CONTAINER_SUFFIX = "-replaced";
 

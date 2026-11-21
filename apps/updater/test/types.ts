@@ -46,6 +46,7 @@ export interface FakeEngineContainer {
   readonly env: readonly string[];
   readonly running: boolean;
   readonly exitCode: number;
+  readonly aliases?: readonly string[];
 }
 
 export interface FakeEngineOptions {
@@ -67,7 +68,7 @@ export interface FakeEngine {
   readonly containerNames: () => string[];
   readonly containerNamed: (
     name: string,
-  ) => { image: string; env: string[]; running: boolean } | undefined;
+  ) => { image: string; env: string[]; running: boolean; aliases: string[] } | undefined;
   readonly close: () => Promise<void>;
 }
 
@@ -80,6 +81,7 @@ export interface FakeEngineContainerRecord {
   labels: Record<string, string>;
   running: boolean;
   exitCode: number;
+  aliases: string[];
 }
 
 export interface FakeEngineImageRecord {
