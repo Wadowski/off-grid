@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { createBdd } from "playwright-bdd";
-import { listItemsAs, uploadFileAs, waitForDrives } from "../support/factories/files.js";
+import {
+  listItemsAs,
+  oversizedUploadBody,
+  uploadFileAs,
+  waitForDrives,
+} from "../support/factories/files.js";
 import type { Session } from "../support/factories/instance-admin.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
@@ -128,3 +133,30 @@ Then(
 Then("Anna is told a file with this name already exists", ({ world }) => {
   expect(world.response?.status, "Anna is told the name is taken").toBe(409);
 });
+
+When(
+  /^Anna uploads the file "([^"]*)" that is larger than the upload limit to her personal drive$/,
+  async ({ world }, name: string) => {
+    world.response = await uploadFileAs(
+      world.api,
+      sessionOf(world, "Anna"),
+      await personalDriveIdOf(world, "Anna"),
+      { name, parentId: null, body: oversizedUploadBody() },
+    );
+  },
+);
+
+Then(
+  "Anna is told the file is too large and nothing is kept in her personal drive",
+  async ({ world }) => {
+    expect(world.response?.status, "Anna is told the file is too large").toBe(413);
+    expect(world.response?.body, "Anna is told the file is too large").toMatchObject({
+      code: "PAYLOAD_TOO_LARGE",
+    });
+    const driveId = await personalDriveIdOf(world, "Anna");
+    expect(
+      await namesIn(world, "Anna", { kind: "drive", id: driveId }),
+      "nothing is kept in her personal drive",
+    ).toEqual([]);
+  },
+);

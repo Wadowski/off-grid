@@ -7,6 +7,14 @@ import { eventually } from "../eventually.js";
 import type { JsonResponse, Session } from "./instance-admin.js";
 import type { Container, Drive, FileItem } from "./types.js";
 
+const DEFAULT_E2E_UPLOAD_LIMIT_BYTES = 1024 * 1024;
+
+export const E2E_UPLOAD_LIMIT_BYTES = Number(
+  process.env.OFFGRID_FILES_MAX_UPLOAD_BYTES ?? DEFAULT_E2E_UPLOAD_LIMIT_BYTES,
+);
+
+export const oversizedUploadBody = (): string => "x".repeat(E2E_UPLOAD_LIMIT_BYTES + 1);
+
 const bearer = (session: Session): Record<string, string> => ({
   authorization: `Bearer ${session.accessToken}`,
 });

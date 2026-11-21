@@ -34,6 +34,11 @@ Feature: Uploading files into a drive
     When Anna uploads the file "Holiday.txt" to her personal drive
     Then Anna is told a file with this name already exists
 
+  Scenario: Anna cannot upload a file larger than the allowed size
+    Given a new person Anna signs up
+    When Anna uploads the file "Huge.txt" that is larger than the upload limit to her personal drive
+    Then Anna is told the file is too large and nothing is kept in her personal drive
+
   Scenario: A person outside the family cannot upload into the family drive
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
