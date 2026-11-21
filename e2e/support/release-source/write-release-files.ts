@@ -1,18 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FAKE_IMAGE_OWNER, MANIFEST_IMAGE_HOST, RELEASES_FOLDER } from "./constants.js";
 import { buildReleaseManifest } from "./build-release-manifest.js";
 import { customizeEnvironmentExample } from "./customize-environment-example.js";
+import { sha256Of } from "./sha256-of.js";
 import type { PushedImages } from "./types.js";
 
 const COMPOSE_FOLDER = fileURLToPath(new URL("../../../infra/compose/", import.meta.url));
-
-const sha256Of = (content: string): string => createHash("sha256").update(content).digest("hex");
 
 export const writeReleaseFiles = async (
   directory: string,
