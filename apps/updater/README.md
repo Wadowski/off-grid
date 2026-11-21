@@ -96,6 +96,16 @@ The manifest is `release-manifest.json` on the GitHub release (ADR 0032). The up
 - Process: `OFFGRID_UPDATER_TOKEN_FILE=... OFFGRID_UPDATER_RELEASE_REPOSITORY=owner/name node --import tsx src/main.ts`.
 - Container: `docker build -f apps/updater/Dockerfile --target runtime -t offgrid-updater .` The image carries `pg_dump` and `pg_restore` 17.
 
+## Production wiring
+
+In the production Compose file (`infra/compose/docker-compose.production.yml`) the `updater` service:
+
+- mounts `offgrid_offgrid-secrets` read-only at `/run/secrets`, `offgrid_offgrid-backups` at `/backups` and `offgrid_offgrid-updater-state` at `/var/lib/offgrid-updater` (the status file). Docker names the volumes with the project prefix `offgrid_`;
+- mounts `${OFFGRID_DOCKER_SOCKET_PATH:-/var/run/docker.sock}` at `/var/run/docker.sock`, and adds `${OFFGRID_DOCKER_GID:-0}` to its groups so that the non-root `node` user can use the socket. Docker Desktop has not been tested with these values;
+- publishes no port, and sets `OFFGRID_UPDATER_RELEASE_REPOSITORY` from `OFFGRID_RELEASE_REPOSITORY` (default `Wadowski/off-grid`).
+
+Backups are not on the host's file system: they are in the `offgrid_offgrid-backups` volume. To read or restore one, copy its folder out with a one-off container, as in [README, Backup and restore](../../README.md#backup-and-restore). The user-facing steps for an update, a rollback and a failed rollback are in [README, Updating](../../README.md#updating) and [README, Recovery](../../README.md#recovery). This file is the reference for the updater itself.
+
 ## Backups
 
 `createBackup` writes one folder per backup into the backup root:
@@ -115,17 +125,13 @@ The restore covers the database only. The server must be stopped before a restor
 
 The restore runs as `offgrid_migrator` with no superuser login and no `--no-owner`, so the restored objects keep their owners. It uses `--clean --if-exists --single-transaction --exit-on-error`, so a failed restore rolls back and leaves the database as it was. It needs the database and the scope helper owned by `offgrid_migrator`, which the `db-ownership` compose service (`infra/init/sql/03-migrator-ownership.sql`) sets on fresh and existing installs (ADR 0036). Any install that has not started through `db-ownership` must run it before a restore, or the restore fails with ownership errors. Objects that a later migration or init script creates as the superuser must be added to `03`.
 
-Manual database restore, run from the host with the backup folder name in place of `<name>`:
+The manual database restore in production is in [README, Backup and restore](../../README.md#backup-and-restore), with the commands and the copy of the backup folder from the `offgrid_offgrid-backups` volume.
 
-```
-PGPASSWORD="$(cat /path/to/migrator-password)" pg_restore --clean --if-exists \
-  --single-transaction --exit-on-error --host <db-host> --port 5432 --username offgrid_migrator --dbname offgrid \
-  <backup-root>/<name>/database.dump
-```
+A host with a database reached over the network, outside Compose, uses the same `pg_restore` flags with `--host <db-host> --port 5432` and the migrator password from a file on the host, passed as `PGPASSWORD="$(cat /path/to/migrator-password)"`.
 
-Then start the server and check `GET /api/health` returns 2xx.
+Then check that `GET /api/health` on the server returns 2xx.
 
-Manual secrets recovery: secrets are never restored automatically, because a restore after a failed update could overwrite secrets that were rotated since the backup. To recover a secret by hand, copy the file from `<backup-root>/<name>/secrets/` into the secrets directory (`data/secrets` or `/run/secrets`) and keep its mode at `0600`. Only do this when the database is also restored from the same backup, since the secrets must match the data they encrypt or sign.
+Manual secrets recovery: secrets are never restored automatically, because a restore after a failed update could overwrite secrets that were rotated since the backup. To recover a secret by hand, copy the file from `<backup-root>/<name>/secrets/` into the secrets directory (`data/secrets` or `/run/secrets`; in production the `offgrid_offgrid-secrets` volume) and keep its mode at `0600`. Only do this when the database is also restored from the same backup, since the secrets must match the data they encrypt or sign.
 
 ## Apply an update
 

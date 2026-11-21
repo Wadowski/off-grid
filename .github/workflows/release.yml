@@ -214,9 +214,10 @@ jobs:
         run: |
           cp infra/compose/docker-compose.production.yml docker-compose.production.yml
           cp infra/compose/production.env.example production.env.example
-          sha256sum docker-compose.production.yml production.env.example > SHA256SUMS
+          cp infra/install/install.sh install.sh
+          sha256sum docker-compose.production.yml production.env.example install.sh > SHA256SUMS
       - name: create GitHub release with the manifest and install assets attached
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" release-manifest.json docker-compose.production.yml production.env.example SHA256SUMS --verify-tag --title "OffGrid $TAG" --generate-notes
+        run: gh release create "$TAG" release-manifest.json docker-compose.production.yml production.env.example install.sh SHA256SUMS --verify-tag --title "OffGrid $TAG" --generate-notes

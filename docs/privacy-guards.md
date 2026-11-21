@@ -40,6 +40,28 @@ It always tears the stack down, and it needs Docker and Docker Compose 2.24.4 or
 
 The `stack-guard` CI job runs this check on changes to `infra/`, `apps/`, `modules/`, `packages/`, `pnpm-lock.yaml` and `Dockerfile*`. On other changes it reports success without starting the stack. On a nightly or manual run, where there is no base commit to diff, it always runs.
 
+## Production Compose guards: `pnpm check:compose`
+
+`pnpm check:compose` runs two checks on the production Compose file, `infra/compose/docker-compose.production.yml`:
+
+1. `scripts/check-compose-no-published-ports.mjs` fails when the `updater` service publishes a port, when `updater` does not mount the Docker socket, or when any other service mounts the socket. The socket is the only way to reach the host's Docker daemon, which is root on the host, so only the updater may hold it.
+2. `scripts/generate-compose-production-configs.mjs --check` fails when the `configs` block of the production file differs from the output generated from `infra/init/sql/*` and `infra/compose/secrets-init.sh`. The generator is `pnpm compose:production:generate`.
+
+The `check:compose` script is a `pnpm` script. Run it locally before a pull request that changes the Compose files, the init SQL or the secrets script.
+
+## Update hosts: the outbound allow-list
+
+ADR 0032 lists the only hosts that an update may contact. For the release lookup and the manifest download, the updater refuses every other host, and it follows only the one redirect to `release-assets.githubusercontent.com`. Image pulls go to `ghcr.io` and to the host that it redirects to:
+
+- `api.github.com`: the GitHub Releases API, for the release list and the manifest lookup.
+- `release-assets.githubusercontent.com`: the redirect target of the manifest download.
+- `ghcr.io`: the image manifests.
+- `pkg-containers.githubusercontent.com`: the redirect target of the image downloads.
+
+The updater makes these calls only for an admin's action (Check for updates, Update system) or for the opt-in nightly run. The install script and `set-latest-version.sh` call `github.com` (whose release downloads redirect to `release-assets.githubusercontent.com`), `api.github.com`, `ghcr.io`, `download.docker.com` and the distribution's package mirrors, only when the owner runs them. The privacy statement, [privacy.md](privacy.md), lists the same hosts. A change to this list needs an update of ADR 0032, the privacy statement and the updater's allow-list in the same pull request.
+
+The end-to-end suite replaces these hosts with the fake release source described below. The production Compose file sets none of the override variables, so the allow-list above applies unchanged on a host.
+
 ## Fake release source in the e2e suite
 
 The e2e update and install scenarios never contact GitHub or `ghcr.io`. `e2e/support` starts a fake release source on the test host over https with a per-run certificate authority, and the e2e Compose override points the updater (`OFFGRID_UPDATER_RELEASE_API_BASE_URL`, `OFFGRID_UPDATER_IMAGE_REGISTRY`) and the install script (`OFFGRID_RELEASE_DOWNLOAD_BASE_URL`) at it and at a local registry. The fake source logs every request, and the steps assert that the logged hosts are only the fake one. See [ADR 0032](adr/0032-outbound-update-check-and-image-pull.md), amendment OG-175.

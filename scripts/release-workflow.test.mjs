@@ -73,13 +73,14 @@ describe("release workflow", () => {
       "release-manifest.json",
       "docker-compose.production.yml",
       "production.env.example",
+      "install.sh",
       "SHA256SUMS",
     ]) {
       assert.ok(releaseCommand.includes(asset), `release does not attach ${asset}`);
     }
     assert.ok(
       WORKFLOW.includes(
-        "sha256sum docker-compose.production.yml production.env.example > SHA256SUMS",
+        "sha256sum docker-compose.production.yml production.env.example install.sh > SHA256SUMS",
       ),
       "SHA256SUMS is not written from the attached files",
     );
