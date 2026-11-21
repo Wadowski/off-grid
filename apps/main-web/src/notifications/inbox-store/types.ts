@@ -1,11 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type {
-  components,
-  Notification,
-  NotificationListOptions,
-} from "@offgrid/api-client";
+import type { components, Notification, NotificationListOptions } from "@offgrid/api-client";
 
 export type NotificationItem = Notification;
 export type NotificationPage = components["schemas"]["NotificationList"];

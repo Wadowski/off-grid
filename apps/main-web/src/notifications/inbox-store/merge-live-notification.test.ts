@@ -6,10 +6,7 @@ import { createInitialInboxState } from "./create-initial-inbox-state.js";
 import { mergeLiveNotification } from "./merge-live-notification.js";
 import type { InboxFilters, InboxState, NotificationItem } from "./types.js";
 
-const notice = (
-  id: string,
-  overrides: Partial<NotificationItem> = {},
-): NotificationItem => ({
+const notice = (id: string, overrides: Partial<NotificationItem> = {}): NotificationItem => ({
   id,
   type: "event-invited",
   category: "calendar",
