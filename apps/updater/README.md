@@ -125,13 +125,7 @@ The restore covers the database only. The server must be stopped before a restor
 
 The restore runs as `offgrid_migrator` with no superuser login and no `--no-owner`, so the restored objects keep their owners. It uses `--clean --if-exists --single-transaction --exit-on-error`, so a failed restore rolls back and leaves the database as it was. It needs the database and the scope helper owned by `offgrid_migrator`, which the `db-ownership` compose service (`infra/init/sql/03-migrator-ownership.sql`) sets on fresh and existing installs (ADR 0036). Any install that has not started through `db-ownership` must run it before a restore, or the restore fails with ownership errors. Objects that a later migration or init script creates as the superuser must be added to `03`.
 
-Manual database restore in production, run in the install folder, with `<folder>` as the backup folder on the host (copied out of the `offgrid_offgrid-backups` volume, see [README, Backup and restore](../../README.md#backup-and-restore)). The password is read inside the `db` container and never printed:
-
-```bash
-docker compose -f docker-compose.production.yml stop server web
-docker compose -f docker-compose.production.yml exec -T db sh -c 'export PGPASSWORD="$(cat /run/secrets/migrator-password)"; exec pg_restore --clean --if-exists --single-transaction --exit-on-error --host 127.0.0.1 --username offgrid_migrator --dbname offgrid' < "<folder>/database.dump"
-docker compose -f docker-compose.production.yml start server web
-```
+The manual database restore in production is in [README, Backup and restore](../../README.md#backup-and-restore), with the commands and the copy of the backup folder from the `offgrid_offgrid-backups` volume.
 
 A host with a database reached over the network, outside Compose, uses the same `pg_restore` flags with `--host <db-host> --port 5432` and the migrator password from a file on the host, passed as `PGPASSWORD="$(cat /path/to/migrator-password)"`.
 
