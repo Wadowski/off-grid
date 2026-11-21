@@ -8,12 +8,11 @@ import {
   fileNameSchema,
 } from "@offgrid/contracts";
 import { z } from "zod";
-
-const MEDIA_TYPE_PATTERN = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/;
+import { DIGITS_PATTERN, MAX_MEDIA_TYPE_LENGTH, MEDIA_TYPE_PATTERN } from "../../constants.js";
 
 const declaredMediaTypeSchema = z
   .string()
-  .max(255)
+  .max(MAX_MEDIA_TYPE_LENGTH)
   .transform((value) => value.split(";")[0]?.trim().toLowerCase() ?? "")
   .pipe(z.string().regex(MEDIA_TYPE_PATTERN));
 
@@ -32,7 +31,7 @@ const percentDecodedNameSchema = z
 
 const contentLengthSchema = z
   .string()
-  .regex(/^\d+$/)
+  .regex(DIGITS_PATTERN)
   .transform(Number)
   .pipe(z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER));
 

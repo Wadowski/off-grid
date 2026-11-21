@@ -15,6 +15,9 @@ export const MAX_MOVE_ENTRY_COUNT = 10000;
 export const PAYLOAD_TOO_LARGE_MESSAGE =
   "The file is larger than the upload limit. Nothing was stored.";
 export const DEFAULT_MIME_TYPE = "application/octet-stream";
+export const MEDIA_TYPE_PATTERN = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/;
+export const MAX_MEDIA_TYPE_LENGTH = 255;
+export const DIGITS_PATTERN = /^\d+$/;
 export const MIME_TYPE_BY_EXTENSION: ReadonlyMap<string, string> = new Map([
   ["txt", "text/plain"],
   ["md", "text/markdown"],
