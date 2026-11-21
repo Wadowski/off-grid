@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FAKE_IMAGE_OWNER, MANIFEST_IMAGE_HOST, RELEASES_FOLDER } from "./constants.js";
 import { buildReleaseManifest } from "./build-release-manifest.js";
+import { customizeEnvironmentExample } from "./customize-environment-example.js";
 import type { PushedImages } from "./types.js";
 
 const COMPOSE_FOLDER = fileURLToPath(new URL("../../../infra/compose/", import.meta.url));
@@ -27,7 +28,9 @@ export const writeReleaseFiles = async (
     `${MANIFEST_IMAGE_HOST}/\${OFFGRID_IMAGE_OWNER:-wadowski}`,
     `127.0.0.1:${registryPort}/${FAKE_IMAGE_OWNER}`,
   );
-  const environmentExample = await readFile(join(COMPOSE_FOLDER, "production.env.example"), "utf8");
+  const environmentExample = customizeEnvironmentExample(
+    await readFile(join(COMPOSE_FOLDER, "production.env.example"), "utf8"),
+  );
   await writeFile(join(folder, "release-manifest.json"), buildReleaseManifest(version, digests));
   await writeFile(join(folder, "docker-compose.production.yml"), compose);
   await writeFile(join(folder, "production.env.example"), environmentExample);

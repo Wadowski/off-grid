@@ -46,3 +46,8 @@ export type ReleaseVersionPlan = {
   version: string;
   failsHealthCheck: boolean;
 };
+
+export type ReleaseTestReply = {
+  status: number;
+  text: string;
+};

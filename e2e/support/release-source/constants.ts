@@ -70,3 +70,7 @@ export const DOCKER_SOCKET_PATH = "/var/run/docker.sock";
 export const RELEASE_SOURCE_FOLDER = "../../artifacts/release-source";
 
 export const CERTIFICATE_SCRIPT = "../../../scripts/e2e-release-certificate.mjs";
+
+export const INSTALL_WEB_PORT = "18080";
+
+export const INSTALL_SERVER_PORT = "13000";

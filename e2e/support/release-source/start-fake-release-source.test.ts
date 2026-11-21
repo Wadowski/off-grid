@@ -10,13 +10,11 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readReleaseRequestLog } from "./read-release-request-log.js";
 import { startFakeReleaseSource } from "./start-fake-release-source.js";
-import type { FakeReleaseSource } from "./types.js";
+import type { FakeReleaseSource, ReleaseTestReply } from "./types.js";
 
 const CERTIFICATE_SCRIPT = fileURLToPath(
   new URL("../../../scripts/e2e-release-certificate.mjs", import.meta.url),
 );
-
-type Reply = { status: number; text: string };
 
 const writeRelease = (directory: string, version: string): void => {
   const folder = join(directory, "releases", version);
@@ -29,7 +27,7 @@ describe("startFakeReleaseSource", () => {
   let directory = "";
   let source: FakeReleaseSource | undefined;
 
-  const request = (path: string): Promise<Reply> =>
+  const request = (path: string): Promise<ReleaseTestReply> =>
     new Promise((resolve, reject) => {
       get({ host: "127.0.0.1", port: source?.port, path, ca: certificateText() }, (response) => {
         const chunks: Buffer[] = [];
