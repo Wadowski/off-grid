@@ -34,10 +34,7 @@ const FOLDER = {
   deletedAt: null,
   isFolder: true,
 };
-const FOLDER_BREADCRUMBS = [
-  { kind: "drive", id: DRIVE_ID, name: "Personal" },
-  { kind: "folder", id: FOLDER_ID, name: "Photos" },
-];
+const ANCESTOR_BREADCRUMBS = [{ kind: "drive", id: DRIVE_ID, name: "Personal" }];
 
 const renderAt = (path: string) =>
   render(
@@ -54,7 +51,7 @@ describe("FilesPage", () => {
     vi.mocked(listDrives).mockResolvedValue([DRIVE]);
     vi.mocked(getFile).mockResolvedValue({
       file: FOLDER,
-      breadcrumbs: FOLDER_BREADCRUMBS,
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
     } as never);
   });
 

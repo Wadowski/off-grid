@@ -25,8 +25,11 @@ const DRIVE: Drive = {
   name: "Personal",
   createdAt: "2026-01-01T00:00:00.000Z",
 };
-const FOLDER_BREADCRUMBS = [
+const ANCESTOR_BREADCRUMBS = [
   { kind: "drive", id: DRIVE_ID, name: "Personal" },
+] as FileDetails["breadcrumbs"];
+const FOLDER_BREADCRUMBS = [
+  ...ANCESTOR_BREADCRUMBS,
   { kind: "folder", id: FOLDER_ID, name: "Photos" },
 ] as FileDetails["breadcrumbs"];
 const FOLDER = {
@@ -84,7 +87,7 @@ describe("useCurrentFolder", () => {
   it("shows the folder with the breadcrumbs from the file details", async () => {
     vi.mocked(getFile).mockResolvedValue({
       file: FOLDER as FileEntry,
-      breadcrumbs: FOLDER_BREADCRUMBS,
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
     });
 
     const { result } = renderAt(folderPath(DRIVE_ID, FOLDER_ID));
@@ -125,7 +128,7 @@ describe("useCurrentFolder", () => {
         size: 1,
         currentVersionId: FOLDER_ID,
       } as unknown as FileEntry,
-      breadcrumbs: FOLDER_BREADCRUMBS,
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
     });
 
     const { result } = renderAt(folderPath(DRIVE_ID, FOLDER_ID));
@@ -136,7 +139,7 @@ describe("useCurrentFolder", () => {
   it("is not found when the folder belongs to another drive than the one in the address", async () => {
     vi.mocked(getFile).mockResolvedValue({
       file: { ...FOLDER, driveId: OTHER_DRIVE_ID } as FileEntry,
-      breadcrumbs: FOLDER_BREADCRUMBS,
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
     });
 
     const { result } = renderAt(folderPath(DRIVE_ID, FOLDER_ID));

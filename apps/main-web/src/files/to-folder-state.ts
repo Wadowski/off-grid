@@ -19,5 +19,11 @@ export const toFolderState = (
   if (details.file === null || !details.file.isFolder || details.file.driveId !== driveId) {
     return { status: "not-found", driveId, breadcrumbs: [], errorTextId: null };
   }
-  return { status: "ready", driveId, breadcrumbs: details.breadcrumbs, errorTextId: null };
+  const current = { kind: "folder", id: details.file.id, name: details.file.name } as const;
+  return {
+    status: "ready",
+    driveId,
+    breadcrumbs: [...details.breadcrumbs, current],
+    errorTextId: null,
+  };
 };
