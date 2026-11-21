@@ -7,6 +7,7 @@ import { ReleaseSourceError } from "./errors/release-source-error.js";
 import { fetchReleaseManifest } from "./fetch-release-manifest.js";
 
 const REPOSITORY = "owner/offgrid";
+const API_BASE_URL = "https://api.github.com";
 const LATEST_URL = "https://api.github.com/repos/owner/offgrid/releases/latest";
 const TAGGED_URL = "https://api.github.com/repos/owner/offgrid/releases/tags/v1.2.3";
 const ASSET_URL = "https://api.github.com/repos/owner/offgrid/releases/assets/7";
@@ -59,13 +60,23 @@ const happyRoutes = (): Record<string, () => Response> => ({
 
 describe("fetchReleaseManifest", () => {
   it("returns the manifest of the requested version, following the asset redirect", async () => {
-    const result = await fetchReleaseManifest(fakeFetch(happyRoutes()), REPOSITORY, "1.2.3");
+    const result = await fetchReleaseManifest(
+      fakeFetch(happyRoutes()),
+      REPOSITORY,
+      API_BASE_URL,
+      "1.2.3",
+    );
 
     expect(result).toEqual(manifest);
   });
 
   it("reads the latest release when no version is given", async () => {
-    const result = await fetchReleaseManifest(fakeFetch(happyRoutes()), REPOSITORY, null);
+    const result = await fetchReleaseManifest(
+      fakeFetch(happyRoutes()),
+      REPOSITORY,
+      API_BASE_URL,
+      null,
+    );
 
     expect(result.version).toBe("1.2.3");
   });
@@ -74,9 +85,9 @@ describe("fetchReleaseManifest", () => {
     const routes = happyRoutes();
     routes[ASSET_REDIRECT_URL] = () => jsonResponse({ ...manifest, schemaVersion: 2 });
 
-    await expect(fetchReleaseManifest(fakeFetch(routes), REPOSITORY, "1.2.3")).rejects.toThrow(
-      ReleaseSourceError,
-    );
+    await expect(
+      fetchReleaseManifest(fakeFetch(routes), REPOSITORY, API_BASE_URL, "1.2.3"),
+    ).rejects.toThrow(ReleaseSourceError);
   });
 
   it("rejects a manifest whose version differs from the requested one", async () => {
@@ -84,9 +95,9 @@ describe("fetchReleaseManifest", () => {
     routes["https://api.github.com/repos/owner/offgrid/releases/tags/v1.2.4"] = () =>
       jsonResponse(releaseBody);
 
-    await expect(fetchReleaseManifest(fakeFetch(routes), REPOSITORY, "1.2.4")).rejects.toThrow(
-      "release manifest version does not match the requested version",
-    );
+    await expect(
+      fetchReleaseManifest(fakeFetch(routes), REPOSITORY, API_BASE_URL, "1.2.4"),
+    ).rejects.toThrow("release manifest version does not match the requested version");
   });
 
   it("refuses a redirect to a host that is not allowed", async () => {
@@ -94,26 +105,51 @@ describe("fetchReleaseManifest", () => {
     routes[ASSET_URL] = () =>
       new Response(null, { status: 302, headers: { location: "https://evil.example/asset" } });
 
-    await expect(fetchReleaseManifest(fakeFetch(routes), REPOSITORY, "1.2.3")).rejects.toThrow(
-      "release source redirected to a host that is not allowed",
-    );
+    await expect(
+      fetchReleaseManifest(fakeFetch(routes), REPOSITORY, API_BASE_URL, "1.2.3"),
+    ).rejects.toThrow("release source redirected to a host that is not allowed");
   });
 
   it("maps an HTTP error from the release lookup to a release source error", async () => {
     const routes = happyRoutes();
     routes[TAGGED_URL] = () => jsonResponse({ message: "Not Found" }, 404);
 
-    await expect(fetchReleaseManifest(fakeFetch(routes), REPOSITORY, "1.2.3")).rejects.toThrow(
-      "release lookup failed",
-    );
+    await expect(
+      fetchReleaseManifest(fakeFetch(routes), REPOSITORY, API_BASE_URL, "1.2.3"),
+    ).rejects.toThrow("release lookup failed");
   });
 
   it("rejects a release that has no manifest asset", async () => {
     const routes = happyRoutes();
     routes[TAGGED_URL] = () => jsonResponse({ tag_name: "v1.2.3", assets: [] });
 
-    await expect(fetchReleaseManifest(fakeFetch(routes), REPOSITORY, "1.2.3")).rejects.toThrow(
-      "release has no manifest asset",
-    );
+    await expect(
+      fetchReleaseManifest(fakeFetch(routes), REPOSITORY, API_BASE_URL, "1.2.3"),
+    ).rejects.toThrow("release has no manifest asset");
+  });
+
+  it("reads the release and the manifest from a configured release API base URL", async () => {
+    const base = "https://releases.test:8443";
+    const routes: Record<string, () => Response> = {
+      [`${base}/repos/owner/offgrid/releases/tags/v1.2.3`]: () => jsonResponse(releaseBody),
+      [`${base}/repos/owner/offgrid/releases/assets/7`]: () => jsonResponse(manifest),
+    };
+
+    const result = await fetchReleaseManifest(fakeFetch(routes), REPOSITORY, base, "1.2.3");
+
+    expect(result).toEqual(manifest);
+  });
+
+  it("refuses an asset redirect to a host other than the configured one", async () => {
+    const base = "https://releases.test:8443";
+    const routes: Record<string, () => Response> = {
+      [`${base}/repos/owner/offgrid/releases/tags/v1.2.3`]: () => jsonResponse(releaseBody),
+      [`${base}/repos/owner/offgrid/releases/assets/7`]: () =>
+        new Response(null, { status: 302, headers: { location: ASSET_REDIRECT_URL } }),
+    };
+
+    await expect(
+      fetchReleaseManifest(fakeFetch(routes), REPOSITORY, base, "1.2.3"),
+    ).rejects.toThrow("release source redirected to a host that is not allowed");
   });
 });

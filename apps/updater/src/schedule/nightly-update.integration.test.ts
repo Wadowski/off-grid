@@ -64,6 +64,7 @@ const buildServices = (
     apiToken: API_TOKEN,
     statusFile,
     releaseRepository: RELEASE_REPOSITORY,
+    releaseApiBaseUrl: "https://api.github.com",
     runLock: createRunLock(),
     httpFetch: githubFetch,
     logger: createSilentLogger(),

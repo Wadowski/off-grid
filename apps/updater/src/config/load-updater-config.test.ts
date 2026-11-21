@@ -44,6 +44,7 @@ describe("loadUpdaterConfig", () => {
       httpPort: 3100,
       apiToken: "m1gr4tor",
       releaseRepository: "owner/offgrid",
+      releaseApiBaseUrl: "https://api.github.com",
       dockerSocket: "/var/run/docker.sock",
       composeProject: "offgrid",
       serverUrl: "http://127.0.0.1:3000",
@@ -197,5 +198,23 @@ describe("loadUpdaterConfig", () => {
     expect(() =>
       loadUpdaterConfig({ ...requiredEnv, [variable]: value }, secretFiles("x")),
     ).toThrow(new RegExp(variable));
+  });
+
+  it("reads an https release API base URL and drops trailing slashes", () => {
+    const config = loadUpdaterConfig(
+      { ...requiredEnv, OFFGRID_UPDATER_RELEASE_API_BASE_URL: "https://releases.test:8443/" },
+      secretFiles("x"),
+    );
+
+    expect(config.releaseApiBaseUrl).toBe("https://releases.test:8443");
+  });
+
+  it("rejects a release API base URL that is not https", () => {
+    expect(() =>
+      loadUpdaterConfig(
+        { ...requiredEnv, OFFGRID_UPDATER_RELEASE_API_BASE_URL: "http://releases.test" },
+        secretFiles("x"),
+      ),
+    ).toThrow("OFFGRID_UPDATER_RELEASE_API_BASE_URL");
   });
 });

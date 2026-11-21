@@ -39,6 +39,7 @@ export const createUpdaterServices = (config: UpdaterConfig, logger: Logger): Up
     apiToken: config.apiToken,
     statusFile: config.statusFile,
     releaseRepository: config.releaseRepository,
+    releaseApiBaseUrl: config.releaseApiBaseUrl,
     runLock: createRunLock(),
     httpFetch: fetch,
     logger,

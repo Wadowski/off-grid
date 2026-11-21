@@ -49,6 +49,7 @@ export const loadUpdaterConfig = (
       readSecretFile,
     ),
     releaseRepository: values.OFFGRID_UPDATER_RELEASE_REPOSITORY,
+    releaseApiBaseUrl: values.OFFGRID_UPDATER_RELEASE_API_BASE_URL,
     dockerSocket: values.OFFGRID_UPDATER_DOCKER_SOCKET,
     composeProject: values.OFFGRID_UPDATER_COMPOSE_PROJECT,
     serverUrl: values.OFFGRID_UPDATER_SERVER_URL,
