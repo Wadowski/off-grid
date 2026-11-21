@@ -5,8 +5,15 @@ import { randomUUID } from "node:crypto";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
-import { findFolderFrom, listItemsAs, postAs, waitForDrives } from "../support/factories/files.js";
+import {
+  createFamilyAs,
+  findFolderFrom,
+  listItemsAs,
+  postAs,
+  waitForDrives,
+} from "../support/factories/files.js";
 import { signInWith, type Session } from "../support/factories/instance-admin.js";
+import { signedInPerson } from "../support/factories/notifications.js";
 import type { Container } from "../support/factories/types.js";
 import { test, type ScenarioWorld } from "../support/fixtures.js";
 
@@ -119,6 +126,50 @@ When("Anna reloads the page", async ({ page }) => {
 When("Anna goes back in the browser", async ({ page }) => {
   await page.goBack();
 });
+
+When("Anna goes forward in the browser", async ({ page }) => {
+  await page.goForward();
+});
+
+Given(
+  /^another family named "([^"]*)" has a folder "([^"]*)" in its family drive$/,
+  async ({ world }, familyName: string, folderName: string) => {
+    const owner = await signedInPerson(world.api, "Ben Owner");
+    const family = await createFamilyAs(world.api, owner.session, familyName);
+    const drives = await waitForDrives(world.api, owner.session, (listed) =>
+      listed.some((drive) => drive.familyId === family.id),
+    );
+    const driveId = drives.find((drive) => drive.familyId === family.id)?.id;
+    if (driveId === undefined) {
+      throw new Error(`The family drive of ${familyName} is not listed.`);
+    }
+    await createFolderIn(world, owner.session, driveId, null, folderName);
+    const folderId = await folderIdIn(
+      world,
+      owner.session,
+      { kind: "drive", id: driveId },
+      folderName,
+    );
+    world.files = {
+      drives: world.files?.drives ?? {},
+      personalDriveIds: world.files?.personalDriveIds ?? {},
+      familyDriveIds: { ...world.files?.familyDriveIds, [familyName]: driveId },
+      folderIds: { ...world.files?.folderIds, [folderName]: folderId },
+    };
+  },
+);
+
+When(
+  /^Anna opens the folder "([^"]*)" of "([^"]*)" in the browser$/,
+  async ({ page, world }, folderName: string, familyName: string) => {
+    const driveId = world.files?.familyDriveIds[familyName];
+    const folderId = world.files?.folderIds?.[folderName];
+    if (driveId === undefined || folderId === undefined) {
+      throw new Error(`The folder ${folderName} of ${familyName} was not created.`);
+    }
+    await page.goto(`${webBaseUrl()}/files/${driveId}/folder/${folderId}`);
+  },
+);
 
 When(
   /^Anna reaches the folder path item "([^"]*)" with the keyboard and presses Enter$/,
