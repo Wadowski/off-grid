@@ -38,7 +38,6 @@ export type ReleaseService = "server" | "web" | "updater";
 export type ReleaseSourcePreparation = {
   directory: string;
   registryPort: string;
-  sourcePort: string;
 };
 
 export type PushedImages = Record<ReleaseService, string>;

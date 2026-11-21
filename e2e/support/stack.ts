@@ -8,6 +8,9 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { eventually } from "./eventually.js";
+import { registryPort } from "./release-source/registry-port.js";
+import { releaseSourcePort } from "./release-source/release-source-port.js";
+import { stackEnvironment } from "./release-source/stack-environment.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -18,7 +21,7 @@ const COMPOSE_FILE = fileURLToPath(
   new URL("../../infra/compose/docker-compose.yml", import.meta.url),
 );
 
-const STACK_SERVICES = ["server", "mail", "web"] as const;
+const STACK_SERVICES = ["server", "mail", "web", "updater", "registry"] as const;
 
 const READY_PATH = "/api/health/ready";
 const READY_TIMEOUT_MS = 180_000;
@@ -31,8 +34,6 @@ export function newComposeProjectName(): string {
   return `offgrid-e2e-${randomBytes(4).toString("hex")}`;
 }
 
-// Only the random names from newComposeProjectName, so a stack started by hand
-// (for example offgrid-e2e-local) is never removed by a test run.
 export function isRunProject(project: string): boolean {
   return RUN_PROJECT.test(project);
 }
@@ -64,6 +65,7 @@ export async function compose(project: string, args: readonly string[]): Promise
       OFFGRID_SERVER_PORT: serverPort(),
       OFFGRID_WEB_PORT: webPort(),
       OFFGRID_API_ORIGIN: targetBaseUrl(),
+      ...stackEnvironment(project),
     },
     maxBuffer: 64 * 1024 * 1024,
   });
@@ -98,8 +100,6 @@ async function listContainerProjects(filters: readonly string[]): Promise<Contai
   return parseContainerProjects(stdout);
 }
 
-// Removes run stacks left behind by an earlier run that was killed before its teardown,
-// but only those started from this checkout.
 export async function stopLeftoverRunStacks(): Promise<string[]> {
   const leftovers = (
     await listContainerProjects([
@@ -121,6 +121,8 @@ export function e2ePortChecks(): PortCheck[] {
   return [
     { name: "server", port: serverPort(), envVar: "E2E_SERVER_PORT" },
     { name: "web app", port: webPort(), envVar: "E2E_WEB_PORT" },
+    { name: "registry", port: registryPort(), envVar: "E2E_REGISTRY_PORT" },
+    { name: "release source", port: releaseSourcePort(), envVar: "E2E_RELEASE_SOURCE_PORT" },
     {
       name: "mail UI",
       port: process.env.OFFGRID_MAIL_UI_PORT ?? "8025",
@@ -137,8 +139,6 @@ export function isPortFree(port: number): Promise<boolean> {
   });
 }
 
-// Fails before a stack is started, naming the stack that holds the port, instead of
-// letting docker compose fail half-way with "port is already allocated".
 export async function assertPortsFree(checks: readonly PortCheck[]): Promise<void> {
   for (const { name, port, envVar } of checks) {
     if (await isPortFree(Number(port))) {

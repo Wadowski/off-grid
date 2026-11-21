@@ -60,3 +60,13 @@ export const HEALTHY_HANDLER = 'async () => ({ status: "ok" })';
 
 export const FAILING_HANDLER =
   'async (_request, reply) => reply.code(500).send({ status: "down" })';
+
+export const DEFAULT_RELEASE_SOURCE_PORT = "18443";
+
+export const DEFAULT_REGISTRY_PORT = "5000";
+
+export const DOCKER_SOCKET_PATH = "/var/run/docker.sock";
+
+export const RELEASE_SOURCE_FOLDER = "../../artifacts/release-source";
+
+export const CERTIFICATE_SCRIPT = "../../../scripts/e2e-release-certificate.mjs";
