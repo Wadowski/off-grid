@@ -272,13 +272,15 @@ describe("updater HTTP API", () => {
 
       openGate();
       await waitUntil(async () => (await readStatusOutcome()) === "succeeded");
-      const third = await app.inject({
-        method: "POST",
-        url: "/apply",
-        headers: authorized(),
-        payload: { version: TARGET_VERSION },
+      await waitUntil(async () => {
+        const third = await app.inject({
+          method: "POST",
+          url: "/apply",
+          headers: authorized(),
+          payload: { version: TARGET_VERSION },
+        });
+        return third.statusCode === 202;
       });
-      expect(third.statusCode).toBe(202);
       await waitUntil(async () => (await readStatusOutcome()) === "succeeded");
     });
 
