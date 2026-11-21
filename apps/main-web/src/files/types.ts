@@ -59,6 +59,13 @@ export type FileDetailsState = {
   readonly refresh: () => Promise<void>;
 };
 
+export type CurrentFolderState = {
+  readonly status: ListStatus | "not-found";
+  readonly driveId: Drive["id"] | null;
+  readonly breadcrumbs: readonly Breadcrumb[];
+  readonly errorTextId: FilesErrorTextId | null;
+};
+
 export type FileListOptions = {
   readonly cursor?: string;
   readonly limit?: number;

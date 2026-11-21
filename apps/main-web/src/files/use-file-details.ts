@@ -7,7 +7,10 @@ import { getFile } from "./files-api.js";
 import { toFilesErrorTextId } from "./to-files-error-text-id.js";
 import type { Breadcrumb, FileDetailsState, FileEntry, FilesErrorTextId } from "./types.js";
 
-export const useFileDetails = (fileId: FileEntry["id"], enabled: boolean): FileDetailsState => {
+export const useFileDetails = (
+  fileId: FileEntry["id"] | null,
+  enabled: boolean,
+): FileDetailsState => {
   const [file, setFile] = useState<FileEntry | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<readonly Breadcrumb[]>([]);
   const [status, setStatus] = useState<ListStatus>("loading");
@@ -15,6 +18,9 @@ export const useFileDetails = (fileId: FileEntry["id"], enabled: boolean): FileD
   const latestRequest = useRef(0);
 
   const refresh = useCallback(async () => {
+    if (fileId === null) {
+      return;
+    }
     const request = ++latestRequest.current;
     const isLatest = () => request === latestRequest.current;
     setFile(null);
