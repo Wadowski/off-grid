@@ -242,3 +242,118 @@ Then("the saved password is not visible anywhere on the page", async ({ page }) 
   await expect(page.getByTestId("admin-email-app-password")).toHaveValue("");
   expect(await page.content()).not.toContain(APP_PASSWORD);
 });
+
+const UPDATE_API = "**/api/system/update**";
+const UPDATE_NIGHTLY_PATH = "/api/system/update/nightly";
+const UPDATE_STATUS_CHECKED_AT = "2026-11-20T10:00:00.000Z";
+
+const updateStatusFor = (
+  overrides: Readonly<Record<string, unknown>>,
+): Record<string, unknown> => ({
+  currentVersion: "1.2.3",
+  latestVersion: "1.2.3",
+  updateAvailable: false,
+  updateAllowed: true,
+  checkedAt: UPDATE_STATUS_CHECKED_AT,
+  runState: "idle",
+  lastRun: null,
+  running: false,
+  nightlyEnabled: false,
+  ...overrides,
+});
+
+const mockUpdateSystem = async (page: Page, status: Record<string, unknown>): Promise<void> => {
+  await page.route(UPDATE_API, async (route) => {
+    const request = route.request();
+    const url = request.url();
+    if (request.method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(status),
+      });
+      return;
+    }
+    if (url.endsWith("/nightly") && request.method() === "PUT") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ enabled: request.postDataJSON().enabled }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+};
+
+Given("a newer version is available", async ({ page }) => {
+  await mockUpdateSystem(page, updateStatusFor({ latestVersion: "1.3.0", updateAvailable: true }));
+});
+
+Given("the system is up to date", async ({ page }) => {
+  await mockUpdateSystem(page, updateStatusFor({}));
+});
+
+Given("the last update rolled back", async ({ page }) => {
+  await mockUpdateSystem(
+    page,
+    updateStatusFor({
+      latestVersion: "1.3.0",
+      updateAvailable: true,
+      runState: "rolled_back",
+      lastRun: {
+        runId: "5b0f7a52-3c1e-4c53-9d0a-2f7f1d8e6a10",
+        currentVersion: "1.2.3",
+        targetVersion: "1.3.0",
+        startedAt: UPDATE_STATUS_CHECKED_AT,
+        finishedAt: UPDATE_STATUS_CHECKED_AT,
+        outcome: "rolled_back",
+        failedStep: "migrate",
+        steps: [],
+        backupName: "before-1.3.0",
+        previousImages: null,
+        writesAfterBackupLost: false,
+        message: "The database was restored from the backup.",
+      },
+    }),
+  );
+});
+
+When("I turn on {string}", async ({ page }, label: string) => {
+  const saved = page.waitForResponse(
+    (response) =>
+      response.url().endsWith(UPDATE_NIGHTLY_PATH) && response.request().method() === "PUT",
+  );
+  await page.getByLabel(label, { exact: true }).check();
+  await saved;
+});
+
+Then("the page shows the running version and the latest version", async ({ page }) => {
+  await expect(page.getByText("1.2.3", { exact: true })).toBeVisible();
+  await expect(page.getByText("1.3.0", { exact: true })).toBeVisible();
+});
+
+Then("{string} is disabled", async ({ page }, label: string) => {
+  await expect(page.getByRole("button", { name: label, exact: true })).toBeDisabled();
+});
+
+Then(
+  "the confirmation says the database is backed up and a failed update rolls back",
+  async ({ page }) => {
+    const dialog = page.getByRole("dialog");
+    await expect(
+      dialog.getByText("The database is backed up first.", { exact: false }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByText("goes back to the current version automatically", { exact: false }),
+    ).toBeVisible();
+  },
+);
+
+Then("{string} is off", async ({ page }, label: string) => {
+  await expect(page.getByLabel(label, { exact: true })).not.toBeChecked();
+});
+
+Then("{string} is on", async ({ page }, label: string) => {
+  await expect(page.getByLabel(label, { exact: true })).toBeChecked();
+});

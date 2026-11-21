@@ -10,6 +10,7 @@ import { useSession } from "../../session/use-session.js";
 import { SettingsSection } from "../settings-page/components/settings-section/settings-section.js";
 import { AdminPeopleSection } from "./components/admin-people-section/admin-people-section.js";
 import { AdminRegistrationSection } from "./components/admin-registration-section/admin-registration-section.js";
+import { AdminUpdateSection } from "./components/admin-update-section/admin-update-section.js";
 import { ADMIN_MAIL_SECTION } from "./constants.js";
 
 export const AdminPage = () => {
@@ -68,6 +69,7 @@ const AdminContent = () => {
       />
       <AdminPeopleSection users={users} onChanged={loadUsers} />
       <SettingsSection section={ADMIN_MAIL_SECTION} />
+      <AdminUpdateSection />
     </SettingsSubpage>
   );
 };

@@ -71,3 +71,42 @@ Feature: Admin settings screens
     And email is connected
     When I open the email setup page
     Then the saved password is not visible anywhere on the page
+
+  @ui @screen:admin-update-available
+  Scenario: The admin sees the running and latest version
+    Given I am the admin signed in to the web app
+    And a newer version is available
+    When I open the admin settings page
+    Then the page shows the running version and the latest version
+
+  @ui @screen:admin-update-up-to-date
+  Scenario: Update system is off when the system is up to date
+    Given I am the admin signed in to the web app
+    And the system is up to date
+    When I open the admin settings page
+    Then "Update system" is disabled
+    And the page says "You are up to date"
+
+  @ui @screen:admin-update-confirm
+  Scenario: Updating asks for confirmation first
+    Given I am the admin signed in to the web app
+    And a newer version is available
+    When I open the admin settings page
+    And I press "Update system"
+    Then the confirmation says the database is backed up and a failed update rolls back
+
+  @ui @screen:admin-update-rolled-back
+  Scenario: A failed update explains that the system went back
+    Given I am the admin signed in to the web app
+    And the last update rolled back
+    When I open the admin settings page
+    Then the page says "The update failed and the system went back to the previous version."
+
+  @ui @screen:admin-update-nightly
+  Scenario: Automatic nightly updates are off until the admin turns them on
+    Given I am the admin signed in to the web app
+    And the system is up to date
+    When I open the admin settings page
+    Then "Update automatically every night" is off
+    When I turn on "Update automatically every night"
+    Then "Update automatically every night" is on
