@@ -32,4 +32,6 @@ export const INVALID_FRAME_MESSAGE = "Invalid notification frame.";
 
 export const MISSING_STREAM_BODY_MESSAGE = "Notification stream has no body.";
 
+export const STREAM_FAILED_MESSAGE = "Notification stream failed.";
+
 export const STREAM_LINE_LIMIT_MESSAGE = "Notification stream exceeded the buffer limit.";

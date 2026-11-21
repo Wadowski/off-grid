@@ -95,3 +95,10 @@ export type ChangePasswordInput = {
 export type PasswordConfirmationInput = {
   readonly password: string;
 };
+
+export type StreamAttempt = {
+  readonly outcome: StreamOutcome;
+  readonly lastId: string | undefined;
+  readonly receivedFrame: boolean;
+  readonly error: Error | undefined;
+};
