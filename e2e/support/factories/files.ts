@@ -168,3 +168,25 @@ export const findFolderAcrossDrives = (
     drives.map((drive) => ({ kind: "drive" as const, id: drive.id })),
     name,
   );
+
+export const uploadFileAs = async (
+  api: APIRequestContext,
+  session: Session,
+  driveId: string,
+  upload: { readonly name: string; readonly parentId: string | null; readonly body: string },
+): Promise<JsonResponse> => {
+  const headers: Record<string, string> = {
+    ...bearer(session),
+    "content-type": "text/plain",
+    "x-offgrid-file-name": encodeURIComponent(upload.name),
+  };
+  if (upload.parentId !== null) {
+    headers["x-offgrid-parent-id"] = upload.parentId;
+  }
+  const response = await api.post(`/api/drives/${driveId}/files`, {
+    headers,
+    data: upload.body,
+    failOnStatusCode: false,
+  });
+  return { status: response.status(), body: await response.json().catch(() => null) };
+};
