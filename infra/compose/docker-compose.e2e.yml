@@ -10,6 +10,7 @@ services:
     environment:
       OFFGRID_TRUSTED_PROXIES: "127.0.0.0/8,172.16.0.0/12"
       OFFGRID_CORS_ORIGINS: "http://127.0.0.1:${OFFGRID_WEB_PORT:-5173}"
+      OFFGRID_FILES_MAX_UPLOAD_BYTES: "${OFFGRID_FILES_MAX_UPLOAD_BYTES:-1048576}"
     volumes:
       - ../../data/files-e2e:/data/files
 
