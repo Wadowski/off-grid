@@ -133,7 +133,7 @@ Then(/^the drive sidebar lists the drives (.+)$/, async ({ page }, listing: stri
   const rows = driveSidebarOf(page).getByTestId("drive-switcher-row");
   await expect(rows).toHaveCount(names.length, { timeout: SIDEBAR_TIMEOUT_MS });
   for (const [index, name] of names.entries()) {
-    await expect(rows.nth(index)).toHaveText(name);
+    await expect(rows.nth(index).getByTestId("drive-switcher-row-name")).toHaveText(name);
   }
 });
 
