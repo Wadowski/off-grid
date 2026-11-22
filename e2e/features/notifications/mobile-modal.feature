@@ -7,7 +7,7 @@ Feature: Notifications modal on a phone
   On a phone the bell opens a sheet with the latest notices instead of a popover.
   The sheet filters, marks notices read and links to the full notifications page.
 
-  @ui @screen:notifications-modal-mobile
+  @ui @screen:notifications-modal
   Scenario: Bell opens the notifications modal on a phone
     Given Anna is signed in
     And Anna belongs to a family of her own
