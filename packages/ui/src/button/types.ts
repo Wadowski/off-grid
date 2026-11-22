@@ -5,7 +5,7 @@ import type { ButtonHTMLAttributes, Ref } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 
-export type ButtonSize = "medium" | "small";
+export type ButtonSize = "medium" | "small" | "icon";
 
 export type ButtonAlign = "center" | "start";
 

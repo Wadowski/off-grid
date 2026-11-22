@@ -47,6 +47,19 @@ describe("Button", () => {
     expect(screen.getByRole("button")).toHaveClass("og-focusable");
   });
 
+  it("gives an icon-sized button a 44px touch target", () => {
+    render(
+      <Button variant="ghost" size="icon" aria-label="Upload">
+        <span>icon</span>
+      </Button>,
+    );
+
+    expect(screen.getByRole("button", { name: "Upload" })).toHaveAttribute(
+      "style",
+      expect.stringContaining("min-height: 2.75rem"),
+    );
+  });
+
   it("can align its content to the start instead of the centre", () => {
     render(<Button align="start">Space</Button>);
 

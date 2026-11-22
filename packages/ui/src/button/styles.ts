@@ -38,6 +38,11 @@ export const buttonSizeStyles: Record<ButtonSize, CSSProperties> = {
     padding: `${cssVar("space-1")} ${cssVar("space-2")}`,
     fontSize: cssVar("font-size-label-md"),
   },
+  icon: {
+    minWidth: "2.75rem",
+    minHeight: "2.75rem",
+    padding: "0",
+  },
 };
 
 export const buttonAlignStyles: Record<ButtonAlign, CSSProperties> = {
