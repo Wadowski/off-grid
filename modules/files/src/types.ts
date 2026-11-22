@@ -7,6 +7,8 @@ import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { CurrentUserId } from "@offgrid/http";
 import type { Logger } from "@offgrid/observability";
+import type { fileContentQuerySchema } from "@offgrid/contracts";
+import type { z } from "zod";
 
 export interface StorageIntegrityReport {
   readonly orphanKeys: readonly string[];
@@ -315,7 +317,7 @@ export interface NewVersionContent {
   readonly sha256: string;
 }
 
-export type ContentDisposition = "attachment" | "inline";
+export type ContentDisposition = z.infer<typeof fileContentQuerySchema>["disposition"];
 
 export interface ByteSpan {
   readonly start: number;
