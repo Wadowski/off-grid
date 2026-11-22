@@ -22,4 +22,10 @@ describe("sliceFirstPage", () => {
     expect(page).toHaveLength(INBOX_PAGE_SIZE);
     expect(page[INBOX_PAGE_SIZE - 1]).toBe(INBOX_PAGE_SIZE - 1);
   });
+
+  it("keeps only the given limit when one is passed", () => {
+    const page = sliceFirstPage(itemsOf(INBOX_PAGE_SIZE), 5);
+
+    expect(page).toEqual([0, 1, 2, 3, 4]);
+  });
 });
