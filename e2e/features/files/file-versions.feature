@@ -84,7 +84,7 @@ Feature: Keeping the earlier versions of a file
     And a new person Ben signs up
     And Ben joins the family "The Smiths"
     And Anna has a file "Plan.txt" with the content "first draft" in the family drive of "The Smiths"
-    And Ben leaves the family "The Smiths"
+    And Ben stops being a member of "The Smiths"
     And Ben no longer sees the family drive of "The Smiths"
     When Ben looks at the versions of "Plan.txt" in the family drive of "The Smiths"
     Then Ben is told the file was not found

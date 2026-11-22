@@ -15,6 +15,7 @@ import {
   uploadVersionAs,
   waitForDrives,
 } from "../support/factories/files.js";
+import { leaveFamily } from "../support/family-sessions.js";
 import type { JsonResponse, Session } from "../support/factories/instance-admin.js";
 import type { FileVersionEntry } from "../support/factories/types.js";
 import { signedInPerson } from "../support/factories/notifications.js";
@@ -172,6 +173,10 @@ Given(
     expect(response.status, `Anna has a file ${name}`).toBe(201);
   },
 );
+
+Given(/^Ben stops being a member of "([^"]*)"$/, async ({ world }, familyName: string) => {
+  await leaveFamily(world.api, sessionOf(world, "Ben"), familyIdNamed(world, familyName));
+});
 
 Given(
   /^Ben no longer sees the family drive of "([^"]*)"$/,
