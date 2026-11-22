@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FilesErrorCode, FilesErrorTextId } from "./types.js";
+import type { FilesErrorCode, FilesErrorTextId, FolderContentsSnapshot } from "./types.js";
 
 export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   NOT_FOUND: "files.errors.notFound",
@@ -14,4 +14,13 @@ export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   UPLOAD_INCOMPLETE: "files.errors.uploadIncomplete",
   UPLOAD_OFFSET_MISMATCH: "files.errors.uploadOffsetMismatch",
   PAYLOAD_TOO_LARGE: "files.errors.payloadTooLarge",
+};
+
+export const FOLDER_CONTENTS_LOADING: FolderContentsSnapshot = {
+  items: [],
+  breadcrumbs: [],
+  nextCursor: null,
+  status: "loading",
+  errorTextId: null,
+  isLoadingMore: false,
 };

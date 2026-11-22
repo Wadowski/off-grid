@@ -649,13 +649,19 @@ export const en = {
     },
     layout: {
       heading: "Files",
-      placeholder: "Your drives and folders will appear here.",
     },
     breadcrumbs: {
       label: "Folder path",
     },
     folder: {
       loading: "Loading...",
+      empty: "This folder is empty.",
+      loadMore: "Load more",
+      retry: "Try again",
+      back: "Back to {{name}}",
+    },
+    list: {
+      label: "Folder contents",
     },
     notFound: {
       heading: "Folder not found",
