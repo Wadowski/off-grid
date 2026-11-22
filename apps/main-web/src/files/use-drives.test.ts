@@ -20,6 +20,7 @@ const FAMILY = {
 };
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
@@ -99,6 +100,7 @@ describe("useDrives", () => {
   });
 
   it("does not reload for a family drive when the person has no family", async () => {
+    vi.useFakeTimers();
     const fetchMock = vi.fn(async () =>
       jsonResponse({ status: 200, body: { drives: [PERSONAL] } }),
     );
@@ -106,8 +108,8 @@ describe("useDrives", () => {
 
     const { result } = renderHook(() => useDrives(true, 0));
 
-    await waitFor(() => expect(result.current.status).toBe("ready"));
-    await act(() => new Promise((resolve) => setTimeout(resolve, 700)));
+    await act(() => vi.advanceTimersByTimeAsync(5000));
+    expect(result.current.status).toBe("ready");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
