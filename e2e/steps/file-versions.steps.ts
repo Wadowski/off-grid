@@ -16,12 +16,11 @@ import {
   waitForDrives,
 } from "../support/factories/files.js";
 import type { JsonResponse, Session } from "../support/factories/instance-admin.js";
+import type { FileVersionEntry } from "../support/factories/types.js";
 import { signedInPerson } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
-
-type VersionEntry = { id: string; number: number };
 
 const sessionOf = (world: ScenarioWorld, name: string): Session => {
   const person = world.people?.[name];
@@ -83,10 +82,10 @@ const versionsOf = async (
   world: ScenarioWorld,
   person: string,
   fileId: string,
-): Promise<VersionEntry[]> => {
+): Promise<FileVersionEntry[]> => {
   const listed = await listVersionsAs(world.api, sessionOf(world, person), fileId);
   expect(listed.status, `${person} lists the versions`).toBe(200);
-  return (listed.body as { versions: VersionEntry[] }).versions;
+  return (listed.body as { versions: FileVersionEntry[] }).versions;
 };
 
 const currentVersionIdOf = async (

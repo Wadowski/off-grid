@@ -17,4 +17,6 @@ export type FilesWorld = {
 
 export type FileItem = { id: string; name: string; isFolder: boolean; parentId: string | null };
 
+export type FileVersionEntry = { id: string; number: number };
+
 export type Container = { kind: "drive" | "folder"; id: string };
