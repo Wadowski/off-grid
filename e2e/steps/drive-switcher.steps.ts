@@ -11,6 +11,8 @@ import { test, type ScenarioWorld } from "../support/fixtures.js";
 const { Given, When, Then } = createBdd(test);
 
 const SIDEBAR_TIMEOUT_MS = 10_000;
+const PHONE_WIDTH = 375;
+const PHONE_HEIGHT = 812;
 const KEYBOARD_TAB_LIMIT = 60;
 const QUOTED_NAME = /"([^"]*)"/g;
 
@@ -85,6 +87,26 @@ Given(
 
 When(/^Anna opens the Files page in the browser$/, async ({ page }) => {
   await page.goto(`${webBaseUrl()}/files`);
+});
+
+When(/^Anna opens the Files page on a phone$/, async ({ page }) => {
+  await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
+  await page.goto(`${webBaseUrl()}/files`);
+  await expect(page.getByTestId("files-page")).toBeVisible({ timeout: SIDEBAR_TIMEOUT_MS });
+});
+
+When(/^Anna opens the drives page on a phone$/, async ({ page }) => {
+  await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
+  await page.goto(`${webBaseUrl()}/files/drives`);
+  await expect(driveSidebarOf(page)).toBeVisible({ timeout: SIDEBAR_TIMEOUT_MS });
+});
+
+When("Anna taps the drives link on the phone", async ({ page }) => {
+  await page.getByTestId("files-drives-link").click();
+});
+
+Then("the drives page is open on the phone", async ({ page }) => {
+  await expect(page.getByTestId("files-drives-page")).toBeVisible({ timeout: SIDEBAR_TIMEOUT_MS });
 });
 
 When(/^Anna chooses the drive "([^"]*)" in the sidebar$/, async ({ page }, name: string) => {

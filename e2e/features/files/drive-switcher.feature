@@ -8,7 +8,6 @@ Feature: Switching between the personal drive and family drives
   family drive the person may use. The row of the drive on screen is marked as
   the active one, and choosing a row opens that drive's contents.
 
-  @screen:files-drive-switcher
   Scenario: Anna sees her personal drive and her family drive in the sidebar
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens the Files page in the browser
@@ -19,6 +18,7 @@ Feature: Switching between the personal drive and family drives
     When Anna opens the Files page in the browser
     Then the drive "Personal" is the active drive in the sidebar
 
+  @screen:files-drive-switcher
   Scenario: Anna switches to the family drive and sees its folders
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has the folder "Plans" in the family drive "Home"
@@ -42,6 +42,33 @@ Feature: Switching between the personal drive and family drives
     When Anna opens the Files page in the browser
     And Anna reaches the drive "Home" in the sidebar with the keyboard and presses Enter
     Then the drive "Home" is the active drive in the sidebar
+
+  @screen:files-drives-phone
+  Scenario: On a phone Anna sees her personal drive and her family drive on the drives page
+    Given I am signed in as "Anna Kowalska", a regular member
+    When Anna opens the drives page on a phone
+    Then the drive sidebar lists the drives "Personal" and "Home"
+    And the drive "Personal" is the active drive in the sidebar
+
+  Scenario: On a phone Anna reaches the drives page from the Files page
+    Given I am signed in as "Anna Kowalska", a regular member
+    When Anna opens the Files page on a phone
+    And Anna taps the drives link on the phone
+    Then the drives page is open on the phone
+    And the drive sidebar lists the drives "Personal" and "Home"
+
+  Scenario: On a phone Anna switches to the family drive and sees its folders
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has the folder "Plans" in the family drive "Home"
+    When Anna opens the drives page on a phone
+    And Anna chooses the drive "Home" in the sidebar
+    Then the folder list shows "Plans"
+
+  @a11y
+  Scenario: The phone drives page has no serious accessibility violations
+    Given I am signed in as "Anna Kowalska", a regular member
+    When Anna opens the drives page on a phone
+    Then the page has no serious accessibility violations
 
   @a11y
   Scenario: The Files page with the drive sidebar has no serious accessibility violations
