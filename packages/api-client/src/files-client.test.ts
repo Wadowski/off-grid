@@ -234,6 +234,40 @@ describe("createFilesClient versions and downloads", () => {
     );
   });
 
+  it("uploads a new version as the raw body with its declared media type", async () => {
+    const bytes = new Uint8Array([1, 2, 3]);
+    const { files, transport } = filesWith(jsonResponse(FILE));
+
+    await expect(files.uploadFileVersion(FILE_ID, bytes, "text/plain")).resolves.toEqual(FILE);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/versions`,
+      expect.objectContaining({
+        method: "POST",
+        body: bytes,
+        headers: expect.objectContaining({ "content-type": "text/plain" }),
+      }),
+    );
+  });
+
+  it("uploads a new version without a content type header when no media type is declared", async () => {
+    const bytes = new Uint8Array([1]);
+    const { files, transport } = filesWith(jsonResponse(FILE));
+
+    await files.uploadFileVersion(FILE_ID, bytes);
+    const [, init] = transport.mock.calls[0] ?? [];
+    expect(init?.headers).not.toHaveProperty("content-type");
+  });
+
+  it("deletes a version by its path", async () => {
+    const { files, transport } = filesWith(new Response(null, { status: 204 }));
+
+    await expect(files.deleteFileVersion(FILE_ID, VERSION_ID)).resolves.toBeUndefined();
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/versions/${VERSION_ID}`,
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
   it("restores a version by its path", async () => {
     const { files, transport } = filesWith(jsonResponse(FILE));
 

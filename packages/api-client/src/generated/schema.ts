@@ -267,8 +267,24 @@ export interface paths {
         };
         get: operations["listFileVersions"];
         put?: never;
-        post?: never;
+        post: operations["uploadFileVersion"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/versions/{versionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteFileVersion"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1038,7 +1054,7 @@ export interface components {
                 currentVersionId: string;
             }) | null;
         };
-        FilesErrorCode: "NOT_FOUND" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NAME_TAKEN" | "INVALID_MOVE" | "NOT_TRASHED" | "IS_FOLDER" | "UPLOAD_INCOMPLETE" | "UPLOAD_OFFSET_MISMATCH" | "PAYLOAD_TOO_LARGE";
+        FilesErrorCode: "NOT_FOUND" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NAME_TAKEN" | "INVALID_MOVE" | "NOT_TRASHED" | "IS_FOLDER" | "UPLOAD_INCOMPLETE" | "UPLOAD_OFFSET_MISMATCH" | "PAYLOAD_TOO_LARGE" | "CURRENT_VERSION";
         SystemVersion: {
             version: string;
             commit?: string;
@@ -2164,6 +2180,115 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    uploadFileVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "*/*": string;
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteFileVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                versionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

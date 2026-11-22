@@ -88,6 +88,21 @@ export const createFilesClient = (client: ApiClient) => ({
       await client.request("GET", fillRoute(filesRoutes.fileVersions, { id: fileId })),
     ).versions,
 
+  uploadFileVersion: async (fileId: string, bytes: ByteBody, mimeType?: string) =>
+    fileSchema.parse(
+      await client.requestBytes(
+        "POST",
+        fillRoute(filesRoutes.fileVersions, { id: fileId }),
+        bytes,
+        undefined,
+        mimeType ?? null,
+      ),
+    ),
+
+  deleteFileVersion: async (fileId: string, versionId: string): Promise<void> => {
+    await client.request("DELETE", fillRoute(filesRoutes.fileVersion, { id: fileId, versionId }));
+  },
+
   restoreFileVersion: async (fileId: string, versionId: string) =>
     fileSchema.parse(
       await client.request(
