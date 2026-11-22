@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:files @wip
+@module:files
 Feature: Downloading a file and its earlier versions
 
   A person downloads the bytes of a file they can see, either its current
@@ -53,7 +53,7 @@ Feature: Downloading a file and its earlier versions
 
   Scenario: An HTML file is always a download, even when Anna asks to show it inline
     Given a new person Anna signs up
-    And Anna has a file "page.html" with the content "<p>hi</p>" in her personal drive
+    And Anna has an HTML page "page.html" with the content "<p>hi</p>" in her personal drive
     When Anna asks to show "page.html" inline
     Then Anna gets "page.html" as an attachment with the type application/octet-stream
 
