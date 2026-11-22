@@ -3,11 +3,8 @@
 
 import { randomUUID } from "node:crypto";
 import type { Readable } from "node:stream";
-import {
-  allocateStorageKey,
-  createInMemoryFileStorage,
-  type FileStorage,
-} from "@offgrid/file-storage";
+import { allocateStorageKey, createInMemoryFileStorage } from "@offgrid/file-storage";
+import type { FileStorage } from "@offgrid/file-storage";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { DEFAULT_TEST_MAX_UPLOAD_BYTES } from "../../../test/constants.js";
 import { seedDrive } from "../../../test/seed-drive.js";
