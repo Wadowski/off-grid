@@ -42,6 +42,11 @@ When("Anna opens the notifications modal from the bell on a phone", async ({ pag
   await openModalOnPhone(page, annaOf(world));
 });
 
+Then("the modal tells her she is all caught up", async ({ page }) => {
+  await expect(modalOf(page).getByTestId("notifications-empty-state")).toBeVisible();
+  await expect(modalOf(page).getByTestId("notification-card")).toHaveCount(0);
+});
+
 Then("the modal lists her latest notices", async ({ page }) => {
   await expect(modalOf(page).getByTestId("notification-card").first()).toBeVisible();
 });

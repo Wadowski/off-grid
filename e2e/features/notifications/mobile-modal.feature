@@ -16,6 +16,13 @@ Feature: Notifications modal on a phone
     Then the modal lists her latest notices
     And the modal offers the filters "All", "Unread", "Calendar" and "Account & security"
 
+  @ui @screen:notifications-modal-empty
+  Scenario: The notifications modal says there is nothing to show when she has no notices
+    Given Anna is signed in
+    And Anna belongs to a family of her own
+    When Anna opens the notifications modal from the bell on a phone
+    Then the modal tells her she is all caught up
+
   Scenario: Filtering the modal by calendar lists only calendar notices
     Given Anna is signed in
     And Tom and Anna share a family
