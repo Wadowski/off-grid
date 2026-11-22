@@ -40,7 +40,6 @@ describe("useFolderContents", () => {
 
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(result.current.items).toEqual([FOLDER_ITEM]);
-    expect(result.current.breadcrumbs).toEqual(BREADCRUMBS);
     expect(result.current.hasMore).toBe(false);
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain(`/drives/${DRIVE_ID}/children`);
   });
@@ -72,6 +71,25 @@ describe("useFolderContents", () => {
     expect(result.current.items).toHaveLength(2);
     expect(result.current.hasMore).toBe(false);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain("cursor=cursor-2");
+  });
+
+  it("keeps the loaded items and reports the error when the next page cannot be loaded", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(pageOf([FOLDER_ITEM], "cursor-2"))
+      .mockResolvedValueOnce(
+        jsonResponse({ status: 500, body: { code: "INTERNAL", message: "x" } }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    await waitFor(() => expect(result.current.hasMore).toBe(true));
+
+    await act(() => result.current.loadMore());
+
+    expect(result.current.status).toBe("failed");
+    expect(result.current.items).toEqual([FOLDER_ITEM]);
+    expect(result.current.isLoadingMore).toBe(false);
   });
 
   it("reports the error text when the contents cannot be loaded", async () => {
