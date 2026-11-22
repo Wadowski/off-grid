@@ -7,3 +7,8 @@ export { browserTimeZone } from "./browser-time-zone.js";
 export { formatRelativeTime } from "./format-relative-time.js";
 export { groupByDay } from "./group-by-day.js";
 export { NotificationCard } from "./notification-card/notification-card.js";
+export { NotificationsFilterBar } from "./notifications-filter-bar/notifications-filter-bar.js";
+export { NotificationsMarkAllReadButton } from "./notifications-mark-all-read-button/notifications-mark-all-read-button.js";
+export { filterForOption } from "./filter-for-option.js";
+export { optionForFilters } from "./option-for-filters.js";
+export { sliceFirstPage } from "./slice-first-page.js";
