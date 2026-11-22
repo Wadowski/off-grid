@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationItem, NotificationPage } from "../../notifications/inbox-store/types.js";
 import type { subscribeToNotificationStream } from "../../notifications/subscribe-to-notification-stream.js";
+import { NotificationsInboxProvider } from "../../notifications/index.js";
 import { NotificationsPage } from "./notifications-page.js";
 
 const mocks = vi.hoisted(() => ({
@@ -52,12 +53,14 @@ const pageOf = (
 
 const renderPage = () =>
   render(
-    <MemoryRouter initialEntries={["/notifications"]}>
-      <Routes>
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route path="/calendar/event/:eventId" element={<p>Event details route</p>} />
-      </Routes>
-    </MemoryRouter>,
+    <NotificationsInboxProvider>
+      <MemoryRouter initialEntries={["/notifications"]}>
+        <Routes>
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/calendar/event/:eventId" element={<p>Event details route</p>} />
+        </Routes>
+      </MemoryRouter>
+    </NotificationsInboxProvider>,
   );
 
 const cardCount = () => screen.queryAllByTestId("notification-card").length;
