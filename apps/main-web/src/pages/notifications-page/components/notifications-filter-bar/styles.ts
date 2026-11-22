@@ -27,3 +27,18 @@ export const notificationsSortStyle: CSSProperties = {
   gap: tokens.space[1],
   color: cssVar("color-muted"),
 };
+
+export const notificationsFilterBarPhoneStyle: CSSProperties = {
+  minWidth: 0,
+};
+
+export const notificationsFilterChipsPhoneStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "nowrap",
+  alignItems: "center",
+  gap: tokens.space[2],
+  overflowX: "auto",
+  scrollbarWidth: "none",
+  maxWidth: "100%",
+  minWidth: 0,
+};

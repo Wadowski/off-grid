@@ -22,6 +22,7 @@ export const NotificationsPage = () => {
         onMarkAllRead={() => void inbox.markAllRead()}
       />
       <NotificationsFilterBar
+        layout="desktop"
         selectedOption={optionForFilters(inbox.filters)}
         totalForSelected={inbox.total}
         onSelect={(option) => inbox.setFilters(filterForOption(option))}
