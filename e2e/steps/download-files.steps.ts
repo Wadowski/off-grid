@@ -170,14 +170,11 @@ Then(/^Carl sees that the file is not found$/, ({ world }) => {
   expect(bodyCodeOf(response)).toBe("NOT_FOUND");
 });
 
-Then(
-  /^Anna gets the content "([^"]*)" for the range of "[^"]*"$/,
-  ({ world }, content: string) => {
-    const response = downloadOf(world);
-    expect(response.status, "the range is answered as partial content").toBe(206);
-    expect(response.body).toBe(content);
-  },
-);
+Then(/^Anna gets the content "([^"]*)" for the range of "[^"]*"$/, ({ world }, content: string) => {
+  const response = downloadOf(world);
+  expect(response.status, "the range is answered as partial content").toBe(206);
+  expect(response.body).toBe(content);
+});
 
 Then(
   /^Anna is told the range cannot be satisfied for "([^"]*)" of (\d+) bytes$/,
