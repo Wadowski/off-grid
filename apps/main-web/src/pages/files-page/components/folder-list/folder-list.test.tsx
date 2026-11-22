@@ -97,7 +97,7 @@ describe("FolderList", () => {
   it("opens a folder when its row is activated", () => {
     renderList();
 
-    fireEvent.click(screen.getByRole("button", { name: "Photos" }));
+    fireEvent.click(screen.getByRole("button", { name: /Photos/ }));
 
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/folder/${PHOTOS_ID}`);
   });
@@ -105,7 +105,7 @@ describe("FolderList", () => {
   it("does nothing when a file row is activated", () => {
     renderList();
 
-    expect(screen.queryByRole("button", { name: "Trip.pdf" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Trip\.pdf/ })).not.toBeInTheDocument();
     expect(screen.queryByTestId("probe")).not.toBeInTheDocument();
   });
 

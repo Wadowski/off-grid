@@ -300,6 +300,6 @@ Then("the Back control is not shown", async ({ page }) => {
 
 Then("the phone page does not scroll sideways", async ({ page }) => {
   await expect
-    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .poll(() => page.evaluate("document.documentElement.scrollWidth <= window.innerWidth"))
     .toBe(true);
 });
