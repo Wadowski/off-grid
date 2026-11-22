@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { FilterChip, MaterialIcon, Text, cssVar } from "@offgrid/ui";
-import { NOTIFICATION_FILTER_OPTIONS } from "../../constants.js";
+import { NOTIFICATION_FILTER_OPTIONS } from "../constants.js";
 import {
   notificationsFilterBarPhoneStyle,
   notificationsFilterBarStyle,

@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { NotificationsLayout } from "../../types.js";
-import type { DayGroup } from "../../../../notifications/types.js";
+import type { DayGroup, NotificationsLayout } from "../../../../notifications/types.js";
 import type {
   NotificationItem,
   NotificationsInbox,

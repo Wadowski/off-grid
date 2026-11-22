@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, MaterialIcon, Text } from "@offgrid/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import markUrl from "../../../../media/offgrid-mark-64.png";
 import { useIsNarrow } from "../../../../media/use-is-narrow.js";
@@ -10,6 +10,7 @@ import { HeaderSearch } from "./components/header-search/header-search.js";
 import { HeaderBell } from "./components/header-bell/header-bell.js";
 import { surfaceForViewport } from "./components/header-bell/surface-for-viewport.js";
 import type { NotificationsSurface } from "./components/header-bell/types.js";
+import { NotificationsModal } from "./components/notifications-modal/notifications-modal.js";
 
 export const AppHeader = () => {
   const { t } = useTranslation();
@@ -17,6 +18,13 @@ export const AppHeader = () => {
   const [openSurface, setOpenSurface] = useState<NotificationsSurface | undefined>(undefined);
   const toggleNotifications = () =>
     setOpenSurface((current) => (current === undefined ? surfaceForViewport(isNarrow) : undefined));
+  const closeNotifications = () => setOpenSurface(undefined);
+
+  useEffect(() => {
+    if (!isNarrow && openSurface === "modal") {
+      setOpenSurface(undefined);
+    }
+  }, [isNarrow, openSurface]);
 
   return (
     <header className="og-header">
@@ -36,6 +44,7 @@ export const AppHeader = () => {
           </Button>
         </span>
       </div>
+      {openSurface === "modal" ? <NotificationsModal onClose={closeNotifications} /> : null}
     </header>
   );
 };

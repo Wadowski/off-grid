@@ -9,16 +9,16 @@ import {
   groupByDay,
   useNotificationsInboxContext,
 } from "../../notifications/index.js";
+import { NotificationsFilterBar } from "../../notifications/notifications-filter-bar/notifications-filter-bar.js";
+import { filterForOption } from "../../notifications/filter-for-option.js";
+import { optionForFilters } from "../../notifications/option-for-filters.js";
+import type { NotificationsLayout } from "../../notifications/types.js";
 import { useOpenNotice } from "../../notifications/use-open-notice.js";
 import { NotificationsBody } from "./components/notifications-body/notifications-body.js";
-import { NotificationsFilterBar } from "./components/notifications-filter-bar/notifications-filter-bar.js";
 import { NotificationsHeader } from "./components/notifications-header/notifications-header.js";
 import { NotificationsMobileHeader } from "./components/notifications-mobile-header/notifications-mobile-header.js";
 import { useLeaveNotifications } from "./components/notifications-mobile-header/use-leave-notifications.js";
-import { filterForOption } from "./filter-for-option.js";
-import { optionForFilters } from "./option-for-filters.js";
 import { notificationsPageStyle } from "./styles.js";
-import type { NotificationsLayout } from "./types.js";
 
 export const NotificationsPage = () => {
   const inbox = useNotificationsInboxContext();

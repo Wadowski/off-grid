@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Text } from "@offgrid/ui";
+import {
+  NotificationsEmptyState,
+  NotificationsErrorState,
+} from "../../../../notifications/index.js";
 import { NotificationsDayGroup } from "../notifications-day-group/notifications-day-group.js";
-import { NotificationsEmptyState } from "../notifications-empty-state/notifications-empty-state.js";
-import { NotificationsErrorState } from "../notifications-error-state/notifications-error-state.js";
 import { NotificationsListFooter } from "../notifications-list-footer/notifications-list-footer.js";
 import { notificationsBodyStyle, notificationsLoadingStyle } from "./styles.js";
 import type { NotificationsBodyProps } from "./types.js";

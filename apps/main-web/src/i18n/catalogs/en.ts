@@ -746,6 +746,10 @@ export const en = {
       loadMore: "Older notifications could not be loaded.",
     },
     liveUpdatesUnavailable: "Live updates are unavailable. Reload to see new notifications.",
+    modal: {
+      viewAll: "View All Notifications Page",
+      close: "Close",
+    },
     bell: {
       label: "Notifications",
       labelUnread: "Notifications, {{count}} unread",

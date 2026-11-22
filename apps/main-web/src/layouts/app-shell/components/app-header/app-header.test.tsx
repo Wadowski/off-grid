@@ -1,0 +1,98 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NotificationsInboxContext } from "../../../../notifications/inbox-context/notifications-inbox-context.js";
+import type { NotificationsInbox } from "../../../../notifications/inbox-store/types.js";
+import { AppHeader } from "./app-header.js";
+
+const inbox: NotificationsInbox = {
+  items: [],
+  filters: { unread: false },
+  nextCursor: null,
+  unreadCount: 0,
+  total: 0,
+  status: "ready",
+  errorKind: undefined,
+  setFilters: vi.fn(),
+  reload: vi.fn(async () => undefined),
+  loadMore: vi.fn(async () => undefined),
+  markRead: vi.fn(async () => undefined),
+  markAllRead: vi.fn(async () => undefined),
+};
+
+const renderHeader = () =>
+  render(
+    <NotificationsInboxContext.Provider value={inbox}>
+      <MemoryRouter>
+        <AppHeader />
+      </MemoryRouter>
+    </NotificationsInboxContext.Provider>,
+  );
+
+const stubNarrow = (narrow: boolean) => {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: narrow && query.includes("max-width"),
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+};
+
+describe("AppHeader notifications", () => {
+  const originalMatchMedia = window.matchMedia;
+
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = function showModal() {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.close = function close() {
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    };
+  });
+
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia;
+    cleanup();
+  });
+
+  it("opens the notifications modal from the bell on a narrow viewport", () => {
+    stubNarrow(true);
+    renderHeader();
+
+    fireEvent.click(screen.getByTestId("header-bell"));
+
+    expect(screen.getByTestId("header-bell")).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByTestId("notifications-modal")).toBeInTheDocument();
+  });
+
+  it("closes the modal on Escape and returns the bell to collapsed", () => {
+    stubNarrow(true);
+    renderHeader();
+    fireEvent.click(screen.getByTestId("header-bell"));
+
+    const dialog = screen.getByTestId("notifications-modal") as HTMLDialogElement;
+    fireEvent(dialog, new Event("cancel", { cancelable: true }));
+    fireEvent(dialog, new Event("close"));
+
+    expect(screen.queryByTestId("notifications-modal")).toBeNull();
+    expect(screen.getByTestId("header-bell")).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("does not show the modal on a wide viewport", () => {
+    stubNarrow(false);
+    renderHeader();
+
+    fireEvent.click(screen.getByTestId("header-bell"));
+
+    expect(screen.queryByTestId("notifications-modal")).toBeNull();
+  });
+});
