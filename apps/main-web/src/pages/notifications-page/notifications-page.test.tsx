@@ -231,13 +231,15 @@ describe("NotificationsPage on a phone", () => {
 
   const renderPhonePageFrom = (entries: string[], index: number) =>
     render(
-      <MemoryRouter initialEntries={entries} initialIndex={index}>
-        <Routes>
-          <Route path="/" element={<p>Home route</p>} />
-          <Route path="/calendar" element={<p>Calendar route</p>} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-        </Routes>
-      </MemoryRouter>,
+      <NotificationsInboxProvider>
+        <MemoryRouter initialEntries={entries} initialIndex={index}>
+          <Routes>
+            <Route path="/" element={<p>Home route</p>} />
+            <Route path="/calendar" element={<p>Calendar route</p>} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+          </Routes>
+        </MemoryRouter>
+      </NotificationsInboxProvider>,
     );
 
   it("shows the Back button and the mobile header instead of the desktop sort and count", async () => {
