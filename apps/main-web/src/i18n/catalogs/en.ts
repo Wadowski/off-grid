@@ -650,6 +650,16 @@ export const en = {
     layout: {
       heading: "Files",
     },
+    topBar: {
+      driveLabel: "Drive",
+      driveLoading: "Loading drives...",
+      driveUnknown: "Drives",
+      actionsLabel: "Folder actions",
+    },
+    actions: {
+      upload: "Upload",
+      newFolder: "New folder",
+    },
     drives: {
       heading: "Storage disks",
       nav: "Drives",
