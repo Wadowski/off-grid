@@ -109,6 +109,44 @@ describe("files routes", { timeout: 60_000 }, () => {
     assertNoHiddenFields(response.body);
   });
 
+  it("shows the item count on folders in a children list and not on file details", async () => {
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
+    const folder = await seedFolder(db.admin, {
+      driveId,
+      owner: { userId: anna, familyId: null },
+      parentId: null,
+      name: "Photos",
+    });
+    await seedRegularFile(db.admin, {
+      driveId,
+      owner: { userId: anna, familyId: null },
+      parentId: folder,
+      name: "a.jpg",
+      sizeBytes: 5,
+      createdByUserId: anna,
+    });
+
+    const listed = await app.inject({
+      method: "GET",
+      url: `/drives/${driveId}/children`,
+      headers: annaHeaders,
+    });
+    const details = await app.inject({
+      method: "GET",
+      url: `/files/${folder}`,
+      headers: annaHeaders,
+    });
+
+    expect(listed.statusCode).toBe(200);
+    const body = fileListSchema.parse(listed.json());
+    expect(body.items).toEqual([expect.objectContaining({ id: folder, itemCount: 1 })]);
+    expect(details.statusCode).toBe(200);
+    expect(details.json().file).not.toHaveProperty("itemCount");
+  });
+
   it("returns the details of a file with its breadcrumbs", async () => {
     const driveId = await seedDrive(db.admin, {
       owner: { userId: anna, familyId: null },

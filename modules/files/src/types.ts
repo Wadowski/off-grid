@@ -120,6 +120,7 @@ export type FilesOutcome<Value> =
 
 export interface ListedChildren {
   readonly page: ChildrenPage;
+  readonly itemCounts: ReadonlyMap<string, number>;
   readonly breadcrumbs: readonly BreadcrumbRecord[];
 }
 

@@ -8,6 +8,7 @@ import { findDrive } from "../../infrastructure/drives/find-drive.js";
 import { listChildren } from "../../infrastructure/files/list-children.js";
 import type { ChildrenQuery, DriveRecord, FilesOutcome, ListedChildren } from "../../types.js";
 import { readAsUser } from "../read-as-user.js";
+import { readItemCounts } from "./read-item-counts.js";
 
 export const listDriveChildren = (
   db: ModuleDatabase,
@@ -34,8 +35,10 @@ const listRootPage = async (
     cursor: query.cursor,
     take: query.limit + 1,
   });
+  const page = toChildrenPage(rows, query.limit);
   return {
-    page: toChildrenPage(rows, query.limit),
+    page,
+    itemCounts: await readItemCounts(tx, drive.driveId, page.records),
     breadcrumbs: toBreadcrumbs(drive, []),
   };
 };

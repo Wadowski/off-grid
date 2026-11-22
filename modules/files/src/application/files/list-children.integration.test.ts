@@ -250,4 +250,63 @@ describe("listDriveChildren and listFolderChildren", { timeout: 60_000 }, () => 
       outcome: "not-found",
     });
   });
+
+  it("counts the live direct children of each folder on the page", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const photos = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: null,
+      name: "Photos",
+    });
+    const empty = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: null,
+      name: "Empty",
+    });
+    const album = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: photos,
+      name: "Album",
+    });
+    await seedFolder(db.admin, { driveId, owner: annaOwner, parentId: album, name: "Deep" });
+    await seedRegularFile(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: photos,
+      name: "a.txt",
+      sizeBytes: 1,
+      createdByUserId: anna,
+    });
+    await seedRegularFile(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: photos,
+      name: "b.txt",
+      sizeBytes: 1,
+      createdByUserId: anna,
+    });
+    await seedRegularFile(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: photos,
+      name: "gone.txt",
+      sizeBytes: 1,
+      createdByUserId: anna,
+      trashed: true,
+    });
+
+    const root = await listDriveChildren(db.db, anna, driveId, FIRST_PAGE);
+    const inPhotos = await listFolderChildren(db.db, anna, photos, FIRST_PAGE);
+
+    expect(
+      root.outcome === "found" && [
+        root.value.itemCounts.get(photos),
+        root.value.itemCounts.get(empty),
+      ],
+    ).toEqual([3, 0]);
+    expect(inPhotos.outcome === "found" && inPhotos.value.itemCounts.get(album)).toBe(1);
+  });
 });

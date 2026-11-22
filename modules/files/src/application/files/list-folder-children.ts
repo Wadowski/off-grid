@@ -10,6 +10,7 @@ import { findLiveFile } from "../../infrastructure/files/find-file.js";
 import { listChildren } from "../../infrastructure/files/list-children.js";
 import type { ChildrenQuery, FileRecord, FilesOutcome, ListedChildren } from "../../types.js";
 import { readAsUser } from "../read-as-user.js";
+import { readItemCounts } from "./read-item-counts.js";
 
 export const listFolderChildren = (
   db: ModuleDatabase,
@@ -42,8 +43,10 @@ const listFolderPage = async (
     cursor: query.cursor,
     take: query.limit + 1,
   });
+  const page = toChildrenPage(rows, query.limit);
   return {
-    page: toChildrenPage(rows, query.limit),
+    page,
+    itemCounts: await readItemCounts(tx, folder.driveId, page.records),
     breadcrumbs: toBreadcrumbs(drive, [...ancestors, folder]),
   };
 };
