@@ -92,7 +92,7 @@ When("I close the new event modal without saving", async ({ page }) => {
 
 Then("no event named {string} is listed", async ({ page }, title: string) => {
   await expect(page.getByRole("group", { name: "Calendar view", exact: true })).toBeVisible();
-  await page.waitForLoadState("networkidle");
+  await expect(page.getByText("Loading events", { exact: true })).toHaveCount(0);
   await expect(page.getByText(title, { exact: true })).toHaveCount(0);
 });
 

@@ -26,12 +26,9 @@ const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 const GUESTS_SECTION = "event-guests-section";
 
 const settleGuests = async (page: Page): Promise<void> => {
-  await page.waitForLoadState("networkidle");
-  await page
-    .getByText("Loading guests")
-    .first()
-    .waitFor({ state: "hidden", timeout: 10_000 })
-    .catch(() => undefined);
+  await expect(page.getByText("Loading guests", { exact: true })).toHaveCount(0, {
+    timeout: 10_000,
+  });
 };
 
 const pathOf = (page: Page): string => new URL(page.url()).pathname;

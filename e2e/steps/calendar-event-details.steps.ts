@@ -232,7 +232,8 @@ When("I delete the event after confirming", async ({ page }) => {
   await expect(confirm).toBeVisible();
   await confirm.getByRole("button", { name: "Delete event", exact: true }).click();
   await expect.poll(() => pathOf(page)).toBe(AGENDA_PATH);
-  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("group", { name: "Calendar view", exact: true })).toBeVisible();
+  await expect(page.getByText("Loading events", { exact: true })).toHaveCount(0);
 });
 
 When("I cancel the delete confirmation", async ({ page }) => {
