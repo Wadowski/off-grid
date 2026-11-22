@@ -4,6 +4,8 @@
 import type { ParseKeys } from "i18next";
 import type { InboxFilters } from "../../notifications/inbox-store/types.js";
 
+export type NotificationsLayout = "desktop" | "phone";
+
 export type NotificationFilterOption = "all" | "unread" | "calendar" | "account-security";
 
 export type NotificationFilterOptionDefinition = {

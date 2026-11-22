@@ -4,19 +4,29 @@
 import { FilterChip, MaterialIcon, Text, cssVar } from "@offgrid/ui";
 import { NOTIFICATION_FILTER_OPTIONS } from "../../constants.js";
 import {
+  notificationsFilterBarPhoneStyle,
   notificationsFilterBarStyle,
+  notificationsFilterChipsPhoneStyle,
   notificationsFilterChipsStyle,
   notificationsSortStyle,
 } from "./styles.js";
 import type { NotificationsFilterBarProps } from "./types.js";
 
 export const NotificationsFilterBar = ({
+  layout,
   selectedOption,
   totalForSelected,
   onSelect,
 }: NotificationsFilterBarProps) => (
-  <div style={notificationsFilterBarStyle} data-testid="notifications-filter-bar">
-    <div style={notificationsFilterChipsStyle}>
+  <div
+    style={layout === "phone" ? notificationsFilterBarPhoneStyle : notificationsFilterBarStyle}
+    data-testid="notifications-filter-bar"
+  >
+    <div
+      style={
+        layout === "phone" ? notificationsFilterChipsPhoneStyle : notificationsFilterChipsStyle
+      }
+    >
       {NOTIFICATION_FILTER_OPTIONS.map((definition) => {
         const isSelected = definition.id === selectedOption;
         return (
@@ -35,9 +45,11 @@ export const NotificationsFilterBar = ({
         );
       })}
     </div>
-    <span style={notificationsSortStyle}>
-      <MaterialIcon name="swap_vert" size="1rem" color={cssVar("color-muted")} />
-      <Text element="span" variant="caption" textId="notifications.page.sortNewest" />
-    </span>
+    {layout === "desktop" ? (
+      <span style={notificationsSortStyle}>
+        <MaterialIcon name="swap_vert" size="1rem" color={cssVar("color-muted")} />
+        <Text element="span" variant="caption" textId="notifications.page.sortNewest" />
+      </span>
+    ) : null}
   </div>
 );

@@ -9,7 +9,7 @@ import { NotificationsListFooter } from "../notifications-list-footer/notificati
 import { notificationsBodyStyle, notificationsLoadingStyle } from "./styles.js";
 import type { NotificationsBodyProps } from "./types.js";
 
-export const NotificationsBody = ({ inbox, groups, onOpen }: NotificationsBodyProps) => {
+export const NotificationsBody = ({ layout, inbox, groups, onOpen }: NotificationsBodyProps) => {
   if (inbox.status === "error" && inbox.errorKind === "load") {
     return <NotificationsErrorState onRetry={() => void inbox.reload()} />;
   }
@@ -34,6 +34,7 @@ export const NotificationsBody = ({ inbox, groups, onOpen }: NotificationsBodyPr
         />
       ))}
       <NotificationsListFooter
+        layout={layout}
         shown={inbox.items.length}
         total={inbox.total}
         hasNextPage={inbox.nextCursor !== null}

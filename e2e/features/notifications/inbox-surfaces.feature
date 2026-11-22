@@ -142,3 +142,15 @@ Feature: Notifications inbox surfaces
     When Anna tries to mark Tom's item as read
     Then the request is refused
     And Tom's item is still unread
+
+  Scenario: Mobile page goes back to the previous screen
+    Given Anna is signed in
+    When Anna opens her inbox on a phone
+    And Anna goes back
+    Then she is back on the screen she came from
+
+  Scenario: Mobile page tells Anna when she has reached the end
+    Given Anna is signed in
+    And she has a calendar reminder from today
+    When Anna opens her inbox on a phone
+    Then she sees she is caught up

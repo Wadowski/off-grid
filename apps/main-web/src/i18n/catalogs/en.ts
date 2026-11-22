@@ -706,6 +706,8 @@ export const en = {
       sortNewest: "Newest first",
       showing: "Showing {{shown}} of {{total}}",
       loading: "Loading notifications…",
+      back: "Back",
+      caughtUp: "You're caught up",
     },
     updates_one: "{{count}} update",
     updates_other: "{{count}} updates",
