@@ -3,6 +3,7 @@
 
 import { CurrentVersionError } from "../errors/current-version-error.js";
 import { deleteFileVersionRow } from "../../infrastructure/files/delete-file-version-row.js";
+import { lockFileRow } from "../../infrastructure/files/lock-file-row.js";
 import type {
   FileVersionDependencies,
   FileVersionRecord,
@@ -23,6 +24,9 @@ export const deleteFileVersion = async (
     db,
     userId,
     async (tx) => {
+      if (!(await lockFileRow(tx, fileId))) {
+        return { outcome: "not-found" };
+      }
       const source = await resolveVersionTarget(tx, fileId, versionId);
       if (source.outcome !== "found") {
         return source;
