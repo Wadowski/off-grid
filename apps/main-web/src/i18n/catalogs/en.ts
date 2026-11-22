@@ -650,6 +650,14 @@ export const en = {
     layout: {
       heading: "Files",
     },
+    drives: {
+      heading: "Drives",
+      nav: "Drives",
+      personal: "Personal",
+      family: "Family drives",
+      loading: "Loading drives...",
+      emptyFamily: "No family drives yet.",
+    },
     breadcrumbs: {
       label: "Folder path",
     },
