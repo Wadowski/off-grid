@@ -14,7 +14,7 @@ export const notificationsModalHeaderStyle: CSSProperties = {
 
 export const notificationsModalHandleStyle: CSSProperties = {
   width: tokens.space[10],
-  height: "4px",
+  height: tokens.space[1],
   borderRadius: cssVar("radius-full"),
   background: cssVar("color-line"),
 };
