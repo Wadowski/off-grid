@@ -12,6 +12,8 @@ const { When, Then } = createBdd(test);
 const PHONE_WIDTH = 375;
 const PHONE_HEIGHT = 812;
 const MODAL_TEST_ID = "notifications-modal";
+const PASSWORD_CHANGED_TITLE = "Your password was changed";
+const FILTER_LIST_PATTERN = /^("[^"]+"(?:(?:, | and )"[^"]+")*)$/;
 
 const annaOf = (world: ScenarioWorld): SignedInPerson => {
   const anna = world.people?.anna;
@@ -42,38 +44,49 @@ When("Anna opens the notifications modal from the bell on a phone", async ({ pag
   await openModalOnPhone(page, annaOf(world));
 });
 
-Then("the modal tells her she is all caught up", async ({ page }) => {
-  await expect(modalOf(page).getByTestId("notifications-empty-state")).toBeVisible();
-  await expect(modalOf(page).getByTestId("notification-card")).toHaveCount(0);
-});
+Then(
+  /^the notifications modal lists her (\d+) latest notices$/,
+  async ({ page }, count: string) => {
+    await expect(modalOf(page).getByTestId("notification-card")).toHaveCount(Number(count));
+  },
+);
 
-Then("the modal lists her latest notices", async ({ page }) => {
-  await expect(modalOf(page).getByTestId("notification-card").first()).toBeVisible();
-});
-
-Then(/^the modal offers the filters (.+)$/, async ({ page }, labels: string) => {
+Then(/^the notifications modal offers the filters (.+)$/, async ({ page }, labels: string) => {
+  expect(labels).toMatch(FILTER_LIST_PATTERN);
   for (const label of quotedNames(labels)) {
     await expect(filterChipOf(page, label)).toBeVisible();
   }
 });
 
-When(/^Anna selects the "([^"]+)" filter in the modal$/, async ({ page }, label: string) => {
-  await filterChipOf(page, label).click();
-});
+When(
+  /^Anna selects the "([^"]+)" filter in the notifications modal$/,
+  async ({ page }, label: string) => {
+    await filterChipOf(page, label).click();
+  },
+);
 
-Then("only the calendar notice is listed in the modal", async ({ page }) => {
+Then("only the calendar notice is listed in the notifications modal", async ({ page }) => {
   await expect(modalOf(page).getByTestId("notification-card")).toHaveCount(1);
 });
 
-When("Anna marks all notices as read in the modal", async ({ page }) => {
+Then("the password change notice is not listed in the notifications modal", async ({ page }) => {
+  await expect(modalOf(page).getByText(PASSWORD_CHANGED_TITLE)).toHaveCount(0);
+});
+
+When("Anna marks all notices as read in the notifications modal", async ({ page }) => {
   await modalOf(page).getByTestId("notifications-mark-all-read").click();
 });
 
-Then("the modal shows no unread notices", async ({ page }) => {
+Then("the notifications modal shows no unread notices", async ({ page }) => {
   await expect(modalOf(page).getByTestId("notification-card-unread-dot")).toHaveCount(0);
 });
 
-When("Anna chooses to view all notifications from the modal", async ({ page }) => {
+Then("the notifications modal tells her she is all caught up", async ({ page }) => {
+  await expect(modalOf(page).getByTestId("notifications-empty-state")).toBeVisible();
+  await expect(modalOf(page).getByTestId("notification-card")).toHaveCount(0);
+});
+
+When("Anna chooses to view all notifications from the notifications modal", async ({ page }) => {
   await modalOf(page).getByTestId("notifications-modal-view-all").click();
 });
 
@@ -82,11 +95,11 @@ Then("the full notifications page is shown", async ({ page }) => {
   await expect(page.getByTestId("notifications-page")).toBeVisible();
 });
 
-When("Anna closes the modal with its close button", async ({ page }) => {
+When("Anna closes the notifications modal with its close button", async ({ page }) => {
   await modalOf(page).getByTestId("notifications-modal-close").click();
 });
 
-When("Anna presses Escape", async ({ page }) => {
+When("Anna dismisses the notifications modal with the Escape key", async ({ page }) => {
   await page.keyboard.press("Escape");
 });
 
