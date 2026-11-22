@@ -2,12 +2,21 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, MaterialIcon, Text } from "@offgrid/ui";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import markUrl from "../../../../media/offgrid-mark-64.png";
+import { useIsNarrow } from "../../../../media/use-is-narrow.js";
 import { HeaderSearch } from "./components/header-search/header-search.js";
+import { HeaderBell } from "./components/header-bell/header-bell.js";
+import { surfaceForViewport } from "./components/header-bell/surface-for-viewport.js";
+import type { NotificationsSurface } from "./components/header-bell/types.js";
 
 export const AppHeader = () => {
   const { t } = useTranslation();
+  const isNarrow = useIsNarrow();
+  const [openSurface, setOpenSurface] = useState<NotificationsSurface | undefined>(undefined);
+  const toggleNotifications = () =>
+    setOpenSurface((current) => (current === undefined ? surfaceForViewport(isNarrow) : undefined));
 
   return (
     <header className="og-header">
@@ -20,9 +29,7 @@ export const AppHeader = () => {
           <MaterialIcon name="sync_saved_locally" size="16px" color="currentColor" />
           <Text variant="label" textId="shell.privateNode" />
         </span>
-        <Button variant="ghost" aria-label={t("shell.notifications")} disabled>
-          <MaterialIcon name="notifications" size="20px" color="currentColor" />
-        </Button>
+        <HeaderBell isOpen={openSurface !== undefined} onToggle={toggleNotifications} />
         <span className="og-header-apps">
           <Button variant="ghost" aria-label={t("shell.apps")} disabled>
             <MaterialIcon name="apps" size="20px" color="currentColor" />

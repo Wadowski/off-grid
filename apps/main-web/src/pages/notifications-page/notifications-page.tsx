@@ -4,7 +4,11 @@
 import { Text } from "@offgrid/ui";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
-import { browserTimeZone, groupByDay, useNotificationsInbox } from "../../notifications/index.js";
+import {
+  browserTimeZone,
+  groupByDay,
+  useNotificationsInboxContext,
+} from "../../notifications/index.js";
 import { useOpenNotice } from "../../notifications/use-open-notice.js";
 import { NotificationsBody } from "./components/notifications-body/notifications-body.js";
 import { NotificationsFilterBar } from "./components/notifications-filter-bar/notifications-filter-bar.js";
@@ -17,7 +21,7 @@ import { notificationsPageStyle } from "./styles.js";
 import type { NotificationsLayout } from "./types.js";
 
 export const NotificationsPage = () => {
-  const inbox = useNotificationsInbox();
+  const inbox = useNotificationsInboxContext();
   const openNotice = useOpenNotice(inbox.markRead);
   const leave = useLeaveNotifications();
   const isPhone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);

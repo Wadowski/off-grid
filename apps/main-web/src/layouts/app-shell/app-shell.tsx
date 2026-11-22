@@ -3,6 +3,7 @@
 
 import { Outlet, useOutletContext } from "react-router-dom";
 import { useCalendars } from "../../calendars/use-calendars.js";
+import { NotificationsInboxProvider } from "../../notifications/index.js";
 import { signOut } from "../../session/sign-out.js";
 import { useSession } from "../../session/use-session.js";
 import type { CurrentUser, FamiliesContext, ShellContext } from "../../types.js";
@@ -26,14 +27,20 @@ export const AppShell = () => {
   };
 
   return (
-    <div style={appShellStyle}>
-      <style>{appShellCss}</style>
-      <AppSidebar user={user} families={familiesState.families} onSignOut={() => void signOut()} />
-      <AppHeader />
-      <main className="og-shell-main">
-        <Outlet context={shellContext} />
-      </main>
-      <MobileTabBar />
-    </div>
+    <NotificationsInboxProvider>
+      <div style={appShellStyle}>
+        <style>{appShellCss}</style>
+        <AppSidebar
+          user={user}
+          families={familiesState.families}
+          onSignOut={() => void signOut()}
+        />
+        <AppHeader />
+        <main className="og-shell-main">
+          <Outlet context={shellContext} />
+        </main>
+        <MobileTabBar />
+      </div>
+    </NotificationsInboxProvider>
   );
 };

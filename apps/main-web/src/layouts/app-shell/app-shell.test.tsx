@@ -45,6 +45,8 @@ describe("app shell", () => {
     expect(screen.getByRole("banner")).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(screen.getByTestId("app-nav")).toBeInTheDocument();
+    expect(screen.getByTestId("header-bell")).toBeEnabled();
+    expect(screen.getByTestId("header-bell")).toHaveAccessibleName("Notifications");
 
     const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
 

@@ -177,7 +177,6 @@ Then("I see the create account link", async ({ page }) => {
 
 Then("I do not see the create account link", async ({ page }) => {
   await registrationStatusResponses.get(page);
-  await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("sign-in-submit")).toBeVisible();
   await expect(page.getByTestId("create-account-link")).toHaveCount(0);
   await captureScreen(page, "registration closed", FEATURE);
