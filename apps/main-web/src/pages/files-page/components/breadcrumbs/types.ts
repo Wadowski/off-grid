@@ -7,4 +7,5 @@ export type BreadcrumbsProps = {
   readonly driveId: Drive["id"];
   readonly breadcrumbs: readonly Breadcrumb[];
   readonly isBusy: boolean;
+  readonly phone: boolean;
 };
