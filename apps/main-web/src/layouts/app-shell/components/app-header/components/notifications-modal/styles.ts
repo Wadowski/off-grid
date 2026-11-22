@@ -3,6 +3,7 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import { NOTIFICATIONS_MODAL_MAX_HEIGHT } from "./constants.js";
 
 const TAB_BAR_CLEARANCE = `calc(${tokens.space[10]} * 2 + env(safe-area-inset-bottom, 0px))`;
 
@@ -14,7 +15,7 @@ export const notificationsModalDialogStyle: CSSProperties = {
   left: tokens.space[8],
   width: "auto",
   maxWidth: "none",
-  maxHeight: "82dvh",
+  maxHeight: NOTIFICATIONS_MODAL_MAX_HEIGHT,
   margin: 0,
   padding: 0,
   border: "none",
@@ -27,7 +28,7 @@ export const notificationsModalDialogStyle: CSSProperties = {
 export const notificationsModalSheetStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  maxHeight: "82dvh",
+  maxHeight: NOTIFICATIONS_MODAL_MAX_HEIGHT,
   minHeight: 0,
 };
 
