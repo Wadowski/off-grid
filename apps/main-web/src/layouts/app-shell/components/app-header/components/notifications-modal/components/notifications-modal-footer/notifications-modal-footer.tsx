@@ -7,7 +7,13 @@ import type { NotificationsModalFooterProps } from "./types.js";
 
 export const NotificationsModalFooter = ({ onViewAll }: NotificationsModalFooterProps) => (
   <div style={notificationsModalFooterStyle}>
-    <Button type="button" variant="primary" fullWidth onClick={onViewAll} data-testid="notifications-modal-view-all">
+    <Button
+      type="button"
+      variant="primary"
+      fullWidth
+      onClick={onViewAll}
+      data-testid="notifications-modal-view-all"
+    >
       <Text variant="action" textId="notifications.modal.viewAll" />
       <MaterialIcon name="arrow_forward" size="18px" color="currentColor" />
     </Button>

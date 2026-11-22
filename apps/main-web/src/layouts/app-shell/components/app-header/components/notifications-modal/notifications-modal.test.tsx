@@ -6,7 +6,10 @@ import axe from "axe-core";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NotificationsInboxContext } from "../../../../../../notifications/inbox-context/notifications-inbox-context.js";
-import type { NotificationItem, NotificationsInbox } from "../../../../../../notifications/inbox-store/types.js";
+import type {
+  NotificationItem,
+  NotificationsInbox,
+} from "../../../../../../notifications/inbox-store/types.js";
 import { INBOX_PAGE_SIZE } from "../../../../../../notifications/inbox-store/constants.js";
 import { NotificationsModal } from "./notifications-modal.js";
 
@@ -55,7 +58,8 @@ const renderModal = (inbox: NotificationsInbox, onClose = vi.fn()) =>
     </NotificationsInboxContext.Provider>,
   );
 
-const dialogOf = (): HTMLDialogElement => screen.getByTestId("notifications-modal") as HTMLDialogElement;
+const dialogOf = (): HTMLDialogElement =>
+  screen.getByTestId("notifications-modal") as HTMLDialogElement;
 
 const closeDialog = (): void => {
   const dialog = dialogOf();
@@ -90,7 +94,13 @@ describe("NotificationsModal", () => {
   });
 
   it("lists at most the first page and offers no load-more control", () => {
-    renderModal(inboxWith({ items: noticesOf(INBOX_PAGE_SIZE + 5), total: INBOX_PAGE_SIZE + 5, nextCursor: "next" }));
+    renderModal(
+      inboxWith({
+        items: noticesOf(INBOX_PAGE_SIZE + 5),
+        total: INBOX_PAGE_SIZE + 5,
+        nextCursor: "next",
+      }),
+    );
 
     expect(screen.getAllByTestId("notification-card")).toHaveLength(INBOX_PAGE_SIZE);
     expect(screen.queryByTestId("notifications-load-older")).toBeNull();
@@ -177,7 +187,9 @@ describe("NotificationsModal", () => {
   it("shows the empty state when there are no notices", () => {
     renderModal(inboxWith({ items: [], unreadCount: 0, total: 0 }));
 
-    expect(screen.getByTestId("notifications-modal-empty")).toHaveTextContent("You are all caught up");
+    expect(screen.getByTestId("notifications-modal-empty")).toHaveTextContent(
+      "You are all caught up",
+    );
   });
 
   it("shows the load error and retries through reload", () => {

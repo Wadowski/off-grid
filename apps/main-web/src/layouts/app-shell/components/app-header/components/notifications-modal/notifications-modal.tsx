@@ -16,7 +16,11 @@ import { NOTIFICATIONS_MODAL_TITLE_ID } from "./constants.js";
 import { NotificationsModalFooter } from "./components/notifications-modal-footer/notifications-modal-footer.js";
 import { NotificationsModalHeader } from "./components/notifications-modal-header/notifications-modal-header.js";
 import { NotificationsModalList } from "./components/notifications-modal-list/notifications-modal-list.js";
-import { notificationsModalDialogStyle, notificationsModalSheetStyle } from "./styles.js";
+import {
+  notificationsModalChipsStyle,
+  notificationsModalDialogStyle,
+  notificationsModalSheetStyle,
+} from "./styles.js";
 import type { NotificationsModalProps } from "./types.js";
 
 export const NotificationsModal = ({ onClose }: NotificationsModalProps) => {
@@ -51,12 +55,14 @@ export const NotificationsModal = ({ onClose }: NotificationsModalProps) => {
           onMarkAllRead={() => void inbox.markAllRead()}
           onClose={closeSheet}
         />
-        <NotificationsFilterBar
-          layout="phone"
-          selectedOption={optionForFilters(inbox.filters)}
-          totalForSelected={inbox.total}
-          onSelect={(option) => inbox.setFilters(filterForOption(option))}
-        />
+        <div style={notificationsModalChipsStyle}>
+          <NotificationsFilterBar
+            layout="phone"
+            selectedOption={optionForFilters(inbox.filters)}
+            totalForSelected={inbox.total}
+            onSelect={(option) => inbox.setFilters(filterForOption(option))}
+          />
+        </div>
         <NotificationsModalList inbox={inbox} onOpen={openFromSheet} />
         <NotificationsModalFooter onViewAll={viewAll} />
       </div>

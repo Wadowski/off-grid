@@ -23,7 +23,11 @@ export const NotificationsModalHeader = ({
     <div style={notificationsModalHeaderStyle}>
       <span style={notificationsModalHandleStyle} aria-hidden="true" />
       <div style={notificationsModalTitleRowStyle}>
-        <Text variant="heading" textId="notifications.page.heading" id={NOTIFICATIONS_MODAL_TITLE_ID} />
+        <Text
+          variant="heading"
+          textId="notifications.page.heading"
+          id={NOTIFICATIONS_MODAL_TITLE_ID}
+        />
         <div style={notificationsModalActionsStyle}>
           <NotificationsMarkAllReadButton unreadCount={unreadCount} onMarkAllRead={onMarkAllRead} />
           <Button

@@ -30,3 +30,8 @@ export const notificationsModalSheetStyle: CSSProperties = {
   maxHeight: "82dvh",
   minHeight: 0,
 };
+
+export const notificationsModalChipsStyle: CSSProperties = {
+  padding: `${tokens.space[1]} ${tokens.space[4]} ${tokens.space[3]}`,
+  minWidth: 0,
+};
