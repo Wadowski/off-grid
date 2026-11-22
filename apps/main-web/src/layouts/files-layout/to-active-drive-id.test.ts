@@ -32,6 +32,10 @@ describe("toActiveDriveId", () => {
     expect(toActiveDriveId(undefined, [FAMILY, PERSONAL])).toBe(PERSONAL.id);
   });
 
+  it("returns null for a route drive id that is not valid", () => {
+    expect(toActiveDriveId("not-a-drive", [PERSONAL, FAMILY])).toBeNull();
+  });
+
   it("returns null on the Files index when no drives are loaded", () => {
     expect(toActiveDriveId(undefined, [])).toBeNull();
   });
