@@ -2,20 +2,17 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Dialog } from "@offgrid/ui";
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   filterForOption,
   NotificationsFilterBar,
   optionForFilters,
   useNotificationsInboxContext,
-  useOpenNotice,
 } from "../../../../../../notifications/index.js";
-import type { NotificationItem } from "../../../../../../notifications/index.js";
 import { NOTIFICATIONS_MODAL_TITLE_ID } from "./constants.js";
-import { NotificationsModalFooter } from "./components/notifications-modal-footer/notifications-modal-footer.js";
 import { NotificationsModalHeader } from "./components/notifications-modal-header/notifications-modal-header.js";
-import { NotificationsModalList } from "./components/notifications-modal-list/notifications-modal-list.js";
+import { NotificationsSurfaceFooter } from "../notifications-surface/components/notifications-surface-footer/notifications-surface-footer.js";
+import { NotificationsSurfaceList } from "../notifications-surface/components/notifications-surface-list/notifications-surface-list.js";
+import { useNotificationsSurface } from "../notifications-surface/use-notifications-surface.js";
 import {
   notificationsModalChipsStyle,
   notificationsModalDialogStyle,
@@ -24,21 +21,8 @@ import {
 import type { NotificationsModalProps } from "./types.js";
 
 export const NotificationsModal = ({ onClose }: NotificationsModalProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const navigate = useNavigate();
+  const { dialogRef, openFromSurface, viewAll } = useNotificationsSurface();
   const inbox = useNotificationsInboxContext();
-  const openNotice = useOpenNotice(inbox.markRead);
-  const closeSheet = () => dialogRef.current?.close();
-  const openFromSheet = async (notice: NotificationItem) => {
-    await openNotice(notice);
-    if (notice.data.eventId !== undefined) {
-      closeSheet();
-    }
-  };
-  const viewAll = () => {
-    navigate("/notifications");
-    closeSheet();
-  };
   return (
     <Dialog
       dialogRef={dialogRef}
@@ -53,7 +37,7 @@ export const NotificationsModal = ({ onClose }: NotificationsModalProps) => {
         <NotificationsModalHeader
           unreadCount={inbox.unreadCount}
           onMarkAllRead={() => void inbox.markAllRead()}
-          onClose={closeSheet}
+          onClose={() => dialogRef.current?.close()}
         />
         <div style={notificationsModalChipsStyle}>
           <NotificationsFilterBar
@@ -63,8 +47,13 @@ export const NotificationsModal = ({ onClose }: NotificationsModalProps) => {
             onSelect={(option) => inbox.setFilters(filterForOption(option))}
           />
         </div>
-        <NotificationsModalList inbox={inbox} onOpen={openFromSheet} />
-        <NotificationsModalFooter onViewAll={viewAll} />
+        <NotificationsSurfaceList inbox={inbox} onOpen={openFromSurface} />
+        <NotificationsSurfaceFooter
+          onViewAll={viewAll}
+          variant="primary"
+          testId="notifications-modal-view-all"
+          textId="notifications.modal.viewAll"
+        />
       </div>
     </Dialog>
   );

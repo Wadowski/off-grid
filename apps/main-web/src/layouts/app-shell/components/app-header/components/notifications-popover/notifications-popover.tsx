@@ -2,43 +2,28 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Dialog } from "@offgrid/ui";
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   filterForOption,
   NotificationsFilterBar,
   optionForFilters,
   useNotificationsInboxContext,
-  useOpenNotice,
 } from "../../../../../../notifications/index.js";
-import type { NotificationItem } from "../../../../../../notifications/index.js";
-import { NOTIFICATIONS_POPOVER_TITLE_ID } from "./constants.js";
-import { NotificationsPopoverFooter } from "./components/notifications-popover-footer/notifications-popover-footer.js";
+import { NOTIFICATIONS_POPOVER_LIMIT, NOTIFICATIONS_POPOVER_TITLE_ID } from "./constants.js";
 import { NotificationsPopoverHeader } from "./components/notifications-popover-header/notifications-popover-header.js";
-import { NotificationsPopoverList } from "./components/notifications-popover-list/notifications-popover-list.js";
+import { NotificationsSurfaceFooter } from "../notifications-surface/components/notifications-surface-footer/notifications-surface-footer.js";
+import { NotificationsSurfaceList } from "../notifications-surface/components/notifications-surface-list/notifications-surface-list.js";
+import { useNotificationsSurface } from "../notifications-surface/use-notifications-surface.js";
 import {
   notificationsPopoverChipsStyle,
   notificationsPopoverDialogStyle,
+  notificationsPopoverFooterStyle,
   notificationsPopoverSheetStyle,
 } from "./styles.js";
 import type { NotificationsPopoverProps } from "./types.js";
 
 export const NotificationsPopover = ({ onClose }: NotificationsPopoverProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const navigate = useNavigate();
+  const { dialogRef, openFromSurface, viewAll } = useNotificationsSurface();
   const inbox = useNotificationsInboxContext();
-  const openNotice = useOpenNotice(inbox.markRead);
-  const closePopover = () => dialogRef.current?.close();
-  const openFromPopover = async (notice: NotificationItem) => {
-    await openNotice(notice);
-    if (notice.data.eventId !== undefined) {
-      closePopover();
-    }
-  };
-  const viewAll = () => {
-    navigate("/notifications");
-    closePopover();
-  };
   return (
     <Dialog
       dialogRef={dialogRef}
@@ -62,8 +47,18 @@ export const NotificationsPopover = ({ onClose }: NotificationsPopoverProps) => 
             onSelect={(option) => inbox.setFilters(filterForOption(option))}
           />
         </div>
-        <NotificationsPopoverList inbox={inbox} onOpen={openFromPopover} />
-        <NotificationsPopoverFooter onViewAll={viewAll} />
+        <NotificationsSurfaceList
+          inbox={inbox}
+          onOpen={openFromSurface}
+          limit={NOTIFICATIONS_POPOVER_LIMIT}
+        />
+        <NotificationsSurfaceFooter
+          onViewAll={viewAll}
+          variant="secondary"
+          testId="notifications-popover-view-all"
+          textId="notifications.popover.viewAll"
+          style={notificationsPopoverFooterStyle}
+        />
       </div>
     </Dialog>
   );

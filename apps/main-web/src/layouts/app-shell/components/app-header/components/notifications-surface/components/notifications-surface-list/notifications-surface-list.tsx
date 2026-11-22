@@ -8,21 +8,24 @@ import {
   NotificationsErrorState,
   sliceFirstPage,
 } from "../../../../../../../../notifications/index.js";
-import { NOTIFICATIONS_POPOVER_LIMIT } from "../../constants.js";
 import {
-  notificationsPopoverCardRowStyle,
-  notificationsPopoverListStyle,
-  notificationsPopoverStateStyle,
-} from "./styles.js";
-import type { NotificationsPopoverListProps } from "./types.js";
+  notificationsSurfaceCardRowStyle,
+  notificationsSurfaceListStyle,
+  notificationsSurfaceStateStyle,
+} from "../../styles.js";
+import type { NotificationsSurfaceListProps } from "./types.js";
 
-export const NotificationsPopoverList = ({ inbox, onOpen }: NotificationsPopoverListProps) => {
+export const NotificationsSurfaceList = ({
+  inbox,
+  onOpen,
+  limit,
+}: NotificationsSurfaceListProps) => {
   if (inbox.status === "error" && inbox.errorKind === "load") {
     return <NotificationsErrorState layout="sheet" onRetry={() => void inbox.reload()} />;
   }
   if (inbox.status === "loading" && inbox.items.length === 0) {
     return (
-      <div style={notificationsPopoverStateStyle}>
+      <div style={notificationsSurfaceStateStyle}>
         <Text variant="status" textId="notifications.page.loading" role="status" />
       </div>
     );
@@ -31,12 +34,12 @@ export const NotificationsPopoverList = ({ inbox, onOpen }: NotificationsPopover
     return <NotificationsEmptyState layout="sheet" />;
   }
   return (
-    <div style={notificationsPopoverListStyle}>
+    <div style={notificationsSurfaceListStyle}>
       {inbox.errorKind === "stream" ? (
         <Text variant="status" textId="notifications.liveUpdatesUnavailable" />
       ) : null}
-      {sliceFirstPage(inbox.items, NOTIFICATIONS_POPOVER_LIMIT).map((notice) => (
-        <div key={notice.id} style={notificationsPopoverCardRowStyle}>
+      {sliceFirstPage(inbox.items, limit).map((notice) => (
+        <div key={notice.id} style={notificationsSurfaceCardRowStyle}>
           <NotificationCard
             notice={notice}
             density="compact"

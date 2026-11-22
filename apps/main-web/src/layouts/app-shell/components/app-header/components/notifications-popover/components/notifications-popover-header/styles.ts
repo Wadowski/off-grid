@@ -3,12 +3,9 @@
 
 import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import { notificationsSurfaceTitleRowStyle } from "../../../notifications-surface/styles.js";
 
 export const notificationsPopoverHeaderStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: tokens.space[2],
+  ...notificationsSurfaceTitleRowStyle,
   padding: `${tokens.space[3]} ${tokens.space[4]} 0`,
-  minWidth: 0,
 };
