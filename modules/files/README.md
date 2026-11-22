@@ -57,7 +57,7 @@ Owner: module team (files)
 - Breadcrumbs always start with the drive (`kind: "drive"`). A drive listing has only the drive crumb. A folder listing has the drive and then each folder from the root down to and including the listed folder. File details have the drive and then the ancestors, without the file itself.
 - The ancestor walk reads one parent per query and stops at 256 levels, answering 404 when a parent is missing, trashed or invisible.
 - Responses never include bytes, `storage_key`, checksums or versions beyond `version` and `currentVersionId`. Regular file sizes are numbers, and a size above the safe integer range fails the response.
-- Not in this route set yet: trash, restore, version downloads and the current file download (OG-116 and OG-117), the trash listing, the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
+- Not in this route set yet: trash and the trash listing (OG-117), the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
 
 ## Organising API
 
@@ -84,6 +84,14 @@ Owner: module team (files)
 - The event carries the file id, drive, owner, name, mime type, size and version, never the storage key, path or checksum.
 - Tests: the stream limiter and the mime resolver are unit tested in `domain/files`; `upload-file.integration.test.ts` covers the application flow against real Postgres; `register-upload-file.integration.test.ts` covers the route; `test/upload-memory-budget.integration.test.ts` streams 512 MiB through the disk adapter and asserts the heap growth stays under 64 MiB.
 
+## Download API
+
+- `GET /files/:id/content` sends the bytes of the current version, and `GET /files/:id/versions/:versionId/content` sends the bytes of one version. Both answer 200 with the whole body, or 206 for a byte range. The version route answers 404 for a version of another file.
+- A `Range` header is honoured only in its single-range forms `bytes=a-b`, `bytes=a-` and `bytes=-n`. A malformed header, another unit or several ranges are ignored and the whole file is sent. A range outside the file answers 416 `RANGE_NOT_SATISFIABLE` with `Content-Range: bytes */size`.
+- The query `disposition` is `attachment` by default. `inline` is honoured only for `image/png`, `image/jpeg`, `image/gif`, `image/webp` and `application/pdf`. Every other type is an attachment sent as `application/octet-stream`, so a stored HTML or SVG file is never rendered. An inline image is sent with `Content-Security-Policy: default-src 'none'; sandbox`, and an inline PDF with the viewer policy. See [ADR 0040](../../docs/adr/0040-safe-headers-and-inline-preview-for-file-content.md).
+- Every success carries `Content-Length`, `Content-Type`, `Content-Disposition` (an ASCII `filename` and an RFC 5987 `filename*`), `X-Content-Type-Options: nosniff`, `Cache-Control: private, no-store` and `Accept-Ranges: bytes`.
+- Answers 400 `IS_FOLDER` for a folder, 400 `VALIDATION_FAILED` for a bad id, query or disposition, 401, and 404 for a file or version the caller cannot see (hidden, trashed, unknown) or whose bytes are missing from storage. The bytes are streamed after the database transaction closes. Names, storage keys and checksums are never logged.
+
 ## File versions API
 
 - `GET /files/:id/versions` lists the versions of a regular file, newest first (number descending), as `FileVersionList`. Each version has `id`, `fileId`, `number`, `size`, `mimeType`, `createdByUserId` and `createdAt`. Answers 200, 400 `IS_FOLDER` for a folder, 401, and 404 for a file the caller cannot see (hidden, trashed, unknown).
@@ -92,10 +100,10 @@ Owner: module team (files)
 - `DELETE /files/:id/versions/:versionId` removes a version that is not current. Its row is deleted, and its bytes are deleted after the commit. It answers 204 and publishes no event. Deleting the current version answers 409 `CURRENT_VERSION` and removes nothing. Hidden, trashed, unknown and other-file ids answer 404, never 403.
 - Order of operations for an upload: (a) a read transaction checks that the file is live, visible and not a folder, so a hidden file never writes bytes; (b) `storeLimitedUpload` streams the limited body to the storage port; (c) one write transaction locks the file row, re-checks it, computes the next number, inserts the version, updates the file and publishes the event; (d) if (b) succeeded and (c) fails or finds the file gone, the stored bytes are deleted. Concurrent uploads to one file serialise on the file row, so they get distinct numbers.
 - Order of operations for a restore: a read transaction finds the source version; the bytes are copied outside a transaction; one write transaction re-checks the source and appends the copy as a new version; if the copy or the write fails, the copied bytes are deleted.
-- Version responses never carry `storage_key`, `sha256` or the storage path. Downloads of a version belong to OG-116.
+- Version responses never carry `storage_key`, `sha256` or the storage path. Downloads of a version are described in the Download API section.
 
 ## Contracts
 
-- Serves the browse, organising, upload and file versions routes above from `filesRoutes` in `@offgrid/contracts`. The rest of `filesRoutes` (trash, downloads and resumable uploads) comes with its issues.
+- Serves the browse, organising, upload, file versions and download routes above from `filesRoutes` in `@offgrid/contracts`. The rest of `filesRoutes` (trash and resumable uploads) comes with its issues.
 - Publishes `drive-created-v1` when a drive is created (see Drive creation above), and `file-created-v1`, `file-updated-v1` and `file-removed-v1` for the organising routes, with the payloads defined in `@offgrid/contracts`. The payloads carry ids, owners and versions. Created and updated file events also carry the name. No event carries file contents, storage keys, paths or checksums ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md), [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)).
 - The outbox writes for these events are in the same transaction as the change they describe. Projection consumers of these events, and their replay, idempotency and dead-letter tests, belong to the issues that consume them.
