@@ -54,3 +54,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0037](0037-cross-owner-move-copy-and-removal.md)                   | Cross-owner moves copy the subtree and remove the source, with an entry limit                    | Accepted                  |
 | [0038](0038-streamed-upload-request-shape.md)                       | Uploads send the raw file bytes with the name and parent in headers                              | Accepted                  |
 | [0039](0039-delete-non-current-version-and-restore-copies-bytes.md) | Delete a non-current file version, and a restore copies the bytes                                | Accepted                  |
+| [0040](0040-safe-headers-and-inline-preview-for-file-content.md)    | Safe headers and inline preview for file content                                                 | Accepted                  |
