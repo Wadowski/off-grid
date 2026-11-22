@@ -2,11 +2,17 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { randomUUID } from "node:crypto";
+import { createInMemoryFileStorage } from "@offgrid/file-storage";
 import { withUserContext } from "@offgrid/db";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { startFilesTestDatabase } from "./start-files-test-database.js";
 import { seedFamilyDrive } from "./family-membership.js";
 import type { FilesTestDatabase } from "./types.js";
+import { bodyOf, storedKeys } from "./version-fixtures.js";
+import { deleteFileVersion } from "../src/application/files/delete-file-version.js";
+import { listFileVersions } from "../src/application/files/list-file-versions.js";
+import { restoreFileVersion } from "../src/application/files/restore-file-version.js";
+import { uploadFileVersion } from "../src/application/files/upload-file-version.js";
 
 describe("files family isolation", { timeout: 60_000 }, () => {
   let db: FilesTestDatabase;
@@ -76,5 +82,36 @@ describe("files family isolation", { timeout: 60_000 }, () => {
 
     expect(drives).toEqual([]);
     expect(files).toEqual([]);
+  });
+  it("answers not-found for a family file's versions to an outsider and to an ex-member", async () => {
+    const family = await seedFamilyDrive(db.admin, familyA, "Alpha");
+    const storage = createInMemoryFileStorage();
+    const dependencies = { db: db.db, storage, maxUploadBytes: 1024 };
+    const notFound = { outcome: "not-found" };
+    const checkNotVisible = async (userId: string) => {
+      expect(await listFileVersions(db.db, userId, family.fileId)).toEqual(notFound);
+      expect(
+        await uploadFileVersion(dependencies, userId, {
+          fileId: family.fileId,
+          declaredMimeType: null,
+          body: bodyOf("intruder"),
+          signal: new AbortController().signal,
+        }),
+      ).toEqual(notFound);
+      expect(
+        await restoreFileVersion(dependencies, userId, family.fileId, family.versionId),
+      ).toEqual(notFound);
+      expect(
+        await deleteFileVersion(dependencies, userId, family.fileId, family.versionId),
+      ).toEqual(notFound);
+    };
+
+    await checkNotVisible(ben);
+    await db.admin.query(
+      "UPDATE files.family_membership SET source_version = 2, is_member = false WHERE family_id = $1 AND user_id = $2",
+      [familyA, anna],
+    );
+    await checkNotVisible(anna);
+    expect(await storedKeys(storage)).toEqual([]);
   });
 });
