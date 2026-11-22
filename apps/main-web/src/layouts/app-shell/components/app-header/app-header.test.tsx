@@ -49,7 +49,7 @@ const stubNarrow = (initiallyNarrow: boolean) => {
       addListener: () => undefined,
       removeListener: () => undefined,
       dispatchEvent: () => false,
-    }) as MediaQueryList;
+    }) as unknown as MediaQueryList;
   return (nextNarrow: boolean) => {
     narrow = nextNarrow;
     act(() => listeners.forEach((listener) => listener()));
