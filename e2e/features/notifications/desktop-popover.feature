@@ -22,6 +22,8 @@ Feature: Notifications popover on a desktop
     When Anna opens the notifications popover from the bell on a desktop screen
     Then the notifications popover lists her 5 latest notices
 
+  # The popover shares the filter bar and inbox store with the notifications page. Filtering
+  # by "Unread" and "Account & security" is covered there by "Filter the inbox by source or read state".
   Scenario: The notifications popover offers the four filters
     Given Anna is signed in
     And Anna belongs to a family of her own
@@ -39,7 +41,7 @@ Feature: Notifications popover on a desktop
   Scenario: Filtering the notifications popover by calendar lists only calendar notices
     Given Anna is signed in
     And Tom and Anna share a family
-    And she has 1 unread calendar invitations from Tom
+    And she has 1 unread calendar invitation from Tom
     And she has a password change notice
     When Anna opens the notifications popover from the bell on a desktop screen
     And Anna selects the "Calendar" filter in the notifications popover
@@ -62,6 +64,7 @@ Feature: Notifications popover on a desktop
     And Anna chooses to view all notifications from the notifications popover
     Then the full notifications page is shown
 
+  @a11y
   Scenario: The Escape key dismisses the notifications popover and returns focus to the bell
     Given Anna is signed in
     And Anna belongs to a family of her own
