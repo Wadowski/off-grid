@@ -207,9 +207,13 @@ Then("Anna sees the folder not found view", async ({ page }) => {
   await expect(page.getByTestId("folder-not-found")).toBeVisible();
 });
 
+const waitForFolderContents = (page: Page): Promise<void> =>
+  expect(page.getByTestId("files-folder-contents")).toBeVisible();
+
 const openOnPhone = async (page: Page, path: string): Promise<void> => {
   await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
   await page.goto(`${webBaseUrl()}${path}`);
+  await waitForFolderContents(page);
 };
 
 const personalDriveOf = async (world: ScenarioWorld) => {
@@ -271,6 +275,7 @@ When(
   async ({ page, world }, name: string) => {
     await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
     await openFolderInBrowser(page, world, name);
+    await waitForFolderContents(page);
   },
 );
 
