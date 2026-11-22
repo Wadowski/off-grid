@@ -150,6 +150,9 @@ export interface NewFolderInput {
 export interface FileUpdateInput {
   readonly name?: string;
   readonly parentId?: string | null;
+  readonly sizeBytes?: bigint;
+  readonly mimeType?: string;
+  readonly currentVersionId?: string;
   readonly updatedAt: Date;
 }
 
@@ -258,4 +261,61 @@ export interface NewRegularFileInput {
   readonly sizeBytes: bigint;
   readonly currentVersionId: string;
   readonly owner: FileOwner;
+}
+
+export interface FileVersionSummary {
+  readonly versionId: string;
+  readonly fileId: string;
+  readonly number: number;
+  readonly sizeBytes: bigint;
+  readonly mimeType: string;
+  readonly createdByUserId: string;
+  readonly createdAt: Date;
+}
+
+export interface RegularFileTarget {
+  readonly file: FileRecord;
+  readonly owner: FileOwner;
+}
+
+export type RegularFileOutcome<Value> =
+  | { readonly outcome: "found"; readonly value: Value }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "folder" };
+
+export interface UploadFileVersionInput {
+  readonly fileId: string;
+  readonly declaredMimeType: string | null;
+  readonly body: AsyncIterable<Uint8Array>;
+  readonly signal: AbortSignal;
+}
+
+export interface RecordFileVersionInput {
+  readonly fileId: string;
+  readonly userId: string;
+  readonly declaredMimeType: string | null;
+  readonly stored: StoredObject;
+}
+
+export interface FileVersionDependencies {
+  readonly db: ModuleDatabase;
+  readonly storage: FileStorage;
+}
+
+export interface VersionTarget {
+  readonly target: RegularFileTarget;
+  readonly version: FileVersionRecord;
+}
+
+export interface NewVersionContent {
+  readonly storageKey: string;
+  readonly sizeBytes: bigint;
+  readonly mimeType: string;
+  readonly sha256: string;
+}
+
+export interface AppendFileVersionInput {
+  readonly target: RegularFileTarget;
+  readonly createdByUserId: string;
+  readonly content: NewVersionContent;
 }

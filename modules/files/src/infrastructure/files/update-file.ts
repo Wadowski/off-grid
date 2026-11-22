@@ -15,6 +15,9 @@ export const updateFile = async (
     data: {
       name: input.name,
       parentId: input.parentId,
+      sizeBytes: input.sizeBytes,
+      mimeType: input.mimeType,
+      currentVersionId: input.currentVersionId,
       updatedAt: input.updatedAt,
       version: { increment: 1 },
     },

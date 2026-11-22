@@ -7,11 +7,10 @@ import type {
   UploadFileDependencies,
   UploadFileInput,
 } from "../../types.js";
-import { limitUploadStream } from "../../domain/files/limit-upload-stream.js";
-import { UploadTooLargeError } from "../errors/upload-too-large-error.js";
 import { checkUploadTarget } from "./check-upload-target.js";
 import { deleteStoredBytes } from "./delete-stored-bytes.js";
 import { recordUploadedFile } from "./record-uploaded-file.js";
+import { storeLimitedUpload } from "./store-limited-upload.js";
 
 export const uploadFile = async (
   dependencies: UploadFileDependencies,
@@ -22,12 +21,7 @@ export const uploadFile = async (
   if (!(await checkUploadTarget(db, userId, upload))) {
     return { outcome: "not-found" };
   }
-  const limitedBody = limitUploadStream(
-    upload.body,
-    maxUploadBytes,
-    () => new UploadTooLargeError(),
-  );
-  const stored = await storage.put(limitedBody, { signal: upload.signal });
+  const stored = await storeLimitedUpload(storage, maxUploadBytes, upload.body, upload.signal);
   const outcome = await recordUploadedFile(db, userId, { ...upload, stored }).catch(
     async (error: unknown) => {
       await deleteStoredBytes(storage, [stored.key]);
