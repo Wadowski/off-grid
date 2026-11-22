@@ -20,3 +20,5 @@ export type FileItem = { id: string; name: string; isFolder: boolean; parentId: 
 export type FileVersionEntry = { id: string; number: number };
 
 export type Container = { kind: "drive" | "folder"; id: string };
+
+export type DownloadResponse = { status: number; headers: Record<string, string>; body: string };

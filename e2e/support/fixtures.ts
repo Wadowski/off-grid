@@ -8,7 +8,7 @@ import { targetBaseUrl } from "./stack.js";
 import { captureScreen, isScreenUrl, screenNameFor, screenshotsEnabled } from "./screenshots.js";
 import { scenarioClientAddress } from "./scenario-client-address.js";
 import type { Family } from "./factories/family.js";
-import type { FilesWorld } from "./factories/types.js";
+import type { DownloadResponse, FilesWorld } from "./factories/types.js";
 import type { RegistrationResult } from "./factories/identity.js";
 import type { JsonResponse, Member, Session } from "./factories/instance-admin.js";
 import type { NotificationList, SignedInPerson } from "./factories/notifications.js";
@@ -35,6 +35,7 @@ export type ScenarioWorld = {
   memberAccessToken?: string;
   member?: Member;
   response?: JsonResponse;
+  download?: DownloadResponse;
   issuedCode?: string;
   invitationCode?: string;
   invitationId?: string;
