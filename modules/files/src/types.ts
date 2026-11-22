@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { Readable } from "node:stream";
 import type { FileStorage, StoredObject } from "@offgrid/file-storage";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
@@ -330,6 +331,31 @@ export interface ContentHeadersInput {
   readonly sizeBytes: number;
   readonly span: ByteSpan | null;
 }
+
+export interface FileContentDependencies {
+  readonly db: ModuleDatabase;
+  readonly storage: FileStorage;
+}
+
+export interface OpenContentRequest {
+  readonly fileId: string;
+  readonly versionId: string | null;
+  readonly rangeHeader: string | undefined;
+}
+
+export interface OpenedContent {
+  readonly fileName: string;
+  readonly mediaType: string;
+  readonly sizeBytes: number;
+  readonly span: ByteSpan | null;
+  readonly stream: Readable;
+}
+
+export type OpenContentOutcome =
+  | { readonly outcome: "found"; readonly value: OpenedContent }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "folder" }
+  | { readonly outcome: "range-not-satisfiable"; readonly sizeBytes: number };
 
 export interface AppendFileVersionInput {
   readonly target: RegularFileTarget;

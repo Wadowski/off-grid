@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FileRecord } from "../../types.js";
-import { toByteSize } from "./to-byte-size.js";
+import { toByteSize } from "../../domain/files/to-byte-size.js";
 
 export const toFile = (record: FileRecord) => {
   const entry = {
