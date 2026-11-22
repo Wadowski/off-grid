@@ -12,10 +12,10 @@ import {
   regenerateOwnRecoveryCode,
   signedInPerson,
   waitForOwnNotifications,
-  type SignedInPerson,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 import { signInThroughUi } from "../support/web-session.js";
+import type { SignedInPerson } from "../support/factories/notifications.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -43,8 +43,6 @@ const createNoticeForAnna = async (world: ScenarioWorld): Promise<void> => {
   expect(response.status(), "Anna could not get a new notice").toBe(201);
 };
 
-// Inviting a guest needs the family sharing to be visible to the calendar, which
-// can lag the join by a moment, so a 400 is retried briefly before it counts as a failure.
 const inviteOnceShared = async (
   api: APIRequestContext,
   host: SignedInPerson,
