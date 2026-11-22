@@ -14,6 +14,7 @@ export const filesRoutes = {
   fileTrash: "/files/:id/trash",
   fileRestore: "/files/:id/restore",
   fileVersions: "/files/:id/versions",
+  fileVersion: "/files/:id/versions/:versionId",
   fileVersionContent: "/files/:id/versions/:versionId/content",
   fileVersionRestore: "/files/:id/versions/:versionId/restore",
   uploads: "/uploads",

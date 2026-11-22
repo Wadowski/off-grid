@@ -105,6 +105,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/files/{id}/restore",
       "/files/{id}/trash",
       "/files/{id}/versions",
+      "/files/{id}/versions/{versionId}",
       "/files/{id}/versions/{versionId}/content",
       "/files/{id}/versions/{versionId}/restore",
       "/links",
