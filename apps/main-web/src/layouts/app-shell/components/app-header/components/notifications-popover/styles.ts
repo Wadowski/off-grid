@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import {
   NOTIFICATIONS_POPOVER_GUTTER,
   NOTIFICATIONS_POPOVER_MAX_LIST_HEIGHT,
+  NOTIFICATIONS_POPOVER_MAX_WIDTH,
   NOTIFICATIONS_POPOVER_TOP,
   NOTIFICATIONS_POPOVER_WIDTH,
 } from "./constants.js";
@@ -17,7 +18,7 @@ export const notificationsPopoverDialogStyle: CSSProperties = {
   bottom: "auto",
   left: "auto",
   width: NOTIFICATIONS_POPOVER_WIDTH,
-  maxWidth: `calc(100vw - 2 * ${NOTIFICATIONS_POPOVER_GUTTER})`,
+  maxWidth: NOTIFICATIONS_POPOVER_MAX_WIDTH,
   margin: 0,
   padding: 0,
   border: "none",
@@ -37,4 +38,8 @@ export const notificationsPopoverSheetStyle: CSSProperties = {
 export const notificationsPopoverChipsStyle: CSSProperties = {
   padding: `${tokens.space[1]} ${tokens.space[4]} ${tokens.space[3]}`,
   minWidth: 0,
+};
+
+export const notificationsPopoverFooterStyle: CSSProperties = {
+  background: cssVar("color-surface-low"),
 };
