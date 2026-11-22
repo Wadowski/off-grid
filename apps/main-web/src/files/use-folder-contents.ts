@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FOLDER_CONTENTS_LOADING } from "./constants.js";
+import { EMPTY_FOLDER_CONTENTS } from "./constants.js";
 import { fetchFolderPage } from "./fetch-folder-page.js";
 import { toFilesErrorTextId } from "./to-files-error-text-id.js";
 import type { Drive, FileEntry, FolderContentsSnapshot, FolderContentsState } from "./types.js";
@@ -13,7 +13,7 @@ export const useFolderContents = (
   enabled: boolean,
 ): FolderContentsState => {
   const targetKey = `${driveId ?? ""}:${folderId ?? ""}`;
-  const [snapshot, setSnapshot] = useState<FolderContentsSnapshot>(FOLDER_CONTENTS_LOADING);
+  const [snapshot, setSnapshot] = useState<FolderContentsSnapshot>(EMPTY_FOLDER_CONTENTS);
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const latestRequest = useRef(0);
   const nextCursor = snapshot.nextCursor;
@@ -24,13 +24,12 @@ export const useFolderContents = (
     }
     const request = ++latestRequest.current;
     setLoadedFor(targetKey);
-    setSnapshot(FOLDER_CONTENTS_LOADING);
+    setSnapshot(EMPTY_FOLDER_CONTENTS);
     try {
       const page = await fetchFolderPage(driveId, folderId, null);
       if (request === latestRequest.current) {
         setSnapshot({
           items: page.items,
-          breadcrumbs: page.breadcrumbs,
           nextCursor: page.nextCursor,
           status: "ready",
           errorTextId: null,
@@ -40,7 +39,7 @@ export const useFolderContents = (
     } catch (error) {
       if (request === latestRequest.current) {
         setSnapshot({
-          ...FOLDER_CONTENTS_LOADING,
+          ...EMPTY_FOLDER_CONTENTS,
           status: "failed",
           errorTextId: toFilesErrorTextId(error),
         });
@@ -85,7 +84,6 @@ export const useFolderContents = (
   if (loadedFor !== targetKey) {
     return {
       items: [],
-      breadcrumbs: [],
       status: "loading",
       errorTextId: null,
       hasMore: false,
@@ -96,7 +94,6 @@ export const useFolderContents = (
   }
   return {
     items: snapshot.items,
-    breadcrumbs: snapshot.breadcrumbs,
     status: snapshot.status,
     errorTextId: snapshot.errorTextId,
     hasMore: snapshot.nextCursor !== null,

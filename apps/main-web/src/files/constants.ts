@@ -16,9 +16,8 @@ export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   PAYLOAD_TOO_LARGE: "files.errors.payloadTooLarge",
 };
 
-export const FOLDER_CONTENTS_LOADING: FolderContentsSnapshot = {
+export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
   items: [],
-  breadcrumbs: [],
   nextCursor: null,
   status: "loading",
   errorTextId: null,

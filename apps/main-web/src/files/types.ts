@@ -47,7 +47,6 @@ export type DrivesState = {
 
 export type FolderContentsState = {
   readonly items: readonly FileListItem[];
-  readonly breadcrumbs: readonly Breadcrumb[];
   readonly status: ListStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly hasMore: boolean;
@@ -58,7 +57,6 @@ export type FolderContentsState = {
 
 export type FolderContentsSnapshot = {
   readonly items: readonly FileListItem[];
-  readonly breadcrumbs: readonly Breadcrumb[];
   readonly nextCursor: string | null;
   readonly status: ListStatus;
   readonly errorTextId: FilesErrorTextId | null;
