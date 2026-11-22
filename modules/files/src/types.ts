@@ -314,6 +314,23 @@ export interface NewVersionContent {
   readonly sha256: string;
 }
 
+export type ContentDisposition = "attachment" | "inline";
+
+export interface ByteSpan {
+  readonly start: number;
+  readonly end: number;
+}
+
+export type ContentHeaders = Readonly<Record<string, string>>;
+
+export interface ContentHeadersInput {
+  readonly fileName: string;
+  readonly mediaType: string;
+  readonly requestedDisposition: ContentDisposition;
+  readonly sizeBytes: number;
+  readonly span: ByteSpan | null;
+}
+
 export interface AppendFileVersionInput {
   readonly target: RegularFileTarget;
   readonly createdByUserId: string;
