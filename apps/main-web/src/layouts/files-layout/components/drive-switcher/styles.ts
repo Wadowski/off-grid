@@ -7,17 +7,42 @@ import type { CSSProperties } from "react";
 export const driveSwitcherStyle: CSSProperties = {
   display: "grid",
   alignContent: "start",
-  alignSelf: "start",
-  position: "sticky",
-  top: `calc(3.5rem + ${tokens.space[4]})`,
-  gap: tokens.space[3],
+  gap: tokens.space[4],
   boxSizing: "border-box",
-  padding: `${tokens.space[4]} ${tokens.space[3]}`,
+  padding: tokens.space[4],
   borderRadius: tokens.radius.lg,
+  border: `1px solid ${cssVar("color-line")}`,
   background: cssVar("color-surface"),
   color: cssVar("color-fg"),
   boxShadow: cssVar("elevation-1"),
   minWidth: 0,
+};
+
+export const driveSwitcherHeaderStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: tokens.space[2],
+  paddingBottom: tokens.space[3],
+  borderBottom: `1px solid ${cssVar("color-line")}`,
+  minWidth: 0,
+};
+
+export const driveSwitcherTitleStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: tokens.space[2],
+  minWidth: 0,
+};
+
+export const driveSwitcherCountStyle: CSSProperties = {
+  flexShrink: 0,
+  padding: `${tokens.space[1]} ${tokens.space[2]}`,
+  borderRadius: cssVar("radius-full"),
+  border: `1px solid ${cssVar("color-line")}`,
+  background: cssVar("color-surface-low"),
+  color: cssVar("color-muted"),
+  fontFamily: cssVar("font-family-mono"),
 };
 
 export const driveSwitcherNavStyle: CSSProperties = {

@@ -46,7 +46,9 @@ const renderSwitcher = (props: Partial<DriveSwitcherProps> = {}) => {
 };
 
 const rowNames = () =>
-  screen.getAllByTestId("drive-switcher-row").map((row) => row.textContent ?? "");
+  screen
+    .getAllByTestId("drive-switcher-row")
+    .map((row) => within(row).getByTestId("drive-switcher-row-name").textContent ?? "");
 
 describe("DriveSwitcher", () => {
   afterEach(() => {

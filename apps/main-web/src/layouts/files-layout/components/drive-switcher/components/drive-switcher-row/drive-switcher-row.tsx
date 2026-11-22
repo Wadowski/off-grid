@@ -4,7 +4,12 @@
 import { cssVar, IconTile, MaterialIcon, Text } from "@offgrid/ui";
 import { Link } from "react-router-dom";
 import { ACTIVE_DRIVE_GLYPH, DRIVE_KIND_GLYPHS } from "./constants.js";
-import { driveSwitcherRowNameStyle, driveSwitcherRowStyle } from "./styles.js";
+import {
+  driveSwitcherRowActiveTextStyle,
+  driveSwitcherRowNameStyle,
+  driveSwitcherRowStyle,
+  driveSwitcherRowTextStyle,
+} from "./styles.js";
 import type { DriveSwitcherRowProps } from "./types.js";
 
 export const DriveSwitcherRow = ({ name, kind, to, active }: DriveSwitcherRowProps) => (
@@ -17,24 +22,38 @@ export const DriveSwitcherRow = ({ name, kind, to, active }: DriveSwitcherRowPro
     data-testid="drive-switcher-row"
     data-drive-kind={kind}
   >
-    <IconTile size="2rem" background={cssVar("color-surface-2")} color={cssVar("color-primary")}>
+    <IconTile
+      size="2.25rem"
+      background={active ? cssVar("color-primary") : cssVar("color-surface")}
+      color={active ? cssVar("color-accent-fg") : cssVar("color-primary")}
+    >
       <MaterialIcon
         name={DRIVE_KIND_GLYPHS[kind]}
         size="1.125rem"
-        color={cssVar("color-primary")}
+        color="currentColor"
         filled
       />
     </IconTile>
-    <Text variant="body" element="span" value={name} style={driveSwitcherRowNameStyle} />
-    {active ? (
-      <MaterialIcon
-        name={ACTIVE_DRIVE_GLYPH}
-        size="1.25rem"
-        color={cssVar("color-accent")}
-        filled
+    <span style={driveSwitcherRowTextStyle}>
+      <Text
+        variant="body"
+        element="span"
+        value={name}
+        style={driveSwitcherRowNameStyle}
+        data-testid="drive-switcher-row-name"
       />
-    ) : (
-      <span aria-hidden="true" />
-    )}
+      {active ? (
+        <Text
+          variant="label"
+          element="span"
+          textId="files.drives.active"
+          style={driveSwitcherRowActiveTextStyle}
+          aria-hidden="true"
+        />
+      ) : null}
+    </span>
+    {active ? (
+      <MaterialIcon name={ACTIVE_DRIVE_GLYPH} size="1.25rem" color={cssVar("color-primary")} filled />
+    ) : null}
   </Link>
 );

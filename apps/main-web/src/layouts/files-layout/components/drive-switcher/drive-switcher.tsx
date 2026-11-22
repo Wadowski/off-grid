@@ -1,11 +1,18 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
+import { Button, cssVar, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { DriveSwitcherGroup } from "./components/drive-switcher-group/drive-switcher-group.js";
 import { splitDrivesByKind } from "./split-drives-by-kind.js";
-import { driveSwitcherErrorStyle, driveSwitcherNavStyle, driveSwitcherStyle } from "./styles.js";
+import {
+  driveSwitcherCountStyle,
+  driveSwitcherErrorStyle,
+  driveSwitcherHeaderStyle,
+  driveSwitcherNavStyle,
+  driveSwitcherStyle,
+  driveSwitcherTitleStyle,
+} from "./styles.js";
 import type { DriveSwitcherProps } from "./types.js";
 
 export const DriveSwitcher = ({
@@ -21,10 +28,25 @@ export const DriveSwitcher = ({
   return (
     <aside
       style={driveSwitcherStyle}
-      aria-labelledby="drive-switcher-heading"
+      aria-label={t("files.drives.nav")}
       data-testid="drive-switcher"
     >
-      <Text variant="label" id="drive-switcher-heading" textId="files.drives.heading" />
+      <div style={driveSwitcherHeaderStyle}>
+        <div style={driveSwitcherTitleStyle}>
+          <MaterialIcon name="database" size="20px" color={cssVar("color-primary")} />
+          <Text variant="subheading" element="span" textId="files.drives.heading" />
+        </div>
+        {status === "ready" ? (
+          <Text
+            variant="label"
+            element="span"
+            textId="files.drives.count"
+            values={{ count: drives.length }}
+            style={driveSwitcherCountStyle}
+            data-testid="drive-switcher-count"
+          />
+        ) : null}
+      </div>
       <nav
         aria-label={t("files.drives.nav")}
         aria-busy={status === "loading"}
@@ -60,6 +82,7 @@ export const DriveSwitcher = ({
             />
             <DriveSwitcherGroup
               captionTextId="files.drives.family"
+              captionValues={{ count: family.length }}
               drives={family}
               activeDriveId={activeDriveId}
               emptyTextId="files.drives.emptyFamily"

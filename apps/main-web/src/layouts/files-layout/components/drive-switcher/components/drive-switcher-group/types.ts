@@ -5,6 +5,7 @@ import type { Drive } from "../../../../../../files/types.js";
 
 export type DriveSwitcherGroupProps = {
   readonly captionTextId: "files.drives.personal" | "files.drives.family";
+  readonly captionValues?: Readonly<Record<string, string | number>>;
   readonly drives: readonly Drive[];
   readonly activeDriveId: Drive["id"] | null;
   readonly emptyTextId?: "files.drives.emptyFamily";

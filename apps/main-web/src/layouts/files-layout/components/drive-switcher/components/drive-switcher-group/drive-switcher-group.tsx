@@ -4,17 +4,28 @@
 import { Text } from "@offgrid/ui";
 import { toFolderPath } from "../../../../../../files/to-folder-path.js";
 import { DriveSwitcherRow } from "../drive-switcher-row/drive-switcher-row.js";
-import { driveSwitcherGroupListStyle, driveSwitcherGroupStyle } from "./styles.js";
+import {
+  driveSwitcherGroupCaptionStyle,
+  driveSwitcherGroupListStyle,
+  driveSwitcherGroupStyle,
+} from "./styles.js";
 import type { DriveSwitcherGroupProps } from "./types.js";
 
 export const DriveSwitcherGroup = ({
   captionTextId,
+  captionValues,
   drives,
   activeDriveId,
   emptyTextId,
 }: DriveSwitcherGroupProps) => (
   <div style={driveSwitcherGroupStyle}>
-    <Text variant="label" textId={captionTextId} />
+    <Text
+      variant="label"
+      element="span"
+      textId={captionTextId}
+      values={captionValues}
+      style={driveSwitcherGroupCaptionStyle}
+    />
     {drives.length === 0 && emptyTextId !== undefined ? (
       <Text variant="caption" textId={emptyTextId} />
     ) : (
