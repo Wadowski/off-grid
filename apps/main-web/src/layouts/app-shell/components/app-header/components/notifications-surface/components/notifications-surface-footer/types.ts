@@ -4,8 +4,7 @@
 import type { CSSProperties } from "react";
 
 export type NotificationsSurfaceFooterTextId =
-  | "notifications.modal.viewAll"
-  | "notifications.popover.viewAll";
+  "notifications.modal.viewAll" | "notifications.popover.viewAll";
 
 export type NotificationsSurfaceFooterProps = {
   readonly onViewAll: () => void;
