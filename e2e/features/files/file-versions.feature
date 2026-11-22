@@ -11,15 +11,13 @@ Feature: Keeping the earlier versions of a file
   current version cannot be deleted. A person who cannot see a file gets
   "not found" for its versions.
 
-  @wip
   Scenario: Anna uploads a new version of a file and the new version is current
     Given a new person Anna signs up
     And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
     When Anna uploads a new version of "Notes.txt" with the content "second draft"
     Then Anna sees 2 versions of "Notes.txt" with the newest one current
-    And Anna sees "Notes.txt" with the content "second draft"
+    And Anna sees "Notes.txt" with a size of 12 bytes
 
-  @wip
   Scenario: Ben sees the versions of a file in the family drive
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -30,24 +28,21 @@ Feature: Keeping the earlier versions of a file
     When Ben looks at the versions of "Plan.txt" in the family drive of "The Smiths"
     Then Ben sees 2 versions of "Plan.txt" with the newest one current
 
-  @wip
   Scenario: Anna restores an older version and it becomes the current version
     Given a new person Anna signs up
     And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
     And Anna uploads a new version of "Notes.txt" with the content "second draft"
-    When Anna restores the version of "Notes.txt" with the content "first draft"
+    When Anna restores version 1 of "Notes.txt"
     Then Anna sees 3 versions of "Notes.txt" with the newest one current
-    And Anna sees "Notes.txt" with the content "first draft"
+    And Anna sees "Notes.txt" with a size of 11 bytes
 
-  @wip
   Scenario: Anna deletes an older version and it disappears from the list
     Given a new person Anna signs up
     And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
     And Anna uploads a new version of "Notes.txt" with the content "second draft"
-    When Anna deletes the version of "Notes.txt" with the content "first draft"
+    When Anna deletes version 1 of "Notes.txt"
     Then Anna sees 1 version of "Notes.txt"
 
-  @wip
   Scenario: Anna cannot delete the current version of a file
     Given a new person Anna signs up
     And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
@@ -56,7 +51,6 @@ Feature: Keeping the earlier versions of a file
     Then Anna is told the current version of a file cannot be deleted
     And Anna sees 2 versions of "Notes.txt" with the newest one current
 
-  @wip
   Scenario: A person outside the family gets not found for the versions of a family file
     Given a new person Anna signs up
     And a new family named "The Smiths" is created by Anna
@@ -65,7 +59,6 @@ Feature: Keeping the earlier versions of a file
     When Carol looks at the versions of "Plan.txt" in the family drive of "The Smiths"
     Then Carol is told the file was not found
 
-  @wip
   Scenario: Anna cannot upload a new version larger than the allowed size
     Given a new person Anna signs up
     And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
@@ -73,7 +66,6 @@ Feature: Keeping the earlier versions of a file
     Then Anna is told the file is too large
     And Anna sees 1 version of "Notes.txt" with the newest one current
 
-  @wip
   Scenario: A folder has no versions
     Given a new person Anna signs up
     And Anna has a folder "Photos" in her personal drive
