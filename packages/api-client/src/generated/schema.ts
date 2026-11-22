@@ -838,6 +838,31 @@ export interface components {
             size: number;
             currentVersionId: string;
         };
+        FileListItem: {
+            id: string;
+            driveId: string;
+            parentId: string | null;
+            name: string;
+            version: number;
+            createdAt: string;
+            updatedAt: string;
+            deletedAt: string | null;
+            isFolder: true;
+            itemCount: number;
+        } | {
+            id: string;
+            driveId: string;
+            parentId: string | null;
+            name: string;
+            version: number;
+            createdAt: string;
+            updatedAt: string;
+            deletedAt: string | null;
+            isFolder: false;
+            mimeType: string;
+            size: number;
+            currentVersionId: string;
+        };
         FileList: {
             items: ({
                 id: string;
@@ -849,6 +874,7 @@ export interface components {
                 updatedAt: string;
                 deletedAt: string | null;
                 isFolder: true;
+                itemCount: number;
             } | {
                 id: string;
                 driveId: string;

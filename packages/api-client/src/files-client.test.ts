@@ -27,6 +27,8 @@ const FOLDER = {
   deletedAt: null,
 };
 
+const FOLDER_LIST_ITEM = { ...FOLDER, itemCount: 2 };
+
 const FILE = {
   id: FILE_ID,
   driveId: DRIVE_ID,
@@ -86,7 +88,7 @@ describe("createFilesClient listing", () => {
   });
 
   it("encodes the drive id and sends the cursor and limit as a query", async () => {
-    const page = { items: [FOLDER], breadcrumbs: [], nextCursor: null };
+    const page = { items: [FOLDER_LIST_ITEM], breadcrumbs: [], nextCursor: null };
     const { files, transport } = filesWith(jsonResponse(page));
 
     await expect(files.listDriveChildren(DRIVE_ID, { cursor: "next", limit: 20 })).resolves.toEqual(
@@ -107,6 +109,14 @@ describe("createFilesClient listing", () => {
       `${BASE_URL}/drives/${DRIVE_ID}/trash`,
       expect.objectContaining({ method: "GET" }),
     );
+  });
+
+  it("rejects a children list whose folder item has no item count", async () => {
+    const { files } = filesWith(
+      jsonResponse({ items: [FOLDER], breadcrumbs: [], nextCursor: null }),
+    );
+
+    await expect(files.listDriveChildren(DRIVE_ID)).rejects.toThrow();
   });
 
   it("lists the children of a folder", async () => {
