@@ -43,6 +43,7 @@ describe("buildOpenApiDocument", () => {
       "File",
       "FileDetails",
       "FileList",
+      "FileListItem",
       "FileVersion",
       "FileVersionList",
       "FilesErrorCode",

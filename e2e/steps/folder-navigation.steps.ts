@@ -10,6 +10,7 @@ import {
   findFolderFrom,
   listItemsAs,
   postAs,
+  uploadFileAs,
   waitForDrives,
 } from "../support/factories/files.js";
 import { signInWith, type Session } from "../support/factories/instance-admin.js";
@@ -20,6 +21,9 @@ import { test, type ScenarioWorld } from "../support/fixtures.js";
 const { Given, When, Then } = createBdd(test);
 
 const FOLDER_PATH_NAME = "Folder path";
+const PHONE_WIDTH = 375;
+const PHONE_HEIGHT = 812;
+const LONG_FILE_NAME = `${"Quarterly report for the family archive ".repeat(4)}.txt`;
 const KEYBOARD_TAB_LIMIT = 60;
 const QUOTED_NAME = /"([^"]*)"/g;
 
@@ -201,4 +205,110 @@ Then(/^"([^"]*)" is the current folder in the folder path$/, async ({ page }, na
 
 Then("Anna sees the folder not found view", async ({ page }) => {
   await expect(page.getByTestId("folder-not-found")).toBeVisible();
+});
+
+const waitForFolderContents = (page: Page): Promise<void> =>
+  expect(page.getByTestId("files-folder-contents")).toBeVisible();
+
+const openOnPhone = async (page: Page, path: string): Promise<void> => {
+  await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
+  await page.goto(`${webBaseUrl()}${path}`);
+  await waitForFolderContents(page);
+};
+
+const personalDriveOf = async (world: ScenarioWorld) => {
+  const session = await ownSessionOf(world);
+  return { session, driveId: await personalDriveIdOf(world, session) };
+};
+
+const uploadPersonalFile = async (
+  world: ScenarioWorld,
+  name: string,
+  folderName: string | null,
+): Promise<void> => {
+  const { session, driveId } = await personalDriveOf(world);
+  const parentId =
+    folderName === null
+      ? null
+      : await folderIdIn(world, session, { kind: "drive", id: driveId }, folderName);
+  const response = await uploadFileAs(world.api, session, driveId, {
+    name,
+    parentId,
+    body: "Family archive",
+  });
+  if (response.status !== 201) {
+    throw new Error(`The file ${name} could not be uploaded (${response.status}).`);
+  }
+};
+
+const phoneListRowsOf = (page: Page) => page.getByTestId("files-list").getByTestId("file-row");
+
+const phoneRowNamed = (page: Page, name: string) => phoneListRowsOf(page).filter({ hasText: name });
+
+Given(/^Anna has a personal-drive folder "([^"]*)"$/, async ({ world }, name: string) => {
+  const { session, driveId } = await personalDriveOf(world);
+  await createFolderIn(world, session, driveId, null, name);
+});
+
+Given(/^Anna has a personal-drive file "([^"]*)"$/, async ({ world }, name: string) => {
+  await uploadPersonalFile(world, name, null);
+});
+
+Given(
+  /^Anna has a personal-drive file "([^"]*)" in the folder "([^"]*)"$/,
+  async ({ world }, name: string, folderName: string) => {
+    await uploadPersonalFile(world, name, folderName);
+  },
+);
+
+Given("Anna has a personal-drive file with a very long name", async ({ world }) => {
+  await uploadPersonalFile(world, LONG_FILE_NAME, null);
+});
+
+When("Anna opens her personal drive on a phone", async ({ page, world }) => {
+  const { driveId } = await personalDriveOf(world);
+  await openOnPhone(page, `/files/${driveId}`);
+});
+
+When(
+  /^Anna opens the folder "([^"]*)" in the browser on a phone$/,
+  async ({ page, world }, name: string) => {
+    await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
+    await openFolderInBrowser(page, world, name);
+    await waitForFolderContents(page);
+  },
+);
+
+When(/^Anna taps the folder row "([^"]*)"$/, async ({ page }, name: string) => {
+  await phoneRowNamed(page, name).getByTestId("file-row-activate").click();
+});
+
+When("Anna taps the Back control", async ({ page }) => {
+  await page.getByTestId("files-back-link").click();
+});
+
+Then(/^the phone list reads (.+)$/, async ({ page }, listing: string) => {
+  const names = [...listing.matchAll(QUOTED_NAME)].map((match) => match[1] ?? "");
+  await expect(page.getByTestId("files-list").getByTestId("file-name")).toHaveText(names);
+});
+
+Then(
+  /^the folder row "([^"]*)" shows "([^"]*)"$/,
+  async ({ page }, name: string, count: string) => {
+    await expect(phoneRowNamed(page, name).getByTestId("file-item-count")).toHaveText(count);
+  },
+);
+
+Then("the Back control is not shown", async ({ page }) => {
+  await expect(page.getByTestId("files-back-link")).toHaveCount(0);
+});
+
+Then("the folder shows the empty message", async ({ page }) => {
+  await expect(page.getByTestId("files-empty")).toHaveText("This folder is empty.");
+});
+
+Then("the phone page does not scroll sideways", async ({ page }) => {
+  await expect
+    .poll(() => page.evaluate("document.documentElement.scrollWidth <= window.innerWidth"))
+    .toBe(true);
 });

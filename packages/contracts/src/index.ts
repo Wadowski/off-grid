@@ -143,6 +143,7 @@ export * from "./drive-list-schema.js";
 export * from "./breadcrumb-schema.js";
 export * from "./file-schema.js";
 export * from "./file-list-schema.js";
+export * from "./file-list-item-schema.js";
 export * from "./file-details-schema.js";
 export * from "./file-version-schema.js";
 export * from "./file-version-list-schema.js";

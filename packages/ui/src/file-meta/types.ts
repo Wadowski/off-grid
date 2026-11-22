@@ -7,7 +7,7 @@ export type FileMetaProps = Pick<
   FileEntryProps,
   "kind" | "sizeBytes" | "itemCount" | "modifiedAt" | "locale" | "now" | "timeZone"
 > & {
-  readonly id: string;
+  readonly id?: string;
   readonly spread?: boolean;
 };
 

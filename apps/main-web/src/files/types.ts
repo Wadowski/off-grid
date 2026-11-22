@@ -5,10 +5,12 @@ import type {
   breadcrumbSchema,
   driveSchema,
   fileDetailsSchema,
+  fileListItemSchema,
   fileListSchema,
   fileSchema,
   filesErrorCodeSchema,
 } from "@offgrid/contracts";
+import type { FileKind } from "@offgrid/ui";
 import type { ListStatus } from "../types.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
@@ -16,6 +18,7 @@ export type FileEntry = ReturnType<typeof fileSchema.parse>;
 export type Breadcrumb = ReturnType<typeof breadcrumbSchema.parse>;
 export type FileDetails = ReturnType<typeof fileDetailsSchema.parse>;
 export type FileListPage = ReturnType<typeof fileListSchema.parse>;
+export type FileListItem = ReturnType<typeof fileListItemSchema.parse>;
 export type FilesErrorCode = (typeof filesErrorCodeSchema.options)[number];
 
 export type FolderTarget =
@@ -43,13 +46,29 @@ export type DrivesState = {
 };
 
 export type FolderContentsState = {
-  readonly items: readonly FileEntry[];
-  readonly breadcrumbs: readonly Breadcrumb[];
+  readonly items: readonly FileListItem[];
   readonly status: ListStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly hasMore: boolean;
+  readonly isLoadingMore: boolean;
   readonly loadMore: () => Promise<void>;
   readonly refresh: () => Promise<void>;
+};
+
+export type FolderContentsSnapshot = {
+  readonly items: readonly FileListItem[];
+  readonly nextCursor: string | null;
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly isLoadingMore: boolean;
+};
+
+export type FileRowValues = {
+  readonly name: string;
+  readonly kind: FileKind;
+  readonly modifiedAt: Date;
+  readonly sizeBytes?: number;
+  readonly itemCount?: number;
 };
 
 export type FileDetailsState = {
@@ -63,6 +82,7 @@ export type FileDetailsState = {
 export type CurrentFolderState = {
   readonly status: ListStatus | "not-found";
   readonly driveId: Drive["id"] | null;
+  readonly folderId: FileEntry["id"] | null;
   readonly breadcrumbs: readonly Breadcrumb[];
   readonly errorTextId: FilesErrorTextId | null;
 };

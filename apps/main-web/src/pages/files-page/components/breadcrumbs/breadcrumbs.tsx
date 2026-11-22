@@ -6,7 +6,7 @@ import { BreadcrumbItem } from "./components/breadcrumb-item/breadcrumb-item.js"
 import { breadcrumbListStyle, breadcrumbsStyle } from "./styles.js";
 import type { BreadcrumbsProps } from "./types.js";
 
-export const Breadcrumbs = ({ driveId, breadcrumbs, isBusy }: BreadcrumbsProps) => {
+export const Breadcrumbs = ({ driveId, breadcrumbs, isBusy, phone }: BreadcrumbsProps) => {
   const { t } = useTranslation();
 
   return (
@@ -16,7 +16,7 @@ export const Breadcrumbs = ({ driveId, breadcrumbs, isBusy }: BreadcrumbsProps) 
       data-testid="files-breadcrumbs"
       style={breadcrumbsStyle}
     >
-      <ol style={breadcrumbListStyle}>
+      <ol style={breadcrumbListStyle(phone)}>
         {breadcrumbs.map((crumb, index) => (
           <BreadcrumbItem
             key={`${crumb.kind}-${crumb.id}`}

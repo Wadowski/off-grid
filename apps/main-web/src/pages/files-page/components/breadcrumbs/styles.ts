@@ -9,13 +9,13 @@ export const breadcrumbsStyle: CSSProperties = {
   maxWidth: "100%",
 };
 
-export const breadcrumbListStyle: CSSProperties = {
+export const breadcrumbListStyle = (phone: boolean): CSSProperties => ({
   display: "flex",
-  flexWrap: "wrap",
+  flexWrap: phone ? "nowrap" : "wrap",
   alignItems: "center",
   gap: tokens.space[1],
   margin: 0,
   padding: 0,
   listStyle: "none",
   minWidth: 0,
-};
+});

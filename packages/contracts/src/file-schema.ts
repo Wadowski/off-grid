@@ -21,12 +21,12 @@ const fileEntryBase = {
   deletedAt: timestampSchema.nullable(),
 };
 
-const folderSchema = z.object({
+export const folderSchema = z.object({
   ...fileEntryBase,
   isFolder: z.literal(true),
 });
 
-const regularFileSchema = z.object({
+export const regularFileSchema = z.object({
   ...fileEntryBase,
   isFolder: z.literal(false),
   mimeType: mimeTypeSchema,

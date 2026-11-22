@@ -16,16 +16,23 @@ const BREADCRUMBS = [
   { kind: "folder", id: SUMMER_ID, name: "Summer" },
 ] as Breadcrumb[];
 
-const renderBreadcrumbs = (breadcrumbs: Breadcrumb[], isBusy = false) =>
+const renderBreadcrumbs = (breadcrumbs: Breadcrumb[], isBusy = false, phone = false) =>
   render(
     <MemoryRouter>
-      <Breadcrumbs driveId={DRIVE_ID} breadcrumbs={breadcrumbs} isBusy={isBusy} />
+      <Breadcrumbs driveId={DRIVE_ID} breadcrumbs={breadcrumbs} isBusy={isBusy} phone={phone} />
     </MemoryRouter>,
   );
 
 describe("Breadcrumbs", () => {
   afterEach(() => {
     cleanup();
+  });
+
+  it("keeps the path on one line on a phone", () => {
+    renderBreadcrumbs(BREADCRUMBS, false, true);
+
+    const list = screen.getByRole("navigation", { name: "Folder path" }).querySelector("ol");
+    expect(list).toHaveStyle({ flexWrap: "nowrap" });
   });
 
   it("is a labelled navigation landmark with an ordered list of crumbs in path order", () => {

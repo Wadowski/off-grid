@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useId } from "react";
 import { FileMeta } from "../file-meta/file-meta.js";
 import { FileTypeIcon } from "../file-type-icon/file-type-icon.js";
 import { activatableProps } from "../files/activatable-props.js";
@@ -28,27 +27,23 @@ export const FileRow = ({
   now,
   timeZone,
 }: FileRowProps) => {
-  const nameId = useId();
-  const metaId = useId();
   return (
     <div style={fileRowStyle(selected)} data-testid="file-row" data-selected={selected}>
       <div
         style={fileRowActivatorStyle}
         data-testid="file-row-activate"
-        {...activatableProps(onActivate, nameId, metaId)}
+        {...activatableProps(onActivate)}
       >
         <FileTypeIcon kind={kind} />
         <span style={fileRowTextStyle}>
           <Text
             variant="body"
             value={name}
-            id={nameId}
             title={name}
             style={fileNameStyle}
             data-testid="file-name"
           />
           <FileMeta
-            id={metaId}
             kind={kind}
             sizeBytes={sizeBytes}
             itemCount={itemCount}

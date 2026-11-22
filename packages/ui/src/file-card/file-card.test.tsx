@@ -101,7 +101,7 @@ describe("FileCard", () => {
   it("is a button named by the file name that activates on click, Enter and Space", () => {
     const onActivate = vi.fn();
     renderWithI18n(<FileCard name="Policy.pdf" kind="pdf" onActivate={onActivate} />);
-    const button = screen.getByRole("button", { name: "Policy.pdf" });
+    const button = screen.getByRole("button", { name: /Policy\.pdf/ });
 
     fireEvent.click(button);
     fireEvent.keyDown(button, { key: "Enter" });
