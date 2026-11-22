@@ -10,6 +10,7 @@ import {
   notificationsFilterChipsStyle,
   notificationsSortStyle,
 } from "./styles.js";
+import { isSingleRowLayout } from "./is-single-row-layout.js";
 import type { NotificationsFilterBarProps } from "./types.js";
 
 export const NotificationsFilterBar = ({
@@ -19,12 +20,16 @@ export const NotificationsFilterBar = ({
   onSelect,
 }: NotificationsFilterBarProps) => (
   <div
-    style={layout === "phone" ? notificationsFilterBarPhoneStyle : notificationsFilterBarStyle}
+    style={
+      isSingleRowLayout(layout) ? notificationsFilterBarPhoneStyle : notificationsFilterBarStyle
+    }
     data-testid="notifications-filter-bar"
   >
     <div
       style={
-        layout === "phone" ? notificationsFilterChipsPhoneStyle : notificationsFilterChipsStyle
+        isSingleRowLayout(layout)
+          ? notificationsFilterChipsPhoneStyle
+          : notificationsFilterChipsStyle
       }
     >
       {NOTIFICATION_FILTER_OPTIONS.map((definition) => {
