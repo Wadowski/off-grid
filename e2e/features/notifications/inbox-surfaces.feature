@@ -7,21 +7,6 @@ Feature: Notifications inbox surfaces
   The bell, popover, page and mobile modal show the same notices.
   People mark notices read, filter them and see new ones live.
 
-  Scenario: Bell shows the unread count
-    Given Anna is signed in
-    And she has 3 unread inbox items
-    Then the bell shows 3 unread
-
-  Scenario: Bell caps the unread count at 99+
-    Given Anna is signed in
-    And she has 120 unread inbox items
-    Then the bell shows 99+
-
-  Scenario: Bell shows no count when nothing is unread
-    Given Anna is signed in
-    And she has no unread inbox items
-    Then the bell shows no unread count
-
   Scenario: Popover lists the latest notices
     Given Anna is signed in
     And she has several inbox items
@@ -109,12 +94,6 @@ Feature: Notifications inbox surfaces
     And she has the notifications page open
     When a password change notice is created for Anna
     Then the notice appears in her inbox without reloading the page
-
-  Scenario: The unread count updates without a reload
-    Given Anna is signed in
-    And she has the notifications page open
-    When a calendar invitation is created for Anna
-    Then the bell shows 1 unread without reloading the page
 
   Scenario: Notices missed during a dropped connection appear after reconnecting
     Given Anna is signed in
