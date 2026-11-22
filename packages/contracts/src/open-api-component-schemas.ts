@@ -51,6 +51,7 @@ import { driveSchema } from "./drive-schema.js";
 import { driveListSchema } from "./drive-list-schema.js";
 import { fileSchema } from "./file-schema.js";
 import { fileListSchema } from "./file-list-schema.js";
+import { fileListItemSchema } from "./file-list-item-schema.js";
 import { fileDetailsSchema } from "./file-details-schema.js";
 import { breadcrumbSchema } from "./breadcrumb-schema.js";
 import { fileVersionSchema } from "./file-version-schema.js";
@@ -117,6 +118,7 @@ export const openApiComponentSchemas = {
   Drive: driveSchema,
   DriveList: driveListSchema,
   File: fileSchema,
+  FileListItem: fileListItemSchema,
   FileList: fileListSchema,
   FileDetails: fileDetailsSchema,
   Breadcrumb: breadcrumbSchema,

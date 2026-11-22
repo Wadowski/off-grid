@@ -3,10 +3,10 @@
 
 import { z } from "zod";
 import { breadcrumbSchema } from "./breadcrumb-schema.js";
-import { fileSchema } from "./file-schema.js";
+import { fileListItemSchema } from "./file-list-item-schema.js";
 
 export const fileListSchema = z.object({
-  items: z.array(fileSchema),
+  items: z.array(fileListItemSchema),
   breadcrumbs: z.array(breadcrumbSchema),
   nextCursor: z.string().min(1).max(512).nullable(),
 });
