@@ -6,8 +6,8 @@ import type { CSSProperties } from "react";
 
 export const headerBellBadgeStyle: CSSProperties = {
   position: "absolute",
-  top: 0,
-  right: 0,
+  top: `-${tokens.space[3]}`,
+  right: `-${tokens.space[2]}`,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
