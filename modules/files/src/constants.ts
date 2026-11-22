@@ -51,3 +51,5 @@ export const INLINE_PDF_CONTENT_SECURITY_POLICY =
 export const FALLBACK_DOWNLOAD_FILE_NAME = "download";
 export const SINGLE_BYTE_RANGE_PATTERN = /^bytes=(\d*)-(\d*)$/i;
 export const CACHE_CONTROL_NO_STORE_VALUE = "private, no-store";
+export const LONE_SURROGATE_PATTERN =
+  /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
