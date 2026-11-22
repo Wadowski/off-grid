@@ -22,7 +22,6 @@ export const HeaderBell = ({ isOpen, onToggle }: HeaderBellProps) => {
       <Button
         variant="ghost"
         aria-label={accessibleName}
-        aria-haspopup="dialog"
         aria-expanded={isOpen}
         data-testid="header-bell"
         onClick={onToggle}
