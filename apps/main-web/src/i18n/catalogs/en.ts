@@ -650,6 +650,18 @@ export const en = {
     layout: {
       heading: "Files",
     },
+    drives: {
+      heading: "Storage disks",
+      nav: "Drives",
+      count: "{{count}} disks",
+      personal: "Personal vault",
+      family: "Family disks ({{count}})",
+      active: "Active",
+      loading: "Loading drives...",
+      emptyFamily: "No family drives yet.",
+      page: "Drives",
+      backToFiles: "Back to Files",
+    },
     breadcrumbs: {
       label: "Folder path",
     },
