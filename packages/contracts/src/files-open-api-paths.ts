@@ -45,6 +45,10 @@ const notTrashed = errorResponse("NOT_TRASHED: the file is not in the trash.");
 
 const isFolder = errorResponse("IS_FOLDER: the target is a folder and has no content.");
 
+const currentVersion = errorResponse(
+  "CURRENT_VERSION: the version is the current version of its file, so it cannot be deleted.",
+);
+
 const driveIdParameter = {
   name: "id",
   in: "path",
@@ -327,6 +331,41 @@ export const filesOpenApiPaths = {
         "400": isFolder,
         "401": unauthenticated,
         "404": notFound,
+      },
+    },
+    post: {
+      operationId: "uploadFileVersion",
+      summary: "Upload a new version of a file, which becomes the current version",
+      description:
+        "The body is the new file bytes as they are. The declared Content-Type is the media type of the new version; without it the file keeps its current media type.",
+      parameters: [fileIdParameter],
+      requestBody: {
+        required: true,
+        content: { "*/*": { schema: { type: "string", format: "binary" } } },
+      },
+      responses: {
+        "201": {
+          description: "The file with its new current version.",
+          content: jsonContent("File"),
+        },
+        "400": isFolder,
+        "401": unauthenticated,
+        "404": notFound,
+        "413": payloadTooLarge,
+      },
+    },
+  },
+  "/files/{id}/versions/{versionId}": {
+    delete: {
+      operationId: "deleteFileVersion",
+      summary: "Delete a version of a file that is not its current version",
+      parameters: [fileIdParameter, fileVersionIdParameter],
+      responses: {
+        "204": { description: "The version and its bytes are removed." },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+        "409": currentVersion,
       },
     },
   },

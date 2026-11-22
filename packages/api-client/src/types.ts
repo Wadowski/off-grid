@@ -58,6 +58,7 @@ export type ApiClient = {
     path: string,
     body: ByteBody,
     headers?: Readonly<Record<string, string>>,
+    contentType?: string | null,
   ) => Promise<unknown>;
 };
 

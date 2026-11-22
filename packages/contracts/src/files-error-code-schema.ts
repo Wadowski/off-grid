@@ -14,4 +14,5 @@ export const filesErrorCodeSchema = z.enum([
   "UPLOAD_INCOMPLETE",
   "UPLOAD_OFFSET_MISMATCH",
   "PAYLOAD_TOO_LARGE",
+  "CURRENT_VERSION",
 ]);

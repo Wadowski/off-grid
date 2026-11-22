@@ -10,7 +10,7 @@ Owner: module team (files)
 - Tables in schema `files` (migration `20261122000000_files_init`, Prisma models `FilesDrive`, `FilesFile`, `FilesFileVersion`), all scope `family-or-user` ([ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)):
   - `drive`: one personal drive per user and one family drive per family (partial unique indexes). `kind` is `personal` or `family` and must match the owner. `name` is a stored copy (1 to 255 characters) set when the drive is created (see Drive creation); a later rename needs its own write path.
   - `file`: folders and regular files. A folder has no `mime_type`, `size_bytes` or `current_version_id`; a regular file has both `mime_type` and `size_bytes`. `size_bytes` is `bigint`. Trash is `deleted_at`. Names are unique per parent, case-insensitively, among live rows (`lower(name)`: no Unicode case folding or normalisation).
-  - `file_version`: immutable for `offgrid_app` (`UPDATE` revoked; `INSERT` and `DELETE` allowed, the latter for purge). `storage_key` is opaque and never leaves the database or an event.
+  - `file_version`: immutable for `offgrid_app` (`UPDATE` revoked; `INSERT` and `DELETE` allowed, the latter for purge and for deleting a non-current version, see File versions API). `storage_key` is opaque and never leaves the database or an event.
 - Owner consistency is enforced by the database: `owner_id` on each table is generated from the owner columns, and composite foreign keys tie each file to its drive's owner, each version to its file's owner, and each parent folder to the same drive.
 - `file.current_version_id` is a deferrable foreign key, so a file, its first version and the pointer commit in one transaction.
 - Indexes: `file_children_idx (drive_id, parent_id, name)` for listing, `file_name_per_parent_idx` (unique, live rows only), `file_deleted_at_idx` (partial, trashed rows), `file_version_storage_key_idx`.
@@ -57,7 +57,7 @@ Owner: module team (files)
 - Breadcrumbs always start with the drive (`kind: "drive"`). A drive listing has only the drive crumb. A folder listing has the drive and then each folder from the root down to and including the listed folder. File details have the drive and then the ancestors, without the file itself.
 - The ancestor walk reads one parent per query and stops at 256 levels, answering 404 when a parent is missing, trashed or invisible.
 - Responses never include bytes, `storage_key`, checksums or versions beyond `version` and `currentVersionId`. Regular file sizes are numbers, and a size above the safe integer range fails the response.
-- Not in this route set yet: trash, restore, versions, downloads (OG-116 and OG-117), the trash listing, the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
+- Not in this route set yet: trash, restore, version downloads and the current file download (OG-116 and OG-117), the trash listing, the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
 
 ## Organising API
 
@@ -84,8 +84,18 @@ Owner: module team (files)
 - The event carries the file id, drive, owner, name, mime type, size and version, never the storage key, path or checksum.
 - Tests: the stream limiter and the mime resolver are unit tested in `domain/files`; `upload-file.integration.test.ts` covers the application flow against real Postgres; `register-upload-file.integration.test.ts` covers the route; `test/upload-memory-budget.integration.test.ts` streams 512 MiB through the disk adapter and asserts the heap growth stays under 64 MiB.
 
+## File versions API
+
+- `GET /files/:id/versions` lists the versions of a regular file, newest first (number descending), as `FileVersionList`. Each version has `id`, `fileId`, `number`, `size`, `mimeType`, `createdByUserId` and `createdAt`. Answers 200, 400 `IS_FOLDER` for a folder, 401, and 404 for a file the caller cannot see (hidden, trashed, unknown).
+- `POST /files/:id/versions` uploads a new version of a regular file. The body is the raw bytes. The optional `Content-Type` is the media type of the new version; without it the file keeps its current media type. There is no name header. It adds a version numbered one above the highest number, makes it current, updates the file's `size` and `mimeType`, bumps `version` and publishes `file-updated-v1`. Older versions stay. Answers 201 with the `File`. Errors: 400 `IS_FOLDER`, 401, 404, and 413 `PAYLOAD_TOO_LARGE` above `OFFGRID_FILES_MAX_UPLOAD_BYTES`. A `Content-Length` above the limit is refused before the body is read. Nothing is stored on any error.
+- `POST /files/:id/versions/:versionId/restore` makes an older version current. The bytes are copied to a new storage key, and a new version (number one above the highest) refers to the copy. The old row is not changed. It publishes `file-updated-v1`. Restoring the current version answers 200 with the file unchanged and publishes nothing. See [ADR 0039](../../docs/adr/0039-delete-non-current-version-and-restore-copies-bytes.md).
+- `DELETE /files/:id/versions/:versionId` removes a version that is not current. Its row is deleted, and its bytes are deleted after the commit. It answers 204 and publishes no event. Deleting the current version answers 409 `CURRENT_VERSION` and removes nothing. Hidden, trashed, unknown and other-file ids answer 404, never 403.
+- Order of operations for an upload: (a) a read transaction checks that the file is live, visible and not a folder, so a hidden file never writes bytes; (b) `storeLimitedUpload` streams the limited body to the storage port; (c) one write transaction locks the file row, re-checks it, computes the next number, inserts the version, updates the file and publishes the event; (d) if (b) succeeded and (c) fails or finds the file gone, the stored bytes are deleted. Concurrent uploads to one file serialise on the file row, so they get distinct numbers.
+- Order of operations for a restore: a read transaction finds the source version; the bytes are copied outside a transaction; one write transaction re-checks the source and appends the copy as a new version; if the copy or the write fails, the copied bytes are deleted.
+- Version responses never carry `storage_key`, `sha256` or the storage path. Downloads of a version belong to OG-116.
+
 ## Contracts
 
-- Serves the browse and organising routes above from `filesRoutes` in `@offgrid/contracts`. The rest of `filesRoutes` (trash, versions, downloads and resumable uploads) comes with its issues.
+- Serves the browse, organising, upload and file versions routes above from `filesRoutes` in `@offgrid/contracts`. The rest of `filesRoutes` (trash, downloads and resumable uploads) comes with its issues.
 - Publishes `drive-created-v1` when a drive is created (see Drive creation above), and `file-created-v1`, `file-updated-v1` and `file-removed-v1` for the organising routes, with the payloads defined in `@offgrid/contracts`. The payloads carry ids, owners and versions. Created and updated file events also carry the name. No event carries file contents, storage keys, paths or checksums ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md), [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)).
 - The outbox writes for these events are in the same transaction as the change they describe. Projection consumers of these events, and their replay, idempotency and dead-letter tests, belong to the issues that consume them.

@@ -684,6 +684,7 @@ export const en = {
       uploadIncomplete: "The upload didn't finish. Try again.",
       uploadOffsetMismatch: "The upload got out of sync. Try again.",
       payloadTooLarge: "This file is too large to upload.",
+      currentVersion: "The current version of a file cannot be deleted.",
       failed: "Something went wrong. Try again.",
     },
   },

@@ -17,6 +17,7 @@ const EXPECTED_TEXT_IDS = {
   UPLOAD_INCOMPLETE: "files.errors.uploadIncomplete",
   UPLOAD_OFFSET_MISMATCH: "files.errors.uploadOffsetMismatch",
   PAYLOAD_TOO_LARGE: "files.errors.payloadTooLarge",
+  CURRENT_VERSION: "files.errors.currentVersion",
 } as const;
 
 describe("toFilesErrorTextId", () => {

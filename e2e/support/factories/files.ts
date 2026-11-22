@@ -199,3 +199,66 @@ export const uploadFileAs = async (
   });
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
+
+export const findItemAcrossDrives = async (
+  api: APIRequestContext,
+  session: Session,
+  name: string,
+): Promise<FileItem> => {
+  const drives = await listDrivesAs(api, session);
+  for (const drive of drives) {
+    const items = await listItemsAs(api, session, { kind: "drive", id: drive.id });
+    const match = items.find((item) => item.name === name);
+    if (match !== undefined) {
+      return match;
+    }
+  }
+  throw new Error(`The entry ${name} is not visible to this person`);
+};
+
+export const listVersionsAs = (
+  api: APIRequestContext,
+  session: Session,
+  fileId: string,
+): Promise<JsonResponse> => getAs(api, session, `/api/files/${fileId}/versions`);
+
+export const fileDetailsAs = (
+  api: APIRequestContext,
+  session: Session,
+  fileId: string,
+): Promise<JsonResponse> => getAs(api, session, `/api/files/${fileId}`);
+
+export const uploadVersionAs = async (
+  api: APIRequestContext,
+  session: Session,
+  fileId: string,
+  body: string,
+): Promise<JsonResponse> => {
+  const response = await api.post(`/api/files/${fileId}/versions`, {
+    headers: { ...bearer(session), "content-type": "text/plain" },
+    data: body,
+    failOnStatusCode: false,
+  });
+  return { status: response.status(), body: await response.json().catch(() => null) };
+};
+
+export const restoreVersionAs = (
+  api: APIRequestContext,
+  session: Session,
+  fileId: string,
+  versionId: string,
+): Promise<JsonResponse> =>
+  postAs(api, session, `/api/files/${fileId}/versions/${versionId}/restore`, undefined);
+
+export const deleteVersionAs = async (
+  api: APIRequestContext,
+  session: Session,
+  fileId: string,
+  versionId: string,
+): Promise<JsonResponse> => {
+  const response = await api.delete(`/api/files/${fileId}/versions/${versionId}`, {
+    headers: bearer(session),
+    failOnStatusCode: false,
+  });
+  return { status: response.status(), body: await response.json().catch(() => null) };
+};

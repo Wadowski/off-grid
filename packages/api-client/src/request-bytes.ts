@@ -5,6 +5,8 @@ import type { ApiClientOptions, ByteBody, HttpMethod } from "./types.js";
 import { readJsonBody } from "./read-json-body.js";
 import { toApiError } from "./to-api-error.js";
 
+const OFFSET_OCTET_STREAM = "application/offset+octet-stream";
+
 export const requestBytes = async (
   transport: NonNullable<ApiClientOptions["fetch"]>,
   baseUrl: string,
@@ -12,13 +14,14 @@ export const requestBytes = async (
   path: string,
   body: ByteBody,
   extraHeaders?: Readonly<Record<string, string>>,
+  contentType: string | null = OFFSET_OCTET_STREAM,
 ): Promise<unknown> => {
   const response = await transport(`${baseUrl}${path}`, {
     method,
     headers: {
       accept: "application/json",
       ...extraHeaders,
-      "content-type": "application/offset+octet-stream",
+      ...(contentType === null ? {} : { "content-type": contentType }),
     },
     body,
   });

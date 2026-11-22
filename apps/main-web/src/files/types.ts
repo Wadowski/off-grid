@@ -36,6 +36,7 @@ export type FilesErrorTextId =
   | "files.errors.uploadIncomplete"
   | "files.errors.uploadOffsetMismatch"
   | "files.errors.payloadTooLarge"
+  | "files.errors.currentVersion"
   | "files.errors.failed";
 
 export type DrivesState = {

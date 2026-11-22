@@ -60,6 +60,8 @@ We keep every version, with no cap, in this milestone. Versions are deleted only
 
 We chose immutable versions so that a restore is an ordinary write, and so that projections can order changes by `version`. Rejected alternative: overwriting the bytes in place, which loses the previous content and makes restore impossible.
 
+> Refined by [ADR 0039](0039-delete-non-current-version-and-restore-copies-bytes.md): a restore copies the bytes to a new storage key, and a non-current version can be deleted before its file is purged.
+
 ### 8. Cross-owner moves are allowed with a notice
 
 > Refined by [ADR 0037](0037-cross-owner-move-copy-and-removal.md): the copy takes the current version only, the source subtree is hard-removed with a removed event per entry, and the move has an entry limit.

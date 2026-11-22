@@ -33,3 +33,5 @@ export const MIME_TYPE_BY_EXTENSION: ReadonlyMap<string, string> = new Map([
   ["mp4", "video/mp4"],
   ["zip", "application/zip"],
 ]);
+export const CURRENT_VERSION_MESSAGE = "The current version of a file cannot be deleted.";
+export const IS_FOLDER_MESSAGE = "A folder has no versions.";

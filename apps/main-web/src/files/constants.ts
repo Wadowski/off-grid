@@ -14,6 +14,7 @@ export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   UPLOAD_INCOMPLETE: "files.errors.uploadIncomplete",
   UPLOAD_OFFSET_MISMATCH: "files.errors.uploadOffsetMismatch",
   PAYLOAD_TOO_LARGE: "files.errors.payloadTooLarge",
+  CURRENT_VERSION: "files.errors.currentVersion",
 };
 
 export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
