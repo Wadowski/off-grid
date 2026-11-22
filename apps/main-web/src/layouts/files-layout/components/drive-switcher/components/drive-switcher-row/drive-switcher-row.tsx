@@ -27,12 +27,7 @@ export const DriveSwitcherRow = ({ name, kind, to, active }: DriveSwitcherRowPro
       background={active ? cssVar("color-primary") : cssVar("color-surface")}
       color={active ? cssVar("color-accent-fg") : cssVar("color-primary")}
     >
-      <MaterialIcon
-        name={DRIVE_KIND_GLYPHS[kind]}
-        size="1.125rem"
-        color="currentColor"
-        filled
-      />
+      <MaterialIcon name={DRIVE_KIND_GLYPHS[kind]} size="1.125rem" color="currentColor" filled />
     </IconTile>
     <span style={driveSwitcherRowTextStyle}>
       <Text
@@ -53,7 +48,12 @@ export const DriveSwitcherRow = ({ name, kind, to, active }: DriveSwitcherRowPro
       ) : null}
     </span>
     {active ? (
-      <MaterialIcon name={ACTIVE_DRIVE_GLYPH} size="1.25rem" color={cssVar("color-primary")} filled />
+      <MaterialIcon
+        name={ACTIVE_DRIVE_GLYPH}
+        size="1.25rem"
+        color={cssVar("color-primary")}
+        filled
+      />
     ) : null}
   </Link>
 );

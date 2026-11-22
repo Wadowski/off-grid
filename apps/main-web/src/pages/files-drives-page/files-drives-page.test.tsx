@@ -88,10 +88,7 @@ describe("FilesDrivesPage", () => {
     renderAt("/files/drives");
 
     await screen.findByTestId("files-drives-page");
-    expect(screen.getByRole("link", { name: "Personal" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    expect(screen.getByRole("link", { name: "Personal" })).toHaveAttribute("aria-current", "page");
   });
 
   it("sends a desktop visit back to the Files page", async () => {

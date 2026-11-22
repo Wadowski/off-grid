@@ -8,11 +8,7 @@ import type { ShellContext } from "../../types.js";
 import { DriveSwitcher } from "./components/drive-switcher/drive-switcher.js";
 import type { DriveSwitcherProps } from "./components/drive-switcher/types.js";
 import { toActiveDriveId } from "./to-active-drive-id.js";
-import {
-  filesLayoutAsideStyle,
-  filesLayoutContentStyle,
-  filesLayoutStyle,
-} from "./styles.js";
+import { filesLayoutAsideStyle, filesLayoutContentStyle, filesLayoutStyle } from "./styles.js";
 
 export const FilesLayout = () => {
   const { driveId } = useParams();
