@@ -16,8 +16,7 @@ export const activatableProps = (
     role: "button",
     tabIndex: 0,
     className: "og-focusable",
-    "aria-labelledby": nameId,
-    "aria-describedby": metaId,
+    "aria-labelledby": `${nameId} ${metaId}`,
     onClick: onActivate,
     onKeyDown: (event) => onActivateKeyDown(onActivate, event),
   };

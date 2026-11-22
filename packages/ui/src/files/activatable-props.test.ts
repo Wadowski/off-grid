@@ -9,15 +9,14 @@ describe("activatableProps", () => {
     expect(activatableProps(undefined, "name", "meta")).toEqual({});
   });
 
-  it("makes the region a keyboard reachable button named by the visible name", () => {
+  it("makes the region a keyboard reachable button named by its visible name and meta", () => {
     const props = activatableProps(vi.fn(), "name", "meta");
 
     expect(props).toMatchObject({
       role: "button",
       tabIndex: 0,
       className: "og-focusable",
-      "aria-labelledby": "name",
-      "aria-describedby": "meta",
+      "aria-labelledby": "name meta",
     });
   });
 
