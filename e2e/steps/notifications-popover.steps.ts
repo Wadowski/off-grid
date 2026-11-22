@@ -4,6 +4,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
+import { captureScreen } from "../support/screenshots.js";
 import type { SignedInPerson } from "../support/factories/notifications.js";
 import { signInThroughUi } from "../support/web-session.js";
 
@@ -11,6 +12,7 @@ const { When, Then } = createBdd(test);
 
 const DESKTOP_WIDTH = 1280;
 const DESKTOP_HEIGHT = 800;
+const FEATURE = "Notifications popover on a desktop";
 const POPOVER_TEST_ID = "notifications-popover";
 const PASSWORD_CHANGED_TITLE = "Your password was changed";
 const OUTSIDE_POINT = { x: 20, y: 400 };
@@ -34,6 +36,12 @@ const filterChipOf = (page: Page, label: string): Locator =>
 const quotedNames = (text: string): string[] =>
   Array.from(text.matchAll(/"([^"]+)"/g), (match) => match[1] ?? "");
 
+const reopenPopover = async (page: Page): Promise<void> => {
+  if ((await popoverOf(page).count()) === 0) {
+    await page.getByTestId("header-bell").click();
+  }
+};
+
 const openPopoverOnDesktop = async (page: Page, anna: SignedInPerson): Promise<void> => {
   await signInThroughUi(page, { email: anna.email, password: anna.password, displayName: "Anna" });
   await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT });
@@ -41,14 +49,18 @@ const openPopoverOnDesktop = async (page: Page, anna: SignedInPerson): Promise<v
   await expect(popoverOf(page)).toBeVisible();
 };
 
-When("Anna opens the notifications popover from the bell on a desktop screen", async ({ page, world }) => {
-  await openPopoverOnDesktop(page, annaOf(world));
-});
+When(
+  "Anna opens the notifications popover from the bell on a desktop screen",
+  async ({ page, world }) => {
+    await openPopoverOnDesktop(page, annaOf(world));
+  },
+);
 
 Then(
   /^the notifications popover lists her (\d+) latest notices$/,
   async ({ page }, count: string) => {
     await expect(popoverOf(page).getByTestId("notification-card")).toHaveCount(Number(count));
+    await captureScreen(page, "notifications popover", FEATURE, () => reopenPopover(page));
   },
 );
 
@@ -85,6 +97,7 @@ Then("the notifications popover shows no unread notices", async ({ page }) => {
 Then("the notifications popover tells her she is all caught up", async ({ page }) => {
   await expect(popoverOf(page).getByTestId("notifications-empty-state")).toBeVisible();
   await expect(popoverOf(page).getByTestId("notification-card")).toHaveCount(0);
+  await captureScreen(page, "notifications popover empty", FEATURE, () => reopenPopover(page));
 });
 
 When("Anna chooses to view all notifications from the notifications popover", async ({ page }) => {
