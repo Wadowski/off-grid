@@ -4,9 +4,9 @@
 import { FilterChip, MaterialIcon, Text, cssVar } from "@offgrid/ui";
 import { NOTIFICATION_FILTER_OPTIONS } from "../constants.js";
 import {
-  notificationsFilterBarPhoneStyle,
+  notificationsFilterBarSingleRowStyle,
   notificationsFilterBarStyle,
-  notificationsFilterChipsPhoneStyle,
+  notificationsFilterChipsSingleRowStyle,
   notificationsFilterChipsStyle,
   notificationsSortStyle,
 } from "./styles.js";
@@ -18,43 +18,40 @@ export const NotificationsFilterBar = ({
   selectedOption,
   totalForSelected,
   onSelect,
-}: NotificationsFilterBarProps) => (
-  <div
-    style={
-      isSingleRowLayout(layout) ? notificationsFilterBarPhoneStyle : notificationsFilterBarStyle
-    }
-    data-testid="notifications-filter-bar"
-  >
+}: NotificationsFilterBarProps) => {
+  const isSingleRow = isSingleRowLayout(layout);
+  return (
     <div
-      style={
-        isSingleRowLayout(layout)
-          ? notificationsFilterChipsPhoneStyle
-          : notificationsFilterChipsStyle
-      }
+      style={isSingleRow ? notificationsFilterBarSingleRowStyle : notificationsFilterBarStyle}
+      data-testid="notifications-filter-bar"
     >
-      {NOTIFICATION_FILTER_OPTIONS.map((definition) => {
-        const isSelected = definition.id === selectedOption;
-        return (
-          <FilterChip
-            key={definition.id}
-            label={<Text element="span" variant="label" textId={definition.labelId} />}
-            selected={isSelected}
-            count={isSelected ? totalForSelected : undefined}
-            onToggle={() => {
-              if (!isSelected) {
-                onSelect(definition.id);
-              }
-            }}
-            data-testid={`notifications-filter-${definition.id}`}
-          />
-        );
-      })}
+      <div
+        style={isSingleRow ? notificationsFilterChipsSingleRowStyle : notificationsFilterChipsStyle}
+      >
+        {NOTIFICATION_FILTER_OPTIONS.map((definition) => {
+          const isSelected = definition.id === selectedOption;
+          return (
+            <FilterChip
+              key={definition.id}
+              label={<Text element="span" variant="label" textId={definition.labelId} />}
+              selected={isSelected}
+              count={isSelected ? totalForSelected : undefined}
+              onToggle={() => {
+                if (!isSelected) {
+                  onSelect(definition.id);
+                }
+              }}
+              data-testid={`notifications-filter-${definition.id}`}
+            />
+          );
+        })}
+      </div>
+      {layout === "desktop" ? (
+        <span style={notificationsSortStyle}>
+          <MaterialIcon name="swap_vert" size="1rem" color={cssVar("color-muted")} />
+          <Text element="span" variant="caption" textId="notifications.page.sortNewest" />
+        </span>
+      ) : null}
     </div>
-    {layout === "desktop" ? (
-      <span style={notificationsSortStyle}>
-        <MaterialIcon name="swap_vert" size="1rem" color={cssVar("color-muted")} />
-        <Text element="span" variant="caption" textId="notifications.page.sortNewest" />
-      </span>
-    ) : null}
-  </div>
-);
+  );
+};

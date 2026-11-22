@@ -3,7 +3,5 @@
 
 import { INBOX_PAGE_SIZE } from "./inbox-store/constants.js";
 
-export const sliceFirstPage = <T>(
-  items: readonly T[],
-  limit: number = INBOX_PAGE_SIZE,
-): readonly T[] => items.slice(0, limit);
+export const sliceFirstPage = <T>(items: readonly T[], limit = INBOX_PAGE_SIZE): readonly T[] =>
+  items.slice(0, limit);
