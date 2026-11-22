@@ -30,7 +30,11 @@ export const AppShell = () => {
     <NotificationsInboxProvider>
       <div style={appShellStyle}>
         <style>{appShellCss}</style>
-        <AppSidebar user={user} families={familiesState.families} onSignOut={() => void signOut()} />
+        <AppSidebar
+          user={user}
+          families={familiesState.families}
+          onSignOut={() => void signOut()}
+        />
         <AppHeader />
         <main className="og-shell-main">
           <Outlet context={shellContext} />

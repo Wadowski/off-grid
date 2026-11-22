@@ -8,6 +8,8 @@ import type { NotificationsInboxProviderProps } from "./types.js";
 export const NotificationsInboxProvider = ({ children }: NotificationsInboxProviderProps) => {
   const inbox = useNotificationsInbox();
   return (
-    <NotificationsInboxContext.Provider value={inbox}>{children}</NotificationsInboxContext.Provider>
+    <NotificationsInboxContext.Provider value={inbox}>
+      {children}
+    </NotificationsInboxContext.Provider>
   );
 };

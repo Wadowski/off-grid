@@ -6,7 +6,6 @@ import { bearer } from "../support/family-sessions.js";
 import {
   listOwnNotifications,
   regenerateOwnRecoveryCode,
-  type SignedInPerson,
 } from "../support/factories/notifications.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 import { signInThroughUi } from "../support/web-session.js";
@@ -15,7 +14,7 @@ const { Given, When, Then } = createBdd(test);
 
 const ANNA_FAMILY_NAME = "Annas family";
 
-const annaOf = (world: ScenarioWorld): SignedInPerson => {
+const annaOf = (world: ScenarioWorld) => {
   const anna = world.people?.anna;
   if (anna === undefined) {
     throw new Error("Anna is not signed in in this scenario.");
@@ -71,18 +70,14 @@ When("a recovery code notice is created for Anna", async ({ world }) => {
 
 Then(/^the bell shows (\d+) unread$/, async ({ page, world }, count: string) => {
   await openAppAsAnna(page, world);
-  await expect(page.getByTestId("header-bell")).toHaveAccessibleName(
-    bellNameFor(Number(count)),
-  );
+  await expect(page.getByTestId("header-bell")).toHaveAccessibleName(bellNameFor(Number(count)));
   await expect(page.getByTestId("header-bell-badge")).toHaveText(String(count));
 });
 
 Then(
   /^the bell shows (\d+) unread without reloading the page$/,
   async ({ page }, count: string) => {
-    await expect(page.getByTestId("header-bell")).toHaveAccessibleName(
-      bellNameFor(Number(count)),
-    );
+    await expect(page.getByTestId("header-bell")).toHaveAccessibleName(bellNameFor(Number(count)));
     await expect(page.getByTestId("header-bell-badge")).toHaveText(String(count));
   },
 );
