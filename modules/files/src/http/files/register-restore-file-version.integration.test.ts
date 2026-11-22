@@ -12,13 +12,12 @@ import { seedRegularFile } from "../../../test/seed-regular-file.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase } from "../../../test/types.js";
 import {
+  bodyOf,
   putBytes,
   readFileRow,
   readVersionNumbers,
   storedKeys,
 } from "../../../test/version-fixtures.js";
-
-import { bodyOf } from "../../../test/version-fixtures.js";
 import { uploadFileVersion } from "../../application/files/upload-file-version.js";
 
 describe("POST /files/:id/versions/:versionId/restore", { timeout: 60_000 }, () => {

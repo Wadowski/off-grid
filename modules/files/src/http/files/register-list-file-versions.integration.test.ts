@@ -12,9 +12,7 @@ import { seedFolder } from "../../../test/seed-folder.js";
 import { seedRegularFile } from "../../../test/seed-regular-file.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase } from "../../../test/types.js";
-import { putBytes } from "../../../test/version-fixtures.js";
-
-import { bodyOf } from "../../../test/version-fixtures.js";
+import { bodyOf, putBytes } from "../../../test/version-fixtures.js";
 import { uploadFileVersion } from "../../application/files/upload-file-version.js";
 
 describe("GET /files/:id/versions", { timeout: 60_000 }, () => {
