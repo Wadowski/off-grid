@@ -97,6 +97,12 @@ const currentVersionIdOf = async (
   return (details.body as { file: { currentVersionId: string } }).file.currentVersionId;
 };
 
+const newestNumberOf = (versions: FileVersionEntry[]): number =>
+  Math.max(...versions.map((version) => version.number));
+
+const numbersOf = (versions: FileVersionEntry[]): number[] =>
+  versions.map((version) => version.number);
+
 const expectVersions = async (
   world: ScenarioWorld,
   person: string,
@@ -108,7 +114,9 @@ const expectVersions = async (
   const versions = await versionsOf(world, person, fileId);
   expect(versions, `${person} sees ${count} versions of ${name}`).toHaveLength(count);
   if (newestIsCurrent) {
-    expect(versions[0]?.number, "the newest version is listed first").toBe(count);
+    expect(versions[0]?.number, "the newest version is listed first").toBe(
+      newestNumberOf(versions),
+    );
     expect(versions[0]?.id, "the newest version is the current one").toBe(
       await currentVersionIdOf(world, person, fileId),
     );
@@ -162,6 +170,16 @@ Given(
       },
     );
     expect(response.status, `Anna has a file ${name}`).toBe(201);
+  },
+);
+
+Given(
+  /^Ben no longer sees the family drive of "([^"]*)"$/,
+  async ({ world }, familyName: string) => {
+    const familyId = familyIdNamed(world, familyName);
+    await waitForDrives(world.api, sessionOf(world, "Ben"), (listed) =>
+      listed.every((drive) => drive.familyId !== familyId),
+    );
   },
 );
 
@@ -257,6 +275,34 @@ Then(
   /^(Anna|Ben) sees (\d+) versions? of "([^"]*)" with the newest one current$/,
   async ({ world }, person: string, count: string, name: string) => {
     await expectVersions(world, person, name, Number(count), true);
+  },
+);
+
+Then(
+  /^Anna sees the newest version of "([^"]*)" is version (\d+)$/,
+  async ({ world }, name: string, number: string) => {
+    const fileId = await fileIdVisibleTo(world, "Anna", name);
+    expect(newestNumberOf(await versionsOf(world, "Anna", fileId)), `${name} newest version`).toBe(
+      Number(number),
+    );
+  },
+);
+
+Then(
+  /^Anna sees the versions of "([^"]*)" listed newest first, version (\d+) before version (\d+)$/,
+  async ({ world }, name: string, newer: string, older: string) => {
+    const fileId = await fileIdVisibleTo(world, "Anna", name);
+    const numbers = numbersOf(await versionsOf(world, "Anna", fileId));
+    expect(numbers, "the versions are listed newest first").toEqual(
+      [...numbers].sort((first, second) => second - first),
+    );
+    expect(numbers, "both versions are listed").toEqual(
+      expect.arrayContaining([Number(newer), Number(older)]),
+    );
+    expect(
+      numbers.indexOf(Number(newer)),
+      `version ${newer} is before version ${older}`,
+    ).toBeLessThan(numbers.indexOf(Number(older)));
   },
 );
 

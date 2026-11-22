@@ -16,7 +16,25 @@ Feature: Keeping the earlier versions of a file
     And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
     When Anna uploads a new version of "Notes.txt" with the content "second draft"
     Then Anna sees 2 versions of "Notes.txt" with the newest one current
+    And Anna sees the newest version of "Notes.txt" is version 2
     And Anna sees "Notes.txt" with a size of 12 bytes
+
+  Scenario: Anna sees the versions of a file listed newest first
+    Given a new person Anna signs up
+    And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
+    And Anna uploads a new version of "Notes.txt" with the content "second draft"
+    When Anna looks at the versions of "Notes.txt"
+    Then Anna sees the versions of "Notes.txt" listed newest first, version 2 before version 1
+
+  Scenario: A new version after an older version was deleted takes the next number
+    Given a new person Anna signs up
+    And Anna has a file "Notes.txt" with the content "first draft" in her personal drive
+    And Anna uploads a new version of "Notes.txt" with the content "second draft"
+    And Anna uploads a new version of "Notes.txt" with the content "third draft"
+    And Anna deletes version 2 of "Notes.txt"
+    When Anna uploads a new version of "Notes.txt" with the content "fourth draft"
+    Then Anna sees 3 versions of "Notes.txt" with the newest one current
+    And Anna sees the newest version of "Notes.txt" is version 4
 
   Scenario: Ben sees the versions of a file in the family drive
     Given a new person Anna signs up
@@ -34,6 +52,7 @@ Feature: Keeping the earlier versions of a file
     And Anna uploads a new version of "Notes.txt" with the content "second draft"
     When Anna restores version 1 of "Notes.txt"
     Then Anna sees 3 versions of "Notes.txt" with the newest one current
+    And Anna sees the newest version of "Notes.txt" is version 3
     And Anna sees "Notes.txt" with a size of 11 bytes
 
   Scenario: Anna deletes an older version and it disappears from the list
@@ -58,6 +77,17 @@ Feature: Keeping the earlier versions of a file
     And a new person Carol signs up
     When Carol looks at the versions of "Plan.txt" in the family drive of "The Smiths"
     Then Carol is told the file was not found
+
+  Scenario: A former family member gets not found for the versions of a family file
+    Given a new person Anna signs up
+    And a new family named "The Smiths" is created by Anna
+    And a new person Ben signs up
+    And Ben joins the family "The Smiths"
+    And Anna has a file "Plan.txt" with the content "first draft" in the family drive of "The Smiths"
+    And Ben leaves the family "The Smiths"
+    And Ben no longer sees the family drive of "The Smiths"
+    When Ben looks at the versions of "Plan.txt" in the family drive of "The Smiths"
+    Then Ben is told the file was not found
 
   Scenario: Anna cannot upload a new version larger than the allowed size
     Given a new person Anna signs up
