@@ -7,21 +7,32 @@ Feature: Header notifications bell
   The bell in the header shows how many notices are unread across the whole inbox.
   The count stays current without a reload.
 
+  @ui @screen:bell-badge
   Scenario: Bell shows the unread count
     Given Anna is signed in
-    And Anna belongs to a family
+    And Anna belongs to a family of her own
     And she has 3 unread inbox items
+    And she has the app open
     Then the bell shows 3 unread
 
   Scenario: Bell shows no count when nothing is unread
     Given Anna is signed in
-    And Anna belongs to a family
+    And Anna belongs to a family of her own
     And she has no unread inbox items
+    And she has the app open
     Then the bell shows no unread count
+
+  @ui @screen:bell-badge-99-plus
+  Scenario: Bell caps the unread count at 99+
+    Given Anna is signed in
+    And Tom and Anna share a family
+    And she has 120 unread calendar invitations from Tom
+    And she has the app open
+    Then the bell shows 99+ for 120 unread
 
   Scenario: The unread count updates without a reload
     Given Anna is signed in
-    And Anna belongs to a family
+    And Anna belongs to a family of her own
     And she has the app open
-    When a recovery code notice is created for Anna
+    When a new notice arrives for Anna
     Then the bell shows 1 unread without reloading the page
