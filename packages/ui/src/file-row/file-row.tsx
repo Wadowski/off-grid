@@ -28,21 +28,19 @@ export const FileRow = ({
   now,
   timeZone,
 }: FileRowProps) => {
-  const nameId = useId();
   const metaId = useId();
   return (
     <div style={fileRowStyle(selected)} data-testid="file-row" data-selected={selected}>
       <div
         style={fileRowActivatorStyle}
         data-testid="file-row-activate"
-        {...activatableProps(onActivate, nameId, metaId)}
+        {...activatableProps(onActivate)}
       >
         <FileTypeIcon kind={kind} />
         <span style={fileRowTextStyle}>
           <Text
             variant="body"
             value={name}
-            id={nameId}
             title={name}
             style={fileNameStyle}
             data-testid="file-name"

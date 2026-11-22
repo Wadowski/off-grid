@@ -6,24 +6,24 @@ import { activatableProps } from "./activatable-props.js";
 
 describe("activatableProps", () => {
   it("adds nothing when there is nothing to activate", () => {
-    expect(activatableProps(undefined, "name", "meta")).toEqual({});
+    expect(activatableProps(undefined)).toEqual({});
   });
 
-  it("makes the region a keyboard reachable button named by its visible name and meta", () => {
-    const props = activatableProps(vi.fn(), "name", "meta");
+  it("makes the region a keyboard reachable button named by its own content", () => {
+    const props = activatableProps(vi.fn());
 
     expect(props).toMatchObject({
       role: "button",
       tabIndex: 0,
       className: "og-focusable",
-      "aria-labelledby": "name meta",
     });
+    expect(props).not.toHaveProperty("aria-labelledby");
   });
 
   it("activates on click", () => {
     const onActivate = vi.fn();
 
-    activatableProps(onActivate, "name", "meta").onClick?.({} as never);
+    activatableProps(onActivate).onClick?.({} as never);
 
     expect(onActivate).toHaveBeenCalledOnce();
   });

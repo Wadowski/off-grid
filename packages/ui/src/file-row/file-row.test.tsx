@@ -94,7 +94,7 @@ describe("FileRow", () => {
   it("is a button named by the file name when it can be activated", () => {
     renderWithI18n(<FileRow name="Policy.pdf" kind="pdf" onActivate={vi.fn()} />);
 
-    expect(screen.getByRole("button", { name: "Policy.pdf" })).toHaveAttribute("tabindex", "0");
+    expect(screen.getByRole("button", { name: /Policy\.pdf/ })).toHaveAttribute("tabindex", "0");
   });
 
   it("activates on click, Enter and Space", () => {

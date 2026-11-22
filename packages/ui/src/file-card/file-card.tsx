@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useId } from "react";
 import { cssVar } from "../css-var.js";
 import { FileMeta } from "../file-meta/file-meta.js";
 import { FileTypeIcon } from "../file-type-icon/file-type-icon.js";
+import { useId } from "react";
 import { activatableProps } from "../files/activatable-props.js";
 import { fileNameStyle } from "../files/styles.js";
 import { Text } from "../text/text.js";
@@ -33,7 +33,6 @@ export const FileCard = ({
   now,
   timeZone,
 }: FileCardProps) => {
-  const nameId = useId();
   const metaId = useId();
   const isFolder = kind === "folder";
   return (
@@ -41,7 +40,7 @@ export const FileCard = ({
       <div
         style={fileCardActivatorStyle}
         data-testid="file-card-activate"
-        {...activatableProps(onActivate, nameId, metaId)}
+        {...activatableProps(onActivate)}
       >
         {isFolder ? null : (
           <div style={fileCardMediaStyle} data-testid="file-card-media">
@@ -56,7 +55,6 @@ export const FileCard = ({
           <Text
             variant="body"
             value={name}
-            id={nameId}
             title={name}
             style={fileNameStyle}
             data-testid="file-name"
