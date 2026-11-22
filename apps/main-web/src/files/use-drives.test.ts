@@ -77,4 +77,37 @@ describe("useDrives", () => {
     expect(result.current.drives).toEqual([PERSONAL, FAMILY]);
     expect(result.current.status).toBe("ready");
   });
+
+  it("keeps reloading while a family has no family drive yet", async () => {
+    const responses = [
+      jsonResponse({ status: 200, body: { drives: [PERSONAL] } }),
+      jsonResponse({ status: 200, body: { drives: [PERSONAL] } }),
+      jsonResponse({ status: 200, body: { drives: [PERSONAL, FAMILY] } }),
+    ];
+    const fetchMock = vi.fn(
+      async () =>
+        responses.shift() ?? jsonResponse({ status: 200, body: { drives: [PERSONAL, FAMILY] } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useDrives(true, 1));
+
+    await waitFor(() => expect(result.current.drives).toEqual([PERSONAL, FAMILY]), {
+      timeout: 5000,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not reload for a family drive when the person has no family", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ status: 200, body: { drives: [PERSONAL] } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useDrives(true, 0));
+
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 700)));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
