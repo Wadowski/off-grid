@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@wip @module:notifications
+@module:notifications
 Feature: Notifications modal on a phone
 
   On a phone the bell opens a sheet with the latest notices instead of a popover.
@@ -10,6 +10,7 @@ Feature: Notifications modal on a phone
   @ui @screen:notifications-modal-mobile
   Scenario: Bell opens the notifications modal on a phone
     Given Anna is signed in
+    And Anna belongs to a family of her own
     And she has 3 unread inbox items
     When Anna opens the notifications modal from the bell on a phone
     Then the modal lists her latest notices
@@ -26,6 +27,7 @@ Feature: Notifications modal on a phone
 
   Scenario: Marking all as read in the modal clears the unread count
     Given Anna is signed in
+    And Anna belongs to a family of her own
     And she has 2 unread inbox items
     When Anna opens the notifications modal from the bell on a phone
     And Anna marks all notices as read in the modal
@@ -34,18 +36,21 @@ Feature: Notifications modal on a phone
 
   Scenario: The modal links to the full notifications page
     Given Anna is signed in
+    And Anna belongs to a family of her own
     When Anna opens the notifications modal from the bell on a phone
     And Anna chooses to view all notifications from the modal
     Then the full notifications page is shown
 
   Scenario: The close button closes the modal
     Given Anna is signed in
+    And Anna belongs to a family of her own
     When Anna opens the notifications modal from the bell on a phone
     And Anna closes the modal with its close button
     Then the notifications modal is closed
 
   Scenario: Escape closes the modal
     Given Anna is signed in
+    And Anna belongs to a family of her own
     When Anna opens the notifications modal from the bell on a phone
     And Anna presses Escape
     Then the notifications modal is closed

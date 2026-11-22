@@ -23,9 +23,17 @@ const annaOf = (world: ScenarioWorld): SignedInPerson => {
 
 const modalOf = (page: Page): Locator => page.getByTestId(MODAL_TEST_ID);
 
+const filterChipOf = (page: Page, label: string): Locator =>
+  modalOf(page)
+    .getByTestId("notifications-filter-bar")
+    .getByRole("button", { name: new RegExp(`^${label}`) });
+
+const quotedNames = (text: string): string[] =>
+  Array.from(text.matchAll(/"([^"]+)"/g), (match) => match[1] ?? "");
+
 const openModalOnPhone = async (page: Page, anna: SignedInPerson): Promise<void> => {
-  await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
   await signInThroughUi(page, { email: anna.email, password: anna.password, displayName: "Anna" });
+  await page.setViewportSize({ width: PHONE_WIDTH, height: PHONE_HEIGHT });
   await page.getByTestId("header-bell").click();
   await expect(modalOf(page)).toBeVisible();
 };
@@ -38,19 +46,14 @@ Then("the modal lists her latest notices", async ({ page }) => {
   await expect(modalOf(page).getByTestId("notification-card").first()).toBeVisible();
 });
 
-Then(
-  "the modal offers the filters {string}, {string}, {string} and {string}",
-  async ({ page }, ...labels: string[]) => {
-    for (const label of labels) {
-      await expect(
-        modalOf(page).getByRole("button", { name: new RegExp(`^${label}`) }),
-      ).toBeVisible();
-    }
-  },
-);
+Then(/^the modal offers the filters (.+)$/, async ({ page }, labels: string) => {
+  for (const label of quotedNames(labels)) {
+    await expect(filterChipOf(page, label)).toBeVisible();
+  }
+});
 
-When("Anna selects the {string} filter in the modal", async ({ page }) => {
-  await modalOf(page).getByTestId("notifications-filter-calendar").click();
+When(/^Anna selects the "([^"]+)" filter in the modal$/, async ({ page }, label: string) => {
+  await filterChipOf(page, label).click();
 });
 
 Then("only the calendar notice is listed in the modal", async ({ page }) => {
