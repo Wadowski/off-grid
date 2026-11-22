@@ -53,3 +53,5 @@ export const SINGLE_BYTE_RANGE_PATTERN = /^bytes=(\d*)-(\d*)$/i;
 export const CACHE_CONTROL_NO_STORE_VALUE = "private, no-store";
 export const LONE_SURROGATE_PATTERN =
   /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+export const ASCII_UNSAFE_CHARACTER_PATTERN = /[^\x20-\x7e]|["\\]/g;
+export const RFC5987_RESERVED_CHARACTER_PATTERN = /['()*]/g;
