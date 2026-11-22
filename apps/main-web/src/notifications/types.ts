@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ParseKeys } from "i18next";
+import type { InboxFilters } from "./inbox-store/types.js";
 
 export type NotificationTextValues = Readonly<Record<string, string | number>>;
 
@@ -19,3 +20,13 @@ export type DayGroup<T> = {
 };
 
 export type DatedItem = { readonly createdAt: string };
+
+export type NotificationsLayout = "desktop" | "phone";
+
+export type NotificationFilterOption = "all" | "unread" | "calendar" | "account-security";
+
+export type NotificationFilterOptionDefinition = {
+  readonly id: NotificationFilterOption;
+  readonly labelId: ParseKeys;
+  readonly filters: InboxFilters;
+};

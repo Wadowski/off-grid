@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { InboxFilters } from "../../notifications/inbox-store/types.js";
+import type { InboxFilters } from "./inbox-store/types.js";
 import { NOTIFICATION_FILTER_OPTIONS } from "./constants.js";
 import type { NotificationFilterOption } from "./types.js";
 

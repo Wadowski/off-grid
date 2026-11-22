@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, MaterialIcon, Text } from "@offgrid/ui";
-import { NotificationsMarkAllReadButton } from "../notifications-mark-all-read-button/notifications-mark-all-read-button.js";
+import { NotificationsMarkAllReadButton } from "../../../../notifications/notifications-mark-all-read-button/notifications-mark-all-read-button.js";
 import {
   notificationsMobileBackStyle,
   notificationsMobileHeadingRowStyle,
