@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { tokens } from "@offgrid/ui";
+import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
 export const headerBellBadgeStyle: CSSProperties = {
@@ -16,7 +16,7 @@ export const headerBellBadgeStyle: CSSProperties = {
   padding: `0 ${tokens.space[1]}`,
   boxSizing: "border-box",
   borderRadius: tokens.radius.full,
-  background: "var(--og-color-primary)",
-  color: "var(--og-color-accent-fg)",
+  background: cssVar("color-primary"),
+  color: cssVar("color-accent-fg"),
   pointerEvents: "none",
 };
