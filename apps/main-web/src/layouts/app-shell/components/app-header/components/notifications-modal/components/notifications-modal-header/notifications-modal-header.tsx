@@ -3,7 +3,7 @@
 
 import { Button, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
-import { NotificationsMarkAllReadButton } from "../../../../../../../../notifications/notifications-mark-all-read-button/notifications-mark-all-read-button.js";
+import { NotificationsMarkAllReadButton } from "../../../../../../../../notifications/index.js";
 import { NOTIFICATIONS_MODAL_TITLE_ID } from "../../constants.js";
 import {
   notificationsModalActionsStyle,

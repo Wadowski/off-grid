@@ -9,9 +9,9 @@ import {
   NotificationsFilterBar,
   optionForFilters,
   useNotificationsInboxContext,
+  useOpenNotice,
 } from "../../../../../../notifications/index.js";
-import type { NotificationItem } from "../../../../../../notifications/inbox-store/types.js";
-import { useOpenNotice } from "../../../../../../notifications/use-open-notice.js";
+import type { NotificationItem } from "../../../../../../notifications/index.js";
 import { NOTIFICATIONS_MODAL_TITLE_ID } from "./constants.js";
 import { NotificationsModalFooter } from "./components/notifications-modal-footer/notifications-modal-footer.js";
 import { NotificationsModalHeader } from "./components/notifications-modal-header/notifications-modal-header.js";
