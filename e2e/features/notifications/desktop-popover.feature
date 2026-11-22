@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:notifications @wip
+@module:notifications
 Feature: Notifications popover on a desktop
 
   On a wide screen the bell opens a popover under the bell with the latest notices.
