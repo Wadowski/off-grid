@@ -7,7 +7,7 @@ import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 import type { SignedInPerson } from "../support/factories/notifications.js";
 import { signInThroughUi } from "../support/web-session.js";
 
-const { Given, When, Then } = createBdd(test);
+const { When, Then } = createBdd(test);
 
 const PHONE_WIDTH = 375;
 const PHONE_HEIGHT = 812;
