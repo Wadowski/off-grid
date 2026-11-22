@@ -303,6 +303,10 @@ Then("the Back control is not shown", async ({ page }) => {
   await expect(page.getByTestId("files-back-link")).toHaveCount(0);
 });
 
+Then("the folder shows the empty message", async ({ page }) => {
+  await expect(page.getByTestId("files-empty")).toHaveText("This folder is empty.");
+});
+
 Then("the phone page does not scroll sideways", async ({ page }) => {
   await expect
     .poll(() => page.evaluate("document.documentElement.scrollWidth <= window.innerWidth"))

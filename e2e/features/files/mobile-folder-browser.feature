@@ -35,6 +35,15 @@ Feature: Browsing folders on a phone
     Then the folder path reads "Personal" and "Photos"
     And the phone list reads "Summer.jpg"
 
+  @screen:files-mobile-empty-folder
+  Scenario: An empty folder says so
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive folder "Empty"
+    And Anna opens her personal drive on a phone
+    When Anna taps the folder row "Empty"
+    Then the folder path reads "Personal" and "Empty"
+    And the folder shows the empty message
+
   Scenario: Back goes up one level, and there is no Back control at the drive root
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has the nested folders "Photos" and "Summer" in her personal drive
