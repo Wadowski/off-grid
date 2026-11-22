@@ -11,6 +11,7 @@ import { HeaderBell } from "./components/header-bell/header-bell.js";
 import { surfaceForViewport } from "./components/header-bell/surface-for-viewport.js";
 import type { NotificationsSurface } from "./components/header-bell/types.js";
 import { NotificationsModal } from "./components/notifications-modal/notifications-modal.js";
+import { NotificationsPopover } from "./components/notifications-popover/notifications-popover.js";
 
 export const AppHeader = () => {
   const { t } = useTranslation();
@@ -21,7 +22,10 @@ export const AppHeader = () => {
   const closeNotifications = () => setOpenSurface(undefined);
 
   useEffect(() => {
-    if (!isNarrow && openSurface === "modal") {
+    const isSurfaceForOtherViewport = isNarrow
+      ? openSurface === "popover"
+      : openSurface === "modal";
+    if (isSurfaceForOtherViewport) {
       setOpenSurface(undefined);
     }
   }, [isNarrow, openSurface]);
@@ -45,6 +49,7 @@ export const AppHeader = () => {
         </span>
       </div>
       {openSurface === "modal" ? <NotificationsModal onClose={closeNotifications} /> : null}
+      {openSurface === "popover" ? <NotificationsPopover onClose={closeNotifications} /> : null}
     </header>
   );
 };

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NotificationsInboxContext } from "../../../../notifications/inbox-context/notifications-inbox-context.js";
@@ -32,18 +32,28 @@ const renderHeader = () =>
     </NotificationsInboxContext.Provider>,
   );
 
-const stubNarrow = (narrow: boolean) => {
+const stubNarrow = (initiallyNarrow: boolean) => {
+  let narrow = initiallyNarrow;
+  let listeners: Array<() => void> = [];
   window.matchMedia = (query: string) =>
     ({
-      matches: narrow && query.includes("max-width"),
+      get matches() {
+        return narrow && query.includes("max-width");
+      },
       media: query,
       onchange: null,
-      addEventListener: () => undefined,
+      addEventListener: (_type: string, listener: () => void) => {
+        listeners = [...listeners, listener];
+      },
       removeEventListener: () => undefined,
       addListener: () => undefined,
       removeListener: () => undefined,
       dispatchEvent: () => false,
     }) as MediaQueryList;
+  return (nextNarrow: boolean) => {
+    narrow = nextNarrow;
+    act(() => listeners.forEach((listener) => listener()));
+  };
 };
 
 describe("AppHeader notifications", () => {
@@ -93,6 +103,41 @@ describe("AppHeader notifications", () => {
 
     fireEvent.click(screen.getByTestId("header-bell"));
 
+    expect(screen.queryByTestId("notifications-modal")).toBeNull();
+  });
+
+  it("opens the popover from the bell on a wide viewport, not the modal", () => {
+    stubNarrow(false);
+    renderHeader();
+
+    fireEvent.click(screen.getByTestId("header-bell"));
+
+    expect(screen.getByTestId("header-bell")).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByTestId("notifications-popover")).toBeInTheDocument();
+    expect(screen.queryByTestId("notifications-modal")).toBeNull();
+  });
+
+  it("closes the popover on Escape and returns the bell to collapsed", () => {
+    stubNarrow(false);
+    renderHeader();
+    fireEvent.click(screen.getByTestId("header-bell"));
+
+    const dialog = screen.getByTestId("notifications-popover") as HTMLDialogElement;
+    fireEvent(dialog, new Event("cancel", { cancelable: true }));
+    fireEvent(dialog, new Event("close"));
+
+    expect(screen.queryByTestId("notifications-popover")).toBeNull();
+    expect(screen.getByTestId("header-bell")).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("closes the popover when the viewport turns narrow", () => {
+    const setNarrow = stubNarrow(false);
+    renderHeader();
+    fireEvent.click(screen.getByTestId("header-bell"));
+
+    setNarrow(true);
+
+    expect(screen.queryByTestId("notifications-popover")).toBeNull();
     expect(screen.queryByTestId("notifications-modal")).toBeNull();
   });
 });
