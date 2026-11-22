@@ -30,3 +30,5 @@ export type NotificationFilterOptionDefinition = {
   readonly labelId: ParseKeys;
   readonly filters: InboxFilters;
 };
+
+export type NotificationsStateLayout = "page" | "sheet";

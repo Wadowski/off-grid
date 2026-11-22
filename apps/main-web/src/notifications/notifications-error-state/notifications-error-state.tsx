@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
-import { notificationsErrorStateStyle } from "./styles.js";
+import { notificationsErrorStateStyles } from "./styles.js";
 import type { NotificationsErrorStateProps } from "./types.js";
 
-export const NotificationsErrorState = ({ onRetry }: NotificationsErrorStateProps) => (
-  <div style={notificationsErrorStateStyle} data-testid="notifications-error-state">
+export const NotificationsErrorState = ({
+  onRetry,
+  layout = "page",
+}: NotificationsErrorStateProps) => (
+  <div style={notificationsErrorStateStyles[layout]} data-testid="notifications-error-state">
     <Text variant="subheading" textId="notifications.error.title" />
     <Button
       type="button"

@@ -187,7 +187,7 @@ describe("NotificationsModal", () => {
   it("shows the empty state when there are no notices", () => {
     renderModal(inboxWith({ items: [], unreadCount: 0, total: 0 }));
 
-    expect(screen.getByTestId("notifications-modal-empty")).toHaveTextContent(
+    expect(screen.getByTestId("notifications-empty-state")).toHaveTextContent(
       "You are all caught up",
     );
   });
