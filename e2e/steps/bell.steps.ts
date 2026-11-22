@@ -86,7 +86,7 @@ Given("Tom and Anna share a family", async ({ world }) => {
   await joinFamilyWithInvitation(world.api, anna.session, tom.session, familyId);
 });
 
-Given(/^she has (\d+) unread calendar invitations from Tom$/, async ({ world }, count: string) => {
+Given(/^she has (\d+) unread calendar invitations? from Tom$/, async ({ world }, count: string) => {
   const anna = annaOf(world);
   const tom = tomOf(world);
   const calendar = await createCalendar(world.api, tom.session, {
