@@ -171,8 +171,8 @@ Then(/^Carl sees that the file is not found$/, ({ world }) => {
 });
 
 Then(
-  /^Anna gets the content "([^"]*)" for the range of "([^"]*)"$/,
-  ({ world }, content: string, _name: string) => {
+  /^Anna gets the content "([^"]*)" for the range of "[^"]*"$/,
+  ({ world }, content: string) => {
     const response = downloadOf(world);
     expect(response.status, "the range is answered as partial content").toBe(206);
     expect(response.body).toBe(content);
