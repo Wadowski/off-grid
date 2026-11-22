@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { NotificationsLayout } from "../../types.js";
 import type { DayGroup } from "../../../../notifications/types.js";
 import type {
   NotificationItem,
@@ -8,6 +9,7 @@ import type {
 } from "../../../../notifications/inbox-store/types.js";
 
 export type NotificationsBodyProps = {
+  readonly layout: NotificationsLayout;
   readonly inbox: NotificationsInbox;
   readonly groups: readonly DayGroup<NotificationItem>[];
   readonly onOpen: (notice: NotificationItem) => Promise<void>;

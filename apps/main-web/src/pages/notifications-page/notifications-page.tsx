@@ -30,7 +30,7 @@ export const NotificationsPage = () => {
       {inbox.errorKind === "stream" ? (
         <Text variant="status" textId="notifications.liveUpdatesUnavailable" />
       ) : null}
-      <NotificationsBody inbox={inbox} groups={groups} onOpen={openNotice} />
+      <NotificationsBody layout="desktop" inbox={inbox} groups={groups} onOpen={openNotice} />
     </div>
   );
 };

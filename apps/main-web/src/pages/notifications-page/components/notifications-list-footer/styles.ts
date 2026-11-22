@@ -17,3 +17,12 @@ export const notificationsListFooterRowStyle: CSSProperties = {
   justifyContent: "space-between",
   gap: tokens.space[3],
 };
+
+export const notificationsCaughtUpStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: tokens.space[1],
+  padding: tokens.space[4],
+  minWidth: 0,
+};
