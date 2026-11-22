@@ -4,7 +4,6 @@
 import { cssVar } from "../css-var.js";
 import { FileMeta } from "../file-meta/file-meta.js";
 import { FileTypeIcon } from "../file-type-icon/file-type-icon.js";
-import { useId } from "react";
 import { activatableProps } from "../files/activatable-props.js";
 import { fileNameStyle } from "../files/styles.js";
 import { Text } from "../text/text.js";
@@ -33,7 +32,6 @@ export const FileCard = ({
   now,
   timeZone,
 }: FileCardProps) => {
-  const metaId = useId();
   const isFolder = kind === "folder";
   return (
     <div style={fileCardStyle(selected)} data-testid="file-card" data-selected={selected}>
@@ -60,7 +58,6 @@ export const FileCard = ({
             data-testid="file-name"
           />
           <FileMeta
-            id={metaId}
             kind={kind}
             sizeBytes={sizeBytes}
             itemCount={itemCount}
