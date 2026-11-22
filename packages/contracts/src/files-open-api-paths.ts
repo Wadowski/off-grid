@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { driveParamsSchema } from "./drive-params-schema.js";
 import { fileIdSchema } from "./file-id-schema.js";
+import { fileContentQuerySchema } from "./file-content-query-schema.js";
 import { fileListQuerySchema } from "./file-list-query-schema.js";
 import { fileParamsSchema } from "./file-params-schema.js";
 import { fileVersionParamsSchema } from "./file-version-params-schema.js";
@@ -70,6 +71,24 @@ const fileVersionIdParameter = {
   schema: z.toJSONSchema(fileVersionParamsSchema.shape.versionId),
 };
 
+const contentDispositionParameter = {
+  name: "disposition",
+  in: "query",
+  required: false,
+  description:
+    "attachment (the default) saves the file. inline asks the browser to show it, and is honoured only for png, jpeg, gif, webp and pdf; any other type is sent as an attachment.",
+  schema: z.toJSONSchema(fileContentQuerySchema.shape.disposition),
+};
+
+const rangeHeaderParameter = {
+  name: "Range",
+  in: "header",
+  required: false,
+  description:
+    "A single byte range: bytes=a-b, bytes=a- or bytes=-n. A malformed header, a unit other than bytes or several ranges are ignored and the whole file is sent.",
+  schema: { type: "string" },
+};
+
 const listQueryParameters = [
   {
     name: "cursor",
@@ -118,8 +137,36 @@ const uploadParentIdHeader = {
 };
 
 const contentHeaders = {
+  "Accept-Ranges": { description: "Always bytes.", schema: { type: "string" } },
+  "Cache-Control": { description: "Always private, no-store.", schema: { type: "string" } },
   "Content-Disposition": {
-    description: "The file name for the download, as an attachment.",
+    description:
+      "attachment, or inline when the request asked for it and the type is safe to show. The file name is in filename (ASCII) and filename* (UTF-8, RFC 5987).",
+    schema: { type: "string" },
+  },
+  "Content-Length": {
+    description: "The number of bytes in the body.",
+    schema: { type: "integer" },
+  },
+  "Content-Security-Policy": {
+    description: "Sent only for an inline response.",
+    schema: { type: "string" },
+  },
+  "X-Content-Type-Options": { description: "Always nosniff.", schema: { type: "string" } },
+};
+
+const partialContentHeaders = {
+  ...contentHeaders,
+  "Content-Range": {
+    description: "The bytes in the body, as bytes start-end/size.",
+    schema: { type: "string" },
+  },
+};
+
+const rangeNotSatisfiableHeaders = {
+  "Accept-Ranges": contentHeaders["Accept-Ranges"],
+  "Content-Range": {
+    description: "bytes */size, where size is the size of the file or version.",
     schema: { type: "string" },
   },
 };
@@ -128,12 +175,20 @@ const downloadResponses = {
   "200": { description: "The whole file.", headers: contentHeaders, content: binaryContent },
   "206": {
     description: "The requested byte range, when the request sent a Range header.",
-    headers: contentHeaders,
+    headers: partialContentHeaders,
     content: binaryContent,
   },
-  "400": isFolder,
+  "400": errorResponse(
+    "IS_FOLDER: the target is a folder and has no content. VALIDATION_FAILED: the id, the version id, the disposition or the query does not match the request schema.",
+  ),
   "401": unauthenticated,
   "404": notFound,
+  "416": {
+    ...errorResponse(
+      "RANGE_NOT_SATISFIABLE: the Range header asks for bytes outside the file or version.",
+    ),
+    headers: rangeNotSatisfiableHeaders,
+  },
 };
 
 export const filesOpenApiPaths = {
@@ -286,7 +341,7 @@ export const filesOpenApiPaths = {
     get: {
       operationId: "downloadFile",
       summary: "Download the current version of a file",
-      parameters: [fileIdParameter],
+      parameters: [fileIdParameter, contentDispositionParameter, rangeHeaderParameter],
       responses: downloadResponses,
     },
   },
@@ -373,7 +428,12 @@ export const filesOpenApiPaths = {
     get: {
       operationId: "downloadFileVersion",
       summary: "Download one version of a file",
-      parameters: [fileIdParameter, fileVersionIdParameter],
+      parameters: [
+        fileIdParameter,
+        fileVersionIdParameter,
+        contentDispositionParameter,
+        rangeHeaderParameter,
+      ],
       responses: downloadResponses,
     },
   },

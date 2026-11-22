@@ -15,4 +15,5 @@ export const filesErrorCodeSchema = z.enum([
   "UPLOAD_OFFSET_MISMATCH",
   "PAYLOAD_TOO_LARGE",
   "CURRENT_VERSION",
+  "RANGE_NOT_SATISFIABLE",
 ]);

@@ -152,6 +152,7 @@ export * from "./create-folder-request-schema.js";
 export * from "./rename-file-request-schema.js";
 export * from "./move-file-request-schema.js";
 export * from "./move-file-result-schema.js";
+export * from "./file-content-query-schema.js";
 export * from "./file-list-query-schema.js";
 export * from "./drive-params-schema.js";
 export * from "./file-params-schema.js";
