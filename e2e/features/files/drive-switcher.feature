@@ -53,7 +53,7 @@ Feature: Switching between the personal drive and family drives
   Scenario: On a phone Anna reaches the drives page from the Files page
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens the Files page on a phone
-    And Anna taps the drives link on the phone
+    And Anna taps the active drive on the phone
     Then the drives page is open on the phone
     And the drive sidebar lists the drives "Personal" and "Home"
 
