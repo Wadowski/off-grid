@@ -47,6 +47,10 @@ Then("I see the Files page", async ({ page }) => {
   await expect(page.getByTestId("files-page").getByRole("heading", { level: 1 })).toBeVisible();
 });
 
+Then("I see the Files heading", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Files", exact: true })).toBeVisible();
+});
+
 Then("the sidebar marks {string} as the current page", async ({ page }, label: string) => {
   await expect(
     page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: label }),

@@ -12,6 +12,7 @@ Feature: Files navigation
     Given a 1280 px wide screen
     When I open Files from the navigation
     Then I see the Files page
+    And I see the Files heading
     And the sidebar marks "Files" as the current page
 
   Scenario: Files opens from the Apps list on a phone

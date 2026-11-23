@@ -3,10 +3,11 @@
 
 import { ApiError } from "@offgrid/api-client";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFile, listDriveChildren, listDrives, listFileChildren } from "../../files/files-api.js";
 import type { Drive } from "../../files/types.js";
+import type { DriveSwitcherProps } from "../../layouts/files-layout/components/drive-switcher/types.js";
 import { FilesPage } from "./files-page.js";
 
 vi.mock("../../files/files-api.js", () => ({
@@ -68,12 +69,22 @@ const withPhoneWidth = (isPhone: boolean) => {
   };
 };
 
+const SWITCHER: DriveSwitcherProps = {
+  drives: [DRIVE],
+  status: "ready",
+  errorTextId: null,
+  activeDriveId: DRIVE.id,
+  onRetry: () => undefined,
+};
+
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path="/files" element={<FilesPage />} />
-        <Route path="/files/:driveId/folder/:folderId?" element={<FilesPage />} />
+        <Route element={<Outlet context={SWITCHER} />}>
+          <Route path="/files" element={<FilesPage />} />
+          <Route path="/files/:driveId/folder/:folderId?" element={<FilesPage />} />
+        </Route>
       </Routes>
     </MemoryRouter>,
   );
@@ -113,13 +124,51 @@ describe("FilesPage", () => {
     }
   });
 
-  it("keeps the Files heading on a phone", async () => {
+  it("replaces the Files heading with the top row on a phone, also inside a folder", async () => {
     const restore = withPhoneWidth(true);
     try {
       renderAt(FOLDER_PATH);
 
       await screen.findByTestId("files-breadcrumb-current");
-      expect(screen.getByRole("heading", { name: "Files" })).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Files" })).not.toBeInTheDocument();
+      expect(screen.getByTestId("files-top-bar-drive-name")).toHaveTextContent("Personal");
+    } finally {
+      restore();
+    }
+  });
+
+  it("hides the Files heading on a phone, where the top row takes its place", () => {
+    const restore = withPhoneWidth(true);
+    try {
+      renderAt("/files");
+
+      expect(screen.queryByRole("heading", { name: "Files" })).not.toBeInTheDocument();
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows the top row with the active drive on a phone and not the old drives link", async () => {
+    const restore = withPhoneWidth(true);
+    try {
+      renderAt("/files");
+
+      expect(await screen.findByTestId("files-top-bar-drive-name")).toHaveTextContent("Personal");
+      expect(screen.getByTestId("files-top-bar-upload")).toBeDisabled();
+      expect(screen.getByTestId("files-top-bar-new-folder")).toBeDisabled();
+      expect(screen.queryByTestId("files-drives-link")).not.toBeInTheDocument();
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows no top row on a wide screen", () => {
+    const restore = withPhoneWidth(false);
+    try {
+      renderAt("/files");
+
+      expect(screen.queryByTestId("files-top-bar")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("files-drives-link")).not.toBeInTheDocument();
     } finally {
       restore();
     }

@@ -101,8 +101,8 @@ When(/^Anna opens the drives page on a phone$/, async ({ page }) => {
   await expect(driveSidebarOf(page)).toBeVisible({ timeout: SIDEBAR_TIMEOUT_MS });
 });
 
-When("Anna taps the drives link on the phone", async ({ page }) => {
-  await page.getByTestId("files-drives-link").click();
+When("Anna taps the active drive on the phone", async ({ page }) => {
+  await page.getByTestId("files-top-bar-drive-control").click();
 });
 
 Then("the drives page is open on the phone", async ({ page }) => {
