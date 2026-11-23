@@ -9,6 +9,8 @@ import type {
   fileListSchema,
   fileSchema,
   filesErrorCodeSchema,
+  familyMemberSchema,
+  fileVersionSchema,
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus } from "../types.js";
@@ -107,4 +109,35 @@ export type FileDetailsValues = {
 export type FileBackTarget = {
   readonly to: string;
   readonly name: string;
+};
+
+export type FileVersion = ReturnType<typeof fileVersionSchema.parse>;
+export type FamilyMemberEntry = ReturnType<typeof familyMemberSchema.parse>;
+
+export type FileVersionsState = {
+  readonly versions: readonly FileVersion[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
+};
+
+export type FamilyMembersState = {
+  readonly members: readonly FamilyMemberEntry[];
+  readonly status: ListStatus;
+  readonly refresh: () => Promise<void>;
+};
+
+export type FileAccessRole = "owner" | "admin" | "member";
+
+export type FileAccessEntry = {
+  readonly userId: string;
+  readonly name: string | null;
+  readonly role: FileAccessRole;
+};
+
+export type FileActivityEntry = {
+  readonly id: FileVersion["id"];
+  readonly number: number;
+  readonly createdAt: Date;
+  readonly name: string | null;
 };
