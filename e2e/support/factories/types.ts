@@ -22,3 +22,6 @@ export type FileVersionEntry = { id: string; number: number };
 export type Container = { kind: "drive" | "folder"; id: string };
 
 export type DownloadResponse = { status: number; headers: Record<string, string>; body: string };
+
+export type NoticeType =
+  "password-changed" | "recovery-code-regenerated" | "event-invited" | "event-reminder";

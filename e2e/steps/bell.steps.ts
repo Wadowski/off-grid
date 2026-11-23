@@ -1,13 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { APIRequestContext, APIResponse } from "@playwright/test";
-import { calendarEventSchema } from "@offgrid/contracts";
 import { createBdd } from "playwright-bdd";
 import { bearer, joinFamilyWithInvitation } from "../support/family-sessions.js";
 import { createCalendar } from "../support/factories/calendar.js";
-import { createEventWithLocation, inviteGuest } from "../support/factories/calendar-guests.js";
 import {
+  createEventInvitation,
   listOwnNotifications,
   regenerateOwnRecoveryCode,
   signedInPerson,
@@ -18,9 +16,6 @@ import { signInThroughUi } from "../support/web-session.js";
 import type { SignedInPerson } from "../support/factories/notifications.js";
 
 const { Given, When, Then } = createBdd(test);
-
-const INVITE_SETTLE_TIMEOUT_MS = 5_000;
-const INVITE_SETTLE_INTERVAL_MS = 200;
 
 const annaOf = (world: ScenarioWorld): SignedInPerson => {
   const anna = world.people?.anna;
@@ -41,21 +36,6 @@ const tomOf = (world: ScenarioWorld): SignedInPerson => {
 const createNoticeForAnna = async (world: ScenarioWorld): Promise<void> => {
   const response = await regenerateOwnRecoveryCode(world.api, annaOf(world));
   expect(response.status(), "Anna could not get a new notice").toBe(201);
-};
-
-const inviteOnceShared = async (
-  api: APIRequestContext,
-  host: SignedInPerson,
-  eventId: string,
-  guestUserId: string,
-): Promise<APIResponse> => {
-  const deadline = Date.now() + INVITE_SETTLE_TIMEOUT_MS;
-  let response = await inviteGuest(api, host.session, eventId, guestUserId);
-  while (response.status() === 400 && Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, INVITE_SETTLE_INTERVAL_MS));
-    response = await inviteGuest(api, host.session, eventId, guestUserId);
-  }
-  return response;
 };
 
 const bellNameFor = (count: number): string =>
@@ -94,15 +74,10 @@ Given(/^she has (\d+) unread calendar invitations? from Tom$/, async ({ world },
     color: "blue",
   });
   for (let index = 0; index < Number(count); index++) {
-    const created = await createEventWithLocation(world.api, tom.session, calendar.id, {
+    await createEventInvitation(world.api, tom, anna, {
+      calendarId: calendar.id,
       title: `Invitation ${index + 1}`,
-      startsAt: "2026-12-01T09:00:00Z",
-      endsAt: "2026-12-01T09:30:00Z",
     });
-    expect(created.status(), `Tom could not create invitation ${index + 1}`).toBe(201);
-    const { id: eventId } = calendarEventSchema.pick({ id: true }).parse(await created.json());
-    const invited = await inviteOnceShared(world.api, tom, eventId, anna.userId);
-    expect(invited.status(), `Tom could not invite Anna to invitation ${index + 1}`).toBe(201);
   }
   await waitForOwnNotifications(
     world.api,
