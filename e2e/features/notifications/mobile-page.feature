@@ -14,4 +14,4 @@ Feature: Notifications page on a phone
     And she has a password change notice
     And she has a recovery code notice
     When Anna opens the notifications page on a phone
-    Then the notifications page lists her 3 notices
+    Then the notifications page on a phone lists her 3 notices

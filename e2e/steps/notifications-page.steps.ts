@@ -16,7 +16,6 @@ const NOTIFICATIONS_PAGE_TEST_ID = "notifications-page";
 const NOTICE_CARD_TEST_ID = "notification-card";
 const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 const PHONE_VIEWPORT = { width: 375, height: 812 };
-const PHONE_MAX_WIDTH = 767;
 const DESKTOP_FEATURE = "Notifications page on a desktop";
 const PHONE_FEATURE = "Notifications page on a phone";
 const PAGE_NAME = "notifications page";
@@ -31,10 +30,9 @@ const annaOf = (world: ScenarioWorld): SignedInPerson => {
 
 const pageOf = (page: Page): Locator => page.getByTestId(NOTIFICATIONS_PAGE_TEST_ID);
 
-const featureFor = (page: Page): string =>
-  (page.viewportSize()?.width ?? DESKTOP_VIEWPORT.width) > PHONE_MAX_WIDTH
-    ? DESKTOP_FEATURE
-    : PHONE_FEATURE;
+const expectNoticeCount = async (page: Page, count: string): Promise<void> => {
+  await expect(pageOf(page).getByTestId(NOTICE_CARD_TEST_ID)).toHaveCount(Number(count));
+};
 
 const openNotificationsPage = async (
   page: Page,
@@ -55,7 +53,18 @@ When("Anna opens the notifications page on a phone", async ({ page, world }) => 
   await openNotificationsPage(page, annaOf(world), PHONE_VIEWPORT);
 });
 
-Then(/^the notifications page lists her (\d+) notices$/, async ({ page }, count: string) => {
-  await expect(pageOf(page).getByTestId(NOTICE_CARD_TEST_ID)).toHaveCount(Number(count));
-  await captureScreen(page, PAGE_NAME, featureFor(page));
-});
+Then(
+  /^the notifications page on a desktop lists her (\d+) notices$/,
+  async ({ page }, count: string) => {
+    await expectNoticeCount(page, count);
+    await captureScreen(page, PAGE_NAME, DESKTOP_FEATURE);
+  },
+);
+
+Then(
+  /^the notifications page on a phone lists her (\d+) notices$/,
+  async ({ page }, count: string) => {
+    await expectNoticeCount(page, count);
+    await captureScreen(page, PAGE_NAME, PHONE_FEATURE);
+  },
+);

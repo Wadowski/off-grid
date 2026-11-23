@@ -15,4 +15,4 @@ Feature: Notifications page on a desktop
     And she has a password change notice
     And she has a recovery code notice
     When Anna opens the notifications page on a desktop screen
-    Then the notifications page lists her 3 notices
+    Then the notifications page on a desktop lists her 3 notices

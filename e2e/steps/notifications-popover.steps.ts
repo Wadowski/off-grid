@@ -36,10 +36,11 @@ const filterChipOf = (page: Page, label: string): Locator =>
 const quotedNames = (text: string): string[] =>
   Array.from(text.matchAll(/"([^"]+)"/g), (match) => match[1] ?? "");
 
-const reopenPopover = async (page: Page): Promise<void> => {
-  if ((await popoverOf(page).count()) === 0) {
+const showPopover = async (page: Page): Promise<void> => {
+  if (!(await popoverOf(page).isVisible())) {
     await page.getByTestId("header-bell").click();
   }
+  await expect(popoverOf(page)).toBeVisible();
 };
 
 const openPopoverOnDesktop = async (page: Page, anna: SignedInPerson): Promise<void> => {
@@ -60,7 +61,9 @@ Then(
   /^the notifications popover lists her (\d+) latest notices$/,
   async ({ page }, count: string) => {
     await expect(popoverOf(page).getByTestId("notification-card")).toHaveCount(Number(count));
-    await captureScreen(page, "notifications popover", FEATURE, () => reopenPopover(page));
+    await captureScreen(page, "notifications popover", FEATURE, () => showPopover(page), {
+      phone: false,
+    });
   },
 );
 
@@ -97,7 +100,9 @@ Then("the notifications popover shows no unread notices", async ({ page }) => {
 Then("the notifications popover tells her she is all caught up", async ({ page }) => {
   await expect(popoverOf(page).getByTestId("notifications-empty-state")).toBeVisible();
   await expect(popoverOf(page).getByTestId("notification-card")).toHaveCount(0);
-  await captureScreen(page, "notifications popover empty", FEATURE, () => reopenPopover(page));
+  await captureScreen(page, "notifications popover empty", FEATURE, () => showPopover(page), {
+    phone: false,
+  });
 });
 
 When("Anna chooses to view all notifications from the notifications popover", async ({ page }) => {
