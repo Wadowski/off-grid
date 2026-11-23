@@ -3,6 +3,8 @@
 
 import type { FilesErrorCode, FilesErrorTextId, FolderContentsSnapshot } from "./types.js";
 
+export const FILE_LOCATION_SEPARATOR = " › ";
+
 export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   NOT_FOUND: "files.errors.notFound",
   VALIDATION_FAILED: "files.errors.validationFailed",

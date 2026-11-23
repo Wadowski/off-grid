@@ -103,3 +103,8 @@ export type FileDetailsValues = {
   readonly createdAt: Date;
   readonly updatedAt: Date;
 };
+
+export type FileBackTarget = {
+  readonly to: string;
+  readonly name: string;
+};
