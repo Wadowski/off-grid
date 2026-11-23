@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type {
-  NotificationsInbox,
   NotificationItem,
-} from "../../../../../../../../notifications/inbox-store/types.js";
+  NotificationsInbox,
+} from "../../../../../../../../notifications/index.js";
 
-export type NotificationsModalListProps = {
+export type NotificationsSurfaceListProps = {
   readonly inbox: NotificationsInbox;
   readonly onOpen: (notice: NotificationItem) => Promise<void>;
+  readonly limit?: number;
 };

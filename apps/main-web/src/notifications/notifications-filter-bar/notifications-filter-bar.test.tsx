@@ -3,9 +3,10 @@
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { NotificationsLayout } from "../types.js";
 import { NotificationsFilterBar } from "./notifications-filter-bar.js";
 
-const renderBar = (layout: "desktop" | "phone", onSelect = vi.fn()) =>
+const renderBar = (layout: NotificationsLayout, onSelect = vi.fn()) =>
   render(
     <NotificationsFilterBar
       layout={layout}
@@ -42,5 +43,13 @@ describe("NotificationsFilterBar", () => {
     fireEvent.click(screen.getByTestId("notifications-filter-unread"));
 
     expect(onSelect).toHaveBeenCalledWith("unread");
+  });
+
+  it("keeps the popover chips in one row and hides the sort label", () => {
+    renderBar("popover");
+
+    expect(screen.queryByText("Newest first")).toBeNull();
+    const chips = screen.getByTestId("notifications-filter-all").parentElement!;
+    expect(chips).toHaveStyle({ flexWrap: "nowrap", overflowX: "auto" });
   });
 });

@@ -21,7 +21,7 @@ export type DayGroup<T> = {
 
 export type DatedItem = { readonly createdAt: string };
 
-export type NotificationsLayout = "desktop" | "phone";
+export type NotificationsLayout = "desktop" | "phone" | "popover";
 
 export type NotificationFilterOption = "all" | "unread" | "calendar" | "account-security";
 

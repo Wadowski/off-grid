@@ -61,6 +61,12 @@ export const tokens = {
     },
     weight: { regular: "400", medium: "500", semibold: "600" },
   },
+  size: {
+    header: "3.5rem",
+    popover: "430px",
+    popoverListMax: "460px",
+    popoverGutter: "1.5rem",
+  },
   radius: { sm: "0.25rem", md: "0.5rem", lg: "0.75rem", full: "9999px" },
   elevation: {
     1: "0 1px 2px 0 rgb(0 0 0 / 0.05)",

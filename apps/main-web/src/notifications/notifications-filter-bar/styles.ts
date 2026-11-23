@@ -28,11 +28,11 @@ export const notificationsSortStyle: CSSProperties = {
   color: cssVar("color-muted"),
 };
 
-export const notificationsFilterBarPhoneStyle: CSSProperties = {
+export const notificationsFilterBarSingleRowStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const notificationsFilterChipsPhoneStyle: CSSProperties = {
+export const notificationsFilterChipsSingleRowStyle: CSSProperties = {
   display: "flex",
   flexWrap: "nowrap",
   alignItems: "center",

@@ -12,7 +12,7 @@ export const appShellStyle: CSSProperties = {
 };
 
 const SIDEBAR_WIDTH = "16rem";
-const HEADER_HEIGHT = "3.5rem";
+const HEADER_HEIGHT = tokens.size.header;
 const PHONE_TAB_BAR_RESERVE = "6rem";
 const FLOATING_SHADOW = "0 1px 8px color-mix(in srgb, var(--og-color-fg) 4%, transparent)";
 const TRANSLUCENT_SURFACE = "color-mix(in srgb, var(--og-color-surface) 75%, transparent)";

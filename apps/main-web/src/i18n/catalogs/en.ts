@@ -750,6 +750,9 @@ export const en = {
       viewAll: "View All Notifications Page",
       close: "Close",
     },
+    popover: {
+      viewAll: "View All Notifications",
+    },
     bell: {
       label: "Notifications",
       labelUnread: "Notifications, {{count}} unread",

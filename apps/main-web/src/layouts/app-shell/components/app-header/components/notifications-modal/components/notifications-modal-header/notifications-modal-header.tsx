@@ -5,11 +5,11 @@ import { Button, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { NotificationsMarkAllReadButton } from "../../../../../../../../notifications/index.js";
 import { NOTIFICATIONS_MODAL_TITLE_ID } from "../../constants.js";
+import { notificationsSurfaceTitleRowStyle } from "../../../notifications-surface/styles.js";
 import {
   notificationsModalActionsStyle,
   notificationsModalHandleStyle,
   notificationsModalHeaderStyle,
-  notificationsModalTitleRowStyle,
 } from "./styles.js";
 import type { NotificationsModalHeaderProps } from "./types.js";
 
@@ -22,7 +22,7 @@ export const NotificationsModalHeader = ({
   return (
     <div style={notificationsModalHeaderStyle}>
       <span style={notificationsModalHandleStyle} aria-hidden="true" />
-      <div style={notificationsModalTitleRowStyle}>
+      <div style={notificationsSurfaceTitleRowStyle}>
         <Text
           variant="heading"
           textId="notifications.page.heading"

@@ -15,4 +15,4 @@ export { sliceFirstPage } from "./slice-first-page.js";
 export { NotificationsEmptyState } from "./notifications-empty-state/notifications-empty-state.js";
 export { NotificationsErrorState } from "./notifications-error-state/notifications-error-state.js";
 export { useOpenNotice } from "./use-open-notice.js";
-export type { NotificationItem } from "./inbox-store/types.js";
+export type { NotificationItem, NotificationsInbox } from "./inbox-store/types.js";

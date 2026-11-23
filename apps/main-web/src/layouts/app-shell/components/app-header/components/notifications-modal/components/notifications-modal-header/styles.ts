@@ -19,15 +19,6 @@ export const notificationsModalHandleStyle: CSSProperties = {
   background: cssVar("color-line"),
 };
 
-export const notificationsModalTitleRowStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: tokens.space[2],
-  width: "100%",
-  minWidth: 0,
-};
-
 export const notificationsModalActionsStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",

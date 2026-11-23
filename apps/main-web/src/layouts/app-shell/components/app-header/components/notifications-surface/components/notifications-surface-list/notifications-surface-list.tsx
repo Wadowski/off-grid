@@ -9,19 +9,23 @@ import {
   sliceFirstPage,
 } from "../../../../../../../../notifications/index.js";
 import {
-  notificationsModalCardRowStyle,
-  notificationsModalListStyle,
-  notificationsModalStateStyle,
-} from "./styles.js";
-import type { NotificationsModalListProps } from "./types.js";
+  notificationsSurfaceCardRowStyle,
+  notificationsSurfaceListStyle,
+  notificationsSurfaceStateStyle,
+} from "../../styles.js";
+import type { NotificationsSurfaceListProps } from "./types.js";
 
-export const NotificationsModalList = ({ inbox, onOpen }: NotificationsModalListProps) => {
+export const NotificationsSurfaceList = ({
+  inbox,
+  onOpen,
+  limit,
+}: NotificationsSurfaceListProps) => {
   if (inbox.status === "error" && inbox.errorKind === "load") {
     return <NotificationsErrorState layout="sheet" onRetry={() => void inbox.reload()} />;
   }
   if (inbox.status === "loading" && inbox.items.length === 0) {
     return (
-      <div style={notificationsModalStateStyle}>
+      <div style={notificationsSurfaceStateStyle}>
         <Text variant="status" textId="notifications.page.loading" role="status" />
       </div>
     );
@@ -30,12 +34,12 @@ export const NotificationsModalList = ({ inbox, onOpen }: NotificationsModalList
     return <NotificationsEmptyState layout="sheet" />;
   }
   return (
-    <div style={notificationsModalListStyle}>
+    <div style={notificationsSurfaceListStyle}>
       {inbox.errorKind === "stream" ? (
         <Text variant="status" textId="notifications.liveUpdatesUnavailable" />
       ) : null}
-      {sliceFirstPage(inbox.items).map((notice) => (
-        <div key={notice.id} style={notificationsModalCardRowStyle}>
+      {sliceFirstPage(inbox.items, limit).map((notice) => (
+        <div key={notice.id} style={notificationsSurfaceCardRowStyle}>
           <NotificationCard
             notice={notice}
             density="compact"
