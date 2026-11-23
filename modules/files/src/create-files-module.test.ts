@@ -9,7 +9,7 @@ import { createFilesModule } from "./create-files-module.js";
 
 describe("createFilesModule", () => {
   it("names the module files and registers the storage integrity sweep worker", () => {
-    const module = createFilesModule({ directory: "/data/files", maxUploadBytes: 1024 });
+    const module = createFilesModule({ directory: "/data/files", maxUploadBytes: 1024, trashRetentionDays: 30 });
     const workers = module.workers({
       db: {} as ModuleDatabase,
       logger: createLogger({ sink: () => undefined }),
@@ -20,7 +20,7 @@ describe("createFilesModule", () => {
   });
 
   it("registers one family membership subscription that halts on failure", () => {
-    const module = createFilesModule({ directory: "/data/files", maxUploadBytes: 1024 });
+    const module = createFilesModule({ directory: "/data/files", maxUploadBytes: 1024, trashRetentionDays: 30 });
     const subscribeToEvents = vi.fn();
 
     module.registerSubscribers({
@@ -39,7 +39,7 @@ describe("createFilesModule", () => {
   });
 
   it("registers the personal and family drive subscriptions", () => {
-    const module = createFilesModule({ directory: "/data/files", maxUploadBytes: 1024 });
+    const module = createFilesModule({ directory: "/data/files", maxUploadBytes: 1024, trashRetentionDays: 30 });
     const subscribe = vi.fn();
 
     module.registerSubscribers({

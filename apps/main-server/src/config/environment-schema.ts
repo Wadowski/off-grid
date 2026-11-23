@@ -7,7 +7,11 @@ import { isHttpOrigin } from "./is-http-origin.js";
 import { isIpOrCidr } from "./is-ip-or-cidr.js";
 import { parseCommaSeparated } from "./parse-comma-separated.js";
 import { portSchema } from "./port-schema.js";
-import { DEFAULT_FILES_DIRECTORY, DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
+import {
+  DEFAULT_FILES_DIRECTORY,
+  DEFAULT_FILES_MAX_UPLOAD_BYTES,
+  DEFAULT_FILES_TRASH_RETENTION_DAYS,
+} from "../constants.js";
 
 export const environmentSchema = z.object({
   OFFGRID_HTTP_HOST: z.string().min(1).default("127.0.0.1"),
@@ -45,6 +49,12 @@ export const environmentSchema = z.object({
     .min(1)
     .max(Number.MAX_SAFE_INTEGER)
     .default(DEFAULT_FILES_MAX_UPLOAD_BYTES),
+  OFFGRID_FILES_TRASH_RETENTION_DAYS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(3650)
+    .default(DEFAULT_FILES_TRASH_RETENTION_DAYS),
   OFFGRID_VERSION: z
     .string()
     .trim()

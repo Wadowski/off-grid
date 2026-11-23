@@ -22,6 +22,7 @@ export interface StorageIntegrityReport {
 export interface FilesModuleOptions {
   readonly directory: string;
   readonly maxUploadBytes: number;
+  readonly trashRetentionDays: number;
 }
 
 export interface FilesSubscriberContext {

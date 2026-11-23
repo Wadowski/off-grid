@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
+import {
+  DEFAULT_FILES_MAX_UPLOAD_BYTES,
+  DEFAULT_FILES_TRASH_RETENTION_DAYS,
+} from "../constants.js";
 import { loadConfig } from "./load-config.js";
 
 const DATABASE_SECRET_PATH = "/run/secrets/db_password";
@@ -40,7 +43,11 @@ describe("loadConfig", () => {
       corsOrigins: [],
       rateLimitPerMinute: 300,
       outbox: { retentionDays: 7 },
-      files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
+      files: {
+        directory: "/data/files",
+        maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+        trashRetentionDays: DEFAULT_FILES_TRASH_RETENTION_DAYS,
+      },
       version: { version: "dev" },
       updater: null,
       logLevel: "info",
@@ -86,11 +93,16 @@ describe("loadConfig", () => {
         ...requiredEnv,
         OFFGRID_FILES_DIRECTORY: "/srv/offgrid/files",
         OFFGRID_FILES_MAX_UPLOAD_BYTES: "1048576",
+        OFFGRID_FILES_TRASH_RETENTION_DAYS: "7",
       },
       secretFiles("x"),
     );
 
-    expect(config.files).toEqual({ directory: "/srv/offgrid/files", maxUploadBytes: 1048576 });
+    expect(config.files).toEqual({
+      directory: "/srv/offgrid/files",
+      maxUploadBytes: 1048576,
+      trashRetentionDays: 7,
+    });
   });
 
   it("splits the allowed CORS origins and trims each entry", () => {
@@ -204,6 +216,10 @@ describe("loadConfig", () => {
     ["OFFGRID_FILES_MAX_UPLOAD_BYTES", "abc"],
     ["OFFGRID_FILES_MAX_UPLOAD_BYTES", ""],
     ["OFFGRID_FILES_MAX_UPLOAD_BYTES", String(Number.MAX_SAFE_INTEGER + 1)],
+    ["OFFGRID_FILES_TRASH_RETENTION_DAYS", "0"],
+    ["OFFGRID_FILES_TRASH_RETENTION_DAYS", "3651"],
+    ["OFFGRID_FILES_TRASH_RETENTION_DAYS", "1.5"],
+    ["OFFGRID_FILES_TRASH_RETENTION_DAYS", "abc"],
   ])("rejects an invalid %s value and names the variable", (variable, value) => {
     expect(() => loadConfig({ ...requiredEnv, [variable]: value }, secretFiles("x"))).toThrow(
       new RegExp(variable),

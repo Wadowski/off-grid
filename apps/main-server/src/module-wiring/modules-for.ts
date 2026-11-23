@@ -19,6 +19,7 @@ export const modulesFor = (config: ServerConfig): readonly ModuleDescriptor[] =>
   createFilesModule({
     directory: config.files.directory,
     maxUploadBytes: config.files.maxUploadBytes,
+    trashRetentionDays: config.files.trashRetentionDays,
   }),
   createSystemModule({ ...config.version, updater: config.updater }),
 ];

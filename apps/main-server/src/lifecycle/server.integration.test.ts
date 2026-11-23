@@ -10,7 +10,10 @@ import { startTestDatabase } from "../../test/start-test-database.js";
 import type { TestDatabase } from "../../test/types.js";
 import { modulesFor } from "../module-wiring/modules-for.js";
 import { startServer } from "./start-server.js";
-import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
+import {
+  DEFAULT_FILES_MAX_UPLOAD_BYTES,
+  DEFAULT_FILES_TRASH_RETENTION_DAYS,
+} from "../constants.js";
 import type { ServerConfig } from "../types.js";
 
 let database: TestDatabase;
@@ -24,7 +27,11 @@ const configFor = (db: TestDatabase): ServerConfig => ({
   corsOrigins: [],
   rateLimitPerMinute: 1000,
   outbox: { retentionDays: 7 },
-  files: { directory: filesDirectory, maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
+  files: {
+    directory: filesDirectory,
+    maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+    trashRetentionDays: DEFAULT_FILES_TRASH_RETENTION_DAYS,
+  },
   logLevel: "error",
 });
 
@@ -76,6 +83,7 @@ describe("startServer", () => {
       files: {
         directory: join(filesDirectory, "absent"),
         maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+        trashRetentionDays: DEFAULT_FILES_TRASH_RETENTION_DAYS,
       },
     };
 

@@ -46,6 +46,7 @@ export const loadConfig = (
     files: {
       directory: values.OFFGRID_FILES_DIRECTORY,
       maxUploadBytes: values.OFFGRID_FILES_MAX_UPLOAD_BYTES,
+      trashRetentionDays: values.OFFGRID_FILES_TRASH_RETENTION_DAYS,
     },
     version: {
       version: values.OFFGRID_VERSION,
