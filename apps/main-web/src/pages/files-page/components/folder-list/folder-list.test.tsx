@@ -66,6 +66,7 @@ const renderList = (overrides: Partial<Parameters<typeof FolderList>[0]> = {}) =
           }
         />
         <Route path="/files/:driveId/folder/:folderId" element={<LocationProbe />} />
+        <Route path="/files/:driveId/file/:fileId" element={<LocationProbe />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -102,11 +103,12 @@ describe("FolderList", () => {
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/folder/${PHOTOS_ID}`);
   });
 
-  it("does nothing when a file row is activated", () => {
+  it("opens the details of a file when its row is activated", () => {
     renderList();
 
-    expect(screen.queryByRole("button", { name: /Trip\.pdf/ })).not.toBeInTheDocument();
-    expect(screen.queryByTestId("probe")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Trip\.pdf/ }));
+
+    expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/file/${TRIP_ID}`);
   });
 
   it("shows a load more button only when another page exists and asks for it", () => {
