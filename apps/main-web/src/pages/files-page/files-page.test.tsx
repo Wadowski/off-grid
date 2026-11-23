@@ -102,6 +102,29 @@ describe("FilesPage", () => {
     expect(listDrives).not.toHaveBeenCalled();
   });
 
+  it("shows the drive name as the heading on a wide screen once the folder is loaded", async () => {
+    const restore = withPhoneWidth(false);
+    try {
+      renderAt(FOLDER_PATH);
+
+      expect(await screen.findByRole("heading", { name: "Personal" })).toBeInTheDocument();
+    } finally {
+      restore();
+    }
+  });
+
+  it("keeps the Files heading on a phone", async () => {
+    const restore = withPhoneWidth(true);
+    try {
+      renderAt(FOLDER_PATH);
+
+      await screen.findByTestId("files-breadcrumb-current");
+      expect(screen.getByRole("heading", { name: "Files" })).toBeInTheDocument();
+    } finally {
+      restore();
+    }
+  });
+
   it("shows the loading text while the folder is requested", () => {
     renderAt(FOLDER_PATH);
 
@@ -119,7 +142,7 @@ describe("FilesPage", () => {
       expect(screen.getByTestId("files-breadcrumb-current")).toHaveTextContent("Photos"),
     );
     expect(screen.getByRole("link", { name: "Personal" })).toBeInTheDocument();
-    expect(await screen.findByRole("list", { name: "Folder contents" })).toHaveTextContent(
+    expect(await screen.findByRole("table", { name: "Folder contents" })).toHaveTextContent(
       "Summer",
     );
     expect(listFileChildren).toHaveBeenCalledWith(FOLDER_ID, {});
@@ -167,7 +190,7 @@ describe("FilesPage", () => {
     try {
       renderAt(FOLDER_PATH);
 
-      await screen.findByRole("list", { name: "Folder contents" });
+      await screen.findByRole("table", { name: "Folder contents" });
       expect(screen.queryByTestId("files-back-link")).not.toBeInTheDocument();
     } finally {
       restore();

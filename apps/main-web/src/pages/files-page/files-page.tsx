@@ -31,10 +31,16 @@ export const FilesPage = () => {
   const parentPath =
     folder.driveId === null ? null : toParentFolderPath(folder.driveId, folder.breadcrumbs);
   const parentName = folder.breadcrumbs.at(-2)?.name;
+  const driveName = folder.breadcrumbs.at(0)?.name;
+  const showsDriveName = !phone && driveName !== undefined;
 
   return (
     <div style={filesPageStyle} data-testid="files-page">
-      <Text variant="heading" textId="files.layout.heading" />
+      {showsDriveName ? (
+        <Text variant="heading" value={driveName} />
+      ) : (
+        <Text variant="heading" textId="files.layout.heading" />
+      )}
       {phone ? (
         <Link to="/files/drives" style={backLinkStyle} data-testid="files-drives-link">
           <MaterialIcon name="database" size="20px" color={cssVar("color-primary")} />
@@ -59,7 +65,7 @@ export const FilesPage = () => {
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents driveId={folder.driveId} contents={contents} />
+        <FolderContents driveId={folder.driveId} contents={contents} phone={phone} />
       ) : null}
     </div>
   );
