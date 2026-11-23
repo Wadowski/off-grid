@@ -74,6 +74,22 @@ describe("FileTableRow", () => {
     expect(screen.getByTestId("file-table-activate")).toHaveAttribute("aria-current", "true");
   });
 
+  it("shows a selected row with an accent bar on its first cell, not only a tint", () => {
+    renderRow({ name: "Policy.pdf", kind: "pdf", selected: true, onActivate: vi.fn() });
+
+    const firstCell = screen.getByRole("cell", { name: /Policy\.pdf/ });
+    expect(firstCell.getAttribute("style")).toContain(
+      "inset var(--og-selected-row-bar-width) 0 0 var(--og-color-accent)",
+    );
+  });
+
+  it("shows no accent bar on a row that is not selected", () => {
+    renderRow({ name: "Policy.pdf", kind: "pdf", onActivate: vi.fn() });
+
+    const firstCell = screen.getByRole("cell", { name: /Policy\.pdf/ });
+    expect(firstCell.getAttribute("style")).not.toContain("inset");
+  });
+
   it("does not mark a row as selected by default", () => {
     renderRow({ name: "Policy.pdf", kind: "pdf", onActivate: vi.fn() });
 

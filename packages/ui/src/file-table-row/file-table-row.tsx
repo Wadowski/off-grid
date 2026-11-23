@@ -11,6 +11,7 @@ import { Text } from "../text/text.js";
 import {
   fileTableActivatorStyle,
   fileTableCellStyle,
+  fileTableNameCellStyle,
   fileTableNameStyle,
   fileTableRowStyle,
   fileTableSizeCellStyle,
@@ -38,7 +39,7 @@ export const FileTableRow = ({
 
   return (
     <tr style={fileTableRowStyle(selected)} data-testid="file-table-row" data-selected={selected}>
-      <td style={fileTableCellStyle}>
+      <td style={fileTableNameCellStyle(selected)}>
         <div
           style={fileTableActivatorStyle}
           data-testid="file-table-activate"

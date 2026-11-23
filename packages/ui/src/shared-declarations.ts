@@ -14,4 +14,5 @@ export const sharedDeclarations = [
   declarations("radius", tokens.radius),
   declarations("elevation", tokens.elevation),
   declarations("focus-ring", tokens.focusRing),
+  declarations("selected-row", tokens.selectedRow),
 ].join(" ");

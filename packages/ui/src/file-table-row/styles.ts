@@ -20,6 +20,13 @@ export const fileTableCellStyle: CSSProperties = {
   overflow: "hidden",
 };
 
+export const fileTableNameCellStyle = (selected: boolean): CSSProperties => ({
+  ...fileTableCellStyle,
+  boxShadow: selected
+    ? `inset ${cssVar("selected-row-bar-width")} 0 0 ${cssVar("color-accent")}`
+    : "none",
+});
+
 export const fileTableSizeCellStyle: CSSProperties = {
   ...fileTableCellStyle,
   textAlign: "end",
