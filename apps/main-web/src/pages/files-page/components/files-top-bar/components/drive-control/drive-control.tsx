@@ -18,7 +18,6 @@ export const DriveControl = ({ status, activeDriveName }: DriveControlProps) => 
       data-testid="files-top-bar-drive-control"
     >
       <span style={driveControlTextStyle}>
-        <Text variant="caption" element="span" textId="files.topBar.driveLabel" />
         {text.kind === "name" ? (
           <Text
             variant="subheading"

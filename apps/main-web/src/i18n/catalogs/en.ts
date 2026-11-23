@@ -651,7 +651,6 @@ export const en = {
       heading: "Files",
     },
     topBar: {
-      driveLabel: "Drive",
       driveLoading: "Loading drives...",
       driveUnknown: "Drives",
       actionsLabel: "Folder actions",

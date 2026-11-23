@@ -36,14 +36,15 @@ export const FilesPage = () => {
 
   return (
     <div style={filesPageStyle} data-testid="files-page">
-      <Text variant="heading" textId="files.layout.heading" />
       {phone ? (
         <FilesTopBar
           drives={switcher.drives}
           status={switcher.status}
           activeDriveId={switcher.activeDriveId}
         />
-      ) : null}
+      ) : (
+        <Text variant="heading" textId="files.layout.heading" />
+      )}
       {folder.driveId === null ? null : (
         <>
           {phone && parentPath !== null && parentName !== undefined ? (

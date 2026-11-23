@@ -113,6 +113,17 @@ describe("FilesPage", () => {
     expect(listDrives).not.toHaveBeenCalled();
   });
 
+  it("hides the Files heading on a phone, where the top row takes its place", () => {
+    const restore = withPhoneWidth(true);
+    try {
+      renderAt("/files");
+
+      expect(screen.queryByRole("heading", { name: "Files" })).not.toBeInTheDocument();
+    } finally {
+      restore();
+    }
+  });
+
   it("shows the top row with the active drive on a phone and not the old drives link", async () => {
     const restore = withPhoneWidth(true);
     try {

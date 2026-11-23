@@ -23,7 +23,6 @@ describe("DriveControl", () => {
 
     const control = screen.getByTestId("files-top-bar-drive-control");
     expect(control).toHaveAttribute("href", "/files/drives");
-    expect(control).toHaveTextContent("Drive");
     expect(screen.getByTestId("files-top-bar-drive-name")).toHaveTextContent("Personal");
   });
 
