@@ -14,7 +14,7 @@ export const publishFileRemoved = (tx: ModuleTransaction, input: FileEventInput)
     {
       userId: input.owner.userId,
       familyId: input.owner.familyId,
-      sourceVersion: input.file.version,
+      sourceVersion: input.file.version + 1,
     },
     toFileRemovedPayload(input),
   );

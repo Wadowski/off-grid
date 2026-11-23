@@ -8,5 +8,5 @@ export const toFileRemovedPayload = ({ file, owner }: FileEventInput) => ({
   driveId: file.driveId,
   ownerUserId: owner.userId,
   ownerFamilyId: owner.familyId,
-  version: file.version,
+  version: file.version + 1,
 });

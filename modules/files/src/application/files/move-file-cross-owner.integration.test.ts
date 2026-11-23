@@ -121,9 +121,9 @@ describe("moveFile to another owner", { timeout: 60_000 }, () => {
       { source_version: "1", family_id: familyId, user_id: null },
     ]);
     expect(await eventsOf("file-removed-v1")).toEqual([
-      { source_version: "1", family_id: null, user_id: anna },
-      { source_version: "1", family_id: null, user_id: anna },
-      { source_version: "1", family_id: null, user_id: anna },
+      { source_version: "2", family_id: null, user_id: anna },
+      { source_version: "2", family_id: null, user_id: anna },
+      { source_version: "2", family_id: null, user_id: anna },
     ]);
   });
 
