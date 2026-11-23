@@ -675,6 +675,12 @@ export const en = {
     list: {
       label: "Folder contents",
     },
+    table: {
+      name: "Name",
+      modified: "Modified",
+      size: "Size",
+      type: "Type",
+    },
     notFound: {
       heading: "Folder not found",
       back: "Go to Files",
