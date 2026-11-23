@@ -704,6 +704,7 @@ export const en = {
       type: "Type",
       size: "Size",
       location: "Location",
+      locationSeparator: " › ",
       modified: "Modified",
       created: "Created",
       version: "Version",

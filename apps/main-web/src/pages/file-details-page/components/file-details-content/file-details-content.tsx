@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Navigate } from "react-router-dom";
-import { FileNotFound } from "../../../../errors/file-not-found/file-not-found.js";
+import { ItemNotFound } from "../../../../errors/item-not-found/item-not-found.js";
 import { toFileBackTarget } from "../../../../files/to-file-back-target.js";
 import { toFolderPath } from "../../../../files/to-folder-path.js";
 import { FileDetailsFrame } from "../file-details-frame/file-details-frame.js";
@@ -16,7 +16,7 @@ export const FileDetailsContent = ({ driveId, screen }: FileDetailsContentProps)
   if (status === "failed" && errorTextId === "files.errors.notFound") {
     return (
       <FileDetailsFrame backTarget={null}>
-        <FileNotFound />
+        <ItemNotFound kind="file" />
       </FileDetailsFrame>
     );
   }
@@ -37,7 +37,7 @@ export const FileDetailsContent = ({ driveId, screen }: FileDetailsContentProps)
   if (file.driveId !== driveId || file.deletedAt !== null) {
     return (
       <FileDetailsFrame backTarget={null}>
-        <FileNotFound />
+        <ItemNotFound kind="file" />
       </FileDetailsFrame>
     );
   }

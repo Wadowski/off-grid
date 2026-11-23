@@ -31,6 +31,7 @@ describe("AccessRow", () => {
     );
 
     expect(screen.getByText("Family member")).toBeInTheDocument();
-    expect(screen.getByText("?")).toBeInTheDocument();
+    expect(screen.getByText("FM")).toBeInTheDocument();
+    expect(screen.queryByText("?")).not.toBeInTheDocument();
   });
 });

@@ -5,7 +5,6 @@ import { formatFileSize, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { FILE_LOCATION_SEPARATOR } from "../../../../files/constants.js";
 import { formatFileTimestamp } from "../../../../files/format-file-timestamp.js";
 import { toFileActivityEntries } from "../../../../files/to-file-activity-entries.js";
 import { toFileAccessEntries } from "../../../../files/to-file-access-entries.js";
@@ -30,7 +29,7 @@ export const FileDetailsReady = ({
   backTarget,
   screen,
 }: FileDetailsReadyProps) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [tab, setTab] = useState<FileDetailsTab>("details");
   const language = i18n.language;
   const values = toFileDetailsValues(file);
@@ -38,7 +37,7 @@ export const FileDetailsReady = ({
   const activityEntries = toFileActivityEntries(screen.versions.versions, resolveName);
   const modifiedBy = toModifiedBy(file.currentVersionId, screen.versions.versions, resolveName);
   const modifiedDate = formatFileTimestamp(values.updatedAt, language);
-  const locationText = toFileLocation(breadcrumbs).join(FILE_LOCATION_SEPARATOR);
+  const locationText = toFileLocation(breadcrumbs).join(t("files.details.locationSeparator"));
   const accessEntries =
     screen.drive === null || screen.viewer === null
       ? []

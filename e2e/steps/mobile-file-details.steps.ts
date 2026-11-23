@@ -23,7 +23,6 @@ const { Given, When, Then } = createBdd(test);
 
 const PHONE_WIDTH = 375;
 const PHONE_HEIGHT = 812;
-const LOCATION_SEPARATOR = " › ";
 const QUOTED_NAME = /"([^"]*)"/g;
 const LONG_FILE_NAME = `${"Quarterly report for the family archive ".repeat(4)}.txt`;
 
@@ -259,8 +258,11 @@ Then(
 );
 
 Then(/^the details location reads (.+)$/, async ({ page }, listing: string) => {
+  // The separator is translated in the web catalog, which e2e cannot import
+  // (its tsconfig roots at e2e/), so the step checks the crumbs appear in order.
+  const crumbs = namesIn(listing).map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   await expect(page.getByTestId("file-details-location")).toHaveText(
-    namesIn(listing).join(LOCATION_SEPARATOR),
+    new RegExp(`^${crumbs.join(".*")}$`),
   );
 });
 

@@ -4,7 +4,7 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const folderNotFoundStyle: CSSProperties = {
+export const itemNotFoundStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[3],
   justifyItems: "start",
@@ -12,6 +12,6 @@ export const folderNotFoundStyle: CSSProperties = {
   minWidth: 0,
 };
 
-export const folderNotFoundLinkStyle: CSSProperties = {
+export const itemNotFoundLinkStyle: CSSProperties = {
   color: cssVar("color-primary"),
 };
