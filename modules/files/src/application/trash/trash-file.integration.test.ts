@@ -8,9 +8,15 @@ import { seedFolder } from "../../../test/seed-folder.js";
 import { seedRegularFile } from "../../../test/seed-regular-file.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase, SeedOwner } from "../../../test/types.js";
+import { createInMemoryFileStorage } from "@offgrid/file-storage";
+import { bodyOf } from "../../../test/version-fixtures.js";
 import { trashFile } from "./trash-file.js";
 import { listDriveChildren } from "../files/list-drive-children.js";
 import { getFileDetails } from "../files/get-file-details.js";
+import { moveFile } from "../files/move-file.js";
+import { openFileContent } from "../files/open-file-content.js";
+import { renameFile } from "../files/rename-file.js";
+import { uploadFile } from "../files/upload-file.js";
 
 describe("trashFile", { timeout: 60_000 }, () => {
   let db: FilesTestDatabase;
@@ -138,5 +144,57 @@ describe("trashFile", { timeout: 60_000 }, () => {
 
     expect((await trashFile(db.db, chris, fileId)).outcome).toBe("not-found");
     expect((await trashFile(db.db, ben, fileId)).outcome).toBe("found");
+  });
+
+  it("answers not-found for a trashed descendant on download, rename, move and upload", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const folderId = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: null,
+      name: "Holiday",
+    });
+    const targetId = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: null,
+      name: "Archive",
+    });
+    const childId = await seedRegularFile(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: folderId,
+      name: "sunset.jpg",
+      sizeBytes: 3,
+      createdByUserId: anna,
+    });
+    await trashFile(db.db, anna, folderId);
+    const storage = createInMemoryFileStorage();
+
+    expect(
+      (
+        await openFileContent({ db: db.db, storage }, anna, {
+          fileId: childId,
+          versionId: null,
+          rangeHeader: undefined,
+        })
+      ).outcome,
+    ).toBe("not-found");
+    expect((await renameFile(db.db, anna, childId, "renamed.jpg")).outcome).toBe("not-found");
+    expect(
+      (await moveFile(db.db, storage, anna, childId, { driveId, parentId: targetId })).outcome,
+    ).toBe("not-found");
+    expect(
+      (
+        await uploadFile({ db: db.db, storage, maxUploadBytes: 1024 }, anna, {
+          driveId,
+          parentId: folderId,
+          name: "new.txt",
+          mimeType: "text/plain",
+          body: bodyOf("late"),
+          signal: new AbortController().signal,
+        })
+      ).outcome,
+    ).toBe("not-found");
   });
 });

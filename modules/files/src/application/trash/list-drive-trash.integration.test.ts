@@ -63,6 +63,34 @@ describe("listDriveTrash", { timeout: 60_000 }, () => {
     ).toEqual(["Old", "inner.txt"]);
   });
 
+  it("pages the trash with the children cursor", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    for (const name of ["a.txt", "b.txt", "c.txt"]) {
+      await seedRegularFile(db.admin, {
+        driveId,
+        owner: annaOwner,
+        parentId: null,
+        name,
+        sizeBytes: 1,
+        createdByUserId: anna,
+        trashed: true,
+      });
+    }
+
+    const first = await listDriveTrash(db.db, anna, driveId, { cursor: null, limit: 2 });
+    const firstPage = first.outcome === "found" ? first.value.page : null;
+    const second = await listDriveTrash(db.db, anna, driveId, {
+      cursor: firstPage?.nextCursor ?? null,
+      limit: 2,
+    });
+    const secondPage = second.outcome === "found" ? second.value.page : null;
+
+    expect(firstPage?.records.map((record) => record.name)).toEqual(["a.txt", "b.txt"]);
+    expect(firstPage?.nextCursor).not.toBeNull();
+    expect(secondPage?.records.map((record) => record.name)).toEqual(["c.txt"]);
+    expect(secondPage?.nextCursor).toBeNull();
+  });
+
   it("answers not-found for another person's drive", async () => {
     const otherDriveId = await seedDrive(db.admin, { owner: benOwner, name: "Personal" });
 
