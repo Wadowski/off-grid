@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { createBdd } from "playwright-bdd";
-import { NEW_PASSWORD } from "../support/factories/instance-admin.js";
 import {
   changeOwnPassword,
+  createPasswordChangeNotice,
+  createRecoveryCodeNotice,
   listOwnNotifications,
   markAllOwnNotificationsRead,
   markOwnNotificationRead,
@@ -49,22 +50,11 @@ const listingOf = (world: ScenarioWorld) => {
 };
 
 Given("she has a password change notice", async ({ world }) => {
-  const anna = personOf(world, "anna");
-  const response = await changeOwnPassword(world.api, anna);
-  expect(response.ok(), "Anna could not change her password").toBe(true);
-  anna.password = NEW_PASSWORD;
-  await waitForOwnNotifications(world.api, anna.session, (list) =>
-    list.notifications.some((notification) => notification.type === "password-changed"),
-  );
+  await createPasswordChangeNotice(world.api, personOf(world, "anna"));
 });
 
 Given("she has a recovery code notice", async ({ world }) => {
-  const anna = personOf(world, "anna");
-  const response = await regenerateOwnRecoveryCode(world.api, anna);
-  expect(response.status()).toBe(201);
-  await waitForOwnNotifications(world.api, anna.session, (list) =>
-    list.notifications.some((notification) => notification.type === "recovery-code-regenerated"),
-  );
+  await createRecoveryCodeNotice(world.api, personOf(world, "anna"));
 });
 
 Given("she has marked her password change notice as read", async ({ world }) => {

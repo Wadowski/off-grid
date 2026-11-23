@@ -91,6 +91,7 @@ Feature: Notifications inbox surfaces
 
   Scenario: A new notice appears without a reload
     Given Anna is signed in
+    And Anna belongs to a family of her own
     And she has the notifications page open
     When a password change notice is created for Anna
     Then the notice appears in her inbox without reloading the page
