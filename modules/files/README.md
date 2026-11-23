@@ -57,7 +57,7 @@ Owner: module team (files)
 - Breadcrumbs always start with the drive (`kind: "drive"`). A drive listing has only the drive crumb. A folder listing has the drive and then each folder from the root down to and including the listed folder. File details have the drive and then the ancestors, without the file itself.
 - The ancestor walk reads one parent per query and stops at 256 levels, answering 404 when a parent is missing, trashed or invisible.
 - Responses never include bytes, `storage_key`, checksums or versions beyond `version` and `currentVersionId`. Regular file sizes are numbers, and a size above the safe integer range fails the response.
-- Not in this route set yet: trash and the trash listing (OG-117), the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
+- Not in this route set yet: the `/uploads` routes for chunked and resumable uploads, and the `parent` and `sort` parameters.
 
 ## Organising API
 
@@ -107,3 +107,12 @@ Owner: module team (files)
 - Serves the browse, organising, upload, file versions and download routes above from `filesRoutes` in `@offgrid/contracts`. The rest of `filesRoutes` (trash and resumable uploads) comes with its issues.
 - Publishes `drive-created-v1` when a drive is created (see Drive creation above), and `file-created-v1`, `file-updated-v1` and `file-removed-v1` for the organising routes, with the payloads defined in `@offgrid/contracts`. The payloads carry ids, owners and versions. Created and updated file events also carry the name. No event carries file contents, storage keys, paths or checksums ([ADR 0033](../../docs/adr/0033-file-bytes-on-a-disk-volume.md), [ADR 0034](../../docs/adr/0034-files-access-model-trash-and-versions.md)).
 - The outbox writes for these events are in the same transaction as the change they describe. Projection consumers of these events, and their replay, idempotency and dead-letter tests, belong to the issues that consume them.
+
+## Trash, restore and purge
+
+- `POST /files/:id/trash` sets `deleted_at` on that row only and publishes one `file-updated-v1` with `deletedAt`. Descendants are hidden by the live-ancestor checks, so they are not marked.
+- `GET /drives/:id/trash` lists trashed rows of a drive (folders first, then name, then id), paged like the children list. `DELETE /drives/:id/trash` empties it.
+- `POST /files/:id/restore` clears `deleted_at` and returns the row to its original parent when that parent and its whole chain are live, else to the drive root. A live sibling with the same name gives a `(n)` suffix. A live row answers 409 `NOT_TRASHED`.
+- `DELETE /files/:id` purges a trashed row and its subtree: rows, versions and bytes, in batches of 500 rows, deepest first, each batch in one transaction with one `file-removed-v1` per row at `version + 1`. A live row answers 409 `NOT_TRASHED`.
+- The retention worker `files-trash-purge` runs two minutes after start and every 24 hours. It purges trashed roots older than `OFFGRID_FILES_TRASH_RETENTION_DAYS` as the owner, or as a current member for a family drive. A family drive with no current member is skipped and counted (`skippedRootCount`). It logs counts only.
+- The worker reads through the read-only policies `file_trash_purge_read` and `family_membership_trash_purge_read`, set by `withFilesTrashPurgeContext`. It has no write access of its own. See [ADR 0041](../../docs/adr/0041-files-trash-purge-worker.md).
