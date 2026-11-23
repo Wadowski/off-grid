@@ -26,6 +26,8 @@ export type { DialogProps } from "./dialog/types.js";
 export { MaterialIcon } from "./material-icon/material-icon.js";
 export { FileTypeIcon } from "./file-type-icon/file-type-icon.js";
 export { FileRow } from "./file-row/file-row.js";
+export { FileTable } from "./file-table/file-table.js";
+export { FileTableRow } from "./file-table-row/file-table-row.js";
 export { FileCard } from "./file-card/file-card.js";
 export { fileKindFromMimeType } from "./files/file-kind-from-mime-type.js";
 export type { FileKind } from "./files/types.js";

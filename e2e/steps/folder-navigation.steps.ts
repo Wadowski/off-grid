@@ -7,9 +7,10 @@ import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
 import {
   createFamilyAs,
+  createFolderAs,
   findFolderFrom,
   listItemsAs,
-  postAs,
+  personalDriveIdAs,
   uploadFileAs,
   waitForDrives,
 } from "../support/factories/files.js";
@@ -43,16 +44,8 @@ const ownSessionOf = async (world: ScenarioWorld): Promise<Session> => {
   return signedIn.session;
 };
 
-const personalDriveIdOf = async (world: ScenarioWorld, session: Session): Promise<string> => {
-  const drives = await waitForDrives(world.api, session, (listed) =>
-    listed.some((drive) => drive.familyId === null),
-  );
-  const drive = drives.find((listed) => listed.familyId === null);
-  if (drive === undefined) {
-    throw new Error("The personal drive is not listed.");
-  }
-  return drive.id;
-};
+const personalDriveIdOf = (world: ScenarioWorld, session: Session): Promise<string> =>
+  personalDriveIdAs(world.api, session);
 
 const folderIdIn = async (
   world: ScenarioWorld,
@@ -68,21 +61,13 @@ const folderIdIn = async (
   return folder.id;
 };
 
-const createFolderIn = async (
+const createFolderIn = (
   world: ScenarioWorld,
   session: Session,
   driveId: string,
   parentId: string | null,
   name: string,
-): Promise<void> => {
-  const response = await postAs(world.api, session, `/api/drives/${driveId}/folders`, {
-    parentId,
-    name,
-  });
-  if (response.status !== 201) {
-    throw new Error(`The folder ${name} could not be created (${response.status}).`);
-  }
-};
+): Promise<void> => createFolderAs(world.api, session, driveId, parentId, name);
 
 const folderPathOf = (page: Page) => page.getByRole("navigation", { name: FOLDER_PATH_NAME });
 
