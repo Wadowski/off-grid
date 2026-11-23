@@ -24,10 +24,7 @@ const actionOf = (page: Page, name: string): Locator => {
 };
 
 const isFocused = (locator: Locator): Promise<boolean> =>
-  expect(locator)
-    .toBeFocused({ timeout: 100 })
-    .then(() => true)
-    .catch(() => false);
+  locator.evaluate((element) => element === element.ownerDocument.activeElement);
 
 Then(/^the top row shows the active drive "([^"]*)"$/, async ({ page }, name: string) => {
   await expect(page.getByTestId("files-top-bar-drive-name")).toHaveText(name, {

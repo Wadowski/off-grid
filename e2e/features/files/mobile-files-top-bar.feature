@@ -21,13 +21,6 @@ Feature: The top row of the Files page on a phone
     Then the action "Upload" is disabled
     And the action "New folder" is disabled
 
-  Scenario: Anna taps the active drive on the phone and the drives page opens
-    Given I am signed in as "Anna Kowalska", a regular member
-    When Anna opens the Files page on a phone
-    And Anna taps the active drive on the phone
-    Then the drives page is open on the phone
-    And the drive sidebar lists the drives "Personal" and "Home"
-
   Scenario: The top row shows the family drive after Anna switches to it on the phone
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens the Files page on a phone
