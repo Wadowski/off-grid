@@ -258,8 +258,6 @@ Then(
 );
 
 Then(/^the details location reads (.+)$/, async ({ page }, listing: string) => {
-  // The separator is translated in the web catalog, which e2e cannot import
-  // (its tsconfig roots at e2e/), so the step checks the crumbs appear in order.
   const crumbs = namesIn(listing).map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   await expect(page.getByTestId("file-details-location")).toHaveText(
     new RegExp(`^${crumbs.join(".*")}$`),
