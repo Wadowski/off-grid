@@ -96,6 +96,7 @@ Feature: File details on a phone
     When Anna opens the details of "Holiday plan.pdf" in the family drive of "Kowalski" on a phone
     Then Modified shows "by Ben"
 
+  @screen:files-mobile-file-activity
   Scenario: The Activity tab lists the versions, newest first, with who saved each
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna is a member of the family "Kowalski" with a family drive

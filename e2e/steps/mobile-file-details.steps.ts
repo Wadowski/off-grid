@@ -11,7 +11,6 @@ import {
   joinFamilyAs,
   listItemsAs,
   personalDriveIdAs,
-  postAs,
   uploadFileAs,
   uploadVersionAs,
   waitForDrives,

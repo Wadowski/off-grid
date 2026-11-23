@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
 import { Navigate } from "react-router-dom";
 import { FileNotFound } from "../../../../errors/file-not-found/file-not-found.js";
 import { toFileBackTarget } from "../../../../files/to-file-back-target.js";
