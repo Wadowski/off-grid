@@ -9,12 +9,24 @@ import { seedFolder } from "../../../test/seed-folder.js";
 import { seedRegularFile } from "../../../test/seed-regular-file.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase, SeedOwner } from "../../../test/types.js";
+import { lockTrashedChain } from "../../infrastructure/trash/lock-trashed-chain.js";
 import { restoreTrashedFile } from "../../infrastructure/trash/restore-trashed-file.js";
 import { writeAsUser } from "../write-as-user.js";
 import { purgeTrashedRoot } from "./purge-trashed-root.js";
+import { restoreFile } from "./restore-file.js";
 
 const pause = (milliseconds: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+const waitUntil = async (condition: () => Promise<boolean>, timeoutMs: number): Promise<void> => {
+  const deadline = Date.now() + timeoutMs;
+  while (!(await condition())) {
+    if (Date.now() > deadline) {
+      throw new Error("The condition was not met before the timeout");
+    }
+    await new Promise((resolve) => setImmediate(resolve));
+  }
+};
 
 describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
   let db: FilesTestDatabase;
@@ -58,6 +70,7 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
       releaseRestore = resolve;
     });
     const restoring = writeAsUser(db.db, anna, async (tx) => {
+      await lockTrashedChain(tx, childId);
       await restoreTrashedFile(tx, childId, {
         name: "sunset.jpg",
         parentId: null,
@@ -107,6 +120,7 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
       releaseRestore = resolve;
     });
     const restoring = writeAsUser(db.db, anna, async (tx) => {
+      await lockTrashedChain(tx, folderId);
       await restoreTrashedFile(tx, folderId, {
         name: "Holiday",
         parentId: null,
@@ -125,5 +139,58 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
       driveId,
     ]);
     expect(files.rows.map((row: { file_id: string }) => row.file_id)).toContain(folderId);
+  });
+
+  it("makes a restore of a nested folder wait for the purge of its root, which keeps the folder's child out of reach", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const rootId = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: null,
+      name: "Trips",
+      trashed: true,
+    });
+    const nestedId = await seedFolder(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: rootId,
+      name: "Holiday",
+      trashed: true,
+    });
+    const childId = await seedRegularFile(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: nestedId,
+      name: "sunset.jpg",
+      sizeBytes: 3,
+      createdByUserId: anna,
+    });
+    await db.admin.query("BEGIN");
+    await db.admin.query("SELECT version_id FROM files.file_version WHERE file_id = $1 FOR UPDATE", [
+      childId,
+    ]);
+    const purging = purgeTrashedRoot(db.db, storage, anna, rootId);
+    let restoreDone = false;
+    const restoring = restoreFile(db.db, anna, nestedId).finally(() => {
+      restoreDone = true;
+    });
+    await waitUntil(async () => {
+      if (restoreDone) {
+        return true;
+      }
+      const waiting = await db.admin.query<{ waiting: number }>(
+        "SELECT count(*)::int AS waiting FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'",
+      );
+      return (waiting.rows[0]?.waiting ?? 0) >= 2;
+    }, 10_000);
+    await db.admin.query("COMMIT");
+
+    expect(await purging).toEqual({ outcome: "found", value: null });
+    expect(await restoring).toEqual({ outcome: "not-found" });
+    const survivors = await db.admin.query(
+      "SELECT file_id FROM files.file WHERE file_id = ANY($1::uuid[])",
+      [[rootId, nestedId, childId]],
+    );
+    expect(survivors.rows).toEqual([]);
   });
 });

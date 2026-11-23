@@ -3,7 +3,7 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 import type { ExpiredRoot, ExpiredRootCursor } from "../../types.js";
-import { toExpiredRoot } from "./to-expired-root.js";
+import { toFileRecord } from "../files/to-file-record.js";
 
 export const findExpiredTrashedRoots = async (
   tx: ModuleTransaction,
@@ -28,5 +28,15 @@ export const findExpiredTrashedRoots = async (
     orderBy: [{ deletedAt: "asc" }, { fileId: "asc" }],
     take: input.take,
   });
-  return rows.map(toExpiredRoot);
+  return rows.map((row) => {
+    if (row.deletedAt === null) {
+      throw new Error("An expired trash root has no deletion time");
+    }
+    return {
+      ...toFileRecord(row),
+      deletedAt: row.deletedAt,
+      ownerUserId: row.userId,
+      ownerFamilyId: row.familyId,
+    };
+  });
 };

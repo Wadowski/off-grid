@@ -16,13 +16,21 @@ Trash and restore publish `file-updated-v1`, with `deletedAt` in the payload. No
 
 ### 2. Restore goes back to the original parent when the chain is live
 
+The restore locks the trashed chain above the row first (section 3).
+
 `POST /files/:id/restore` returns the row to its original parent when that parent and its whole chain are live. Otherwise it goes to the drive root. A live sibling with the same name gives the restored row a `(n)` suffix, chosen from the live sibling names. A race on the unique index still answers 409 `NAME_TAKEN`.
 
 [0034](0034-files-access-model-trash-and-versions.md) section 6 says that restoring an item under a trashed ancestor also sets `deleted_at` on the ancestor's other children. That case cannot be reached through the routes, because restore accepts only rows whose `deleted_at` is set. This ADR records that sentence as not implemented.
 
-### 3. Purge deletes a subtree in batches, deepest first, under the root lock
+### 3. Purge and restore serialise on the trashed chain
 
-Purge removes a trashed row and its subtree. The work is split into batches of 500 rows, ordered deepest first with the root last. Each batch runs in one transaction. It locks the root row with a conditional update, so a restore of the root stops the purge and answers `restored`, which the route maps to 409 `NOT_TRASHED`. It then locks the batch rows with a conditional update on `deleted_at`, so a restore of a nested row either commits before the lock and leaves the row out of the batch, or waits for the purge and then finds the row live. Only rows that are still trashed and still in the subtree are deleted, and one `file-removed-v1` is published per deleted row at `version + 1`. Bytes are deleted after each batch commits, best effort. `DELETE /drives/:id/trash` (empty trash) runs the same purge for each trashed root in turn and has no per-root outcome in its response. If one root fails, the request answers 500, roots already purged stay purged and the remaining roots stay in trash. Repeat the call to finish. A root restored mid-run is skipped and the call answers 204. The retention worker counts a failed root and logs its error name, and a restored or unowned root as skipped. A crash leaves a smaller trashed subtree that the next run finishes. One transaction for a large subtree was rejected because it would exceed the interactive transaction timeout.
+A restore first locks every trashed row above the row it restores, top-down, in its own transaction, before it reads or changes that row. A purge locks its root the same way and then runs the whole purge in one transaction, so the lock is held until the last row is deleted. A restore of any row under a trashed root therefore waits for a purge of that root in progress, then answers not-found or `NOT_TRASHED` as before. Inside the purge transaction the subtree is read once under the lock and deleted deepest first in chunks of 500 rows, with the root last. Each deleted row publishes one `file-removed-v1` at `version + 1`. Bytes are deleted after the commit, best effort. The transaction timeout is five minutes (`TRASH_PURGE_TRANSACTION_TIMEOUT_MS`).
+
+What is guaranteed: a restored folder never loses children to a purge that started before the restore, because the restore cannot commit while the purge holds the root, and a purge never deletes a row that a restore made live. Every operation that deletes or restores a row under a trashed root takes the chain lock first, so no two transactions wait on each other's row locks in a cycle. Purges of different roots touch disjoint rows.
+
+There is no window between chunks, because nothing commits until the purge is complete. The cost is that a root whose purge exceeds the timeout rolls back as a whole, is counted as failed, and is retried on the next run. A purge of a very large root therefore needs a revisit of this decision, not a silent partial result.
+
+Rejected: a root lock taken per batch. A restore could commit between two batches and return a folder that had already lost the children deleted by the earlier batches. Row locks taken per batch. They do not stop a restore of the folder itself. The subtree read before a batch can go stale.
 
 The integrity sweep from [0033](0033-file-bytes-on-a-disk-volume.md) remains the backstop for bytes that a failed delete leaves behind.
 

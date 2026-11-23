@@ -57,6 +57,7 @@ export const ASCII_UNSAFE_CHARACTER_PATTERN = /[^\x20-\x7e]|["\\]/g;
 export const RFC5987_RESERVED_CHARACTER_PATTERN = /['()*]/g;
 export const TRASH_PURGE_BATCH_SIZE = 500;
 export const TRASH_PURGE_PAGE_SIZE = 100;
+export const TRASH_PURGE_TRANSACTION_TIMEOUT_MS = 5 * 60 * 1000;
 export const TRASH_PURGE_FIRST_RUN_DELAY_MS = 2 * 60 * 1000;
 export const TRASH_PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 export const DAY_MS = 24 * 60 * 60 * 1000;

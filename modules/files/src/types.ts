@@ -389,10 +389,15 @@ export type TrashedRootPurgeOutcome =
   | { readonly outcome: "not-found" }
   | { readonly outcome: "restored" };
 
-export interface PurgeBatchOutcome {
-  readonly rootRestored: boolean;
-  readonly storageKeys: readonly string[];
+export interface TrashChainLink {
+  readonly parentId: string | null;
+  readonly deletedAt: Date | null;
 }
+
+export type TrashedRootPurgeWrite =
+  | { readonly outcome: "purged"; readonly storageKeys: readonly string[] }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "restored" };
 
 export interface TrashPurgeWorkerOptions {
   readonly db: ModuleDatabase;
@@ -409,19 +414,8 @@ export interface FileNameParts {
   readonly extension: string;
 }
 
-export interface TrashedRootPlan {
-  readonly root: FileRecord;
-  readonly owner: FileOwner;
-  readonly subtree: readonly FileRecord[];
-}
-
 export interface RestoreTrashedFileInput {
   readonly name: string;
   readonly parentId: string | null;
   readonly updatedAt: Date;
 }
-
-export type ExpiredRootRow = FileRecord & {
-  readonly userId: string | null;
-  readonly familyId: string | null;
-};

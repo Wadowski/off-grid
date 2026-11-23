@@ -4,6 +4,7 @@
 import type { ModuleDatabase } from "@offgrid/db";
 import { publishFileUpdated } from "../../events/files/publish-file-updated.js";
 import { findDrive } from "../../infrastructure/drives/find-drive.js";
+import { lockTrashedChain } from "../../infrastructure/trash/lock-trashed-chain.js";
 import { restoreTrashedFile } from "../../infrastructure/trash/restore-trashed-file.js";
 import { findFileAnyState } from "../../infrastructure/trash/find-file-any-state.js";
 import type { FileRecord, FilesOutcome } from "../../types.js";
@@ -20,6 +21,7 @@ export const restoreFile = (
   fileId: string,
 ): Promise<FilesOutcome<FileRecord>> =>
   writeAsUser(db, userId, async (tx) => {
+    await lockTrashedChain(tx, fileId);
     const file = await findFileAnyState(tx, fileId);
     if (file === null) {
       return { outcome: "not-found" };
