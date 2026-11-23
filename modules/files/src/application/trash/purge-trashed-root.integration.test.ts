@@ -15,8 +15,12 @@ import { writeAsUser } from "../write-as-user.js";
 import { purgeTrashedRoot } from "./purge-trashed-root.js";
 import { restoreFile } from "./restore-file.js";
 
-const pause = (milliseconds: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, milliseconds));
+const countLockWaiters = async (db: FilesTestDatabase): Promise<number> => {
+  const waiting = await db.admin.query<{ waiting: number }>(
+    "SELECT count(*)::int AS waiting FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'",
+  );
+  return waiting.rows[0]?.waiting ?? 0;
+};
 
 const waitUntil = async (condition: () => Promise<boolean>, timeoutMs: number): Promise<void> => {
   const deadline = Date.now() + timeoutMs;
@@ -69,8 +73,13 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
     const restoreHeld = new Promise<void>((resolve) => {
       releaseRestore = resolve;
     });
+    let markRestoreLocked = (): void => undefined;
+    const restoreLocked = new Promise<void>((resolve) => {
+      markRestoreLocked = resolve;
+    });
     const restoring = writeAsUser(db.db, anna, async (tx) => {
       await lockTrashedChain(tx, childId);
+      markRestoreLocked();
       await restoreTrashedFile(tx, childId, {
         name: "sunset.jpg",
         parentId: null,
@@ -79,8 +88,9 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
       await restoreHeld;
     });
 
+    await restoreLocked;
     const purging = purgeTrashedRoot(db.db, storage, anna, folderId);
-    await pause(300);
+    await waitUntil(async () => (await countLockWaiters(db)) >= 1, 10_000);
     releaseRestore();
     await restoring;
 
@@ -119,8 +129,13 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
     const restoreHeld = new Promise<void>((resolve) => {
       releaseRestore = resolve;
     });
+    let markRestoreLocked = (): void => undefined;
+    const restoreLocked = new Promise<void>((resolve) => {
+      markRestoreLocked = resolve;
+    });
     const restoring = writeAsUser(db.db, anna, async (tx) => {
       await lockTrashedChain(tx, folderId);
+      markRestoreLocked();
       await restoreTrashedFile(tx, folderId, {
         name: "Holiday",
         parentId: null,
@@ -129,8 +144,9 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
       await restoreHeld;
     });
 
+    await restoreLocked;
     const purging = purgeTrashedRoot(db.db, storage, anna, folderId);
-    await pause(300);
+    await waitUntil(async () => (await countLockWaiters(db)) >= 1, 10_000);
     releaseRestore();
     await restoring;
 
@@ -166,23 +182,17 @@ describe("purgeTrashedRoot", { timeout: 60_000 }, () => {
       createdByUserId: anna,
     });
     await db.admin.query("BEGIN");
-    await db.admin.query("SELECT version_id FROM files.file_version WHERE file_id = $1 FOR UPDATE", [
-      childId,
-    ]);
+    await db.admin.query(
+      "SELECT version_id FROM files.file_version WHERE file_id = $1 FOR UPDATE",
+      [childId],
+    );
     const purging = purgeTrashedRoot(db.db, storage, anna, rootId);
+    await waitUntil(async () => (await countLockWaiters(db)) >= 1, 10_000);
     let restoreDone = false;
     const restoring = restoreFile(db.db, anna, nestedId).finally(() => {
       restoreDone = true;
     });
-    await waitUntil(async () => {
-      if (restoreDone) {
-        return true;
-      }
-      const waiting = await db.admin.query<{ waiting: number }>(
-        "SELECT count(*)::int AS waiting FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'",
-      );
-      return (waiting.rows[0]?.waiting ?? 0) >= 2;
-    }, 10_000);
+    await waitUntil(async () => restoreDone || (await countLockWaiters(db)) >= 2, 10_000);
     await db.admin.query("COMMIT");
 
     expect(await purging).toEqual({ outcome: "found", value: null });
