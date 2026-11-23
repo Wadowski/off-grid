@@ -17,11 +17,12 @@ export const Button = ({
   align = "center",
   fullWidth = false,
   type = "button",
+  as: Element = "button",
   ...rest
 }: ButtonProps) => {
   return (
-    <button
-      type={type}
+    <Element
+      {...(Element === "button" ? { type } : {})}
       className="og-focusable"
       style={{
         ...buttonBaseStyle,

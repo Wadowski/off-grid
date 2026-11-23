@@ -60,6 +60,23 @@ describe("Button", () => {
     );
   });
 
+  it("renders the element it is given as, with the button styling and no button type", () => {
+    const RouteLink = ({ to, ...rest }: { readonly to: string; readonly children: string }) => (
+      <a href={to} {...rest} />
+    );
+    render(
+      <Button as={RouteLink} to="/files" variant="ghost">
+        Open files
+      </Button>,
+    );
+
+    const link = screen.getByRole("link", { name: "Open files" });
+    expect(link).toHaveAttribute("href", "/files");
+    expect(link).not.toHaveAttribute("type");
+    expect(link).toHaveClass("og-focusable");
+    expect(link).toHaveAttribute("style", expect.stringContaining("text-decoration: none"));
+  });
+
   it("can align its content to the start instead of the centre", () => {
     render(<Button align="start">Space</Button>);
 

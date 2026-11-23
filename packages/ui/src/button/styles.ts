@@ -20,6 +20,7 @@ export const buttonBaseStyle: CSSProperties = {
   borderStyle: "solid",
   borderWidth: "1px",
   cursor: "pointer",
+  textDecoration: "none",
 };
 
 export const buttonDisabledStyle: CSSProperties = {
