@@ -76,7 +76,7 @@ export const FILE_TYPE_ICON_SIZES: Readonly<
 
 export const FILE_TABLE_COLUMNS: readonly FileTableColumn[] = [
   { key: "name", textId: "files.table.name", align: "start", width: "auto" },
-  { key: "modified", textId: "files.table.modified", align: "start", width: "11rem" },
+  { key: "modified", textId: "files.table.modified", align: "start", width: "1%" },
   { key: "size", textId: "files.table.size", align: "end", width: "7rem" },
   { key: "type", textId: "files.table.type", align: "start", width: "9rem" },
 ];

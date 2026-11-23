@@ -17,6 +17,7 @@ export const fileTableHeaderCellStyle = (column: FileTableColumn): CSSProperties
   width: column.width,
   padding: `${cssVar("space-2")} ${cssVar("space-3")}`,
   textAlign: column.align,
+  whiteSpace: "nowrap",
   verticalAlign: "bottom",
   color: cssVar("color-muted"),
   borderBottom: `1px solid ${cssVar("color-line")}`,
