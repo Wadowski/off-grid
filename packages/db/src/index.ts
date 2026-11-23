@@ -12,6 +12,7 @@ export { setPgFamilyContext } from "./set-pg-family-context.js";
 export { setPgUserContext } from "./set-pg-user-context.js";
 export { withFamilyContext } from "./with-family-context.js";
 export { withFilesStorageSweepContext } from "./with-files-storage-sweep-context.js";
+export { withFilesTrashPurgeContext } from "./with-files-trash-purge-context.js";
 export { withInvitationCodeHashContext } from "./with-invitation-code-hash-context.js";
 export { withUserContext } from "./with-user-context.js";
 export type { DatabaseTarget, Migration, ModuleDatabase, ModuleTransaction } from "./types.js";
