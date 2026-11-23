@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FileKind } from "./files/types.js";
+import type { FileTableColumn } from "./file-table/types.js";
 import type { FileTypeIconSize } from "./file-type-icon/types.js";
 import type { TextVariant } from "./text/types.js";
 
@@ -72,3 +73,10 @@ export const FILE_TYPE_ICON_SIZES: Readonly<
   md: { tile: "2.5rem", glyph: "1.5rem" },
   lg: { tile: "3.5rem", glyph: "2rem" },
 };
+
+export const FILE_TABLE_COLUMNS: readonly FileTableColumn[] = [
+  { key: "name", textId: "files.table.name", align: "start", width: "auto" },
+  { key: "modified", textId: "files.table.modified", align: "start", width: "11rem" },
+  { key: "size", textId: "files.table.size", align: "end", width: "7rem" },
+  { key: "type", textId: "files.table.type", align: "start", width: "9rem" },
+];
