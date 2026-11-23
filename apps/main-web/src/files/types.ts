@@ -92,3 +92,14 @@ export type FileListOptions = {
   readonly cursor?: string;
   readonly limit?: number;
 };
+
+export type RegularFileEntry = Extract<FileEntry, { readonly isFolder: false }>;
+
+export type FileDetailsValues = {
+  readonly name: string;
+  readonly kind: FileKind;
+  readonly sizeBytes: number;
+  readonly version: number;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+};
