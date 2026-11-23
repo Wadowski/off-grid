@@ -7,7 +7,13 @@ import { createStorageIntegritySweepWorker } from "./workers/storage-integrity-s
 import { registerFilesRoutes } from "./http/files/register-files-routes.js";
 import { registerFamilyMembershipSubscribers } from "./events/family-membership/register-family-membership-subscribers.js";
 import { registerDriveSubscribers } from "./events/drives/register-drive-subscribers.js";
-import { STORAGE_SWEEP_FIRST_RUN_DELAY_MS, STORAGE_SWEEP_INTERVAL_MS } from "./constants.js";
+import {
+  STORAGE_SWEEP_FIRST_RUN_DELAY_MS,
+  STORAGE_SWEEP_INTERVAL_MS,
+  TRASH_PURGE_FIRST_RUN_DELAY_MS,
+  TRASH_PURGE_INTERVAL_MS,
+} from "./constants.js";
+import { createTrashPurgeWorker } from "./workers/trash-purge/create-trash-purge-worker.js";
 import type {
   FilesModuleOptions,
   FilesRouteContext,
@@ -41,6 +47,15 @@ export const createFilesModule = (options: FilesModuleOptions) => {
         now: () => new Date(),
         intervalMs: STORAGE_SWEEP_INTERVAL_MS,
         firstRunDelayMs: STORAGE_SWEEP_FIRST_RUN_DELAY_MS,
+      }),
+      createTrashPurgeWorker({
+        db: context.db,
+        storage,
+        logger: context.logger,
+        now: () => new Date(),
+        retentionDays: options.trashRetentionDays,
+        intervalMs: TRASH_PURGE_INTERVAL_MS,
+        firstRunDelayMs: TRASH_PURGE_FIRST_RUN_DELAY_MS,
       }),
     ],
   };

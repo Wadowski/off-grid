@@ -154,6 +154,7 @@ export interface NewFolderInput {
 export interface FileUpdateInput {
   readonly name?: string;
   readonly parentId?: string | null;
+  readonly deletedAt?: Date | null;
   readonly sizeBytes?: bigint;
   readonly mimeType?: string;
   readonly currentVersionId?: string;
@@ -364,4 +365,52 @@ export interface AppendFileVersionInput {
   readonly target: RegularFileTarget;
   readonly createdByUserId: string;
   readonly content: NewVersionContent;
+}
+
+export interface ExpiredRoot extends FileRecord {
+  readonly ownerUserId: string | null;
+  readonly ownerFamilyId: string | null;
+}
+
+export interface ExpiredRootCursor {
+  readonly deletedAt: Date;
+  readonly fileId: string;
+}
+
+export interface TrashPurgeCounts {
+  readonly purgedRootCount: number;
+  readonly failedRootCount: number;
+  readonly skippedRootCount: number;
+}
+
+export interface PurgeBatchOutcome {
+  readonly rootRestored: boolean;
+  readonly storageKeys: readonly string[];
+}
+
+export interface TrashPurgeWorkerOptions {
+  readonly db: ModuleDatabase;
+  readonly storage: FileStorage;
+  readonly logger: Logger;
+  readonly now: () => Date;
+  readonly retentionDays: number;
+  readonly intervalMs: number;
+  readonly firstRunDelayMs: number;
+}
+
+export interface FileNameParts {
+  readonly stem: string;
+  readonly extension: string;
+}
+
+export interface MutableTrashPurgeCounts {
+  purgedRootCount: number;
+  failedRootCount: number;
+  skippedRootCount: number;
+}
+
+export interface TrashedRootPlan {
+  readonly root: FileRecord;
+  readonly owner: FileOwner;
+  readonly subtree: readonly FileRecord[];
 }
