@@ -55,4 +55,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0038](0038-streamed-upload-request-shape.md)                       | Uploads send the raw file bytes with the name and parent in headers                              | Accepted                  |
 | [0039](0039-delete-non-current-version-and-restore-copies-bytes.md) | Delete a non-current file version, and a restore copies the bytes                                | Accepted                  |
 | [0040](0040-safe-headers-and-inline-preview-for-file-content.md)    | Safe headers and inline preview for file content                                                 | Accepted                  |
-| [0041](0041-files-trash-purge-worker.md)    | Files trash, purge and the retention worker                                                 | Accepted                  |
+| [0041](0041-files-trash-purge-worker.md)                            | Files trash, purge and the retention worker                                                      | Accepted                  |
