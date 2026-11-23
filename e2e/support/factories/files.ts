@@ -298,6 +298,18 @@ export const deleteVersionAs = async (
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
 
+export const deleteAs = async (
+  api: APIRequestContext,
+  session: Session,
+  path: string,
+): Promise<JsonResponse> => {
+  const response = await api.delete(path, {
+    headers: bearer(session),
+    failOnStatusCode: false,
+  });
+  return { status: response.status(), body: await response.json().catch(() => null) };
+};
+
 export const downloadAs = async (
   api: APIRequestContext,
   session: Session,

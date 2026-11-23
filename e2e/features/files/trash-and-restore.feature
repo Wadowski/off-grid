@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:files @wip
+@module:files
 Feature: Moving files to the trash, restoring them and deleting them for good
 
   A person can move a file or folder to the trash. It disappears from the
@@ -32,7 +32,7 @@ Feature: Moving files to the trash, restoring them and deleting them for good
 
   Scenario: Anna restores a file whose folder is in the trash and finds it at the root of her drive
     Given a new person Anna signs up
-    And Anna has a file "sunset.jpg" in a folder "Holiday" that is in the trash
+    And Anna has a file "sunset.jpg" in the trash, inside a folder "Holiday" that is in the trash
     When Anna restores the file "sunset.jpg"
     Then Anna sees the file "sunset.jpg" at the root of her personal drive
 
