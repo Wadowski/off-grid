@@ -84,9 +84,10 @@ Given(
   },
 );
 
-When("Anna opens the files page on a desktop screen", async ({ page }) => {
+When("Anna opens the files page on a desktop screen", async ({ page, world }) => {
+  const driveId = await personalDriveIdAs(world.api, await ownSessionOf(world));
   await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT });
-  await page.goto(`${webBaseUrl()}/files`);
+  await page.goto(`${webBaseUrl()}/files/${driveId}`);
   await waitForFolderContents(page);
 });
 

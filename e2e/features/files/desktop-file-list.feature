@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:files @ui @wip
+@module:files @ui
 Feature: Desktop file list in the Files page
 
   On a desktop screen the contents of a drive or folder are listed as a table
@@ -22,11 +22,10 @@ Feature: Desktop file list in the Files page
 
   Scenario: The header shows the name of the family drive
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has created the family "The Smiths"
-    And Anna has the folder "Recipes" in the family drive "The Smiths"
+    And Anna has the folder "Recipes" in the family drive "Home"
     When Anna opens the files page on a desktop screen
-    And Anna chooses the drive "The Smiths" in the sidebar
-    Then the Files page heading reads "The Smiths"
+    And Anna chooses the drive "Home" in the sidebar
+    Then the Files page heading reads "Home"
     And the table lists the folder "Recipes"
 
   Scenario: Folders come before files, each sorted by name
