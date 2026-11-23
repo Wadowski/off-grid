@@ -67,7 +67,6 @@ const regularFile = (overrides: Record<string, unknown> = {}) => ({
   breadcrumbs: [
     { kind: "drive", id: DRIVE_ID, name: "Personal" },
     { kind: "folder", id: PHOTOS_ID, name: "Photos" },
-    { kind: "folder", id: FILE_ID, name: "Beach.jpg" },
   ],
 });
 
@@ -267,10 +266,7 @@ describe("FileDetailsPage", () => {
   it("links a file at the drive root back to the drive root", async () => {
     vi.mocked(getFile).mockResolvedValue({
       ...regularFile(),
-      breadcrumbs: [
-        { kind: "drive", id: DRIVE_ID, name: "Personal" },
-        { kind: "folder", id: FILE_ID, name: "Beach.jpg" },
-      ],
+      breadcrumbs: [{ kind: "drive", id: DRIVE_ID, name: "Personal" }],
     } as never);
     renderAt(FILE_PATH);
 

@@ -4,4 +4,4 @@
 import type { Breadcrumb } from "./types.js";
 
 export const toFileLocation = (breadcrumbs: readonly Breadcrumb[]): readonly string[] =>
-  breadcrumbs.slice(0, -1).map((crumb) => crumb.name);
+  breadcrumbs.map((crumb) => crumb.name);

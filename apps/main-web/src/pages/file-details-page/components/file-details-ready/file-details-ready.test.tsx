@@ -57,7 +57,6 @@ const nestedFile = () =>
 const BREADCRUMBS = [
   breadcrumbSchema.parse({ kind: "drive", id: DRIVE_ID, name: "Personal" }),
   breadcrumbSchema.parse({ kind: "folder", id: PHOTOS_ID, name: "Photos" }),
-  breadcrumbSchema.parse({ kind: "folder", id: FILE_ID, name: "Beach.jpg" }),
 ];
 
 describe("FileDetailsReady", () => {

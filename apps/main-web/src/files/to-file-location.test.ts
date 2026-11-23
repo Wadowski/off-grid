@@ -6,12 +6,11 @@ import { describe, expect, it } from "vitest";
 import { toFileLocation } from "./to-file-location.js";
 
 describe("toFileLocation", () => {
-  it("lists the drive and the folders above the file, without the file itself", () => {
+  it("lists the drive and the folders that hold the file", () => {
     const breadcrumbs = [
       { kind: "drive", id: "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d", name: "Personal" },
       { kind: "folder", id: "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a", name: "Photos" },
       { kind: "folder", id: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d", name: "Summer" },
-      { kind: "folder", id: "9b0c1d2e-3f4a-4b5c-8d6e-7f8a9b0c1d2e", name: "Beach.jpg" },
     ].map((crumb) => breadcrumbSchema.parse(crumb));
 
     expect(toFileLocation(breadcrumbs)).toEqual(["Personal", "Photos", "Summer"]);
@@ -20,7 +19,6 @@ describe("toFileLocation", () => {
   it("lists only the drive for a file at the drive root", () => {
     const breadcrumbs = [
       { kind: "drive", id: "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d", name: "Personal" },
-      { kind: "folder", id: "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a", name: "Notes.txt" },
     ].map((crumb) => breadcrumbSchema.parse(crumb));
 
     expect(toFileLocation(breadcrumbs)).toEqual(["Personal"]);
