@@ -1258,14 +1258,68 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
+          },
+          {
+            "name": "disposition",
+            "in": "query",
+            "required": false,
+            "description": "attachment (the default) saves the file. inline asks the browser to show it, and is honoured only for png, jpeg, gif, webp and pdf; any other type is sent as an attachment.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "attachment",
+              "type": "string",
+              "enum": [
+                "attachment",
+                "inline"
+              ]
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "required": false,
+            "description": "A single byte range: bytes=a-b, bytes=a- or bytes=-n. A malformed header, a unit other than bytes or several ranges are ignored and the whole file is sent.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The whole file.",
             "headers": {
+              "Accept-Ranges": {
+                "description": "Always bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "Always private, no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Content-Disposition": {
-                "description": "The file name for the download, as an attachment.",
+                "description": "attachment, or inline when the request asked for it and the type is safe to show. The file name is in filename (ASCII) and filename* (UTF-8, RFC 5987).",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "description": "The number of bytes in the body.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "Sent only for an inline response.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "Always nosniff.",
                 "schema": {
                   "type": "string"
                 }
@@ -1283,8 +1337,44 @@
           "206": {
             "description": "The requested byte range, when the request sent a Range header.",
             "headers": {
+              "Accept-Ranges": {
+                "description": "Always bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "Always private, no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Content-Disposition": {
-                "description": "The file name for the download, as an attachment.",
+                "description": "attachment, or inline when the request asked for it and the type is safe to show. The file name is in filename (ASCII) and filename* (UTF-8, RFC 5987).",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "description": "The number of bytes in the body.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "Sent only for an inline response.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "Always nosniff.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "description": "The bytes in the body, as bytes start-end/size.",
                 "schema": {
                   "type": "string"
                 }
@@ -1300,7 +1390,7 @@
             }
           },
           "400": {
-            "description": "IS_FOLDER: the target is a folder and has no content.",
+            "description": "IS_FOLDER: the target is a folder and has no content. VALIDATION_FAILED: the id, the version id, the disposition or the query does not match the request schema.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1325,6 +1415,30 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "416": {
+            "description": "RANGE_NOT_SATISFIABLE: the Range header asks for bytes outside the file or version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Accept-Ranges": {
+                "description": "Always bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "description": "bytes */size, where size is the size of the file or version.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1707,14 +1821,68 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
+          },
+          {
+            "name": "disposition",
+            "in": "query",
+            "required": false,
+            "description": "attachment (the default) saves the file. inline asks the browser to show it, and is honoured only for png, jpeg, gif, webp and pdf; any other type is sent as an attachment.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "attachment",
+              "type": "string",
+              "enum": [
+                "attachment",
+                "inline"
+              ]
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "required": false,
+            "description": "A single byte range: bytes=a-b, bytes=a- or bytes=-n. A malformed header, a unit other than bytes or several ranges are ignored and the whole file is sent.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The whole file.",
             "headers": {
+              "Accept-Ranges": {
+                "description": "Always bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "Always private, no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Content-Disposition": {
-                "description": "The file name for the download, as an attachment.",
+                "description": "attachment, or inline when the request asked for it and the type is safe to show. The file name is in filename (ASCII) and filename* (UTF-8, RFC 5987).",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "description": "The number of bytes in the body.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "Sent only for an inline response.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "Always nosniff.",
                 "schema": {
                   "type": "string"
                 }
@@ -1732,8 +1900,44 @@
           "206": {
             "description": "The requested byte range, when the request sent a Range header.",
             "headers": {
+              "Accept-Ranges": {
+                "description": "Always bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "Always private, no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Content-Disposition": {
-                "description": "The file name for the download, as an attachment.",
+                "description": "attachment, or inline when the request asked for it and the type is safe to show. The file name is in filename (ASCII) and filename* (UTF-8, RFC 5987).",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "description": "The number of bytes in the body.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "Sent only for an inline response.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "Always nosniff.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "description": "The bytes in the body, as bytes start-end/size.",
                 "schema": {
                   "type": "string"
                 }
@@ -1749,7 +1953,7 @@
             }
           },
           "400": {
-            "description": "IS_FOLDER: the target is a folder and has no content.",
+            "description": "IS_FOLDER: the target is a folder and has no content. VALIDATION_FAILED: the id, the version id, the disposition or the query does not match the request schema.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1774,6 +1978,30 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "416": {
+            "description": "RANGE_NOT_SATISFIABLE: the Range header asks for bytes outside the file or version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Accept-Ranges": {
+                "description": "Always bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "description": "bytes */size, where size is the size of the file or version.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -6022,7 +6250,8 @@
           "UPLOAD_INCOMPLETE",
           "UPLOAD_OFFSET_MISMATCH",
           "PAYLOAD_TOO_LARGE",
-          "CURRENT_VERSION"
+          "CURRENT_VERSION",
+          "RANGE_NOT_SATISFIABLE"
         ]
       },
       "SystemVersion": {

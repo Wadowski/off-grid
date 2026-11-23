@@ -35,3 +35,23 @@ export const MIME_TYPE_BY_EXTENSION: ReadonlyMap<string, string> = new Map([
 ]);
 export const CURRENT_VERSION_MESSAGE = "The current version of a file cannot be deleted.";
 export const IS_FOLDER_MESSAGE = "A folder has no versions.";
+export const IS_FOLDER_CONTENT_MESSAGE = "A folder has no content to download.";
+export const RANGE_NOT_SATISFIABLE_MESSAGE = "The requested byte range is outside the file.";
+export const INLINE_SAFE_MEDIA_TYPES: ReadonlySet<string> = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+  "application/pdf",
+]);
+export const PDF_MEDIA_TYPE = "application/pdf";
+export const INLINE_IMAGE_CONTENT_SECURITY_POLICY = "default-src 'none'; sandbox";
+export const INLINE_PDF_CONTENT_SECURITY_POLICY =
+  "default-src 'none'; object-src 'self'; frame-ancestors 'self'";
+export const FALLBACK_DOWNLOAD_FILE_NAME = "download";
+export const SINGLE_BYTE_RANGE_PATTERN = /^bytes=(\d*)-(\d*)$/i;
+export const CACHE_CONTROL_NO_STORE_VALUE = "private, no-store";
+export const LONE_SURROGATE_PATTERN =
+  /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+export const ASCII_UNSAFE_CHARACTER_PATTERN = /[^\x20-\x7e]|["\\]/g;
+export const RFC5987_RESERVED_CHARACTER_PATTERN = /['()*]/g;

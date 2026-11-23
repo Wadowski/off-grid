@@ -1054,7 +1054,7 @@ export interface components {
                 currentVersionId: string;
             }) | null;
         };
-        FilesErrorCode: "NOT_FOUND" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NAME_TAKEN" | "INVALID_MOVE" | "NOT_TRASHED" | "IS_FOLDER" | "UPLOAD_INCOMPLETE" | "UPLOAD_OFFSET_MISMATCH" | "PAYLOAD_TOO_LARGE" | "CURRENT_VERSION";
+        FilesErrorCode: "NOT_FOUND" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NAME_TAKEN" | "INVALID_MOVE" | "NOT_TRASHED" | "IS_FOLDER" | "UPLOAD_INCOMPLETE" | "UPLOAD_OFFSET_MISMATCH" | "PAYLOAD_TOO_LARGE" | "CURRENT_VERSION" | "RANGE_NOT_SATISFIABLE";
         SystemVersion: {
             version: string;
             commit?: string;
@@ -1993,8 +1993,12 @@ export interface operations {
     };
     downloadFile: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                disposition?: "attachment" | "inline";
+            };
+            header?: {
+                Range?: string;
+            };
             path: {
                 id: string;
             };
@@ -2004,7 +2008,12 @@ export interface operations {
         responses: {
             200: {
                 headers: {
+                    "Accept-Ranges"?: string;
+                    "Cache-Control"?: string;
                     "Content-Disposition"?: string;
+                    "Content-Length"?: number;
+                    "Content-Security-Policy"?: string;
+                    "X-Content-Type-Options"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2013,7 +2022,13 @@ export interface operations {
             };
             206: {
                 headers: {
+                    "Accept-Ranges"?: string;
+                    "Cache-Control"?: string;
                     "Content-Disposition"?: string;
+                    "Content-Length"?: number;
+                    "Content-Security-Policy"?: string;
+                    "X-Content-Type-Options"?: string;
+                    "Content-Range"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2038,6 +2053,16 @@ export interface operations {
             };
             404: {
                 headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            416: {
+                headers: {
+                    "Accept-Ranges"?: string;
+                    "Content-Range"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2300,8 +2325,12 @@ export interface operations {
     };
     downloadFileVersion: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                disposition?: "attachment" | "inline";
+            };
+            header?: {
+                Range?: string;
+            };
             path: {
                 id: string;
                 versionId: string;
@@ -2312,7 +2341,12 @@ export interface operations {
         responses: {
             200: {
                 headers: {
+                    "Accept-Ranges"?: string;
+                    "Cache-Control"?: string;
                     "Content-Disposition"?: string;
+                    "Content-Length"?: number;
+                    "Content-Security-Policy"?: string;
+                    "X-Content-Type-Options"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2321,7 +2355,13 @@ export interface operations {
             };
             206: {
                 headers: {
+                    "Accept-Ranges"?: string;
+                    "Cache-Control"?: string;
                     "Content-Disposition"?: string;
+                    "Content-Length"?: number;
+                    "Content-Security-Policy"?: string;
+                    "X-Content-Type-Options"?: string;
+                    "Content-Range"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2346,6 +2386,16 @@ export interface operations {
             };
             404: {
                 headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            416: {
+                headers: {
+                    "Accept-Ranges"?: string;
+                    "Content-Range"?: string;
                     [name: string]: unknown;
                 };
                 content: {

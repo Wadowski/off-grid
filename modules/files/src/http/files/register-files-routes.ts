@@ -4,6 +4,8 @@
 import type { FastifyInstance } from "fastify";
 import type { FilesRouteContext } from "../../types.js";
 import { registerCreateFolder } from "./register-create-folder.js";
+import { registerDownloadFile } from "./register-download-file.js";
+import { registerDownloadFileVersion } from "./register-download-file-version.js";
 import { registerGetFile } from "./register-get-file.js";
 import { registerMoveFile } from "./register-move-file.js";
 import { registerRenameFile } from "./register-rename-file.js";
@@ -20,6 +22,8 @@ export const registerFilesRoutes = (api: FastifyInstance, context: FilesRouteCon
   registerListDrives(api, context);
   registerListDriveChildren(api, context);
   registerGetFile(api, context);
+  registerDownloadFile(api, context);
+  registerDownloadFileVersion(api, context);
   registerListFileChildren(api, context);
   registerCreateFolder(api, context);
   registerRenameFile(api, context);

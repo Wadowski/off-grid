@@ -1,11 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { Readable } from "node:stream";
 import type { FileStorage, StoredObject } from "@offgrid/file-storage";
 import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { CurrentUserId } from "@offgrid/http";
 import type { Logger } from "@offgrid/observability";
+import type { fileContentQuerySchema } from "@offgrid/contracts";
+import type { z } from "zod";
 
 export interface StorageIntegrityReport {
   readonly orphanKeys: readonly string[];
@@ -313,6 +316,48 @@ export interface NewVersionContent {
   readonly mimeType: string;
   readonly sha256: string;
 }
+
+export type ContentDisposition = z.infer<typeof fileContentQuerySchema>["disposition"];
+
+export interface ByteSpan {
+  readonly start: number;
+  readonly end: number;
+}
+
+export type ContentHeaders = Readonly<Record<string, string>>;
+
+export interface ContentHeadersInput {
+  readonly fileName: string;
+  readonly mediaType: string;
+  readonly requestedDisposition: ContentDisposition;
+  readonly sizeBytes: number;
+  readonly span: ByteSpan | null;
+}
+
+export interface FileContentDependencies {
+  readonly db: ModuleDatabase;
+  readonly storage: FileStorage;
+}
+
+export interface OpenContentRequest {
+  readonly fileId: string;
+  readonly versionId: string | null;
+  readonly rangeHeader: string | undefined;
+}
+
+export interface OpenedContent {
+  readonly fileName: string;
+  readonly mediaType: string;
+  readonly sizeBytes: number;
+  readonly span: ByteSpan | null;
+  readonly stream: Readable;
+}
+
+export type OpenContentOutcome =
+  | { readonly outcome: "found"; readonly value: OpenedContent }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "folder" }
+  | { readonly outcome: "range-not-satisfiable"; readonly sizeBytes: number };
 
 export interface AppendFileVersionInput {
   readonly target: RegularFileTarget;

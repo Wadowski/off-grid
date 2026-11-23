@@ -5,7 +5,7 @@ import type { APIRequestContext } from "@playwright/test";
 import { FILE_NAME_HEADER, PARENT_ID_HEADER } from "@offgrid/contracts";
 import { eventually } from "../eventually.js";
 import type { JsonResponse, Session } from "./instance-admin.js";
-import type { Container, Drive, FileItem } from "./types.js";
+import type { Container, Drive, DownloadResponse, FileItem } from "./types.js";
 
 const DEFAULT_E2E_UPLOAD_LIMIT_BYTES = 1024 * 1024;
 
@@ -182,11 +182,16 @@ export const uploadFileAs = async (
   api: APIRequestContext,
   session: Session,
   driveId: string,
-  upload: { readonly name: string; readonly parentId: string | null; readonly body: string },
+  upload: {
+    readonly name: string;
+    readonly parentId: string | null;
+    readonly body: string;
+    readonly contentType?: string;
+  },
 ): Promise<JsonResponse> => {
   const headers: Record<string, string> = {
     ...bearer(session),
-    "content-type": "text/plain",
+    "content-type": upload.contentType ?? "text/plain",
     [FILE_NAME_HEADER]: encodeURIComponent(upload.name),
   };
   if (upload.parentId !== null) {
@@ -261,4 +266,21 @@ export const deleteVersionAs = async (
     failOnStatusCode: false,
   });
   return { status: response.status(), body: await response.json().catch(() => null) };
+};
+
+export const downloadAs = async (
+  api: APIRequestContext,
+  session: Session,
+  path: string,
+  headers: Record<string, string> = {},
+): Promise<DownloadResponse> => {
+  const response = await api.get(path, {
+    headers: { ...bearer(session), ...headers },
+    failOnStatusCode: false,
+  });
+  return {
+    status: response.status(),
+    headers: response.headers(),
+    body: (await response.body()).toString("utf8"),
+  };
 };
