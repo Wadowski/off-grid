@@ -367,7 +367,8 @@ export interface AppendFileVersionInput {
   readonly content: NewVersionContent;
 }
 
-export interface ExpiredRoot extends FileRecord {
+export interface ExpiredRoot extends Omit<FileRecord, "deletedAt"> {
+  readonly deletedAt: Date;
   readonly ownerUserId: string | null;
   readonly ownerFamilyId: string | null;
 }
@@ -382,6 +383,11 @@ export interface TrashPurgeCounts {
   readonly failedRootCount: number;
   readonly skippedRootCount: number;
 }
+
+export type TrashedRootPurgeOutcome =
+  | { readonly outcome: "found"; readonly value: null }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "restored" };
 
 export interface PurgeBatchOutcome {
   readonly rootRestored: boolean;
@@ -403,14 +409,19 @@ export interface FileNameParts {
   readonly extension: string;
 }
 
-export interface MutableTrashPurgeCounts {
-  purgedRootCount: number;
-  failedRootCount: number;
-  skippedRootCount: number;
-}
-
 export interface TrashedRootPlan {
   readonly root: FileRecord;
   readonly owner: FileOwner;
   readonly subtree: readonly FileRecord[];
 }
+
+export interface RestoreTrashedFileInput {
+  readonly name: string;
+  readonly parentId: string | null;
+  readonly updatedAt: Date;
+}
+
+export type ExpiredRootRow = FileRecord & {
+  readonly userId: string | null;
+  readonly familyId: string | null;
+};

@@ -22,7 +22,7 @@ Trash and restore publish `file-updated-v1`, with `deletedAt` in the payload. No
 
 ### 3. Purge deletes a subtree in batches, deepest first, under the root lock
 
-Purge removes a trashed row and its subtree. The work is split into batches of 500 rows, ordered deepest first with the root last. Each batch runs in one transaction. It locks the root row with a conditional update, so a restore of the root stops the purge. It then reads the current subtree and deletes only the rows that are still in it, and publishes one `file-removed-v1` per row at `version + 1`. Bytes are deleted after each batch commits, best effort. A crash leaves a smaller trashed subtree that the next run finishes. One transaction for a large subtree was rejected because it would exceed the interactive transaction timeout.
+Purge removes a trashed row and its subtree. The work is split into batches of 500 rows, ordered deepest first with the root last. Each batch runs in one transaction. It locks the root row with a conditional update, so a restore of the root stops the purge and answers `restored`, which the route maps to 409 `NOT_TRASHED`. It then locks the batch rows with a conditional update on `deleted_at`, so a restore of a nested row either commits before the lock and leaves the row out of the batch, or waits for the purge and then finds the row live. Only rows that are still trashed and still in the subtree are deleted, and one `file-removed-v1` is published per deleted row at `version + 1`. Bytes are deleted after each batch commits, best effort. `DELETE /drives/:id/trash` (empty trash) runs the same purge for each trashed root in turn and has no per-root outcome in its response. If one root fails, the request answers 500, roots already purged stay purged and the remaining roots stay in trash. Repeat the call to finish. A root restored mid-run is skipped and the call answers 204. The retention worker counts a failed root and logs its error name, and a restored or unowned root as skipped. A crash leaves a smaller trashed subtree that the next run finishes. One transaction for a large subtree was rejected because it would exceed the interactive transaction timeout.
 
 The integrity sweep from [0033](0033-file-bytes-on-a-disk-volume.md) remains the backstop for bytes that a failed delete leaves behind.
 
@@ -34,7 +34,7 @@ A family drive with no current member is skipped and counted. It stays in trash 
 
 ### 5. Removal events use version plus one
 
-`file-removed-v1` carries `sourceVersion` and payload `version` equal to the row's version plus one, in the cross-owner move and in purge alike. The move previously used the current version, which collided with the last update.
+`file-removed-v1` carries `sourceVersion` and payload `version` equal to the row's version plus one, in the cross-owner move and in purge alike. The move previously used the current version, which collided with the last update. The rule holds for a trashed row too: trash bumps the version, so the removal is always newer than the last `file-updated-v1` of that row. No consumer exists yet.
 
 ## Consequences
 

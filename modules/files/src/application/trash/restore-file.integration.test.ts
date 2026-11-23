@@ -8,6 +8,8 @@ import { seedFolder } from "../../../test/seed-folder.js";
 import { seedRegularFile } from "../../../test/seed-regular-file.js";
 import { startFilesTestDatabase } from "../../../test/start-files-test-database.js";
 import type { FilesTestDatabase, SeedOwner } from "../../../test/types.js";
+import { restoreTrashedFile } from "../../infrastructure/trash/restore-trashed-file.js";
+import { writeAsUser } from "../write-as-user.js";
 import { restoreFile } from "./restore-file.js";
 import { trashFile } from "./trash-file.js";
 import { NotTrashedError } from "../errors/not-trashed-error.js";
@@ -170,5 +172,36 @@ describe("restoreFile", { timeout: 60_000 }, () => {
 
     expect((await restoreFile(db.db, chris, fileId)).outcome).toBe("not-found");
     expect((await restoreFile(db.db, ben, fileId)).outcome).toBe("found");
+  });
+  it("answers NOT_TRASHED to a second restore that races the first", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const fileId = await seedRegularFile(db.admin, {
+      driveId,
+      owner: annaOwner,
+      parentId: null,
+      name: "a.txt",
+      sizeBytes: 1,
+      createdByUserId: anna,
+      trashed: true,
+    });
+    let releaseFirst = (): void => undefined;
+    const firstHeld = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const first = writeAsUser(db.db, anna, async (tx) => {
+      await restoreTrashedFile(tx, fileId, {
+        name: "a.txt",
+        parentId: null,
+        updatedAt: new Date(),
+      });
+      await firstHeld;
+    });
+
+    const second = restoreFile(db.db, anna, fileId);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    releaseFirst();
+    await first;
+
+    await expect(second).rejects.toBeInstanceOf(NotTrashedError);
   });
 });

@@ -4,14 +4,15 @@
 import type { ModuleDatabase } from "@offgrid/db";
 import { publishFileUpdated } from "../../events/files/publish-file-updated.js";
 import { findDrive } from "../../infrastructure/drives/find-drive.js";
-import { updateFile } from "../../infrastructure/files/update-file.js";
+import { restoreTrashedFile } from "../../infrastructure/trash/restore-trashed-file.js";
 import { findFileAnyState } from "../../infrastructure/trash/find-file-any-state.js";
 import type { FileRecord, FilesOutcome } from "../../types.js";
 import { writeAsUser } from "../write-as-user.js";
 import { ownerOfVisibleFile } from "../files/owner-of-visible-file.js";
 import { NotTrashedError } from "../errors/not-trashed-error.js";
-import { resolveRestoreTarget } from "./resolve-restore-target.js";
+import { findRestorableParentId } from "./find-restorable-parent-id.js";
 import { resolveRestoredName } from "./resolve-restored-name.js";
+import { assertTrashed } from "./assert-trashed.js";
 
 export const restoreFile = (
   db: ModuleDatabase,
@@ -23,30 +24,30 @@ export const restoreFile = (
     if (file === null) {
       return { outcome: "not-found" };
     }
-    if (file.deletedAt === null) {
-      return (await ownerOfVisibleFile(tx, file)) === null
-        ? { outcome: "not-found" }
-        : rejectLiveFile();
+    if (file.deletedAt === null && (await ownerOfVisibleFile(tx, file)) === null) {
+      return { outcome: "not-found" };
     }
+    assertTrashed(file);
     const drive = await findDrive(tx, file.driveId);
     if (drive === null) {
       return { outcome: "not-found" };
     }
-    const parentId = await resolveRestoreTarget(tx, file);
+    const parentId = await findRestorableParentId(tx, file);
     const name = await resolveRestoredName(tx, file, parentId);
-    const restored = await updateFile(tx, fileId, {
+    const restored = await restoreTrashedFile(tx, fileId, {
       name,
       parentId,
-      deletedAt: null,
       updatedAt: new Date(),
     });
+    if (restored === null) {
+      if ((await findFileAnyState(tx, fileId)) === null) {
+        return { outcome: "not-found" };
+      }
+      throw new NotTrashedError();
+    }
     await publishFileUpdated(tx, {
       file: restored,
       owner: { userId: drive.userId, familyId: drive.familyId },
     });
     return { outcome: "found", value: restored };
   });
-
-const rejectLiveFile = (): never => {
-  throw new NotTrashedError();
-};

@@ -3,7 +3,7 @@
 
 import type { ModuleTransaction } from "@offgrid/db";
 import type { ExpiredRoot, ExpiredRootCursor } from "../../types.js";
-import { toFileRecord } from "../files/to-file-record.js";
+import { toExpiredRoot } from "./to-expired-root.js";
 
 export const findExpiredTrashedRoots = async (
   tx: ModuleTransaction,
@@ -28,9 +28,5 @@ export const findExpiredTrashedRoots = async (
     orderBy: [{ deletedAt: "asc" }, { fileId: "asc" }],
     take: input.take,
   });
-  return rows.map((row) => ({
-    ...toFileRecord(row),
-    ownerUserId: row.userId,
-    ownerFamilyId: row.familyId,
-  }));
+  return rows.map(toExpiredRoot);
 };

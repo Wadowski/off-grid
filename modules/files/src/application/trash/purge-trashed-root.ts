@@ -8,7 +8,7 @@ import { planPurgeBatches } from "../../domain/trash/plan-purge-batches.js";
 import { findDrive } from "../../infrastructure/drives/find-drive.js";
 import { findFileAnyState } from "../../infrastructure/trash/find-file-any-state.js";
 import { findFullSubtree } from "../../infrastructure/trash/find-full-subtree.js";
-import type { TrashedRootPlan, FilesOutcome } from "../../types.js";
+import type { TrashedRootPlan, TrashedRootPurgeOutcome } from "../../types.js";
 import { readAsUser } from "../read-as-user.js";
 import { deleteStoredBytes } from "../files/delete-stored-bytes.js";
 import { purgeBatch } from "./purge-batch.js";
@@ -18,7 +18,7 @@ export const purgeTrashedRoot = async (
   storage: FileStorage,
   userId: string,
   rootId: string,
-): Promise<FilesOutcome<null>> => {
+): Promise<TrashedRootPurgeOutcome> => {
   const plan = await readTrashedRootPlan(db, userId, rootId);
   if (plan === null) {
     return { outcome: "not-found" };
@@ -26,7 +26,7 @@ export const purgeTrashedRoot = async (
   for (const batch of planPurgeBatches(plan.subtree, TRASH_PURGE_BATCH_SIZE)) {
     const outcome = await purgeBatch(db, userId, plan.root, batch, plan.owner);
     if (outcome.rootRestored) {
-      break;
+      return { outcome: "restored" };
     }
     await deleteStoredBytes(storage, outcome.storageKeys);
   }

@@ -7,6 +7,7 @@ import { deleteFileRows } from "../../infrastructure/files/delete-file-rows.js";
 import { deleteFileVersions } from "../../infrastructure/files/delete-file-versions.js";
 import { findFullSubtree } from "../../infrastructure/trash/find-full-subtree.js";
 import { findStorageKeysOfFiles } from "../../infrastructure/trash/find-storage-keys-of-files.js";
+import { lockTrashedFiles } from "../../infrastructure/trash/lock-trashed-files.js";
 import { lockTrashedRoot } from "../../infrastructure/trash/lock-trashed-root.js";
 import type { FileOwner, FileRecord, PurgeBatchOutcome } from "../../types.js";
 import { writeAsUser } from "../write-as-user.js";
@@ -22,12 +23,19 @@ export const purgeBatch = (
     if (!(await lockTrashedRoot(tx, root.fileId))) {
       return { rootRestored: true, storageKeys: [] };
     }
+    const stillTrashed = await lockTrashedFiles(
+      tx,
+      batch.map((entry) => entry.fileId),
+    );
     const currentById = new Map(
       (await findFullSubtree(tx, root)).map((entry) => [entry.fileId, entry]),
     );
     const deletable = batch.flatMap((entry) => {
       const current = currentById.get(entry.fileId);
-      return current === undefined ? [] : [current];
+      if (current === undefined) {
+        return [];
+      }
+      return current.deletedAt === null || stillTrashed.has(entry.fileId) ? [current] : [];
     });
     if (deletable.length === 0) {
       return { rootRestored: false, storageKeys: [] };

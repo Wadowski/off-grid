@@ -5,10 +5,11 @@ import type { ModuleDatabase } from "@offgrid/db";
 import type { FileStorage } from "@offgrid/file-storage";
 import { findAncestors } from "../../infrastructure/files/find-ancestors.js";
 import { findFileAnyState } from "../../infrastructure/trash/find-file-any-state.js";
-import type { FilesOutcome } from "../../types.js";
+import type { FileRecord, FilesOutcome } from "../../types.js";
 import { readAsUser } from "../read-as-user.js";
 import { ownerOfVisibleFile } from "../files/owner-of-visible-file.js";
 import { NotTrashedError } from "../errors/not-trashed-error.js";
+import { assertTrashed } from "./assert-trashed.js";
 import { purgeTrashedRoot } from "./purge-trashed-root.js";
 
 export const purgeFile = async (
@@ -17,28 +18,29 @@ export const purgeFile = async (
   userId: string,
   fileId: string,
 ): Promise<FilesOutcome<null>> => {
-  const verdict = await readPurgeVerdict(db, userId, fileId);
-  if (verdict === "not-found") {
+  const target = await readVisibleTarget(db, userId, fileId);
+  if (target === null) {
     return { outcome: "not-found" };
   }
-  if (verdict === "live") {
+  assertTrashed(target);
+  const outcome = await purgeTrashedRoot(db, storage, userId, fileId);
+  if (outcome.outcome === "restored") {
     throw new NotTrashedError();
   }
-  return purgeTrashedRoot(db, storage, userId, fileId);
+  return outcome;
 };
 
-const readPurgeVerdict = (
+const readVisibleTarget = (
   db: ModuleDatabase,
   userId: string,
   fileId: string,
-): Promise<"not-found" | "live" | "trashed"> =>
+): Promise<FileRecord | null> =>
   readAsUser(db, userId, async (tx) => {
     const file = await findFileAnyState(tx, fileId);
     if (file === null) {
-      return "not-found";
+      return null;
     }
-    if (file.deletedAt === null) {
-      return (await ownerOfVisibleFile(tx, file)) === null ? "not-found" : "live";
-    }
-    return (await findAncestors(tx, file)) === null ? "not-found" : "trashed";
+    const visible =
+      file.deletedAt === null ? await ownerOfVisibleFile(tx, file) : await findAncestors(tx, file);
+    return visible === null ? null : file;
   });

@@ -60,5 +60,4 @@ export const TRASH_PURGE_PAGE_SIZE = 100;
 export const TRASH_PURGE_FIRST_RUN_DELAY_MS = 2 * 60 * 1000;
 export const TRASH_PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 export const DAY_MS = 24 * 60 * 60 * 1000;
-export const MAX_FILE_NAME_LENGTH = 255;
 export const NOT_TRASHED_MESSAGE = "This entry is not in the trash.";

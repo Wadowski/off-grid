@@ -19,6 +19,7 @@ export const runTrashPurge = async (
       db,
       storage,
       new Date(now.getTime() - retentionDays * DAY_MS),
+      logger,
     );
     logger.info("files trash purge finished", { ...counts });
     if (counts.failedRootCount > 0 || counts.skippedRootCount > 0) {

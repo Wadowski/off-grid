@@ -3,11 +3,13 @@
 
 import { z } from "zod";
 
+export const FILE_NAME_MAX_LENGTH = 255;
+
 export const fileNameSchema = z
   .string()
   .trim()
   .min(1)
-  .max(255)
+  .max(FILE_NAME_MAX_LENGTH)
   .refine(
     (name) =>
       !name.includes("/") &&

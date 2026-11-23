@@ -17,24 +17,10 @@ import type { JsonResponse, Session } from "../support/factories/instance-admin.
 import { signedInPerson } from "../support/factories/notifications.js";
 import type { FileItem } from "../support/factories/types.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
+import { worldFamilyNamed } from "../support/world-family-named.js";
+import { worldSessionOf } from "../support/world-session-of.js";
 
 const { Given, When, Then } = createBdd(test);
-
-const sessionOf = (world: ScenarioWorld, name: string): Session => {
-  const person = world.people?.[name];
-  if (person === undefined) {
-    throw new Error(`${name} has not signed up`);
-  }
-  return person.session;
-};
-
-const familyNamed = (world: ScenarioWorld, name: string): { id: string; name: string } => {
-  const family = world.families.find((created) => created.name === name);
-  if (family === undefined) {
-    throw new Error(`The family ${name} does not exist`);
-  }
-  return family;
-};
 
 const remember = (world: ScenarioWorld, name: string, id: string): void => {
   const files = world.files ?? { drives: {}, personalDriveIds: {}, familyDriveIds: {} };
@@ -52,7 +38,7 @@ const requireId = (id: string | undefined, name: string): string => {
 };
 
 const personalDriveIdOf = async (world: ScenarioWorld, name: string): Promise<string> => {
-  const drives = await waitForDrives(world.api, sessionOf(world, name), (listed) =>
+  const drives = await waitForDrives(world.api, worldSessionOf(world, name), (listed) =>
     listed.some((drive) => drive.familyId === null),
   );
   return drives.find((drive) => drive.familyId === null)?.id ?? "";
@@ -63,15 +49,15 @@ const familyDriveIdOf = async (
   actor: string,
   familyName: string,
 ): Promise<string> => {
-  const family = familyNamed(world, familyName);
-  const drives = await waitForDrives(world.api, sessionOf(world, actor), (listed) =>
+  const family = worldFamilyNamed(world, familyName);
+  const drives = await waitForDrives(world.api, worldSessionOf(world, actor), (listed) =>
     listed.some((drive) => drive.familyId === family.id),
   );
   return drives.find((drive) => drive.familyId === family.id)?.id ?? "";
 };
 
 const liveIdOf = (world: ScenarioWorld, name: string): Promise<string | undefined> =>
-  findItemAcrossDrives(world.api, sessionOf(world, "Anna"), name).then(
+  findItemAcrossDrives(world.api, worldSessionOf(world, "Anna"), name).then(
     (item) => item.id,
     () => undefined,
   );
@@ -90,7 +76,7 @@ const trashedItemsOf = async (
 
 const trashedIdOf = async (world: ScenarioWorld, name: string): Promise<string | undefined> => {
   const driveId = await personalDriveIdOf(world, "Anna");
-  const items = await trashedItemsOf(world, sessionOf(world, "Anna"), driveId);
+  const items = await trashedItemsOf(world, worldSessionOf(world, "Anna"), driveId);
   return items.find((item) => item.name === name)?.id;
 };
 
@@ -110,7 +96,7 @@ const createFolderIn = async (
 ): Promise<string> => {
   const response = await postAs(
     world.api,
-    sessionOf(world, "Anna"),
+    worldSessionOf(world, "Anna"),
     `/api/drives/${driveId}/folders`,
     {
       parentId,
@@ -130,7 +116,7 @@ const uploadIn = async (
   parentId: string | null,
   name: string,
 ): Promise<string> => {
-  const response = await uploadFileAs(world.api, sessionOf(world, actor), driveId, {
+  const response = await uploadFileAs(world.api, worldSessionOf(world, actor), driveId, {
     name,
     parentId,
     body: `Contents of ${name}`,
@@ -144,7 +130,7 @@ const uploadIn = async (
 const trashAs = async (world: ScenarioWorld, actor: string, id: string): Promise<void> => {
   const response = await postAs(
     world.api,
-    sessionOf(world, actor),
+    worldSessionOf(world, actor),
     `/api/files/${id}/trash`,
     undefined,
   );
@@ -163,23 +149,28 @@ const childrenNamesOf = async (
   actor: string,
   container: { kind: "drive" | "folder"; id: string },
 ): Promise<string[]> =>
-  (await listItemsAs(world.api, sessionOf(world, actor), container)).map((item) => item.name);
+  (await listItemsAs(world.api, worldSessionOf(world, actor), container)).map((item) => item.name);
 
 const trashNamesOf = async (
   world: ScenarioWorld,
   actor: string,
   driveId: string,
 ): Promise<string[]> =>
-  (await trashedItemsOf(world, sessionOf(world, actor), driveId)).map((item) => item.name);
+  (await trashedItemsOf(world, worldSessionOf(world, actor), driveId)).map((item) => item.name);
 
 Given(/^a new person Chris signs up$/, async ({ world }) => {
   world.people = { ...world.people, Chris: await signedInPerson(world.api, "Chris") };
 });
 
 Given(/^Ben is a member of "([^"]*)"$/, async ({ world }, familyName: string) => {
-  const family = familyNamed(world, familyName);
-  await joinFamilyAs(world.api, sessionOf(world, "Anna"), family.id, sessionOf(world, "Ben"));
-  await waitForDrives(world.api, sessionOf(world, "Ben"), (listed) =>
+  const family = worldFamilyNamed(world, familyName);
+  await joinFamilyAs(
+    world.api,
+    worldSessionOf(world, "Anna"),
+    family.id,
+    worldSessionOf(world, "Ben"),
+  );
+  await waitForDrives(world.api, worldSessionOf(world, "Ben"), (listed) =>
     listed.some((drive) => drive.familyId === family.id),
   );
 });
@@ -242,7 +233,7 @@ When(
     const id = await entryIdOf(world, name);
     world.response = await postAs(
       world.api,
-      sessionOf(world, actor),
+      worldSessionOf(world, actor),
       `/api/files/${id}/trash`,
       undefined,
     );
@@ -255,7 +246,7 @@ When(
     const id = requireId(rememberedIdOf(world, name) ?? (await trashedIdOf(world, name)), name);
     world.response = await postAs(
       world.api,
-      sessionOf(world, actor),
+      worldSessionOf(world, actor),
       `/api/files/${id}/restore`,
       undefined,
     );
@@ -266,7 +257,7 @@ When(/^Anna restores the file "([^"]*)" from the trash$/, async ({ world }, name
   const id = requireId(await trashedIdOf(world, name), name);
   world.response = await postAs(
     world.api,
-    sessionOf(world, "Anna"),
+    worldSessionOf(world, "Anna"),
     `/api/files/${id}/restore`,
     undefined,
   );
@@ -274,14 +265,14 @@ When(/^Anna restores the file "([^"]*)" from the trash$/, async ({ world }, name
 
 When(/^Anna permanently deletes the file "([^"]*)"$/, async ({ world }, name: string) => {
   const id = await entryIdOf(world, name);
-  world.response = await deleteAs(world.api, sessionOf(world, "Anna"), `/api/files/${id}`);
+  world.response = await deleteAs(world.api, worldSessionOf(world, "Anna"), `/api/files/${id}`);
 });
 
 When(/^Anna empties the trash of her personal drive$/, async ({ world }) => {
   const driveId = await personalDriveIdOf(world, "Anna");
   world.response = await deleteAs(
     world.api,
-    sessionOf(world, "Anna"),
+    worldSessionOf(world, "Anna"),
     `/api/drives/${driveId}/trash`,
   );
 });
@@ -306,13 +297,13 @@ Then(/^Anna does not see "([^"]*)" in the trash$/, async ({ world }, name: strin
 
 Then("the trash of her personal drive is empty", async ({ world }) => {
   const driveId = await personalDriveIdOf(world, "Anna");
-  expect(await trashedItemsOf(world, sessionOf(world, "Anna"), driveId)).toHaveLength(0);
+  expect(await trashedItemsOf(world, worldSessionOf(world, "Anna"), driveId)).toHaveLength(0);
 });
 
 Then(/^Anna cannot open the folder "([^"]*)"$/, async ({ world }, name: string) => {
   const response = await getAs(
     world.api,
-    sessionOf(world, "Anna"),
+    worldSessionOf(world, "Anna"),
     `/api/files/${requireId(rememberedIdOf(world, name), name)}/children`,
   );
   expect(response.status, `Anna cannot open the folder ${name}`).toBe(404);
@@ -321,7 +312,7 @@ Then(/^Anna cannot open the folder "([^"]*)"$/, async ({ world }, name: string) 
 Then(/^Anna cannot open the file "([^"]*)"$/, async ({ world }, name: string) => {
   const response = await getAs(
     world.api,
-    sessionOf(world, "Anna"),
+    worldSessionOf(world, "Anna"),
     `/api/files/${requireId(rememberedIdOf(world, name), name)}`,
   );
   expect(response.status, `Anna cannot open the file ${name}`).toBe(404);
@@ -330,7 +321,7 @@ Then(/^Anna cannot open the file "([^"]*)"$/, async ({ world }, name: string) =>
 Then(/^Anna cannot download the file "([^"]*)"$/, async ({ world }, name: string) => {
   const response = await downloadAs(
     world.api,
-    sessionOf(world, "Anna"),
+    worldSessionOf(world, "Anna"),
     `/api/files/${requireId(rememberedIdOf(world, name), name)}/content`,
   );
   expect(response.status, `Anna cannot download the file ${name}`).toBe(404);

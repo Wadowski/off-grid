@@ -5,7 +5,7 @@ import type { ModuleTransaction } from "@offgrid/db";
 import { findTargetPath } from "../files/find-target-path.js";
 import type { FileRecord } from "../../types.js";
 
-export const resolveRestoreTarget = async (
+export const findRestorableParentId = async (
   tx: ModuleTransaction,
   file: FileRecord,
 ): Promise<string | null> => {
