@@ -13,7 +13,7 @@ import type {
   fileVersionSchema,
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
-import type { ListStatus } from "../types.js";
+import type { ListStatus, SessionUser } from "../types.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
 export type FileEntry = ReturnType<typeof fileSchema.parse>;
@@ -140,4 +140,15 @@ export type FileActivityEntry = {
   readonly number: number;
   readonly createdAt: Date;
   readonly name: string | null;
+};
+
+export type FileDetailsScreenState = {
+  readonly details: FileDetailsState;
+  readonly versions: FileVersionsState;
+  readonly drive: Drive | null;
+  readonly drivesStatus: ListStatus;
+  readonly members: readonly FamilyMemberEntry[];
+  readonly membersStatus: ListStatus;
+  readonly refreshMembers: () => Promise<void>;
+  readonly viewer: SessionUser | null;
 };

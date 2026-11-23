@@ -1,6 +1,3 @@
-// SPDX-FileCopyrightText: 2026 Dominik Wadowski
-// SPDX-License-Identifier: FSL-1.1-ALv2
-
 import { Navigate } from "react-router-dom";
 import { FileNotFound } from "../../../../errors/file-not-found/file-not-found.js";
 import { toFileBackTarget } from "../../../../files/to-file-back-target.js";
@@ -10,8 +7,8 @@ import { FileDetailsReady } from "../file-details-ready/file-details-ready.js";
 import { FileDetailsStatus } from "../file-details-status/file-details-status.js";
 import type { FileDetailsContentProps } from "./types.js";
 
-export const FileDetailsContent = ({ driveId, details }: FileDetailsContentProps) => {
-  const { file, breadcrumbs, status, errorTextId, refresh } = details;
+export const FileDetailsContent = ({ driveId, screen }: FileDetailsContentProps) => {
+  const { file, breadcrumbs, status, errorTextId, refresh } = screen.details;
 
   if (status === "failed" && errorTextId === "files.errors.notFound") {
     return (
@@ -50,6 +47,7 @@ export const FileDetailsContent = ({ driveId, details }: FileDetailsContentProps
         file={file}
         breadcrumbs={breadcrumbs}
         backTarget={toFileBackTarget(driveId, breadcrumbs)}
+        screen={screen}
       />
     </FileDetailsFrame>
   );
