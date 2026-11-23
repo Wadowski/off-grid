@@ -41,6 +41,10 @@ export const createFilesClient = (client: ApiClient) => ({
       ),
     ),
 
+  emptyDriveTrash: async (driveId: string): Promise<void> => {
+    await client.request("DELETE", fillRoute(filesRoutes.driveTrash, { id: driveId }));
+  },
+
   createFolder: async (driveId: string, input: CreateFolderRequest) =>
     fileSchema.parse(
       await client.request("POST", fillRoute(filesRoutes.driveFolders, { id: driveId }), input),

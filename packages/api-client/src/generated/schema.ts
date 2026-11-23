@@ -156,7 +156,7 @@ export interface paths {
         get: operations["listDriveTrash"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["emptyDriveTrash"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1706,6 +1706,49 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["FileList"];
                 };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    emptyDriveTrash: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             400: {
                 headers: {

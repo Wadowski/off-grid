@@ -212,6 +212,16 @@ describe("createFilesClient entries", () => {
     );
   });
 
+  it("empties the trash of a drive with DELETE and resolves without a body", async () => {
+    const { files, transport } = filesWith(emptyResponse(204));
+
+    await expect(files.emptyDriveTrash(DRIVE_ID)).resolves.toBeUndefined();
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/drives/${DRIVE_ID}/trash`,
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
   it("purges a file with DELETE and resolves without a body", async () => {
     const { files, transport } = filesWith(emptyResponse(204));
 

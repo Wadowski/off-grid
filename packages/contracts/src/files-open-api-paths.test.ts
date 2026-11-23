@@ -57,3 +57,14 @@ describe("file content operations", () => {
     },
   );
 });
+
+describe("drive trash operations", () => {
+  it("documents DELETE /drives/{id}/trash as emptying the trash with 204", () => {
+    const { delete: operation } = filesOpenApiPaths["/drives/{id}/trash"];
+
+    expect(operation.operationId).toBe("emptyDriveTrash");
+    expect(Object.keys(operation.responses)).toEqual(
+      expect.arrayContaining(["204", "400", "401", "404"]),
+    );
+  });
+});
