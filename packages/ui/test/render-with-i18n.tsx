@@ -27,6 +27,8 @@ await i18n.init({
           itemCount_one: "{{count}} item",
           itemCount_other: "{{count}} items",
           date: { today: "Today {{time}}", yesterday: "Yesterday" },
+          list: { label: "Folder contents" },
+          table: { name: "Name", modified: "Modified", size: "Size", type: "Type" },
         },
       },
     },

@@ -33,6 +33,8 @@ export const FilesPage = () => {
   const parentPath =
     folder.driveId === null ? null : toParentFolderPath(folder.driveId, folder.breadcrumbs);
   const parentName = folder.breadcrumbs.at(-2)?.name;
+  const driveName = folder.breadcrumbs.at(0)?.name;
+  const showsDriveName = !phone && driveName !== undefined;
 
   return (
     <div style={filesPageStyle} data-testid="files-page">
@@ -42,6 +44,8 @@ export const FilesPage = () => {
           status={switcher.status}
           activeDriveId={switcher.activeDriveId}
         />
+      ) : showsDriveName ? (
+        <Text variant="heading" value={driveName} />
       ) : (
         <Text variant="heading" textId="files.layout.heading" />
       )}
@@ -63,7 +67,7 @@ export const FilesPage = () => {
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents driveId={folder.driveId} contents={contents} />
+        <FolderContents driveId={folder.driveId} contents={contents} phone={phone} />
       ) : null}
     </div>
   );

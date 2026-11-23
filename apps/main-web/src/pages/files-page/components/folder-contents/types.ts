@@ -6,4 +6,5 @@ import type { Drive, FolderContentsState } from "../../../../files/types.js";
 export type FolderContentsProps = {
   readonly driveId: Drive["id"];
   readonly contents: FolderContentsState;
+  readonly phone: boolean;
 };

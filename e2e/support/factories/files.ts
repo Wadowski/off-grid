@@ -106,6 +106,36 @@ export const patchAs = async (
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
 
+export const personalDriveIdAs = async (
+  api: APIRequestContext,
+  session: Session,
+): Promise<string> => {
+  const drives = await waitForDrives(api, session, (listed) =>
+    listed.some((drive) => drive.familyId === null),
+  );
+  const drive = drives.find((listed) => listed.familyId === null);
+  if (drive === undefined) {
+    throw new Error("The personal drive is not listed.");
+  }
+  return drive.id;
+};
+
+export const createFolderAs = async (
+  api: APIRequestContext,
+  session: Session,
+  driveId: string,
+  parentId: string | null,
+  name: string,
+): Promise<void> => {
+  const response = await postAs(api, session, `/api/drives/${driveId}/folders`, {
+    parentId,
+    name,
+  });
+  if (response.status !== 201) {
+    throw new Error(`The folder ${name} could not be created (${response.status}).`);
+  }
+};
+
 export const listItemsAs = async (
   api: APIRequestContext,
   session: Session,

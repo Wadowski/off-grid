@@ -5,7 +5,17 @@ import { render } from "@testing-library/react";
 import axe from "axe-core";
 import { describe, expect, it } from "vitest";
 import { renderWithI18n } from "../test/render-with-i18n.js";
-import { Button, Card, Checkbox, FileCard, FileRow, FileTypeIcon, TextField } from "./index.js";
+import {
+  Button,
+  Card,
+  Checkbox,
+  FileCard,
+  FileRow,
+  FileTable,
+  FileTableRow,
+  FileTypeIcon,
+  TextField,
+} from "./index.js";
 import { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 
 const AXE_RUN_TIMEOUT_MS = 30_000;
@@ -22,6 +32,37 @@ describe("accessibility", () => {
             <Button variant="secondary">Cancel</Button>
             <VisuallyHidden>Opens in a new tab</VisuallyHidden>
           </Card>
+        </main>,
+      );
+
+      const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
+
+      expect(results.violations).toEqual([]);
+    },
+    AXE_RUN_TIMEOUT_MS,
+  );
+
+  it(
+    "has no axe violations for the desktop file table",
+    async () => {
+      const { container } = renderWithI18n(
+        <main>
+          <FileTable isBusy={false}>
+            <FileTableRow
+              name="Holiday photos"
+              kind="folder"
+              itemCount={184}
+              onActivate={() => undefined}
+            />
+            <FileTableRow
+              name="Policy.pdf"
+              kind="pdf"
+              sizeBytes={2_800_000}
+              modifiedAt={new Date()}
+              selected
+              onActivate={() => undefined}
+            />
+          </FileTable>
         </main>,
       );
 

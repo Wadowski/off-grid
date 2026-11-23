@@ -75,4 +75,5 @@ export const tokens = {
     focus: "0 0 0 2px rgba(0, 102, 255, 0.25)",
   },
   focusRing: { width: "3px", offset: "2px" },
+  selectedRow: { barWidth: "3px" },
 } as const;

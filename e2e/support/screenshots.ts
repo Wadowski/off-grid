@@ -48,7 +48,7 @@ const captured = new Set<string>();
 const nextFrame = (page: Page): Promise<void> =>
   page.evaluate("new Promise((resolve) => requestAnimationFrame(() => resolve()))");
 
-const captureTheme = async (
+const captureDesktop = async (
   page: Page,
   name: string,
   feature: string,
@@ -60,7 +60,17 @@ const captureTheme = async (
   await prepare?.();
   const path = screenPath(feature, shotName(name, theme, false));
   await page.screenshot({ path, fullPage: true });
+  return path;
+};
 
+const captureMobile = async (
+  page: Page,
+  name: string,
+  feature: string,
+  theme: Theme,
+  prepare: (() => Promise<void>) | undefined,
+): Promise<void> => {
+  await page.emulateMedia({ colorScheme: theme });
   const desktopViewport = page.viewportSize();
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.waitForFunction("document.documentElement.scrollWidth <= window.innerWidth");
@@ -69,7 +79,6 @@ const captureTheme = async (
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);
   }
-  return path;
 };
 
 export async function captureScreen(
@@ -88,8 +97,10 @@ export async function captureScreen(
   }
   captured.add(key);
   await mkdir(screenPath(feature, name).split("/").slice(0, -1).join("/"), { recursive: true });
-  const path = await captureTheme(page, name, feature, "light", prepare);
-  await captureTheme(page, name, feature, "dark", prepare);
+  const path = await captureDesktop(page, name, feature, "light", prepare);
+  await captureDesktop(page, name, feature, "dark", prepare);
+  await captureMobile(page, name, feature, "light", prepare);
+  await captureMobile(page, name, feature, "dark", prepare);
   await page.emulateMedia({ colorScheme: "light" });
   return path;
 }
