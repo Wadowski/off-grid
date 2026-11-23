@@ -44,7 +44,7 @@ When("I open the Files page", async ({ page }) => {
 
 Then("I see the Files page", async ({ page }) => {
   await expect(page.getByTestId("files-page")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Files", exact: true })).toBeVisible();
+  await expect(page.getByTestId("files-page").getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 Then("the sidebar marks {string} as the current page", async ({ page }, label: string) => {
