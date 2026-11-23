@@ -144,5 +144,7 @@ Then(/^the drive "([^"]*)" is the active drive in the sidebar$/, async ({ page }
 });
 
 Then(/^the folder list shows "([^"]*)"$/, async ({ page }, name: string) => {
-  await expect(page.getByTestId("file-row").filter({ hasText: name }).first()).toBeVisible();
+  const phoneRow = page.getByTestId("file-row").filter({ hasText: name });
+  const desktopRow = page.getByTestId("file-table-row").filter({ hasText: name });
+  await expect(phoneRow.or(desktopRow).first()).toBeVisible();
 });
