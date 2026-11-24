@@ -22,7 +22,11 @@ const entry = (fileId: string, name: string): FileRecord => ({
 
 describe("toChildrenPage", () => {
   it("returns no next cursor when every row fits on the page", () => {
-    const page = toChildrenPage([entry("a", "a.txt")], 2);
+    const page = toChildrenPage([entry("a", "a.txt")], {
+      limit: 2,
+      sort: "name",
+      direction: "asc",
+    });
 
     expect(page.records.map((record) => record.name)).toEqual(["a.txt"]);
     expect(page.nextCursor).toBeNull();
@@ -35,18 +39,23 @@ describe("toChildrenPage", () => {
         entry("33333333-3333-4333-8333-333333333333", "b.txt"),
         entry("55555555-5555-4555-8555-555555555555", "c.txt"),
       ],
-      2,
+      { limit: 2, sort: "name", direction: "asc" },
     );
 
     expect(page.records.map((record) => record.name)).toEqual(["a.txt", "b.txt"]);
     expect(page.nextCursor).toEqual({
       isFolder: false,
-      name: "b.txt",
       fileId: "33333333-3333-4333-8333-333333333333",
+      sort: "name",
+      direction: "asc",
+      sortValue: "b.txt",
     });
   });
 
   it("returns an empty page with no cursor for an empty folder", () => {
-    expect(toChildrenPage([], 50)).toEqual({ records: [], nextCursor: null });
+    expect(toChildrenPage([], { limit: 50, sort: "name", direction: "asc" })).toEqual({
+      records: [],
+      nextCursor: null,
+    });
   });
 });

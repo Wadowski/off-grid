@@ -34,7 +34,7 @@ const readTrashPage = async (
     cursor: query.cursor,
     take: query.limit + 1,
   });
-  const page = toChildrenPage(rows, query.limit);
+  const page = toChildrenPage(rows, { limit: query.limit, sort: "name", direction: "asc" });
   return {
     page,
     itemCounts: await readItemCounts(tx, drive.driveId, page.records),

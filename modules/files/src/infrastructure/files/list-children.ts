@@ -2,28 +2,28 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ModuleTransaction } from "@offgrid/db";
-import type { ChildrenCursor, FileRecord } from "../../types.js";
-import { toFileRecord } from "./to-file-record.js";
-import { afterCursorCondition } from "./after-cursor-condition.js";
+import type { ChildRowsRequest, FileRecord } from "../../types.js";
+import { findChildRows } from "./find-child-rows.js";
 
 export const listChildren = async (
   tx: ModuleTransaction,
-  input: {
-    readonly driveId: string;
-    readonly parentId: string | null;
-    readonly cursor: ChildrenCursor | null;
-    readonly take: number;
-  },
+  request: ChildRowsRequest,
 ): Promise<FileRecord[]> => {
-  const rows = await tx.filesFile.findMany({
-    where: {
-      driveId: input.driveId,
-      parentId: input.parentId,
-      deletedAt: null,
-      ...(input.cursor === null ? {} : { AND: [afterCursorCondition(input.cursor)] }),
-    },
-    orderBy: [{ isFolder: "desc" }, { name: "asc" }, { fileId: "asc" }],
-    take: input.take,
-  });
-  return rows.map(toFileRecord);
+  const folderCursor = request.cursor?.isFolder === true ? request.cursor : null;
+  const fileCursor = request.cursor?.isFolder === false ? request.cursor : null;
+  const folders =
+    request.cursor === null || folderCursor !== null
+      ? await findChildRows(tx, { ...request, cursor: folderCursor, isFolder: true })
+      : [];
+  const remaining = request.take - folders.length;
+  const files =
+    remaining > 0
+      ? await findChildRows(tx, {
+          ...request,
+          cursor: fileCursor,
+          take: remaining,
+          isFolder: false,
+        })
+      : [];
+  return [...folders, ...files];
 };

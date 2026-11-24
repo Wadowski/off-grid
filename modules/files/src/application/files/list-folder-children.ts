@@ -42,8 +42,10 @@ const listFolderPage = async (
     parentId: folder.fileId,
     cursor: query.cursor,
     take: query.limit + 1,
+    sort: query.sort,
+    direction: query.direction,
   });
-  const page = toChildrenPage(rows, query.limit);
+  const page = toChildrenPage(rows, query);
   return {
     page,
     itemCounts: await readItemCounts(tx, folder.driveId, page.records),
