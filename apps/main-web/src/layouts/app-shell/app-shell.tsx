@@ -6,6 +6,8 @@ import { useCalendars } from "../../calendars/use-calendars.js";
 import { NotificationsInboxProvider } from "../../notifications/index.js";
 import { signOut } from "../../session/sign-out.js";
 import { useSession } from "../../session/use-session.js";
+import { UploadQueueProvider } from "../../uploads/index.js";
+import { UploadQueuePanel } from "./components/upload-queue-panel/upload-queue-panel.js";
 import type { CurrentUser, FamiliesContext, ShellContext } from "../../types.js";
 import { AppHeader } from "./components/app-header/app-header.js";
 import { AppSidebar } from "./components/app-sidebar/app-sidebar.js";
@@ -28,19 +30,22 @@ export const AppShell = () => {
 
   return (
     <NotificationsInboxProvider>
-      <div style={appShellStyle}>
-        <style>{appShellCss}</style>
-        <AppSidebar
-          user={user}
-          families={familiesState.families}
-          onSignOut={() => void signOut()}
-        />
-        <AppHeader />
-        <main className="og-shell-main">
-          <Outlet context={shellContext} />
-        </main>
-        <MobileTabBar />
-      </div>
+      <UploadQueueProvider>
+        <div style={appShellStyle}>
+          <style>{appShellCss}</style>
+          <AppSidebar
+            user={user}
+            families={familiesState.families}
+            onSignOut={() => void signOut()}
+          />
+          <AppHeader />
+          <main className="og-shell-main" tabIndex={-1}>
+            <Outlet context={shellContext} />
+          </main>
+          <MobileTabBar />
+          <UploadQueuePanel />
+        </div>
+      </UploadQueueProvider>
     </NotificationsInboxProvider>
   );
 };

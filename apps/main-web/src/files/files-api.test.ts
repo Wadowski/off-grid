@@ -3,7 +3,13 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { webFilesClient } from "../api/web-api-client.js";
-import { getFile, listDriveChildren, listDrives, listFileChildren } from "./files-api.js";
+import {
+  getFile,
+  listDriveChildren,
+  listDrives,
+  listFileChildren,
+  uploadFile,
+} from "./files-api.js";
 import type { Drive, FileDetails, FileEntry, FileListPage } from "./types.js";
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
@@ -48,5 +54,15 @@ describe("files API", () => {
 
     await expect(getFile(FOLDER_ID)).resolves.toBe(DETAILS);
     expect(get).toHaveBeenCalledWith(FOLDER_ID);
+  });
+
+  it("uploads a file through the files client with its progress handler", async () => {
+    const upload = vi.spyOn(webFilesClient, "uploadFile").mockResolvedValue({} as FileEntry);
+    const file = new File(["hello"], "Holiday.txt");
+    const onProgress = vi.fn();
+
+    await uploadFile(DRIVE_ID, { file, parentId: FOLDER_ID, onProgress });
+
+    expect(upload).toHaveBeenCalledWith(DRIVE_ID, { file, parentId: FOLDER_ID, onProgress });
   });
 });

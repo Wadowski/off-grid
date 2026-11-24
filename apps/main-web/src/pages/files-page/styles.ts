@@ -9,11 +9,3 @@ export const filesPageStyle: CSSProperties = {
   gap: tokens.space[3],
   minWidth: 0,
 };
-
-export const filesHeadingRowStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: tokens.space[3],
-};

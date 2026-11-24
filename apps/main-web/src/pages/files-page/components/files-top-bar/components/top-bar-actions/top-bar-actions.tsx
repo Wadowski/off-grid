@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, MaterialIcon } from "@offgrid/ui";
+import { Button, FilePickerButton, MaterialIcon } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { topBarActionsStyle } from "./styles.js";
+import type { TopBarActionsProps } from "./types.js";
 
-export const TopBarActions = () => {
+export const TopBarActions = ({ uploadDisabled, onFilesPicked }: TopBarActionsProps) => {
   const { t } = useTranslation();
 
   return (
@@ -15,15 +16,17 @@ export const TopBarActions = () => {
       style={topBarActionsStyle}
       data-testid="files-top-bar-actions"
     >
-      <Button
+      <FilePickerButton
         variant="ghost"
         size="icon"
-        disabled
-        aria-label={t("files.actions.upload")}
-        data-testid="files-top-bar-upload"
+        ariaLabel={t("files.actions.upload")}
+        disabled={uploadDisabled}
+        onFilesPicked={onFilesPicked}
+        testId="files-top-bar-upload"
+        inputTestId="files-upload-input"
       >
         <MaterialIcon name="upload_file" size="24px" color="currentColor" />
-      </Button>
+      </FilePickerButton>
       <Button
         variant="ghost"
         size="icon"

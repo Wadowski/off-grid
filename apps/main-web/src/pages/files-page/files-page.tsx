@@ -8,16 +8,19 @@ import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
 import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
 import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
+import { useRefreshOnUploadDone } from "../../files/use-refresh-on-upload-done.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
+import { useUploadQueueContext } from "../../uploads/index.js";
 import type { FilesOutletContext } from "../../layouts/files-layout/types.js";
 import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
+import { FilesHeader } from "./components/files-header/files-header.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
 import { ViewControls } from "./components/view-controls/view-controls.js";
-import { filesHeadingRowStyle, filesPageStyle } from "./styles.js";
+import { filesPageStyle } from "./styles.js";
 
 export const FilesPage = () => {
   const folder = useCurrentFolder();
@@ -34,6 +37,15 @@ export const FilesPage = () => {
     sortOrder,
   );
 
+  const queue = useUploadQueueContext();
+  const uploadDisabled = folder.status !== "ready" || folder.driveId === null;
+  const enqueueFiles = (files: readonly File[]) => {
+    if (folder.driveId !== null) {
+      queue.enqueue(files, { driveId: folder.driveId, folderId: folder.folderId });
+    }
+  };
+  useRefreshOnUploadDone(folder.driveId, folder.folderId, contents.refreshQuietly);
+
   if (folder.status === "not-found") {
     return <ItemNotFound kind="folder" />;
   }
@@ -42,7 +54,6 @@ export const FilesPage = () => {
     folder.driveId === null ? null : toParentFolderPath(folder.driveId, folder.breadcrumbs);
   const parentName = folder.breadcrumbs.at(-2)?.name;
   const driveName = folder.breadcrumbs.at(0)?.name;
-  const showsDriveName = !phone && driveName !== undefined;
 
   return (
     <div style={filesPageStyle} data-testid="files-page">
@@ -51,23 +62,25 @@ export const FilesPage = () => {
           drives={switcher.drives}
           status={switcher.status}
           activeDriveId={switcher.activeDriveId}
+          uploadDisabled={uploadDisabled}
+          onFilesPicked={enqueueFiles}
         />
       ) : (
-        <div style={filesHeadingRowStyle} data-testid="files-heading-row">
-          {showsDriveName ? (
-            <Text variant="heading" value={driveName} />
-          ) : (
-            <Text variant="heading" textId="files.layout.heading" />
-          )}
-          {folder.driveId === null ? null : (
-            <ViewControls
-              view={preference.view}
-              sort={preference.sort}
-              direction={preference.direction}
-              onChange={updatePreference}
-            />
-          )}
-        </div>
+        <FilesHeader
+          driveName={driveName}
+          uploadDisabled={uploadDisabled}
+          onFilesPicked={enqueueFiles}
+          viewControls={
+            folder.driveId === null ? null : (
+              <ViewControls
+                view={preference.view}
+                sort={preference.sort}
+                direction={preference.direction}
+                onChange={updatePreference}
+              />
+            )
+          }
+        />
       )}
       {folder.driveId === null ? null : (
         <>

@@ -63,6 +63,7 @@ export type FolderContentsState = {
   readonly isLoadingMore: boolean;
   readonly loadMore: () => Promise<void>;
   readonly refresh: () => Promise<void>;
+  readonly refreshQuietly: () => Promise<void>;
 };
 
 export type FolderContentsSnapshot = {

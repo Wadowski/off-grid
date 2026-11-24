@@ -56,3 +56,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0039](0039-delete-non-current-version-and-restore-copies-bytes.md) | Delete a non-current file version, and a restore copies the bytes                                | Accepted                  |
 | [0040](0040-safe-headers-and-inline-preview-for-file-content.md)    | Safe headers and inline preview for file content                                                 | Accepted                  |
 | [0041](0041-files-trash-purge-worker.md)                            | Files trash, purge and the retention worker                                                      | Accepted                  |
+| [0042](0042-upload-progress-transport.md)                           | Upload progress uses an injected XHR transport, and the upload queue lives in memory             | Accepted                  |
