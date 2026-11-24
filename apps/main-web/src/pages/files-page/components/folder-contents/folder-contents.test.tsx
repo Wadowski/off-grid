@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { fileListItemSchema } from "@offgrid/contracts";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Drive, FileListItem, FolderContentsState } from "../../../../files/types.js";
@@ -23,8 +23,26 @@ const ENTRY: FileListItem = fileListItemSchema.parse({
   itemCount: 2,
 });
 
-const contentsWith = (overrides: Partial<FolderContentsState> = {}): FolderContentsState => ({
-  items: [ENTRY],
+const FILE_ENTRY: FileListItem = fileListItemSchema.parse({
+  id: "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b",
+  driveId: DRIVE_ID,
+  parentId: null,
+  name: "Trip.pdf",
+  version: 1,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  deletedAt: null,
+  isFolder: false,
+  mimeType: "application/pdf",
+  size: 2048,
+  currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
+});
+
+const contentsWith = (
+  overrides: Partial<FolderContentsState> = {},
+  items: readonly FileListItem[] = [ENTRY, FILE_ENTRY],
+): FolderContentsState => ({
+  items,
   status: "ready",
   errorTextId: null,
   hasMore: false,
@@ -34,12 +52,29 @@ const contentsWith = (overrides: Partial<FolderContentsState> = {}): FolderConte
   ...overrides,
 });
 
-const renderContents = (phone: boolean, contents: FolderContentsState) =>
+const renderContents = (
+  phone: boolean,
+  contents: FolderContentsState,
+  selectedId: FileListItem["id"] | null = null,
+  onSelect = vi.fn(),
+) =>
   render(
     <MemoryRouter>
-      <FolderContents driveId={DRIVE_ID} contents={contents} phone={phone} />
+      <FolderContents
+        driveId={DRIVE_ID}
+        contents={contents}
+        phone={phone}
+        selectedId={selectedId}
+        onSelect={onSelect}
+      />
     </MemoryRouter>,
   );
+
+const activatorOf = (name: string) =>
+  screen
+    .getAllByTestId("file-table-row")
+    .find((row) => row.textContent?.includes(name))
+    ?.querySelector<HTMLElement>('[data-testid="file-table-activate"]');
 
 describe("FolderContents", () => {
   afterEach(() => {
@@ -65,5 +100,32 @@ describe("FolderContents", () => {
 
     expect(screen.getByTestId("files-empty")).toHaveTextContent("This folder is empty.");
     expect(screen.queryByTestId("files-table")).not.toBeInTheDocument();
+  });
+
+  it("reports the file whose row is activated on a desktop", () => {
+    const onSelect = vi.fn();
+    renderContents(false, contentsWith(), null, onSelect);
+
+    fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
+
+    expect(onSelect).toHaveBeenCalledWith(FILE_ENTRY.id);
+  });
+
+  it("does not report a selection when a folder row is opened", () => {
+    const onSelect = vi.fn();
+    renderContents(false, contentsWith(), null, onSelect);
+
+    fireEvent.click(activatorOf("Photos") as HTMLElement);
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("marks the row of the selected file", () => {
+    renderContents(false, contentsWith(), FILE_ENTRY.id);
+
+    const row = screen
+      .getAllByTestId("file-table-row")
+      .find((candidate) => candidate.textContent?.includes("Trip.pdf"));
+    expect(row).toHaveAttribute("data-selected", "true");
   });
 });

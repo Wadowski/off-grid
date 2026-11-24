@@ -710,6 +710,10 @@ export const en = {
       version: "Version",
       versionValue: "Version {{count}}",
       modifiedBy: "{{date}} by {{name}}",
+      panel: {
+        label: "File details",
+        close: "Close details",
+      },
       tabs: {
         label: "File sections",
         details: "Details",

@@ -9,7 +9,7 @@ import { useCurrentFolder } from "../../files/use-current-folder.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
-import type { DriveSwitcherProps } from "../../layouts/files-layout/components/drive-switcher/types.js";
+import type { FilesOutletContext } from "../../layouts/files-layout/types.js";
 import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
@@ -19,7 +19,7 @@ import { filesPageStyle } from "./styles.js";
 export const FilesPage = () => {
   const folder = useCurrentFolder();
   const phone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);
-  const switcher = useOutletContext<DriveSwitcherProps>();
+  const switcher = useOutletContext<FilesOutletContext>();
   const contents = useFolderContents(
     folder.driveId,
     folder.folderId,
@@ -67,7 +67,14 @@ export const FilesPage = () => {
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents driveId={folder.driveId} contents={contents} phone={phone} />
+        <FolderContents
+          key={`${folder.driveId}:${folder.folderId ?? ""}`}
+          driveId={folder.driveId}
+          contents={contents}
+          phone={phone}
+          selectedId={switcher.selectedFileId}
+          onSelect={switcher.onSelectFile}
+        />
       ) : null}
     </div>
   );

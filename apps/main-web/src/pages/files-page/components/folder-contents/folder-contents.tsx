@@ -4,10 +4,20 @@
 import { Button, Text } from "@offgrid/ui";
 import { FileList } from "../../lists/file-list/file-list.js";
 import { FolderList } from "../folder-list/folder-list.js";
-import { folderContentsErrorStyle, folderContentsStyle } from "./styles.js";
+import {
+  folderContentsErrorStyle,
+  folderContentsListStyle,
+  folderContentsStyle,
+} from "./styles.js";
 import type { FolderContentsProps } from "./types.js";
 
-export const FolderContents = ({ driveId, contents, phone }: FolderContentsProps) => {
+export const FolderContents = ({
+  driveId,
+  contents,
+  phone,
+  selectedId,
+  onSelect,
+}: FolderContentsProps) => {
   if (contents.status === "loading") {
     return <Text variant="body" textId="files.folder.loading" />;
   }
@@ -21,11 +31,13 @@ export const FolderContents = ({ driveId, contents, phone }: FolderContentsProps
   return (
     <div style={folderContentsStyle} data-testid="files-folder-contents">
       {contents.items.length > 0 ? (
-        phone ? (
-          <FolderList {...listProps} />
-        ) : (
-          <FileList {...listProps} />
-        )
+        <div style={folderContentsListStyle}>
+          {phone ? (
+            <FolderList {...listProps} />
+          ) : (
+            <FileList {...listProps} selectedId={selectedId} onSelect={onSelect} />
+          )}
+        </div>
       ) : null}
       {contents.items.length === 0 && contents.status === "ready" ? (
         <Text variant="body" textId="files.folder.empty" data-testid="files-empty" />
