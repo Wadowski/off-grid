@@ -100,7 +100,13 @@ Feature: Downloading and previewing a file from its details
     Then the file details offer Download and Preview
     When Anna previews the file from its details
     Then the preview dialog shows the image "Beach.png"
-    When Anna closes the preview with its Close control
+
+  Scenario: Closing the preview on a phone returns to the details
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive image "Beach.png"
+    When Anna opens the details of "Beach.png" on a phone
+    And Anna previews the file from its details
+    And Anna closes the preview with its Close control
     Then the preview dialog is not shown
     And the Preview control in the file details has the keyboard focus
 
