@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { webFilesClient } from "../api/web-api-client.js";
 import {
   getFile,
+  getFileContent,
   listDriveChildren,
   listDrives,
   listFileChildren,
@@ -64,5 +65,13 @@ describe("files API", () => {
     await uploadFile(DRIVE_ID, { file, parentId: FOLDER_ID, onProgress });
 
     expect(upload).toHaveBeenCalledWith(DRIVE_ID, { file, parentId: FOLDER_ID, onProgress });
+  });
+
+  it("passes the file id and the disposition to the files client and returns the blob", async () => {
+    const blob = new Blob(["hello"]);
+    const read = vi.spyOn(webFilesClient, "getFileContent").mockResolvedValue(blob);
+
+    await expect(getFileContent(FOLDER_ID, { disposition: "inline" })).resolves.toBe(blob);
+    expect(read).toHaveBeenCalledWith(FOLDER_ID, { disposition: "inline" });
   });
 });

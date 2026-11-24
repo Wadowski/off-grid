@@ -14,6 +14,7 @@ import type {
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus, SessionUser } from "../types.js";
+import type { PREVIEW_KINDS } from "./constants.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
 export type FileEntry = ReturnType<typeof fileSchema.parse>;
@@ -152,4 +153,25 @@ export type FileDetailsScreenState = {
   readonly membersStatus: ListStatus;
   readonly refreshMembers: () => Promise<void>;
   readonly viewer: SessionUser | null;
+};
+
+export type PreviewKind = keyof typeof PREVIEW_KINDS;
+
+export type FileContentState =
+  | { readonly status: "loading" }
+  | { readonly status: "failed"; readonly errorTextId: FilesErrorTextId }
+  | { readonly status: "unsupported" }
+  | { readonly status: "ready"; readonly kind: PreviewKind; readonly objectUrl: string };
+
+export type FileContent = {
+  readonly state: FileContentState;
+  readonly retry: () => void;
+};
+
+export type FileDownloadStatus = "idle" | "downloading" | "failed";
+
+export type FileDownload = {
+  readonly status: FileDownloadStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly download: () => Promise<void>;
 };

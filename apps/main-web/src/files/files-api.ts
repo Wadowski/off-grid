@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { UploadFileInput } from "@offgrid/api-client";
+import type { FileContentOptions, UploadFileInput } from "@offgrid/api-client";
 import { webFilesClient } from "../api/web-api-client.js";
 import type {
   Drive,
@@ -32,3 +32,8 @@ export const listFileVersions = (fileId: FileEntry["id"]): Promise<readonly File
 
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);
+
+export const getFileContent = (
+  fileId: FileEntry["id"],
+  options: FileContentOptions,
+): Promise<Blob> => webFilesClient.getFileContent(fileId, options);

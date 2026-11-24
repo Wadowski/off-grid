@@ -25,3 +25,8 @@ export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
   errorTextId: null,
   isLoadingMore: false,
 };
+
+export const PREVIEW_KINDS = {
+  image: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+  pdf: ["application/pdf"],
+} as const satisfies Record<string, readonly string[]>;
