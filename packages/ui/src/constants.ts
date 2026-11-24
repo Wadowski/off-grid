@@ -80,3 +80,7 @@ export const FILE_TABLE_COLUMNS: readonly FileTableColumn[] = [
   { key: "size", textId: "files.table.size", align: "end", width: "7rem" },
   { key: "type", textId: "files.table.type", align: "start", width: "9rem" },
 ];
+
+export const FLOATING_PANEL_Z_INDEX = 20;
+
+export const PROGRESS_BAR_HEIGHT = "0.375rem";

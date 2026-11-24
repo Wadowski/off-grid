@@ -31,6 +31,8 @@ export const tokensStylesheet = [
   `.og-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 1rem; height: 1rem; border-radius: 9999px; background: var(--og-color-surface); box-shadow: var(--og-elevation-1); transition: transform 150ms ease-in-out; }`,
   `.og-switch:checked { background: var(--og-color-accent); }`,
   `.og-switch:checked::after { transform: translateX(1rem); }`,
+  `.og-progress-fill { transition: width 150ms ease-in-out; }`,
+  `@media (prefers-reduced-motion: reduce) { .og-progress-fill { transition: none; } }`,
   `.og-dialog-glossy { color-scheme: light; }`,
   `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .og-dialog-glossy { color-scheme: dark; } }`,
   `:root[data-theme="dark"] .og-dialog-glossy { color-scheme: dark; }`,
