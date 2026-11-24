@@ -5,12 +5,12 @@ import { ApiError } from "@offgrid/api-client";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getFileContent } from "./files-api.js";
-import { saveBlobAsFile } from "./save-blob-as-file.js";
+import { saveBlobAsFile } from "../downloads/save-blob-as-file.js";
 import type { RegularFileEntry } from "./types.js";
 import { useFileDownload } from "./use-file-download.js";
 
 vi.mock("./files-api.js", () => ({ getFileContent: vi.fn() }));
-vi.mock("./save-blob-as-file.js", () => ({ saveBlobAsFile: vi.fn() }));
+vi.mock("../downloads/save-blob-as-file.js", () => ({ saveBlobAsFile: vi.fn() }));
 
 const FILE = {
   id: "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a",

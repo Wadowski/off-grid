@@ -3,7 +3,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { getFileContent } from "./files-api.js";
-import { saveBlobAsFile } from "./save-blob-as-file.js";
+import { saveBlobAsFile } from "../downloads/save-blob-as-file.js";
 import { toFilesErrorTextId } from "./to-files-error-text-id.js";
 import type {
   FileDownload,

@@ -34,12 +34,13 @@ describe("saveBlobAsFile", () => {
     expect(document.querySelector("a[download]")).toBeNull();
   });
 
-  it("revokes the object URL once the click is done", () => {
+  it("revokes the object URL a minute after the click", () => {
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
 
     saveBlobAsFile(new Blob(["hello"]), "Notes.txt");
+    vi.advanceTimersByTime(59_000);
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
-    vi.runAllTimers();
+    vi.advanceTimersByTime(1_000);
 
     expect(URL.revokeObjectURL).toHaveBeenCalledWith(OBJECT_URL);
   });
