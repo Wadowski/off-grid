@@ -48,6 +48,10 @@ Then(/^the action "([^"]*)" is disabled$/, async ({ page }, name: string) => {
   await expect(actionOf(page, name)).toBeDisabled({ timeout: TOP_BAR_TIMEOUT_MS });
 });
 
+Then(/^the action "([^"]*)" is enabled$/, async ({ page }, name: string) => {
+  await expect(actionOf(page, name)).toBeEnabled({ timeout: TOP_BAR_TIMEOUT_MS });
+});
+
 When(
   "Anna reaches the active drive on the phone with the keyboard and presses Enter",
   async ({ page }) => {
