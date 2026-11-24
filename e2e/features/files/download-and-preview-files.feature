@@ -10,7 +10,7 @@ Feature: Downloading and previewing a file from its details
   page. A file of any other type offers the download only. The preview closes
   with its Close control or with Escape and leaves the details open.
 
-  @wip @screen:files-desktop-file-actions
+  @screen:files-desktop-file-actions
   Scenario: Anna downloads a file from the details panel
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Notes.txt" with the content "Remember the milk"
@@ -19,7 +19,7 @@ Feature: Downloading and previewing a file from its details
     And Anna downloads the file from its details
     Then the browser saves the file "Notes.txt" with the content "Remember the milk"
 
-  @wip @screen:files-desktop-file-preview-image
+  @screen:files-desktop-file-preview-image
   Scenario: Anna previews an image from the details panel
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive image "Beach.png"
@@ -29,7 +29,7 @@ Feature: Downloading and previewing a file from its details
     Then the preview dialog is titled "Beach.png"
     And the preview dialog shows the image "Beach.png"
 
-  @wip @screen:files-desktop-file-preview-pdf
+  @screen:files-desktop-file-preview-pdf
   Scenario: Anna previews a PDF from the details panel
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive PDF "Plan.pdf"
@@ -39,7 +39,6 @@ Feature: Downloading and previewing a file from its details
     Then the preview dialog is titled "Plan.pdf"
     And the preview dialog shows the PDF "Plan.pdf"
 
-  @wip
   Scenario: A web page can be downloaded but not previewed
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive web page "Page.html" with the content "<h1>Hello</h1>"
@@ -49,7 +48,6 @@ Feature: Downloading and previewing a file from its details
     When Anna downloads the file from its details
     Then the browser saves the file "Page.html" with the content "<h1>Hello</h1>"
 
-  @wip
   Scenario: Anna downloads a file from inside its preview
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive image "Beach.png"
@@ -59,7 +57,6 @@ Feature: Downloading and previewing a file from its details
     And Anna downloads the file from the preview dialog
     Then the browser saves the file "Beach.png"
 
-  @wip
   Scenario: Closing the preview with its Close control leaves the details open
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive image "Beach.png"
@@ -71,7 +68,7 @@ Feature: Downloading and previewing a file from its details
     And the file details panel shows the name "Beach.png"
     And the Preview control in the file details has the keyboard focus
 
-  @wip @a11y
+  @a11y
   Scenario: The preview has no serious accessibility violations and Escape closes only the preview
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive image "Beach.png"
@@ -84,7 +81,7 @@ Feature: Downloading and previewing a file from its details
     And the file details panel shows the name "Beach.png"
     And the Preview control in the file details has the keyboard focus
 
-  @wip @screen:files-desktop-file-preview-error
+  @screen:files-desktop-file-preview-error
   Scenario: A preview that cannot be loaded offers Try again
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive image "Beach.png"
@@ -95,7 +92,7 @@ Feature: Downloading and previewing a file from its details
     Then the preview dialog tells that the file could not be shown
     And the preview dialog offers Try again
 
-  @wip @screen:files-mobile-file-preview-image
+  @screen:files-mobile-file-preview-image
   Scenario: Anna previews an image on a phone
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive image "Beach.png"
@@ -107,7 +104,7 @@ Feature: Downloading and previewing a file from its details
     Then the preview dialog is not shown
     And the Preview control in the file details has the keyboard focus
 
-  @wip @screen:files-mobile-file-actions
+  @screen:files-mobile-file-actions
   Scenario: Anna downloads a file on a phone
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Notes.txt" with the content "Remember the milk"
