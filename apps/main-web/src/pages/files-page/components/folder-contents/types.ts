@@ -8,6 +8,11 @@ import type {
   FolderContentsState,
 } from "../../../../files/types.js";
 
+export type PendingTrash = {
+  readonly entry: FileListItem;
+  readonly returnFocusTo: HTMLElement | null;
+};
+
 export type FolderContentsProps = {
   readonly driveId: Drive["id"];
   readonly contents: FolderContentsState;

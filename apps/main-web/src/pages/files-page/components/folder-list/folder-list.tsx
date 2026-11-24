@@ -16,7 +16,7 @@ export const FolderList = ({
   hasMore,
   isLoadingMore,
   onLoadMore,
-  onTrashed,
+  onDelete,
 }: FolderListProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export const FolderList = ({
                 <FileActionsMenu
                   entry={item}
                   onOpen={() => navigate(toEntryPath(driveId, item))}
-                  onTrashed={onTrashed}
+                  onDelete={onDelete}
                 />
               }
             />

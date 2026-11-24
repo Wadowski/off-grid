@@ -85,7 +85,7 @@ const renderGrid = (overrides: Partial<FileGridProps> = {}) => {
     onLoadMore: vi.fn(async () => undefined),
     selectedId: null,
     onSelect: vi.fn(),
-    onTrashed: vi.fn(),
+    onDelete: vi.fn(),
     ...overrides,
   };
   render(

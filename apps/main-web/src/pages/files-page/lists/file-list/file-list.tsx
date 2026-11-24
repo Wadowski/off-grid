@@ -18,7 +18,7 @@ export const FileList = ({
   selectedId,
   onSelect,
   onLoadMore,
-  onTrashed,
+  onDelete,
 }: FileListProps) => {
   const navigate = useNavigate();
   const activate = (item: FileListItem) => {
@@ -40,7 +40,7 @@ export const FileList = ({
               selected={item.id === selectedId}
               onActivate={() => activate(item)}
               actions={
-                <FileActionsMenu entry={item} onOpen={() => activate(item)} onTrashed={onTrashed} />
+                <FileActionsMenu entry={item} onOpen={() => activate(item)} onDelete={onDelete} />
               }
             />
           ))}

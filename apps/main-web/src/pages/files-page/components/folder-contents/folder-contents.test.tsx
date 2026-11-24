@@ -206,4 +206,50 @@ describe("FolderContents", () => {
     expect(removeItem).toHaveBeenCalledWith(FILE_ENTRY.id);
     expect(onEntryTrashed).toHaveBeenCalledWith(FILE_ENTRY.id);
   });
+
+  it("keeps the move-to-trash confirmation open when the layout switches to the phone list", () => {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    const contents = contentsWith({ items: [FILE_ENTRY] });
+    const { rerender } = renderContents(false, contents);
+    fireEvent.click(screen.getByRole("button", { name: "Actions for Trip.pdf" }));
+    fireEvent.click(screen.getByTestId("file-action-delete"));
+
+    rerender(
+      <MemoryRouter>
+        <FolderContents
+          driveId={DRIVE_ID}
+          contents={contents}
+          phone
+          view="list"
+          selectedId={null}
+          onSelect={vi.fn()}
+          onEntryTrashed={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId("files-list")).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Move to trash?" })).toHaveTextContent("Trip.pdf");
+  });
+
+  it("closes the confirmation without a call when cancelled", () => {
+    const trash = vi.spyOn(webFilesClient, "trashFile");
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    };
+    renderContents(false, contentsWith({ items: [FILE_ENTRY] }));
+    fireEvent.click(screen.getByRole("button", { name: "Actions for Trip.pdf" }));
+    fireEvent.click(screen.getByTestId("file-action-delete"));
+
+    fireEvent.click(screen.getByTestId("delete-entry-cancel"));
+
+    expect(trash).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("delete-entry-dialog")).not.toBeInTheDocument();
+  });
 });

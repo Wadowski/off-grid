@@ -71,7 +71,7 @@ const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => 
               selectedId={null}
               onSelect={onSelect}
               onLoadMore={onLoadMore}
-              onTrashed={vi.fn()}
+              onDelete={vi.fn()}
               {...overrides}
             />
           }
