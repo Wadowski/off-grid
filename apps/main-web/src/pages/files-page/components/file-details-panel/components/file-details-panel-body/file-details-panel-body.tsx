@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { formatFileSize, Text } from "@offgrid/ui";
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
-import type { PropertyLabelTextId } from "../../../../../file-details-page/components/file-properties/types.js";
 import { formatFileTimestamp } from "../../../../../../files/format-file-timestamp.js";
 import { toFileDetailsValues } from "../../../../../../files/to-file-details-values.js";
 import { toFileLocation } from "../../../../../../files/to-file-location.js";
@@ -16,13 +15,7 @@ import {
   fileDetailsPanelSectionStyle,
   fileDetailsPanelValueStyle,
 } from "./styles.js";
-import type { FileDetailsPanelBodyProps } from "./types.js";
-
-type PropertyRow = {
-  readonly key: string;
-  readonly labelTextId: PropertyLabelTextId;
-  readonly value: ReactNode;
-};
+import type { FileDetailsPanelBodyProps, PropertyRow } from "./types.js";
 
 export const FileDetailsPanelBody = ({ file, breadcrumbs }: FileDetailsPanelBodyProps) => {
   const { i18n, t } = useTranslation();
