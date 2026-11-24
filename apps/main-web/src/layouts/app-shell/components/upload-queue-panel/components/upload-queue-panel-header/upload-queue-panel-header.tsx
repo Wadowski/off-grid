@@ -14,8 +14,6 @@ import {
 } from "./styles.js";
 import type { UploadQueuePanelHeaderProps } from "./types.js";
 
-// The slots keep the same child positions in both states, so the toggle button
-// is not remounted (and focus is not lost) when the panel expands or minimizes.
 export const UploadQueuePanelHeader = ({
   summary,
   activeCount,
@@ -35,7 +33,10 @@ export const UploadQueuePanelHeader = ({
   const showBar = expanded || isActive;
 
   const pillLine = isActive
-    ? { textId: "files.upload.summaryUploading" as const, values: { count: activeCount, percent: summary.percent } }
+    ? {
+        textId: "files.upload.summaryUploading" as const,
+        values: { count: activeCount, percent: summary.percent },
+      }
     : { textId: summary.textId, values: summary.values };
 
   return (
@@ -48,7 +49,11 @@ export const UploadQueuePanelHeader = ({
             background={cssVar("color-primary")}
             color={cssVar("color-accent-fg")}
           >
-            <MaterialIcon name={isActive ? "cloud_upload" : "check"} size="1rem" />
+            <MaterialIcon
+              name={isActive ? "cloud_upload" : "check"}
+              size="1rem"
+              color={cssVar("color-accent-fg")}
+            />
           </IconTile>
         )}
         {expanded ? (
@@ -92,7 +97,9 @@ export const UploadQueuePanelHeader = ({
             aria-label={expanded ? t("files.upload.minimize") : undefined}
             data-testid="upload-queue-panel-toggle"
           >
-            {expanded ? null : <Text variant="action" textId="files.upload.view" element="span" style={textStyle} />}
+            {expanded ? null : (
+              <Text variant="action" textId="files.upload.view" element="span" style={textStyle} />
+            )}
             <MaterialIcon
               name={expanded ? "keyboard_arrow_down" : "keyboard_arrow_up"}
               size="1.25rem"

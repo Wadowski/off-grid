@@ -156,9 +156,9 @@ describe("UploadQueueProvider", () => {
   });
 
   it("does not leave a row uploading when its effects are cleaned up and the queue state survives", async () => {
-    let queue: UploadQueue | null = null;
+    const probe: { queue: UploadQueue | null } = { queue: null };
     const Probe = () => {
-      queue = useUploadQueueContext();
+      probe.queue = useUploadQueueContext();
       return null;
     };
     const tree = (mode: "visible" | "hidden") => (
@@ -170,15 +170,15 @@ describe("UploadQueueProvider", () => {
     );
     const { rerender } = render(tree("visible"));
     act(() => {
-      queue?.enqueue([new File(["a"], "a.txt")], TARGET);
+      probe.queue?.enqueue([new File(["a"], "a.txt")], TARGET);
     });
 
     rerender(tree("hidden"));
     rerender(tree("visible"));
 
     expect(pending[0]?.signal.aborted).toBe(true);
-    expect(queue?.items[0]?.status).toBe("failed");
-    expect(queue?.items[0]?.errorTextId).toBe("files.upload.stoppedFamilySwitch");
+    expect(probe.queue?.items[0]?.status).toBe("failed");
+    expect(probe.queue?.items[0]?.errorTextId).toBe("files.upload.stoppedFamilySwitch");
     expect(uploadMock).toHaveBeenCalledTimes(1);
   });
 });

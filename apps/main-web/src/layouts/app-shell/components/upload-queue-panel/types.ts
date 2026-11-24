@@ -9,3 +9,8 @@ export type PanelSummary = {
   readonly values: Readonly<Record<string, number>>;
   readonly percent: number;
 };
+
+export type ExpandChoice = {
+  readonly key: string;
+  readonly expanded: boolean;
+};

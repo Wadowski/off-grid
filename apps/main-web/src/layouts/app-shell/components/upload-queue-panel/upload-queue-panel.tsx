@@ -11,11 +11,10 @@ import { isActiveUploadItem, useUploadQueueContext } from "../../../../uploads/i
 import { UploadQueuePanelHeader } from "./components/upload-queue-panel-header/upload-queue-panel-header.js";
 import { isFilesPath } from "./is-files-path.js";
 import { uploadQueuePanelListStyle } from "./styles.js";
+import type { ExpandChoice } from "./types.js";
 import { toPanelSummary } from "./to-panel-summary.js";
 
 const PANEL_LIST_ID = "upload-queue-panel-list";
-
-type ExpandChoice = { readonly key: string; readonly expanded: boolean };
 
 export const UploadQueuePanel = () => {
   const queue = useUploadQueueContext();

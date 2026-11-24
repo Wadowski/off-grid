@@ -9,7 +9,5 @@ export const failUnfinishedItems = (
   errorTextId: UploadErrorTextId,
 ): readonly UploadItem[] =>
   items.map((item) =>
-    isActiveUploadItem(item)
-      ? { ...item, status: "failed", errorTextId, file: null }
-      : item,
+    isActiveUploadItem(item) ? { ...item, status: "failed", errorTextId, file: null } : item,
   );
