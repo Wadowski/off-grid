@@ -22,7 +22,7 @@ Feature: The top row of the Files page on a phone
 
   Scenario: The Upload action on the phone is available
     Given I am signed in as "Anna Kowalska", a regular member
-    When Anna opens the Files page on a phone
+    When Anna opens her personal drive on a phone
     Then the action "Upload" is enabled
 
   Scenario: The top row shows the family drive after Anna switches to it on the phone
