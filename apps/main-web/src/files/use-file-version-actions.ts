@@ -10,6 +10,7 @@ import type {
   FileVersion,
   FileVersionActionsState,
   FileVersionCompletion,
+  FileVersionRow,
   FilesErrorTextId,
 } from "./types.js";
 
@@ -23,7 +24,7 @@ export const useFileVersionActions = (
 
   const runAction = useCallback(
     async (
-      version: FileVersion,
+      version: FileVersionRow,
       kind: FileVersionCompletion["kind"],
       operation: () => Promise<void>,
     ) => {
@@ -46,7 +47,7 @@ export const useFileVersionActions = (
   );
 
   const restore = useCallback(
-    (version: FileVersion) =>
+    (version: FileVersionRow) =>
       runAction(version, "restored", async () => {
         await restoreFileVersion(fileId, version.id);
       }),
@@ -54,7 +55,7 @@ export const useFileVersionActions = (
   );
 
   const remove = useCallback(
-    (version: FileVersion) =>
+    (version: FileVersionRow) =>
       runAction(version, "deleted", async () => {
         await deleteFileVersion(fileId, version.id);
       }),
@@ -62,7 +63,7 @@ export const useFileVersionActions = (
   );
 
   const download = useCallback(
-    (version: FileVersion, fileName: string) =>
+    (version: FileVersionRow, fileName: string) =>
       runAction(version, "downloaded", async () => {
         await downloadFileVersion(fileId, version.id, fileName);
       }),

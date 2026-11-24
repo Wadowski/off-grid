@@ -142,9 +142,9 @@ export type FileVersionActionsState = {
   readonly pendingVersionId: FileVersion["id"] | null;
   readonly errorTextId: FilesErrorTextId | null;
   readonly completed: FileVersionCompletion | null;
-  readonly restore: (version: FileVersion) => Promise<void>;
-  readonly remove: (version: FileVersion) => Promise<void>;
-  readonly download: (version: FileVersion, fileName: string) => Promise<void>;
+  readonly restore: (version: FileVersionRow) => Promise<void>;
+  readonly remove: (version: FileVersionRow) => Promise<void>;
+  readonly download: (version: FileVersionRow, fileName: string) => Promise<void>;
 };
 
 export type FamilyMembersState = {

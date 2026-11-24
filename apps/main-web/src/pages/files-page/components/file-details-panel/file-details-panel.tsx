@@ -6,13 +6,14 @@ import { useTranslation } from "react-i18next";
 import { toFileDetailsValues } from "../../../../files/to-file-details-values.js";
 import { useFileDetails } from "../../../../files/use-file-details.js";
 import { FileDetailsPanelBody } from "./components/file-details-panel-body/file-details-panel-body.js";
+import { FileDetailsPanelVersions } from "./components/file-details-panel-versions/file-details-panel-versions.js";
 import { FileDetailsPanelHeader } from "./components/file-details-panel-header/file-details-panel-header.js";
 import { FileDetailsPanelStatus } from "./components/file-details-panel-status/file-details-panel-status.js";
 import { fileDetailsPanelStyle } from "./styles.js";
 import { toFileDetailsPanelView } from "./to-file-details-panel-view.js";
 import type { FileDetailsPanelProps } from "./types.js";
 
-export const FileDetailsPanel = ({ fileId, onClose }: FileDetailsPanelProps) => {
+export const FileDetailsPanel = ({ fileId, onClose, onFileChanged }: FileDetailsPanelProps) => {
   const { t } = useTranslation();
   const nameId = useId();
   const details = useFileDetails(fileId, true);
@@ -34,7 +35,17 @@ export const FileDetailsPanel = ({ fileId, onClose }: FileDetailsPanelProps) => 
     >
       <FileDetailsPanelHeader nameId={nameId} summary={summary} onClose={onClose} />
       {view.kind === "ready" ? (
-        <FileDetailsPanelBody file={view.file} breadcrumbs={view.breadcrumbs} />
+        <FileDetailsPanelBody
+          file={view.file}
+          breadcrumbs={view.breadcrumbs}
+          versionsSection={
+            <FileDetailsPanelVersions
+              file={view.file}
+              onFileChanged={onFileChanged}
+              onDetailsChanged={details.refreshQuietly}
+            />
+          }
+        />
       ) : (
         <FileDetailsPanelStatus {...view} />
       )}

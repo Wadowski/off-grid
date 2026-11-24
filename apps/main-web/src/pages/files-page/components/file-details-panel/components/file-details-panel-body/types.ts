@@ -8,6 +8,7 @@ import type { PropertyLabelTextId } from "../../../../../file-details-page/compo
 export type FileDetailsPanelBodyProps = {
   readonly file: RegularFileEntry;
   readonly breadcrumbs: readonly Breadcrumb[];
+  readonly versionsSection: ReactNode;
 };
 
 export type PropertyRow = {

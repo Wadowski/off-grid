@@ -7,7 +7,7 @@ import { ApiError } from "@offgrid/api-client";
 import { downloadFileVersion } from "./download-file-version.js";
 import { deleteFileVersion, restoreFileVersion } from "./files-api.js";
 import { useFileVersionActions } from "./use-file-version-actions.js";
-import type { FileEntry, FileVersion } from "./types.js";
+import type { FileEntry, FileVersionRow } from "./types.js";
 
 vi.mock("./files-api.js", () => ({
   restoreFileVersion: vi.fn(),
@@ -16,14 +16,13 @@ vi.mock("./files-api.js", () => ({
 vi.mock("./download-file-version.js", () => ({ downloadFileVersion: vi.fn() }));
 
 const FILE_ID = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a" as FileEntry["id"];
-const VERSION: FileVersion = {
-  id: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d" as FileVersion["id"],
-  fileId: FILE_ID as FileVersion["fileId"],
+const VERSION: FileVersionRow = {
+  id: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d" as FileVersionRow["id"],
   number: 1,
-  size: 12,
-  mimeType: "text/plain",
-  createdByUserId: "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b" as FileVersion["createdByUserId"],
-  createdAt: "2026-01-01T00:00:00.000Z",
+  sizeBytes: 12,
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  authorName: null,
+  isCurrent: false,
 };
 
 describe("useFileVersionActions", () => {

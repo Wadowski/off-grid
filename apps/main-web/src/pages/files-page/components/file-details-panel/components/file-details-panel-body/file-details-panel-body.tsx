@@ -17,7 +17,11 @@ import {
 } from "./styles.js";
 import type { FileDetailsPanelBodyProps, PropertyRow } from "./types.js";
 
-export const FileDetailsPanelBody = ({ file, breadcrumbs }: FileDetailsPanelBodyProps) => {
+export const FileDetailsPanelBody = ({
+  file,
+  breadcrumbs,
+  versionsSection,
+}: FileDetailsPanelBodyProps) => {
   const { i18n, t } = useTranslation();
   const headingId = useId();
   const language = i18n.language;
@@ -52,6 +56,7 @@ export const FileDetailsPanelBody = ({ file, breadcrumbs }: FileDetailsPanelBody
   ];
 
   return (
+    <>
     <section
       style={fileDetailsPanelSectionStyle}
       aria-labelledby={headingId}
@@ -78,5 +83,7 @@ export const FileDetailsPanelBody = ({ file, breadcrumbs }: FileDetailsPanelBody
         ))}
       </dl>
     </section>
+      {versionsSection}
+    </>
   );
 };

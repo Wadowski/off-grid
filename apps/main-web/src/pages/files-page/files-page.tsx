@@ -6,6 +6,7 @@ import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
+import { useRefreshOnFilesChanged } from "../../files/use-refresh-on-files-changed.js";
 import { useRefreshOnUploadDone } from "../../files/use-refresh-on-upload-done.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
@@ -37,6 +38,7 @@ export const FilesPage = () => {
     }
   };
   useRefreshOnUploadDone(folder.driveId, folder.folderId, contents.refreshQuietly);
+  useRefreshOnFilesChanged(switcher.filesChangedCount, contents.refreshQuietly);
 
   if (folder.status === "not-found") {
     return <ItemNotFound kind="folder" />;

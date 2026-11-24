@@ -6,10 +6,13 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFile } from "../../../../files/files-api.js";
 import type { Drive, FileEntry } from "../../../../files/types.js";
+import { UploadQueueProvider } from "../../../../uploads/index.js";
 import { FileDetailsPanel } from "./file-details-panel.js";
 
 vi.mock("../../../../files/files-api.js", () => ({
   getFile: vi.fn(),
+  listFileVersions: vi.fn(async () => []),
+  listDrives: vi.fn(async () => []),
 }));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
@@ -51,7 +54,11 @@ const BREADCRUMBS = [
 ];
 
 const renderPanel = (onClose = vi.fn()) =>
-  render(<FileDetailsPanel fileId={FILE_ID} onClose={onClose} />);
+  render(
+    <UploadQueueProvider>
+      <FileDetailsPanel onFileChanged={vi.fn()} fileId={FILE_ID} onClose={onClose} />
+    </UploadQueueProvider>,
+  );
 
 describe("FileDetailsPanel", () => {
   beforeEach(() => {

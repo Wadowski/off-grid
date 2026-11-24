@@ -13,6 +13,7 @@ import type {
 export type FileDetailsPanelProps = {
   readonly fileId: FileEntry["id"];
   readonly onClose: () => void;
+  readonly onFileChanged: () => void;
 };
 
 export type FileDetailsPanelLoadingView = {
