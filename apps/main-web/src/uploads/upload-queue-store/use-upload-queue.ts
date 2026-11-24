@@ -6,6 +6,7 @@ import { useSession } from "../../session/use-session.js";
 import { EMPTY_UPLOAD_QUEUE_STATE } from "../constants.js";
 import type { RunningUpload, UploadQueue, UploadTarget } from "../types.js";
 import { createUploadItem } from "./create-upload-item.js";
+import { isActiveUploadItem } from "./is-active-upload-item.js";
 import { nextQueuedItem } from "./next-queued-item.js";
 import { startUpload } from "./start-upload.js";
 import { uploadQueueReducer } from "./upload-queue-reducer.js";
@@ -39,8 +40,12 @@ export const useUploadQueue = (): UploadQueue => {
 
   useEffect(
     () => () => {
-      running.current?.controller.abort();
+      if (running.current === null) {
+        return;
+      }
+      running.current.controller.abort();
       running.current = null;
+      dispatch({ type: "familySwitched", errorTextId: "files.upload.stoppedFamilySwitch" });
     },
     [],
   );
@@ -61,7 +66,7 @@ export const useUploadQueue = (): UploadQueue => {
 
   return {
     items: state.items,
-    isIdle: !state.items.some((item) => item.status === "queued" || item.status === "uploading"),
+    isIdle: !state.items.some(isActiveUploadItem),
     lastDone: state.lastDone,
     announcement: state.announcement,
     enqueue,
