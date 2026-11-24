@@ -37,6 +37,7 @@ const callbacks = () => ({
 const sectionWith = (
   overrides: Partial<FileVersionsSectionProps> = {},
 ): FileVersionsSectionProps => ({
+  variant: "panel",
   fileName: "Notes.txt",
   rows: ROWS,
   status: "ready",

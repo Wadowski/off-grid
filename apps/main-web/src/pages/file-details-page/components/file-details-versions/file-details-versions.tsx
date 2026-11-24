@@ -21,6 +21,7 @@ export const FileDetailsVersions = ({
 
   return (
     <FileVersionsSection
+      variant="screen"
       fileName={file.name}
       rows={toFileVersionRows(versions.versions, resolveName)}
       status={versions.status}

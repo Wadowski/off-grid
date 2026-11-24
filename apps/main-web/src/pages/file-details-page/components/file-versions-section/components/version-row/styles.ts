@@ -3,17 +3,31 @@
 
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
+import type { VersionsSectionVariant } from "../../types.js";
 
-export const versionRowStyle: CSSProperties = {
+const versionRowBaseStyle: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   alignItems: "center",
   justifyContent: "space-between",
   gap: tokens.space[2],
-  padding: tokens.space[2],
-  borderRadius: cssVar("radius-md"),
-  background: cssVar("color-surface"),
   minWidth: 0,
+};
+
+export const versionRowStyles: Record<VersionsSectionVariant, CSSProperties> = {
+  panel: { ...versionRowBaseStyle, padding: `${tokens.space[1]} 0` },
+  screen: { ...versionRowBaseStyle, padding: `${tokens.space[3]} ${tokens.space[4]}` },
+};
+
+export const versionRowDividedStyles: Record<VersionsSectionVariant, CSSProperties> = {
+  panel: {
+    ...versionRowStyles.panel,
+    borderTop: `1px solid ${cssVar("color-line")}`,
+  },
+  screen: {
+    ...versionRowStyles.screen,
+    borderTop: `1px solid ${cssVar("color-surface-2")}`,
+  },
 };
 
 export const versionRowInfoStyle: CSSProperties = {

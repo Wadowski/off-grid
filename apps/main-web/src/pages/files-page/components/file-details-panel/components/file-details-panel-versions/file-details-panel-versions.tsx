@@ -31,6 +31,7 @@ export const FileDetailsPanelVersions = ({
 
   return (
     <FileVersionsSection
+      variant="panel"
       fileName={file.name}
       rows={toFileVersionRows(versions.versions, resolveName)}
       status={versions.status}

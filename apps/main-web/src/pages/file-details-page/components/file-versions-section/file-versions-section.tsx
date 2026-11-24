@@ -11,15 +11,16 @@ import { VersionsStatus } from "./components/versions-status/versions-status.js"
 import { toVersionAnnouncementTextId } from "./to-version-announcement-text-id.js";
 import {
   versionsAnnouncementStyle,
-  versionsHeaderStyle,
+  versionsHeaderStyles,
   versionsHeadingStyle,
-  versionsListStyle,
-  versionsSectionStyle,
+  versionsListStyles,
+  versionsSectionStyles,
   versionsTitleStyle,
 } from "./styles.js";
 import type { FileVersionsSectionProps } from "./types.js";
 
 export const FileVersionsSection = ({
+  variant,
   fileName,
   rows,
   status,
@@ -38,11 +39,11 @@ export const FileVersionsSection = ({
 
   return (
     <section
-      style={versionsSectionStyle}
+      style={versionsSectionStyles[variant]}
       aria-labelledby={headingId}
       data-testid="file-versions-section"
     >
-      <div style={versionsHeaderStyle}>
+      <div style={versionsHeaderStyles[variant]}>
         <div style={versionsTitleStyle}>
           <Text
             variant="label"
@@ -63,10 +64,12 @@ export const FileVersionsSection = ({
       </div>
       <VersionsStatus status={status} errorTextId={errorTextId} onRetry={onRetry} />
       {status === "ready" ? (
-        <ul style={versionsListStyle} data-testid="file-versions-list">
-          {rows.map((row) => (
+        <ul style={versionsListStyles[variant]} data-testid="file-versions-list">
+          {rows.map((row, index) => (
             <VersionRow
               key={row.id}
+              variant={variant}
+              isFirst={index === 0}
               row={row}
               pending={pendingVersionId === row.id}
               onRestore={() => onRestore(row)}

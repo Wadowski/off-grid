@@ -768,7 +768,7 @@ export const en = {
       count_one: "{{count}} version",
       count_other: "{{count}} versions",
       upload: "Upload new version",
-      uploadFor: "Upload a new version of {{name}}",
+      uploadFor: "Upload new version of {{name}}",
       version: "Version {{count}}",
       current: "Current",
       meta: "{{date}} by {{name}}",

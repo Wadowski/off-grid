@@ -8,7 +8,10 @@ import type {
   FilesErrorTextId,
 } from "../../../../files/types.js";
 
+export type VersionsSectionVariant = "panel" | "screen";
+
 export type FileVersionsSectionProps = {
+  readonly variant: VersionsSectionVariant;
   readonly fileName: string;
   readonly rows: readonly FileVersionRow[];
   readonly status: ListStatus;

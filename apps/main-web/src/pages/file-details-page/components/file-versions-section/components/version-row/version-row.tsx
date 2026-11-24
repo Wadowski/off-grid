@@ -6,14 +6,17 @@ import { useTranslation } from "react-i18next";
 import { formatFileTimestamp } from "../../../../../../files/format-file-timestamp.js";
 import { VersionRowActions } from "../version-row-actions/version-row-actions.js";
 import {
+  versionRowDividedStyles,
   versionRowInfoStyle,
   versionRowMetaStyle,
-  versionRowStyle,
+  versionRowStyles,
   versionRowTitleStyle,
 } from "./styles.js";
 import type { VersionRowProps } from "./types.js";
 
 export const VersionRow = ({
+  variant,
+  isFirst,
   row,
   pending,
   onRestore,
@@ -26,7 +29,7 @@ export const VersionRow = ({
 
   return (
     <li
-      style={versionRowStyle}
+      style={isFirst ? versionRowStyles[variant] : versionRowDividedStyles[variant]}
       data-testid="file-version-row"
       data-version={row.number}
       aria-busy={pending}
