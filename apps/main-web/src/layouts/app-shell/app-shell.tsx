@@ -7,6 +7,7 @@ import { NotificationsInboxProvider } from "../../notifications/index.js";
 import { signOut } from "../../session/sign-out.js";
 import { useSession } from "../../session/use-session.js";
 import { UploadQueueProvider } from "../../uploads/index.js";
+import { UploadQueuePanel } from "./components/upload-queue-panel/upload-queue-panel.js";
 import type { CurrentUser, FamiliesContext, ShellContext } from "../../types.js";
 import { AppHeader } from "./components/app-header/app-header.js";
 import { AppSidebar } from "./components/app-sidebar/app-sidebar.js";
@@ -38,10 +39,11 @@ export const AppShell = () => {
             onSignOut={() => void signOut()}
           />
           <AppHeader />
-          <main className="og-shell-main">
+          <main className="og-shell-main" tabIndex={-1}>
             <Outlet context={shellContext} />
           </main>
           <MobileTabBar />
+          <UploadQueuePanel />
         </div>
       </UploadQueueProvider>
     </NotificationsInboxProvider>

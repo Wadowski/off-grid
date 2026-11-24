@@ -21,6 +21,7 @@ export type UploadItem = {
   readonly familyId: string | null;
   readonly name: string;
   readonly sizeBytes: number;
+  readonly mimeType: string;
   readonly driveId: Drive["id"];
   readonly folderId: FileEntry["id"] | null;
   readonly status: UploadStatus;

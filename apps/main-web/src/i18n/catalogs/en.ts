@@ -669,7 +669,7 @@ export const en = {
       clear: "Clear finished",
       announceStart: "Uploading {{name}}",
       announceDone: "{{name}} uploaded",
-      announceFailed: "{{name}} could not be uploaded: {{reason}}",
+      announceFailed: "{{name}} could not be uploaded.",
       summaryActive: "Uploading {{done}} of {{total}}",
       summaryDone: "{{count}} uploaded",
       summaryFailed: "{{count}} failed",

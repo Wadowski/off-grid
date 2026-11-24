@@ -12,6 +12,7 @@ export const createUploadItem = (
   id,
   familyId,
   name: file.name,
+  mimeType: file.type,
   sizeBytes: file.size,
   driveId: target.driveId,
   folderId: target.folderId,
