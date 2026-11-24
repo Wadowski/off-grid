@@ -33,12 +33,27 @@ describe("moveFileRequestSchema", () => {
 });
 
 describe("fileListQuerySchema", () => {
-  it("defaults the limit to 50 and leaves the cursor out", () => {
-    expect(fileListQuerySchema.parse({})).toEqual({ limit: 50 });
+  it("defaults to 50 entries sorted by name ascending and leaves the cursor out", () => {
+    expect(fileListQuerySchema.parse({})).toEqual({ limit: 50, sort: "name", direction: "asc" });
   });
 
+  it("accepts each sort field and direction", () => {
+    expect(fileListQuerySchema.parse({ sort: "modified", direction: "desc" })).toMatchObject({
+      sort: "modified",
+      direction: "desc",
+    });
+    expect(fileListQuerySchema.parse({ sort: "size" })).toMatchObject({ sort: "size" });
+  });
+
+  it.each([{ sort: "type" }, { direction: "up" }])(
+    "rejects an unknown sort or direction %o",
+    (query) => {
+      expect(fileListQuerySchema.safeParse(query).success).toBe(false);
+    },
+  );
+
   it("reads a numeric limit from a query string", () => {
-    expect(fileListQuerySchema.parse({ limit: "200" })).toEqual({ limit: 200 });
+    expect(fileListQuerySchema.parse({ limit: "200" })).toMatchObject({ limit: 200 });
   });
 
   it.each(["0", "201", "abc"])("rejects a limit of %s", (limit) => {

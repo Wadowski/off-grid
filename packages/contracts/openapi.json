@@ -551,6 +551,37 @@
               "minimum": 1,
               "maximum": 200
             }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "The field the entries are ordered by. Folders always come first.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "modified",
+                "size"
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "description": "The order of the sort field.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
           }
         ],
         "responses": {
@@ -829,6 +860,37 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 200
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "The field the entries are ordered by. Folders always come first.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "modified",
+                "size"
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "description": "The order of the sort field.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           }
         ],
@@ -1167,6 +1229,37 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 200
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "The field the entries are ordered by. Folders always come first.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "modified",
+                "size"
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "description": "The order of the sort field.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           }
         ],

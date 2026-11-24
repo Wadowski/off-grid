@@ -102,6 +102,20 @@ const listQueryParameters = [
     required: false,
     schema: z.toJSONSchema(fileListQuerySchema.shape.limit),
   },
+  {
+    name: "sort",
+    in: "query",
+    required: false,
+    description: "The field the entries are ordered by. Folders always come first.",
+    schema: z.toJSONSchema(fileListQuerySchema.shape.sort),
+  },
+  {
+    name: "direction",
+    in: "query",
+    required: false,
+    description: "The order of the sort field.",
+    schema: z.toJSONSchema(fileListQuerySchema.shape.direction),
+  },
 ];
 
 const uploadIdParameter = {
