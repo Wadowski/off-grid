@@ -12,7 +12,15 @@ import {
   uploadQueuePanelInverseTextStyle,
   uploadQueuePanelPulseDotStyle,
 } from "./styles.js";
+import type { PanelSummary } from "../../types.js";
 import type { UploadQueuePanelHeaderProps } from "./types.js";
+
+const pillIconName = (isActive: boolean, textId: PanelSummary["textId"]): string => {
+  if (isActive) {
+    return "cloud_upload";
+  }
+  return textId === "files.upload.summaryFailed" ? "error" : "check";
+};
 
 export const UploadQueuePanelHeader = ({
   summary,
@@ -50,7 +58,7 @@ export const UploadQueuePanelHeader = ({
             color={cssVar("color-accent-fg")}
           >
             <MaterialIcon
-              name={isActive ? "cloud_upload" : "check"}
+              name={pillIconName(isActive, summary.textId)}
               size="1rem"
               color={cssVar("color-accent-fg")}
             />
