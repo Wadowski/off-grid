@@ -36,13 +36,12 @@ export const Menu = ({
     menuItems[fromEnd ? menuItems.length - 1 : 0]?.focus();
   };
 
-  const open = (fromEnd: boolean) => {
+  const place = () => {
     const panel = panelRef.current;
     const trigger = triggerRef.current;
     if (panel === null || trigger === null) {
       return;
     }
-    panel.showPopover();
     const position = toMenuPanelPosition(
       trigger.getBoundingClientRect(),
       { width: panel.offsetWidth, height: panel.offsetHeight },
@@ -50,6 +49,15 @@ export const Menu = ({
     );
     panel.style.top = `${position.top}px`;
     panel.style.left = `${position.left}px`;
+  };
+
+  const open = (fromEnd: boolean) => {
+    const panel = panelRef.current;
+    if (panel === null || triggerRef.current === null) {
+      return;
+    }
+    panel.showPopover();
+    place();
     setIsOpen(true);
     focusItem(fromEnd);
   };
@@ -68,20 +76,20 @@ export const Menu = ({
       }
       close(false);
     };
-    const closeOnViewportMove = (event: Event) => {
+    const repositionOnViewportMove = (event: Event) => {
       const target = event.target;
       if (target instanceof Node && panelRef.current?.contains(target)) {
         return;
       }
-      close(false);
+      place();
     };
     document.addEventListener("pointerdown", closeOnOutsidePress);
-    window.addEventListener("scroll", closeOnViewportMove, true);
-    window.addEventListener("resize", closeOnViewportMove);
+    window.addEventListener("scroll", repositionOnViewportMove, true);
+    window.addEventListener("resize", repositionOnViewportMove);
     return () => {
       document.removeEventListener("pointerdown", closeOnOutsidePress);
-      window.removeEventListener("scroll", closeOnViewportMove, true);
-      window.removeEventListener("resize", closeOnViewportMove);
+      window.removeEventListener("scroll", repositionOnViewportMove, true);
+      window.removeEventListener("resize", repositionOnViewportMove);
     };
   }, [isOpen]);
 

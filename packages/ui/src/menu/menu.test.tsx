@@ -145,16 +145,20 @@ describe("Menu", () => {
     expect(trigger()).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("closes when the page scrolls or the window is resized", () => {
+  it("stays open and repositioned when the page scrolls or the window is resized", () => {
     renderMenu();
     fireEvent.click(trigger());
+    const positionOf = () => panel().style.top;
+    const reposition = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect");
 
     fireEvent.scroll(window);
-    expect(trigger()).toHaveAttribute("aria-expanded", "false");
-
-    fireEvent.click(trigger());
     fireEvent(window, new Event("resize"));
-    expect(trigger()).toHaveAttribute("aria-expanded", "false");
+
+    expect(reposition).toHaveBeenCalled();
+    expect(trigger()).toHaveAttribute("aria-expanded", "true");
+    expect(panel()).toHaveAttribute("data-popover-open");
+    expect(positionOf()).toMatch(/px$/);
+    reposition.mockRestore();
   });
 
   it("separates a danger item from the items above it", () => {
