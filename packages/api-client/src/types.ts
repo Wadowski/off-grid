@@ -62,10 +62,9 @@ export type ApiClient = {
   ) => Promise<unknown>;
 };
 
-export type FileListOptions = {
-  readonly cursor?: string;
-  readonly limit?: number;
-};
+export type FileListOptions = NonNullable<
+  paths["/drives/{id}/children"]["get"]["parameters"]["query"]
+>;
 
 export type NotificationListOptions = NonNullable<
   paths["/me/notifications"]["get"]["parameters"]["query"]

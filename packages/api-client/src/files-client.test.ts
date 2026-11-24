@@ -100,6 +100,19 @@ describe("createFilesClient listing", () => {
     );
   });
 
+  it("sends the sort field and direction with the children query", async () => {
+    const page = { items: [], breadcrumbs: [], nextCursor: null };
+    const { files, transport } = filesWith(jsonResponse(page));
+
+    await expect(
+      files.listFileChildren(FOLDER_ID, { sort: "size", direction: "desc" }),
+    ).resolves.toEqual(page);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FOLDER_ID}/children?sort=size&direction=desc`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
   it("lists the trash of a drive", async () => {
     const page = { items: [], breadcrumbs: [], nextCursor: null };
     const { files, transport } = filesWith(jsonResponse(page));

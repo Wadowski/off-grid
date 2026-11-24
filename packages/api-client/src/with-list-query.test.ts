@@ -14,4 +14,10 @@ describe("withListQuery", () => {
       "/drives/d/children?cursor=a%2Bb+c&limit=50",
     );
   });
+
+  it("adds the sort field and direction", () => {
+    expect(withListQuery("/files/f/children", { sort: "modified", direction: "desc" })).toBe(
+      "/files/f/children?sort=modified&direction=desc",
+    );
+  });
 });
