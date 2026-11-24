@@ -64,6 +64,15 @@ export type FolderContentsState = {
   readonly loadMore: () => Promise<void>;
   readonly refresh: () => Promise<void>;
   readonly refreshQuietly: () => Promise<void>;
+  readonly removeItem: (fileId: FileListItem["id"]) => void;
+};
+
+export type TrashEntryStatus = "idle" | "pending" | "failed";
+
+export type TrashEntryState = {
+  readonly status: TrashEntryStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly trash: (fileId: FileEntry["id"]) => Promise<boolean>;
 };
 
 export type FolderContentsSnapshot = {
