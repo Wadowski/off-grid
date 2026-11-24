@@ -86,6 +86,7 @@ export async function captureScreen(
   name: string,
   feature = "adhoc",
   prepare?: () => Promise<void>,
+  options: { phone?: boolean } = {},
 ): Promise<string | undefined> {
   if (!screenshotsEnabled()) {
     return undefined;
@@ -96,11 +97,14 @@ export async function captureScreen(
     return lightPath;
   }
   captured.add(key);
+  const phone = options.phone ?? true;
   await mkdir(screenPath(feature, name).split("/").slice(0, -1).join("/"), { recursive: true });
   const path = await captureDesktop(page, name, feature, "light", prepare);
   await captureDesktop(page, name, feature, "dark", prepare);
-  await captureMobile(page, name, feature, "light", prepare);
-  await captureMobile(page, name, feature, "dark", prepare);
+  if (phone) {
+    await captureMobile(page, name, feature, "light", prepare);
+    await captureMobile(page, name, feature, "dark", prepare);
+  }
   await page.emulateMedia({ colorScheme: "light" });
   return path;
 }

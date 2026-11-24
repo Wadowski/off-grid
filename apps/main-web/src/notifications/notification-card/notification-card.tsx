@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Card, cssVar, IconTile, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
+import { cssVar, IconTile, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
 import { noticeCopy } from "./notice-copy.js";
 import { NotificationCardAction } from "./components/notification-card-action/notification-card-action.js";
 import { NotificationCardHeader } from "./components/notification-card-header/notification-card-header.js";
@@ -93,5 +93,5 @@ export const NotificationCard = ({
     </div>
   );
 
-  return density === "full" ? <Card>{card}</Card> : card;
+  return card;
 };
