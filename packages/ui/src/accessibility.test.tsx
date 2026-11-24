@@ -11,9 +11,12 @@ import {
   Checkbox,
   FileCard,
   FileRow,
+  FilePickerButton,
   FileTable,
   FileTableRow,
   FileTypeIcon,
+  FloatingPanel,
+  ProgressBar,
   TextField,
 } from "./index.js";
 import { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
@@ -32,6 +35,28 @@ describe("accessibility", () => {
             <Button variant="secondary">Cancel</Button>
             <VisuallyHidden>Opens in a new tab</VisuallyHidden>
           </Card>
+        </main>,
+      );
+
+      const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
+
+      expect(results.violations).toEqual([]);
+    },
+    AXE_RUN_TIMEOUT_MS,
+  );
+
+  it(
+    "has no axe violations for the upload progress and the floating panel",
+    async () => {
+      const { container } = renderWithI18n(
+        <main>
+          <FloatingPanel placement="corner" labelledBy="upload-panel-title">
+            <h2 id="upload-panel-title">Uploads</h2>
+            <ProgressBar label="Holiday.txt" percent={42} />
+            <FilePickerButton ariaLabel="Upload" onFilesPicked={() => undefined}>
+              Upload
+            </FilePickerButton>
+          </FloatingPanel>
         </main>,
       );
 

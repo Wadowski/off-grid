@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { EMPTY_FOLDER_CONTENTS } from "./constants.js";
 import { fetchFolderPage } from "./fetch-folder-page.js";
 import { toFilesErrorTextId } from "./to-files-error-text-id.js";
+import { toReadySnapshot } from "./to-ready-snapshot.js";
 import type { Drive, FileEntry, FolderContentsSnapshot, FolderContentsState } from "./types.js";
 
 export const useFolderContents = (
@@ -28,13 +29,7 @@ export const useFolderContents = (
     try {
       const page = await fetchFolderPage(driveId, folderId, null);
       if (request === latestRequest.current) {
-        setSnapshot({
-          items: page.items,
-          nextCursor: page.nextCursor,
-          status: "ready",
-          errorTextId: null,
-          isLoadingMore: false,
-        });
+        setSnapshot(toReadySnapshot(page));
       }
     } catch (error) {
       if (request === latestRequest.current) {
@@ -46,6 +41,17 @@ export const useFolderContents = (
       }
     }
   }, [driveId, folderId, targetKey]);
+
+  const refreshQuietly = useCallback(async () => {
+    if (driveId === null) {
+      return;
+    }
+    const request = ++latestRequest.current;
+    const page = await fetchFolderPage(driveId, folderId, null).catch(() => null);
+    if (page !== null && request === latestRequest.current) {
+      setSnapshot(toReadySnapshot(page));
+    }
+  }, [driveId, folderId]);
 
   const loadMore = useCallback(async () => {
     if (driveId === null || nextCursor === null) {
@@ -90,6 +96,7 @@ export const useFolderContents = (
       isLoadingMore: false,
       loadMore,
       refresh,
+      refreshQuietly,
     };
   }
   return {
@@ -100,5 +107,6 @@ export const useFolderContents = (
     isLoadingMore: snapshot.isLoadingMore,
     loadMore,
     refresh,
+    refreshQuietly,
   };
 };

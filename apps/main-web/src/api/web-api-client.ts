@@ -12,12 +12,14 @@ import {
   createSystemClient,
 } from "@offgrid/api-client";
 import { API_PATH } from "../constants.js";
+import { sendUploadWithSession } from "../session/send-upload-with-session.js";
 import { sendWithSession } from "../session/send-with-session.js";
 import { serverOrigin } from "./server-origin.js";
 
 export const webApiClient = createApiClient({
   baseUrl: `${serverOrigin()}${API_PATH}`,
   fetch: sendWithSession,
+  sendUpload: sendUploadWithSession,
 });
 
 export const webAuthClient = createAuthClient(webApiClient);

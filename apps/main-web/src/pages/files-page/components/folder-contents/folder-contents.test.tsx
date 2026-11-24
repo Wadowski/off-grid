@@ -49,6 +49,7 @@ const contentsWith = (
   isLoadingMore: false,
   loadMore: vi.fn(async () => undefined),
   refresh: vi.fn(async () => undefined),
+  refreshQuietly: vi.fn(async () => undefined),
   ...overrides,
 });
 

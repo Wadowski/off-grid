@@ -12,10 +12,14 @@ export { createRelationsClient } from "./relations-client.js";
 export { createSystemClient } from "./system-client.js";
 export { createFamilyClient } from "./family-client.js";
 export { createApiClient } from "./create-api-client.js";
+export { sendUploadXhr } from "./send-upload-xhr.js";
 export type {
   Notification,
   NotificationListOptions,
   SignInInput,
   SubscribeNotificationsOptions,
+  UploadFileInput,
+  UploadProgressHandler,
+  UploadTransport,
 } from "./types.js";
 export type { components, paths } from "./generated/schema.js";

@@ -5,9 +5,16 @@ import { ApiError } from "@offgrid/api-client";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFile, listDriveChildren, listDrives, listFileChildren } from "../../files/files-api.js";
+import {
+  getFile,
+  listDriveChildren,
+  listDrives,
+  listFileChildren,
+  uploadFile,
+} from "../../files/files-api.js";
 import type { Drive } from "../../files/types.js";
 import { FilesLayout } from "../../layouts/files-layout/files-layout.js";
+import { UploadQueueProvider } from "../../uploads/index.js";
 import { FilesPage } from "./files-page.js";
 
 vi.mock("../../files/files-api.js", () => ({
@@ -15,6 +22,7 @@ vi.mock("../../files/files-api.js", () => ({
   listDrives: vi.fn(),
   listDriveChildren: vi.fn(),
   listFileChildren: vi.fn(),
+  uploadFile: vi.fn(),
 }));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
@@ -72,12 +80,14 @@ const withPhoneWidth = (isPhone: boolean) => {
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/files" element={<FilesLayout />}>
-          <Route index element={<FilesPage />} />
-          <Route path=":driveId/folder/:folderId?" element={<FilesPage />} />
-        </Route>
-      </Routes>
+      <UploadQueueProvider>
+        <Routes>
+          <Route path="/files" element={<FilesLayout />}>
+            <Route index element={<FilesPage />} />
+            <Route path=":driveId/folder/:folderId?" element={<FilesPage />} />
+          </Route>
+        </Routes>
+      </UploadQueueProvider>
     </MemoryRouter>,
   );
 
@@ -353,5 +363,35 @@ describe("FilesPage", () => {
     } finally {
       restore();
     }
+  });
+
+  it("sends the picked files to the open folder", async () => {
+    vi.mocked(uploadFile).mockReturnValue(new Promise(() => undefined) as never);
+    renderAt(FOLDER_PATH);
+    await screen.findByRole("table", { name: "Folder contents" });
+
+    fireEvent.change(screen.getByTestId("files-upload-input"), {
+      target: { files: [new File(["x"], "Holiday.txt")] },
+    });
+
+    await waitFor(() =>
+      expect(uploadFile).toHaveBeenCalledWith(
+        DRIVE_ID,
+        expect.objectContaining({ parentId: FOLDER_ID }),
+      ),
+    );
+  });
+
+  it("refreshes the open folder quietly once an upload into it finishes", async () => {
+    vi.mocked(uploadFile).mockResolvedValue({} as never);
+    renderAt(FOLDER_PATH);
+    await screen.findByRole("table", { name: "Folder contents" });
+
+    fireEvent.change(screen.getByTestId("files-upload-input"), {
+      target: { files: [new File(["x"], "Holiday.txt")] },
+    });
+
+    await waitFor(() => expect(listFileChildren).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("table", { name: "Folder contents" })).toBeInTheDocument();
   });
 });

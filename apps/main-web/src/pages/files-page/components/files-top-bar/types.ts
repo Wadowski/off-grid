@@ -3,4 +3,7 @@
 
 import type { DriveSwitcherProps } from "../../../../layouts/files-layout/components/drive-switcher/types.js";
 
-export type FilesTopBarProps = Pick<DriveSwitcherProps, "drives" | "status" | "activeDriveId">;
+export type FilesTopBarProps = Pick<DriveSwitcherProps, "drives" | "status" | "activeDriveId"> & {
+  readonly uploadDisabled: boolean;
+  readonly onFilesPicked: (files: readonly File[]) => void;
+};

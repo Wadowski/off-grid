@@ -33,7 +33,13 @@ describe("FilesTopBar", () => {
   });
 
   it("shows the active drive name and the folder actions in one row", () => {
-    renderTopBar({ drives: [PERSONAL, HOME], status: "ready", activeDriveId: HOME.id });
+    renderTopBar({
+      drives: [PERSONAL, HOME],
+      status: "ready",
+      activeDriveId: HOME.id,
+      uploadDisabled: false,
+      onFilesPicked: () => undefined,
+    });
 
     const row = screen.getByTestId("files-top-bar");
     expect(row).toContainElement(screen.getByTestId("files-top-bar-drive-control"));
@@ -42,13 +48,25 @@ describe("FilesTopBar", () => {
   });
 
   it("shows the generic drive label when no drive matches the active drive id", () => {
-    renderTopBar({ drives: [PERSONAL], status: "ready", activeDriveId: null });
+    renderTopBar({
+      drives: [PERSONAL],
+      status: "ready",
+      activeDriveId: null,
+      uploadDisabled: false,
+      onFilesPicked: () => undefined,
+    });
 
     expect(screen.getByTestId("files-top-bar-drive-control")).toHaveTextContent("Drives");
   });
 
   it("shows the loading text while the drives load", () => {
-    renderTopBar({ drives: [], status: "loading", activeDriveId: null });
+    renderTopBar({
+      drives: [],
+      status: "loading",
+      activeDriveId: null,
+      uploadDisabled: true,
+      onFilesPicked: () => undefined,
+    });
 
     expect(screen.getByTestId("files-top-bar-drive-control")).toHaveTextContent(
       "Loading drives...",
