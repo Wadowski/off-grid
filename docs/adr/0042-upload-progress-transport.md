@@ -21,3 +21,7 @@ The API client in `packages/api-client` must stay free of session code, and the 
 - A family-space change aborts the running upload and fails the queued items, because the family header is read from the session at send time.
 - Rejected: `fetch` with a streamed body (no progress on HTTP/1.1 and Chromium only); chunked or resumable uploads (a separate design under `/uploads`); persisting the queue in browser storage (cannot restore `File` handles); parallel uploads (ordering and bandwidth).
 - The queue is in-process state of the browser tab, by nature. It is not server state, so the shared-state rules do not apply.
+
+## Note on the DOM library
+
+`packages/api-client` and `e2e/tsconfig.json` add the `DOM` TypeScript lib, and only for `XMLHttpRequest`, the type `sendUploadXhr` needs to report upload progress. The rest of the package still compiles against the ES2022 library and `fetch` types. No other DOM API is added to `packages/api-client` by this decision.
