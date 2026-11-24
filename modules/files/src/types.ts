@@ -130,6 +130,11 @@ export interface ChildrenQuery {
   readonly direction: ChildrenDirection;
 }
 
+export interface TrashQuery {
+  readonly cursor: ChildrenCursor | null;
+  readonly limit: number;
+}
+
 export interface ChildrenPageOptions {
   readonly limit: number;
   readonly sort: ChildrenSort;

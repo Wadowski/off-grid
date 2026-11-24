@@ -89,19 +89,23 @@ const rangeHeaderParameter = {
   schema: { type: "string" },
 };
 
+const cursorParameter = {
+  name: "cursor",
+  in: "query",
+  required: false,
+  schema: z.toJSONSchema(fileListQuerySchema.shape.cursor.unwrap()),
+};
+
+const limitParameter = {
+  name: "limit",
+  in: "query",
+  required: false,
+  schema: z.toJSONSchema(fileListQuerySchema.shape.limit),
+};
+
 const listQueryParameters = [
-  {
-    name: "cursor",
-    in: "query",
-    required: false,
-    schema: z.toJSONSchema(fileListQuerySchema.shape.cursor.unwrap()),
-  },
-  {
-    name: "limit",
-    in: "query",
-    required: false,
-    schema: z.toJSONSchema(fileListQuerySchema.shape.limit),
-  },
+  cursorParameter,
+  limitParameter,
   {
     name: "sort",
     in: "query",
@@ -117,6 +121,9 @@ const listQueryParameters = [
     schema: z.toJSONSchema(fileListQuerySchema.shape.direction),
   },
 ];
+
+// The trash takes only the cursor and limit: it has no sort or direction parameter.
+const trashListQueryParameters = [cursorParameter, limitParameter];
 
 const uploadIdParameter = {
   name: "id",
@@ -269,8 +276,10 @@ export const filesOpenApiPaths = {
   "/drives/{id}/trash": {
     get: {
       operationId: "listDriveTrash",
-      summary: "List the trashed entries of a drive",
-      parameters: [driveIdParameter, ...listQueryParameters],
+      summary: "List the trashed entries of a drive, folders first, then by name",
+      description:
+        "The trash has no sort or direction parameter: entries are always ordered folders first, then by name ascending. A sort or direction parameter is rejected with 400 VALIDATION_FAILED.",
+      parameters: [driveIdParameter, ...trashListQueryParameters],
       responses: {
         "200": { description: "One page of trashed entries.", content: jsonContent("FileList") },
         "400": validationFailed,

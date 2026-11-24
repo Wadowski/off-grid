@@ -66,6 +66,10 @@ export type FileListOptions = NonNullable<
   paths["/drives/{id}/children"]["get"]["parameters"]["query"]
 >;
 
+export type TrashListOptions = NonNullable<
+  paths["/drives/{id}/trash"]["get"]["parameters"]["query"]
+>;
+
 export type NotificationListOptions = NonNullable<
   paths["/me/notifications"]["get"]["parameters"]["query"]
 >;

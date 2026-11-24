@@ -13,3 +13,12 @@ export const fileListQuerySchema = z.object({
   sort: fileListSortSchema.default("name"),
   direction: fileListDirectionSchema.default("asc"),
 });
+
+// The trash lists entries by name only, so it takes no sort or direction. Unknown keys,
+// including sort and direction, are rejected rather than ignored.
+export const trashListQuerySchema = z
+  .object({
+    cursor: z.string().min(1).max(512).optional(),
+    limit: z.coerce.number().int().min(1).max(200).default(50),
+  })
+  .strict();

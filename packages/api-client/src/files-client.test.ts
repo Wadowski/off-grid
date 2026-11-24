@@ -124,6 +124,22 @@ describe("createFilesClient listing", () => {
     );
   });
 
+  it("sends only the cursor and limit for the trash list", async () => {
+    const page = { items: [], breadcrumbs: [], nextCursor: null };
+    const { files, transport } = filesWith(jsonResponse(page));
+
+    await files.listDriveTrash(DRIVE_ID, { cursor: "abc", limit: 5 });
+    // The trash has no sort parameter, so the type rejects it. The call is only type-checked.
+    // @ts-expect-error the trash list takes no sort option
+    const withSort = () => files.listDriveTrash(DRIVE_ID, { sort: "size" });
+    expect(withSort).toBeTypeOf("function");
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/drives/${DRIVE_ID}/trash?cursor=abc&limit=5`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
   it("rejects a children list whose folder item has no item count", async () => {
     const { files } = filesWith(
       jsonResponse({ items: [FOLDER], breadcrumbs: [], nextCursor: null }),

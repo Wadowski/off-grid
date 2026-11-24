@@ -1692,8 +1692,6 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
-                sort?: "name" | "modified" | "size";
-                direction?: "asc" | "desc";
             };
             header?: never;
             path: {

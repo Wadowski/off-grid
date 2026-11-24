@@ -59,8 +59,6 @@ describe("listDriveTrash", { timeout: 60_000 }, () => {
     const outcome = await listDriveTrash(db.db, anna, driveId, {
       cursor: null,
       limit: 50,
-      sort: "name",
-      direction: "asc",
     });
 
     expect(
@@ -85,15 +83,11 @@ describe("listDriveTrash", { timeout: 60_000 }, () => {
     const first = await listDriveTrash(db.db, anna, driveId, {
       cursor: null,
       limit: 2,
-      sort: "name",
-      direction: "asc",
     });
     const firstPage = first.outcome === "found" ? first.value.page : null;
     const second = await listDriveTrash(db.db, anna, driveId, {
       cursor: firstPage?.nextCursor ?? null,
       limit: 2,
-      sort: "name",
-      direction: "asc",
     });
     const secondPage = second.outcome === "found" ? second.value.page : null;
 

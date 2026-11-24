@@ -6,17 +6,17 @@ import { sendValidationFailed, withUser } from "@offgrid/http";
 import type { FastifyInstance } from "fastify";
 import { listDriveTrash } from "../../application/trash/list-drive-trash.js";
 import type { FilesRouteContext } from "../../types.js";
-import { childrenQuerySchema } from "../files/children-query-schema.js";
 import { sendFilesOutcome } from "../files/send-files-outcome.js";
-import { toChildrenQuery } from "../files/to-children-query.js";
 import { toFileList } from "../files/to-file-list.js";
+import { toTrashQuery } from "./to-trash-query.js";
+import { trashQuerySchema } from "./trash-query-schema.js";
 
 export const registerListDriveTrash = (api: FastifyInstance, context: FilesRouteContext): void => {
   api.get(
     "/drives/:id/trash",
     withUser(context.currentUserId, async (request, reply, userId) => {
       const params = driveParamsSchema.safeParse(request.params);
-      const query = childrenQuerySchema.safeParse(request.query);
+      const query = trashQuerySchema.safeParse(request.query);
       if (!params.success) {
         return sendValidationFailed(reply, params.error);
       }
@@ -27,7 +27,7 @@ export const registerListDriveTrash = (api: FastifyInstance, context: FilesRoute
         context.db,
         userId,
         params.data.id,
-        toChildrenQuery(query.data),
+        toTrashQuery(query.data),
       );
       return sendFilesOutcome(reply, outcome, (listed) => fileListSchema.parse(toFileList(listed)));
     }),

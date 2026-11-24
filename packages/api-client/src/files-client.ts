@@ -19,7 +19,7 @@ import {
 } from "@offgrid/contracts";
 import { fillRoute } from "./fill-route.js";
 import { withListQuery } from "./with-list-query.js";
-import type { ApiClient, ByteBody, FileListOptions } from "./types.js";
+import type { ApiClient, ByteBody, FileListOptions, TrashListOptions } from "./types.js";
 
 export const createFilesClient = (client: ApiClient) => ({
   listDrives: async () =>
@@ -33,7 +33,7 @@ export const createFilesClient = (client: ApiClient) => ({
       ),
     ),
 
-  listDriveTrash: async (driveId: string, options: FileListOptions = {}) =>
+  listDriveTrash: async (driveId: string, options: TrashListOptions = {}) =>
     fileListSchema.parse(
       await client.request(
         "GET",
