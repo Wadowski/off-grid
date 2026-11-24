@@ -3,12 +3,15 @@
 
 import type { SortKeyField } from "../../types.js";
 
+// The files.file.size_bytes column is a signed 64-bit bigint, so a size cursor must fit it.
+const MAX_SIZE_BYTES = BigInt("9223372036854775807");
+
 export const isValidSortValue = (field: SortKeyField, sortValue: string): boolean => {
   if (field === "updatedAt") {
     return !Number.isNaN(Date.parse(sortValue));
   }
   if (field === "sizeBytes") {
-    return /^\d+$/.test(sortValue);
+    return /^\d+$/.test(sortValue) && BigInt(sortValue) <= MAX_SIZE_BYTES;
   }
   return sortValue.length > 0;
 };
