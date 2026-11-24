@@ -39,7 +39,11 @@ const FLOATING_PANEL_SHAPE_STYLES: Record<FloatingPanelShape, CSSProperties> = {
 
 const FLOATING_PANEL_TONE_STYLES: Record<FloatingPanelTone, CSSProperties> = {
   surface: { background: cssVar("color-surface") },
-  inverse: { background: cssVar("color-dark-chip"), color: cssVar("color-dark-chip-fg") },
+  inverse: {
+    background: cssVar("color-dark-chip"),
+    color: cssVar("color-dark-chip-fg"),
+    borderColor: cssVar("color-dark-chip"),
+  },
 };
 
 export const floatingPanelStyle = (

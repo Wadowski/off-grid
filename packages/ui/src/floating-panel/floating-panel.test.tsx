@@ -32,6 +32,21 @@ describe("FloatingPanel", () => {
     expect(document.activeElement).toBe(document.body);
   });
 
+  it("hands focus to the main landmark when it unmounts with focus inside", () => {
+    const { rerender } = render(
+      <main tabIndex={-1} data-testid="main">
+        <FloatingPanel placement="corner" labelledBy="panel-title">
+          <button type="button">Minimize</button>
+        </FloatingPanel>
+      </main>,
+    );
+    screen.getByRole("button", { name: "Minimize" }).focus();
+
+    rerender(<main tabIndex={-1} data-testid="main" />);
+
+    expect(document.activeElement).toBe(screen.getByTestId("main"));
+  });
+
   it("calls onEscape when Escape is pressed inside the panel", () => {
     const onEscape = vi.fn();
     render(
