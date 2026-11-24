@@ -14,11 +14,11 @@ export const useFileContent = (file: RegularFileEntry): FileContent => {
   useEffect(() => {
     let isCurrent = true;
     let objectUrl: string | null = null;
-    setState({ status: "loading" });
     if (toPreviewKind(file.mimeType) === null) {
       setState({ status: "unsupported" });
       return undefined;
     }
+    setState({ status: "loading" });
     getFileContent(file.id, { disposition: "inline" })
       .then((blob) => {
         const kind = toPreviewKind(blob.type);
