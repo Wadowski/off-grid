@@ -45,7 +45,7 @@ When(
   /^Anna opens the family drive "([^"]*)" on a desktop screen$/,
   async ({ page, world }, familyName: string) => {
     const session = await ownSessionOf(world);
-    const family = world.families.findLast((listed) => listed.name === familyName);
+    const family = [...world.families].reverse().find((listed) => listed.name === familyName);
     if (family === undefined) {
       throw new Error(`The family ${familyName} has not been created in this scenario.`);
     }
