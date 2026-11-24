@@ -12,6 +12,10 @@ export const sendUploadXhr: UploadTransport = (url, init) =>
       return;
     }
     const request = new XMLHttpRequest();
+    const abortRequest = (): void => request.abort();
+    const settle = (): void => {
+      init.signal?.removeEventListener("abort", abortRequest);
+    };
     request.open(init.method, url);
     request.withCredentials = true;
     for (const [name, value] of Object.entries(init.headers)) {
@@ -20,9 +24,18 @@ export const sendUploadXhr: UploadTransport = (url, init) =>
     request.upload.onprogress = (event) => {
       init.onProgress?.(event.loaded, event.total);
     };
-    request.onload = () => resolve(xhrResponse(request));
-    request.onerror = () => reject(new TypeError("The upload failed because the network failed."));
-    request.onabort = () => reject(createAbortError());
-    init.signal?.addEventListener("abort", () => request.abort(), { once: true });
+    request.onload = () => {
+      settle();
+      resolve(xhrResponse(request));
+    };
+    request.onerror = () => {
+      settle();
+      reject(new TypeError("The upload failed because the network failed."));
+    };
+    request.onabort = () => {
+      settle();
+      reject(createAbortError());
+    };
+    init.signal?.addEventListener("abort", abortRequest, { once: true });
     request.send(init.body);
   });
