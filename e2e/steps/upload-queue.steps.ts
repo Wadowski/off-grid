@@ -184,6 +184,13 @@ Then("the floating upload panel is shown", async ({ page }) => {
   await expect(page.getByTestId("upload-queue-panel")).toBeVisible({ timeout: PANEL_TIMEOUT_MS });
 });
 
+Then("the upload sheet is expanded", async ({ page }) => {
+  await expect(page.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+});
+
 Then("the upload sheet is minimized", async ({ page }) => {
   await expect(page.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
     "aria-expanded",

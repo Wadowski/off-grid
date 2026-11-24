@@ -72,8 +72,18 @@ Feature: Uploading files from the Files page with a visible queue
     And Anna uploads the files "Holiday.txt" with the Upload button
     And Anna opens the Calendar page
     Then the floating upload panel is shown
+    When Anna opens her personal drive in the browser
+    Then the floating upload panel is shown
 
   @screen:files-upload-sheet-mobile
+  Scenario: The phone upload sheet lists the uploads when it is expanded
+    Given I am signed in as "Anna Kowalska", a regular member
+    When Anna opens her personal drive on a phone
+    And Anna uploads the files "Holiday.txt" from the phone top row
+    And Anna expands the upload sheet
+    Then the upload sheet is expanded
+    And the upload queue shows "Holiday.txt" as uploaded
+
   Scenario: On the phone the upload sheet can be minimized with the Escape key
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens her personal drive on a phone
@@ -83,18 +93,23 @@ Feature: Uploading files from the Files page with a visible queue
     Then the upload sheet is minimized
     And focus returns to the upload sheet toggle
 
-  Scenario: Clear finished removes finished uploads and is not offered while an upload runs
+  Scenario: Clear finished is not offered while an upload runs
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens her personal drive in the browser
     And Anna uploads the files "Holiday.txt" with the Upload button while the upload is slow
     Then the clear finished action is not offered
-    When the upload finishes
+
+  Scenario: Clear finished removes finished uploads
+    Given I am signed in as "Anna Kowalska", a regular member
+    When Anna opens her personal drive in the browser
+    And Anna uploads the files "Holiday.txt" with the Upload button while the upload is slow
+    And the upload finishes
     And Anna clears the finished uploads
     Then the upload queue is not shown
     And the floating upload panel is not shown
 
   @a11y
-  Scenario: The Files page with finished and failed uploads has no serious accessibility violations
+  Scenario: The Files page with finished uploads has no serious accessibility violations
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens her personal drive in the browser
     And Anna uploads the files "Holiday.txt" and "Receipt.txt" with the Upload button
