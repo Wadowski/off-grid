@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:files @ui @wip
+@module:files @ui
 Feature: Grid view and sort order of the desktop Files page
 
   On a desktop screen the entries of a drive or folder can be shown as a list
@@ -90,13 +90,13 @@ Feature: Grid view and sort order of the desktop Files page
 
   Scenario: The chosen view and sort are remembered after a reload
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a personal-drive file "Alpha.txt"
-    And Anna has a personal-drive file "Zulu.txt"
+    And Anna has a personal-drive file "Alpha.txt" of 2000 bytes
+    And Anna has a personal-drive file "Zulu.txt" of 100 bytes
     When Anna opens the files page on a desktop screen
     And Anna switches the view to grid
     And Anna sorts the entries by size
-    And Anna reloads the files page
-    Then the grid shows the cards "Alpha.txt" and "Zulu.txt"
+    And Anna reloads the page
+    Then the grid shows the cards "Zulu.txt" and "Alpha.txt"
     And the sort control shows "Size"
 
   Scenario: The page works with the default view when browser storage is blocked
