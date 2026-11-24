@@ -874,6 +874,58 @@
             }
           }
         }
+      },
+      "delete": {
+        "operationId": "emptyDriveTrash",
+        "summary": "Permanently delete everything in the trash of a drive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The trash of the drive is empty."
+          },
+          "400": {
+            "description": "VALIDATION_FAILED: a path parameter, query value or body does not match the request schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the drive, file or version does not exist or the person cannot see it. Hidden items are never reported as forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/files/{id}": {
@@ -1566,7 +1618,7 @@
             }
           },
           "409": {
-            "description": "NOT_TRASHED: the entry is not in the trash. NAME_TAKEN: another live entry in its folder now has this name.",
+            "description": "NOT_TRASHED: the entry is not in the trash. NAME_TAKEN: a live entry in its folder has this name and the restore lost a race for it.",
             "content": {
               "application/json": {
                 "schema": {

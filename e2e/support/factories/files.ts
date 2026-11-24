@@ -285,18 +285,24 @@ export const restoreVersionAs = (
 ): Promise<JsonResponse> =>
   postAs(api, session, `/api/files/${fileId}/versions/${versionId}/restore`, undefined);
 
-export const deleteVersionAs = async (
+export const deleteAs = async (
   api: APIRequestContext,
   session: Session,
-  fileId: string,
-  versionId: string,
+  path: string,
 ): Promise<JsonResponse> => {
-  const response = await api.delete(`/api/files/${fileId}/versions/${versionId}`, {
+  const response = await api.delete(path, {
     headers: bearer(session),
     failOnStatusCode: false,
   });
   return { status: response.status(), body: await response.json().catch(() => null) };
 };
+
+export const deleteVersionAs = (
+  api: APIRequestContext,
+  session: Session,
+  fileId: string,
+  versionId: string,
+): Promise<JsonResponse> => deleteAs(api, session, `/api/files/${fileId}/versions/${versionId}`);
 
 export const downloadAs = async (
   api: APIRequestContext,

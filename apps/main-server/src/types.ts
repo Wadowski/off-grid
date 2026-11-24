@@ -27,7 +27,11 @@ export interface ServerConfig {
   readonly corsOrigins: readonly string[];
   readonly rateLimitPerMinute: number;
   readonly outbox: { readonly retentionDays: number };
-  readonly files: { readonly directory: string; readonly maxUploadBytes: number };
+  readonly files: {
+    readonly directory: string;
+    readonly maxUploadBytes: number;
+    readonly trashRetentionDays: number;
+  };
   readonly version: SystemVersionOptions;
   readonly updater: UpdaterSettings | null;
   readonly logLevel: LogLevel;

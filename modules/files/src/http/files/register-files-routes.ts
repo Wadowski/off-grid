@@ -17,6 +17,7 @@ import { registerDeleteFileVersion } from "./register-delete-file-version.js";
 import { registerListDriveChildren } from "./register-list-drive-children.js";
 import { registerListDrives } from "./register-list-drives.js";
 import { registerListFileChildren } from "./register-list-file-children.js";
+import { registerTrashRoutes } from "../trash/register-trash-routes.js";
 
 export const registerFilesRoutes = (api: FastifyInstance, context: FilesRouteContext): void => {
   registerListDrives(api, context);
@@ -33,4 +34,5 @@ export const registerFilesRoutes = (api: FastifyInstance, context: FilesRouteCon
   registerUploadFileVersion(api, context);
   registerRestoreFileVersion(api, context);
   registerDeleteFileVersion(api, context);
+  registerTrashRoutes(api, context);
 };

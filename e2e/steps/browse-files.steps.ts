@@ -157,10 +157,6 @@ Given(/^Anna has a file "[^"]*" in the folder "[^"]*"$/, () =>
   notImplemented("Anna has a file … in the folder …"),
 );
 
-Given(/^Anna has a file "[^"]*" in the family drive of "[^"]*"$/, () =>
-  notImplemented("Anna has a file … in the family drive of …"),
-);
-
 Given(/^Anna has a trashed folder "[^"]*" in her personal drive$/, () =>
   notImplemented("Anna has a trashed folder … in her personal drive"),
 );

@@ -15,7 +15,11 @@ import type { TestDatabase } from "../../test/types.js";
 import { buildApp } from "../http/build-app.js";
 import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
-import { DEFAULT_FILES_MAX_UPLOAD_BYTES, FAMILY_HEADER } from "../constants.js";
+import {
+  DEFAULT_FILES_MAX_UPLOAD_BYTES,
+  DEFAULT_FILES_TRASH_RETENTION_DAYS,
+  FAMILY_HEADER,
+} from "../constants.js";
 import { modulesFor } from "../module-wiring/modules-for.js";
 import { moduleContextFor } from "../module-wiring/module-context-for.js";
 import type { ModuleDescriptor, ServerConfig, ServerRuntime } from "../types.js";
@@ -55,7 +59,11 @@ describe("request identity on the real stack", { timeout: 120_000 }, () => {
       corsOrigins: [],
       rateLimitPerMinute: 1000,
       outbox: { retentionDays: 7 },
-      files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
+      files: {
+        directory: "/data/files",
+        maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+        trashRetentionDays: DEFAULT_FILES_TRASH_RETENTION_DAYS,
+      },
       logLevel: "error",
     };
   }, 120_000);

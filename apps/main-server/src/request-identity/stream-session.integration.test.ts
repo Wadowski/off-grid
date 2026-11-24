@@ -12,7 +12,10 @@ import { RESET_SQL } from "../../test/constants.js";
 import type { TestDatabase } from "../../test/types.js";
 import { buildApp } from "../http/build-app.js";
 import { createRuntime } from "../lifecycle/create-runtime.js";
-import { DEFAULT_FILES_MAX_UPLOAD_BYTES } from "../constants.js";
+import {
+  DEFAULT_FILES_MAX_UPLOAD_BYTES,
+  DEFAULT_FILES_TRASH_RETENTION_DAYS,
+} from "../constants.js";
 import { modulesFor } from "../module-wiring/modules-for.js";
 import { resolveRequestIdentity } from "./resolve-request-identity.js";
 import type { ServerConfig, ServerRuntime } from "../types.js";
@@ -59,7 +62,11 @@ describe("notification stream on the real stack", { timeout: 120_000 }, () => {
       corsOrigins: [],
       rateLimitPerMinute: 1000,
       outbox: { retentionDays: 7 },
-      files: { directory: "/data/files", maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES },
+      files: {
+        directory: "/data/files",
+        maxUploadBytes: DEFAULT_FILES_MAX_UPLOAD_BYTES,
+        trashRetentionDays: DEFAULT_FILES_TRASH_RETENTION_DAYS,
+      },
       logLevel: "error",
     };
   }, 120_000);

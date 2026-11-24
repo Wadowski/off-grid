@@ -264,6 +264,17 @@ export const filesOpenApiPaths = {
         "404": notFound,
       },
     },
+    delete: {
+      operationId: "emptyDriveTrash",
+      summary: "Permanently delete everything in the trash of a drive",
+      parameters: [driveIdParameter],
+      responses: {
+        "204": { description: "The trash of the drive is empty." },
+        "400": validationFailed,
+        "401": unauthenticated,
+        "404": notFound,
+      },
+    },
   },
   "/files/{id}": {
     get: {
@@ -370,7 +381,7 @@ export const filesOpenApiPaths = {
         "404": notFound,
         "409": {
           description:
-            "NOT_TRASHED: the entry is not in the trash. NAME_TAKEN: another live entry in its folder now has this name.",
+            "NOT_TRASHED: the entry is not in the trash. NAME_TAKEN: a live entry in its folder has this name and the restore lost a race for it.",
           content: jsonContent("ErrorResponse"),
         },
       },

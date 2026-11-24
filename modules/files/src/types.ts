@@ -22,6 +22,7 @@ export interface StorageIntegrityReport {
 export interface FilesModuleOptions {
   readonly directory: string;
   readonly maxUploadBytes: number;
+  readonly trashRetentionDays: number;
 }
 
 export interface FilesSubscriberContext {
@@ -153,6 +154,7 @@ export interface NewFolderInput {
 export interface FileUpdateInput {
   readonly name?: string;
   readonly parentId?: string | null;
+  readonly deletedAt?: Date | null;
   readonly sizeBytes?: bigint;
   readonly mimeType?: string;
   readonly currentVersionId?: string;
@@ -363,4 +365,57 @@ export interface AppendFileVersionInput {
   readonly target: RegularFileTarget;
   readonly createdByUserId: string;
   readonly content: NewVersionContent;
+}
+
+export interface ExpiredRoot extends Omit<FileRecord, "deletedAt"> {
+  readonly deletedAt: Date;
+  readonly ownerUserId: string | null;
+  readonly ownerFamilyId: string | null;
+}
+
+export interface ExpiredRootCursor {
+  readonly deletedAt: Date;
+  readonly fileId: string;
+}
+
+export interface TrashPurgeCounts {
+  readonly purgedRootCount: number;
+  readonly failedRootCount: number;
+  readonly skippedRootCount: number;
+}
+
+export type TrashedRootPurgeOutcome =
+  | { readonly outcome: "found"; readonly value: null }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "restored" };
+
+export interface TrashChainLink {
+  readonly parentId: string | null;
+  readonly deletedAt: Date | null;
+}
+
+export type TrashedRootPurgeWrite =
+  | { readonly outcome: "purged"; readonly storageKeys: readonly string[] }
+  | { readonly outcome: "not-found" }
+  | { readonly outcome: "restored" };
+
+export interface TrashPurgeWorkerOptions {
+  readonly db: ModuleDatabase;
+  readonly storage: FileStorage;
+  readonly logger: Logger;
+  readonly now: () => Date;
+  readonly retentionDays: number;
+  readonly intervalMs: number;
+  readonly firstRunDelayMs: number;
+}
+
+export interface FileNameParts {
+  readonly stem: string;
+  readonly extension: string;
+}
+
+export interface RestoreTrashedFileInput {
+  readonly name: string;
+  readonly parentId: string | null;
+  readonly updatedAt: Date;
 }

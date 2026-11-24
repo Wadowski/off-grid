@@ -13,6 +13,11 @@ import { deleteFileVersion } from "../src/application/files/delete-file-version.
 import { listFileVersions } from "../src/application/files/list-file-versions.js";
 import { restoreFileVersion } from "../src/application/files/restore-file-version.js";
 import { uploadFileVersion } from "../src/application/files/upload-file-version.js";
+import { emptyDriveTrash } from "../src/application/trash/empty-drive-trash.js";
+import { listDriveTrash } from "../src/application/trash/list-drive-trash.js";
+import { purgeFile } from "../src/application/trash/purge-file.js";
+import { restoreFile } from "../src/application/trash/restore-file.js";
+import { trashFile } from "../src/application/trash/trash-file.js";
 
 describe("files family isolation", { timeout: 60_000 }, () => {
   let db: FilesTestDatabase;
@@ -112,6 +117,41 @@ describe("files family isolation", { timeout: 60_000 }, () => {
       [familyA, anna],
     );
     await checkNotVisible(anna);
+    expect(await storedKeys(storage)).toEqual([]);
+  });
+
+  it("lets a current member trash and restore a family file", async () => {
+    const family = await seedFamilyDrive(db.admin, familyA, "Alpha");
+
+    expect((await trashFile(db.db, anna, family.fileId)).outcome).toBe("found");
+    expect((await restoreFile(db.db, anna, family.fileId)).outcome).toBe("found");
+  });
+
+  it("answers not-found for a family trash, restore and purge to an outsider and to an ex-member", async () => {
+    const family = await seedFamilyDrive(db.admin, familyA, "Alpha");
+    const storage = createInMemoryFileStorage();
+    const notFound = { outcome: "not-found" };
+    await trashFile(db.db, anna, family.fileId);
+    const checkNotVisible = async (userId: string) => {
+      expect(
+        await listDriveTrash(db.db, userId, family.driveId, { cursor: null, limit: 50 }),
+      ).toEqual(notFound);
+      expect(await restoreFile(db.db, userId, family.fileId)).toEqual(notFound);
+      expect(await purgeFile(db.db, storage, userId, family.fileId)).toEqual(notFound);
+      expect(await emptyDriveTrash(db.db, storage, userId, family.driveId)).toEqual(notFound);
+    };
+
+    await checkNotVisible(ben);
+    await db.admin.query(
+      "UPDATE files.family_membership SET source_version = 2, is_member = false WHERE family_id = $1 AND user_id = $2",
+      [familyA, anna],
+    );
+    await checkNotVisible(anna);
+    const row = await db.admin.query<{ deleted_at: Date | null }>(
+      "SELECT deleted_at FROM files.file WHERE file_id = $1",
+      [family.fileId],
+    );
+    expect(row.rows[0]?.deleted_at).toBeInstanceOf(Date);
     expect(await storedKeys(storage)).toEqual([]);
   });
 });
