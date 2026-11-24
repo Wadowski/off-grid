@@ -20,7 +20,13 @@ import {
 import { fillRoute } from "./fill-route.js";
 import { uploadFileRequest } from "./upload-file-request.js";
 import { withListQuery } from "./with-list-query.js";
-import type { ApiClient, ByteBody, FileListOptions, UploadFileInput } from "./types.js";
+import type {
+  ApiClient,
+  ByteBody,
+  FileListOptions,
+  UploadFileInput,
+  UploadFileVersionInput,
+} from "./types.js";
 
 export const createFilesClient = (client: ApiClient) => ({
   uploadFile: (driveId: string, input: UploadFileInput) =>
@@ -96,16 +102,18 @@ export const createFilesClient = (client: ApiClient) => ({
       await client.request("GET", fillRoute(filesRoutes.fileVersions, { id: fileId })),
     ).versions,
 
-  uploadFileVersion: async (fileId: string, bytes: ByteBody, mimeType?: string) =>
+  uploadFileVersion: async (fileId: string, input: UploadFileVersionInput) =>
     fileSchema.parse(
-      await client.requestBytes(
-        "POST",
+      await client.uploadBytes(
         fillRoute(filesRoutes.fileVersions, { id: fileId }),
-        bytes,
-        undefined,
-        mimeType ?? null,
+        input.file,
+        input.file.type === "" ? {} : { "content-type": input.file.type },
+        { onProgress: input.onProgress, signal: input.signal },
       ),
     ),
+
+  downloadFileVersion: (fileId: string, versionId: string): Promise<Blob> =>
+    client.requestBlob(fillRoute(filesRoutes.fileVersionContent, { id: fileId, versionId })),
 
   deleteFileVersion: async (fileId: string, versionId: string): Promise<void> => {
     await client.request("DELETE", fillRoute(filesRoutes.fileVersion, { id: fileId, versionId }));

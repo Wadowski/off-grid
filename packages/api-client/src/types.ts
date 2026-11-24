@@ -67,7 +67,12 @@ export type ApiClientOptions = {
   sendUpload?: UploadTransport;
 };
 
+export type UploadFileVersionInput = UploadOptions & {
+  readonly file: File;
+};
+
 export type ApiClient = {
+  readonly requestBlob: (path: string) => Promise<Blob>;
   readonly request: (
     method: HttpMethod,
     path: string,
