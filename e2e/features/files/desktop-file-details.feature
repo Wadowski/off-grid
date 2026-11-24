@@ -6,8 +6,10 @@ Feature: File details panel on the desktop Files page
 
   On a desktop screen selecting a file row opens a details panel beside the
   table. The panel shows the name, type, size, modified and created dates and
-  the location of the file. Selecting another file replaces the details, and
-  closing the panel clears the selection.
+  the location of the file. While the panel is open it takes the place of the
+  drive switcher on the right, and the table keeps all its columns. Selecting
+  another file replaces the details, and closing the panel clears the selection
+  and brings the drive switcher back.
 
   @screen:files-desktop-file-details
   Scenario: Selecting a file shows its details
@@ -19,6 +21,9 @@ Feature: File details panel on the desktop Files page
     And the file details panel shows the type "Document"
     And the file details panel shows a size, a modified date and a created date
     And the file details panel shows the location "Personal"
+    And the file details panel is on the right of the table
+    And the file details panel replaces the drive switcher
+    And the table fits its width without a horizontal scroll
 
   Scenario: Selecting another file replaces the details
     Given I am signed in as "Anna Kowalska", a regular member
@@ -55,6 +60,7 @@ Feature: File details panel on the desktop Files page
     Then the file details panel is not shown
     And the table row "Insurance policy.txt" is not selected
     And the table takes the full width
+    And the drive switcher is shown again
 
   Scenario: Opening a folder closes the panel
     Given I am signed in as "Anna Kowalska", a regular member

@@ -2,16 +2,11 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { fileListItemSchema } from "@offgrid/contracts";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFile } from "../../../../files/files-api.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Drive, FileListItem, FolderContentsState } from "../../../../files/types.js";
 import { FolderContents } from "./folder-contents.js";
-
-vi.mock("../../../../files/files-api.js", () => ({
-  getFile: vi.fn(),
-}));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
 
@@ -43,11 +38,6 @@ const FILE_ENTRY: FileListItem = fileListItemSchema.parse({
   currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
 });
 
-const FILE_DETAILS = {
-  file: { ...FILE_ENTRY },
-  breadcrumbs: [{ kind: "drive", id: DRIVE_ID, name: "Personal" }],
-};
-
 const contentsWith = (
   overrides: Partial<FolderContentsState> = {},
   items: readonly FileListItem[] = [ENTRY, FILE_ENTRY],
@@ -62,10 +52,21 @@ const contentsWith = (
   ...overrides,
 });
 
-const renderContents = (phone: boolean, contents: FolderContentsState) =>
+const renderContents = (
+  phone: boolean,
+  contents: FolderContentsState,
+  selectedId: FileListItem["id"] | null = null,
+  onSelect = vi.fn(),
+) =>
   render(
     <MemoryRouter>
-      <FolderContents driveId={DRIVE_ID} contents={contents} phone={phone} />
+      <FolderContents
+        driveId={DRIVE_ID}
+        contents={contents}
+        phone={phone}
+        selectedId={selectedId}
+        onSelect={onSelect}
+      />
     </MemoryRouter>,
   );
 
@@ -76,10 +77,6 @@ const activatorOf = (name: string) =>
     ?.querySelector<HTMLElement>('[data-testid="file-table-activate"]');
 
 describe("FolderContents", () => {
-  beforeEach(() => {
-    vi.mocked(getFile).mockResolvedValue(FILE_DETAILS as never);
-  });
-
   afterEach(() => {
     cleanup();
   });
@@ -105,56 +102,30 @@ describe("FolderContents", () => {
     expect(screen.queryByTestId("files-table")).not.toBeInTheDocument();
   });
 
-  it("opens the details panel beside the table when a file row is selected on a desktop", async () => {
-    renderContents(false, contentsWith());
+  it("reports the file whose row is activated on a desktop", () => {
+    const onSelect = vi.fn();
+    renderContents(false, contentsWith(), null, onSelect);
 
     fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
 
-    expect(await screen.findByTestId("file-details-panel")).toBeInTheDocument();
-    expect(getFile).toHaveBeenCalledWith(FILE_ENTRY.id);
+    expect(onSelect).toHaveBeenCalledWith(FILE_ENTRY.id);
   });
 
-  it("does not open the details panel when a folder row is opened", () => {
-    renderContents(false, contentsWith());
+  it("does not report a selection when a folder row is opened", () => {
+    const onSelect = vi.fn();
+    renderContents(false, contentsWith(), null, onSelect);
 
     fireEvent.click(activatorOf("Photos") as HTMLElement);
 
-    expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it("closes the panel and clears the selection when the close button is pressed", async () => {
-    renderContents(false, contentsWith());
-    fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
-    await screen.findByTestId("file-details-panel-name");
+  it("marks the row of the selected file", () => {
+    renderContents(false, contentsWith(), FILE_ENTRY.id);
 
-    fireEvent.click(screen.getByTestId("file-details-panel-close"));
-
-    expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
-    expect(activatorOf("Trip.pdf")?.getAttribute("aria-current")).toBeNull();
-  });
-
-  it("closes the panel on Escape and returns focus to the selected row", async () => {
-    renderContents(false, contentsWith());
-    fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
-    await screen.findByTestId("file-details-panel-name");
-
-    fireEvent.keyDown(screen.getByTestId("file-details-panel"), { key: "Escape" });
-
-    expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
-    await waitFor(() => expect(activatorOf("Trip.pdf")).toHaveFocus());
-  });
-
-  it("hides the panel when the layout switches to a phone", async () => {
-    const view = renderContents(false, contentsWith());
-    fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
-    await screen.findByTestId("file-details-panel");
-
-    view.rerender(
-      <MemoryRouter>
-        <FolderContents driveId={DRIVE_ID} contents={contentsWith()} phone />
-      </MemoryRouter>,
-    );
-
-    expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
+    const row = screen
+      .getAllByTestId("file-table-row")
+      .find((candidate) => candidate.textContent?.includes("Trip.pdf"));
+    expect(row).toHaveAttribute("data-selected", "true");
   });
 });

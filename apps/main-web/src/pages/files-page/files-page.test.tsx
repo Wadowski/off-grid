@@ -3,11 +3,11 @@
 
 import { ApiError } from "@offgrid/api-client";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFile, listDriveChildren, listDrives, listFileChildren } from "../../files/files-api.js";
 import type { Drive } from "../../files/types.js";
-import type { DriveSwitcherProps } from "../../layouts/files-layout/components/drive-switcher/types.js";
+import { FilesLayout } from "../../layouts/files-layout/files-layout.js";
 import { FilesPage } from "./files-page.js";
 
 vi.mock("../../files/files-api.js", () => ({
@@ -69,21 +69,13 @@ const withPhoneWidth = (isPhone: boolean) => {
   };
 };
 
-const SWITCHER: DriveSwitcherProps = {
-  drives: [DRIVE],
-  status: "ready",
-  errorTextId: null,
-  activeDriveId: DRIVE.id,
-  onRetry: () => undefined,
-};
-
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route element={<Outlet context={SWITCHER} />}>
-          <Route path="/files" element={<FilesPage />} />
-          <Route path="/files/:driveId/folder/:folderId?" element={<FilesPage />} />
+        <Route path="/files" element={<FilesLayout />}>
+          <Route index element={<FilesPage />} />
+          <Route path=":driveId/folder/:folderId?" element={<FilesPage />} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -110,7 +102,8 @@ describe("FilesPage", () => {
 
     expect(screen.getByTestId("files-page")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Files" })).toBeInTheDocument();
-    expect(listDrives).not.toHaveBeenCalled();
+    expect(listDriveChildren).not.toHaveBeenCalled();
+    expect(listFileChildren).not.toHaveBeenCalled();
   });
 
   it("shows the drive name as the heading on a wide screen once the folder is loaded", async () => {
@@ -190,7 +183,7 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByTestId("files-breadcrumb-current")).toHaveTextContent("Photos"),
     );
-    expect(screen.getByRole("link", { name: "Personal" })).toBeInTheDocument();
+    expect(screen.getByTestId("files-breadcrumbs")).toHaveTextContent("Personal");
     expect(await screen.findByRole("table", { name: "Folder contents" })).toHaveTextContent(
       "Summer",
     );

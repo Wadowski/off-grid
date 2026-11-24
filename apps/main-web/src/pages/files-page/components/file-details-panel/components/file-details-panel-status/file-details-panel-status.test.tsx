@@ -13,7 +13,7 @@ describe("FileDetailsPanelStatus", () => {
   it("shows the loading text while loading", () => {
     render(<FileDetailsPanelStatus kind="loading" />);
 
-    expect(screen.getByTestId("file-details-panel-loading")).toHaveTextContent("Loading details");
+    expect(screen.getByTestId("file-details-panel-loading")).toHaveTextContent("Loading...");
   });
 
   it("shows the mapped error and calls onRetry when the retry button is pressed", () => {

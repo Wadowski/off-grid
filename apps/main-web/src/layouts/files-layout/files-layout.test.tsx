@@ -2,15 +2,18 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { driveSchema } from "@offgrid/contracts";
-import { cleanup, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useOutletContext } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NARROW_MEDIA_QUERY } from "../../constants.js";
-import { listDrives } from "../../files/files-api.js";
+import { getFile, listDrives } from "../../files/files-api.js";
+import type { FileListItem } from "../../files/types.js";
 import { FilesLayout } from "./files-layout.js";
+import type { FilesOutletContext } from "./types.js";
 
 vi.mock("../../files/files-api.js", () => ({
   listDrives: vi.fn(),
+  getFile: vi.fn(),
 }));
 
 const PERSONAL = driveSchema.parse({
@@ -49,9 +52,55 @@ const renderAt = (path: string) =>
     </MemoryRouter>,
   );
 
+const FOLDER_PATH = `/files/${PERSONAL.id}/folder/9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b`;
+const FILE_ID = "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b" as FileListItem["id"];
+const FILE = {
+  id: FILE_ID,
+  driveId: PERSONAL.id,
+  parentId: null,
+  name: "Trip.pdf",
+  version: 1,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  deletedAt: null,
+  isFolder: false,
+  mimeType: "application/pdf",
+  size: 2048,
+  currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
+};
+
+const SelectionRow = () => {
+  const { selectedFileId, onSelectFile } = useOutletContext<FilesOutletContext>();
+  return (
+    <button
+      type="button"
+      data-testid="selection-row"
+      aria-current={selectedFileId === FILE_ID ? "true" : undefined}
+      onClick={() => onSelectFile(FILE_ID)}
+    >
+      Trip.pdf
+    </button>
+  );
+};
+
+const renderSelectable = () =>
+  render(
+    <MemoryRouter initialEntries={[FOLDER_PATH]}>
+      <Routes>
+        <Route path="files" element={<FilesLayout />}>
+          <Route path=":driveId/folder/:folderId" element={<SelectionRow />} />
+        </Route>
+      </Routes>
+    </MemoryRouter>,
+  );
+
 describe("FilesLayout", () => {
   beforeEach(() => {
     vi.mocked(listDrives).mockResolvedValue([PERSONAL, FAMILY]);
+    vi.mocked(getFile).mockResolvedValue({
+      file: FILE,
+      breadcrumbs: [{ kind: "drive", id: PERSONAL.id, name: "Personal" }],
+    } as never);
   });
 
   afterEach(() => {
@@ -115,5 +164,40 @@ describe("FilesLayout", () => {
     } finally {
       restore();
     }
+  });
+
+  it("puts the details panel in the aside in place of the drive switcher while a file is selected", async () => {
+    renderSelectable();
+
+    fireEvent.click(screen.getByTestId("selection-row"));
+
+    expect(await screen.findByTestId("file-details-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("files-layout")).toContainElement(
+      screen.getByTestId("file-details-panel"),
+    );
+    expect(screen.queryByTestId("drive-switcher")).not.toBeInTheDocument();
+  });
+
+  it("gives the drive switcher back when the details panel is closed", async () => {
+    renderSelectable();
+    fireEvent.click(screen.getByTestId("selection-row"));
+    await screen.findByTestId("file-details-panel");
+
+    fireEvent.click(screen.getByTestId("file-details-panel-close"));
+
+    expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
+    expect(await screen.findByTestId("drive-switcher")).toBeInTheDocument();
+    expect(screen.getByTestId("selection-row")).not.toHaveAttribute("aria-current");
+  });
+
+  it("closes the panel on Escape and returns focus to the selected row", async () => {
+    renderSelectable();
+    fireEvent.click(screen.getByTestId("selection-row"));
+    await screen.findByTestId("file-details-panel-name");
+
+    fireEvent.keyDown(screen.getByTestId("file-details-panel"), { key: "Escape" });
+
+    expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId("selection-row")).toHaveFocus());
   });
 });

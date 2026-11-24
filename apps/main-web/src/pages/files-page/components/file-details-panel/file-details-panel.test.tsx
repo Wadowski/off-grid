@@ -67,7 +67,7 @@ describe("FileDetailsPanel", () => {
 
     renderPanel();
 
-    expect(screen.getByTestId("file-details-panel-loading")).toHaveTextContent("Loading details");
+    expect(screen.getByTestId("file-details-panel-loading")).toHaveTextContent("Loading...");
     expect(screen.queryByTestId("file-details-panel-name")).not.toBeInTheDocument();
   });
 

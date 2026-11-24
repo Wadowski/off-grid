@@ -9,7 +9,7 @@ export const FileDetailsPanelStatus = (props: FileDetailsPanelStatusProps) => {
   if (props.kind === "loading") {
     return (
       <div style={fileDetailsPanelStatusStyle} data-testid="file-details-panel-loading">
-        <Text variant="body" textId="files.details.loading" />
+        <Text variant="body" textId="files.folder.loading" />
       </div>
     );
   }
@@ -27,7 +27,7 @@ export const FileDetailsPanelStatus = (props: FileDetailsPanelStatusProps) => {
         onClick={() => void props.onRetry()}
         data-testid="file-details-panel-retry"
       >
-        <Text variant="action" textId="files.details.retry" />
+        <Text variant="action" textId="files.folder.retry" />
       </Button>
     </div>
   );

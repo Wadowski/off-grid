@@ -110,6 +110,27 @@ Then("the table takes the full width", async ({ page }) => {
   expect(tableBox?.width ?? 0).toBeGreaterThanOrEqual((containerBox?.width ?? 0) - 1);
 });
 
+Then("the file details panel is on the right of the table", async ({ page }) => {
+  const list = await page.getByTestId("files-file-list").boundingBox();
+  const panel = await page.getByTestId(DETAILS_TESTID).boundingBox();
+  expect(panel?.x ?? 0).toBeGreaterThanOrEqual((list?.x ?? 0) + (list?.width ?? 0) - 1);
+});
+
+Then("the file details panel replaces the drive switcher", async ({ page }) => {
+  await expect(page.getByTestId(DETAILS_TESTID)).toBeVisible();
+  await expect(page.getByTestId("drive-switcher")).toHaveCount(0);
+});
+
+Then("the drive switcher is shown again", async ({ page }) => {
+  await expect(page.getByTestId("drive-switcher")).toBeVisible();
+});
+
+Then("the table fits its width without a horizontal scroll", async ({ page }) => {
+  const list = await page.getByTestId("files-file-list").boundingBox();
+  const table = await page.getByRole("table", { name: "Folder contents" }).boundingBox();
+  expect(table?.width ?? 0).toBeLessThanOrEqual((list?.width ?? 0) + 1);
+});
+
 Then("the file details panel shows no version, download or link sections", async ({ page }) => {
   const panel = page.getByTestId(DETAILS_TESTID);
   await expect(panel.getByRole("button", { name: /download|preview/i })).toHaveCount(0);
