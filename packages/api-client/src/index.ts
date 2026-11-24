@@ -18,6 +18,7 @@ export type {
   NotificationListOptions,
   SignInInput,
   SubscribeNotificationsOptions,
+  UploadFileInput,
   UploadProgressHandler,
   UploadTransport,
 } from "./types.js";
