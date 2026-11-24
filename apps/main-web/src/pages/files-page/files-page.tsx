@@ -6,6 +6,7 @@ import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { FolderNotFound } from "../../errors/folder-not-found/folder-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
+import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
@@ -20,10 +21,12 @@ export const FilesPage = () => {
   const folder = useCurrentFolder();
   const phone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);
   const switcher = useOutletContext<DriveSwitcherProps>();
+  const { preference } = useFilesViewPreference();
   const contents = useFolderContents(
     folder.driveId,
     folder.folderId,
     folder.status === "ready" && folder.driveId !== null,
+    { sort: preference.sort, direction: preference.direction },
   );
 
   if (folder.status === "not-found") {

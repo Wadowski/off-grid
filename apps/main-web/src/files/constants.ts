@@ -1,7 +1,22 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FilesErrorCode, FilesErrorTextId, FolderContentsSnapshot } from "./types.js";
+import type {
+  FilesErrorCode,
+  FilesErrorTextId,
+  FilesSortOrder,
+  FilesViewPreference,
+  FolderContentsSnapshot,
+} from "./types.js";
+
+export const FILES_VIEW_PREFERENCE_KEY = "offgrid.files.viewPreference";
+
+export const DEFAULT_FILES_SORT_ORDER: FilesSortOrder = { sort: "name", direction: "asc" };
+
+export const DEFAULT_FILES_VIEW_PREFERENCE: FilesViewPreference = {
+  view: "list",
+  ...DEFAULT_FILES_SORT_ORDER,
+};
 
 export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   NOT_FOUND: "files.errors.notFound",

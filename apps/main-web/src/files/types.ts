@@ -7,6 +7,8 @@ import type {
   fileDetailsSchema,
   fileListItemSchema,
   fileListSchema,
+  fileListDirectionSchema,
+  fileListSortSchema,
   fileSchema,
   filesErrorCodeSchema,
 } from "@offgrid/contracts";
@@ -88,7 +90,21 @@ export type CurrentFolderState = {
   readonly errorTextId: FilesErrorTextId | null;
 };
 
-export type FileListOptions = {
+export type FilesSortField = (typeof fileListSortSchema.options)[number];
+export type FilesSortDirection = (typeof fileListDirectionSchema.options)[number];
+
+export type FilesSortOrder = {
+  readonly sort: FilesSortField;
+  readonly direction: FilesSortDirection;
+};
+
+export type FilesView = "list" | "grid";
+
+export type FilesViewPreference = FilesSortOrder & {
+  readonly view: FilesView;
+};
+
+export type FileListOptions = Partial<FilesSortOrder> & {
   readonly cursor?: string;
   readonly limit?: number;
 };

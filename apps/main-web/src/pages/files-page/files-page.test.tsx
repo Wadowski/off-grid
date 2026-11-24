@@ -194,7 +194,7 @@ describe("FilesPage", () => {
     expect(await screen.findByRole("table", { name: "Folder contents" })).toHaveTextContent(
       "Summer",
     );
-    expect(listFileChildren).toHaveBeenCalledWith(FOLDER_ID, {});
+    expect(listFileChildren).toHaveBeenCalledWith(FOLDER_ID, { sort: "name", direction: "asc" });
   });
 
   it("shows the empty text when the folder has no entries", async () => {

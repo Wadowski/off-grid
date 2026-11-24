@@ -1,18 +1,27 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EMPTY_FOLDER_CONTENTS } from "./constants.js";
 import { fetchFolderPage } from "./fetch-folder-page.js";
 import { toFilesErrorTextId } from "./to-files-error-text-id.js";
-import type { Drive, FileEntry, FolderContentsSnapshot, FolderContentsState } from "./types.js";
+import type {
+  Drive,
+  FileEntry,
+  FolderContentsSnapshot,
+  FolderContentsState,
+  FilesSortOrder,
+} from "./types.js";
 
 export const useFolderContents = (
   driveId: Drive["id"] | null,
   folderId: FileEntry["id"] | null,
   enabled: boolean,
+  order: FilesSortOrder,
 ): FolderContentsState => {
-  const targetKey = `${driveId ?? ""}:${folderId ?? ""}`;
+  const { sort, direction } = order;
+  const sortOrder = useMemo(() => ({ sort, direction }), [sort, direction]);
+  const targetKey = `${driveId ?? ""}:${folderId ?? ""}:${sort}:${direction}`;
   const [snapshot, setSnapshot] = useState<FolderContentsSnapshot>(EMPTY_FOLDER_CONTENTS);
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const latestRequest = useRef(0);
@@ -26,7 +35,7 @@ export const useFolderContents = (
     setLoadedFor(targetKey);
     setSnapshot(EMPTY_FOLDER_CONTENTS);
     try {
-      const page = await fetchFolderPage(driveId, folderId, null);
+      const page = await fetchFolderPage(driveId, folderId, null, sortOrder);
       if (request === latestRequest.current) {
         setSnapshot({
           items: page.items,
@@ -45,7 +54,7 @@ export const useFolderContents = (
         });
       }
     }
-  }, [driveId, folderId, targetKey]);
+  }, [driveId, folderId, sortOrder, targetKey]);
 
   const loadMore = useCallback(async () => {
     if (driveId === null || nextCursor === null) {
@@ -54,7 +63,7 @@ export const useFolderContents = (
     const request = ++latestRequest.current;
     setSnapshot((current) => ({ ...current, isLoadingMore: true }));
     try {
-      const page = await fetchFolderPage(driveId, folderId, nextCursor);
+      const page = await fetchFolderPage(driveId, folderId, nextCursor, sortOrder);
       if (request === latestRequest.current) {
         setSnapshot((current) => ({
           ...current,
@@ -73,7 +82,7 @@ export const useFolderContents = (
         }));
       }
     }
-  }, [driveId, folderId, nextCursor]);
+  }, [driveId, folderId, nextCursor, sortOrder]);
 
   useEffect(() => {
     if (enabled) {
