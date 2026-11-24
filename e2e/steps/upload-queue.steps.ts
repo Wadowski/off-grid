@@ -4,40 +4,20 @@
 import { expect, type FileChooser, type Locator, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
-import {
-  createFolderAs,
-  E2E_UPLOAD_LIMIT_BYTES,
-  findFolderFrom,
-  personalDriveIdAs,
-  uploadFileAs,
-} from "../support/factories/files.js";
-import { signInWith, type Session } from "../support/factories/instance-admin.js";
-import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { E2E_UPLOAD_LIMIT_BYTES } from "../support/factories/files.js";
+import { test } from "../support/fixtures.js";
 
-const { Given, When, Then } = createBdd(test);
+const { When, Then } = createBdd(test);
 
-const PHONE_WIDTH = 390;
-const PHONE_HEIGHT = 844;
 const UPLOAD_TIMEOUT_MS = 15_000;
 const PANEL_TIMEOUT_MS = 10_000;
 const UPLOAD_ROUTE = /\/api\/drives\/[^/]+\/files$/;
 
-type HeldUploads = { readonly promise: Promise<void>; readonly release: () => void };
-
-const heldUploads = new WeakMap<Page, HeldUploads>();
+const heldUploads = new WeakMap<
+  Page,
+  { readonly promise: Promise<void>; readonly release: () => void }
+>();
 const fileChoosers = new WeakMap<Page, Promise<FileChooser>>();
-
-const ownSessionOf = async (world: ScenarioWorld): Promise<Session> => {
-  if (world.ownAccount === undefined) {
-    throw new Error("No web account has been signed in for this scenario.");
-  }
-  const account = world.ownAccount;
-  const signedIn = await signInWith(world.api, account.email, account.password);
-  if (signedIn.session === undefined) {
-    throw new Error(`${account.displayName} cannot sign in through the API.`);
-  }
-  return signedIn.session;
-};
 
 const textFile = (name: string, body: string) => ({
   name,
