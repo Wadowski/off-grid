@@ -19,7 +19,7 @@ Feature: Grid view and sort order of the desktop Files page
     And Anna has a personal-drive file "Notes.txt"
     When Anna opens the files page on a desktop screen
     And Anna switches the view to grid
-    Then the grid shows the folder cards "Photos" and "Archive" above the file cards "Insurance policy.txt" and "Notes.txt"
+    Then the grid shows the folder cards "Archive" and "Photos" above the file cards "Insurance policy.txt" and "Notes.txt"
 
   Scenario: The grid keeps a clear gap between the folders and the files
     Given I am signed in as "Anna Kowalska", a regular member
