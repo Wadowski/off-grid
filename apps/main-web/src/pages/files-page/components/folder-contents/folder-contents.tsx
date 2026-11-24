@@ -12,7 +12,7 @@ import type { FolderContentsProps } from "./types.js";
 export const FolderContents = ({ driveId, contents, phone, view }: FolderContentsProps) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   if (contents.status === "loading") {
-    return <Text variant="body" textId="files.folder.loading" />;
+    return <Text variant="body" textId="files.folder.loading" data-testid="files-folder-loading" />;
   }
   const listProps = {
     driveId,

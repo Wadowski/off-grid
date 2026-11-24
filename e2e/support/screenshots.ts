@@ -3,7 +3,7 @@
 
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 const DEFAULT_DIR = fileURLToPath(new URL("../artifacts/screens", import.meta.url));
 
@@ -79,6 +79,19 @@ const captureMobile = async (
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);
   }
+};
+
+// Waits until the folder list has loaded, so a capture never shows "Loading...". A viewport change
+// can refetch the folder (the phone layout sorts by name), and that fetch starts a frame or two
+// after the change. Two frames let React commit and start the fetch before the wait begins.
+export const settleFolderContents = async (page: Page): Promise<void> => {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(page.getByTestId("files-folder-loading")).toHaveCount(0, { timeout: 15_000 });
 };
 
 export async function captureScreen(
