@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { ParseKeys } from "i18next";
+import type { RefObject } from "react";
 
 export type MenuTone = "default" | "danger";
 
@@ -19,6 +20,7 @@ export type MenuProps = {
   readonly items: readonly MenuItem[];
   readonly triggerTestId: string;
   readonly menuTestId: string;
+  readonly triggerRef?: RefObject<HTMLButtonElement | null>;
 };
 
 export type MenuPosition = {

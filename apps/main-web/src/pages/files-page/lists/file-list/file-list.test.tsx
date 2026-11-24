@@ -71,6 +71,7 @@ const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => 
               selectedId={null}
               onSelect={onSelect}
               onLoadMore={onLoadMore}
+              onTrashed={vi.fn()}
               {...overrides}
             />
           }
@@ -108,7 +109,7 @@ describe("FileList", () => {
   it("opens a folder when its row is activated", () => {
     renderList();
 
-    fireEvent.click(within(rowNamed("Photos") as HTMLElement).getByRole("button"));
+    fireEvent.click(within(rowNamed("Photos") as HTMLElement).getByTestId("file-table-activate"));
 
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/folder/${PHOTOS_ID}`);
   });
@@ -116,7 +117,7 @@ describe("FileList", () => {
   it("reports the selected file to the parent without leaving the list", () => {
     const { onSelect } = renderList();
 
-    fireEvent.click(within(rowNamed("Trip.pdf") as HTMLElement).getByRole("button"));
+    fireEvent.click(within(rowNamed("Trip.pdf") as HTMLElement).getByTestId("file-table-activate"));
 
     expect(onSelect).toHaveBeenCalledWith(TRIP_ID);
     expect(screen.queryByTestId("probe")).not.toBeInTheDocument();

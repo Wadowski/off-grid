@@ -10,4 +10,5 @@ export type FileGridGroupProps = {
   readonly items: readonly FileListItem[];
   readonly selectedId: string | null;
   readonly onActivate: (item: FileListItem) => void;
+  readonly onTrashed: (entry: FileListItem) => void;
 };

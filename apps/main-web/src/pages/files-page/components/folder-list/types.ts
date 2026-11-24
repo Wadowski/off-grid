@@ -9,4 +9,5 @@ export type FolderListProps = {
   readonly hasMore: boolean;
   readonly isLoadingMore: boolean;
   readonly onLoadMore: () => Promise<void>;
+  readonly onTrashed: (entry: FileListItem) => void;
 };

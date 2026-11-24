@@ -108,6 +108,11 @@ export const FilesPage = () => {
           view={phone ? "list" : preference.view}
           selectedId={switcher.selectedFileId}
           onSelect={switcher.onSelectFile}
+          onEntryTrashed={(fileId) => {
+            if (fileId === switcher.selectedFileId) {
+              switcher.onClearSelection();
+            }
+          }}
         />
       ) : null}
     </div>

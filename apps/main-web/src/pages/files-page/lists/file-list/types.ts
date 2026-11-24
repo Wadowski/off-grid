@@ -11,4 +11,5 @@ export type FileListProps = {
   readonly selectedId: FileListItem["id"] | null;
   readonly onSelect: (id: FileListItem["id"]) => void;
   readonly onLoadMore: () => Promise<void>;
+  readonly onTrashed: (entry: FileListItem) => void;
 };

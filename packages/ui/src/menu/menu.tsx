@@ -11,8 +11,15 @@ import { toMenuKeyDown } from "./to-menu-key-down.js";
 import { toMenuPanelPosition } from "./to-menu-panel-position.js";
 import type { MenuProps } from "./types.js";
 
-export const Menu = ({ label, items, triggerTestId, menuTestId }: MenuProps) => {
-  const triggerRef = useRef<HTMLButtonElement>(null);
+export const Menu = ({
+  label,
+  items,
+  triggerTestId,
+  menuTestId,
+  triggerRef: externalTriggerRef,
+}: MenuProps) => {
+  const internalTriggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = externalTriggerRef ?? internalTriggerRef;
   const panelRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 

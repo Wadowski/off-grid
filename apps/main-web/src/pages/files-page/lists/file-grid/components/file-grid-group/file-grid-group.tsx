@@ -4,6 +4,7 @@
 import { FileCard } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { toFileRowValues } from "../../../../../../files/to-file-row-values.js";
+import { FileActionsMenu } from "../../../../components/file-actions-menu/file-actions-menu.js";
 import { fileGridGroupItemStyle, fileGridGroupStyle } from "./styles.js";
 import type { FileGridGroupProps } from "./types.js";
 
@@ -13,6 +14,7 @@ export const FileGridGroup = ({
   items,
   selectedId,
   onActivate,
+  onTrashed,
 }: FileGridGroupProps) => {
   const { t } = useTranslation();
 
@@ -24,6 +26,9 @@ export const FileGridGroup = ({
             {...toFileRowValues(item)}
             selected={item.id === selectedId}
             onActivate={() => onActivate(item)}
+            trailing={
+              <FileActionsMenu entry={item} onOpen={() => onActivate(item)} onTrashed={onTrashed} />
+            }
           />
         </div>
       ))}

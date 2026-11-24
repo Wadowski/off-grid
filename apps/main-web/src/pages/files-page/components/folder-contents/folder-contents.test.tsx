@@ -7,10 +7,12 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   Drive,
+  FileEntry,
   FileListItem,
   FilesView,
   FolderContentsState,
 } from "../../../../files/types.js";
+import { webFilesClient } from "../../../../api/web-api-client.js";
 import { FolderContents } from "./folder-contents.js";
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
@@ -55,6 +57,7 @@ const contentsWith = (
   loadMore: vi.fn(async () => undefined),
   refresh: vi.fn(async () => undefined),
   refreshQuietly: vi.fn(async () => undefined),
+  removeItem: vi.fn(),
   ...overrides,
 });
 
@@ -74,6 +77,7 @@ const renderContents = (
         view={view}
         selectedId={selectedId}
         onSelect={onSelect}
+        onEntryTrashed={vi.fn()}
       />
     </MemoryRouter>,
   );
@@ -135,6 +139,7 @@ describe("FolderContents", () => {
           view="grid"
           selectedId={FILE_ENTRY.id}
           onSelect={vi.fn()}
+          onEntryTrashed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -167,5 +172,38 @@ describe("FolderContents", () => {
       .getAllByTestId("file-table-row")
       .find((candidate) => candidate.textContent?.includes("Trip.pdf"));
     expect(row).toHaveAttribute("data-selected", "true");
+  });
+
+  it("removes a file moved to the trash from the list and tells the person it was moved", async () => {
+    const removeItem = vi.fn();
+    const onEntryTrashed = vi.fn();
+    vi.spyOn(webFilesClient, "trashFile").mockResolvedValue({} as FileEntry);
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    render(
+      <MemoryRouter>
+        <FolderContents
+          driveId={DRIVE_ID}
+          contents={contentsWith({ removeItem })}
+          phone={false}
+          view="list"
+          selectedId={null}
+          onSelect={vi.fn()}
+          onEntryTrashed={onEntryTrashed}
+        />
+      </MemoryRouter>,
+    );
+
+    const row = screen.getByRole("button", { name: "Actions for Trip.pdf" }).closest("tr");
+    fireEvent.click(screen.getByRole("button", { name: "Actions for Trip.pdf" }));
+    fireEvent.click(within(row as HTMLElement).getByTestId("file-action-delete"));
+    fireEvent.click(screen.getByTestId("delete-entry-confirm"));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      '"Trip.pdf" was moved to the trash.',
+    );
+    expect(removeItem).toHaveBeenCalledWith(FILE_ENTRY.id);
+    expect(onEntryTrashed).toHaveBeenCalledWith(FILE_ENTRY.id);
   });
 });

@@ -15,4 +15,5 @@ export type FolderContentsProps = {
   readonly view: FilesView;
   readonly selectedId: FileListItem["id"] | null;
   readonly onSelect: (id: FileListItem["id"]) => void;
+  readonly onEntryTrashed: (fileId: FileListItem["id"]) => void;
 };

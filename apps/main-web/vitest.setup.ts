@@ -20,3 +20,14 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => false,
   }),
 });
+
+if (typeof HTMLElement.prototype.showPopover !== "function") {
+  HTMLElement.prototype.showPopover = function showPopover(this: HTMLElement) {
+    this.setAttribute("data-popover-open", "");
+    this.style.display = "block";
+  };
+  HTMLElement.prototype.hidePopover = function hidePopover(this: HTMLElement) {
+    this.removeAttribute("data-popover-open");
+    this.style.display = "none";
+  };
+}
