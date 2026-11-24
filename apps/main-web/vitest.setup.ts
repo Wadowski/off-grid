@@ -4,6 +4,7 @@
 import "@testing-library/jest-dom/vitest";
 import { configure } from "@testing-library/react";
 import "./src/i18n/i18n.js";
+import { installPopoverPolyfill } from "@offgrid/ui/test/popover-polyfill";
 
 configure({ asyncUtilTimeout: 5_000 });
 
@@ -21,13 +22,4 @@ Object.defineProperty(window, "matchMedia", {
   }),
 });
 
-if (typeof HTMLElement.prototype.showPopover !== "function") {
-  HTMLElement.prototype.showPopover = function showPopover(this: HTMLElement) {
-    this.setAttribute("data-popover-open", "");
-    this.style.display = "block";
-  };
-  HTMLElement.prototype.hidePopover = function hidePopover(this: HTMLElement) {
-    this.removeAttribute("data-popover-open");
-    this.style.display = "none";
-  };
-}
+installPopoverPolyfill();
