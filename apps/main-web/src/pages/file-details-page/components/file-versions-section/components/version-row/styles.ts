@@ -38,7 +38,7 @@ export const versionRowInfoStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[1],
   minWidth: 0,
-  flex: "1 1 180px",
+  flex: "1 1 0",
 };
 
 export const versionRowTitleStyle: CSSProperties = {

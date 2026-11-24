@@ -6,7 +6,8 @@ import type { CSSProperties } from "react";
 
 export const versionRowActionsStyle: CSSProperties = {
   display: "flex",
-  flexWrap: "wrap",
+  flexWrap: "nowrap",
+  flexShrink: 0,
   alignItems: "center",
   gap: tokens.space[1],
 };
