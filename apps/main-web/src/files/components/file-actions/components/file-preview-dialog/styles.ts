@@ -7,6 +7,7 @@ import type { CSSProperties } from "react";
 export const filePreviewDialogStyle: CSSProperties = {
   width: "min(60rem, calc(100vw - 2rem))",
   maxWidth: "100%",
+  minHeight: "min(30rem, calc(100vh - 2rem))",
   maxHeight: "calc(100vh - 2rem)",
   padding: 0,
   border: "none",

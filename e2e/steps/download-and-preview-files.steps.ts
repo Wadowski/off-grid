@@ -137,6 +137,16 @@ Then(/^the preview dialog shows the image "([^"]*)"$/, async ({ page }, name: st
 });
 
 Then(/^the preview dialog shows the PDF "([^"]*)"$/, async ({ page }, name: string) => {
+  const hasViewer = await page.evaluate(() => navigator.pdfViewerEnabled);
+  if (!hasViewer) {
+    const fallback = previewDialogOf(page).getByTestId("file-preview-pdf-unavailable");
+    await expect(fallback).toBeVisible();
+    await expect(fallback).toContainText("This PDF can't be shown here.");
+    await expect(
+      previewDialogOf(page).getByTestId("file-preview-pdf-unavailable-download"),
+    ).toBeVisible();
+    return;
+  }
   const frame = previewDialogOf(page).locator("iframe");
   await expect(frame).toBeVisible();
   await expect(frame).toHaveAttribute("title", `Preview of ${name}`);

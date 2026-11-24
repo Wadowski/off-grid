@@ -775,6 +775,7 @@ export const en = {
       retry: "Try again",
       unsupported: "This file type can't be previewed. Download it instead.",
       pdfTitle: "Preview of {{name}}",
+      pdfUnavailable: "This PDF can't be shown here.",
     },
     itemCount_one: "{{count}} item",
     itemCount_other: "{{count}} items",

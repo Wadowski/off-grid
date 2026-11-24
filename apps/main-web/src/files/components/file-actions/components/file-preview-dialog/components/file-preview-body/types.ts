@@ -12,6 +12,7 @@ export type FilePreviewBodyProps = {
 export type PreviewerProps = {
   readonly objectUrl: string;
   readonly name: string;
+  readonly download: FileDownload["download"];
 };
 
 export type Previewer = (props: PreviewerProps) => ReactElement;

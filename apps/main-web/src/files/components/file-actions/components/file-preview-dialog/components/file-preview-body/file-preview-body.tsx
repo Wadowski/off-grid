@@ -14,7 +14,7 @@ export const FilePreviewBody = ({ file, download }: FilePreviewBodyProps) => {
     const Previewer = PREVIEWERS[state.kind];
     return (
       <div style={filePreviewBodyStyle}>
-        <Previewer objectUrl={state.objectUrl} name={file.name} />
+        <Previewer objectUrl={state.objectUrl} name={file.name} download={download} />
       </div>
     );
   }
