@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Dialog, Text } from "@offgrid/ui";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   deleteEntryDialogStyle,
   deleteEntryFooterStyle,
@@ -21,12 +21,33 @@ export const DeleteEntryDialog = ({
   onConfirm,
 }: DeleteEntryDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog === null) {
+      return undefined;
+    }
+    const keepOpenWhilePending = (event: Event) => {
+      if (pending) {
+        event.preventDefault();
+      }
+    };
+    dialog.addEventListener("cancel", keepOpenWhilePending);
+    return () => dialog.removeEventListener("cancel", keepOpenWhilePending);
+  }, [pending]);
+
+  const closeUnlessPending = () => {
+    if (!pending) {
+      dialogRef.current?.close();
+    }
+  };
+
   return (
     <Dialog
       dialogRef={dialogRef}
       style={deleteEntryDialogStyle(narrow)}
       backdrop="glossy"
-      dismissOnBackdropClick
+      dismissOnBackdropClick={!pending}
       labelledBy="delete-entry-heading"
       onClose={onCancel}
       testId="delete-entry-dialog"
@@ -56,7 +77,7 @@ export const DeleteEntryDialog = ({
           <Button
             type="button"
             variant="ghost"
-            onClick={() => dialogRef.current?.close()}
+            onClick={closeUnlessPending}
             data-testid="delete-entry-cancel"
           >
             <Text variant="action" textId="files.delete.cancel" />

@@ -13,3 +13,9 @@ export type FileActionHandlers = {
   readonly onOpen: () => void;
   readonly onDelete: () => void;
 };
+
+export type TrashConfirmationProps = {
+  readonly entry: FileListItem;
+  readonly onCancel: () => void;
+  readonly onTrashed: (entry: FileListItem) => void;
+};

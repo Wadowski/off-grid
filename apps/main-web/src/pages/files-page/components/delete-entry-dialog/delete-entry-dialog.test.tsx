@@ -99,4 +99,25 @@ describe("DeleteEntryDialog", () => {
 
     expect(props.onCancel).toHaveBeenCalledOnce();
   });
+
+  it("keeps the dialog open on Escape while the move is running", () => {
+    const props = renderDialog({ pending: true });
+    const dialog = screen.getByRole("dialog", { hidden: true });
+
+    const notPrevented = fireEvent(dialog, new Event("cancel", { cancelable: true }));
+
+    expect(notPrevented).toBe(false);
+    expect(props.onCancel).not.toHaveBeenCalled();
+  });
+
+  it("ignores the cancel button and a backdrop click while the move is running", () => {
+    const props = renderDialog({ pending: true });
+    const dialog = screen.getByTestId("delete-entry-dialog");
+
+    fireEvent.click(screen.getByTestId("delete-entry-cancel"));
+    fireEvent.click(dialog);
+
+    expect(dialog).toHaveAttribute("open");
+    expect(props.onCancel).not.toHaveBeenCalled();
+  });
 });

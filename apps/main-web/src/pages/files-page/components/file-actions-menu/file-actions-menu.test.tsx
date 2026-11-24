@@ -110,4 +110,41 @@ describe("FileActionsMenu", () => {
     expect(screen.getByTestId("delete-entry-confirm")).toBeEnabled();
     expect(onTrashed).not.toHaveBeenCalled();
   });
+
+  it("ignores cancel while the move is running", () => {
+    const trash = vi
+      .spyOn(webFilesClient, "trashFile")
+      .mockReturnValue(new Promise(() => undefined));
+    const { onTrashed } = renderActions();
+    chooseDelete();
+    fireEvent.click(screen.getByTestId("delete-entry-confirm"));
+
+    fireEvent.click(screen.getByTestId("delete-entry-cancel"));
+    fireEvent(
+      screen.getByRole("dialog", { name: "Move to trash?" }),
+      new Event("cancel", { cancelable: true }),
+    );
+
+    expect(trash).toHaveBeenCalledOnce();
+    expect(screen.getByRole("dialog", { name: "Move to trash?" })).toBeInTheDocument();
+    expect(screen.getByTestId("delete-entry-confirm")).toBeDisabled();
+    expect(onTrashed).not.toHaveBeenCalled();
+  });
+
+  it("shows no stale error when the confirmation is reopened after a failed move", async () => {
+    vi.spyOn(webFilesClient, "trashFile").mockRejectedValue(
+      new ApiError(404, "NOT_FOUND", "missing"),
+    );
+    renderActions();
+    chooseDelete();
+    fireEvent.click(screen.getByTestId("delete-entry-confirm"));
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("delete-entry-cancel"));
+    expect(screen.queryByTestId("delete-entry-dialog")).not.toBeInTheDocument();
+    chooseDelete();
+
+    expect(screen.getByRole("dialog", { name: "Move to trash?" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
 });

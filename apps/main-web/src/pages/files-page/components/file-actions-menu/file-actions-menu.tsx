@@ -4,29 +4,24 @@
 import { Menu } from "@offgrid/ui";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useIsNarrow } from "../../../../media/use-is-narrow.js";
-import { useTrashEntry } from "../../../../files/use-trash-entry.js";
-import { DeleteEntryDialog } from "../delete-entry-dialog/delete-entry-dialog.js";
+import type { FileListItem } from "../../../../files/types.js";
 import { toFileActions } from "./to-file-actions.js";
+import { TrashConfirmation } from "./trash-confirmation.js";
 import type { FileActionsMenuProps } from "./types.js";
 
 export const FileActionsMenu = ({ entry, onOpen, onTrashed }: FileActionsMenuProps) => {
   const { t } = useTranslation();
-  const narrow = useIsNarrow();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [isConfirming, setIsConfirming] = useState(false);
-  const trashEntry = useTrashEntry();
-
-  const confirmTrash = async () => {
-    if (await trashEntry.trash(entry.id)) {
-      setIsConfirming(false);
-      onTrashed(entry);
-    }
-  };
 
   const cancelTrash = () => {
     setIsConfirming(false);
     triggerRef.current?.focus();
+  };
+
+  const trashed = (trashedEntry: FileListItem) => {
+    setIsConfirming(false);
+    onTrashed(trashedEntry);
   };
 
   return (
@@ -39,15 +34,7 @@ export const FileActionsMenu = ({ entry, onOpen, onTrashed }: FileActionsMenuPro
         triggerRef={triggerRef}
       />
       {isConfirming ? (
-        <DeleteEntryDialog
-          name={entry.name}
-          isFolder={entry.isFolder}
-          narrow={narrow}
-          pending={trashEntry.status === "pending"}
-          errorTextId={trashEntry.errorTextId}
-          onCancel={cancelTrash}
-          onConfirm={() => void confirmTrash()}
-        />
+        <TrashConfirmation entry={entry} onCancel={cancelTrash} onTrashed={trashed} />
       ) : null}
     </>
   );
