@@ -20,6 +20,7 @@ export const folderContentsBodyStyle = (hasDetails: boolean): CSSProperties => (
 
 export const folderContentsListStyle: CSSProperties = {
   minWidth: 0,
+  overflowX: "auto",
 };
 
 export const folderContentsErrorStyle: CSSProperties = {

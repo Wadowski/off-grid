@@ -4,10 +4,11 @@
 import { fileSchema } from "@offgrid/contracts";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { RegularFileEntry } from "../../../../../../../files/types.js";
+import type { FileEntry, Drive, RegularFileEntry } from "../../../../../../files/types.js";
 import { FileDetailsPanelBody } from "./file-details-panel-body.js";
 
-const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
+const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
+const FOLDER_ID = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a" as FileEntry["id"];
 const FILE_ID = "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b";
 const VERSION_ID = "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d";
 
@@ -37,7 +38,7 @@ describe("FileDetailsPanelBody", () => {
         file={FILE}
         breadcrumbs={[
           { kind: "drive", id: DRIVE_ID, name: "Personal" },
-          { kind: "folder", id: DRIVE_ID, name: "Photos" },
+          { kind: "folder", id: FOLDER_ID, name: "Photos" },
         ]}
       />,
     );

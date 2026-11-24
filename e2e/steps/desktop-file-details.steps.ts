@@ -3,11 +3,64 @@
 
 import { expect } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
-import { test } from "../support/fixtures.js";
+import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { ownSessionOf } from "../support/own-session.js";
+import { createFamilyAs, uploadFileAs, waitForDrives } from "../support/factories/files.js";
+import { webBaseUrl } from "../support/stack.js";
 import { rowActivatorNamed } from "../support/files-table.js";
 
-const { When, Then } = createBdd(test);
+const { Given, When, Then } = createBdd(test);
 
+const uploadFamilyFile = async (
+  world: ScenarioWorld,
+  familyName: string,
+  name: string,
+  content: string,
+) => {
+  const session = await ownSessionOf(world);
+  const family = await createFamilyAs(world.api, session, familyName);
+  world.families.push(family);
+  const drives = await waitForDrives(world.api, session, (listed) =>
+    listed.some((drive) => drive.familyId === family.id),
+  );
+  const driveId = drives.find((drive) => drive.familyId === family.id)?.id ?? "";
+  const response = await uploadFileAs(world.api, session, driveId, {
+    name,
+    parentId: null,
+    body: content,
+  });
+  if (response.status !== 201) {
+    throw new Error(`The file ${name} could not be uploaded (${response.status}).`);
+  }
+};
+
+Given(
+  /^Anna has a family "([^"]*)" with a file "([^"]*)" with the content "([^"]*)"$/,
+  async ({ world }, familyName: string, name: string, content: string) => {
+    await uploadFamilyFile(world, familyName, name, content);
+  },
+);
+
+When(
+  /^Anna opens the family drive "([^"]*)" on a desktop screen$/,
+  async ({ page, world }, familyName: string) => {
+    const session = await ownSessionOf(world);
+    const family = world.families.findLast((listed) => listed.name === familyName);
+    if (family === undefined) {
+      throw new Error(`The family ${familyName} has not been created in this scenario.`);
+    }
+    const drives = await waitForDrives(world.api, session, (listed) =>
+      listed.some((drive) => drive.familyId === family.id),
+    );
+    const driveId = drives.find((drive) => drive.familyId === family.id)?.id ?? "";
+    await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT });
+    await page.goto(`${webBaseUrl()}/files/${driveId}`);
+    await expect(page.getByTestId("files-folder-contents")).toBeVisible();
+  },
+);
+
+const DESKTOP_WIDTH = 1280;
+const DESKTOP_HEIGHT = 800;
 const DETAILS_TESTID = "file-details-panel";
 const DETAILS_NAME_TESTID = "file-details-panel-name";
 const DETAILS_CLOSE_TESTID = "file-details-panel-close";

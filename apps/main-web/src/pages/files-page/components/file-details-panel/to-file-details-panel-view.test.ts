@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it, vi } from "vitest";
-import type { FileDetailsState, FileEntry } from "../../../../files/types.js";
+import type { Breadcrumb, Drive, FileDetailsState, FileEntry } from "../../../../files/types.js";
 import { toFileDetailsPanelView } from "./to-file-details-panel-view.js";
 
 const REFRESH = vi.fn(async () => undefined);
@@ -25,11 +25,19 @@ describe("toFileDetailsPanelView", () => {
   });
 
   it("is ready with the file and its breadcrumbs", () => {
-    const breadcrumbs = [{ kind: "drive", id: "drive", name: "Personal" }] as const;
+    const breadcrumbs: readonly Breadcrumb[] = [
+      {
+        kind: "drive",
+        id: "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"],
+        name: "Personal",
+      },
+    ];
 
-    expect(
-      toFileDetailsPanelView(detailsWith({ file: regularFile, breadcrumbs: [...breadcrumbs] })),
-    ).toEqual({ kind: "ready", file: regularFile, breadcrumbs: [...breadcrumbs] });
+    expect(toFileDetailsPanelView(detailsWith({ file: regularFile, breadcrumbs }))).toEqual({
+      kind: "ready",
+      file: regularFile,
+      breadcrumbs,
+    });
   });
 
   it("is failed with the mapped error text and the retry action when the request failed", () => {

@@ -5,8 +5,8 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
 import { createFolderAs, findFolderFrom, personalDriveIdAs } from "../support/factories/files.js";
-import { signInWith, type Session } from "../support/factories/instance-admin.js";
-import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { ownSessionOf } from "../support/own-session.js";
+import { test } from "../support/fixtures.js";
 import { rowActivatorNamed, rowNamed, tableRows } from "../support/files-table.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -15,18 +15,6 @@ const DESKTOP_WIDTH = 1280;
 const DESKTOP_HEIGHT = 800;
 const KEYBOARD_TAB_LIMIT = 60;
 const QUOTED_NAME = /"([^"]*)"/g;
-
-const ownSessionOf = async (world: ScenarioWorld): Promise<Session> => {
-  if (world.ownAccount === undefined) {
-    throw new Error("No web account has been signed in for this scenario.");
-  }
-  const account = world.ownAccount;
-  const signedIn = await signInWith(world.api, account.email, account.password);
-  if (signedIn.session === undefined) {
-    throw new Error(`${account.displayName} cannot sign in through the API.`);
-  }
-  return signedIn.session;
-};
 
 const namesIn = (listing: string): string[] =>
   [...listing.matchAll(QUOTED_NAME)].map((match) => match[1] ?? "");

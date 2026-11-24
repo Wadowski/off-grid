@@ -67,6 +67,7 @@ export const tokens = {
     popoverListMax: "460px",
     popoverGutter: "1.5rem",
     detailsPanel: "22.5rem",
+    fileTableMin: "36rem",
   },
   radius: { sm: "0.25rem", md: "0.5rem", lg: "0.75rem", full: "9999px" },
   elevation: {
