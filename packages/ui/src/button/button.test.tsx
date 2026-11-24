@@ -2,8 +2,20 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import i18next from "i18next";
+import type { ReactElement } from "react";
+import { I18nextProvider } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 import { Button } from "./button.js";
+
+const i18n = i18next.createInstance();
+await i18n.init({
+  lng: "en",
+  resources: { en: { translation: { "sort.descending": "Sort descending" } } },
+});
+
+const renderWithI18n = (element: ReactElement) =>
+  render(<I18nextProvider i18n={i18n}>{element}</I18nextProvider>);
 
 describe("Button", () => {
   it("renders a button of type button by default", () => {
@@ -84,5 +96,15 @@ describe("Button", () => {
       "style",
       expect.stringContaining("flex-start"),
     );
+  });
+
+  it("names itself from the translation id given as its aria label", () => {
+    renderWithI18n(
+      <Button size="icon" variant="ghost" ariaLabelTextId="sort.descending">
+        <span>icon</span>
+      </Button>,
+    );
+
+    expect(screen.getByRole("button", { name: "Sort descending" })).toBeInTheDocument();
   });
 });

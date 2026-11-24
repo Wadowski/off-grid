@@ -551,6 +551,37 @@
               "minimum": 1,
               "maximum": 200
             }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "The field the entries are ordered by. Folders always come first.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "modified",
+                "size"
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "description": "The order of the sort field.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
           }
         ],
         "responses": {
@@ -795,7 +826,8 @@
     "/drives/{id}/trash": {
       "get": {
         "operationId": "listDriveTrash",
-        "summary": "List the trashed entries of a drive",
+        "summary": "List the trashed entries of a drive, folders first, then by name",
+        "description": "The trash has no sort or direction parameter: entries are always ordered folders first, then by name ascending. A sort or direction parameter is rejected with 400 VALIDATION_FAILED.",
         "parameters": [
           {
             "name": "id",
@@ -1167,6 +1199,37 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 200
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "The field the entries are ordered by. Folders always come first.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "modified",
+                "size"
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "description": "The order of the sort field.",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           }
         ],

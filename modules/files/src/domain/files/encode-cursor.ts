@@ -5,5 +5,11 @@ import type { ChildrenCursor } from "../../types.js";
 
 export const encodeCursor = (cursor: ChildrenCursor): string =>
   Buffer.from(
-    JSON.stringify({ isFolder: cursor.isFolder, name: cursor.name, fileId: cursor.fileId }),
+    JSON.stringify({
+      isFolder: cursor.isFolder,
+      fileId: cursor.fileId,
+      sort: cursor.sort,
+      direction: cursor.direction,
+      sortValue: cursor.sortValue,
+    }),
   ).toString("base64url");

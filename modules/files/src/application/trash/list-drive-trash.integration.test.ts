@@ -56,7 +56,10 @@ describe("listDriveTrash", { timeout: 60_000 }, () => {
       createdByUserId: anna,
     });
 
-    const outcome = await listDriveTrash(db.db, anna, driveId, { cursor: null, limit: 50 });
+    const outcome = await listDriveTrash(db.db, anna, driveId, {
+      cursor: null,
+      limit: 50,
+    });
 
     expect(
       outcome.outcome === "found" ? outcome.value.page.records.map((record) => record.name) : [],
@@ -77,7 +80,10 @@ describe("listDriveTrash", { timeout: 60_000 }, () => {
       });
     }
 
-    const first = await listDriveTrash(db.db, anna, driveId, { cursor: null, limit: 2 });
+    const first = await listDriveTrash(db.db, anna, driveId, {
+      cursor: null,
+      limit: 2,
+    });
     const firstPage = first.outcome === "found" ? first.value.page : null;
     const second = await listDriveTrash(db.db, anna, driveId, {
       cursor: firstPage?.nextCursor ?? null,
@@ -95,7 +101,14 @@ describe("listDriveTrash", { timeout: 60_000 }, () => {
     const otherDriveId = await seedDrive(db.admin, { owner: benOwner, name: "Personal" });
 
     expect(
-      (await listDriveTrash(db.db, anna, otherDriveId, { cursor: null, limit: 50 })).outcome,
+      (
+        await listDriveTrash(db.db, anna, otherDriveId, {
+          cursor: null,
+          limit: 50,
+          sort: "name",
+          direction: "asc",
+        })
+      ).outcome,
     ).toBe("not-found");
   });
 });

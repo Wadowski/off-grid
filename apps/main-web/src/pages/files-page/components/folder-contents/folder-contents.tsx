@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
+import { FileGrid } from "../../lists/file-grid/file-grid.js";
 import { FileList } from "../../lists/file-list/file-list.js";
 import { FolderList } from "../folder-list/folder-list.js";
 import {
@@ -15,11 +16,12 @@ export const FolderContents = ({
   driveId,
   contents,
   phone,
+  view,
   selectedId,
   onSelect,
 }: FolderContentsProps) => {
   if (contents.status === "loading") {
-    return <Text variant="body" textId="files.folder.loading" />;
+    return <Text variant="body" textId="files.folder.loading" data-testid="files-folder-loading" />;
   }
   const listProps = {
     driveId,
@@ -27,6 +29,8 @@ export const FolderContents = ({
     hasMore: contents.hasMore,
     isLoadingMore: contents.isLoadingMore,
     onLoadMore: contents.loadMore,
+    selectedId,
+    onSelect,
   };
   return (
     <div style={folderContentsStyle} data-testid="files-folder-contents">
@@ -34,8 +38,10 @@ export const FolderContents = ({
         <div style={folderContentsListStyle}>
           {phone ? (
             <FolderList {...listProps} />
+          ) : view === "grid" ? (
+            <FileGrid {...listProps} />
           ) : (
-            <FileList {...listProps} selectedId={selectedId} onSelect={onSelect} />
+            <FileList {...listProps} />
           )}
         </div>
       ) : null}

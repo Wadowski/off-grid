@@ -6,6 +6,8 @@ import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
+import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
+import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
 import { useRefreshOnUploadDone } from "../../files/use-refresh-on-upload-done.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
@@ -17,16 +19,22 @@ import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesHeader } from "./components/files-header/files-header.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
+import { ViewControls } from "./components/view-controls/view-controls.js";
 import { filesPageStyle } from "./styles.js";
 
 export const FilesPage = () => {
   const folder = useCurrentFolder();
   const phone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);
   const switcher = useOutletContext<FilesOutletContext>();
+  const { preference, updatePreference } = useFilesViewPreference();
+  const sortOrder = phone
+    ? DEFAULT_FILES_SORT_ORDER
+    : { sort: preference.sort, direction: preference.direction };
   const contents = useFolderContents(
     folder.driveId,
     folder.folderId,
     folder.status === "ready" && folder.driveId !== null,
+    sortOrder,
   );
 
   const queue = useUploadQueueContext();
@@ -62,6 +70,16 @@ export const FilesPage = () => {
           driveName={driveName}
           uploadDisabled={uploadDisabled}
           onFilesPicked={enqueueFiles}
+          viewControls={
+            folder.driveId === null ? null : (
+              <ViewControls
+                view={preference.view}
+                sort={preference.sort}
+                direction={preference.direction}
+                onChange={updatePreference}
+              />
+            )
+          }
         />
       )}
       {folder.driveId === null ? null : (
@@ -87,6 +105,7 @@ export const FilesPage = () => {
           driveId={folder.driveId}
           contents={contents}
           phone={phone}
+          view={phone ? "list" : preference.view}
           selectedId={switcher.selectedFileId}
           onSelect={switcher.onSelectFile}
         />

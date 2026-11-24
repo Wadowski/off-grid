@@ -20,7 +20,13 @@ import {
 import { fillRoute } from "./fill-route.js";
 import { uploadFileRequest } from "./upload-file-request.js";
 import { withListQuery } from "./with-list-query.js";
-import type { ApiClient, ByteBody, FileListOptions, UploadFileInput } from "./types.js";
+import type {
+  ApiClient,
+  ByteBody,
+  FileListOptions,
+  TrashListOptions,
+  UploadFileInput,
+} from "./types.js";
 
 export const createFilesClient = (client: ApiClient) => ({
   uploadFile: (driveId: string, input: UploadFileInput) =>
@@ -37,7 +43,7 @@ export const createFilesClient = (client: ApiClient) => ({
       ),
     ),
 
-  listDriveTrash: async (driveId: string, options: FileListOptions = {}) =>
+  listDriveTrash: async (driveId: string, options: TrashListOptions = {}) =>
     fileListSchema.parse(
       await client.request(
         "GET",

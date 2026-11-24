@@ -7,8 +7,10 @@ import { encodeCursor } from "./encode-cursor.js";
 
 const CURSOR = {
   isFolder: true,
-  name: "Holiday photos",
   fileId: "22222222-2222-4222-8222-222222222222",
+  sort: "modified" as const,
+  direction: "desc" as const,
+  sortValue: "2026-11-01T10:00:00.000Z",
 };
 
 describe("encodeCursor", () => {

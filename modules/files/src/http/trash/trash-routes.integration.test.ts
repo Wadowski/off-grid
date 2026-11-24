@@ -132,6 +132,48 @@ describe("trash routes", { timeout: 60_000 }, () => {
     expect(response.json().items.map((item: { name: string }) => item.name)).toEqual(["Old"]);
   });
 
+  it("GET /drives/:id/trash answers 400 VALIDATION_FAILED for sort and direction", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+
+    const bySort = await app.inject({
+      method: "GET",
+      url: `/drives/${driveId}/trash?sort=size`,
+      headers: annaHeaders,
+    });
+    const byDirection = await app.inject({
+      method: "GET",
+      url: `/drives/${driveId}/trash?direction=desc`,
+      headers: annaHeaders,
+    });
+
+    expect(bySort.statusCode).toBe(400);
+    expect(bySort.json()).toMatchObject({ code: "VALIDATION_FAILED" });
+    expect(byDirection.statusCode).toBe(400);
+    expect(byDirection.json()).toMatchObject({ code: "VALIDATION_FAILED" });
+  });
+
+  it("GET /drives/:id/trash answers 400 VALIDATION_FAILED for a cursor from another order", async () => {
+    const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
+    const sizeCursor = Buffer.from(
+      JSON.stringify({
+        isFolder: false,
+        fileId: randomUUID(),
+        sort: "size",
+        direction: "asc",
+        sortValue: "1",
+      }),
+    ).toString("base64url");
+
+    const response = await app.inject({
+      method: "GET",
+      url: `/drives/${driveId}/trash?cursor=${sizeCursor}`,
+      headers: annaHeaders,
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({ code: "VALIDATION_FAILED" });
+  });
+
   it("DELETE /drives/:id/trash answers 204, and 404 for a drive the caller cannot see", async () => {
     const driveId = await seedDrive(db.admin, { owner: annaOwner, name: "Personal" });
     await seedFolder(db.admin, {
