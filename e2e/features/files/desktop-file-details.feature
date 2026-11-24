@@ -39,7 +39,7 @@ Feature: File details panel on the desktop Files page
     When Anna opens the files page on a desktop screen
     And Anna opens the folder "Photos" from the table
     And Anna selects the table row "Holiday.txt"
-    Then the file details panel shows the location "Personal > Photos"
+    Then the file details panel shows the location "Personal › Photos"
 
   @wip
   Scenario: The location of a file in a family drive starts with the family drive name

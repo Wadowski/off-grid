@@ -312,4 +312,53 @@ describe("FilesPage", () => {
       restore();
     }
   });
+
+  it("opens the details panel for a selected file and closes it when the selection is cleared", async () => {
+    const restore = withPhoneWidth(false);
+    const TRIP_ID = "4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e";
+    const TRIP_FILE = {
+      id: TRIP_ID,
+      driveId: DRIVE_ID,
+      parentId: FOLDER_ID,
+      name: "Trip.pdf",
+      version: 1,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+      deletedAt: null,
+      isFolder: false,
+      mimeType: "application/pdf",
+      size: 2048,
+      currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
+    };
+    vi.mocked(listFileChildren).mockResolvedValue({
+      items: [TRIP_FILE],
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
+      nextCursor: null,
+    } as never);
+    vi.mocked(getFile).mockImplementation(
+      async (fileId: string) =>
+        (fileId === TRIP_ID
+          ? { file: TRIP_FILE, breadcrumbs: ANCESTOR_BREADCRUMBS }
+          : { file: FOLDER, breadcrumbs: ANCESTOR_BREADCRUMBS }) as never,
+    );
+    try {
+      renderAt(FOLDER_PATH);
+
+      await screen.findByRole("table", { name: "Folder contents" });
+      const tripRow = screen
+        .getAllByTestId("file-table-row")
+        .find((row) => row.textContent?.includes("Trip.pdf")) as HTMLElement;
+      fireEvent.click(within(tripRow).getByTestId("file-table-activate"));
+
+      expect(await screen.findByTestId("file-details-panel-name")).toHaveTextContent("Trip.pdf");
+      expect(screen.getByTestId("file-details-property-location")).toHaveTextContent("Personal");
+
+      fireEvent.click(screen.getByTestId("file-details-panel-close"));
+
+      expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
+      expect(tripRow).toHaveAttribute("data-selected", "false");
+    } finally {
+      restore();
+    }
+  });
 });
