@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "../test-support/json-response.js";
 import type { FileEntry } from "./types.js";
@@ -56,5 +56,42 @@ describe("useFileVersions", () => {
     renderHook(() => useFileVersions(FILE_ID, false));
 
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("refreshes quietly without showing the loading state", async () => {
+    const updated = { ...VERSION, id: "9b0c1d2e-3f4a-4b5c-9d7e-8f9a0b1c2d3e", number: 2 };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ status: 200, body: { versions: [VERSION] } }))
+      .mockResolvedValueOnce(jsonResponse({ status: 200, body: { versions: [updated, VERSION] } }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useFileVersions(FILE_ID, true));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    await act(async () => {
+      await result.current.refreshQuietly();
+    });
+
+    expect(result.current.status).toBe("ready");
+    expect(result.current.versions).toEqual([updated, VERSION]);
+  });
+
+  it("keeps the loaded versions when a quiet refresh fails", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ status: 200, body: { versions: [VERSION] } }))
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useFileVersions(FILE_ID, true));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    await act(async () => {
+      await result.current.refreshQuietly();
+    });
+
+    expect(result.current.status).toBe("ready");
+    expect(result.current.errorTextId).toBeNull();
+    expect(result.current.versions).toEqual([VERSION]);
   });
 });

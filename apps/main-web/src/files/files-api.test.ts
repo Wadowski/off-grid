@@ -4,13 +4,18 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { webFilesClient } from "../api/web-api-client.js";
 import {
+  deleteFileVersion,
   getFile,
+  getFileVersionContent,
   listDriveChildren,
   listDrives,
   listFileChildren,
+  listFileVersions,
+  restoreFileVersion,
   uploadFile,
+  uploadFileVersion,
 } from "./files-api.js";
-import type { Drive, FileDetails, FileEntry, FileListPage } from "./types.js";
+import type { Drive, FileDetails, FileEntry, FileListPage, FileVersion } from "./types.js";
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
 const FOLDER_ID = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a" as FileEntry["id"];
@@ -21,6 +26,7 @@ const DRIVE: Drive = {
   createdAt: "2026-01-01T00:00:00.000Z",
 } as Drive;
 const PAGE: FileListPage = { items: [], breadcrumbs: [], nextCursor: null } as FileListPage;
+const VERSION_ID = "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d" as FileVersion["id"];
 const DETAILS: FileDetails = { file: {} as FileEntry, breadcrumbs: [] } as FileDetails;
 
 afterEach(() => {
@@ -64,5 +70,45 @@ describe("files API", () => {
     await uploadFile(DRIVE_ID, { file, parentId: FOLDER_ID, onProgress });
 
     expect(upload).toHaveBeenCalledWith(DRIVE_ID, { file, parentId: FOLDER_ID, onProgress });
+  });
+  it("lists the versions of a file through the files client", async () => {
+    const versions = [{ id: VERSION_ID }] as FileVersion[];
+    const list = vi.spyOn(webFilesClient, "listFileVersions").mockResolvedValue(versions);
+
+    await expect(listFileVersions(FOLDER_ID)).resolves.toBe(versions);
+    expect(list).toHaveBeenCalledWith(FOLDER_ID);
+  });
+
+  it("uploads a new version through the files client with its progress handler", async () => {
+    const upload = vi.spyOn(webFilesClient, "uploadFileVersion").mockResolvedValue({} as FileEntry);
+    const file = new File(["hello"], "Holiday.txt");
+    const onProgress = vi.fn();
+
+    await uploadFileVersion(FOLDER_ID, { file, onProgress });
+
+    expect(upload).toHaveBeenCalledWith(FOLDER_ID, { file, onProgress });
+  });
+
+  it("restores a version through the files client", async () => {
+    const restored = {} as FileEntry;
+    const restore = vi.spyOn(webFilesClient, "restoreFileVersion").mockResolvedValue(restored);
+
+    await expect(restoreFileVersion(FOLDER_ID, VERSION_ID)).resolves.toBe(restored);
+    expect(restore).toHaveBeenCalledWith(FOLDER_ID, VERSION_ID);
+  });
+
+  it("deletes a version through the files client", async () => {
+    const remove = vi.spyOn(webFilesClient, "deleteFileVersion").mockResolvedValue(undefined);
+
+    await expect(deleteFileVersion(FOLDER_ID, VERSION_ID)).resolves.toBeUndefined();
+    expect(remove).toHaveBeenCalledWith(FOLDER_ID, VERSION_ID);
+  });
+
+  it("returns the content of a version from the files client as a blob", async () => {
+    const content = new Blob(["hello"]);
+    const download = vi.spyOn(webFilesClient, "downloadFileVersion").mockResolvedValue(content);
+
+    await expect(getFileVersionContent(FOLDER_ID, VERSION_ID)).resolves.toBe(content);
+    expect(download).toHaveBeenCalledWith(FOLDER_ID, VERSION_ID);
   });
 });

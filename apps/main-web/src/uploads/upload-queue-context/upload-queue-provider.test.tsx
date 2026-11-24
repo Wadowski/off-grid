@@ -5,13 +5,13 @@ import { act, render, renderHook } from "@testing-library/react";
 import { Activity, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@offgrid/api-client";
-import { uploadFile } from "../../files/files-api.js";
+import { uploadFile, uploadFileVersion } from "../../files/files-api.js";
 import { setSessionState } from "../../session/set-session-state.js";
-import type { UploadQueue, UploadTarget } from "../types.js";
+import type { UploadQueue, UploadTarget, VersionUploadTarget } from "../types.js";
 import { useUploadQueueContext } from "./use-upload-queue-context.js";
 import { UploadQueueProvider } from "./upload-queue-provider.js";
 
-vi.mock("../../files/files-api.js", () => ({ uploadFile: vi.fn() }));
+vi.mock("../../files/files-api.js", () => ({ uploadFile: vi.fn(), uploadFileVersion: vi.fn() }));
 
 const TARGET: UploadTarget = {
   driveId: "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as UploadTarget["driveId"],
@@ -19,6 +19,7 @@ const TARGET: UploadTarget = {
 };
 const FAMILY_A = "a0000000-0000-4000-8000-000000000001";
 const FAMILY_B = "b0000000-0000-4000-8000-000000000002";
+const VERSION_FILE_ID = "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b" as VersionUploadTarget["fileId"];
 
 const pending: { resolve: () => void; reject: (error: unknown) => void; signal: AbortSignal }[] =
   [];
@@ -181,5 +182,28 @@ describe("UploadQueueProvider", () => {
     expect(probe.queue?.items[0]?.status).toBe("failed");
     expect(probe.queue?.items[0]?.errorTextId).toBe("files.upload.stoppedFamilySwitch");
     expect(uploadMock).toHaveBeenCalledTimes(1);
+  });
+  it("uploads a new version of an existing file through the version endpoint", async () => {
+    const versionUploadMock = vi.mocked(uploadFileVersion);
+    versionUploadMock.mockResolvedValue({} as never);
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    const versionTarget: VersionUploadTarget = { ...TARGET, fileId: VERSION_FILE_ID };
+
+    act(() => {
+      result.current.enqueueVersion(new File(["a"], "Trip.pdf"), versionTarget);
+    });
+    await act(async () => undefined);
+
+    expect(versionUploadMock).toHaveBeenCalledWith(
+      VERSION_FILE_ID,
+      expect.objectContaining({ file: expect.objectContaining({ name: "Trip.pdf" }) }),
+    );
+    expect(uploadMock).not.toHaveBeenCalled();
+    expect(result.current.lastDone).toEqual({
+      itemId: result.current.items[0]?.id,
+      driveId: TARGET.driveId,
+      folderId: null,
+      fileId: VERSION_FILE_ID,
+    });
   });
 });

@@ -35,7 +35,7 @@ export const useFileVersions = (
           setErrorTextId(null);
         }
       } catch (error) {
-        if (isLatest()) {
+        if (isLatest() && showLoading) {
           setErrorTextId(toFilesErrorTextId(error));
           setStatus("failed");
         }
