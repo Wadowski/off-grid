@@ -4,12 +4,7 @@
 import { useCallback, useState } from "react";
 import { readFilesViewPreference } from "./read-files-view-preference.js";
 import { writeFilesViewPreference } from "./write-files-view-preference.js";
-import type { FilesViewPreference } from "./types.js";
-
-export type FilesViewPreferenceState = {
-  readonly preference: FilesViewPreference;
-  readonly updatePreference: (change: Partial<FilesViewPreference>) => void;
-};
+import type { FilesViewPreference, FilesViewPreferenceState } from "./types.js";
 
 export const useFilesViewPreference = (): FilesViewPreferenceState => {
   const [preference, setPreference] = useState<FilesViewPreference>(readFilesViewPreference);

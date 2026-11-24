@@ -6,7 +6,9 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Drive, FileListItem } from "../../../../files/types.js";
+import { useState } from "react";
 import { FileList } from "./file-list.js";
+import type { FileListProps } from "./types.js";
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
 const PHOTOS_ID = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a";
@@ -52,7 +54,12 @@ const LocationProbe = () => {
   return <p data-testid="probe">{location.pathname}</p>;
 };
 
-const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => {
+const SelectableFileList = (props: Omit<FileListProps, "selectedId" | "onSelect">) => {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  return <FileList {...props} selectedId={selectedId} onSelect={setSelectedId} />;
+};
+
+const renderList = (overrides: Partial<Omit<FileListProps, "selectedId" | "onSelect">> = {}) => {
   const onLoadMore = vi.fn(async () => undefined);
   render(
     <MemoryRouter initialEntries={["/files"]}>
@@ -60,7 +67,7 @@ const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => 
         <Route
           path="/files"
           element={
-            <FileList
+            <SelectableFileList
               driveId={DRIVE_ID}
               items={[PHOTOS, TRIP, NOTES]}
               hasMore={false}

@@ -4,12 +4,15 @@
 import type {
   FilesErrorCode,
   FilesErrorTextId,
+  FilesSortField,
   FilesSortOrder,
   FilesViewPreference,
   FolderContentsSnapshot,
 } from "./types.js";
 
 export const FILES_VIEW_PREFERENCE_KEY = "offgrid.files.viewPreference";
+
+export const FILES_SORT_FIELDS: readonly FilesSortField[] = ["name", "modified", "size"];
 
 export const DEFAULT_FILES_SORT_ORDER: FilesSortOrder = { sort: "name", direction: "asc" };
 

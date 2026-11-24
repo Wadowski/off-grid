@@ -684,6 +684,19 @@ export const en = {
     list: {
       label: "Folder contents",
     },
+    view: {
+      label: "View",
+      list: "List",
+      grid: "Grid",
+    },
+    sort: {
+      label: "Sort by",
+      name: "Name",
+      modified: "Modified",
+      size: "Size",
+      ascending: "Sort ascending",
+      descending: "Sort descending",
+    },
     table: {
       name: "Name",
       modified: "Modified",

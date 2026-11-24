@@ -104,6 +104,11 @@ export type FilesViewPreference = FilesSortOrder & {
   readonly view: FilesView;
 };
 
+export type FilesViewPreferenceState = {
+  readonly preference: FilesViewPreference;
+  readonly updatePreference: (change: Partial<FilesViewPreference>) => void;
+};
+
 export type FileListOptions = Partial<FilesSortOrder> & {
   readonly cursor?: string;
   readonly limit?: number;

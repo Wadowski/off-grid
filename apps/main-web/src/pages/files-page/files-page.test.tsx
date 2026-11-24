@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFile, listDriveChildren, listDrives, listFileChildren } from "../../files/files-api.js";
@@ -261,5 +261,70 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong. Try again."),
     );
+  });
+});
+
+describe("FilesPage view and sort controls", () => {
+  beforeEach(() => {
+    vi.mocked(listDrives).mockResolvedValue([DRIVE]);
+    vi.mocked(getFile).mockResolvedValue({
+      file: FOLDER,
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
+    } as never);
+    vi.mocked(listFileChildren).mockResolvedValue(CHILDREN_PAGE as never);
+  });
+
+  afterEach(() => {
+    cleanup();
+    window.localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  it("shows the view and sort controls on a wide screen", async () => {
+    const restore = withPhoneWidth(false);
+    try {
+      renderAt(FOLDER_PATH);
+
+      expect(await screen.findByTestId("files-view-controls")).toBeInTheDocument();
+    } finally {
+      restore();
+    }
+  });
+
+  it("shows no view or sort controls on a phone and asks for the default order", async () => {
+    const restore = withPhoneWidth(true);
+    try {
+      window.localStorage.setItem(
+        "offgrid.files.viewPreference",
+        JSON.stringify({ view: "grid", sort: "size", direction: "desc" }),
+      );
+      renderAt(FOLDER_PATH);
+
+      await waitFor(() => expect(listFileChildren).toHaveBeenCalled());
+      expect(screen.queryByTestId("files-view-controls")).not.toBeInTheDocument();
+      expect(listFileChildren).toHaveBeenCalledWith(FOLDER_ID, { sort: "name", direction: "asc" });
+    } finally {
+      restore();
+    }
+  });
+
+  it("asks the API for the chosen sort order and remembers it", async () => {
+    const restore = withPhoneWidth(false);
+    try {
+      renderAt(FOLDER_PATH);
+      const select = await screen.findByTestId("files-sort-select");
+
+      fireEvent.change(select, { target: { value: "size" } });
+
+      await waitFor(() =>
+        expect(listFileChildren).toHaveBeenLastCalledWith(FOLDER_ID, {
+          sort: "size",
+          direction: "asc",
+        }),
+      );
+      expect(window.localStorage.getItem("offgrid.files.viewPreference")).toContain('"size"');
+    } finally {
+      restore();
+    }
   });
 });

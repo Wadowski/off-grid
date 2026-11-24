@@ -6,6 +6,7 @@ import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { FolderNotFound } from "../../errors/folder-not-found/folder-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
+import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
 import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
@@ -15,18 +16,22 @@ import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
-import { filesPageStyle } from "./styles.js";
+import { ViewControls } from "./components/view-controls/view-controls.js";
+import { filesHeadingRowStyle, filesPageStyle } from "./styles.js";
 
 export const FilesPage = () => {
   const folder = useCurrentFolder();
   const phone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);
   const switcher = useOutletContext<DriveSwitcherProps>();
-  const { preference } = useFilesViewPreference();
+  const { preference, updatePreference } = useFilesViewPreference();
+  const sortOrder = phone
+    ? DEFAULT_FILES_SORT_ORDER
+    : { sort: preference.sort, direction: preference.direction };
   const contents = useFolderContents(
     folder.driveId,
     folder.folderId,
     folder.status === "ready" && folder.driveId !== null,
-    { sort: preference.sort, direction: preference.direction },
+    sortOrder,
   );
 
   if (folder.status === "not-found") {
@@ -47,10 +52,22 @@ export const FilesPage = () => {
           status={switcher.status}
           activeDriveId={switcher.activeDriveId}
         />
-      ) : showsDriveName ? (
-        <Text variant="heading" value={driveName} />
       ) : (
-        <Text variant="heading" textId="files.layout.heading" />
+        <div style={filesHeadingRowStyle} data-testid="files-heading-row">
+          {showsDriveName ? (
+            <Text variant="heading" value={driveName} />
+          ) : (
+            <Text variant="heading" textId="files.layout.heading" />
+          )}
+          {folder.driveId === null ? null : (
+            <ViewControls
+              view={preference.view}
+              sort={preference.sort}
+              direction={preference.direction}
+              onChange={updatePreference}
+            />
+          )}
+        </div>
       )}
       {folder.driveId === null ? null : (
         <>
@@ -70,7 +87,13 @@ export const FilesPage = () => {
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents driveId={folder.driveId} contents={contents} phone={phone} />
+        <FolderContents
+          key={`${folder.driveId}:${folder.folderId ?? ""}`}
+          driveId={folder.driveId}
+          contents={contents}
+          phone={phone}
+          view={phone ? "list" : preference.view}
+        />
       ) : null}
     </div>
   );
