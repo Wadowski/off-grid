@@ -7,7 +7,7 @@ import type { PreviewKind } from "./types.js";
 export const toPreviewKind = (mimeType: string): PreviewKind | null => {
   const mediaType = (mimeType.split(";")[0] ?? "").trim().toLowerCase();
   const match = Object.entries(PREVIEW_KINDS).find(([, mediaTypes]) =>
-    (mediaTypes as readonly string[]).includes(mediaType),
+    mediaTypes.includes(mediaType),
   );
   return match === undefined ? null : (match[0] as PreviewKind);
 };

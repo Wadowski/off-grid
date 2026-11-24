@@ -14,7 +14,6 @@ import type {
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus, SessionUser } from "../types.js";
-import type { PREVIEW_KINDS } from "./constants.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
 export type FileEntry = ReturnType<typeof fileSchema.parse>;
@@ -155,7 +154,7 @@ export type FileDetailsScreenState = {
   readonly viewer: SessionUser | null;
 };
 
-export type PreviewKind = keyof typeof PREVIEW_KINDS;
+export type PreviewKind = "image" | "pdf";
 
 export type FileContentState =
   | { readonly status: "loading" }

@@ -1,7 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { FilesErrorCode, FilesErrorTextId, FolderContentsSnapshot } from "./types.js";
+import type {
+  FilesErrorCode,
+  FilesErrorTextId,
+  FolderContentsSnapshot,
+  PreviewKind,
+} from "./types.js";
 
 export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   NOT_FOUND: "files.errors.notFound",
@@ -26,7 +31,7 @@ export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
   isLoadingMore: false,
 };
 
-export const PREVIEW_KINDS = {
+export const PREVIEW_KINDS: Record<PreviewKind, readonly string[]> = {
   image: ["image/png", "image/jpeg", "image/gif", "image/webp"],
   pdf: ["application/pdf"],
-} as const satisfies Record<string, readonly string[]>;
+};
