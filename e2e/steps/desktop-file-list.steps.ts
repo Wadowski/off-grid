@@ -7,6 +7,7 @@ import { webBaseUrl } from "../support/stack.js";
 import { createFolderAs, findFolderFrom, personalDriveIdAs } from "../support/factories/files.js";
 import { signInWith, type Session } from "../support/factories/instance-admin.js";
 import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { rowActivatorNamed, rowNamed, tableRows } from "../support/files-table.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -29,16 +30,6 @@ const ownSessionOf = async (world: ScenarioWorld): Promise<Session> => {
 
 const namesIn = (listing: string): string[] =>
   [...listing.matchAll(QUOTED_NAME)].map((match) => match[1] ?? "");
-
-const tableRows = (page: Page) => page.getByTestId("file-table-row");
-
-const rowNamed = (page: Page, name: string): Locator =>
-  tableRows(page).filter({
-    has: page.getByTestId("file-table-name").getByText(name, { exact: true }),
-  });
-
-const rowActivatorNamed = (page: Page, name: string): Locator =>
-  rowNamed(page, name).getByTestId("file-table-activate");
 
 const isFocused = (locator: Locator): Promise<boolean> =>
   expect(locator)
