@@ -5,5 +5,4 @@ import type { UploadItem } from "../../../../types.js";
 
 export type UploadQueueRowStatusProps = {
   readonly item: UploadItem;
-  readonly alertOnFailure: boolean;
 };

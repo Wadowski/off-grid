@@ -10,7 +10,6 @@ import type { UploadQueueListProps } from "./types.js";
 export const UploadQueueList = ({
   items,
   testIdPrefix,
-  alertOnFailure,
   isIdle,
   onClearFinished,
 }: UploadQueueListProps) => {
@@ -23,12 +22,7 @@ export const UploadQueueList = ({
         data-testid={`${testIdPrefix}-list`}
       >
         {items.map((item) => (
-          <UploadQueueRow
-            key={item.id}
-            item={item}
-            testIdPrefix={testIdPrefix}
-            alertOnFailure={alertOnFailure}
-          />
+          <UploadQueueRow key={item.id} item={item} testIdPrefix={testIdPrefix} />
         ))}
       </ul>
       {isIdle && items.length > 0 ? (

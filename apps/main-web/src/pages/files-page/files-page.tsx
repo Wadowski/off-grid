@@ -17,7 +17,6 @@ import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesHeader } from "./components/files-header/files-header.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
-import { UploadQueueCard } from "./components/upload-queue-card/upload-queue-card.js";
 import { filesPageStyle } from "./styles.js";
 
 export const FilesPage = () => {
@@ -76,7 +75,6 @@ export const FilesPage = () => {
             isBusy={folder.status === "loading"}
             phone={phone}
           />
-          <UploadQueueCard />
         </>
       )}
       {folder.status === "loading" ? <Text variant="body" textId="files.folder.loading" /> : null}

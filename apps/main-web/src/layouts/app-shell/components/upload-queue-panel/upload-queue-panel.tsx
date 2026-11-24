@@ -3,13 +3,11 @@
 
 import { FloatingPanel } from "@offgrid/ui";
 import { useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { useIsNarrow } from "../../../../media/use-is-narrow.js";
 import { UploadQueueList } from "../../../../uploads/components/upload-queue-list/upload-queue-list.js";
 import { UploadQueueLiveRegion } from "../../../../uploads/components/upload-queue-live-region/upload-queue-live-region.js";
 import { isActiveUploadItem, useUploadQueueContext } from "../../../../uploads/index.js";
 import { UploadQueuePanelHeader } from "./components/upload-queue-panel-header/upload-queue-panel-header.js";
-import { isFilesPath } from "./is-files-path.js";
 import { uploadQueuePanelListStyle } from "./styles.js";
 import type { ExpandChoice } from "./types.js";
 import { toPanelSummary } from "./to-panel-summary.js";
@@ -18,14 +16,12 @@ const PANEL_LIST_ID = "upload-queue-panel-list";
 
 export const UploadQueuePanel = () => {
   const queue = useUploadQueueContext();
-  const { pathname } = useLocation();
   const isNarrow = useIsNarrow();
-  const onFilesPage = isFilesPath(pathname);
   const newestId = queue.items.at(-1)?.id ?? null;
   const [choice, setChoice] = useState<ExpandChoice | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const choiceKey = `${newestId ?? ""}:${onFilesPage ? "files" : "other"}`;
-  const expanded = choice?.key === choiceKey ? choice.expanded : !onFilesPage;
+  const choiceKey = newestId ?? "";
+  const expanded = choice?.key === choiceKey ? choice.expanded : !isNarrow;
   const setExpanded = (next: boolean) => setChoice({ key: choiceKey, expanded: next });
   const activeCount = queue.items.filter(isActiveUploadItem).length;
 
@@ -70,7 +66,6 @@ export const UploadQueuePanel = () => {
               <UploadQueueList
                 items={queue.items}
                 testIdPrefix="upload-queue-panel"
-                alertOnFailure={false}
                 isIdle={queue.isIdle}
                 onClearFinished={queue.clearFinished}
               />

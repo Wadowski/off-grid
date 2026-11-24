@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { UploadItem } from "../../types.js";
 import { UploadQueueRow } from "./upload-queue-row.js";
@@ -20,14 +20,10 @@ const ITEM: UploadItem = {
   file: null,
 };
 
-const renderRow = (overrides: Partial<UploadItem>, alertOnFailure = false) =>
+const renderRow = (overrides: Partial<UploadItem>) =>
   render(
     <ul>
-      <UploadQueueRow
-        item={{ ...ITEM, ...overrides }}
-        testIdPrefix="upload-queue-inline"
-        alertOnFailure={alertOnFailure}
-      />
+      <UploadQueueRow item={{ ...ITEM, ...overrides }} testIdPrefix="upload-queue-panel" />
     </ul>,
   );
 
@@ -35,7 +31,7 @@ describe("UploadQueueRow", () => {
   it("shows the name and a waiting status while the file is queued", () => {
     renderRow({ status: "queued" });
 
-    expect(screen.getByTestId("upload-queue-inline-row")).toHaveTextContent("Holiday.txt");
+    expect(screen.getByTestId("upload-queue-panel-row")).toHaveTextContent("Holiday.txt");
     expect(screen.getByText("Waiting")).toBeInTheDocument();
     expect(screen.getByRole("progressbar", { name: "Holiday.txt" })).toHaveAttribute(
       "aria-valuenow",
@@ -47,7 +43,7 @@ describe("UploadQueueRow", () => {
     renderRow({ status: "uploading", percent: 42 });
 
     expect(screen.getByText("42%")).toBeInTheDocument();
-    expect(screen.getByTestId("upload-queue-inline-progress")).toHaveAttribute(
+    expect(screen.getByTestId("upload-queue-panel-progress")).toHaveAttribute(
       "aria-valuenow",
       "42",
     );
@@ -57,24 +53,21 @@ describe("UploadQueueRow", () => {
     renderRow({ status: "done", percent: 100 });
 
     expect(screen.getByText("Uploaded")).toBeInTheDocument();
-    expect(screen.queryByTestId("upload-queue-inline-progress")).toBeNull();
+    expect(screen.queryByTestId("upload-queue-panel-progress")).toBeNull();
   });
 
   it("shows the error text of a failed file with an empty progress track", () => {
-    renderRow({ status: "failed", percent: 60, errorTextId: "files.errors.payloadTooLarge" }, true);
+    renderRow({ status: "failed", percent: 60, errorTextId: "files.errors.payloadTooLarge" });
 
-    const row = screen.getByTestId("upload-queue-inline-row");
-    expect(within(row).getByRole("alert")).toHaveTextContent("This file is too large to upload.");
-    expect(screen.getByTestId("upload-queue-inline-progress")).toHaveAttribute(
-      "aria-valuenow",
-      "0",
+    expect(screen.getByTestId("upload-queue-panel-row")).toHaveTextContent(
+      "This file is too large to upload.",
     );
+    expect(screen.getByTestId("upload-queue-panel-progress")).toHaveAttribute("aria-valuenow", "0");
   });
 
-  it("does not mark the failure as an alert on the floating surface", () => {
-    renderRow({ status: "failed", errorTextId: "files.errors.failed" }, false);
+  it("shows the generic failure text when the failure has no specific reason", () => {
+    renderRow({ status: "failed", errorTextId: null });
 
-    expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getByText("Something went wrong. Try again.")).toBeInTheDocument();
   });
 });

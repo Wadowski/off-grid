@@ -30,14 +30,7 @@ const uploadInput = (page: Page): Locator => page.getByTestId("files-upload-inpu
 const uploadButton = (page: Page): Locator => page.getByTestId("files-upload-button");
 
 const queueRow = (page: Page, name: string): Locator =>
-  page
-    .getByTestId("upload-queue-inline-row")
-    .filter({ has: page.getByText(name, { exact: true }) })
-    .or(
-      page
-        .getByTestId("upload-queue-panel-row")
-        .filter({ has: page.getByText(name, { exact: true }) }),
-    );
+  page.getByTestId("upload-queue-panel-row").filter({ has: page.getByText(name, { exact: true }) });
 
 const folderRow = (page: Page, name: string): Locator =>
   page
@@ -101,7 +94,7 @@ When(
 
 When("the upload finishes", async ({ page }) => {
   heldUploads.get(page)?.release();
-  await expect(page.getByTestId("upload-queue-inline-clear")).toBeVisible({
+  await expect(page.getByTestId("upload-queue-panel-clear")).toBeVisible({
     timeout: UPLOAD_TIMEOUT_MS,
   });
 });
@@ -153,7 +146,7 @@ When("Anna presses Escape in the upload sheet", async ({ page }) => {
 });
 
 When("Anna clears the finished uploads", async ({ page }) => {
-  await page.getByTestId("upload-queue-inline-clear").click();
+  await page.getByTestId("upload-queue-panel-clear").click();
 });
 
 Then(/^the upload queue shows "([^"]*)" as uploaded$/, async ({ page }, name: string) => {
@@ -165,15 +158,11 @@ Then(/^the upload queue shows "([^"]*)" as uploaded$/, async ({ page }, name: st
 Then(
   /^the upload queue shows "([^"]*)" as failed with "([^"]*)"$/,
   async ({ page }, name: string, reason: string) => {
-    const row = page.getByTestId("upload-queue-inline-row").filter({ hasText: name });
+    const row = page.getByTestId("upload-queue-panel-row").filter({ hasText: name });
     await expect(row).toHaveAttribute("data-status", "failed", { timeout: UPLOAD_TIMEOUT_MS });
-    await expect(row.getByRole("alert")).toHaveText(reason);
+    await expect(row).toContainText(reason);
   },
 );
-
-Then("the upload queue is not shown", async ({ page }) => {
-  await expect(page.getByTestId("upload-queue-inline")).toHaveCount(0);
-});
 
 Then("the floating upload panel is not shown", async ({ page }) => {
   await expect(page.getByTestId("upload-queue-panel")).toHaveCount(0);
@@ -216,7 +205,7 @@ Then("focus returns to the upload sheet toggle", async ({ page }) => {
 });
 
 Then("the clear finished action is not offered", async ({ page }) => {
-  await expect(page.getByTestId("upload-queue-inline-clear")).toHaveCount(0);
+  await expect(page.getByTestId("upload-queue-panel-clear")).toHaveCount(0);
 });
 
 Then("the file chooser is opened", async ({ page }) => {

@@ -6,7 +6,7 @@ import { UploadQueueRowStatus } from "./components/upload-queue-row-status/uploa
 import { uploadQueueRowNameStyle, uploadQueueRowStyle, uploadQueueRowTopStyle } from "./styles.js";
 import type { UploadQueueRowProps } from "./types.js";
 
-export const UploadQueueRow = ({ item, testIdPrefix, alertOnFailure }: UploadQueueRowProps) => (
+export const UploadQueueRow = ({ item, testIdPrefix }: UploadQueueRowProps) => (
   <li style={uploadQueueRowStyle} data-testid={`${testIdPrefix}-row`} data-status={item.status}>
     <div style={uploadQueueRowTopStyle}>
       <FileTypeIcon kind={fileKindFromMimeType(item.mimeType, false)} size="sm" />
@@ -17,7 +17,7 @@ export const UploadQueueRow = ({ item, testIdPrefix, alertOnFailure }: UploadQue
         title={item.name}
         style={uploadQueueRowNameStyle}
       />
-      <UploadQueueRowStatus item={item} alertOnFailure={alertOnFailure} />
+      <UploadQueueRowStatus item={item} />
     </div>
     {item.status === "done" ? null : (
       <ProgressBar

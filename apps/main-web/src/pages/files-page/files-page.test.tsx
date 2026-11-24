@@ -273,7 +273,7 @@ describe("FilesPage", () => {
     );
   });
 
-  it("queues the picked files in the open folder and shows them in the upload queue", async () => {
+  it("sends the picked files to the open folder", async () => {
     vi.mocked(uploadFile).mockReturnValue(new Promise(() => undefined) as never);
     renderAt(FOLDER_PATH);
     await screen.findByRole("table", { name: "Folder contents" });
@@ -282,10 +282,11 @@ describe("FilesPage", () => {
       target: { files: [new File(["x"], "Holiday.txt")] },
     });
 
-    expect(await screen.findByTestId("upload-queue-inline-row")).toHaveTextContent("Holiday.txt");
-    expect(uploadFile).toHaveBeenCalledWith(
-      DRIVE_ID,
-      expect.objectContaining({ parentId: FOLDER_ID }),
+    await waitFor(() =>
+      expect(uploadFile).toHaveBeenCalledWith(
+        DRIVE_ID,
+        expect.objectContaining({ parentId: FOLDER_ID }),
+      ),
     );
   });
 

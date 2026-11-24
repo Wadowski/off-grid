@@ -6,5 +6,4 @@ import type { UploadItem } from "../../types.js";
 export type UploadQueueRowProps = {
   readonly item: UploadItem;
   readonly testIdPrefix: string;
-  readonly alertOnFailure: boolean;
 };

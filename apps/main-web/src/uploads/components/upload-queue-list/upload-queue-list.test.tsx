@@ -21,12 +21,11 @@ const itemNamed = (name: string, status: UploadItem["status"]): UploadItem => ({
 });
 
 describe("UploadQueueList", () => {
-  it("lists every item as a row of the given surface", () => {
+  it("lists every item as a row", () => {
     render(
       <UploadQueueList
         items={[itemNamed("a.txt", "done"), itemNamed("b.txt", "queued")]}
         testIdPrefix="upload-queue-panel"
-        alertOnFailure={false}
         isIdle={false}
         onClearFinished={vi.fn()}
       />,
@@ -40,24 +39,22 @@ describe("UploadQueueList", () => {
     const { rerender } = render(
       <UploadQueueList
         items={[itemNamed("a.txt", "done")]}
-        testIdPrefix="upload-queue-inline"
-        alertOnFailure
+        testIdPrefix="upload-queue-panel"
         isIdle={false}
         onClearFinished={vi.fn()}
       />,
     );
-    expect(screen.queryByTestId("upload-queue-inline-clear")).toBeNull();
+    expect(screen.queryByTestId("upload-queue-panel-clear")).toBeNull();
 
     rerender(
       <UploadQueueList
         items={[itemNamed("a.txt", "done")]}
-        testIdPrefix="upload-queue-inline"
-        alertOnFailure
+        testIdPrefix="upload-queue-panel"
         isIdle
         onClearFinished={vi.fn()}
       />,
     );
-    expect(screen.getByTestId("upload-queue-inline-clear")).toHaveTextContent("Clear finished");
+    expect(screen.getByTestId("upload-queue-panel-clear")).toHaveTextContent("Clear finished");
   });
 
   it("calls onClearFinished when Clear finished is pressed", () => {
@@ -65,14 +62,13 @@ describe("UploadQueueList", () => {
     render(
       <UploadQueueList
         items={[itemNamed("a.txt", "done")]}
-        testIdPrefix="upload-queue-inline"
-        alertOnFailure
+        testIdPrefix="upload-queue-panel"
         isIdle
         onClearFinished={onClearFinished}
       />,
     );
 
-    fireEvent.click(screen.getByTestId("upload-queue-inline-clear"));
+    fireEvent.click(screen.getByTestId("upload-queue-panel-clear"));
 
     expect(onClearFinished).toHaveBeenCalledTimes(1);
   });

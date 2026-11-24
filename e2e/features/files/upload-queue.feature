@@ -54,6 +54,8 @@ Feature: Uploading files from the Files page with a visible queue
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens her personal drive on a phone
     And Anna uploads the files "Holiday.txt" from the phone top row
+    Then the floating upload panel is shown
+    When Anna expands the upload sheet
     Then the upload queue shows "Holiday.txt" as uploaded
 
   Scenario: The upload keeps going after Anna leaves the Files page
@@ -105,8 +107,7 @@ Feature: Uploading files from the Files page with a visible queue
     And Anna uploads the files "Holiday.txt" with the Upload button while the upload is slow
     And the upload finishes
     And Anna clears the finished uploads
-    Then the upload queue is not shown
-    And the floating upload panel is not shown
+    Then the floating upload panel is not shown
 
   @a11y
   Scenario: The Files page with finished uploads has no serious accessibility violations

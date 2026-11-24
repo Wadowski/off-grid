@@ -5,7 +5,7 @@ import { MaterialIcon, Text, cssVar } from "@offgrid/ui";
 import { uploadQueueRowStatusStyle } from "./styles.js";
 import type { UploadQueueRowStatusProps } from "./types.js";
 
-const StatusContent = ({ item, alertOnFailure }: UploadQueueRowStatusProps) => {
+const StatusContent = ({ item }: UploadQueueRowStatusProps) => {
   switch (item.status) {
     case "done":
       return (
@@ -18,12 +18,7 @@ const StatusContent = ({ item, alertOnFailure }: UploadQueueRowStatusProps) => {
       return (
         <>
           <MaterialIcon name="error" size="1rem" color={cssVar("color-danger")} filled />
-          <Text
-            variant="error"
-            textId={item.errorTextId ?? "files.errors.failed"}
-            element="span"
-            role={alertOnFailure ? "alert" : undefined}
-          />
+          <Text variant="error" textId={item.errorTextId ?? "files.errors.failed"} element="span" />
         </>
       );
     case "uploading":

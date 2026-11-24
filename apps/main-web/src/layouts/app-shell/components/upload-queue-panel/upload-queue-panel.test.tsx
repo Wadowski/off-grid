@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter, useNavigate } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { uploadFile } from "../../../../files/files-api.js";
 import { setSessionState } from "../../../../session/set-session-state.js";
@@ -26,21 +26,17 @@ const EnqueueButton = ({ path }: { path: string }) => {
   );
 };
 
-const GoToNotifications = () => {
-  const navigate = useNavigate();
-  return (
-    <button type="button" onClick={() => navigate("/notifications")}>
-      go to notifications
-    </button>
-  );
+let narrow = false;
+
+const stubNarrow = (value: boolean) => {
+  narrow = value;
 };
 
-const renderAt = (route: string, withNavigation = false) =>
+const renderAt = (route: string) =>
   render(
     <MemoryRouter initialEntries={[route]}>
       <UploadQueueProvider>
         <EnqueueButton path="Holiday.txt" />
-        {withNavigation ? <GoToNotifications /> : null}
         <UploadQueuePanel />
         <main tabIndex={-1} data-testid="main" />
       </UploadQueueProvider>
@@ -51,7 +47,23 @@ const addFile = () => {
   fireEvent.click(screen.getByRole("button", { name: "add Holiday.txt" }));
 };
 
+const originalMatchMedia = window.matchMedia;
+
 beforeEach(() => {
+  stubNarrow(false);
+  window.matchMedia = (query: string) =>
+    ({
+      get matches() {
+        return narrow && query.includes("max-width");
+      },
+      media: query,
+      onchange: null,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList;
   vi.mocked(uploadFile).mockReturnValue(new Promise(() => undefined) as never);
   setSessionState({
     status: "signedIn",
@@ -62,6 +74,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  window.matchMedia = originalMatchMedia;
   setSessionState({ status: "loading" });
   vi.clearAllMocks();
 });
@@ -73,19 +86,8 @@ describe("UploadQueuePanel", () => {
     expect(screen.queryByTestId("upload-queue-panel")).toBeNull();
   });
 
-  it("starts collapsed on the Files page", () => {
+  it("opens expanded on the desktop on the Files page and on other pages", () => {
     renderAt("/files");
-    addFile();
-
-    expect(screen.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-    expect(screen.queryByTestId("upload-queue-panel-row")).toBeNull();
-  });
-
-  it("opens expanded on another page", () => {
-    renderAt("/notifications");
     addFile();
 
     expect(screen.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
@@ -95,20 +97,16 @@ describe("UploadQueuePanel", () => {
     expect(screen.getByTestId("upload-queue-panel-row")).toHaveTextContent("Holiday.txt");
   });
 
-  it("expands when the person leaves the Files page with uploads in the queue", () => {
-    renderAt("/files", true);
+  it("starts minimized on a narrow screen", () => {
+    stubNarrow(true);
+    renderAt("/files");
     addFile();
+
     expect(screen.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
       "aria-expanded",
       "false",
     );
-
-    fireEvent.click(screen.getByRole("button", { name: "go to notifications" }));
-
-    expect(screen.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
+    expect(screen.queryByTestId("upload-queue-panel-row")).toBeNull();
   });
 
   it("toggles between expanded and minimized", () => {
