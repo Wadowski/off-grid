@@ -81,6 +81,8 @@ export const FILE_TABLE_COLUMNS: readonly FileTableColumn[] = [
   { key: "type", textId: "files.table.type", align: "start", width: "9rem" },
 ];
 
+export const FILE_TABLE_ACTIONS_WIDTH = "3rem";
+
 export const FLOATING_PANEL_Z_INDEX = 20;
 
 export const PROGRESS_BAR_HEIGHT = "0.375rem";

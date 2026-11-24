@@ -7,7 +7,7 @@ import { renderWithI18n } from "../../test/render-with-i18n.js";
 import { FileTable } from "./file-table.js";
 
 describe("FileTable", () => {
-  it("is a labelled table with Name, Modified, Size and Type column headers", () => {
+  it("is a labelled table with Name, Modified, Size, Type and a visually hidden Actions column header", () => {
     renderWithI18n(
       <FileTable isBusy={false}>
         <tr />
@@ -21,6 +21,7 @@ describe("FileTable", () => {
       "Modified",
       "Size",
       "Type",
+      "Actions",
     ]);
     for (const header of headers) {
       expect(header).toHaveAttribute("scope", "col");

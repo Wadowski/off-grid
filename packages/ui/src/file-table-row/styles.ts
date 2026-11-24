@@ -44,3 +44,9 @@ export const fileTableNameStyle: CSSProperties = {
   ...fileNameStyle,
   minWidth: 0,
 };
+
+export const fileTableActionsCellStyle: CSSProperties = {
+  ...fileTableCellStyle,
+  padding: `${cssVar("space-1")} ${cssVar("space-1")}`,
+  textAlign: "end",
+};

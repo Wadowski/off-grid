@@ -4,7 +4,7 @@
 import type { ParseKeys } from "i18next";
 import type { ButtonHTMLAttributes, ElementType, Ref } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 export type ButtonSize = "medium" | "small" | "icon";
 
