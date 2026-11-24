@@ -32,6 +32,12 @@ export const UploadQueuePanel = () => {
     }
   }, [newestId, openedFor, onFilesPage]);
 
+  useEffect(() => {
+    if (!onFilesPage) {
+      setExpanded(true);
+    }
+  }, [onFilesPage]);
+
   const collapse = () => {
     setExpanded(false);
     toggleRef.current?.focus();

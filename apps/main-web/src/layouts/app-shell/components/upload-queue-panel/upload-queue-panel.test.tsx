@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useNavigate } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { uploadFile } from "../../../../files/files-api.js";
 import { setSessionState } from "../../../../session/set-session-state.js";
@@ -26,11 +26,21 @@ const EnqueueButton = ({ path }: { path: string }) => {
   );
 };
 
-const renderAt = (route: string) =>
+const GoToNotifications = () => {
+  const navigate = useNavigate();
+  return (
+    <button type="button" onClick={() => navigate("/notifications")}>
+      go to notifications
+    </button>
+  );
+};
+
+const renderAt = (route: string, withNavigation = false) =>
   render(
     <MemoryRouter initialEntries={[route]}>
       <UploadQueueProvider>
         <EnqueueButton path="Holiday.txt" />
+        {withNavigation ? <GoToNotifications /> : null}
         <UploadQueuePanel />
         <main tabIndex={-1} data-testid="main" />
       </UploadQueueProvider>
@@ -83,6 +93,22 @@ describe("UploadQueuePanel", () => {
       "true",
     );
     expect(screen.getByTestId("upload-queue-panel-row")).toHaveTextContent("Holiday.txt");
+  });
+
+  it("expands when the person leaves the Files page with uploads in the queue", () => {
+    renderAt("/files", true);
+    addFile();
+    expect(screen.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "go to notifications" }));
+
+    expect(screen.getByTestId("upload-queue-panel-toggle")).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
   });
 
   it("toggles between expanded and minimized", () => {
