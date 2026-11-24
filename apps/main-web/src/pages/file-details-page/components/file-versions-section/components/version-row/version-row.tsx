@@ -5,7 +5,12 @@ import { formatFileSize, Tag, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { formatFileTimestamp } from "../../../../../../files/format-file-timestamp.js";
 import { VersionRowActions } from "../version-row-actions/version-row-actions.js";
-import { versionRowInfoStyle, versionRowMetaStyle, versionRowStyle, versionRowTitleStyle } from "./styles.js";
+import {
+  versionRowInfoStyle,
+  versionRowMetaStyle,
+  versionRowStyle,
+  versionRowTitleStyle,
+} from "./styles.js";
 import type { VersionRowProps } from "./types.js";
 
 export const VersionRow = ({
@@ -37,7 +42,11 @@ export const VersionRow = ({
         </div>
         <div style={versionRowMetaStyle}>
           {row.authorName === null ? (
-            <Text variant="caption" textId="files.versions.metaFormerMember" values={{ date: dateText }} />
+            <Text
+              variant="caption"
+              textId="files.versions.metaFormerMember"
+              values={{ date: dateText }}
+            />
           ) : (
             <Text
               variant="caption"

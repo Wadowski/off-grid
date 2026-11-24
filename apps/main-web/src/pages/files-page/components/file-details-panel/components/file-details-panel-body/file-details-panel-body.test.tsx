@@ -34,7 +34,8 @@ describe("FileDetailsPanelBody", () => {
 
   it("shows the type, size, modified, created and location rows without version or owner", () => {
     render(
-      <FileDetailsPanelBody versionsSection={null}
+      <FileDetailsPanelBody
+        versionsSection={null}
         file={FILE}
         breadcrumbs={[
           { kind: "drive", id: DRIVE_ID, name: "Personal" },

@@ -57,32 +57,32 @@ export const FileDetailsPanelBody = ({
 
   return (
     <>
-    <section
-      style={fileDetailsPanelSectionStyle}
-      aria-labelledby={headingId}
-      data-testid="file-details-panel-properties"
-    >
-      <Text
-        variant="label"
-        id={headingId}
-        textId="files.details.properties"
-        style={fileDetailsPanelHeadingStyle}
-      />
-      <dl style={fileDetailsPanelListStyle}>
-        {rows.map((row) => (
-          <div
-            key={row.key}
-            style={fileDetailsPanelRowStyle}
-            data-testid={`file-details-property-${row.key}`}
-          >
-            <dt style={fileDetailsPanelLabelStyle}>
-              <Text variant="label" textId={row.labelTextId} />
-            </dt>
-            <dd style={fileDetailsPanelValueStyle}>{row.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+      <section
+        style={fileDetailsPanelSectionStyle}
+        aria-labelledby={headingId}
+        data-testid="file-details-panel-properties"
+      >
+        <Text
+          variant="label"
+          id={headingId}
+          textId="files.details.properties"
+          style={fileDetailsPanelHeadingStyle}
+        />
+        <dl style={fileDetailsPanelListStyle}>
+          {rows.map((row) => (
+            <div
+              key={row.key}
+              style={fileDetailsPanelRowStyle}
+              data-testid={`file-details-property-${row.key}`}
+            >
+              <dt style={fileDetailsPanelLabelStyle}>
+                <Text variant="label" textId={row.labelTextId} />
+              </dt>
+              <dd style={fileDetailsPanelValueStyle}>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
       {versionsSection}
     </>
   );

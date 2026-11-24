@@ -777,7 +777,8 @@ export const en = {
       download: "Download version {{count}}",
       delete: "Delete version {{count}}",
       deleteTitle: "Delete version {{count}}?",
-      deleteBody: "This removes this version and its saved content. The current version is not affected.",
+      deleteBody:
+        "This removes this version and its saved content. The current version is not affected.",
       deleteConfirm: "Delete",
       deleteCancel: "Cancel",
       failed: "Versions could not be loaded.",

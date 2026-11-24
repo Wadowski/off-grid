@@ -4,7 +4,6 @@
 import { Button, Text } from "@offgrid/ui";
 import { versionsStatusStyle } from "./styles.js";
 import type { VersionsStatusProps } from "./types.js";
-import { toFilesErrorTextId } from "../../../../../../files/to-files-error-text-id.js";
 
 export const VersionsStatus = ({ status, errorTextId, onRetry }: VersionsStatusProps) => {
   if (status === "loading") {

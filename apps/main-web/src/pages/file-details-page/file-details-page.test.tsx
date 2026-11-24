@@ -128,11 +128,11 @@ const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <UploadQueueProvider>
-      <Routes>
-        <Route path="/files/:driveId/file/:fileId" element={<FileDetailsPage />} />
-        <Route path="/files/:driveId/folder/:folderId" element={<p>Folder page</p>} />
-        <Route path="/files" element={<p>Files home</p>} />
-      </Routes>
+        <Routes>
+          <Route path="/files/:driveId/file/:fileId" element={<FileDetailsPage />} />
+          <Route path="/files/:driveId/folder/:folderId" element={<p>Folder page</p>} />
+          <Route path="/files" element={<p>Files home</p>} />
+        </Routes>
       </UploadQueueProvider>
     </MemoryRouter>,
   );

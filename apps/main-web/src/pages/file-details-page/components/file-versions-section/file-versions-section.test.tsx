@@ -148,9 +148,7 @@ describe("FileVersionsSection", () => {
 
   it("shows an action failure as an alert", () => {
     render(
-      <FileVersionsSection
-        {...sectionWith({ errorTextId: "files.errors.currentVersion" })}
-      />,
+      <FileVersionsSection {...sectionWith({ errorTextId: "files.errors.currentVersion" })} />,
     );
 
     expect(screen.getByRole("alert")).toHaveTextContent(
@@ -169,11 +167,7 @@ describe("FileVersionsSection", () => {
   });
 
   it("disables the actions of the row that is pending", () => {
-    render(
-      <FileVersionsSection
-        {...sectionWith({ pendingVersionId: ROWS[1]?.id ?? null })}
-      />,
-    );
+    render(<FileVersionsSection {...sectionWith({ pendingVersionId: ROWS[1]?.id ?? null })} />);
 
     const [, earlier] = screen.getAllByTestId("file-version-row");
     expect(earlier).toHaveAttribute("aria-busy", "true");

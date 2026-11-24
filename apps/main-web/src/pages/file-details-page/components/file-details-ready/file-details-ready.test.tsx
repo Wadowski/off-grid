@@ -81,15 +81,15 @@ describe("FileDetailsReady", () => {
   it("shows the file name, its properties and a location link to the folder above", () => {
     render(
       <MemoryRouter>
-<UploadQueueProvider>
-        <FileDetailsReady
-          file={nestedFile()}
-          breadcrumbs={BREADCRUMBS}
-          backTarget={{ to: `/files/${DRIVE_ID}/folder/${PHOTOS_ID}`, name: "Photos" }}
-          screen={fileDetailsScreenFixture()}
-        />
-      </UploadQueueProvider>
-</MemoryRouter>,
+        <UploadQueueProvider>
+          <FileDetailsReady
+            file={nestedFile()}
+            breadcrumbs={BREADCRUMBS}
+            backTarget={{ to: `/files/${DRIVE_ID}/folder/${PHOTOS_ID}`, name: "Photos" }}
+            screen={fileDetailsScreenFixture()}
+          />
+        </UploadQueueProvider>
+      </MemoryRouter>,
     );
 
     expect(screen.getByTestId("file-details-name")).toHaveTextContent("Beach.jpg");

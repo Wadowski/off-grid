@@ -44,9 +44,19 @@ export const FileVersionsSection = ({
     >
       <div style={versionsHeaderStyle}>
         <div style={versionsTitleStyle}>
-          <Text variant="label" id={headingId} textId="files.versions.heading" style={versionsHeadingStyle} />
+          <Text
+            variant="label"
+            id={headingId}
+            textId="files.versions.heading"
+            style={versionsHeadingStyle}
+          />
           {status === "ready" ? (
-            <Text variant="caption" textId="files.versions.count" values={{ count: rows.length }} data-testid="file-versions-count" />
+            <Text
+              variant="caption"
+              textId="files.versions.count"
+              values={{ count: rows.length }}
+              data-testid="file-versions-count"
+            />
           ) : null}
         </div>
         <VersionUploadButton fileName={fileName} onFilePicked={onUploadPicked} />

@@ -6,7 +6,7 @@ import { useSession } from "../session/use-session.js";
 import { toMemberName } from "./to-member-name.js";
 import { useDrives } from "./use-drives.js";
 import { useFamilyMembers } from "./use-family-members.js";
-import type { Drive, FileEntry } from "./types.js";
+import type { FileEntry } from "./types.js";
 
 export const useFileVersionAuthors = (
   driveId: FileEntry["driveId"],
