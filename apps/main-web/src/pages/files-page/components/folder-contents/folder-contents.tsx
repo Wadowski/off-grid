@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
+import { useState } from "react";
 import { FileList } from "../../lists/file-list/file-list.js";
 import { FolderList } from "../folder-list/folder-list.js";
+import type { FileListItem } from "../../../../files/types.js";
 import { folderContentsErrorStyle, folderContentsStyle } from "./styles.js";
 import type { FolderContentsProps } from "./types.js";
 
 export const FolderContents = ({ driveId, contents, phone }: FolderContentsProps) => {
+  const [selectedId, setSelectedId] = useState<FileListItem["id"] | null>(null);
   if (contents.status === "loading") {
     return <Text variant="body" textId="files.folder.loading" />;
   }
@@ -16,6 +19,8 @@ export const FolderContents = ({ driveId, contents, phone }: FolderContentsProps
     items: contents.items,
     hasMore: contents.hasMore,
     isLoadingMore: contents.isLoadingMore,
+    selectedId,
+    onSelect: setSelectedId,
     onLoadMore: contents.loadMore,
   };
   return (

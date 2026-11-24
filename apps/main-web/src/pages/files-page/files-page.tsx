@@ -67,7 +67,12 @@ export const FilesPage = () => {
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents driveId={folder.driveId} contents={contents} phone={phone} />
+        <FolderContents
+          key={`${folder.driveId}:${folder.folderId ?? ""}`}
+          driveId={folder.driveId}
+          contents={contents}
+          phone={phone}
+        />
       ) : null}
     </div>
   );

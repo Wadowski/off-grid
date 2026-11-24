@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFile, listDriveChildren, listDrives, listFileChildren } from "../../files/files-api.js";
@@ -261,5 +261,55 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong. Try again."),
     );
+  });
+
+  it("marks the selected file row and clears the selection when another folder is opened", async () => {
+    const restore = withPhoneWidth(false);
+    const TRIP_ID = "4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e";
+    vi.mocked(listFileChildren).mockResolvedValue({
+      items: [
+        ...CHILDREN_PAGE.items,
+        {
+          id: TRIP_ID,
+          driveId: DRIVE_ID,
+          parentId: FOLDER_ID,
+          name: "Trip.pdf",
+          version: 1,
+          createdAt: "2026-01-01T00:00:00.000Z",
+          updatedAt: "2026-01-01T00:00:00.000Z",
+          deletedAt: null,
+          isFolder: false,
+          mimeType: "application/pdf",
+          size: 2048,
+          currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
+        },
+      ],
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
+      nextCursor: null,
+    } as never);
+    try {
+      renderAt(FOLDER_PATH);
+
+      await screen.findByRole("table", { name: "Folder contents" });
+      const tripRow = screen
+        .getAllByTestId("file-table-row")
+        .find((row) => row.textContent?.includes("Trip.pdf"));
+      fireEvent.click(within(tripRow as HTMLElement).getByTestId("file-table-activate"));
+      expect(tripRow).toHaveAttribute("data-selected", "true");
+
+      const summerRow = screen
+        .getAllByTestId("file-table-row")
+        .find((row) => row.textContent?.includes("Summer")) as HTMLElement;
+      fireEvent.click(within(summerRow).getByTestId("file-table-activate"));
+      await waitFor(() =>
+        expect(
+          screen
+            .getAllByTestId("file-table-row")
+            .every((row) => row.getAttribute("data-selected") === "false"),
+        ).toBe(true),
+      );
+    } finally {
+      restore();
+    }
   });
 });
