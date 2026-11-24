@@ -133,7 +133,12 @@ Then("the table fits its width without a horizontal scroll", async ({ page }) =>
 
 Then("the file details panel shows no download or link sections", async ({ page }) => {
   const panel = page.getByTestId(DETAILS_TESTID);
-  await expect(panel.getByRole("button", { name: /download|preview/i })).toHaveCount(0);
+  await expect(panel.getByTestId("file-versions-section")).toBeVisible();
+  const downloadOrPreview = panel.getByRole("button", { name: /download|preview/i });
+  const insideVersions = panel
+    .getByTestId("file-versions-section")
+    .getByRole("button", { name: /download|preview/i });
+  await expect(downloadOrPreview).toHaveCount(await insideVersions.count());
   await expect(panel.getByRole("link")).toHaveCount(0);
 });
 

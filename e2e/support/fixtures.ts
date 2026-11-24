@@ -36,6 +36,7 @@ export type ScenarioWorld = {
   member?: Member;
   response?: JsonResponse;
   download?: DownloadResponse;
+  browserDownload?: { name: string; content: string };
   issuedCode?: string;
   invitationCode?: string;
   invitationId?: string;
