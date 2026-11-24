@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { act, renderHook } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { act, render, renderHook } from "@testing-library/react";
+import { Activity, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@offgrid/api-client";
 import { uploadFile } from "../../files/files-api.js";
 import { setSessionState } from "../../session/set-session-state.js";
-import type { UploadTarget } from "../types.js";
+import type { UploadQueue, UploadTarget } from "../types.js";
 import { useUploadQueueContext } from "./use-upload-queue-context.js";
 import { UploadQueueProvider } from "./upload-queue-provider.js";
 
@@ -153,5 +153,32 @@ describe("UploadQueueProvider", () => {
     unmount();
 
     expect(pending[0]?.signal.aborted).toBe(true);
+  });
+
+  it("does not leave a row uploading when its effects are cleaned up and the queue state survives", async () => {
+    let queue: UploadQueue | null = null;
+    const Probe = () => {
+      queue = useUploadQueueContext();
+      return null;
+    };
+    const tree = (mode: "visible" | "hidden") => (
+      <Activity mode={mode}>
+        <UploadQueueProvider>
+          <Probe />
+        </UploadQueueProvider>
+      </Activity>
+    );
+    const { rerender } = render(tree("visible"));
+    act(() => {
+      queue?.enqueue([new File(["a"], "a.txt")], TARGET);
+    });
+
+    rerender(tree("hidden"));
+    rerender(tree("visible"));
+
+    expect(pending[0]?.signal.aborted).toBe(true);
+    expect(queue?.items[0]?.status).toBe("failed");
+    expect(queue?.items[0]?.errorTextId).toBe("files.upload.stoppedFamilySwitch");
+    expect(uploadMock).toHaveBeenCalledTimes(1);
   });
 });
