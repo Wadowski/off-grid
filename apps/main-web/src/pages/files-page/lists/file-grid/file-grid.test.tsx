@@ -162,7 +162,7 @@ describe("FileGrid", () => {
   });
 
   it("marks the selected file card", () => {
-    renderGrid({ selectedId: TRIP_ID });
+    renderGrid({ selectedId: TRIP_ID as FileListItem["id"] });
 
     expect(screen.getAllByTestId("file-card")[1]).toHaveAttribute("data-selected", "true");
     expect(screen.getAllByTestId("file-card")[0]).toHaveAttribute("data-selected", "false");

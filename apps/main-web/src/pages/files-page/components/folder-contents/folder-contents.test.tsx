@@ -28,7 +28,7 @@ const ENTRY: FileListItem = fileListItemSchema.parse({
   itemCount: 2,
 });
 
-const FILE: FileListItem = fileListItemSchema.parse({
+const FILE_ENTRY: FileListItem = fileListItemSchema.parse({
   id: "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b",
   driveId: DRIVE_ID,
   parentId: null,
@@ -43,8 +43,11 @@ const FILE: FileListItem = fileListItemSchema.parse({
   currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
 });
 
-const contentsWith = (overrides: Partial<FolderContentsState> = {}): FolderContentsState => ({
-  items: [ENTRY],
+const contentsWith = (
+  overrides: Partial<FolderContentsState> = {},
+  items: readonly FileListItem[] = [ENTRY, FILE_ENTRY],
+): FolderContentsState => ({
+  items,
   status: "ready",
   errorTextId: null,
   hasMore: false,
@@ -54,12 +57,31 @@ const contentsWith = (overrides: Partial<FolderContentsState> = {}): FolderConte
   ...overrides,
 });
 
-const renderContents = (phone: boolean, contents: FolderContentsState, view: FilesView = "list") =>
+const renderContents = (
+  phone: boolean,
+  contents: FolderContentsState,
+  view: FilesView = "list",
+  selectedId: FileListItem["id"] | null = null,
+  onSelect = vi.fn(),
+) =>
   render(
     <MemoryRouter>
-      <FolderContents driveId={DRIVE_ID} contents={contents} phone={phone} view={view} />
+      <FolderContents
+        driveId={DRIVE_ID}
+        contents={contents}
+        phone={phone}
+        view={view}
+        selectedId={selectedId}
+        onSelect={onSelect}
+      />
     </MemoryRouter>,
   );
+
+const activatorOf = (name: string) =>
+  screen
+    .getAllByTestId("file-table-row")
+    .find((row) => row.textContent?.includes(name))
+    ?.querySelector<HTMLElement>('[data-testid="file-table-activate"]');
 
 describe("FolderContents", () => {
   afterEach(() => {
@@ -88,7 +110,7 @@ describe("FolderContents", () => {
   });
 
   it("shows each entry as a card in grid view", () => {
-    renderContents(false, contentsWith({ items: [ENTRY, FILE] }), "grid");
+    renderContents(false, contentsWith(), "grid");
 
     const grid = screen.getByTestId("files-file-grid");
     expect(within(grid).getAllByRole("listitem")).toHaveLength(2);
@@ -96,20 +118,53 @@ describe("FolderContents", () => {
   });
 
   it("keeps the selected file when the view changes", () => {
-    const { rerender } = renderContents(false, contentsWith({ items: [FILE] }), "list");
-    fireEvent.click(within(screen.getByTestId("file-table-row")).getByRole("button"));
+    const { rerender } = renderContents(
+      false,
+      contentsWith({ items: [FILE_ENTRY] }),
+      "list",
+      FILE_ENTRY.id,
+    );
 
     rerender(
       <MemoryRouter>
         <FolderContents
           driveId={DRIVE_ID}
-          contents={contentsWith({ items: [FILE] })}
+          contents={contentsWith({ items: [FILE_ENTRY] })}
           phone={false}
           view="grid"
+          selectedId={FILE_ENTRY.id}
+          onSelect={vi.fn()}
         />
       </MemoryRouter>,
     );
 
     expect(screen.getByTestId("file-card")).toHaveAttribute("data-selected", "true");
+  });
+
+  it("reports the file whose row is activated on a desktop", () => {
+    const onSelect = vi.fn();
+    renderContents(false, contentsWith(), "list", null, onSelect);
+
+    fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
+
+    expect(onSelect).toHaveBeenCalledWith(FILE_ENTRY.id);
+  });
+
+  it("does not report a selection when a folder row is opened", () => {
+    const onSelect = vi.fn();
+    renderContents(false, contentsWith(), "list", null, onSelect);
+
+    fireEvent.click(activatorOf("Photos") as HTMLElement);
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("marks the row of the selected file", () => {
+    renderContents(false, contentsWith(), "list", FILE_ENTRY.id);
+
+    const row = screen
+      .getAllByTestId("file-table-row")
+      .find((candidate) => candidate.textContent?.includes("Trip.pdf"));
+    expect(row).toHaveAttribute("data-selected", "true");
   });
 });

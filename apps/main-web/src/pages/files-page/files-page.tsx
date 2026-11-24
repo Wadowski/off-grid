@@ -11,7 +11,7 @@ import { useFilesViewPreference } from "../../files/use-files-view-preference.js
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
-import type { DriveSwitcherProps } from "../../layouts/files-layout/components/drive-switcher/types.js";
+import type { FilesOutletContext } from "../../layouts/files-layout/types.js";
 import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
@@ -22,7 +22,7 @@ import { filesHeadingRowStyle, filesPageStyle } from "./styles.js";
 export const FilesPage = () => {
   const folder = useCurrentFolder();
   const phone = useMediaQuery(PHONE_CHROME_MEDIA_QUERY);
-  const switcher = useOutletContext<DriveSwitcherProps>();
+  const switcher = useOutletContext<FilesOutletContext>();
   const { preference, updatePreference } = useFilesViewPreference();
   const sortOrder = phone
     ? DEFAULT_FILES_SORT_ORDER
@@ -93,6 +93,8 @@ export const FilesPage = () => {
           contents={contents}
           phone={phone}
           view={phone ? "list" : preference.view}
+          selectedId={switcher.selectedFileId}
+          onSelect={switcher.onSelectFile}
         />
       ) : null}
     </div>

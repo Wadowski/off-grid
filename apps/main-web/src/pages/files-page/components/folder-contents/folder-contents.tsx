@@ -2,15 +2,24 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
-import { useState } from "react";
 import { FileGrid } from "../../lists/file-grid/file-grid.js";
 import { FileList } from "../../lists/file-list/file-list.js";
 import { FolderList } from "../folder-list/folder-list.js";
-import { folderContentsErrorStyle, folderContentsStyle } from "./styles.js";
+import {
+  folderContentsErrorStyle,
+  folderContentsListStyle,
+  folderContentsStyle,
+} from "./styles.js";
 import type { FolderContentsProps } from "./types.js";
 
-export const FolderContents = ({ driveId, contents, phone, view }: FolderContentsProps) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+export const FolderContents = ({
+  driveId,
+  contents,
+  phone,
+  view,
+  selectedId,
+  onSelect,
+}: FolderContentsProps) => {
   if (contents.status === "loading") {
     return <Text variant="body" textId="files.folder.loading" data-testid="files-folder-loading" />;
   }
@@ -21,18 +30,20 @@ export const FolderContents = ({ driveId, contents, phone, view }: FolderContent
     isLoadingMore: contents.isLoadingMore,
     onLoadMore: contents.loadMore,
     selectedId,
-    onSelect: setSelectedId,
+    onSelect,
   };
   return (
     <div style={folderContentsStyle} data-testid="files-folder-contents">
       {contents.items.length > 0 ? (
-        phone ? (
-          <FolderList {...listProps} />
-        ) : view === "grid" ? (
-          <FileGrid {...listProps} />
-        ) : (
-          <FileList {...listProps} />
-        )
+        <div style={folderContentsListStyle}>
+          {phone ? (
+            <FolderList {...listProps} />
+          ) : view === "grid" ? (
+            <FileGrid {...listProps} />
+          ) : (
+            <FileList {...listProps} />
+          )}
+        </div>
       ) : null}
       {contents.items.length === 0 && contents.status === "ready" ? (
         <Text variant="body" textId="files.folder.empty" data-testid="files-empty" />

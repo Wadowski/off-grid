@@ -8,7 +8,7 @@ export type FileListProps = {
   readonly items: readonly FileListItem[];
   readonly hasMore: boolean;
   readonly isLoadingMore: boolean;
+  readonly selectedId: FileListItem["id"] | null;
+  readonly onSelect: (id: FileListItem["id"]) => void;
   readonly onLoadMore: () => Promise<void>;
-  readonly selectedId: string | null;
-  readonly onSelect: (id: string) => void;
 };

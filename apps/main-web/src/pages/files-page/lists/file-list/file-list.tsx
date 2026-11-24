@@ -5,7 +5,7 @@ import { Button, FileTable, FileTableRow, Text } from "@offgrid/ui";
 import { useNavigate } from "react-router-dom";
 import { toFileRowValues } from "../../../../files/to-file-row-values.js";
 import { toFolderPath } from "../../../../files/to-folder-path.js";
-import { fileListStyle } from "./styles.js";
+import { fileListStyle, fileListTableStyle } from "./styles.js";
 import type { FileListProps } from "./types.js";
 
 export const FileList = ({
@@ -13,28 +13,30 @@ export const FileList = ({
   items,
   hasMore,
   isLoadingMore,
-  onLoadMore,
   selectedId,
   onSelect,
+  onLoadMore,
 }: FileListProps) => {
   const navigate = useNavigate();
 
   return (
     <div style={fileListStyle} data-testid="files-file-list">
-      <FileTable isBusy={isLoadingMore}>
-        {items.map((item) => (
-          <FileTableRow
-            key={item.id}
-            {...toFileRowValues(item)}
-            selected={item.id === selectedId}
-            onActivate={
-              item.isFolder
-                ? () => navigate(toFolderPath(driveId, item.id))
-                : () => onSelect(item.id)
-            }
-          />
-        ))}
-      </FileTable>
+      <div style={fileListTableStyle}>
+        <FileTable isBusy={isLoadingMore}>
+          {items.map((item) => (
+            <FileTableRow
+              key={item.id}
+              {...toFileRowValues(item)}
+              selected={item.id === selectedId}
+              onActivate={
+                item.isFolder
+                  ? () => navigate(toFolderPath(driveId, item.id))
+                  : () => onSelect(item.id)
+              }
+            />
+          ))}
+        </FileTable>
+      </div>
       {hasMore ? (
         <Button
           type="button"

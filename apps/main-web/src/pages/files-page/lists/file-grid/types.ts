@@ -9,6 +9,6 @@ export type FileGridProps = {
   readonly hasMore: boolean;
   readonly isLoadingMore: boolean;
   readonly onLoadMore: () => Promise<void>;
-  readonly selectedId: string | null;
-  readonly onSelect: (id: string) => void;
+  readonly selectedId: FileListItem["id"] | null;
+  readonly onSelect: (id: FileListItem["id"]) => void;
 };
