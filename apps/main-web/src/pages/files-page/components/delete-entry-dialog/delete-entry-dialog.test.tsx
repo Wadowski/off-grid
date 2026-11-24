@@ -48,6 +48,14 @@ describe("DeleteEntryDialog", () => {
     expect(screen.getByText(/You can restore it from the trash later/)).toBeInTheDocument();
   });
 
+  it("wraps its text and starts it at the left, even inside a nowrap or end-aligned cell", () => {
+    renderDialog();
+
+    const dialog = screen.getByTestId("delete-entry-dialog");
+    expect(dialog.style.whiteSpace).toBe("normal");
+    expect(dialog.style.textAlign).toBe("start");
+  });
+
   it("says that everything inside a folder goes too", () => {
     renderDialog({ name: "Photos", isFolder: true });
 

@@ -6,9 +6,16 @@ import type { CSSProperties } from "react";
 
 const dialogBorder = `1px solid ${cssVar("color-line")}`;
 
+const ownTextLayout: CSSProperties = {
+  whiteSpace: "normal",
+  overflowWrap: "anywhere",
+  textAlign: "start",
+};
+
 export const deleteEntryDialogStyle = (narrow: boolean): CSSProperties =>
   narrow
     ? {
+        ...ownTextLayout,
         width: "100vw",
         maxWidth: "100vw",
         height: "100dvh",
@@ -20,6 +27,7 @@ export const deleteEntryDialogStyle = (narrow: boolean): CSSProperties =>
         overflow: "hidden",
       }
     : {
+        ...ownTextLayout,
         width: `min(${tokens.size.popover}, calc(100vw - 2rem))`,
         maxHeight: "calc(100vh - 3rem)",
         border: dialogBorder,
