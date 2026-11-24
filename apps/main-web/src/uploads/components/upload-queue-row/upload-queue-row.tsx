@@ -19,10 +19,12 @@ export const UploadQueueRow = ({ item, testIdPrefix, alertOnFailure }: UploadQue
       />
       <UploadQueueRowStatus item={item} alertOnFailure={alertOnFailure} />
     </div>
-    <ProgressBar
-      label={item.name}
-      percent={item.status === "failed" ? 0 : item.percent}
-      testId={`${testIdPrefix}-progress`}
-    />
+    {item.status === "done" ? null : (
+      <ProgressBar
+        label={item.name}
+        percent={item.status === "failed" ? 0 : item.percent}
+        testId={`${testIdPrefix}-progress`}
+      />
+    )}
   </li>
 );

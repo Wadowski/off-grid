@@ -57,10 +57,7 @@ describe("UploadQueueRow", () => {
     renderRow({ status: "done", percent: 100 });
 
     expect(screen.getByText("Uploaded")).toBeInTheDocument();
-    expect(screen.getByTestId("upload-queue-inline-progress")).toHaveAttribute(
-      "aria-valuenow",
-      "100",
-    );
+    expect(screen.queryByTestId("upload-queue-inline-progress")).toBeNull();
   });
 
   it("shows the error text of a failed file with an empty progress track", () => {

@@ -16,14 +16,15 @@ export const uploadQueueRowStyle: CSSProperties = {
 
 export const uploadQueueRowTopStyle: CSSProperties = {
   display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
   gap: cssVar("space-3"),
   minWidth: 0,
 };
 
 export const uploadQueueRowNameStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
+  flex: "1 1 8rem",
+  minWidth: "8rem",
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
