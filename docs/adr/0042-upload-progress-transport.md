@@ -11,7 +11,7 @@ The API client in `packages/api-client` must stay free of session code, and the 
 ## Decision
 
 - `createApiClient` takes an optional `sendUpload` transport. `createFilesClient.uploadFile` builds the URL, the headers and the body, calls the transport and parses the answer with the contract schemas. Without a transport it falls back to the plain byte request, without progress.
-- The web app provides the transport in `apps/main-web/src/session/`. It sends with `XMLHttpRequest`, reports `upload.onprogress`, adds the same session headers as the other requests, and renews the session once on 401, like `sendWithSession`.
+- `packages/api-client` exports `sendUploadXhr`, the transport that sends with `XMLHttpRequest` and reports `upload.onprogress`. It holds no session code. The web app wraps it in `apps/main-web/src/session/send-upload-with-session.ts`, which adds the same session headers as the other requests and renews the session once on 401, like `sendWithSession`. The web app contains no request code of its own, as [frontend.md](../../.claude/rules/frontend.md) requires.
 - The upload queue is app-level React state in `AppShell`. It runs one upload at a time, in pick order. It is kept in memory for the browser tab, so it survives navigation inside the app and is dropped on sign-out, reload or a change of family space.
 
 ## Consequences
