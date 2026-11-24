@@ -3,7 +3,6 @@
 
 import type { ChildrenDirection, SortKeyField } from "../../types.js";
 
-// The Prisma column that each sort field orders by.
 const SORT_COLUMN = {
   name: "name",
   updatedAt: "updatedAt",

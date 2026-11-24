@@ -5,7 +5,6 @@ import { trashListQuerySchema } from "@offgrid/contracts";
 import { decodeCursor } from "../../domain/files/decode-cursor.js";
 import { isCursorForQuery } from "../../domain/files/is-cursor-for-query.js";
 
-// The trash is always ordered by name ascending, so only a cursor from that order is accepted.
 const TRASH_ORDER = { sort: "name", direction: "asc" } as const;
 
 export const trashQuerySchema = trashListQuerySchema

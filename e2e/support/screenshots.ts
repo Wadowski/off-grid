@@ -81,16 +81,9 @@ const captureMobile = async (
   }
 };
 
-// Waits until the folder list has loaded, so a capture never shows "Loading...". A viewport change
-// can refetch the folder (the phone layout sorts by name), and that fetch starts a frame or two
-// after the change. Two frames let React commit and start the fetch before the wait begins.
 export const settleFolderContents = async (page: Page): Promise<void> => {
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      ),
-  );
+  await nextFrame(page);
+  await nextFrame(page);
   await expect(page.getByTestId("files-folder-loading")).toHaveCount(0, { timeout: 15_000 });
 };
 

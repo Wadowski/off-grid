@@ -122,7 +122,6 @@ const listQueryParameters = [
   },
 ];
 
-// The trash takes only the cursor and limit: it has no sort or direction parameter.
 const trashListQueryParameters = [cursorParameter, limitParameter];
 
 const uploadIdParameter = {

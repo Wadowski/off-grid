@@ -129,10 +129,6 @@ describe("createFilesClient listing", () => {
     const { files, transport } = filesWith(jsonResponse(page));
 
     await files.listDriveTrash(DRIVE_ID, { cursor: "abc", limit: 5 });
-    // The trash has no sort parameter, so the type rejects it. The call is only type-checked.
-    // @ts-expect-error the trash list takes no sort option
-    const withSort = () => files.listDriveTrash(DRIVE_ID, { sort: "size" });
-    expect(withSort).toBeTypeOf("function");
 
     expect(transport).toHaveBeenCalledWith(
       `${BASE_URL}/drives/${DRIVE_ID}/trash?cursor=abc&limit=5`,

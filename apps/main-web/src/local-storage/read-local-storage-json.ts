@@ -3,8 +3,6 @@
 
 import type { z } from "zod";
 
-// Returns the JSON value stored under key when it matches the schema. Returns null when nothing
-// is stored, the text is not JSON, the value does not match, or storage is unavailable.
 export const readLocalStorageJson = <Schema extends z.ZodType>(
   key: string,
   schema: Schema,
