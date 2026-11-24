@@ -10,8 +10,15 @@ export const notificationCardRootStyle = (density: NotificationCardDensity): CSS
   display: "flex",
   flexDirection: "column",
   gap: cssVar("space-3"),
-  padding: density === "full" ? cssVar("space-5") : cssVar("space-4"),
+  padding: cssVar("space-4"),
   color: cssVar("color-fg"),
+  ...(density === "full"
+    ? {
+        background: cssVar("color-surface"),
+        borderRadius: cssVar("radius-lg"),
+        boxShadow: cssVar("elevation-2"),
+      }
+    : {}),
 });
 
 export const notificationCardActivatorStyle: CSSProperties = {
