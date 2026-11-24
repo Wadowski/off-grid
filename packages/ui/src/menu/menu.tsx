@@ -59,14 +59,30 @@ export const Menu = ({
       return undefined;
     }
     const closeOnOutsidePress = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        (panelRef.current?.contains(target) || triggerRef.current?.contains(target))
+      ) {
+        return;
+      }
+      close(false);
+    };
+    const closeOnViewportMove = (event: Event) => {
+      const target = event.target;
+      if (target instanceof Node && panelRef.current?.contains(target)) {
         return;
       }
       close(false);
     };
     document.addEventListener("pointerdown", closeOnOutsidePress);
-    return () => document.removeEventListener("pointerdown", closeOnOutsidePress);
+    window.addEventListener("scroll", closeOnViewportMove, true);
+    window.addEventListener("resize", closeOnViewportMove);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      window.removeEventListener("scroll", closeOnViewportMove, true);
+      window.removeEventListener("resize", closeOnViewportMove);
+    };
   }, [isOpen]);
 
   return (

@@ -6,7 +6,7 @@ import type { RefObject } from "react";
 
 export type MenuTone = "default" | "danger";
 
-export type MenuItem = {
+export type MenuAction = {
   readonly id: string;
   readonly textId: ParseKeys;
   readonly icon: string;
@@ -17,7 +17,7 @@ export type MenuItem = {
 
 export type MenuProps = {
   readonly label: string;
-  readonly items: readonly MenuItem[];
+  readonly items: readonly MenuAction[];
   readonly triggerTestId: string;
   readonly menuTestId: string;
   readonly triggerRef?: RefObject<HTMLButtonElement | null>;

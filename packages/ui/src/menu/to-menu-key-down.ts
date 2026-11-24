@@ -21,9 +21,10 @@ export const toMenuKeyDown =
     const items = Array.from(
       panelRef.current?.querySelectorAll<HTMLElement>(MENU_ITEM_SELECTOR) ?? [],
     );
+    const active = document.activeElement;
     const nextIndex = toNextMenuIndex(
       event.key,
-      items.indexOf(document.activeElement as HTMLElement),
+      active instanceof HTMLElement ? items.indexOf(active) : -1,
       items.length,
     );
     if (nextIndex === null) {

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { MenuItem } from "@offgrid/ui";
+import type { MenuAction } from "@offgrid/ui";
 import type { FileListItem } from "../../../../files/types.js";
 import { DELETE_ICON, FILE_OPEN_ICON, FOLDER_OPEN_ICON } from "./constants.js";
 import type { FileActionHandlers } from "./types.js";
@@ -9,7 +9,7 @@ import type { FileActionHandlers } from "./types.js";
 export const toFileActions = (
   entry: FileListItem,
   handlers: FileActionHandlers,
-): readonly MenuItem[] => [
+): readonly MenuAction[] => [
   {
     id: "open",
     textId: "files.entryActions.open",

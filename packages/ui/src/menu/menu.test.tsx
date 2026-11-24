@@ -5,9 +5,9 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { renderWithI18n } from "../../test/render-with-i18n.js";
 import { Menu } from "./menu.js";
-import type { MenuItem } from "./types.js";
+import type { MenuAction } from "./types.js";
 
-const renderMenu = (items: readonly MenuItem[] = [openItem(), deleteItem()]) =>
+const renderMenu = (items: readonly MenuAction[] = [openItem(), deleteItem()]) =>
   renderWithI18n(
     <Menu
       label="Actions for Photos"
@@ -17,7 +17,7 @@ const renderMenu = (items: readonly MenuItem[] = [openItem(), deleteItem()]) =>
     />,
   );
 
-const openItem = (onSelect = vi.fn()): MenuItem => ({
+const openItem = (onSelect = vi.fn()): MenuAction => ({
   id: "open",
   textId: "files.entryActions.open",
   icon: "open_in_new",
@@ -26,7 +26,7 @@ const openItem = (onSelect = vi.fn()): MenuItem => ({
   onSelect,
 });
 
-const deleteItem = (onSelect = vi.fn()): MenuItem => ({
+const deleteItem = (onSelect = vi.fn()): MenuAction => ({
   id: "delete",
   textId: "files.entryActions.delete",
   icon: "delete",
@@ -143,6 +143,18 @@ describe("Menu", () => {
     fireEvent.pointerDown(trigger());
 
     expect(trigger()).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("closes when the page scrolls or the window is resized", () => {
+    renderMenu();
+    fireEvent.click(trigger());
+
+    fireEvent.scroll(window);
+    expect(trigger()).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(trigger());
+    fireEvent(window, new Event("resize"));
+    expect(trigger()).toHaveAttribute("aria-expanded", "false");
   });
 
   it("separates a danger item from the items above it", () => {
