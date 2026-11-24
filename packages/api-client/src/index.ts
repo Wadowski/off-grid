@@ -17,5 +17,7 @@ export type {
   NotificationListOptions,
   SignInInput,
   SubscribeNotificationsOptions,
+  UploadProgressHandler,
+  UploadTransport,
 } from "./types.js";
 export type { components, paths } from "./generated/schema.js";
