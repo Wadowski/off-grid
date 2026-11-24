@@ -4,7 +4,7 @@
 import { Text } from "@offgrid/ui";
 import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
-import { FolderNotFound } from "../../errors/folder-not-found/folder-not-found.js";
+import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
 import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
 import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
@@ -35,7 +35,7 @@ export const FilesPage = () => {
   );
 
   if (folder.status === "not-found") {
-    return <FolderNotFound />;
+    return <ItemNotFound kind="folder" />;
   }
 
   const parentPath =

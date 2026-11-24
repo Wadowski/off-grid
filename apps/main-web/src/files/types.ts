@@ -11,9 +11,11 @@ import type {
   fileListSortSchema,
   fileSchema,
   filesErrorCodeSchema,
+  familyMemberSchema,
+  fileVersionSchema,
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
-import type { ListStatus } from "../types.js";
+import type { ListStatus, SessionUser } from "../types.js";
 import type { filesViewSchema } from "./files-view-preference-schema.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
@@ -113,4 +115,62 @@ export type FilesViewPreferenceState = {
 export type FileListOptions = Partial<FilesSortOrder> & {
   readonly cursor?: string;
   readonly limit?: number;
+};
+
+export type RegularFileEntry = Extract<FileEntry, { readonly isFolder: false }>;
+
+export type FileDetailsValues = {
+  readonly name: string;
+  readonly kind: FileKind;
+  readonly sizeBytes: number;
+  readonly version: number;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+};
+
+export type FileBackTarget = {
+  readonly to: string;
+  readonly name: string;
+};
+
+export type FileVersion = ReturnType<typeof fileVersionSchema.parse>;
+export type FamilyMemberEntry = ReturnType<typeof familyMemberSchema.parse>;
+
+export type FileVersionsState = {
+  readonly versions: readonly FileVersion[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
+};
+
+export type FamilyMembersState = {
+  readonly members: readonly FamilyMemberEntry[];
+  readonly status: ListStatus;
+  readonly refresh: () => Promise<void>;
+};
+
+export type FileAccessRole = "owner" | "admin" | "member";
+
+export type FileAccessEntry = {
+  readonly userId: string;
+  readonly name: string | null;
+  readonly role: FileAccessRole;
+};
+
+export type FileActivityEntry = {
+  readonly id: FileVersion["id"];
+  readonly number: number;
+  readonly createdAt: Date;
+  readonly name: string | null;
+};
+
+export type FileDetailsScreenState = {
+  readonly details: FileDetailsState;
+  readonly versions: FileVersionsState;
+  readonly drive: Drive | null;
+  readonly drivesStatus: ListStatus;
+  readonly members: readonly FamilyMemberEntry[];
+  readonly membersStatus: ListStatus;
+  readonly refreshMembers: () => Promise<void>;
+  readonly viewer: SessionUser | null;
 };

@@ -4,14 +4,13 @@
 import { cssVar, tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
-export const folderNotFoundStyle: CSSProperties = {
+export const fileDetailsStatusStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[3],
   justifyItems: "start",
-  padding: tokens.space[4],
   minWidth: 0,
 };
 
-export const folderNotFoundLinkStyle: CSSProperties = {
+export const fileDetailsStatusLinkStyle: CSSProperties = {
   color: cssVar("color-primary"),
 };
