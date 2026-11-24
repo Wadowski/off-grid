@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { MenuItem } from "../../types.js";
+import type { MenuAction } from "../../types.js";
 
-export type MenuItemProps = Omit<MenuItem, "id">;
+export type MenuItemProps = Omit<MenuAction, "id">;
