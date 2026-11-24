@@ -20,10 +20,14 @@ describe("toPreviewKind", () => {
     expect(toPreviewKind(" Image/PNG ; charset=binary")).toBe("image");
   });
 
-  it.each(["image/svg+xml", "text/html", "text/plain", "application/octet-stream", ""])(
-    "does not preview %s",
-    (mimeType) => {
-      expect(toPreviewKind(mimeType)).toBeNull();
-    },
-  );
+  it.each([
+    "image/svg+xml",
+    "text/html",
+    "text/plain",
+    "application/octet-stream",
+    "constructor",
+    "",
+  ])("does not preview %s", (mimeType) => {
+    expect(toPreviewKind(mimeType)).toBeNull();
+  });
 });

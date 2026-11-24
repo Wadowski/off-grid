@@ -31,7 +31,10 @@ export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
   isLoadingMore: false,
 };
 
-export const PREVIEW_KINDS: Record<PreviewKind, readonly string[]> = {
-  image: ["image/png", "image/jpeg", "image/gif", "image/webp"],
-  pdf: ["application/pdf"],
+export const PREVIEW_KIND_BY_MEDIA_TYPE: Readonly<Record<string, PreviewKind>> = {
+  "image/png": "image",
+  "image/jpeg": "image",
+  "image/gif": "image",
+  "image/webp": "image",
+  "application/pdf": "pdf",
 };
