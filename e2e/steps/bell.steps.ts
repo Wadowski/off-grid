@@ -87,9 +87,15 @@ Given(/^she has (\d+) unread calendar invitations? from Tom$/, async ({ world },
 });
 
 Given(/^she has (\d+) unread inbox items$/, async ({ world }, count: string) => {
+  const anna = annaOf(world);
   for (let created = 0; created < Number(count); created++) {
     await createNoticeForAnna(world);
   }
+  await waitForOwnNotifications(
+    world.api,
+    anna.session,
+    (list) => list.unreadCount === Number(count),
+  );
 });
 
 Given("she has no unread inbox items", async ({ world }) => {

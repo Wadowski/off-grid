@@ -5,7 +5,7 @@ import { Button, FileRow, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toFileRowValues } from "../../../../files/to-file-row-values.js";
-import { toFolderPath } from "../../../../files/to-folder-path.js";
+import { toEntryPath } from "../../../../files/to-entry-path.js";
 import { folderListItemsStyle, folderListRowStyle, folderListStyle } from "./styles.js";
 import type { FolderListProps } from "./types.js";
 
@@ -31,9 +31,7 @@ export const FolderList = ({
           <li key={item.id} style={folderListRowStyle}>
             <FileRow
               {...toFileRowValues(item)}
-              onActivate={
-                item.isFolder ? () => navigate(toFolderPath(driveId, item.id)) : undefined
-              }
+              onActivate={() => navigate(toEntryPath(driveId, item))}
             />
           </li>
         ))}
