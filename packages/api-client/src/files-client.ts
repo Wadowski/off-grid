@@ -136,7 +136,7 @@ export const createFilesClient = (client: ApiClient) => ({
         versionId === undefined
           ? fillRoute(filesRoutes.fileContent, { id: fileId })
           : fillRoute(filesRoutes.fileVersionContent, { id: fileId, versionId })
-      }?disposition=${disposition}`,
+      }?${new URLSearchParams({ disposition }).toString()}`,
     ),
 
   createUpload: async (input: CreateUploadRequest) =>
