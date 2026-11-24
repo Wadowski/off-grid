@@ -16,7 +16,11 @@ const versionRowBaseStyle: CSSProperties = {
 
 export const versionRowStyles: Record<VersionsSectionVariant, CSSProperties> = {
   panel: { ...versionRowBaseStyle, padding: `${tokens.space[1]} 0` },
-  screen: { ...versionRowBaseStyle, padding: `${tokens.space[3]} ${tokens.space[4]}` },
+  screen: {
+    ...versionRowBaseStyle,
+    flexWrap: "nowrap",
+    padding: `${tokens.space[3]} ${tokens.space[4]}`,
+  },
 };
 
 export const versionRowDividedStyles: Record<VersionsSectionVariant, CSSProperties> = {
