@@ -39,7 +39,7 @@ const ARCHIVE: FileListItem = fileListItemSchema.parse({
 
 const renderGroup = (overrides: Partial<FileGridGroupProps> = {}) => {
   const props: FileGridGroupProps = {
-    label: "Folders",
+    labelTextId: "files.grid.folders",
     testId: "files-file-grid-folders",
     items: [PHOTOS, ARCHIVE],
     selectedId: null,

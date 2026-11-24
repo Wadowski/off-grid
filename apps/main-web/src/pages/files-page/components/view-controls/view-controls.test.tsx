@@ -56,6 +56,15 @@ describe("ViewControls", () => {
     expect(props.onChange).toHaveBeenCalledWith({ direction: "desc" });
   });
 
+  it("names the view and sort controls from their translations", () => {
+    renderControls();
+
+    expect(screen.getByRole("group", { name: "View" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "List" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Grid" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toBeInTheDocument();
+  });
+
   it("names the ascending next state when the direction is descending", () => {
     renderControls({ direction: "desc" });
 

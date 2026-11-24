@@ -12,7 +12,7 @@ const i18n = i18next.createInstance();
 await i18n.init({
   lng: "en",
   resources: {
-    en: { translation: { "role.label": "Role" } },
+    en: { translation: { "role.label": "Role", "role.admin": "Administrator" } },
   },
 });
 
@@ -36,6 +36,21 @@ describe("Select", () => {
     renderWithI18n(<Select labelTextId="role.label" options={ROLE_OPTIONS} />);
 
     expect(screen.getByRole("combobox", { name: "Role" })).toBeInTheDocument();
+  });
+
+  it("renders option labels from their translation ids", () => {
+    renderWithI18n(
+      <Select
+        labelTextId="role.label"
+        options={[
+          { value: "admin", labelTextId: "role.admin" },
+          { value: "member", label: "Member" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("option", { name: "Administrator" })).toHaveValue("admin");
+    expect(screen.getByRole("option", { name: "Member" })).toHaveValue("member");
   });
 
   it("reports the chosen value", () => {

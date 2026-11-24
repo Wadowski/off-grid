@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, MaterialIcon, SegmentedControl, Select, cssVar } from "@offgrid/ui";
-import { useTranslation } from "react-i18next";
 import { FILES_SORT_FIELDS } from "../../../../files/constants.js";
 import type { FilesSortField, FilesView } from "../../../../files/types.js";
 import { viewControlsStyle } from "./styles.js";
@@ -12,18 +11,17 @@ const toSortField = (value: string): FilesSortField | undefined =>
   FILES_SORT_FIELDS.find((field) => field === value);
 
 export const ViewControls = ({ view, sort, direction, onChange }: ViewControlsProps) => {
-  const { t } = useTranslation();
   const isAscending = direction === "asc";
 
   return (
     <div style={viewControlsStyle} data-testid="files-view-controls">
       <SegmentedControl<FilesView>
-        label={t("files.view.label")}
+        labelTextId="files.view.label"
         value={view}
         onChange={(next) => onChange({ view: next })}
         options={[
-          { value: "list", label: t("files.view.list") },
-          { value: "grid", label: t("files.view.grid") },
+          { value: "list", labelTextId: "files.view.list" },
+          { value: "grid", labelTextId: "files.view.grid" },
         ]}
       />
       <Select
@@ -36,9 +34,9 @@ export const ViewControls = ({ view, sort, direction, onChange }: ViewControlsPr
           }
         }}
         options={[
-          { value: "name", label: t("files.sort.name") },
-          { value: "modified", label: t("files.sort.modified") },
-          { value: "size", label: t("files.sort.size") },
+          { value: "name", labelTextId: "files.sort.name" },
+          { value: "modified", labelTextId: "files.sort.modified" },
+          { value: "size", labelTextId: "files.sort.size" },
         ]}
         data-testid="files-sort-select"
       />
@@ -46,7 +44,7 @@ export const ViewControls = ({ view, sort, direction, onChange }: ViewControlsPr
         type="button"
         variant="secondary"
         size="icon"
-        aria-label={t(isAscending ? "files.sort.descending" : "files.sort.ascending")}
+        ariaLabelTextId={isAscending ? "files.sort.descending" : "files.sort.ascending"}
         onClick={() => onChange({ direction: isAscending ? "desc" : "asc" })}
         data-testid="files-sort-direction"
         data-direction={direction}

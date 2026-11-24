@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { splitFoldersAndFiles } from "../../../../files/split-folders-and-files.js";
 import { toFolderPath } from "../../../../files/to-folder-path.js";
@@ -21,7 +20,6 @@ export const FileGrid = ({
   onSelect,
 }: FileGridProps) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { folders, files } = splitFoldersAndFiles(items);
 
   const activate = (item: FileListItem) => {
@@ -37,7 +35,7 @@ export const FileGrid = ({
       <div style={fileGridStyle} aria-busy={isLoadingMore} data-testid="files-file-grid">
         {folders.length > 0 ? (
           <FileGridGroup
-            label={t("files.grid.folders")}
+            labelTextId="files.grid.folders"
             testId="files-file-grid-folders"
             items={folders}
             selectedId={selectedId}
@@ -46,7 +44,7 @@ export const FileGrid = ({
         ) : null}
         {files.length > 0 ? (
           <FileGridGroup
-            label={t("files.grid.files")}
+            labelTextId="files.grid.files"
             testId="files-file-grid-files"
             items={files}
             selectedId={selectedId}
