@@ -11,13 +11,66 @@ Feature: Grid view and sort order of the desktop Files page
   the same when the view changes.
 
   @screen:files-desktop-grid
-  Scenario: The grid shows each entry as a card
+  Scenario: The grid shows each entry as a card, folders first
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
+    And Anna has a personal-drive folder "Archive"
+    And Anna has a personal-drive file "Insurance policy.txt"
+    And Anna has a personal-drive file "Notes.txt"
+    When Anna opens the files page on a desktop screen
+    And Anna switches the view to grid
+    Then the grid shows the folder cards "Photos" and "Archive" above the file cards "Insurance policy.txt" and "Notes.txt"
+
+  @wip
+  Scenario: The grid keeps a clear gap between the folders and the files
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive folder "Photos"
+    And Anna has a personal-drive folder "Archive"
     And Anna has a personal-drive file "Insurance policy.txt"
     When Anna opens the files page on a desktop screen
     And Anna switches the view to grid
-    Then the grid shows the cards "Photos" and "Insurance policy.txt"
+    Then the grid shows the folders and the files as separate groups with space between them
+
+  @wip
+  Scenario: The grid lists folders first under every sort
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive file "Small.txt" of 100 bytes
+    And Anna has a personal-drive file "Large.txt" of 9000 bytes
+    And Anna has a personal-drive folder "Zulu"
+    And Anna has a personal-drive folder "Alpha"
+    When Anna opens the files page on a desktop screen
+    And Anna switches the view to grid
+    And Anna sorts the entries by size
+    Then the grid shows the cards "Alpha", "Zulu", "Small.txt" and "Large.txt" in that order
+    When Anna reverses the sort direction
+    Then the grid shows the cards "Zulu", "Alpha", "Large.txt" and "Small.txt" in that order
+
+  @wip
+  Scenario: The list lists folders first under every sort
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive file "Small.txt" of 100 bytes
+    And Anna has a personal-drive file "Large.txt" of 9000 bytes
+    And Anna has a personal-drive folder "Zulu"
+    And Anna has a personal-drive folder "Alpha"
+    When Anna opens the files page on a desktop screen
+    And Anna sorts the entries by modified date
+    Then the table rows read "Zulu", "Alpha", "Small.txt" and "Large.txt" in that order
+    When Anna reverses the sort direction
+    Then the table rows read "Alpha", "Zulu", "Large.txt" and "Small.txt" in that order
+
+  @wip
+  Scenario: Loading more entries in the grid extends the file group
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive folder "Archive" holding 51 files of increasing size
+    And Anna has a folder "Scans" inside the folder "Archive"
+    When Anna opens the files page on a desktop screen
+    And Anna opens the folder "Archive" from the table
+    And Anna switches the view to grid
+    And Anna sorts the entries by size
+    And Anna reverses the sort direction
+    And Anna loads more entries
+    Then the grid shows the folder cards "Scans" above 51 file cards
+    And the last grid file card is "File 01"
 
   Scenario: Switching back to the list shows the table again
     Given I am signed in as "Anna Kowalska", a regular member

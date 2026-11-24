@@ -40,6 +40,20 @@ const namesIn = (listing: string): string[] =>
 
 const gridCards = (page: Page) => page.getByTestId("files-file-grid").getByTestId("file-card");
 
+const folderGroupCards = (page: Page): Locator =>
+  page.getByTestId("files-file-grid-folders").getByTestId("file-card");
+
+const fileGroupCards = (page: Page): Locator =>
+  page.getByTestId("files-file-grid-files").getByTestId("file-card");
+
+const boxOf = async (locator: Locator): Promise<{ x: number; y: number; width: number; height: number }> => {
+  const box = await locator.boundingBox();
+  if (box === null) {
+    throw new Error("The card has no layout box.");
+  }
+  return box;
+};
+
 const gridCardNamed = (page: Page, name: string): Locator =>
   gridCards(page).filter({ has: page.getByTestId("file-name").getByText(name, { exact: true }) });
 
@@ -110,6 +124,21 @@ Given(
   },
 );
 
+Given(
+  /^Anna has a folder "([^"]*)" inside the folder "([^"]*)"$/,
+  async ({ world }, name: string, parentName: string) => {
+    const session = await ownSessionOf(world);
+    const driveId = await personalDriveIdAs(world.api, session);
+    const parentId = await findFolderFrom(
+      world.api,
+      session,
+      [{ kind: "drive", id: driveId }],
+      parentName,
+    );
+    await createFolderAs(world.api, session, driveId, parentId, name);
+  },
+);
+
 Given("the browser blocks its local storage", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(globalThis, "localStorage", {
@@ -158,6 +187,35 @@ When(
 
 Then(/^the grid shows the cards (.+)$/, async ({ page }, listing: string) => {
   await expect(gridCards(page).getByTestId("file-name")).toHaveText(namesIn(listing));
+});
+
+Then(
+  /^the grid shows the folder cards (.+) above the file cards (.+)$/,
+  async ({ page }, folderListing: string, fileListing: string) => {
+    await expect(folderGroupCards(page).getByTestId("file-name")).toHaveText(
+      namesIn(folderListing),
+    );
+    await expect(fileGroupCards(page).getByTestId("file-name")).toHaveText(namesIn(fileListing));
+  },
+);
+
+Then(/^the grid shows the folder cards (.+) above (\d+) file cards$/, async ({ page }, folderListing: string, count: string) => {
+  await expect(folderGroupCards(page).getByTestId("file-name")).toHaveText(namesIn(folderListing));
+  await expect(fileGroupCards(page)).toHaveCount(Number(count));
+});
+
+Then("the last grid file card is \"File 01\"", async ({ page }) => {
+  await expect(fileGroupCards(page).last().getByTestId("file-name")).toHaveText("File 01");
+});
+
+Then("the grid shows the folders and the files as separate groups with space between them", async ({ page }) => {
+  const firstFolder = await boxOf(folderGroupCards(page).nth(0));
+  const secondFolder = await boxOf(folderGroupCards(page).nth(1));
+  const lastFolder = await boxOf(folderGroupCards(page).last());
+  const firstFile = await boxOf(fileGroupCards(page).first());
+  const gapInRow = secondFolder.x - (firstFolder.x + firstFolder.width);
+  const gapBetweenGroups = firstFile.y - (lastFolder.y + lastFolder.height);
+  expect(gapBetweenGroups).toBeGreaterThan(gapInRow);
 });
 
 Then(/^the grid shows the card "([^"]*)"$/, async ({ page }, name: string) => {
