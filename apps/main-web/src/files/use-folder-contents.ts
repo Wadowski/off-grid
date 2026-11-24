@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { EMPTY_FOLDER_CONTENTS } from "./constants.js";
 import { fetchFolderPage } from "./fetch-folder-page.js";
 import { toFilesErrorTextId } from "./to-files-error-text-id.js";
+import { toReadySnapshot } from "./to-ready-snapshot.js";
 import type { Drive, FileEntry, FolderContentsSnapshot, FolderContentsState } from "./types.js";
 
 export const useFolderContents = (
@@ -28,13 +29,7 @@ export const useFolderContents = (
     try {
       const page = await fetchFolderPage(driveId, folderId, null);
       if (request === latestRequest.current) {
-        setSnapshot({
-          items: page.items,
-          nextCursor: page.nextCursor,
-          status: "ready",
-          errorTextId: null,
-          isLoadingMore: false,
-        });
+        setSnapshot(toReadySnapshot(page));
       }
     } catch (error) {
       if (request === latestRequest.current) {
@@ -54,13 +49,7 @@ export const useFolderContents = (
     const request = ++latestRequest.current;
     const page = await fetchFolderPage(driveId, folderId, null).catch(() => null);
     if (page !== null && request === latestRequest.current) {
-      setSnapshot({
-        items: page.items,
-        nextCursor: page.nextCursor,
-        status: "ready",
-        errorTextId: null,
-        isLoadingMore: false,
-      });
+      setSnapshot(toReadySnapshot(page));
     }
   }, [driveId, folderId]);
 
