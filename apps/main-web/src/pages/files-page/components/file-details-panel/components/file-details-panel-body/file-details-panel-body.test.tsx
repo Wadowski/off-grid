@@ -53,4 +53,14 @@ describe("FileDetailsPanelBody", () => {
     expect(screen.queryByTestId("file-details-property-version")).not.toBeInTheDocument();
     expect(screen.queryByText("Owner")).not.toBeInTheDocument();
   });
+
+  it("labels the properties section with its uppercase heading and lists the label before the value", () => {
+    render(<FileDetailsPanelBody file={FILE} breadcrumbs={[]} />);
+
+    const section = screen.getByRole("region", { name: "File properties" });
+    const row = screen.getByTestId("file-details-property-size");
+    expect(section).toContainElement(row);
+    expect(row.querySelector("dt")).toHaveTextContent("Size");
+    expect(row.querySelector("dd")).toHaveTextContent("2.0 KB");
+  });
 });

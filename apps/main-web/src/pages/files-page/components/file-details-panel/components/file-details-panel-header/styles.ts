@@ -9,8 +9,8 @@ export const fileDetailsPanelHeaderStyle: CSSProperties = {
   alignItems: "center",
   justifyContent: "space-between",
   gap: tokens.space[2],
-  paddingBottom: tokens.space[2],
-  borderBottom: `1px solid ${cssVar("color-line")}`,
+  paddingBottom: tokens.space[3],
+  borderBottom: `1px solid ${cssVar("color-surface-high")}`,
   minWidth: 0,
 };
 
@@ -27,4 +27,6 @@ export const fileDetailsPanelNameStyle: CSSProperties = {
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
+  fontSize: cssVar("font-size-headline-sm"),
+  lineHeight: cssVar("line-height-headline-sm"),
 };
