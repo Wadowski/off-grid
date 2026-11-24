@@ -31,3 +31,23 @@ export const uploadQueuePanelHeaderActionsStyle: CSSProperties = {
   gap: cssVar("space-1"),
   flexShrink: 0,
 };
+
+export const uploadQueuePanelHeaderSummaryStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+export const uploadQueuePanelPulseDotStyle: CSSProperties = {
+  width: "0.5rem",
+  height: "0.5rem",
+  borderRadius: cssVar("radius-full"),
+  background: cssVar("color-primary"),
+  flexShrink: 0,
+};
+
+export const uploadQueuePanelInverseTextStyle: CSSProperties = {
+  color: cssVar("color-dark-chip-fg"),
+};

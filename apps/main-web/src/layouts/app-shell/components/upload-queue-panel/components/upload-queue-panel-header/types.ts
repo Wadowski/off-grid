@@ -6,7 +6,9 @@ import type { PanelSummary } from "../../types.js";
 
 export type UploadQueuePanelHeaderProps = {
   readonly summary: PanelSummary;
+  readonly activeCount: number;
   readonly expanded: boolean;
+  readonly sheet: boolean;
   readonly controlsId: string;
   readonly isIdle: boolean;
   readonly toggleRef: RefObject<HTMLButtonElement | null>;

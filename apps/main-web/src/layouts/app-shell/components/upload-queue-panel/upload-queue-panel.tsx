@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { FloatingPanel } from "@offgrid/ui";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useIsNarrow } from "../../../../media/use-is-narrow.js";
 import { UploadQueueList } from "../../../../uploads/components/upload-queue-list/upload-queue-list.js";
 import { UploadQueueLiveRegion } from "../../../../uploads/components/upload-queue-live-region/upload-queue-live-region.js";
-import { useUploadQueueContext } from "../../../../uploads/index.js";
+import { isActiveUploadItem, useUploadQueueContext } from "../../../../uploads/index.js";
 import { UploadQueuePanelHeader } from "./components/upload-queue-panel-header/upload-queue-panel-header.js";
 import { isFilesPath } from "./is-files-path.js";
 import { uploadQueuePanelListStyle } from "./styles.js";
@@ -15,28 +15,20 @@ import { toPanelSummary } from "./to-panel-summary.js";
 
 const PANEL_LIST_ID = "upload-queue-panel-list";
 
+type ExpandChoice = { readonly key: string; readonly expanded: boolean };
+
 export const UploadQueuePanel = () => {
   const queue = useUploadQueueContext();
   const { pathname } = useLocation();
   const isNarrow = useIsNarrow();
   const onFilesPage = isFilesPath(pathname);
   const newestId = queue.items.at(-1)?.id ?? null;
-  const [openedFor, setOpenedFor] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [choice, setChoice] = useState<ExpandChoice | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (newestId !== null && newestId !== openedFor) {
-      setOpenedFor(newestId);
-      setExpanded(!onFilesPage);
-    }
-  }, [newestId, openedFor, onFilesPage]);
-
-  useEffect(() => {
-    if (!onFilesPage) {
-      setExpanded(true);
-    }
-  }, [onFilesPage]);
+  const choiceKey = `${newestId ?? ""}:${onFilesPage ? "files" : "other"}`;
+  const expanded = choice?.key === choiceKey ? choice.expanded : !onFilesPage;
+  const setExpanded = (next: boolean) => setChoice({ key: choiceKey, expanded: next });
+  const activeCount = queue.items.filter(isActiveUploadItem).length;
 
   const collapse = () => {
     setExpanded(false);
@@ -65,11 +57,13 @@ export const UploadQueuePanel = () => {
         >
           <UploadQueuePanelHeader
             summary={toPanelSummary(queue.items)}
+            activeCount={activeCount}
             expanded={expanded}
+            sheet={isNarrow}
             controlsId={PANEL_LIST_ID}
             isIdle={queue.isIdle}
             toggleRef={toggleRef}
-            onToggle={() => setExpanded((current) => !current)}
+            onToggle={() => setExpanded(!expanded)}
             onClose={queue.clearFinished}
           />
           {expanded ? (

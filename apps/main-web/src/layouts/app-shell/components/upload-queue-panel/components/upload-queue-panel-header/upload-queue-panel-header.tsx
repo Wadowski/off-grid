@@ -1,19 +1,26 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, MaterialIcon, ProgressBar, Text, cssVar } from "@offgrid/ui";
+import { Button, IconTile, MaterialIcon, ProgressBar, Tag, Text, cssVar } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import {
   uploadQueuePanelHeaderActionsStyle,
   uploadQueuePanelHeaderRowStyle,
   uploadQueuePanelHeaderStyle,
+  uploadQueuePanelHeaderSummaryStyle,
   uploadQueuePanelHeaderTitleStyle,
+  uploadQueuePanelInverseTextStyle,
+  uploadQueuePanelPulseDotStyle,
 } from "./styles.js";
 import type { UploadQueuePanelHeaderProps } from "./types.js";
 
+// The slots keep the same child positions in both states, so the toggle button
+// is not remounted (and focus is not lost) when the panel expands or minimizes.
 export const UploadQueuePanelHeader = ({
   summary,
+  activeCount,
   expanded,
+  sheet,
   controlsId,
   isIdle,
   toggleRef,
@@ -21,23 +28,59 @@ export const UploadQueuePanelHeader = ({
   onClose,
 }: UploadQueuePanelHeaderProps) => {
   const { t } = useTranslation();
+  const isActive = activeCount > 0;
+  const inverse = sheet && !expanded;
+  const iconColor = inverse ? cssVar("color-dark-chip-fg") : cssVar("color-muted");
+  const textStyle = inverse ? uploadQueuePanelInverseTextStyle : undefined;
+  const showBar = expanded || isActive;
+
+  const pillLine = isActive
+    ? { textId: "files.upload.summaryUploading" as const, values: { count: activeCount, percent: summary.percent } }
+    : { textId: summary.textId, values: summary.values };
+
   return (
     <div style={uploadQueuePanelHeaderStyle}>
       <div style={uploadQueuePanelHeaderRowStyle}>
-        <Text
-          variant="label"
-          textId="files.upload.heading"
-          element="p"
-          id="upload-queue-panel-title"
-          style={uploadQueuePanelHeaderTitleStyle}
-        />
-        <Text
-          variant="caption"
-          textId={summary.textId}
-          values={summary.values}
-          element="span"
-          data-testid="upload-queue-panel-summary"
-        />
+        {expanded ? null : (
+          <IconTile
+            size="1.75rem"
+            shape="circle"
+            background={cssVar("color-primary")}
+            color={cssVar("color-accent-fg")}
+          >
+            <MaterialIcon name={isActive ? "cloud_upload" : "check"} size="1rem" />
+          </IconTile>
+        )}
+        {expanded ? (
+          <Text
+            variant="label"
+            textId={sheet ? "files.upload.sheetTitle" : "files.upload.panelTitle"}
+            element="p"
+            id="upload-queue-panel-title"
+            style={uploadQueuePanelHeaderTitleStyle}
+          />
+        ) : (
+          <Text
+            variant="label"
+            textId={pillLine.textId}
+            values={pillLine.values}
+            element="span"
+            style={{ ...uploadQueuePanelHeaderSummaryStyle, ...textStyle }}
+            data-testid="upload-queue-panel-summary"
+          />
+        )}
+        {expanded ? (
+          <Tag tone="accent">
+            <Text
+              variant="caption"
+              textId="files.upload.activeBadge"
+              values={{ count: activeCount }}
+              element="span"
+            />
+          </Tag>
+        ) : isActive ? (
+          <span aria-hidden="true" className="og-pulse" style={uploadQueuePanelPulseDotStyle} />
+        ) : null}
         <div style={uploadQueuePanelHeaderActionsStyle}>
           <Button
             ref={toggleRef}
@@ -46,13 +89,14 @@ export const UploadQueuePanelHeader = ({
             onClick={onToggle}
             aria-expanded={expanded}
             aria-controls={expanded ? controlsId : undefined}
-            aria-label={t(expanded ? "files.upload.minimize" : "files.upload.expand")}
+            aria-label={expanded ? t("files.upload.minimize") : undefined}
             data-testid="upload-queue-panel-toggle"
           >
+            {expanded ? null : <Text variant="action" textId="files.upload.view" element="span" style={textStyle} />}
             <MaterialIcon
               name={expanded ? "keyboard_arrow_down" : "keyboard_arrow_up"}
               size="1.25rem"
-              color={cssVar("color-muted")}
+              color={iconColor}
             />
           </Button>
           {isIdle ? (
@@ -63,16 +107,27 @@ export const UploadQueuePanelHeader = ({
               aria-label={t("files.upload.close")}
               data-testid="upload-queue-panel-close"
             >
-              <MaterialIcon name="close" size="1.25rem" color={cssVar("color-muted")} />
+              <MaterialIcon name="close" size="1.25rem" color={iconColor} />
             </Button>
           ) : null}
         </div>
       </div>
-      <ProgressBar
-        label={t("files.upload.heading")}
-        percent={summary.percent}
-        testId="upload-queue-panel-overall-progress"
-      />
+      {expanded ? (
+        <Text
+          variant="caption"
+          textId={summary.textId}
+          values={summary.values}
+          element="span"
+          data-testid="upload-queue-panel-summary"
+        />
+      ) : null}
+      {showBar ? (
+        <ProgressBar
+          label={t("files.upload.heading")}
+          percent={summary.percent}
+          testId="upload-queue-panel-overall-progress"
+        />
+      ) : null}
     </div>
   );
 };
