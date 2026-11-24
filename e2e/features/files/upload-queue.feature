@@ -72,7 +72,7 @@ Feature: Uploading files from the Files page with a visible queue
     And Anna uploads the files "Holiday.txt" with the Upload button
     And Anna opens the Calendar page
     Then the floating upload panel is shown
-    When Anna opens her personal drive in the browser
+    When Anna goes back to the Files page in the app
     Then the floating upload panel is shown
 
   @screen:files-upload-sheet-mobile

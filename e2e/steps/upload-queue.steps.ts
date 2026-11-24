@@ -120,6 +120,19 @@ When("Anna opens the Calendar page", async ({ page }) => {
   await expect(page).toHaveURL(/\/calendar/);
 });
 
+When("Anna goes back to the Files page in the app", async ({ page }) => {
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("link", { name: "Files", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/files/);
+  await page
+    .getByRole("navigation", { name: "Drives" })
+    .getByRole("link", { name: "Personal", exact: true })
+    .click();
+  await expect(uploadButton(page)).toBeEnabled({ timeout: UPLOAD_TIMEOUT_MS });
+});
+
 When("Anna reaches the Upload button with the keyboard and presses Enter", async ({ page }) => {
   await uploadButton(page).focus();
   fileChoosers.set(page, page.waitForEvent("filechooser"));
