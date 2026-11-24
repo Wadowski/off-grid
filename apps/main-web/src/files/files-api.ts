@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { UploadFileInput } from "@offgrid/api-client";
+import type { UploadFileInput, UploadFileVersionInput } from "@offgrid/api-client";
 import { webFilesClient } from "../api/web-api-client.js";
 import type {
   Drive,
@@ -32,3 +32,23 @@ export const listFileVersions = (fileId: FileEntry["id"]): Promise<readonly File
 
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);
+
+export const uploadFileVersion = (
+  fileId: FileEntry["id"],
+  input: UploadFileVersionInput,
+): Promise<FileEntry> => webFilesClient.uploadFileVersion(fileId, input);
+
+export const restoreFileVersion = (
+  fileId: FileEntry["id"],
+  versionId: FileVersion["id"],
+): Promise<FileEntry> => webFilesClient.restoreFileVersion(fileId, versionId);
+
+export const deleteFileVersion = (
+  fileId: FileEntry["id"],
+  versionId: FileVersion["id"],
+): Promise<void> => webFilesClient.deleteFileVersion(fileId, versionId);
+
+export const getFileVersionContent = (
+  fileId: FileEntry["id"],
+  versionId: FileVersion["id"],
+): Promise<Blob> => webFilesClient.downloadFileVersion(fileId, versionId);
