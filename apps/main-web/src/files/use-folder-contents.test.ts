@@ -113,4 +113,47 @@ describe("useFolderContents", () => {
     expect(result.current.status).toBe("loading");
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("replaces the shown list after a quiet refresh without blanking it", async () => {
+    const NEW_ITEM = { ...FOLDER_ITEM, id: "8e9f0a1b-2c3d-4e5f-9a6b-7c8d9e0f1a2b", name: "Trip" };
+    let resolveRefresh: (response: Response) => void = () => undefined;
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(pageOf([FOLDER_ITEM], null))
+      .mockReturnValueOnce(new Promise<Response>((resolve) => (resolveRefresh = resolve)));
+    vi.stubGlobal("fetch", fetchMock);
+    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    let refreshing: Promise<void> = Promise.resolve();
+    act(() => {
+      refreshing = result.current.refreshQuietly();
+    });
+
+    expect(result.current.status).toBe("ready");
+    expect(result.current.items).toEqual([FOLDER_ITEM]);
+    await act(async () => {
+      resolveRefresh(pageOf([NEW_ITEM], null));
+      await refreshing;
+    });
+    expect(result.current.items).toEqual([NEW_ITEM]);
+  });
+
+  it("keeps the shown list and shows no error when a quiet refresh fails", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(pageOf([FOLDER_ITEM], null))
+      .mockRejectedValueOnce(new TypeError("network down"));
+    vi.stubGlobal("fetch", fetchMock);
+    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    await act(async () => {
+      await result.current.refreshQuietly();
+    });
+
+    expect(result.current.status).toBe("ready");
+    expect(result.current.errorTextId).toBeNull();
+    expect(result.current.items).toEqual([FOLDER_ITEM]);
+  });
 });

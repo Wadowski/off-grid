@@ -47,6 +47,23 @@ export const useFolderContents = (
     }
   }, [driveId, folderId, targetKey]);
 
+  const refreshQuietly = useCallback(async () => {
+    if (driveId === null) {
+      return;
+    }
+    const request = ++latestRequest.current;
+    const page = await fetchFolderPage(driveId, folderId, null).catch(() => null);
+    if (page !== null && request === latestRequest.current) {
+      setSnapshot({
+        items: page.items,
+        nextCursor: page.nextCursor,
+        status: "ready",
+        errorTextId: null,
+        isLoadingMore: false,
+      });
+    }
+  }, [driveId, folderId]);
+
   const loadMore = useCallback(async () => {
     if (driveId === null || nextCursor === null) {
       return;
@@ -90,6 +107,7 @@ export const useFolderContents = (
       isLoadingMore: false,
       loadMore,
       refresh,
+      refreshQuietly,
     };
   }
   return {
@@ -100,5 +118,6 @@ export const useFolderContents = (
     isLoadingMore: snapshot.isLoadingMore,
     loadMore,
     refresh,
+    refreshQuietly,
   };
 };
