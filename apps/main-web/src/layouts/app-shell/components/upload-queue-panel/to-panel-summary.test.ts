@@ -24,6 +24,13 @@ describe("toPanelSummary", () => {
     });
   });
 
+  it("does not count a failed upload as progress in the aggregate", () => {
+    expect(toPanelSummary([itemWith("done", 100), itemWith("failed", 100)])).toMatchObject({
+      textId: "files.upload.summaryFailed",
+      percent: 50,
+    });
+  });
+
   it("reports the uploaded count when everything succeeded", () => {
     expect(toPanelSummary([itemWith("done", 100), itemWith("done", 100)])).toMatchObject({
       textId: "files.upload.summaryDone",
