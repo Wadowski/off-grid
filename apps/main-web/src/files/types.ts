@@ -14,6 +14,7 @@ import type {
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus } from "../types.js";
+import type { filesViewSchema } from "./files-view-preference-schema.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
 export type FileEntry = ReturnType<typeof fileSchema.parse>;
@@ -98,7 +99,7 @@ export type FilesSortOrder = {
   readonly direction: FilesSortDirection;
 };
 
-export type FilesView = "list" | "grid";
+export type FilesView = (typeof filesViewSchema.options)[number];
 
 export type FilesViewPreference = FilesSortOrder & {
   readonly view: FilesView;

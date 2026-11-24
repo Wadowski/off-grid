@@ -4,8 +4,10 @@
 import { fileListDirectionSchema, fileListSortSchema } from "@offgrid/contracts";
 import { z } from "zod";
 
+export const filesViewSchema = z.enum(["list", "grid"]);
+
 export const filesViewPreferenceSchema = z.object({
-  view: z.enum(["list", "grid"]),
+  view: filesViewSchema,
   sort: fileListSortSchema,
   direction: fileListDirectionSchema,
 });

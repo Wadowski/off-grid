@@ -25,4 +25,20 @@ describe("useFilesViewPreference", () => {
       direction: "desc",
     });
   });
+
+  it("applies two changes made in the same tick", () => {
+    const { result } = renderHook(() => useFilesViewPreference());
+
+    act(() => {
+      result.current.updatePreference({ view: "grid" });
+      result.current.updatePreference({ sort: "size" });
+    });
+
+    expect(result.current.preference).toEqual({ view: "grid", sort: "size", direction: "asc" });
+    expect(JSON.parse(window.localStorage.getItem(FILES_VIEW_PREFERENCE_KEY) ?? "null")).toEqual({
+      view: "grid",
+      sort: "size",
+      direction: "asc",
+    });
+  });
 });

@@ -8,13 +8,13 @@ import type { FilesViewPreference, FilesViewPreferenceState } from "./types.js";
 
 export const useFilesViewPreference = (): FilesViewPreferenceState => {
   const [preference, setPreference] = useState<FilesViewPreference>(readFilesViewPreference);
-  const updatePreference = useCallback(
-    (change: Partial<FilesViewPreference>) => {
-      const next = { ...preference, ...change };
-      setPreference(next);
+  // The functional form reads the latest state, so two changes in one tick both apply.
+  const updatePreference = useCallback((change: Partial<FilesViewPreference>) => {
+    setPreference((current) => {
+      const next = { ...current, ...change };
       writeFilesViewPreference(next);
-    },
-    [preference],
-  );
+      return next;
+    });
+  }, []);
   return { preference, updatePreference };
 };
