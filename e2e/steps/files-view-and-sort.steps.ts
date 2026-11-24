@@ -46,7 +46,9 @@ const folderGroupCards = (page: Page): Locator =>
 const fileGroupCards = (page: Page): Locator =>
   page.getByTestId("files-file-grid-files").getByTestId("file-card");
 
-const boxOf = async (locator: Locator): Promise<{ x: number; y: number; width: number; height: number }> => {
+const boxOf = async (
+  locator: Locator,
+): Promise<{ x: number; y: number; width: number; height: number }> => {
   const box = await locator.boundingBox();
   if (box === null) {
     throw new Error("The card has no layout box.");
@@ -199,24 +201,32 @@ Then(
   },
 );
 
-Then(/^the grid shows the folder cards (.+) above (\d+) file cards$/, async ({ page }, folderListing: string, count: string) => {
-  await expect(folderGroupCards(page).getByTestId("file-name")).toHaveText(namesIn(folderListing));
-  await expect(fileGroupCards(page)).toHaveCount(Number(count));
-});
+Then(
+  /^the grid shows the folder cards (.+) above (\d+) file cards$/,
+  async ({ page }, folderListing: string, count: string) => {
+    await expect(folderGroupCards(page).getByTestId("file-name")).toHaveText(
+      namesIn(folderListing),
+    );
+    await expect(fileGroupCards(page)).toHaveCount(Number(count));
+  },
+);
 
-Then("the last grid file card is \"File 01\"", async ({ page }) => {
+Then('the last grid file card is "File 01"', async ({ page }) => {
   await expect(fileGroupCards(page).last().getByTestId("file-name")).toHaveText("File 01");
 });
 
-Then("the grid shows the folders and the files as separate groups with space between them", async ({ page }) => {
-  const firstFolder = await boxOf(folderGroupCards(page).nth(0));
-  const secondFolder = await boxOf(folderGroupCards(page).nth(1));
-  const lastFolder = await boxOf(folderGroupCards(page).last());
-  const firstFile = await boxOf(fileGroupCards(page).first());
-  const gapInRow = secondFolder.x - (firstFolder.x + firstFolder.width);
-  const gapBetweenGroups = firstFile.y - (lastFolder.y + lastFolder.height);
-  expect(gapBetweenGroups).toBeGreaterThan(gapInRow);
-});
+Then(
+  "the grid shows the folders and the files as separate groups with space between them",
+  async ({ page }) => {
+    const firstFolder = await boxOf(folderGroupCards(page).nth(0));
+    const secondFolder = await boxOf(folderGroupCards(page).nth(1));
+    const lastFolder = await boxOf(folderGroupCards(page).last());
+    const firstFile = await boxOf(fileGroupCards(page).first());
+    const gapInRow = secondFolder.x - (firstFolder.x + firstFolder.width);
+    const gapBetweenGroups = firstFile.y - (lastFolder.y + lastFolder.height);
+    expect(gapBetweenGroups).toBeGreaterThan(gapInRow);
+  },
+);
 
 Then(/^the grid shows the card "([^"]*)"$/, async ({ page }, name: string) => {
   await expect(gridCardNamed(page, name)).toBeVisible();

@@ -60,10 +60,11 @@ describe("FileGridGroup", () => {
 
     const list = screen.getByRole("list", { name: "Folders" });
     expect(list).toHaveAttribute("data-testid", "files-file-grid-folders");
-    expect(within(list).getAllByTestId("file-name").map((node) => node.textContent)).toEqual([
-      "Photos",
-      "Archive",
-    ]);
+    expect(
+      within(list)
+        .getAllByTestId("file-name")
+        .map((node) => node.textContent),
+    ).toEqual(["Photos", "Archive"]);
   });
 
   it("reports the item whose card is activated", () => {

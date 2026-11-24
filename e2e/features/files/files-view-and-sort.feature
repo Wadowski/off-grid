@@ -21,7 +21,6 @@ Feature: Grid view and sort order of the desktop Files page
     And Anna switches the view to grid
     Then the grid shows the folder cards "Photos" and "Archive" above the file cards "Insurance policy.txt" and "Notes.txt"
 
-  @wip
   Scenario: The grid keeps a clear gap between the folders and the files
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
@@ -31,7 +30,6 @@ Feature: Grid view and sort order of the desktop Files page
     And Anna switches the view to grid
     Then the grid shows the folders and the files as separate groups with space between them
 
-  @wip
   Scenario: The grid lists folders first under every sort
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Small.txt" of 100 bytes
@@ -45,7 +43,6 @@ Feature: Grid view and sort order of the desktop Files page
     When Anna reverses the sort direction
     Then the grid shows the cards "Zulu", "Alpha", "Large.txt" and "Small.txt" in that order
 
-  @wip
   Scenario: The list lists folders first under every sort
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Small.txt" of 100 bytes
@@ -58,7 +55,6 @@ Feature: Grid view and sort order of the desktop Files page
     When Anna reverses the sort direction
     Then the table rows read "Alpha", "Zulu", "Large.txt" and "Small.txt" in that order
 
-  @wip
   Scenario: Loading more entries in the grid extends the file group
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Archive" holding 51 files of increasing size

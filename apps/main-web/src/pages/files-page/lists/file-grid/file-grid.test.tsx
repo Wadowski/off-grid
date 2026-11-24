@@ -124,9 +124,9 @@ describe("FileGrid", () => {
     renderGrid({ items: [PHOTOS, ARCHIVE, TRIP, NOTES] });
 
     const names = (label: string) =>
-      within(screen.getByRole("list", { name: label })).getAllByTestId("file-name").map(
-        (node) => node.textContent,
-      );
+      within(screen.getByRole("list", { name: label }))
+        .getAllByTestId("file-name")
+        .map((node) => node.textContent);
     expect(names("Folders")).toEqual(["Photos", "Archive"]);
     expect(names("Files")).toEqual(["Trip.pdf", "Notes.txt"]);
   });
