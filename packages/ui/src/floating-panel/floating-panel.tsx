@@ -8,6 +8,8 @@ import type { FloatingPanelProps } from "./types.js";
 
 export const FloatingPanel = ({
   placement,
+  shape = "card",
+  tone = "surface",
   labelledBy,
   onEscape,
   testId,
@@ -36,10 +38,11 @@ export const FloatingPanel = ({
       ref={panelRef}
       role="region"
       aria-labelledby={labelledBy}
-      style={floatingPanelStyle(placement)}
+      style={floatingPanelStyle(placement, shape, tone)}
       onKeyDown={handleKeyDown}
       data-testid={testId}
       data-placement={placement}
+      data-shape={shape}
     >
       {children}
     </section>
