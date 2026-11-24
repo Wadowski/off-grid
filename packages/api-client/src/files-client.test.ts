@@ -299,6 +299,44 @@ describe("createFilesClient versions and downloads", () => {
   });
 });
 
+describe("createFilesClient content", () => {
+  it("reads the current content as a blob with the requested disposition", async () => {
+    const { files, transport } = filesWith(
+      new Response("bytes", { status: 200, headers: { "content-type": "image/png" } }),
+    );
+
+    const blob = await files.getFileContent(FILE_ID, { disposition: "inline" });
+
+    expect(blob.type).toBe("image/png");
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/content?disposition=inline`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("reads the content of one version as an attachment", async () => {
+    const { files, transport } = filesWith(new Response("bytes", { status: 200 }));
+
+    await files.getFileContent(FILE_ID, { disposition: "attachment", versionId: VERSION_ID });
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/versions/${VERSION_ID}/content?disposition=attachment`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("passes a coded error through", async () => {
+    const { files } = filesWith(
+      jsonResponse({ code: "NOT_FOUND", message: "The file was not found." }, 404),
+    );
+
+    await expect(files.getFileContent(FILE_ID, { disposition: "inline" })).rejects.toMatchObject({
+      status: 404,
+      code: "NOT_FOUND",
+    });
+  });
+});
+
 describe("createFilesClient uploads", () => {
   it("opens an upload session with the JSON body", async () => {
     const body = {
