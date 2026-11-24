@@ -144,6 +144,24 @@ describe("listDriveChildren with a sort", { timeout: 60_000 }, () => {
     ]);
   });
 
+  it("lists a folder updated after every file first under modified ascending", async () => {
+    const driveId = await seedDrive(db.admin, { owner, name: "Personal" });
+    await seedFile(driveId, "early.txt", 10, "2026-01-01T10:00:00Z");
+    await seedFile(driveId, "late.txt", 10, "2026-01-02T10:00:00Z");
+    await seedFolderAt(driveId, "Newest", "2026-06-01T10:00:00Z");
+
+    expect(await listAll(driveId, "modified", "asc")).toEqual(["Newest", "early.txt", "late.txt"]);
+  });
+
+  it("keeps folders before files across a page boundary under size descending", async () => {
+    const driveId = await seedSortedDrive();
+
+    const paged = await pageThrough(driveId, "size", "desc", 2);
+
+    expect(paged).toEqual(["Zoo", "Beach", "big.txt", "medium.txt", "small.txt"]);
+    expect(new Set(paged).size).toBe(paged.length);
+  });
+
   it("sorts by name descending and keeps folders first", async () => {
     const driveId = await seedSortedDrive();
 
