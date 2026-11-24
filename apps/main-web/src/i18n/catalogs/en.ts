@@ -684,6 +684,10 @@ export const en = {
     list: {
       label: "Folder contents",
     },
+    grid: {
+      folders: "Folders",
+      files: "Files",
+    },
     view: {
       label: "View",
       list: "List",

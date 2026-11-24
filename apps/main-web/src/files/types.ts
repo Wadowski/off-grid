@@ -25,6 +25,10 @@ export type FileDetails = ReturnType<typeof fileDetailsSchema.parse>;
 export type FileListPage = ReturnType<typeof fileListSchema.parse>;
 export type FileListItem = ReturnType<typeof fileListItemSchema.parse>;
 export type FilesErrorCode = (typeof filesErrorCodeSchema.options)[number];
+export type SplitFileEntries = {
+  readonly folders: readonly FileListItem[];
+  readonly files: readonly FileListItem[];
+};
 
 export type FolderTarget =
   | { readonly kind: "drive"; readonly driveId: Drive["id"] }
