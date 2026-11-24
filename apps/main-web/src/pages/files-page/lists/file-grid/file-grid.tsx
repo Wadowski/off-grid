@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, FileCard, Text } from "@offgrid/ui";
+import { Button, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { toFileRowValues } from "../../../../files/to-file-row-values.js";
+import { splitFoldersAndFiles } from "../../../../files/split-folders-and-files.js";
 import { toFolderPath } from "../../../../files/to-folder-path.js";
-import { fileGridItemStyle, fileGridStyle } from "./styles.js";
+import type { FileListItem } from "../../../../files/types.js";
+import { FileGridGroup } from "./components/file-grid-group/file-grid-group.js";
+import { fileGridStyle } from "./styles.js";
 import type { FileGridProps } from "./types.js";
 
 export const FileGrid = ({
@@ -20,29 +22,37 @@ export const FileGrid = ({
 }: FileGridProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { folders, files } = splitFoldersAndFiles(items);
+
+  const activate = (item: FileListItem) => {
+    if (item.isFolder) {
+      navigate(toFolderPath(driveId, item.id));
+      return;
+    }
+    onSelect(item.id);
+  };
 
   return (
     <>
-      <div
-        role="list"
-        aria-label={t("files.list.label")}
-        aria-busy={isLoadingMore}
-        style={fileGridStyle}
-        data-testid="files-file-grid"
-      >
-        {items.map((item) => (
-          <div key={item.id} role="listitem" style={fileGridItemStyle}>
-            <FileCard
-              {...toFileRowValues(item)}
-              selected={item.id === selectedId}
-              onActivate={
-                item.isFolder
-                  ? () => navigate(toFolderPath(driveId, item.id))
-                  : () => onSelect(item.id)
-              }
-            />
-          </div>
-        ))}
+      <div style={fileGridStyle} aria-busy={isLoadingMore} data-testid="files-file-grid">
+        {folders.length > 0 ? (
+          <FileGridGroup
+            label={t("files.grid.folders")}
+            testId="files-file-grid-folders"
+            items={folders}
+            selectedId={selectedId}
+            onActivate={activate}
+          />
+        ) : null}
+        {files.length > 0 ? (
+          <FileGridGroup
+            label={t("files.grid.files")}
+            testId="files-file-grid-files"
+            items={files}
+            selectedId={selectedId}
+            onActivate={activate}
+          />
+        ) : null}
       </div>
       {hasMore ? (
         <Button

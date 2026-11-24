@@ -43,6 +43,34 @@ const TRIP: FileListItem = fileListItemSchema.parse({
   currentVersionId: VERSION_ID,
 });
 
+const ARCHIVE: FileListItem = fileListItemSchema.parse({
+  id: "4c5d6e7f-8a9b-4c0d-8e1f-2a3b4c5d6e7f",
+  driveId: DRIVE_ID,
+  parentId: null,
+  name: "Archive",
+  version: 1,
+  createdAt: UPDATED_AT,
+  updatedAt: UPDATED_AT,
+  deletedAt: null,
+  isFolder: true,
+  itemCount: 0,
+});
+
+const NOTES: FileListItem = fileListItemSchema.parse({
+  id: "5d6e7f8a-9b0c-4d1e-8f2a-3b4c5d6e7f8a",
+  driveId: DRIVE_ID,
+  parentId: null,
+  name: "Notes.txt",
+  version: 1,
+  createdAt: UPDATED_AT,
+  updatedAt: UPDATED_AT,
+  deletedAt: null,
+  isFolder: false,
+  mimeType: "text/plain",
+  size: 10,
+  currentVersionId: VERSION_ID,
+});
+
 const LocationProbe = () => {
   const location = useLocation();
   return <p data-testid="probe">{location.pathname}</p>;
@@ -75,23 +103,52 @@ describe("FileGrid", () => {
     cleanup();
   });
 
-  it("shows every entry as a card in the order given, folders first as given", () => {
-    renderGrid();
+  it("shows folders and files as two lists named Folders and Files", () => {
+    renderGrid({ items: [PHOTOS, TRIP] });
 
-    const cards = within(screen.getByRole("list", { name: "Folder contents" })).getAllByRole(
-      "listitem",
+    const folderCards = within(screen.getByRole("list", { name: "Folders" })).getAllByTestId(
+      "file-card",
     );
-    expect(cards.map((card) => within(card).getByTestId("file-name").textContent)).toEqual([
+    const fileCards = within(screen.getByRole("list", { name: "Files" })).getAllByTestId(
+      "file-card",
+    );
+    expect(folderCards.map((card) => within(card).getByTestId("file-name").textContent)).toEqual([
       "Photos",
+    ]);
+    expect(fileCards.map((card) => within(card).getByTestId("file-name").textContent)).toEqual([
       "Trip.pdf",
     ]);
+  });
+
+  it("keeps the order of entries within each group", () => {
+    renderGrid({ items: [PHOTOS, ARCHIVE, TRIP, NOTES] });
+
+    const names = (label: string) =>
+      within(screen.getByRole("list", { name: label })).getAllByTestId("file-name").map(
+        (node) => node.textContent,
+      );
+    expect(names("Folders")).toEqual(["Photos", "Archive"]);
+    expect(names("Files")).toEqual(["Trip.pdf", "Notes.txt"]);
+  });
+
+  it("renders no folders list when there are no folders", () => {
+    renderGrid({ items: [TRIP] });
+
+    expect(screen.queryByRole("list", { name: "Folders" })).not.toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Files" })).toBeInTheDocument();
+  });
+
+  it("renders no files list when there are no files", () => {
+    renderGrid({ items: [PHOTOS] });
+
+    expect(screen.queryByRole("list", { name: "Files" })).not.toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Folders" })).toBeInTheDocument();
   });
 
   it("opens a folder when its card is activated", () => {
     renderGrid();
 
-    const photosCard = screen.getAllByRole("listitem")[0] as HTMLElement;
-    fireEvent.click(within(photosCard).getByTestId("file-card-activate"));
+    fireEvent.click(screen.getAllByTestId("file-card-activate")[0] as HTMLElement);
 
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/folder/${PHOTOS_ID}`);
   });
@@ -99,9 +156,7 @@ describe("FileGrid", () => {
   it("reports the file whose card is activated", () => {
     const props = renderGrid();
 
-    fireEvent.click(
-      within(screen.getAllByRole("listitem")[1] as HTMLElement).getByTestId("file-card-activate"),
-    );
+    fireEvent.click(screen.getAllByTestId("file-card-activate")[1] as HTMLElement);
 
     expect(props.onSelect).toHaveBeenCalledWith(TRIP_ID);
   });

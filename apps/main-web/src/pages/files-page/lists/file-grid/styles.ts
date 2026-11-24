@@ -5,12 +5,8 @@ import { tokens } from "@offgrid/ui";
 import type { CSSProperties } from "react";
 
 export const fileGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(10rem, 1fr))",
-  gap: tokens.space[3],
-  minWidth: 0,
-};
-
-export const fileGridItemStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[6],
   minWidth: 0,
 };
