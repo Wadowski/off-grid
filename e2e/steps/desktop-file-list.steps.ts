@@ -106,7 +106,7 @@ Then(/^the Files page heading reads "([^"]*)"$/, async ({ page }, name: string) 
 
 Then(/^the table has the columns (.+)$/, async ({ page }, listing: string) => {
   const table = page.getByRole("table", { name: "Folder contents" });
-  await expect(table.getByRole("columnheader")).toHaveText(namesIn(listing));
+  await expect(table.getByRole("columnheader")).toHaveText([...namesIn(listing), "Actions"]);
 });
 
 Then(

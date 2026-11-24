@@ -9,7 +9,7 @@ Feature: Actions for a file or folder from its menu
   moving it to the trash. Moving to the trash asks first, names the entry,
   and removes it from the list when confirmed.
 
-  @wip @screen:files-actions-menu
+  @screen:files-actions-menu
   Scenario: The actions of a file offer Open and Delete only
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -18,7 +18,7 @@ Feature: Actions for a file or folder from its menu
     Then the actions menu lists "Open" and "Delete"
     And the actions menu does not list "Rename", "Move" or "Download"
 
-  @wip @screen:files-delete-confirm
+  @screen:files-delete-confirm
   Scenario: Anna moves a file to the trash from the table
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -31,7 +31,6 @@ Feature: Actions for a file or folder from its menu
     And the table still lists "Zulu.txt"
     And Anna is told "Insurance policy.txt" was moved to the trash
 
-  @wip
   Scenario: Anna cancels moving a file to the trash
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -41,7 +40,6 @@ Feature: Actions for a file or folder from its menu
     Then the table still lists "Insurance policy.txt"
     And Anna sees "Insurance policy.txt" in her personal drive
 
-  @wip
   Scenario: Anna moves a folder to the trash and the confirmation says what is inside goes too
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
@@ -52,7 +50,6 @@ Feature: Actions for a file or folder from its menu
     When Anna confirms moving it to the trash
     Then the table no longer lists "Photos"
 
-  @wip
   Scenario: Deleting the selected file clears the details panel
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -62,7 +59,6 @@ Feature: Actions for a file or folder from its menu
     And Anna confirms moving it to the trash
     Then the file details panel is not shown
 
-  @wip
   Scenario: Anna moves a file to the trash from the phone list
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -71,7 +67,6 @@ Feature: Actions for a file or folder from its menu
     And Anna confirms moving it to the trash
     Then the phone list no longer reads "Insurance policy.txt"
 
-  @wip
   Scenario: Anna moves a file to the trash from the grid
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -83,7 +78,7 @@ Feature: Actions for a file or folder from its menu
     Then the grid no longer shows the card "Insurance policy.txt"
     And the grid still shows the card "Zulu.txt"
 
-  @wip @a11y
+  @a11y
   Scenario: Anna opens the actions menu with the keyboard and closes it with Escape
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -94,7 +89,7 @@ Feature: Actions for a file or folder from its menu
     Then the actions menu is closed
     And the actions button of "Insurance policy.txt" has focus
 
-  @wip @a11y
+  @a11y
   Scenario: The open actions menu and the confirmation have no serious accessibility violations
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -102,7 +97,6 @@ Feature: Actions for a file or folder from its menu
     And Anna deletes the file "Insurance policy.txt" from its actions menu
     Then the page has no serious accessibility violations
 
-  @wip
   Scenario: A move to the trash that fails keeps the confirmation open with the error
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
