@@ -6,6 +6,6 @@ import type { CSSProperties } from "react";
 
 export const fileDetailsReadyStyle: CSSProperties = {
   display: "grid",
-  gap: tokens.space[4],
+  gap: tokens.space[3],
   minWidth: 0,
 };

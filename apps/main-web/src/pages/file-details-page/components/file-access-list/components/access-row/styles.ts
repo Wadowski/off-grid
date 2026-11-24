@@ -8,7 +8,7 @@ export const accessRowStyle = (isFirst: boolean): CSSProperties => ({
   display: "flex",
   alignItems: "center",
   gap: tokens.space[3],
-  paddingBlock: tokens.space[3],
+  paddingBlock: tokens.space[2],
   borderTop: isFirst ? "none" : `1px solid ${cssVar("color-surface-high")}`,
   minWidth: 0,
 });

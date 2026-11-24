@@ -8,7 +8,7 @@ export const activityRowStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: tokens.space[3],
-  paddingBlock: tokens.space[3],
+  paddingBlock: tokens.space[2],
   minWidth: 0,
 };
 

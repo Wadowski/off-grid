@@ -9,7 +9,7 @@ export const propertyRowStyle = (isFirst: boolean): CSSProperties => ({
   justifyContent: "space-between",
   alignItems: "baseline",
   gap: tokens.space[4],
-  paddingBlock: tokens.space[3],
+  paddingBlock: tokens.space[2],
   borderTop: isFirst ? "none" : `1px solid ${cssVar("color-surface-high")}`,
   minWidth: 0,
 });
