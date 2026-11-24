@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useSession } from "../../session/use-session.js";
 import { EMPTY_UPLOAD_QUEUE_STATE } from "../constants.js";
-import type { RunningUpload, UploadQueue, UploadTarget } from "../types.js";
+import type { RunningUpload, UploadQueue, UploadTarget, VersionUploadTarget } from "../types.js";
 import { createUploadItem } from "./create-upload-item.js";
 import { isActiveUploadItem } from "./is-active-upload-item.js";
 import { nextQueuedItem } from "./next-queued-item.js";
@@ -55,8 +55,18 @@ export const useUploadQueue = (): UploadQueue => {
       dispatch({
         type: "enqueued",
         items: files.map((file) =>
-          createUploadItem(crypto.randomUUID(), file, target, activeFamilyId),
+          createUploadItem(crypto.randomUUID(), file, target, activeFamilyId, null),
         ),
+      });
+    },
+    [activeFamilyId],
+  );
+
+  const enqueueVersion = useCallback(
+    (file: File, target: VersionUploadTarget) => {
+      dispatch({
+        type: "enqueued",
+        items: [createUploadItem(crypto.randomUUID(), file, target, activeFamilyId, target.fileId)],
       });
     },
     [activeFamilyId],
@@ -70,6 +80,7 @@ export const useUploadQueue = (): UploadQueue => {
     lastDone: state.lastDone,
     announcement: state.announcement,
     enqueue,
+    enqueueVersion,
     clearFinished,
   };
 };

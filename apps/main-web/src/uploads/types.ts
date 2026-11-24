@@ -16,6 +16,10 @@ export type UploadTarget = {
   readonly folderId: FileEntry["id"] | null;
 };
 
+export type VersionUploadTarget = UploadTarget & {
+  readonly fileId: FileEntry["id"];
+};
+
 export type UploadItem = {
   readonly id: string;
   readonly familyId: string | null;
@@ -24,6 +28,7 @@ export type UploadItem = {
   readonly mimeType: string;
   readonly driveId: Drive["id"];
   readonly folderId: FileEntry["id"] | null;
+  readonly fileId: FileEntry["id"] | null;
   readonly status: UploadStatus;
   readonly percent: number;
   readonly errorTextId: UploadErrorTextId | null;
@@ -34,6 +39,7 @@ export type UploadDone = {
   readonly itemId: string;
   readonly driveId: Drive["id"];
   readonly folderId: FileEntry["id"] | null;
+  readonly fileId: FileEntry["id"] | null;
 };
 
 export type UploadAnnouncement = {
@@ -73,6 +79,7 @@ export type UploadQueue = {
   readonly lastDone: UploadDone | null;
   readonly announcement: UploadAnnouncement | null;
   readonly enqueue: (files: readonly File[], target: UploadTarget) => void;
+  readonly enqueueVersion: (file: File, target: VersionUploadTarget) => void;
   readonly clearFinished: () => void;
 };
 

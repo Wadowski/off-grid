@@ -16,7 +16,7 @@ const queuedState = (...names: string[]): UploadQueueState =>
   uploadQueueReducer(EMPTY_UPLOAD_QUEUE_STATE, {
     type: "enqueued",
     items: names.map((name) =>
-      createUploadItem(`id-${name}`, new File(["x"], name), TARGET, "family-1"),
+      createUploadItem(`id-${name}`, new File(["x"], name), TARGET, "family-1", null),
     ),
   });
 
@@ -64,6 +64,7 @@ describe("uploadQueueReducer", () => {
       itemId: "id-a.txt",
       driveId: TARGET.driveId,
       folderId: null,
+      fileId: null,
     });
     expect(state.announcement?.textId).toBe("files.upload.announceDone");
   });

@@ -4,11 +4,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { downloadFileVersion } from "./download-file-version.js";
 import { getFileVersionContent } from "./files-api.js";
+import type { FileEntry, FileVersion } from "./types.js";
 
 vi.mock("./files-api.js", () => ({ getFileVersionContent: vi.fn() }));
 
-const FILE_ID = "00000000-0000-4000-8000-0000000000aa";
-const VERSION_ID = "00000000-0000-4000-8000-0000000000bb";
+const FILE_ID = "00000000-0000-4000-8000-0000000000aa" as FileEntry["id"];
+const VERSION_ID = "00000000-0000-4000-8000-0000000000bb" as FileVersion["id"];
 
 describe("downloadFileVersion", () => {
   let clicked: HTMLAnchorElement[];

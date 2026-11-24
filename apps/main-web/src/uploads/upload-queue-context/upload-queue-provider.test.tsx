@@ -105,6 +105,7 @@ describe("UploadQueueProvider", () => {
       itemId: result.current.items[0]?.id,
       driveId: TARGET.driveId,
       folderId: null,
+      fileId: null,
     });
     expect(result.current.isIdle).toBe(true);
   });

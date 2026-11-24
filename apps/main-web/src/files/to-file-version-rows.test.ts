@@ -6,12 +6,12 @@ import { toFileVersionRows } from "./to-file-version-rows.js";
 import type { FileVersion } from "./types.js";
 
 const version = (number: number, createdByUserId: string): FileVersion => ({
-  id: `00000000-0000-4000-8000-00000000000${number}`,
-  fileId: "00000000-0000-4000-8000-0000000000aa",
+  id: `00000000-0000-4000-8000-00000000000${number}` as FileVersion["id"],
+  fileId: "00000000-0000-4000-8000-0000000000aa" as FileVersion["fileId"],
   number,
   size: number * 10,
   mimeType: "text/plain",
-  createdByUserId,
+  createdByUserId: createdByUserId as FileVersion["createdByUserId"],
   createdAt: "2026-01-02T03:04:05.000Z",
 });
 

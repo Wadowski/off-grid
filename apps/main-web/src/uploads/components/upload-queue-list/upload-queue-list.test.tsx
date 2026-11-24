@@ -14,6 +14,7 @@ const itemNamed = (name: string, status: UploadItem["status"]): UploadItem => ({
   sizeBytes: 1,
   driveId: "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as UploadItem["driveId"],
   folderId: null,
+  fileId: null,
   status,
   percent: status === "done" ? 100 : 0,
   errorTextId: null,

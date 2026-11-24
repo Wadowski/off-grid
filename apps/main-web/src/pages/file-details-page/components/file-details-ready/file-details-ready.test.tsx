@@ -17,8 +17,21 @@ const noop = async () => {};
 const fileDetailsScreenFixture = (
   overrides: Partial<FileDetailsScreenState> = {},
 ): FileDetailsScreenState => ({
-  details: { file: null, breadcrumbs: [], status: "loading", errorTextId: null, refresh: noop },
-  versions: { versions: [], status: "ready", errorTextId: null, refresh: noop },
+  details: {
+    file: null,
+    breadcrumbs: [],
+    status: "loading",
+    errorTextId: null,
+    refresh: noop,
+    refreshQuietly: noop,
+  },
+  versions: {
+    versions: [],
+    status: "ready",
+    errorTextId: null,
+    refresh: noop,
+    refreshQuietly: noop,
+  },
   drive: {
     id: DRIVE_ID,
     familyId: null,

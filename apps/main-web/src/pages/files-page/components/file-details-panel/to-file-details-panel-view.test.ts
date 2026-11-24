@@ -16,6 +16,7 @@ const detailsWith = (overrides: Partial<FileDetailsState>): FileDetailsState => 
   status: "ready",
   errorTextId: null,
   refresh: REFRESH,
+  refreshQuietly: REFRESH,
   ...overrides,
 });
 
