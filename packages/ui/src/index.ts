@@ -5,6 +5,7 @@ export { tokens } from "./tokens.js";
 export { tokensStylesheet } from "./tokens-stylesheet.js";
 export { cssVar } from "./css-var.js";
 export { Button } from "./button/button.js";
+export { Menu } from "./menu/menu.js";
 export { FilePickerButton } from "./file-picker-button/file-picker-button.js";
 export { FloatingPanel } from "./floating-panel/floating-panel.js";
 export { ProgressBar } from "./progress-bar/progress-bar.js";

@@ -28,6 +28,7 @@ await i18n.init({
           itemCount_other: "{{count}} items",
           date: { today: "Today {{time}}", yesterday: "Yesterday" },
           list: { label: "Folder contents" },
+          entryActions: { columnHeader: "Actions", open: "Open", delete: "Delete" },
           table: { name: "Name", modified: "Modified", size: "Size", type: "Type" },
         },
       },
