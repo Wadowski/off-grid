@@ -2,10 +2,17 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFile, listDriveChildren, listDrives, listFileChildren } from "../../files/files-api.js";
+import {
+  getFile,
+  listDriveChildren,
+  listDrives,
+  listFileChildren,
+  uploadFile,
+} from "../../files/files-api.js";
+import { UploadQueueProvider } from "../../uploads/index.js";
 import type { Drive } from "../../files/types.js";
 import type { DriveSwitcherProps } from "../../layouts/files-layout/components/drive-switcher/types.js";
 import { FilesPage } from "./files-page.js";
@@ -15,6 +22,7 @@ vi.mock("../../files/files-api.js", () => ({
   listDrives: vi.fn(),
   listDriveChildren: vi.fn(),
   listFileChildren: vi.fn(),
+  uploadFile: vi.fn(),
 }));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
@@ -80,12 +88,14 @@ const SWITCHER: DriveSwitcherProps = {
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route element={<Outlet context={SWITCHER} />}>
-          <Route path="/files" element={<FilesPage />} />
-          <Route path="/files/:driveId/folder/:folderId?" element={<FilesPage />} />
-        </Route>
-      </Routes>
+      <UploadQueueProvider>
+        <Routes>
+          <Route element={<Outlet context={SWITCHER} />}>
+            <Route path="/files" element={<FilesPage />} />
+            <Route path="/files/:driveId/folder/:folderId?" element={<FilesPage />} />
+          </Route>
+        </Routes>
+      </UploadQueueProvider>
     </MemoryRouter>,
   );
 
@@ -261,5 +271,34 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong. Try again."),
     );
+  });
+
+  it("queues the picked files in the open folder and shows them in the upload queue", async () => {
+    vi.mocked(uploadFile).mockReturnValue(new Promise(() => undefined) as never);
+    renderAt(FOLDER_PATH);
+    await screen.findByRole("table", { name: "Folder contents" });
+
+    fireEvent.change(screen.getByTestId("files-upload-input"), {
+      target: { files: [new File(["x"], "Holiday.txt")] },
+    });
+
+    expect(await screen.findByTestId("upload-queue-inline-row")).toHaveTextContent("Holiday.txt");
+    expect(uploadFile).toHaveBeenCalledWith(
+      DRIVE_ID,
+      expect.objectContaining({ parentId: FOLDER_ID }),
+    );
+  });
+
+  it("refreshes the open folder quietly once an upload into it finishes", async () => {
+    vi.mocked(uploadFile).mockResolvedValue({} as never);
+    renderAt(FOLDER_PATH);
+    await screen.findByRole("table", { name: "Folder contents" });
+
+    fireEvent.change(screen.getByTestId("files-upload-input"), {
+      target: { files: [new File(["x"], "Holiday.txt")] },
+    });
+
+    await waitFor(() => expect(listFileChildren).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("table", { name: "Folder contents" })).toBeInTheDocument();
   });
 });
