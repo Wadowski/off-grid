@@ -15,6 +15,8 @@ const NOTES_ID = "2f3a4b5c-6d7e-4f8a-9b0c-1d2e3f4a5b6c";
 const VERSION_ID = "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d";
 const UPDATED_AT = "2026-01-01T00:00:00.000Z";
 
+const fileIdOf = (id: string): FileListItem["id"] => id as FileListItem["id"];
+
 const fileItem = (id: string, name: string): FileListItem =>
   fileListItemSchema.parse({
     id,
@@ -54,6 +56,7 @@ const LocationProbe = () => {
 
 const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => {
   const onLoadMore = vi.fn(async () => undefined);
+  const onSelect = vi.fn();
   render(
     <MemoryRouter initialEntries={["/files"]}>
       <Routes>
@@ -65,6 +68,8 @@ const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => 
               items={[PHOTOS, TRIP, NOTES]}
               hasMore={false}
               isLoadingMore={false}
+              selectedId={null}
+              onSelect={onSelect}
               onLoadMore={onLoadMore}
               {...overrides}
             />
@@ -74,7 +79,7 @@ const renderList = (overrides: Partial<Parameters<typeof FileList>[0]> = {}) => 
       </Routes>
     </MemoryRouter>,
   );
-  return { onLoadMore };
+  return { onLoadMore, onSelect };
 };
 
 const rowNamed = (name: string) =>
@@ -108,23 +113,28 @@ describe("FileList", () => {
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/folder/${PHOTOS_ID}`);
   });
 
-  it("selects a file row without leaving the list", () => {
-    renderList();
+  it("reports the selected file to the parent without leaving the list", () => {
+    const { onSelect } = renderList();
 
     fireEvent.click(within(rowNamed("Trip.pdf") as HTMLElement).getByRole("button"));
 
-    expect(rowNamed("Trip.pdf")).toHaveAttribute("data-selected", "true");
+    expect(onSelect).toHaveBeenCalledWith(TRIP_ID);
     expect(screen.queryByTestId("probe")).not.toBeInTheDocument();
   });
 
-  it("moves the selection when another file row is selected", () => {
-    renderList();
-
-    fireEvent.click(within(rowNamed("Trip.pdf") as HTMLElement).getByRole("button"));
-    fireEvent.click(within(rowNamed("Notes.pdf") as HTMLElement).getByRole("button"));
+  it("marks the row whose id is the selected id", () => {
+    renderList({ selectedId: fileIdOf(NOTES_ID) });
 
     expect(rowNamed("Notes.pdf")).toHaveAttribute("data-selected", "true");
     expect(rowNamed("Trip.pdf")).toHaveAttribute("data-selected", "false");
+  });
+
+  it("marks no row when nothing is selected", () => {
+    renderList({ selectedId: null });
+
+    expect(
+      screen.getAllByTestId("file-table-row").map((row) => row.getAttribute("data-selected")),
+    ).toEqual(["false", "false", "false"]);
   });
 
   it("asks for the next page when the load more button is used", () => {

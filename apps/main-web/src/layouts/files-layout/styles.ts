@@ -6,11 +6,13 @@ import type { CSSProperties } from "react";
 
 const DRIVE_SWITCHER_COLUMN = "20rem";
 
-export const filesLayoutStyle = (narrow: boolean): CSSProperties => ({
+export const filesLayoutStyle = (narrow: boolean, detailsOpen: boolean): CSSProperties => ({
   display: "grid",
-  gridTemplateColumns: narrow ? "minmax(0, 1fr)" : `minmax(0, 1fr) ${DRIVE_SWITCHER_COLUMN}`,
+  gridTemplateColumns: narrow
+    ? "minmax(0, 1fr)"
+    : `minmax(0, 1fr) ${detailsOpen ? tokens.size.detailsPanel : DRIVE_SWITCHER_COLUMN}`,
   alignItems: "start",
-  gap: tokens.space[6],
+  gap: detailsOpen ? tokens.space[5] : tokens.space[6],
   minWidth: 0,
 });
 

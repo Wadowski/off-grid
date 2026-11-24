@@ -9,3 +9,7 @@ export const fileListStyle: CSSProperties = {
   gap: tokens.space[3],
   minWidth: 0,
 };
+
+export const fileListTableStyle: CSSProperties = {
+  minWidth: tokens.size.fileTableMin,
+};

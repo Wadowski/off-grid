@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { ApiError } from "@offgrid/api-client";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getFile,
@@ -12,9 +12,9 @@ import {
   listFileChildren,
   uploadFile,
 } from "../../files/files-api.js";
-import { UploadQueueProvider } from "../../uploads/index.js";
 import type { Drive } from "../../files/types.js";
-import type { DriveSwitcherProps } from "../../layouts/files-layout/components/drive-switcher/types.js";
+import { FilesLayout } from "../../layouts/files-layout/files-layout.js";
+import { UploadQueueProvider } from "../../uploads/index.js";
 import { FilesPage } from "./files-page.js";
 
 vi.mock("../../files/files-api.js", () => ({
@@ -77,22 +77,14 @@ const withPhoneWidth = (isPhone: boolean) => {
   };
 };
 
-const SWITCHER: DriveSwitcherProps = {
-  drives: [DRIVE],
-  status: "ready",
-  errorTextId: null,
-  activeDriveId: DRIVE.id,
-  onRetry: () => undefined,
-};
-
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <UploadQueueProvider>
         <Routes>
-          <Route element={<Outlet context={SWITCHER} />}>
-            <Route path="/files" element={<FilesPage />} />
-            <Route path="/files/:driveId/folder/:folderId?" element={<FilesPage />} />
+          <Route path="/files" element={<FilesLayout />}>
+            <Route index element={<FilesPage />} />
+            <Route path=":driveId/folder/:folderId?" element={<FilesPage />} />
           </Route>
         </Routes>
       </UploadQueueProvider>
@@ -120,7 +112,8 @@ describe("FilesPage", () => {
 
     expect(screen.getByTestId("files-page")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Files" })).toBeInTheDocument();
-    expect(listDrives).not.toHaveBeenCalled();
+    expect(listDriveChildren).not.toHaveBeenCalled();
+    expect(listFileChildren).not.toHaveBeenCalled();
   });
 
   it("shows the drive name as the heading on a wide screen once the folder is loaded", async () => {
@@ -200,7 +193,7 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByTestId("files-breadcrumb-current")).toHaveTextContent("Photos"),
     );
-    expect(screen.getByRole("link", { name: "Personal" })).toBeInTheDocument();
+    expect(screen.getByTestId("files-breadcrumbs")).toHaveTextContent("Personal");
     expect(await screen.findByRole("table", { name: "Folder contents" })).toHaveTextContent(
       "Summer",
     );
@@ -271,6 +264,105 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong. Try again."),
     );
+  });
+
+  it("marks the selected file row and clears the selection when another folder is opened", async () => {
+    const restore = withPhoneWidth(false);
+    const TRIP_ID = "4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e";
+    vi.mocked(listFileChildren).mockResolvedValue({
+      items: [
+        ...CHILDREN_PAGE.items,
+        {
+          id: TRIP_ID,
+          driveId: DRIVE_ID,
+          parentId: FOLDER_ID,
+          name: "Trip.pdf",
+          version: 1,
+          createdAt: "2026-01-01T00:00:00.000Z",
+          updatedAt: "2026-01-01T00:00:00.000Z",
+          deletedAt: null,
+          isFolder: false,
+          mimeType: "application/pdf",
+          size: 2048,
+          currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
+        },
+      ],
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
+      nextCursor: null,
+    } as never);
+    try {
+      renderAt(FOLDER_PATH);
+
+      await screen.findByRole("table", { name: "Folder contents" });
+      const tripRow = screen
+        .getAllByTestId("file-table-row")
+        .find((row) => row.textContent?.includes("Trip.pdf"));
+      fireEvent.click(within(tripRow as HTMLElement).getByTestId("file-table-activate"));
+      expect(tripRow).toHaveAttribute("data-selected", "true");
+
+      const summerRow = screen
+        .getAllByTestId("file-table-row")
+        .find((row) => row.textContent?.includes("Summer")) as HTMLElement;
+      fireEvent.click(within(summerRow).getByTestId("file-table-activate"));
+      await waitFor(() =>
+        expect(
+          screen
+            .getAllByTestId("file-table-row")
+            .every((row) => row.getAttribute("data-selected") === "false"),
+        ).toBe(true),
+      );
+    } finally {
+      restore();
+    }
+  });
+
+  it("opens the details panel for a selected file and closes it when the selection is cleared", async () => {
+    const restore = withPhoneWidth(false);
+    const TRIP_ID = "4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e";
+    const TRIP_FILE = {
+      id: TRIP_ID,
+      driveId: DRIVE_ID,
+      parentId: FOLDER_ID,
+      name: "Trip.pdf",
+      version: 1,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+      deletedAt: null,
+      isFolder: false,
+      mimeType: "application/pdf",
+      size: 2048,
+      currentVersionId: "8a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c2d",
+    };
+    vi.mocked(listFileChildren).mockResolvedValue({
+      items: [TRIP_FILE],
+      breadcrumbs: ANCESTOR_BREADCRUMBS,
+      nextCursor: null,
+    } as never);
+    vi.mocked(getFile).mockImplementation(
+      async (fileId: string) =>
+        (fileId === TRIP_ID
+          ? { file: TRIP_FILE, breadcrumbs: ANCESTOR_BREADCRUMBS }
+          : { file: FOLDER, breadcrumbs: ANCESTOR_BREADCRUMBS }) as never,
+    );
+    try {
+      renderAt(FOLDER_PATH);
+
+      await screen.findByRole("table", { name: "Folder contents" });
+      const tripRow = screen
+        .getAllByTestId("file-table-row")
+        .find((row) => row.textContent?.includes("Trip.pdf")) as HTMLElement;
+      fireEvent.click(within(tripRow).getByTestId("file-table-activate"));
+
+      expect(await screen.findByTestId("file-details-panel-name")).toHaveTextContent("Trip.pdf");
+      expect(screen.getByTestId("file-details-property-location")).toHaveTextContent("Personal");
+
+      fireEvent.click(screen.getByTestId("file-details-panel-close"));
+
+      expect(screen.queryByTestId("file-details-panel")).not.toBeInTheDocument();
+      expect(tripRow).toHaveAttribute("data-selected", "false");
+    } finally {
+      restore();
+    }
   });
 
   it("sends the picked files to the open folder", async () => {

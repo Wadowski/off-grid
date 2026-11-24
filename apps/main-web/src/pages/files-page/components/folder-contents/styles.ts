@@ -10,6 +10,11 @@ export const folderContentsStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const folderContentsListStyle: CSSProperties = {
+  minWidth: 0,
+  overflowX: "auto",
+};
+
 export const folderContentsErrorStyle: CSSProperties = {
   display: "grid",
   gap: tokens.space[2],
