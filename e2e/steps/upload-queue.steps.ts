@@ -127,7 +127,11 @@ When("Anna goes back to the Files page in the app", async ({ page }) => {
 });
 
 When("Anna reaches the Upload button with the keyboard and presses Enter", async ({ page }) => {
-  await uploadButton(page).focus();
+  await expect(uploadButton(page)).toBeEnabled({ timeout: UPLOAD_TIMEOUT_MS });
+  await expect(async () => {
+    await uploadButton(page).focus();
+    await expect(uploadButton(page)).toBeFocused({ timeout: 500 });
+  }).toPass({ timeout: UPLOAD_TIMEOUT_MS });
   fileChoosers.set(page, page.waitForEvent("filechooser"));
   await page.keyboard.press("Enter");
 });

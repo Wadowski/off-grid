@@ -6,6 +6,8 @@ import {
   type HiddenCalendars,
   NO_HIDDEN_CALENDARS,
 } from "../../calendar-views/events-by-calendar.js";
+import { readLocalStorageJson } from "../../local-storage/read-local-storage-json.js";
+import { writeLocalStorageJson } from "../../local-storage/write-local-storage-json.js";
 
 export const HIDDEN_CALENDARS_KEY = "offgrid.calendar.hiddenCalendars";
 
@@ -16,22 +18,10 @@ const hiddenCalendarIdsSchema = z
   .max(MAX_HIDDEN_CALENDARS);
 
 export const readHiddenCalendars = (): HiddenCalendars => {
-  try {
-    const raw = window.localStorage.getItem(HIDDEN_CALENDARS_KEY);
-    if (raw === null) {
-      return NO_HIDDEN_CALENDARS;
-    }
-    const parsed = hiddenCalendarIdsSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? new Set(parsed.data) : NO_HIDDEN_CALENDARS;
-  } catch {
-    return NO_HIDDEN_CALENDARS;
-  }
+  const ids = readLocalStorageJson(HIDDEN_CALENDARS_KEY, hiddenCalendarIdsSchema);
+  return ids === null ? NO_HIDDEN_CALENDARS : new Set(ids);
 };
 
 export const writeHiddenCalendars = (hidden: HiddenCalendars): void => {
-  try {
-    window.localStorage.setItem(HIDDEN_CALENDARS_KEY, JSON.stringify([...hidden]));
-  } catch {
-    return;
-  }
+  writeLocalStorageJson(HIDDEN_CALENDARS_KEY, [...hidden]);
 };

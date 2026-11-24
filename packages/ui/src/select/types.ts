@@ -4,10 +4,19 @@
 import type { ParseKeys } from "i18next";
 import type { SelectHTMLAttributes } from "react";
 
+type StaticSelectOptionLabel = {
+  readonly label: string;
+  readonly labelTextId?: never;
+};
+
+type TextIdSelectOptionLabel = {
+  readonly labelTextId: ParseKeys;
+  readonly label?: never;
+};
+
 export type SelectOption = {
   readonly value: string;
-  readonly label: string;
-};
+} & (StaticSelectOptionLabel | TextIdSelectOptionLabel);
 
 export type SelectAccent = {
   readonly background: string;

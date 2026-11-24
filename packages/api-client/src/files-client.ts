@@ -25,6 +25,7 @@ import type {
   ByteBody,
   FileContentOptions,
   FileListOptions,
+  TrashListOptions,
   UploadFileInput,
 } from "./types.js";
 
@@ -43,7 +44,7 @@ export const createFilesClient = (client: ApiClient) => ({
       ),
     ),
 
-  listDriveTrash: async (driveId: string, options: FileListOptions = {}) =>
+  listDriveTrash: async (driveId: string, options: TrashListOptions = {}) =>
     fileListSchema.parse(
       await client.request(
         "GET",

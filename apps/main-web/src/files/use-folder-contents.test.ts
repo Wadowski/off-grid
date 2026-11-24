@@ -4,6 +4,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "../test-support/json-response.js";
+import { DEFAULT_FILES_SORT_ORDER } from "./constants.js";
 import { useFolderContents } from "./use-folder-contents.js";
 import type { Drive, FileEntry } from "./types.js";
 
@@ -36,7 +37,9 @@ describe("useFolderContents", () => {
     const fetchMock = vi.fn<typeof fetch>(async () => pageOf([FOLDER_ITEM], null));
     vi.stubGlobal("fetch", fetchMock);
 
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, DEFAULT_FILES_SORT_ORDER),
+    );
 
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(result.current.items).toEqual([FOLDER_ITEM]);
@@ -48,7 +51,9 @@ describe("useFolderContents", () => {
     const fetchMock = vi.fn<typeof fetch>(async () => pageOf([], null));
     vi.stubGlobal("fetch", fetchMock);
 
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, FOLDER_ID, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, FOLDER_ID, true, DEFAULT_FILES_SORT_ORDER),
+    );
 
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain(`/files/${FOLDER_ID}/children`);
@@ -63,7 +68,9 @@ describe("useFolderContents", () => {
       );
     vi.stubGlobal("fetch", fetchMock);
 
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, DEFAULT_FILES_SORT_ORDER),
+    );
     await waitFor(() => expect(result.current.hasMore).toBe(true));
 
     await act(() => result.current.loadMore());
@@ -82,7 +89,9 @@ describe("useFolderContents", () => {
       );
     vi.stubGlobal("fetch", fetchMock);
 
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, DEFAULT_FILES_SORT_ORDER),
+    );
     await waitFor(() => expect(result.current.hasMore).toBe(true));
 
     await act(() => result.current.loadMore());
@@ -98,7 +107,9 @@ describe("useFolderContents", () => {
       vi.fn(async () => jsonResponse({ status: 404, body: { code: "NOT_FOUND", message: "x" } })),
     );
 
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, FOLDER_ID, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, FOLDER_ID, true, DEFAULT_FILES_SORT_ORDER),
+    );
 
     await waitFor(() => expect(result.current.status).toBe("failed"));
     expect(result.current.errorTextId).toBe("files.errors.notFound");
@@ -108,10 +119,45 @@ describe("useFolderContents", () => {
     const fetchMock = vi.fn<typeof fetch>(async () => pageOf([], null));
     vi.stubGlobal("fetch", fetchMock);
 
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, FOLDER_ID, false));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, FOLDER_ID, false, DEFAULT_FILES_SORT_ORDER),
+    );
 
     expect(result.current.status).toBe("loading");
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("asks for the pages in the chosen sort order", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => pageOf([], null));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, { sort: "size", direction: "desc" }),
+    );
+
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("sort=size&direction=desc");
+  });
+
+  it("starts again from the first page when the sort changes", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(pageOf([FOLDER_ITEM], "cursor-2"))
+      .mockResolvedValueOnce(pageOf([{ ...FOLDER_ITEM, name: "Sorted" }], null));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result, rerender } = renderHook(
+      ({ order }) => useFolderContents(DRIVE_ID, null, true, order),
+      { initialProps: { order: DEFAULT_FILES_SORT_ORDER } },
+    );
+    await waitFor(() => expect(result.current.hasMore).toBe(true));
+
+    rerender({ order: { sort: "modified", direction: "asc" } });
+
+    await waitFor(() => expect(result.current.items).toEqual([{ ...FOLDER_ITEM, name: "Sorted" }]));
+    expect(result.current.hasMore).toBe(false);
+    expect(String(fetchMock.mock.calls[1]?.[0])).not.toContain("cursor=");
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("sort=modified&direction=asc");
   });
 
   it("replaces the shown list after a quiet refresh without blanking it", async () => {
@@ -122,7 +168,9 @@ describe("useFolderContents", () => {
       .mockResolvedValueOnce(pageOf([FOLDER_ITEM], null))
       .mockReturnValueOnce(new Promise<Response>((resolve) => (resolveRefresh = resolve)));
     vi.stubGlobal("fetch", fetchMock);
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, DEFAULT_FILES_SORT_ORDER),
+    );
     await waitFor(() => expect(result.current.status).toBe("ready"));
 
     let refreshing: Promise<void> = Promise.resolve();
@@ -145,7 +193,9 @@ describe("useFolderContents", () => {
       .mockResolvedValueOnce(pageOf([FOLDER_ITEM], null))
       .mockRejectedValueOnce(new TypeError("network down"));
     vi.stubGlobal("fetch", fetchMock);
-    const { result } = renderHook(() => useFolderContents(DRIVE_ID, null, true));
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, DEFAULT_FILES_SORT_ORDER),
+    );
     await waitFor(() => expect(result.current.status).toBe("ready"));
 
     await act(async () => {

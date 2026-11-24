@@ -100,6 +100,19 @@ describe("createFilesClient listing", () => {
     );
   });
 
+  it("sends the sort field and direction with the children query", async () => {
+    const page = { items: [], breadcrumbs: [], nextCursor: null };
+    const { files, transport } = filesWith(jsonResponse(page));
+
+    await expect(
+      files.listFileChildren(FOLDER_ID, { sort: "size", direction: "desc" }),
+    ).resolves.toEqual(page);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FOLDER_ID}/children?sort=size&direction=desc`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
   it("lists the trash of a drive", async () => {
     const page = { items: [], breadcrumbs: [], nextCursor: null };
     const { files, transport } = filesWith(jsonResponse(page));
@@ -107,6 +120,18 @@ describe("createFilesClient listing", () => {
     await expect(files.listDriveTrash(DRIVE_ID)).resolves.toEqual(page);
     expect(transport).toHaveBeenCalledWith(
       `${BASE_URL}/drives/${DRIVE_ID}/trash`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("sends only the cursor and limit for the trash list", async () => {
+    const page = { items: [], breadcrumbs: [], nextCursor: null };
+    const { files, transport } = filesWith(jsonResponse(page));
+
+    await files.listDriveTrash(DRIVE_ID, { cursor: "abc", limit: 5 });
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/drives/${DRIVE_ID}/trash?cursor=abc&limit=5`,
       expect.objectContaining({ method: "GET" }),
     );
   });

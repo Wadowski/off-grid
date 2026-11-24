@@ -91,10 +91,13 @@ export type ApiClient = {
   ) => Promise<unknown>;
 };
 
-export type FileListOptions = {
-  readonly cursor?: string;
-  readonly limit?: number;
-};
+export type FileListOptions = NonNullable<
+  paths["/drives/{id}/children"]["get"]["parameters"]["query"]
+>;
+
+export type TrashListOptions = NonNullable<
+  paths["/drives/{id}/trash"]["get"]["parameters"]["query"]
+>;
 
 type FileContentQuery = ReturnType<typeof fileContentQuerySchema.parse>;
 

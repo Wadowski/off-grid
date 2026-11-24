@@ -12,3 +12,10 @@ export const filesHeaderStyle: CSSProperties = {
   gap: tokens.space[3],
   minWidth: 0,
 };
+
+export const filesHeaderActionsStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: tokens.space[2],
+};

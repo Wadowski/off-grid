@@ -4,9 +4,23 @@
 import type {
   FilesErrorCode,
   FilesErrorTextId,
+  FilesSortField,
+  FilesSortOrder,
+  FilesViewPreference,
   FolderContentsSnapshot,
   PreviewKind,
 } from "./types.js";
+
+export const FILES_VIEW_PREFERENCE_KEY = "offgrid.files.viewPreference";
+
+export const FILES_SORT_FIELDS: readonly FilesSortField[] = ["name", "modified", "size"];
+
+export const DEFAULT_FILES_SORT_ORDER: FilesSortOrder = { sort: "name", direction: "asc" };
+
+export const DEFAULT_FILES_VIEW_PREFERENCE: FilesViewPreference = {
+  view: "list",
+  ...DEFAULT_FILES_SORT_ORDER,
+};
 
 export const FILES_ERROR_TEXT_IDS: Record<FilesErrorCode, FilesErrorTextId> = {
   NOT_FOUND: "files.errors.notFound",

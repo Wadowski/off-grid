@@ -14,7 +14,7 @@ import type { ChildrenQuery, ListedChildren } from "../../types.js";
 import { listDriveChildren } from "./list-drive-children.js";
 import { listFolderChildren } from "./list-folder-children.js";
 
-const FIRST_PAGE: ChildrenQuery = { cursor: null, limit: 50 };
+const FIRST_PAGE: ChildrenQuery = { cursor: null, limit: 50, sort: "name", direction: "asc" };
 
 describe("listDriveChildren and listFolderChildren", { timeout: 60_000 }, () => {
   let db: FilesTestDatabase;
@@ -92,7 +92,12 @@ describe("listDriveChildren and listFolderChildren", { timeout: 60_000 }, () => 
     let cursor: ChildrenQuery["cursor"] = null;
     let pages = 0;
     do {
-      const result = await listDriveChildren(db.db, anna, driveId, { cursor, limit: 2 });
+      const result = await listDriveChildren(db.db, anna, driveId, {
+        cursor,
+        limit: 2,
+        sort: "name",
+        direction: "asc",
+      });
       if (result.outcome !== "found") {
         throw new Error("the drive should be visible");
       }
@@ -117,7 +122,12 @@ describe("listDriveChildren and listFolderChildren", { timeout: 60_000 }, () => 
         createdByUserId: anna,
       });
     }
-    const first = await listDriveChildren(db.db, anna, driveId, { cursor: null, limit: 1 });
+    const first = await listDriveChildren(db.db, anna, driveId, {
+      cursor: null,
+      limit: 1,
+      sort: "name",
+      direction: "asc",
+    });
     if (first.outcome !== "found" || first.value.page.nextCursor === null) {
       throw new Error("expected a second page");
     }
@@ -126,6 +136,8 @@ describe("listDriveChildren and listFolderChildren", { timeout: 60_000 }, () => 
     const second = await listDriveChildren(db.db, anna, driveId, {
       cursor: decoded,
       limit: 50,
+      sort: "name",
+      direction: "asc",
     });
 
     expect(second.outcome === "found" && namesOf(second.value)).toEqual(["b.txt", "c.txt"]);
