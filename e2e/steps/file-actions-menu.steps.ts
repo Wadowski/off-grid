@@ -13,7 +13,7 @@ import { ownSessionOf } from "../support/own-session.js";
 import { test } from "../support/fixtures.js";
 import { rowNamed } from "../support/files-table.js";
 
-const { Given, When, Then } = createBdd(test);
+const { When, Then } = createBdd(test);
 
 const KEYBOARD_TAB_LIMIT = 60;
 const MENU_ENTRY_ROWS =
