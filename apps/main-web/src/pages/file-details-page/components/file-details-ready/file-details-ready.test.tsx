@@ -6,6 +6,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 import type { FileDetailsScreenState, RegularFileEntry } from "../../../../files/types.js";
+import { UploadQueueProvider } from "../../../../uploads/index.js";
 import { FileDetailsReady } from "./file-details-ready.js";
 
 const DRIVE_ID = driveIdSchema.parse("3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d");
@@ -80,13 +81,15 @@ describe("FileDetailsReady", () => {
   it("shows the file name, its properties and a location link to the folder above", () => {
     render(
       <MemoryRouter>
+<UploadQueueProvider>
         <FileDetailsReady
           file={nestedFile()}
           breadcrumbs={BREADCRUMBS}
           backTarget={{ to: `/files/${DRIVE_ID}/folder/${PHOTOS_ID}`, name: "Photos" }}
           screen={fileDetailsScreenFixture()}
         />
-      </MemoryRouter>,
+      </UploadQueueProvider>
+</MemoryRouter>,
     );
 
     expect(screen.getByTestId("file-details-name")).toHaveTextContent("Beach.jpg");
@@ -97,5 +100,21 @@ describe("FileDetailsReady", () => {
       "href",
       `/files/${DRIVE_ID}/folder/${PHOTOS_ID}`,
     );
+  });
+  it("shows the versions section on the details tab after who has access", () => {
+    render(
+      <MemoryRouter>
+        <UploadQueueProvider>
+          <FileDetailsReady
+            file={nestedFile()}
+            breadcrumbs={BREADCRUMBS}
+            backTarget={null}
+            screen={fileDetailsScreenFixture()}
+          />
+        </UploadQueueProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId("file-versions-section")).toBeInTheDocument();
   });
 });

@@ -16,6 +16,7 @@ import { toModifiedBy } from "../../../../files/to-modified-by.js";
 import { FileActivityList } from "../file-activity-list/file-activity-list.js";
 import { FileAccessList } from "../file-access-list/file-access-list.js";
 import { FileDetailsTabs } from "../file-details-tabs/file-details-tabs.js";
+import { FileDetailsVersions } from "../file-details-versions/file-details-versions.js";
 import type { FileDetailsTab } from "../file-details-tabs/types.js";
 import { FileProperties } from "../file-properties/file-properties.js";
 import type { PropertyRowData } from "../file-properties/types.js";
@@ -38,6 +39,10 @@ export const FileDetailsReady = ({
   const modifiedBy = toModifiedBy(file.currentVersionId, screen.versions.versions, resolveName);
   const modifiedDate = formatFileTimestamp(values.updatedAt, language);
   const locationText = toFileLocation(breadcrumbs).join(t("files.details.locationSeparator"));
+  const refreshAll = () => {
+    void screen.versions.refreshQuietly();
+    void screen.details.refreshQuietly();
+  };
   const accessEntries =
     screen.drive === null || screen.viewer === null
       ? []
@@ -113,6 +118,12 @@ export const FileDetailsReady = ({
             entries={accessEntries}
             familyDriveName={screen.drive?.familyId ? screen.drive.name : null}
             onRetry={screen.refreshMembers}
+          />
+          <FileDetailsVersions
+            file={file}
+            versions={screen.versions}
+            resolveName={resolveName}
+            refreshAll={refreshAll}
           />
         </>
       ) : (
