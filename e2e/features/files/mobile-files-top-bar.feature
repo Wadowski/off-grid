@@ -17,7 +17,7 @@ Feature: The top row of the Files page on a phone
 
   Scenario: The New folder action on the phone is enabled
     Given I am signed in as "Anna Kowalska", a regular member
-    When Anna opens the Files page on a phone
+    When Anna opens her personal drive on a phone
     Then the action "New folder" is enabled
 
   Scenario: The Upload action on the phone is available

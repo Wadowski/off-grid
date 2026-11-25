@@ -88,7 +88,7 @@ Feature: Creating a folder from the Files page
 
   Scenario: Anna creates a folder from the New folder action on the phone
     Given I am signed in as "Anna Kowalska", a regular member
-    When Anna opens the Files page on a phone
+    When Anna opens her personal drive on a phone
     And Anna chooses New folder
     And Anna creates the folder "Trip" from the New folder dialog
     Then the New folder dialog is closed
