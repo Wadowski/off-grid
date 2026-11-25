@@ -2,15 +2,19 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, Text } from "@offgrid/ui";
+import { useState } from "react";
+import type { FileListItem } from "../../../../files/types.js";
 import { FileGrid } from "../../lists/file-grid/file-grid.js";
 import { FileList } from "../../lists/file-list/file-list.js";
+import { TrashConfirmation } from "../file-actions-menu/trash-confirmation.js";
 import { FolderList } from "../folder-list/folder-list.js";
+import { TrashNotice } from "../trash-notice/trash-notice.js";
 import {
   folderContentsErrorStyle,
   folderContentsListStyle,
   folderContentsStyle,
 } from "./styles.js";
-import type { FolderContentsProps } from "./types.js";
+import type { FolderContentsProps, PendingTrash } from "./types.js";
 
 export const FolderContents = ({
   driveId,
@@ -19,10 +23,24 @@ export const FolderContents = ({
   view,
   selectedId,
   onSelect,
+  onEntryTrashed,
 }: FolderContentsProps) => {
+  const [trashedName, setTrashedName] = useState<string | null>(null);
+  const [pendingTrash, setPendingTrash] = useState<PendingTrash | null>(null);
   if (contents.status === "loading") {
     return <Text variant="body" textId="files.folder.loading" data-testid="files-folder-loading" />;
   }
+  const cancelTrash = () => {
+    const returnFocusTo = pendingTrash?.returnFocusTo ?? null;
+    setPendingTrash(null);
+    returnFocusTo?.focus();
+  };
+  const trashed = (entry: FileListItem) => {
+    setPendingTrash(null);
+    contents.removeItem(entry.id);
+    setTrashedName(entry.name);
+    onEntryTrashed(entry.id);
+  };
   const listProps = {
     driveId,
     items: contents.items,
@@ -31,9 +49,12 @@ export const FolderContents = ({
     onLoadMore: contents.loadMore,
     selectedId,
     onSelect,
+    onDelete: (entry: FileListItem, returnFocusTo: HTMLElement | null) =>
+      setPendingTrash({ entry, returnFocusTo }),
   };
   return (
     <div style={folderContentsStyle} data-testid="files-folder-contents">
+      <TrashNotice name={trashedName} onDismiss={() => setTrashedName(null)} />
       {contents.items.length > 0 ? (
         <div style={folderContentsListStyle}>
           {phone ? (
@@ -45,6 +66,9 @@ export const FolderContents = ({
           )}
         </div>
       ) : null}
+      {pendingTrash === null ? null : (
+        <TrashConfirmation entry={pendingTrash.entry} onCancel={cancelTrash} onTrashed={trashed} />
+      )}
       {contents.items.length === 0 && contents.status === "ready" ? (
         <Text variant="body" textId="files.folder.empty" data-testid="files-empty" />
       ) : null}

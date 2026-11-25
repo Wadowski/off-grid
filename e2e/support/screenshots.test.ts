@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it } from "vitest";
-import { isScreenUrl, screenNameFor, screenPath, slug } from "./screenshots.js";
+import { isScreenUrl, screenNameFor, screenOptionsFor, screenPath, slug } from "./screenshots.js";
 
 describe("screenshots", () => {
   it("turns titles into file-safe slugs", () => {
@@ -63,5 +63,12 @@ describe("screenshots", () => {
     ];
     expect(new Set(paths).size).toBe(4);
     expect(paths[3]).toMatch(/calendar-views\/calendar-day-dark-mobile\.png$/);
+  });
+
+  it("captures phone variants unless the scenario is tagged desktop only", () => {
+    expect(screenOptionsFor(["@ui", "@screen:files-actions-menu"])).toEqual({ phone: true });
+    expect(
+      screenOptionsFor(["@ui", "@screen:files-grid-actions-menu", "@screen-desktop-only"]),
+    ).toEqual({ phone: false });
   });
 });

@@ -5,6 +5,8 @@ import { Button, FileTable, FileTableRow, Text } from "@offgrid/ui";
 import { useNavigate } from "react-router-dom";
 import { toFileRowValues } from "../../../../files/to-file-row-values.js";
 import { toFolderPath } from "../../../../files/to-folder-path.js";
+import type { FileListItem } from "../../../../files/types.js";
+import { FileActionsMenu } from "../../components/file-actions-menu/file-actions-menu.js";
 import { fileListStyle, fileListTableStyle } from "./styles.js";
 import type { FileListProps } from "./types.js";
 
@@ -16,8 +18,16 @@ export const FileList = ({
   selectedId,
   onSelect,
   onLoadMore,
+  onDelete,
 }: FileListProps) => {
   const navigate = useNavigate();
+  const activate = (item: FileListItem) => {
+    if (item.isFolder) {
+      navigate(toFolderPath(driveId, item.id));
+      return;
+    }
+    onSelect(item.id);
+  };
 
   return (
     <div style={fileListStyle} data-testid="files-file-list">
@@ -28,10 +38,9 @@ export const FileList = ({
               key={item.id}
               {...toFileRowValues(item)}
               selected={item.id === selectedId}
-              onActivate={
-                item.isFolder
-                  ? () => navigate(toFolderPath(driveId, item.id))
-                  : () => onSelect(item.id)
+              onActivate={() => activate(item)}
+              actions={
+                <FileActionsMenu entry={item} onOpen={() => activate(item)} onDelete={onDelete} />
               }
             />
           ))}

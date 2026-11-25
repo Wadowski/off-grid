@@ -18,6 +18,7 @@ export const FileGrid = ({
   onLoadMore,
   selectedId,
   onSelect,
+  onDelete,
 }: FileGridProps) => {
   const navigate = useNavigate();
   const { folders, files } = splitFoldersAndFiles(items);
@@ -40,6 +41,7 @@ export const FileGrid = ({
             items={folders}
             selectedId={selectedId}
             onActivate={activate}
+            onDelete={onDelete}
           />
         ) : null}
         {files.length > 0 ? (
@@ -49,6 +51,7 @@ export const FileGrid = ({
             items={files}
             selectedId={selectedId}
             onActivate={activate}
+            onDelete={onDelete}
           />
         ) : null}
       </div>

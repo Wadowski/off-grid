@@ -44,6 +44,7 @@ const renderGroup = (overrides: Partial<FileGridGroupProps> = {}) => {
     items: [PHOTOS, ARCHIVE],
     selectedId: null,
     onActivate: vi.fn(),
+    onDelete: vi.fn(),
     ...overrides,
   };
   render(<FileGridGroup {...props} />);

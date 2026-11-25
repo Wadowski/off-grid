@@ -21,6 +21,7 @@ import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
 import { ViewControls } from "./components/view-controls/view-controls.js";
 import { filesPageStyle } from "./styles.js";
+import { toTrashClearsSelection } from "./to-trash-clears-selection.js";
 
 export const FilesPage = () => {
   const folder = useCurrentFolder();
@@ -108,6 +109,11 @@ export const FilesPage = () => {
           view={phone ? "list" : preference.view}
           selectedId={switcher.selectedFileId}
           onSelect={switcher.onSelectFile}
+          onEntryTrashed={(fileId) => {
+            if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
+              switcher.onClearSelection();
+            }
+          }}
         />
       ) : null}
     </div>

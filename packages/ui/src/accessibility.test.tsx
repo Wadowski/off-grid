@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import axe from "axe-core";
 import { describe, expect, it } from "vitest";
 import { renderWithI18n } from "../test/render-with-i18n.js";
@@ -14,6 +14,7 @@ import {
   FilePickerButton,
   FileTable,
   FileTableRow,
+  Menu,
   FileTypeIcon,
   FloatingPanel,
   ProgressBar,
@@ -59,6 +60,45 @@ describe("accessibility", () => {
           </FloatingPanel>
         </main>,
       );
+
+      const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
+
+      expect(results.violations).toEqual([]);
+    },
+    AXE_RUN_TIMEOUT_MS,
+  );
+
+  it(
+    "has no axe violations for an open actions menu",
+    async () => {
+      const { container } = renderWithI18n(
+        <main>
+          <Menu
+            label="Actions for Policy.pdf"
+            triggerTestId="file-actions-trigger"
+            menuTestId="file-actions-menu"
+            items={[
+              {
+                id: "open",
+                textId: "files.entryActions.open",
+                icon: "open_in_new",
+                tone: "default",
+                testId: "file-action-open",
+                onSelect: () => undefined,
+              },
+              {
+                id: "delete",
+                textId: "files.entryActions.delete",
+                icon: "delete",
+                tone: "danger",
+                testId: "file-action-delete",
+                onSelect: () => undefined,
+              },
+            ]}
+          />
+        </main>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Actions for Policy.pdf" }));
 
       const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
 
