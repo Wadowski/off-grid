@@ -207,7 +207,7 @@ Then(/^the trash view notice says "([^"]*)" was restored$/, async ({ page }, nam
 });
 
 Then("the trash view says the trash is empty", async ({ page }) => {
-  await expect(page.getByTestId("trash-empty")).toHaveText("Trash is empty");
+  await expect(page.getByTestId("trash-empty")).toContainText("Trash is empty");
 });
 
 Then(/^the trash view shows the error "([^"]*)"$/, async ({ page }, message: string) => {

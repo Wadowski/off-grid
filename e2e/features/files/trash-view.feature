@@ -9,14 +9,14 @@ Feature: Viewing and restoring trashed items in the trash view
   back in its place. The trash view lists only the items that are not inside
   another trashed item, and a notice names what was restored.
 
-  @wip @screen:files-trash
+  @screen:files-trash
   Scenario: Anna sees her deleted file in the trash view
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Old receipt.pdf" in the trash
     When Anna opens the trash of her personal drive on a desktop screen
     Then the trash view lists "Old receipt.pdf" with a deleted date and a Restore button
 
-  @wip
+  
   Scenario: Anna restores a file and opens the folder it returns to
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Holiday"
@@ -27,7 +27,7 @@ Feature: Viewing and restoring trashed items in the trash view
     When Anna follows the link in the trash view notice
     Then the table lists the file "sunset.jpg"
 
-  @wip @screen:files-trash-empty
+  @screen:files-trash-empty
   Scenario: Anna restores a folder and the trash view becomes empty
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive folder "Holiday" holding a file "sunset.jpg"
@@ -36,7 +36,7 @@ Feature: Viewing and restoring trashed items in the trash view
     Then the trash view notice says "Holiday" was restored
     And the trash view says the trash is empty
 
-  @wip
+  
   Scenario: A file trashed inside a trashed folder appears once its folder is restored
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive folder "Holiday" holding a trashed file "sunset.jpg"
@@ -46,7 +46,7 @@ Feature: Viewing and restoring trashed items in the trash view
     When Anna restores "Holiday" from the trash view
     Then the trash view lists "sunset.jpg"
 
-  @wip
+  
   Scenario: Anna restores a file whose name is taken and is told the numbered name
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Report.pdf" in the trash
@@ -55,13 +55,13 @@ Feature: Viewing and restoring trashed items in the trash view
     And Anna restores "Report.pdf" from the trash view
     Then the trash view notice says "Report (2).pdf" was restored
 
-  @wip
+  
   Scenario: An empty trash says it is empty
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens the trash of her personal drive on a desktop screen
     Then the trash view says the trash is empty
 
-  @wip
+  
   Scenario: Anna restores a file from the trash of a family drive
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has the folder "Plans" in the family drive "Home"
@@ -70,7 +70,7 @@ Feature: Viewing and restoring trashed items in the trash view
     And Anna restores "Insurance policy.pdf" from the trash view
     Then the trash view notice says "Insurance policy.pdf" was restored
 
-  @wip @screen:files-trash-phone
+  @screen:files-trash-phone
   Scenario: Anna opens the trash from the phone top row and restores a file
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Old receipt.pdf" in the trash
@@ -80,7 +80,7 @@ Feature: Viewing and restoring trashed items in the trash view
     When Anna restores "Old receipt.pdf" from the trash view
     Then the trash view does not list "Old receipt.pdf"
 
-  @wip
+  
   Scenario: Restoring an item that was already restored shows an error and keeps the page usable
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Old receipt.pdf" in the trash
@@ -90,7 +90,7 @@ Feature: Viewing and restoring trashed items in the trash view
     Then the trash view shows the error "This item isn't in the trash."
     And the trash view does not list "Old receipt.pdf"
 
-  @wip @a11y
+  @a11y
   Scenario: The sidebar Trash entry is the current page on the trash view
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens the trash of her personal drive on a desktop screen
