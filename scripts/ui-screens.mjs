@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-// Screenshot bookkeeping for `pnpm e2e:changed --screens`. This file never runs
-// Playwright: the scenarios are run by e2e:changed, which then calls buildManifest.
-
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -36,7 +33,6 @@ const listScreens = (dir, since) => {
     );
 };
 
-// Writes manifest.json for the screens captured since `startedAt` and one contact sheet per screen.
 export const buildManifest = async (root, { grep, startedAt }) => {
   const dir = join(root, SCREENS_DIR);
   const screens = groupScreens(listScreens(dir, startedAt));

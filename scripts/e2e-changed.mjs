@@ -18,11 +18,8 @@ const BACKEND_PATH = /^modules\/([a-z-]+)\//;
 const UI_PAGE_PATH = /^apps\/main-web\/src\/pages\/([a-z-]+)-page\//;
 const UI_MODULE_PATH = /^apps\/main-web\/src\/([a-z-]+)\//;
 const FORM_PATH = /^apps\/main-web\/src\/forms\/([a-z-]+)\//;
-// Catalog text only changes strings; the scenarios that render them follow the components.
 const TEXT_PATH = /^apps\/main-web\/src\/i18n\//;
-// Documentation and agent configuration run no scenario.
 const NO_SCENARIO_PATH = /^(docs\/|\.claude\/|[^/]+\.md$)/;
-// Repo tooling is tested by `pnpm test:scripts`, not by the scenarios it runs.
 const TOOLING_PATH = /^scripts\//;
 const MODULE_TAG = /@module:([a-z-]+)/g;
 const FEATURE_TITLE = /^Feature:\s*(.+)$/m;
@@ -31,10 +28,6 @@ const escapePattern = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const withConsumers = (name) => [name, ...(CONSUMERS[name] ?? [])];
 
-// Pure planner. `ctx` supplies the file-system facts:
-//   knownModules          -> Set of module names
-//   featuresForStep(name) -> feature paths named after a steps file
-//   importersOf(name)     -> files under apps/main-web/src that import forms/<name>
 export const planChanged = (files, ctx) => {
   const direct = new Set();
   const uiModules = new Set();
@@ -132,9 +125,6 @@ export const planChanged = (files, ctx) => {
   };
 };
 
-// Playwright matches --grep against the full test title, which carries the feature's
-// tags (for example "@module:files @ui"). A changed feature file runs whole, matched
-// by its Feature: title.
 export const grepFor = (plan, featureTitle) => {
   if (plan.mode !== "scoped") return null;
   const parts = plan.directFeatures.map((feature) => escapePattern(featureTitle(feature)));
@@ -157,7 +147,6 @@ const walkFeatures = (root, dir) =>
 const realContext = (root, base) => {
   const features = walkFeatures(root, "e2e/features");
   const contentOf = (path) => readFileSync(join(root, path), "utf8");
-  // True when the manifest differs from the base only in its `scripts` block.
   const onlyScriptsChanged = (path) => {
     try {
       const before = JSON.parse(
@@ -236,8 +225,6 @@ const runPlaywright = (root, grep, env) => {
   );
 };
 
-// `--screens` runs the same selection with screenshots on, then writes the manifest and
-// contact sheets. Screens are limited to @ui scenarios; the plan never widens them.
 const main = async () => {
   const root = repoRoot();
   const screens = process.argv.includes("--screens");
