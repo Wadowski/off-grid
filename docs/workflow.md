@@ -85,7 +85,7 @@ The [linear-issue](../.claude/skills/linear-issue/SKILL.md) skill runs the whole
 
 1. A planning subagent picks up the issue, creates the branch and worktree, and writes a plan that includes the rules that apply (`pnpm rules:for`). You approve the plan.
 2. An implementation subagent follows the plan and ends with `pnpm verify` and `pnpm e2e:changed`.
-3. The main session runs the reviewers once in parallel, fixes all Blocking findings in one pass, and opens the pull request. UI screenshots are captured once (`pnpm ui:screens`) and uploaded to the issue as one contact sheet per screen.
+3. The main session runs the reviewers once in parallel, fixes all Blocking findings in one pass, and opens the pull request. UI screenshots are captured once (`pnpm e2e:changed --screens`) and uploaded to the issue as one contact sheet per screen.
 4. CI failures are fixed by Auto-fix. You reply "merge", and `pnpm wt:cleanup <branch>` removes the worktree and branch afterwards.
 
 Rules marked `[lint]` in [.claude/rules](../.claude/rules/) are enforced by `pnpm check:rules`, which compares the lines your branch adds with `origin/main`. The other rules are checked by the reviewers.

@@ -659,6 +659,20 @@ export const en = {
       upload: "Upload",
       newFolder: "New folder",
     },
+    newFolder: {
+      heading: "New folder",
+      name: "Name",
+      placeholder: "Untitled folder",
+      required: "Required",
+      create: "Create",
+      creating: "Creating...",
+      cancel: "Cancel",
+      errors: {
+        nameRequired: "Enter a name for the folder.",
+        nameTooLong: "Use 255 characters or fewer.",
+        nameInvalid: "A name can't contain slashes or be only dots.",
+      },
+    },
     entryActions: {
       menuLabel: "Actions for {{name}}",
       columnHeader: "Actions",

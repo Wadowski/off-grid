@@ -6,7 +6,7 @@ Feature: The top row of the Files page on a phone
 
   On a phone the Files page starts with a top row. The row names the drive on
   screen and opens the list of drives, and it holds the folder actions. Upload
-  is available; New folder is shown but not yet available.
+  and New folder are both available.
 
   @screen:files-mobile-top-bar
   Scenario: The phone top row shows the active drive and the folder actions
@@ -15,10 +15,10 @@ Feature: The top row of the Files page on a phone
     Then the top row shows the active drive "Personal"
     And the top row shows the actions "Upload" and "New folder"
 
-  Scenario: The New folder action on the phone is disabled
+  Scenario: The New folder action on the phone is enabled
     Given I am signed in as "Anna Kowalska", a regular member
-    When Anna opens the Files page on a phone
-    Then the action "New folder" is disabled
+    When Anna opens her personal drive on a phone
+    Then the action "New folder" is enabled
 
   Scenario: The Upload action on the phone is available
     Given I am signed in as "Anna Kowalska", a regular member

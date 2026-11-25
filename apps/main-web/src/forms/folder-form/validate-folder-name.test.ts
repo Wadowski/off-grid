@@ -1,0 +1,35 @@
+// SPDX-FileCopyrightText: 2026 Dominik Wadowski
+// SPDX-License-Identifier: FSL-1.1-ALv2
+
+import { describe, expect, it } from "vitest";
+import { validateFolderName } from "./validate-folder-name.js";
+
+const REQUIRED = "files.newFolder.errors.nameRequired";
+const TOO_LONG = "files.newFolder.errors.nameTooLong";
+const INVALID = "files.newFolder.errors.nameInvalid";
+
+describe("validateFolderName", () => {
+  it.each(["", "   ", "\t"])("requires a name for %j", (name) => {
+    expect(validateFolderName(name)).toBe(REQUIRED);
+  });
+
+  it("accepts a name of 255 characters and refuses 256", () => {
+    expect(validateFolderName("a".repeat(255))).toBeUndefined();
+    expect(validateFolderName("a".repeat(256))).toBe(TOO_LONG);
+  });
+
+  it("counts the length after trimming the surrounding spaces", () => {
+    expect(validateFolderName(` ${"a".repeat(255)} `)).toBeUndefined();
+  });
+
+  it.each(["Work/2026", "Work\\2026", "Bad\u0000name", ".", ".."])(
+    "refuses the name %j",
+    (name) => {
+      expect(validateFolderName(name)).toBe(INVALID);
+    },
+  );
+
+  it.each(["Holiday", "Zdjęcia 2026", "Ünïcode 📷", "...dots"])("accepts the name %j", (name) => {
+    expect(validateFolderName(name)).toBeUndefined();
+  });
+});
