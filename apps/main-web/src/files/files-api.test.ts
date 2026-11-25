@@ -4,6 +4,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { webFilesClient } from "../api/web-api-client.js";
 import {
+  createFolder,
   getFile,
   getFileContent,
   listDriveChildren,
@@ -30,6 +31,17 @@ afterEach(() => {
 });
 
 describe("files API", () => {
+  it("creates a folder through the files client", async () => {
+    const create = vi
+      .spyOn(webFilesClient, "createFolder")
+      .mockResolvedValue({ id: FOLDER_ID } as FileEntry);
+
+    await expect(createFolder(DRIVE_ID, { parentId: null, name: "Holiday" })).resolves.toEqual({
+      id: FOLDER_ID,
+    });
+    expect(create).toHaveBeenCalledWith(DRIVE_ID, { parentId: null, name: "Holiday" });
+  });
+
   it("returns the drives the files client lists", async () => {
     const list = vi.spyOn(webFilesClient, "listDrives").mockResolvedValue([DRIVE]);
 

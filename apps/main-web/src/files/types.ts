@@ -48,6 +48,20 @@ export type FilesErrorTextId =
   | "files.errors.currentVersion"
   | "files.errors.failed";
 
+export type CreateFolderStatus = "idle" | "submitting" | "failed";
+
+export type CreateFolderState = {
+  readonly status: CreateFolderStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly create: (name: string) => Promise<FileEntry | null>;
+};
+
+export type NewFolderDialogState = {
+  readonly isOpen: boolean;
+  readonly open: () => void;
+  readonly close: () => void;
+};
+
 export type DrivesState = {
   readonly drives: readonly Drive[];
   readonly status: ListStatus;

@@ -4,8 +4,9 @@
 import { ApiError } from "@offgrid/api-client";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createFolder,
   getFile,
   listDriveChildren,
   listDrives,
@@ -23,6 +24,7 @@ vi.mock("../../files/files-api.js", () => ({
   listDriveChildren: vi.fn(),
   listFileChildren: vi.fn(),
   uploadFile: vi.fn(),
+  createFolder: vi.fn(),
 }));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
@@ -92,6 +94,17 @@ const renderAt = (path: string) =>
   );
 
 describe("FilesPage", () => {
+  beforeAll(() => {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+      this.querySelector<HTMLElement>("input, button, [tabindex]")?.focus();
+    };
+    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    };
+  });
+
   beforeEach(() => {
     vi.mocked(listDrives).mockResolvedValue([DRIVE]);
     vi.mocked(getFile).mockResolvedValue({
@@ -393,6 +406,40 @@ describe("FilesPage", () => {
 
     await waitFor(() => expect(listFileChildren).toHaveBeenCalledTimes(2));
     expect(screen.getByRole("table", { name: "Folder contents" })).toBeInTheDocument();
+  });
+
+  it("creates a folder in the open folder from the dialog and refreshes the folder quietly", async () => {
+    vi.mocked(createFolder).mockResolvedValue({
+      id: "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+    } as never);
+    renderAt(FOLDER_PATH);
+    await screen.findByRole("table", { name: "Folder contents" });
+
+    fireEvent.click(screen.getByTestId("files-new-folder-button"));
+    fireEvent.change(screen.getByTestId("new-folder-name"), { target: { value: "Beach" } });
+    fireEvent.click(screen.getByTestId("new-folder-submit"));
+
+    await waitFor(() =>
+      expect(createFolder).toHaveBeenCalledWith(DRIVE_ID, { parentId: FOLDER_ID, name: "Beach" }),
+    );
+    await waitFor(() => expect(listFileChildren).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByTestId("new-folder-dialog")).not.toBeInTheDocument());
+  });
+
+  it("creates a folder at the drive root with a null parent", async () => {
+    vi.mocked(createFolder).mockResolvedValue({
+      id: "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+    } as never);
+    renderAt(`/files/${DRIVE_ID}/folder`);
+    await screen.findByRole("table", { name: "Folder contents" });
+
+    fireEvent.click(screen.getByTestId("files-new-folder-button"));
+    fireEvent.change(screen.getByTestId("new-folder-name"), { target: { value: "Holiday" } });
+    fireEvent.click(screen.getByTestId("new-folder-submit"));
+
+    await waitFor(() =>
+      expect(createFolder).toHaveBeenCalledWith(DRIVE_ID, { parentId: null, name: "Holiday" }),
+    );
   });
 });
 

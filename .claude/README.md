@@ -50,14 +50,14 @@ Do not set the override to get past a block you were not asked to cross. If a gu
 
 The agent workflow lives in `skills/linear-issue` and `skills/pre-pr-verify`. It leans on repo scripts, not on prose, so the same result comes back whichever model runs it:
 
-| Command            | What it does                                                                                                                                        |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm verify`      | Runs every local gate in parallel (heavy ones alone), prints only failures, and caches passes per tree in the git common directory.                 |
-| `pnpm check:rules` | Checks the `[lint]` rules on the lines the branch adds: comments, arrow functions, types placement, route per file, fetch, colours, unused exports. |
-| `pnpm rules:for`   | Prints the rules in `rules/` whose `paths` match the changed files. The plan embeds it and reviewers receive it.                                    |
-| `pnpm e2e:changed` | Runs the feature files this branch changed. CI runs the affected set.                                                                               |
-| `pnpm ui:screens`  | Captures the `@ui` scenarios once and builds a contact sheet per screen; reused while the tree is unchanged.                                        |
-| `pnpm wt:cleanup`  | After merge, removes the worktree and branch and updates `main`.                                                                                    |
+| Command                      | What it does                                                                                                                                        |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm verify`                | Runs every local gate in parallel (heavy ones alone), prints only failures, and caches passes per tree in the git common directory.                 |
+| `pnpm check:rules`           | Checks the `[lint]` rules on the lines the branch adds: comments, arrow functions, types placement, route per file, fetch, colours, unused exports. |
+| `pnpm rules:for`             | Prints the rules in `rules/` whose `paths` match the changed files. The plan embeds it and reviewers receive it.                                    |
+| `pnpm e2e:changed`           | The only local e2e run. Runs the changed feature files and the scenarios the change affects. CI runs the wider set.                                 |
+| `pnpm e2e:changed --screens` | Same scope with screenshots on; writes the manifest and a contact sheet per screen.                                                                 |
+| `pnpm wt:cleanup`            | After merge, removes the worktree and branch and updates `main`.                                                                                    |
 
 Reviewers in `agents/` (`design-reviewer`, `quality-reviewer`, `gherkin-reviewer`, `ui-screenshot-reviewer`) only report. A rule bullet ending in `[lint]` is enforced by `check:rules`, so reviewers skip it. When you add a mechanical check, tag the rule `[lint]`.
 

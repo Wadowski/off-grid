@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { FileContentOptions, UploadFileInput } from "@offgrid/api-client";
+import type { CreateFolderRequest } from "@offgrid/contracts";
 import { webFilesClient } from "../api/web-api-client.js";
 import type {
   Drive,
@@ -29,6 +30,11 @@ export const getFile = (fileId: FileEntry["id"]): Promise<FileDetails> =>
 
 export const listFileVersions = (fileId: FileEntry["id"]): Promise<readonly FileVersion[]> =>
   webFilesClient.listFileVersions(fileId);
+
+export const createFolder = (
+  driveId: Drive["id"],
+  input: CreateFolderRequest,
+): Promise<FileEntry> => webFilesClient.createFolder(driveId, input);
 
 export const trashFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
   webFilesClient.trashFile(fileId);

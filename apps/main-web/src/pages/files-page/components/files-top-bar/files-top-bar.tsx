@@ -12,13 +12,20 @@ export const FilesTopBar = ({
   activeDriveId,
   uploadDisabled,
   onFilesPicked,
+  newFolderDisabled,
+  onNewFolder,
 }: FilesTopBarProps) => {
   const activeDriveName = drives.find((drive) => drive.id === activeDriveId)?.name ?? null;
 
   return (
     <div style={filesTopBarStyle} data-testid="files-top-bar">
       <DriveControl status={status} activeDriveName={activeDriveName} />
-      <TopBarActions uploadDisabled={uploadDisabled} onFilesPicked={onFilesPicked} />
+      <TopBarActions
+        uploadDisabled={uploadDisabled}
+        onFilesPicked={onFilesPicked}
+        newFolderDisabled={newFolderDisabled}
+        onNewFolder={onNewFolder}
+      />
     </div>
   );
 };

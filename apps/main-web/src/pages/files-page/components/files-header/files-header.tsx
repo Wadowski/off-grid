@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { FilePickerButton, MaterialIcon, Text, cssVar } from "@offgrid/ui";
+import { Button, FilePickerButton, MaterialIcon, Text, cssVar } from "@offgrid/ui";
 import { filesHeaderActionsStyle, filesHeaderStyle } from "./styles.js";
 import type { FilesHeaderProps } from "./types.js";
 
@@ -9,6 +9,8 @@ export const FilesHeader = ({
   driveName,
   uploadDisabled,
   onFilesPicked,
+  newFolderDisabled,
+  onNewFolder,
   viewControls,
 }: FilesHeaderProps) => (
   <div style={filesHeaderStyle} data-testid="files-header">
@@ -18,6 +20,16 @@ export const FilesHeader = ({
       <Text variant="heading" value={driveName} />
     )}
     <div style={filesHeaderActionsStyle}>
+      <Button
+        variant="secondary"
+        size="medium"
+        disabled={newFolderDisabled}
+        onClick={onNewFolder}
+        data-testid="files-new-folder-button"
+      >
+        <MaterialIcon name="create_new_folder" size="1.125rem" color={cssVar("color-fg")} />
+        <Text variant="action" textId="files.actions.newFolder" element="span" />
+      </Button>
       <FilePickerButton
         variant="primary"
         size="medium"

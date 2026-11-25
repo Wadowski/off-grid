@@ -16,7 +16,6 @@
     "verify": "node scripts/verify.mjs",
     "rules:for": "node scripts/rules-for.mjs",
     "check:rules": "node scripts/check-rules.mjs",
-    "ui:screens": "node scripts/ui-screens.mjs",
     "wt:cleanup": "node scripts/wt-cleanup.mjs",
     "format:check": "prettier --check .",
     "test": "pnpm --filter @offgrid/test-db build && node packages/test-db/dist/cli.js turbo run test && pnpm test:scripts",

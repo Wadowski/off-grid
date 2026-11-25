@@ -6,4 +6,6 @@ import type { DriveSwitcherProps } from "../../../../layouts/files-layout/compon
 export type FilesTopBarProps = Pick<DriveSwitcherProps, "drives" | "status" | "activeDriveId"> & {
   readonly uploadDisabled: boolean;
   readonly onFilesPicked: (files: readonly File[]) => void;
+  readonly newFolderDisabled: boolean;
+  readonly onNewFolder: () => void;
 };
