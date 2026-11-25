@@ -3,8 +3,8 @@
 
 import type { CSSProperties } from "react";
 import { cssVar } from "../css-var.js";
-import { FILE_TABLE_ACTIONS_WIDTH } from "../constants.js";
-import type { FileTableColumn } from "./types.js";
+import { FILE_TABLE_ACTIONS_WIDTH_BY_VARIANT } from "../constants.js";
+import type { FileTableColumn, FileTableVariant } from "./types.js";
 
 export const fileTableStyle: CSSProperties = {
   width: "100%",
@@ -24,8 +24,8 @@ export const fileTableHeaderCellStyle = (column: FileTableColumn): CSSProperties
   borderBottom: `1px solid ${cssVar("color-line")}`,
 });
 
-export const fileTableActionsHeaderStyle: CSSProperties = {
-  width: FILE_TABLE_ACTIONS_WIDTH,
+export const fileTableActionsHeaderStyle = (variant: FileTableVariant): CSSProperties => ({
+  width: FILE_TABLE_ACTIONS_WIDTH_BY_VARIANT[variant],
   padding: 0,
   borderBottom: `1px solid ${cssVar("color-line")}`,
-};
+});

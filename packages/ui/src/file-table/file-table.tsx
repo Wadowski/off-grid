@@ -26,7 +26,7 @@ export const FileTable = ({ isBusy, variant = "files", children }: FileTableProp
               <Text variant="label" textId={column.textId} />
             </th>
           ))}
-          <th scope="col" style={fileTableActionsHeaderStyle}>
+          <th scope="col" style={fileTableActionsHeaderStyle(variant)}>
             <VisuallyHidden>
               <Text variant="label" textId="files.entryActions.columnHeader" />
             </VisuallyHidden>

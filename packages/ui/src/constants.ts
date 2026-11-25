@@ -103,7 +103,10 @@ export const FILE_TABLE_LABEL_TEXT_IDS: Readonly<Record<FileTableVariant, FileTa
   trash: "files.trash.tableLabel",
 };
 
-export const FILE_TABLE_ACTIONS_WIDTH = "3rem";
+export const FILE_TABLE_ACTIONS_WIDTH_BY_VARIANT: Readonly<Record<FileTableVariant, string>> = {
+  files: "3rem",
+  trash: "9rem",
+};
 
 export const FLOATING_PANEL_Z_INDEX = 20;
 
