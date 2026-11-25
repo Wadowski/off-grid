@@ -12,7 +12,7 @@ Feature: Viewing and restoring trashed items in the trash view
   @wip @screen:files-trash
   Scenario: Anna sees her deleted file in the trash view
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a file "Old receipt.pdf" in the trash
+    And Anna has a personal-drive file "Old receipt.pdf" in the trash
     When Anna opens the trash of her personal drive on a desktop screen
     Then the trash view lists "Old receipt.pdf" with a deleted date and a Restore button
 
@@ -30,7 +30,7 @@ Feature: Viewing and restoring trashed items in the trash view
   @wip @screen:files-trash-empty
   Scenario: Anna restores a folder and the trash view becomes empty
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a folder "Holiday" with a file "sunset.jpg" in the trash
+    And Anna has a trashed personal-drive folder "Holiday" holding a file "sunset.jpg"
     When Anna opens the trash of her personal drive on a desktop screen
     And Anna restores "Holiday" from the trash view
     Then the trash view notice says "Holiday" was restored
@@ -39,7 +39,7 @@ Feature: Viewing and restoring trashed items in the trash view
   @wip
   Scenario: A file trashed inside a trashed folder appears once its folder is restored
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a file "sunset.jpg" in the trash, inside a folder "Holiday" that is in the trash
+    And Anna has a trashed personal-drive folder "Holiday" holding a trashed file "sunset.jpg"
     When Anna opens the trash of her personal drive on a desktop screen
     Then the trash view lists "Holiday"
     And the trash view does not list "sunset.jpg"
@@ -49,8 +49,8 @@ Feature: Viewing and restoring trashed items in the trash view
   @wip
   Scenario: Anna restores a file whose name is taken and is told the numbered name
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a file "Report.pdf" in the trash
-    And Anna has a file "Report.pdf" in her personal drive
+    And Anna has a personal-drive file "Report.pdf" in the trash
+    And Anna has a personal-drive file "Report.pdf"
     When Anna opens the trash of her personal drive on a desktop screen
     And Anna restores "Report.pdf" from the trash view
     Then the trash view notice says "Report (2).pdf" was restored
@@ -73,7 +73,7 @@ Feature: Viewing and restoring trashed items in the trash view
   @wip @screen:files-trash-phone
   Scenario: Anna opens the trash from the phone top row and restores a file
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a file "Old receipt.pdf" in the trash
+    And Anna has a personal-drive file "Old receipt.pdf" in the trash
     When Anna opens the Files page on a phone
     And Anna opens the trash from the phone top row
     Then the trash view lists "Old receipt.pdf" with a deleted date and a Restore button
@@ -83,7 +83,7 @@ Feature: Viewing and restoring trashed items in the trash view
   @wip
   Scenario: Restoring an item that was already restored shows an error and keeps the page usable
     Given I am signed in as "Anna Kowalska", a regular member
-    And Anna has a file "Old receipt.pdf" in the trash
+    And Anna has a personal-drive file "Old receipt.pdf" in the trash
     When Anna opens the trash of her personal drive on a desktop screen
     And the file "Old receipt.pdf" is restored in another window
     And Anna restores "Old receipt.pdf" from the trash view

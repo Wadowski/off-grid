@@ -5,6 +5,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { familyDriveIdNamed } from "../support/family-drive-id-named.js";
 import {
+  createFolderAs,
   findFolderFrom,
   getAs,
   personalDriveIdAs,
@@ -71,10 +72,56 @@ const uploadAndTrash = async (
   await trashAs(world, session, (response.body as { id: string }).id);
 };
 
+const createTrashableFolder = async (
+  world: ScenarioWorld,
+  session: Session,
+  driveId: string,
+  folderName: string,
+): Promise<string> => {
+  await createFolderAs(world.api, session, driveId, null, folderName);
+  return findFolderFrom(world.api, session, [{ kind: "drive", id: driveId }], folderName);
+};
+
 const openTrashAt = async (page: Page, driveId: string): Promise<void> => {
   await page.goto(`${webBaseUrl()}/files/${driveId}/trash`);
   await expect(page.getByTestId("trash-page")).toBeVisible();
 };
+
+Given(
+  /^Anna has a personal-drive file "([^"]*)" in the trash$/,
+  async ({ world }, fileName: string) => {
+    const session = await ownSessionOf(world);
+    const driveId = await personalDriveIdAs(world.api, session);
+    await uploadAndTrash(world, session, driveId, null, fileName);
+  },
+);
+
+Given(
+  /^Anna has a trashed personal-drive folder "([^"]*)" holding a file "([^"]*)"$/,
+  async ({ world }, folderName: string, fileName: string) => {
+    const session = await ownSessionOf(world);
+    const driveId = await personalDriveIdAs(world.api, session);
+    const folderId = await createTrashableFolder(world, session, driveId, folderName);
+    const response = await uploadFileAs(world.api, session, driveId, {
+      name: fileName,
+      parentId: folderId,
+      body: `Contents of ${fileName}`,
+    });
+    expect(response.status, `${fileName} is uploaded`).toBe(201);
+    await trashAs(world, session, folderId);
+  },
+);
+
+Given(
+  /^Anna has a trashed personal-drive folder "([^"]*)" holding a trashed file "([^"]*)"$/,
+  async ({ world }, folderName: string, fileName: string) => {
+    const session = await ownSessionOf(world);
+    const driveId = await personalDriveIdAs(world.api, session);
+    const folderId = await createTrashableFolder(world, session, driveId, folderName);
+    await uploadAndTrash(world, session, driveId, folderId, fileName);
+    await trashAs(world, session, folderId);
+  },
+);
 
 Given(
   /^Anna has a file "([^"]*)" in the folder "([^"]*)" in the trash$/,
