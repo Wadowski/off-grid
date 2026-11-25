@@ -33,8 +33,8 @@ pnpm test:scripts
 pnpm verify              # every local gate in parallel, cached per tree; use before a PR
 pnpm check:rules         # mechanical code rules on the lines this branch adds
 pnpm rules:for           # the .claude/rules that apply to the changed files
-pnpm e2e:changed         # scenarios of the feature files this branch changed
-pnpm ui:screens          # capture @ui screenshots once (contact sheet per screen)
+pnpm e2e:changed         # the only local e2e run: scenarios this branch changes or affects
+pnpm e2e:changed --screens  # same scope with E2E_SCREENSHOTS=1; manifest and contact sheet per screen
 pnpm wt:cleanup <branch> # after merge: remove worktree and branch
 pnpm format:check        # pnpm format fixes formatting
 pnpm license:headers:check
