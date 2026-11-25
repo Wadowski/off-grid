@@ -8,12 +8,14 @@ import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
 import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
 import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
+import { useNewFolderDialog } from "../../files/use-new-folder-dialog.js";
 import { useRefreshOnUploadDone } from "../../files/use-refresh-on-upload-done.js";
 import { useFolderContents } from "../../files/use-folder-contents.js";
 import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
 import { useUploadQueueContext } from "../../uploads/index.js";
 import type { FilesOutletContext } from "../../layouts/files-layout/types.js";
+import { NewFolderDialog } from "../../files/components/new-folder-dialog/new-folder-dialog.js";
 import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesHeader } from "./components/files-header/files-header.js";
@@ -45,6 +47,8 @@ export const FilesPage = () => {
     }
   };
   useRefreshOnUploadDone(folder.driveId, folder.folderId, contents.refreshQuietly);
+  const newFolder = useNewFolderDialog();
+  const newFolderDisabled = uploadDisabled;
 
   if (folder.status === "not-found") {
     return <ItemNotFound kind="folder" />;
@@ -64,12 +68,16 @@ export const FilesPage = () => {
           activeDriveId={switcher.activeDriveId}
           uploadDisabled={uploadDisabled}
           onFilesPicked={enqueueFiles}
+          newFolderDisabled={newFolderDisabled}
+          onNewFolder={newFolder.open}
         />
       ) : (
         <FilesHeader
           driveName={driveName}
           uploadDisabled={uploadDisabled}
           onFilesPicked={enqueueFiles}
+          newFolderDisabled={newFolderDisabled}
+          onNewFolder={newFolder.open}
           viewControls={
             folder.driveId === null ? null : (
               <ViewControls
@@ -95,6 +103,14 @@ export const FilesPage = () => {
           />
         </>
       )}
+      {newFolder.isOpen && folder.driveId !== null ? (
+        <NewFolderDialog
+          driveId={folder.driveId}
+          parentId={folder.folderId}
+          onCreated={() => void contents.refreshQuietly()}
+          onClose={newFolder.close}
+        />
+      ) : null}
       {folder.status === "loading" ? <Text variant="body" textId="files.folder.loading" /> : null}
       {folder.status === "failed" ? (
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />

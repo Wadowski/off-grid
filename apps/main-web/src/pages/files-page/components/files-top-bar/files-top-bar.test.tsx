@@ -39,6 +39,8 @@ describe("FilesTopBar", () => {
       activeDriveId: HOME.id,
       uploadDisabled: false,
       onFilesPicked: () => undefined,
+      newFolderDisabled: false,
+      onNewFolder: () => undefined,
     });
 
     const row = screen.getByTestId("files-top-bar");
@@ -54,6 +56,8 @@ describe("FilesTopBar", () => {
       activeDriveId: null,
       uploadDisabled: false,
       onFilesPicked: () => undefined,
+      newFolderDisabled: false,
+      onNewFolder: () => undefined,
     });
 
     expect(screen.getByTestId("files-top-bar-drive-control")).toHaveTextContent("Drives");
@@ -66,6 +70,8 @@ describe("FilesTopBar", () => {
       activeDriveId: null,
       uploadDisabled: true,
       onFilesPicked: () => undefined,
+      newFolderDisabled: false,
+      onNewFolder: () => undefined,
     });
 
     expect(screen.getByTestId("files-top-bar-drive-control")).toHaveTextContent(

@@ -6,7 +6,12 @@ import { useTranslation } from "react-i18next";
 import { topBarActionsStyle } from "./styles.js";
 import type { TopBarActionsProps } from "./types.js";
 
-export const TopBarActions = ({ uploadDisabled, onFilesPicked }: TopBarActionsProps) => {
+export const TopBarActions = ({
+  uploadDisabled,
+  onFilesPicked,
+  newFolderDisabled,
+  onNewFolder,
+}: TopBarActionsProps) => {
   const { t } = useTranslation();
 
   return (
@@ -30,7 +35,8 @@ export const TopBarActions = ({ uploadDisabled, onFilesPicked }: TopBarActionsPr
       <Button
         variant="ghost"
         size="icon"
-        disabled
+        disabled={newFolderDisabled}
+        onClick={onNewFolder}
         aria-label={t("files.actions.newFolder")}
         data-testid="files-top-bar-new-folder"
       >
