@@ -4,7 +4,8 @@
 import { useTranslation } from "react-i18next";
 import { FILE_TABLE_COLUMNS } from "../constants.js";
 import { Text } from "../text/text.js";
-import { fileTableHeaderCellStyle, fileTableStyle } from "./styles.js";
+import { VisuallyHidden } from "../visually-hidden/visually-hidden.js";
+import { fileTableActionsHeaderStyle, fileTableHeaderCellStyle, fileTableStyle } from "./styles.js";
 import type { FileTableProps } from "./types.js";
 
 export const FileTable = ({ isBusy, children }: FileTableProps) => {
@@ -24,6 +25,11 @@ export const FileTable = ({ isBusy, children }: FileTableProps) => {
               <Text variant="label" textId={column.textId} />
             </th>
           ))}
+          <th scope="col" style={fileTableActionsHeaderStyle}>
+            <VisuallyHidden>
+              <Text variant="label" textId="files.entryActions.columnHeader" />
+            </VisuallyHidden>
+          </th>
         </tr>
       </thead>
       <tbody>{children}</tbody>

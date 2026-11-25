@@ -7,6 +7,7 @@ import type { DriveSwitcherProps } from "./components/drive-switcher/types.js";
 export type FilesOutletContext = DriveSwitcherProps & {
   readonly selectedFileId: FileListItem["id"] | null;
   readonly onSelectFile: (fileId: FileListItem["id"]) => void;
+  readonly onClearSelection: () => void;
 };
 
 export type FileSelection = {

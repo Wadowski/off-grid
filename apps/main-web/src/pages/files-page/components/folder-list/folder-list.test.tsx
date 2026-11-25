@@ -60,6 +60,7 @@ const renderList = (overrides: Partial<Parameters<typeof FolderList>[0]> = {}) =
               items={[PHOTOS, TRIP]}
               hasMore={false}
               isLoadingMore={false}
+              onDelete={vi.fn()}
               onLoadMore={onLoadMore}
               {...overrides}
             />
@@ -98,7 +99,7 @@ describe("FolderList", () => {
   it("opens a folder when its row is activated", () => {
     renderList();
 
-    fireEvent.click(screen.getByRole("button", { name: /Photos/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Photos/ }));
 
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/folder/${PHOTOS_ID}`);
   });
@@ -106,7 +107,7 @@ describe("FolderList", () => {
   it("opens the details of a file when its row is activated", () => {
     renderList();
 
-    fireEvent.click(screen.getByRole("button", { name: /Trip\.pdf/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Trip\.pdf/ }));
 
     expect(screen.getByTestId("probe")).toHaveTextContent(`/files/${DRIVE_ID}/file/${TRIP_ID}`);
   });

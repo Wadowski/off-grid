@@ -36,6 +36,9 @@ export const createFolder = (
   input: CreateFolderRequest,
 ): Promise<FileEntry> => webFilesClient.createFolder(driveId, input);
 
+export const trashFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
+  webFilesClient.trashFile(fileId);
+
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);
 

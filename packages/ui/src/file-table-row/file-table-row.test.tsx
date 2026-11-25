@@ -110,6 +110,33 @@ describe("FileTableRow", () => {
     expect(screen.getByRole("button", { name: /Policy\.pdf/ })).toHaveAttribute("tabindex", "0");
   });
 
+  it("renders the actions in a last cell outside the activator", () => {
+    const onActivate = vi.fn();
+    renderRow({
+      name: "Policy.pdf",
+      kind: "pdf",
+      onActivate,
+      actions: <button type="button">Actions for Policy.pdf</button>,
+    });
+
+    const cells = screen.getAllByRole("cell");
+    const actionsCell = cells.at(-1);
+    expect(actionsCell).toContainElement(
+      screen.getByRole("button", { name: "Actions for Policy.pdf" }),
+    );
+    expect(screen.getByTestId("file-table-activate")).not.toContainElement(
+      screen.getByRole("button", { name: "Actions for Policy.pdf" }),
+    );
+    expect(onActivate).not.toHaveBeenCalled();
+  });
+
+  it("keeps an empty last cell when there are no actions", () => {
+    renderRow({ name: "Policy.pdf", kind: "pdf" });
+
+    expect(screen.getAllByRole("cell")).toHaveLength(5);
+    expect(screen.getAllByRole("cell").at(-1)).toBeEmptyDOMElement();
+  });
+
   it("activates on click, Enter and Space", () => {
     const onActivate = vi.fn();
     renderRow({ name: "Policy.pdf", kind: "pdf", onActivate });

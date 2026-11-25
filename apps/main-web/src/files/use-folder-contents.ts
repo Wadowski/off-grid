@@ -9,6 +9,7 @@ import { toReadySnapshot } from "./to-ready-snapshot.js";
 import type {
   Drive,
   FileEntry,
+  FileListItem,
   FilesSortOrder,
   FolderContentsSnapshot,
   FolderContentsState,
@@ -90,6 +91,13 @@ export const useFolderContents = (
     }
   }, [driveId, folderId, nextCursor, sortOrder]);
 
+  const removeItem = useCallback((fileId: FileListItem["id"]) => {
+    setSnapshot((current) => ({
+      ...current,
+      items: current.items.filter((item) => item.id !== fileId),
+    }));
+  }, []);
+
   useEffect(() => {
     if (enabled) {
       void refresh();
@@ -106,6 +114,7 @@ export const useFolderContents = (
       loadMore,
       refresh,
       refreshQuietly,
+      removeItem,
     };
   }
   return {
@@ -117,5 +126,6 @@ export const useFolderContents = (
     loadMore,
     refresh,
     refreshQuietly,
+    removeItem,
   };
 };

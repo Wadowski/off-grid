@@ -673,6 +673,22 @@ export const en = {
         nameInvalid: "A name can't contain slashes or be only dots.",
       },
     },
+    entryActions: {
+      menuLabel: "Actions for {{name}}",
+      columnHeader: "Actions",
+      open: "Open",
+      delete: "Delete",
+    },
+    delete: {
+      title: "Move to trash?",
+      bodyFile: 'Move "{{name}}" to the trash? You can restore it from the trash later.',
+      bodyFolder:
+        'Move the folder "{{name}}" and everything in it to the trash? You can restore it from the trash later.',
+      cancel: "Cancel",
+      confirm: "Move to trash",
+      notice: '"{{name}}" was moved to the trash.',
+      noticeDismiss: "Dismiss",
+    },
     upload: {
       heading: "Uploads",
       queueLabel: "Upload queue",

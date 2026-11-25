@@ -4,6 +4,7 @@
 import "@testing-library/jest-dom/vitest";
 import { configure } from "@testing-library/react";
 import "./src/i18n/i18n.js";
+import { installPopoverPolyfill } from "@offgrid/ui/test/popover-polyfill";
 
 configure({ asyncUtilTimeout: 5_000 });
 
@@ -20,3 +21,5 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => false,
   }),
 });
+
+installPopoverPolyfill();

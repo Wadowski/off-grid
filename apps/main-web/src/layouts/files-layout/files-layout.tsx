@@ -36,6 +36,7 @@ export const FilesLayout = () => {
     ...switcher,
     selectedFileId,
     onSelectFile: (fileId) => setSelection({ pathname: location.pathname, fileId }),
+    onClearSelection: () => setSelection(null),
   };
   const closeDetails = () => {
     focusSelectedRow(contentRef.current);
