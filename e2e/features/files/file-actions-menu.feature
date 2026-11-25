@@ -55,7 +55,7 @@ Feature: Actions for a file or folder from its menu
     And Anna opens the actions of the file "Insurance policy.txt"
     Then the actions menu lists "Open" and "Delete"
 
-  @screen:files-grid-actions-menu
+  @screen:files-grid-actions-menu @screen-desktop-only
   Scenario: Anna opens the actions menu of a file card in the grid
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"

@@ -36,6 +36,12 @@ export const screenNameFor = (url: string, tags: readonly string[]): string => {
 
 export const isScreenUrl = (url: string): boolean => url.startsWith("http");
 
+const DESKTOP_ONLY_TAG = "@screen-desktop-only";
+
+export const screenOptionsFor = (tags: readonly string[]): { phone: boolean } => ({
+  phone: !tags.includes(DESKTOP_ONLY_TAG),
+});
+
 const screenKey = (feature: string, screen: string): string => `${slug(feature)}/${slug(screen)}`;
 
 const shotName = (name: string, theme: Theme, mobile: boolean): string =>

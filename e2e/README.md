@@ -64,7 +64,7 @@ A failed run writes its artifacts under `e2e/artifacts/` (gitignored):
 
 ## Screenshots of changed screens
 
-Tag a scenario `@ui` when it shows a screen. With `E2E_SCREENSHOTS=1`, the last state of every `@ui` scenario is saved as a full-page PNG at `artifacts/screens/<feature>/<scenario>.png`, and a step can save more states with `captureScreen(page, "name")` from `support/screenshots.ts`. `E2E_SCREENSHOTS_DIR` overrides the folder. Without the variable nothing is captured, so normal runs are unchanged.
+Tag a scenario `@ui` when it shows a screen. With `E2E_SCREENSHOTS=1`, the last state of every `@ui` scenario is saved as a full-page PNG at `artifacts/screens/<feature>/<scenario>.png`, and a step can save more states with `captureScreen(page, "name")` from `support/screenshots.ts`. A scenario also tagged `@screen-desktop-only` captures desktop light and dark only, for a screen a phone cannot show. `E2E_SCREENSHOTS_DIR` overrides the folder. Without the variable nothing is captured, so normal runs are unchanged.
 
 The `ui-screenshot-reviewer` agent (`.claude/agents/`) runs this for the screens a branch changed and reviews the images. Run it for any issue that changes `apps/main-web/` or `packages/ui/`.
 
