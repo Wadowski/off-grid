@@ -67,6 +67,13 @@ export const buttonVariantStyles: Record<ButtonVariant, CSSProperties> = {
     borderColor: cssVar("color-line"),
     color: cssVar("color-fg"),
   },
+  danger: {
+    background: cssVar("color-danger"),
+    borderWidth: "0",
+    borderColor: cssVar("color-danger"),
+    color: cssVar("color-surface"),
+    boxShadow: cssVar("elevation-3"),
+  },
   ghost: {
     background: "transparent",
     borderWidth: "0",

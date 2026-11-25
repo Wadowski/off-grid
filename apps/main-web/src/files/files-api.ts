@@ -34,6 +34,9 @@ export const getFile = (fileId: FileEntry["id"]): Promise<FileDetails> =>
 export const listFileVersions = (fileId: FileEntry["id"]): Promise<readonly FileVersion[]> =>
   webFilesClient.listFileVersions(fileId);
 
+export const trashFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
+  webFilesClient.trashFile(fileId);
+
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);
 

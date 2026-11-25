@@ -38,6 +38,7 @@ export const FilesLayout = () => {
     selectedFileId,
     filesChangedCount,
     onSelectFile: (fileId) => setSelection({ pathname: location.pathname, fileId }),
+    onClearSelection: () => setSelection(null),
   };
   const onFileChanged = () => setFilesChangedCount((count) => count + 1);
   const closeDetails = () => {

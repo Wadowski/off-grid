@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./material-icons.css": "./src/material-icon/material-icons.css"
+    "./material-icons.css": "./src/material-icon/material-icons.css",
+    "./test/popover-polyfill": "./test/popover-polyfill.ts"
   },
   "scripts": {
     "build": "tsc -b",

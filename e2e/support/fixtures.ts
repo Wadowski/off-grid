@@ -9,6 +9,7 @@ import {
   captureScreen,
   isScreenUrl,
   screenNameFor,
+  screenOptionsFor,
   screenshotsEnabled,
   settleFolderContents,
 } from "./screenshots.js";
@@ -99,9 +100,13 @@ export const test = base.extend<{ world: ScenarioWorld; screenOfUiScenario: void
       if (screenshotsEnabled() && $tags.includes("@ui") && isScreenUrl(page.url())) {
         const feature = $test.info().titlePath.at(-2) ?? "feature";
         const screen = screenNameFor(page.url(), $tags);
-        await captureScreen(page, screen, feature, () => settleFolderContents(page)).catch(
-          () => undefined,
-        );
+        await captureScreen(
+          page,
+          screen,
+          feature,
+          () => settleFolderContents(page),
+          screenOptionsFor($tags),
+        ).catch(() => undefined);
       }
     },
     { auto: true },

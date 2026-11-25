@@ -9,6 +9,7 @@ import { formatFileDate } from "../files/format-file-date.js";
 import { formatFileSize } from "../files/format-file-size.js";
 import { Text } from "../text/text.js";
 import {
+  fileTableActionsCellStyle,
   fileTableActivatorStyle,
   fileTableCellStyle,
   fileTableNameCellStyle,
@@ -26,6 +27,7 @@ export const FileTableRow = ({
   itemCount,
   selected = false,
   onActivate,
+  actions,
   locale,
   now,
   timeZone,
@@ -79,6 +81,7 @@ export const FileTableRow = ({
       <td style={fileTableCellStyle}>
         <Text variant="caption" textId={`files.kind.${kind}`} />
       </td>
+      <td style={fileTableActionsCellStyle}>{actions}</td>
     </tr>
   );
 };

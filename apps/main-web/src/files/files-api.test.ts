@@ -13,6 +13,7 @@ import {
   listFileChildren,
   listFileVersions,
   restoreFileVersion,
+  trashFile,
   uploadFile,
   uploadFileVersion,
 } from "./files-api.js";
@@ -54,6 +55,14 @@ describe("files API", () => {
 
     await expect(listFileChildren(FOLDER_ID)).resolves.toBe(PAGE);
     expect(children).toHaveBeenCalledWith(FOLDER_ID, {});
+  });
+
+  it("moves the file to the trash through the files client and returns it", async () => {
+    const trashed = { id: FOLDER_ID } as FileEntry;
+    const trash = vi.spyOn(webFilesClient, "trashFile").mockResolvedValue(trashed);
+
+    await expect(trashFile(FOLDER_ID)).resolves.toBe(trashed);
+    expect(trash).toHaveBeenCalledWith(FOLDER_ID);
   });
 
   it("passes the file id to the files client and returns the details", async () => {
