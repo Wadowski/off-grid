@@ -215,7 +215,7 @@ export const uploadFileAs = async (
   upload: {
     readonly name: string;
     readonly parentId: string | null;
-    readonly body: string;
+    readonly body: string | Buffer;
     readonly contentType?: string;
   },
 ): Promise<JsonResponse> => {

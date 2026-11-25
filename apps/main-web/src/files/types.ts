@@ -179,3 +179,24 @@ export type FileDetailsScreenState = {
   readonly refreshMembers: () => Promise<void>;
   readonly viewer: SessionUser | null;
 };
+
+export type PreviewKind = "image" | "pdf";
+
+export type FileContentState =
+  | { readonly status: "loading" }
+  | { readonly status: "failed"; readonly errorTextId: FilesErrorTextId }
+  | { readonly status: "unsupported" }
+  | { readonly status: "ready"; readonly kind: PreviewKind; readonly objectUrl: string };
+
+export type FileContent = {
+  readonly state: FileContentState;
+  readonly retry: () => void;
+};
+
+export type FileDownloadStatus = "idle" | "downloading" | "failed";
+
+export type FileDownload = {
+  readonly status: FileDownloadStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly download: () => Promise<void>;
+};

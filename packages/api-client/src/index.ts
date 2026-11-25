@@ -14,6 +14,7 @@ export { createFamilyClient } from "./family-client.js";
 export { createApiClient } from "./create-api-client.js";
 export { sendUploadXhr } from "./send-upload-xhr.js";
 export type {
+  FileContentOptions,
   Notification,
   NotificationListOptions,
   SignInInput,

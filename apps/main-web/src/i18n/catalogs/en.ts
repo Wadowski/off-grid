@@ -755,6 +755,12 @@ export const en = {
         label: "File details",
         close: "Close details",
       },
+      actions: {
+        label: "File actions",
+        download: "Download",
+        preview: "Preview",
+        downloading: "Downloading {{name}}",
+      },
       tabs: {
         label: "File sections",
         details: "Details",
@@ -779,6 +785,14 @@ export const en = {
         empty: "No activity yet.",
         failed: "Activity could not be loaded.",
       },
+    },
+    preview: {
+      close: "Close preview",
+      loading: "Loading preview",
+      retry: "Try again",
+      unsupported: "This file type can't be previewed. Download it instead.",
+      pdfTitle: "Preview of {{name}}",
+      pdfUnavailable: "This PDF can't be shown here.",
     },
     itemCount_one: "{{count}} item",
     itemCount_other: "{{count}} items",

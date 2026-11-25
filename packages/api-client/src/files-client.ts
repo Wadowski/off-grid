@@ -23,6 +23,7 @@ import { withListQuery } from "./with-list-query.js";
 import type {
   ApiClient,
   ByteBody,
+  FileContentOptions,
   FileListOptions,
   TrashListOptions,
   UploadFileInput,
@@ -129,6 +130,15 @@ export const createFilesClient = (client: ApiClient) => ({
     versionId === undefined
       ? fillRoute(filesRoutes.fileContent, { id: fileId })
       : fillRoute(filesRoutes.fileVersionContent, { id: fileId, versionId }),
+
+  getFileContent: (fileId: string, { disposition, versionId }: FileContentOptions): Promise<Blob> =>
+    client.requestBlob(
+      `${
+        versionId === undefined
+          ? fillRoute(filesRoutes.fileContent, { id: fileId })
+          : fillRoute(filesRoutes.fileVersionContent, { id: fileId, versionId })
+      }?${new URLSearchParams({ disposition }).toString()}`,
+    ),
 
   createUpload: async (input: CreateUploadRequest) =>
     uploadSchema.parse(await client.request("POST", filesRoutes.uploads, input)),

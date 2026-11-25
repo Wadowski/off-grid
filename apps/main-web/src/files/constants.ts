@@ -8,6 +8,7 @@ import type {
   FilesSortOrder,
   FilesViewPreference,
   FolderContentsSnapshot,
+  PreviewKind,
 } from "./types.js";
 
 export const FILES_VIEW_PREFERENCE_KEY = "offgrid.files.viewPreference";
@@ -42,4 +43,12 @@ export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
   status: "loading",
   errorTextId: null,
   isLoadingMore: false,
+};
+
+export const PREVIEW_KIND_BY_MEDIA_TYPE: Readonly<Record<string, PreviewKind>> = {
+  "image/png": "image",
+  "image/jpeg": "image",
+  "image/gif": "image",
+  "image/webp": "image",
+  "application/pdf": "pdf",
 };
