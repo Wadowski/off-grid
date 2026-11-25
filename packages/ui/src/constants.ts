@@ -85,7 +85,7 @@ export const FILE_TABLE_COLUMNS: readonly FileTableColumn[] = [
   { key: "type", textId: "files.table.type", align: "start", width: "9rem" },
 ];
 
-export const FILE_TRASH_TABLE_COLUMNS: readonly FileTableColumn[] = [
+const FILE_TRASH_TABLE_COLUMNS: readonly FileTableColumn[] = [
   { key: "name", textId: "files.table.name", align: "start", width: "auto" },
   { key: "modified", textId: "files.table.deleted", align: "start", width: "1%" },
   { key: "size", textId: "files.table.size", align: "end", width: "7rem" },
