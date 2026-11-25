@@ -91,7 +91,12 @@ export const FilesTrashPage = () => {
         </div>
       ) : null}
       {restore.errorTextId === null ? null : (
-        <Text variant="error" role="alert" textId={restore.errorTextId} data-testid="trash-error" />
+        <Text
+          variant="error"
+          role="alert"
+          textId={restore.errorTextId}
+          data-testid="trash-restore-error"
+        />
       )}
       {trash.status === "ready" && trash.items.length === 0 ? (
         <div style={trashEmptyStyle} tabIndex={-1} data-testid="trash-empty">

@@ -38,7 +38,7 @@ export const RestoreButton = ({
       data-restore-id={entryId}
     >
       <MaterialIcon name="restore_from_trash" size="1.125rem" color={cssVar("color-primary")} />
-      <Text variant="action" element="span" textId="files.trash.restore" />
+      <Text variant="body" element="span" textId="files.trash.restore" />
     </Button>
   );
 };

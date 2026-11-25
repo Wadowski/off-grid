@@ -3,5 +3,7 @@
 
 import type { Drive } from "./types.js";
 
+export const TRASH_ROUTE_PATTERN = "/files/:driveId/trash";
+
 export const toTrashPath = (driveId: Drive["id"]): string =>
   `/files/${encodeURIComponent(driveId)}/trash`;

@@ -93,14 +93,11 @@ const openTrashAt = async (page: Page, driveId: string): Promise<void> => {
   await expect(page.getByTestId("trash-page")).toBeVisible();
 };
 
-Given(
-  /^Anna has a personal-drive file "([^"]*)" in the trash$/,
-  async ({ world }, fileName: string) => {
-    const session = await ownSessionOf(world);
-    const driveId = await personalDriveIdAs(world.api, session);
-    await uploadAndTrash(world, session, driveId, null, fileName);
-  },
-);
+Given(/^Anna has a trashed personal-drive file "([^"]*)"$/, async ({ world }, fileName: string) => {
+  const session = await ownSessionOf(world);
+  const driveId = await personalDriveIdAs(world.api, session);
+  await uploadAndTrash(world, session, driveId, null, fileName);
+});
 
 Given(
   /^Anna has a trashed personal-drive folder "([^"]*)" holding a file "([^"]*)"$/,
@@ -130,7 +127,7 @@ Given(
 );
 
 Given(
-  /^Anna has a file "([^"]*)" in the folder "([^"]*)" in the trash$/,
+  /^Anna has a trashed file "([^"]*)" in the folder "([^"]*)"$/,
   async ({ world }, fileName: string, folderName: string) => {
     const session = await ownSessionOf(world);
     const driveId = await personalDriveIdAs(world.api, session);
@@ -145,7 +142,7 @@ Given(
 );
 
 Given(
-  /^Anna has a file "([^"]*)" in the trash of the family drive "([^"]*)"$/,
+  /^Anna has a trashed file "([^"]*)" in the family drive "([^"]*)"$/,
   async ({ world }, fileName: string, familyName: string) => {
     const session = await ownSessionOf(world);
     const driveId = await familyDriveIdNamed(world, session, familyName);
@@ -218,7 +215,7 @@ Then("the trash view says the trash is empty", async ({ page }) => {
 });
 
 Then(/^the trash view shows the error "([^"]*)"$/, async ({ page }, message: string) => {
-  await expect(page.getByTestId("trash-error")).toHaveText(message);
+  await expect(page.getByTestId("trash-restore-error")).toHaveText(message);
 });
 
 Then("the sidebar Trash entry is the current page", async ({ page }) => {

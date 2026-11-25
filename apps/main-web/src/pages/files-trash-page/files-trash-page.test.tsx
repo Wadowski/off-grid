@@ -141,7 +141,7 @@ describe("FilesTrashPage", () => {
     renderAt(TRASH_PATH);
     fireEvent.click(await screen.findByRole("button", { name: "Restore Old receipt.pdf" }));
 
-    expect(await screen.findByTestId("trash-error")).toHaveTextContent(
+    expect(await screen.findByTestId("trash-restore-error")).toHaveTextContent(
       "This item isn't in the trash.",
     );
     expect(screen.getByText("Old receipt.pdf")).toBeInTheDocument();

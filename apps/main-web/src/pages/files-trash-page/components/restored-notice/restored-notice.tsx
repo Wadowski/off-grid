@@ -3,8 +3,11 @@
 
 import { Button, cssVar, MaterialIcon, Text } from "@offgrid/ui";
 import { Link } from "react-router-dom";
-import { restoredNoticeActionsStyle, restoredNoticeStyle } from "./styles.js";
+import { trashNoticeStyle } from "../../../files-page/components/trash-notice/styles.js";
+import { restoredNoticeActionsStyle } from "./styles.js";
 import type { RestoredNoticeProps } from "./types.js";
+
+const restoredNoticeStyle = { ...trashNoticeStyle, flexWrap: "wrap" } as const;
 
 export const RestoredNotice = ({ name, path, onDismiss }: RestoredNoticeProps) => (
   <div role="status" style={restoredNoticeStyle} data-testid="trash-restored-notice">
