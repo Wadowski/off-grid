@@ -4,7 +4,15 @@
 import type { ReactNode } from "react";
 
 export type FileTableColumnTextId =
-  "files.table.name" | "files.table.modified" | "files.table.size" | "files.table.type";
+  | "files.table.name"
+  | "files.table.modified"
+  | "files.table.deleted"
+  | "files.table.size"
+  | "files.table.type";
+
+export type FileTableLabelTextId = "files.list.label" | "files.trash.tableLabel";
+
+export type FileTableVariant = "files" | "trash";
 
 export type FileTableColumn = {
   readonly key: "name" | "modified" | "size" | "type";
@@ -15,5 +23,6 @@ export type FileTableColumn = {
 
 export type FileTableProps = {
   readonly isBusy: boolean;
+  readonly variant?: FileTableVariant;
   readonly children: ReactNode;
 };

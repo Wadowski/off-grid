@@ -28,6 +28,7 @@ export const FileTableRow = ({
   selected = false,
   onActivate,
   actions,
+  variant = "files",
   locale,
   now,
   timeZone,
@@ -38,25 +39,34 @@ export const FileTableRow = ({
     modifiedAt === undefined
       ? undefined
       : formatFileDate(modifiedAt, now ?? new Date(), language, timeZone);
+  const nameContent = (
+    <>
+      <FileTypeIcon kind={kind} />
+      <Text
+        variant="body"
+        value={name}
+        title={name}
+        style={fileTableNameStyle}
+        data-testid="file-table-name"
+      />
+    </>
+  );
 
   return (
     <tr style={fileTableRowStyle(selected)} data-testid="file-table-row" data-selected={selected}>
       <td style={fileTableNameCellStyle(selected)}>
-        <div
-          style={fileTableActivatorStyle}
-          data-testid="file-table-activate"
-          aria-current={selected ? "true" : undefined}
-          {...activatableProps(onActivate)}
-        >
-          <FileTypeIcon kind={kind} />
-          <Text
-            variant="body"
-            value={name}
-            title={name}
-            style={fileTableNameStyle}
-            data-testid="file-table-name"
-          />
-        </div>
+        {variant === "trash" ? (
+          <div style={fileTableActivatorStyle}>{nameContent}</div>
+        ) : (
+          <div
+            style={fileTableActivatorStyle}
+            data-testid="file-table-activate"
+            aria-current={selected ? "true" : undefined}
+            {...activatableProps(onActivate)}
+          >
+            {nameContent}
+          </div>
+        )}
       </td>
       <td style={fileTableCellStyle}>
         {modified === undefined ? null : <FileModified label={modified} />}
@@ -78,9 +88,11 @@ export const FileTableRow = ({
           />
         ) : null}
       </td>
-      <td style={fileTableCellStyle}>
-        <Text variant="caption" textId={`files.kind.${kind}`} />
-      </td>
+      {variant === "trash" ? null : (
+        <td style={fileTableCellStyle}>
+          <Text variant="caption" textId={`files.kind.${kind}`} />
+        </td>
+      )}
       <td style={fileTableActionsCellStyle}>{actions}</td>
     </tr>
   );
