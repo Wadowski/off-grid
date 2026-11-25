@@ -8,7 +8,7 @@ Any push that changes `apps/main-web/` or `packages/ui/` needs current screensho
 
 ## Capture once
 
-Run `pnpm ui:screens`. It runs the `@ui` scenarios with `E2E_SCREENSHOTS=1`, writes `e2e/artifacts/screens/manifest.json`, and builds one contact sheet per screen (`<screen>-sheet.png`: light desktop, light mobile, dark desktop, dark mobile in a 2x2 grid).
+Run `pnpm e2e:changed --screens`. It runs the `@ui` scenarios with `E2E_SCREENSHOTS=1`, writes `e2e/artifacts/screens/manifest.json`, and builds one contact sheet per screen (`<screen>-sheet.png`: light desktop, light mobile, dark desktop, dark mobile in a 2x2 grid).
 
 It reuses the previous capture while the UI sources, the feature files and the commit are unchanged, so the implement step, the UI reviewer and the upload share one capture. Use `--force` only when a capture looks stale. Never run the `@ui` scenarios by hand for this.
 

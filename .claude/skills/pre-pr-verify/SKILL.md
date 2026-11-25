@@ -19,7 +19,7 @@ The Definition of Done is in [CLAUDE.md](../../../CLAUDE.md). Run this from the 
 
 4. **No `@wip` on finished work.** `pnpm check:wip-tags` (part of verify) fails on a changed feature with `@wip` that the PR body does not list. List each open `@wip` scenario in the PR body with the reason.
 
-5. **UI screens, when the diff touches `apps/main-web/` or `packages/ui/`.** `pnpm ui:screens` captures once (or reuses the implement step's capture). Upload happens at PR time, per [screenshots.md](../linear-issue/phases/screenshots.md).
+5. **UI screens, when the diff touches `apps/main-web/` or `packages/ui/`.** `pnpm e2e:changed --screens` captures once (or reuses the implement step's capture). Upload happens at PR time, per [screenshots.md](../linear-issue/phases/screenshots.md).
    Verify: `e2e/artifacts/screens/manifest.json` lists every changed screen.
 
 6. **Review, once, in parallel.** Get the inputs once:

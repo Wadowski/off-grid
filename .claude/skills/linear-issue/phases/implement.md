@@ -20,7 +20,7 @@ The plan's "Rules that apply" section is a checklist, and every line binds you. 
 
 ## UI
 
-UI must match the plan's UI design 1 to 1 for the scope the plan names; leave the rest of any page alone. If the plan has a screen with no design, stop and report it. After the UI changes, follow [screenshots.md](screenshots.md): run `pnpm ui:screens`, compare each changed screen with its design, and fix until they match. Record each comparison in the report.
+UI must match the plan's UI design 1 to 1 for the scope the plan names; leave the rest of any page alone. If the plan has a screen with no design, stop and report it. After the UI changes, follow [screenshots.md](screenshots.md): run `pnpm e2e:changed --screens`, compare each changed screen with its design, and fix until they match. Record each comparison in the report.
 
 ## Before you report
 
