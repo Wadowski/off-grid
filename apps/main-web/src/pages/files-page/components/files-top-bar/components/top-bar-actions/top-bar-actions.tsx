@@ -3,11 +3,13 @@
 
 import { Button, FilePickerButton, MaterialIcon } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { topBarActionsStyle } from "./styles.js";
 import type { TopBarActionsProps } from "./types.js";
 
 export const TopBarActions = ({
   uploadDisabled,
+  trashPath,
   onFilesPicked,
   newFolderDisabled,
   onNewFolder,
@@ -32,6 +34,18 @@ export const TopBarActions = ({
       >
         <MaterialIcon name="upload_file" size="24px" color="currentColor" />
       </FilePickerButton>
+      {trashPath === null ? null : (
+        <Button
+          as={Link}
+          to={trashPath}
+          variant="ghost"
+          size="icon"
+          ariaLabelTextId="files.trash.open"
+          data-testid="files-top-bar-trash"
+        >
+          <MaterialIcon name="delete" size="24px" color="currentColor" />
+        </Button>
+      )}
       <Button
         variant="ghost"
         size="icon"

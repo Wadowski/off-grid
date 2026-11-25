@@ -4,6 +4,8 @@
 import { Button, cssVar, MaterialIcon, Text } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { DriveSwitcherGroup } from "./components/drive-switcher-group/drive-switcher-group.js";
+import { DriveSwitcherTrashLink } from "./components/drive-switcher-trash-link/drive-switcher-trash-link.js";
+import { toTrashPath } from "../../../../files/to-trash-path.js";
 import { splitDrivesByKind } from "./split-drives-by-kind.js";
 import {
   driveSwitcherCountStyle,
@@ -20,10 +22,12 @@ export const DriveSwitcher = ({
   status,
   errorTextId,
   activeDriveId,
+  trashActive = false,
   onRetry,
 }: DriveSwitcherProps) => {
   const { t } = useTranslation();
   const { personal, family } = splitDrivesByKind(drives);
+  const driveMarkedActive = trashActive ? null : activeDriveId;
 
   return (
     <aside
@@ -78,15 +82,18 @@ export const DriveSwitcher = ({
             <DriveSwitcherGroup
               captionTextId="files.drives.personal"
               drives={personal}
-              activeDriveId={activeDriveId}
+              activeDriveId={driveMarkedActive}
             />
             <DriveSwitcherGroup
               captionTextId="files.drives.family"
               captionValues={{ count: family.length }}
               drives={family}
-              activeDriveId={activeDriveId}
+              activeDriveId={driveMarkedActive}
               emptyTextId="files.drives.emptyFamily"
             />
+            {activeDriveId === null ? null : (
+              <DriveSwitcherTrashLink to={toTrashPath(activeDriveId)} active={trashActive} />
+            )}
           </>
         )}
       </nav>

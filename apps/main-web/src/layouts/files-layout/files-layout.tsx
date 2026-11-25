@@ -30,6 +30,7 @@ export const FilesLayout = () => {
     status,
     errorTextId,
     activeDriveId: toActiveDriveId(driveId, drives),
+    trashActive: location.pathname.endsWith("/trash"),
     onRetry: () => void refresh(),
   };
   const context: FilesOutletContext = {
