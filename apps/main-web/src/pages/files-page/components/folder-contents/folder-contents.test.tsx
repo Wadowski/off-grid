@@ -2,10 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { fileListItemSchema } from "@offgrid/contracts";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Drive, FileListItem, FolderContentsState } from "../../../../files/types.js";
+import type {
+  Drive,
+  FileListItem,
+  FilesView,
+  FolderContentsState,
+} from "../../../../files/types.js";
 import { FolderContents } from "./folder-contents.js";
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
@@ -56,6 +61,7 @@ const contentsWith = (
 const renderContents = (
   phone: boolean,
   contents: FolderContentsState,
+  view: FilesView = "list",
   selectedId: FileListItem["id"] | null = null,
   onSelect = vi.fn(),
 ) =>
@@ -65,6 +71,7 @@ const renderContents = (
         driveId={DRIVE_ID}
         contents={contents}
         phone={phone}
+        view={view}
         selectedId={selectedId}
         onSelect={onSelect}
       />
@@ -103,9 +110,41 @@ describe("FolderContents", () => {
     expect(screen.queryByTestId("files-table")).not.toBeInTheDocument();
   });
 
+  it("shows each entry as a card in grid view", () => {
+    renderContents(false, contentsWith(), "grid");
+
+    const grid = screen.getByTestId("files-file-grid");
+    expect(within(grid).getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryByTestId("file-table-row")).not.toBeInTheDocument();
+  });
+
+  it("keeps the selected file when the view changes", () => {
+    const { rerender } = renderContents(
+      false,
+      contentsWith({ items: [FILE_ENTRY] }),
+      "list",
+      FILE_ENTRY.id,
+    );
+
+    rerender(
+      <MemoryRouter>
+        <FolderContents
+          driveId={DRIVE_ID}
+          contents={contentsWith({ items: [FILE_ENTRY] })}
+          phone={false}
+          view="grid"
+          selectedId={FILE_ENTRY.id}
+          onSelect={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId("file-card")).toHaveAttribute("data-selected", "true");
+  });
+
   it("reports the file whose row is activated on a desktop", () => {
     const onSelect = vi.fn();
-    renderContents(false, contentsWith(), null, onSelect);
+    renderContents(false, contentsWith(), "list", null, onSelect);
 
     fireEvent.click(activatorOf("Trip.pdf") as HTMLElement);
 
@@ -114,7 +153,7 @@ describe("FolderContents", () => {
 
   it("does not report a selection when a folder row is opened", () => {
     const onSelect = vi.fn();
-    renderContents(false, contentsWith(), null, onSelect);
+    renderContents(false, contentsWith(), "list", null, onSelect);
 
     fireEvent.click(activatorOf("Photos") as HTMLElement);
 
@@ -122,7 +161,7 @@ describe("FolderContents", () => {
   });
 
   it("marks the row of the selected file", () => {
-    renderContents(false, contentsWith(), FILE_ENTRY.id);
+    renderContents(false, contentsWith(), "list", FILE_ENTRY.id);
 
     const row = screen
       .getAllByTestId("file-table-row")

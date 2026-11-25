@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import type { fileContentQuerySchema } from "@offgrid/contracts";
 import type { components, paths } from "./generated/schema.js";
 
 export type Notification = components["schemas"]["NotificationList"]["notifications"][number];
@@ -94,9 +95,19 @@ export type ApiClient = {
   ) => Promise<unknown>;
 };
 
-export type FileListOptions = {
-  readonly cursor?: string;
-  readonly limit?: number;
+export type FileListOptions = NonNullable<
+  paths["/drives/{id}/children"]["get"]["parameters"]["query"]
+>;
+
+export type TrashListOptions = NonNullable<
+  paths["/drives/{id}/trash"]["get"]["parameters"]["query"]
+>;
+
+type FileContentQuery = ReturnType<typeof fileContentQuerySchema.parse>;
+
+export type FileContentOptions = {
+  readonly disposition: FileContentQuery["disposition"];
+  readonly versionId?: string;
 };
 
 export type NotificationListOptions = NonNullable<

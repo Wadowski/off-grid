@@ -6,6 +6,7 @@ import { webFilesClient } from "../api/web-api-client.js";
 import {
   deleteFileVersion,
   getFile,
+  getFileContent,
   getFileVersionContent,
   listDriveChildren,
   listDrives,
@@ -110,5 +111,13 @@ describe("files API", () => {
 
     await expect(getFileVersionContent(FOLDER_ID, VERSION_ID)).resolves.toBe(content);
     expect(download).toHaveBeenCalledWith(FOLDER_ID, VERSION_ID);
+  });
+
+  it("passes the file id and the disposition to the files client and returns the blob", async () => {
+    const blob = new Blob(["hello"]);
+    const read = vi.spyOn(webFilesClient, "getFileContent").mockResolvedValue(blob);
+
+    await expect(getFileContent(FOLDER_ID, { disposition: "inline" })).resolves.toBe(blob);
+    expect(read).toHaveBeenCalledWith(FOLDER_ID, { disposition: "inline" });
   });
 });

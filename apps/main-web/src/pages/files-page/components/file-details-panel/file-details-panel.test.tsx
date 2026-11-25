@@ -146,6 +146,25 @@ describe("FileDetailsPanel", () => {
     expect(await screen.findByRole("region", { name: "Trip.pdf" })).toBeInTheDocument();
   });
 
+  it("shows the file actions once the details are ready and not while they load", async () => {
+    vi.mocked(getFile).mockResolvedValue({ file: REGULAR_FILE, breadcrumbs: BREADCRUMBS } as never);
+
+    renderPanel();
+
+    expect(screen.queryByTestId("file-actions")).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Download" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Preview" })).toBeInTheDocument();
+  });
+
+  it("shows no file actions when the details fail", async () => {
+    vi.mocked(getFile).mockRejectedValue(new ApiError(404, "NOT_FOUND", "missing"));
+
+    renderPanel();
+
+    await screen.findByTestId("file-details-panel-error");
+    expect(screen.queryByTestId("file-actions")).not.toBeInTheDocument();
+  });
+
   it("shows a not-found message when the file no longer exists", async () => {
     vi.mocked(getFile).mockRejectedValue(new ApiError(404, "NOT_FOUND", "missing"));
 

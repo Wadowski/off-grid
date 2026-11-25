@@ -11,6 +11,12 @@ export const withListQuery = (path: string, options: FileListOptions): string =>
   if (options.limit !== undefined) {
     params.set("limit", String(options.limit));
   }
+  if (options.sort !== undefined) {
+    params.set("sort", options.sort);
+  }
+  if (options.direction !== undefined) {
+    params.set("direction", options.direction);
+  }
   const query = params.toString();
   return query.length === 0 ? path : `${path}?${query}`;
 };

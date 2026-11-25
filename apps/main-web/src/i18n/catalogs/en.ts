@@ -708,6 +708,23 @@ export const en = {
     list: {
       label: "Folder contents",
     },
+    grid: {
+      folders: "Folders",
+      files: "Files",
+    },
+    view: {
+      label: "View",
+      list: "List",
+      grid: "Grid",
+    },
+    sort: {
+      label: "Sort by",
+      name: "Name",
+      modified: "Modified",
+      size: "Size",
+      ascending: "Sort ascending",
+      descending: "Sort descending",
+    },
     table: {
       name: "Name",
       modified: "Modified",
@@ -737,6 +754,12 @@ export const en = {
       panel: {
         label: "File details",
         close: "Close details",
+      },
+      actions: {
+        label: "File actions",
+        download: "Download",
+        preview: "Preview",
+        downloading: "Downloading {{name}}",
       },
       tabs: {
         label: "File sections",
@@ -785,6 +808,14 @@ export const en = {
       announceRestored: "Version {{count}} restored",
       announceDeleted: "Version {{count}} deleted",
       announceDownloaded: "Version {{count}} downloaded",
+    },
+    preview: {
+      close: "Close preview",
+      loading: "Loading preview",
+      retry: "Try again",
+      unsupported: "This file type can't be previewed. Download it instead.",
+      pdfTitle: "Preview of {{name}}",
+      pdfUnavailable: "This PDF can't be shown here.",
     },
     itemCount_one: "{{count}} item",
     itemCount_other: "{{count}} items",

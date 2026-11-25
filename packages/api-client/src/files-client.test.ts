@@ -100,6 +100,19 @@ describe("createFilesClient listing", () => {
     );
   });
 
+  it("sends the sort field and direction with the children query", async () => {
+    const page = { items: [], breadcrumbs: [], nextCursor: null };
+    const { files, transport } = filesWith(jsonResponse(page));
+
+    await expect(
+      files.listFileChildren(FOLDER_ID, { sort: "size", direction: "desc" }),
+    ).resolves.toEqual(page);
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FOLDER_ID}/children?sort=size&direction=desc`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
   it("lists the trash of a drive", async () => {
     const page = { items: [], breadcrumbs: [], nextCursor: null };
     const { files, transport } = filesWith(jsonResponse(page));
@@ -107,6 +120,18 @@ describe("createFilesClient listing", () => {
     await expect(files.listDriveTrash(DRIVE_ID)).resolves.toEqual(page);
     expect(transport).toHaveBeenCalledWith(
       `${BASE_URL}/drives/${DRIVE_ID}/trash`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("sends only the cursor and limit for the trash list", async () => {
+    const page = { items: [], breadcrumbs: [], nextCursor: null };
+    const { files, transport } = filesWith(jsonResponse(page));
+
+    await files.listDriveTrash(DRIVE_ID, { cursor: "abc", limit: 5 });
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/drives/${DRIVE_ID}/trash?cursor=abc&limit=5`,
       expect.objectContaining({ method: "GET" }),
     );
   });
@@ -307,6 +332,44 @@ describe("createFilesClient versions and downloads", () => {
       `/files/${FILE_ID}/versions/${VERSION_ID}/content`,
     );
     expect(transport).not.toHaveBeenCalled();
+  });
+});
+
+describe("createFilesClient content", () => {
+  it("reads the current content as a blob with the requested disposition", async () => {
+    const { files, transport } = filesWith(
+      new Response("bytes", { status: 200, headers: { "content-type": "image/png" } }),
+    );
+
+    const blob = await files.getFileContent(FILE_ID, { disposition: "inline" });
+
+    expect(blob.type).toBe("image/png");
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/content?disposition=inline`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("reads the content of one version as an attachment", async () => {
+    const { files, transport } = filesWith(new Response("bytes", { status: 200 }));
+
+    await files.getFileContent(FILE_ID, { disposition: "attachment", versionId: VERSION_ID });
+
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/versions/${VERSION_ID}/content?disposition=attachment`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("passes a coded error through", async () => {
+    const { files } = filesWith(
+      jsonResponse({ code: "NOT_FOUND", message: "The file was not found." }, 404),
+    );
+
+    await expect(files.getFileContent(FILE_ID, { disposition: "inline" })).rejects.toMatchObject({
+      status: 404,
+      code: "NOT_FOUND",
+    });
   });
 });
 

@@ -5,6 +5,7 @@ import { formatFileSize, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { FileActions } from "../../../../files/components/file-actions/file-actions.js";
 import { formatFileTimestamp } from "../../../../files/format-file-timestamp.js";
 import { toFileActivityEntries } from "../../../../files/to-file-activity-entries.js";
 import { toFileAccessEntries } from "../../../../files/to-file-access-entries.js";
@@ -105,6 +106,7 @@ export const FileDetailsReady = ({
   return (
     <div style={fileDetailsReadyStyle} data-testid="file-details-ready">
       <FileSummary name={values.name} kind={values.kind} />
+      <FileActions file={file} />
       <FileDetailsTabs
         value={tab}
         activityCount={screen.versions.status === "ready" ? activityEntries.length : null}

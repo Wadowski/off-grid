@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { breadcrumbSchema, driveIdSchema, fileSchema } from "@offgrid/contracts";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 import type { FileDetailsScreenState, RegularFileEntry } from "../../../../files/types.js";
@@ -73,6 +73,20 @@ const BREADCRUMBS = [
   breadcrumbSchema.parse({ kind: "folder", id: PHOTOS_ID, name: "Photos" }),
 ];
 
+const renderReady = (file: RegularFileEntry) =>
+  render(
+    <MemoryRouter>
+      <UploadQueueProvider>
+        <FileDetailsReady
+          file={file}
+          breadcrumbs={BREADCRUMBS}
+          backTarget={null}
+          screen={fileDetailsScreenFixture()}
+        />
+      </UploadQueueProvider>
+    </MemoryRouter>,
+  );
+
 describe("FileDetailsReady", () => {
   afterEach(() => {
     cleanup();
@@ -116,5 +130,28 @@ describe("FileDetailsReady", () => {
     );
 
     expect(screen.getByTestId("file-versions-section")).toBeInTheDocument();
+  });
+
+  it("shows the Download and Preview actions of an image on the details tab", () => {
+    renderReady(nestedFile());
+
+    expect(screen.getByRole("button", { name: "Download" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Preview" })).toBeInTheDocument();
+  });
+
+  it("keeps the actions when the Activity tab is selected", () => {
+    renderReady(nestedFile());
+
+    fireEvent.click(screen.getByTestId("segmented-option-activity"));
+
+    expect(screen.getByRole("button", { name: "Download" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Preview" })).toBeInTheDocument();
+  });
+
+  it("offers no Preview for a file that cannot be previewed", () => {
+    renderReady({ ...nestedFile(), name: "Notes.txt", mimeType: "text/plain" });
+
+    expect(screen.getByRole("button", { name: "Download" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Preview" })).not.toBeInTheDocument();
   });
 });

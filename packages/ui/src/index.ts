@@ -33,5 +33,6 @@ export { FileTable } from "./file-table/file-table.js";
 export { FileTableRow } from "./file-table-row/file-table-row.js";
 export { formatFileSize } from "./files/format-file-size.js";
 export { FileCard } from "./file-card/file-card.js";
+export { baseMimeType } from "./files/base-mime-type.js";
 export { fileKindFromMimeType } from "./files/file-kind-from-mime-type.js";
 export type { FileKind } from "./files/types.js";

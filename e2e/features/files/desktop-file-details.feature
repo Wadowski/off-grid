@@ -71,12 +71,12 @@ Feature: File details panel on the desktop Files page
     And Anna opens the folder "Photos" from the table
     Then the file details panel is not shown
 
-  Scenario: The panel shows no download or link sections
+  Scenario: The panel shows the versions and no link sections
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
     When Anna opens the files page on a desktop screen
     And Anna selects the table row "Insurance policy.txt"
-    Then the file details panel shows no download or link sections
+    Then the file details panel shows the versions and no link sections
 
   @a11y
   Scenario: The details panel has no serious accessibility violations and Escape closes it

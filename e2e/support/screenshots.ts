@@ -3,7 +3,7 @@
 
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 const DEFAULT_DIR = fileURLToPath(new URL("../artifacts/screens", import.meta.url));
 
@@ -79,6 +79,12 @@ const captureMobile = async (
   if (desktopViewport !== null) {
     await page.setViewportSize(desktopViewport);
   }
+};
+
+export const settleFolderContents = async (page: Page): Promise<void> => {
+  await nextFrame(page);
+  await nextFrame(page);
+  await expect(page.getByTestId("files-folder-loading")).toHaveCount(0, { timeout: 15_000 });
 };
 
 export async function captureScreen(

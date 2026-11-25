@@ -3,6 +3,7 @@
 
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
+import { FileActions } from "../../../../files/components/file-actions/file-actions.js";
 import { toFileDetailsValues } from "../../../../files/to-file-details-values.js";
 import { useFileDetails } from "../../../../files/use-file-details.js";
 import { FileDetailsPanelBody } from "./components/file-details-panel-body/file-details-panel-body.js";
@@ -35,17 +36,20 @@ export const FileDetailsPanel = ({ fileId, onClose, onFileChanged }: FileDetails
     >
       <FileDetailsPanelHeader nameId={nameId} summary={summary} onClose={onClose} />
       {view.kind === "ready" ? (
-        <FileDetailsPanelBody
-          file={view.file}
-          breadcrumbs={view.breadcrumbs}
-          versionsSection={
-            <FileDetailsPanelVersions
-              file={view.file}
-              onFileChanged={onFileChanged}
-              onDetailsChanged={details.refreshQuietly}
-            />
-          }
-        />
+        <>
+          <FileDetailsPanelBody
+            file={view.file}
+            breadcrumbs={view.breadcrumbs}
+            versionsSection={
+              <FileDetailsPanelVersions
+                file={view.file}
+                onFileChanged={onFileChanged}
+                onDetailsChanged={details.refreshQuietly}
+              />
+            }
+          />
+          <FileActions file={view.file} />
+        </>
       ) : (
         <FileDetailsPanelStatus {...view} />
       )}

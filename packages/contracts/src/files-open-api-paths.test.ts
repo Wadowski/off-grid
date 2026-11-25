@@ -59,6 +59,15 @@ describe("file content operations", () => {
 });
 
 describe("drive trash operations", () => {
+  it("documents the trash list without sort or direction parameters", () => {
+    const { get: operation } = filesOpenApiPaths["/drives/{id}/trash"];
+    const names = (operation.parameters ?? []).map((parameter) => parameter.name);
+
+    expect(names).toEqual(expect.arrayContaining(["id", "cursor", "limit"]));
+    expect(names).not.toContain("sort");
+    expect(names).not.toContain("direction");
+  });
+
   it("documents DELETE /drives/{id}/trash as emptying the trash with 204", () => {
     const { delete: operation } = filesOpenApiPaths["/drives/{id}/trash"];
 

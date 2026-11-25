@@ -6,7 +6,7 @@ import { toBreadcrumbs } from "../../domain/files/to-breadcrumbs.js";
 import { toChildrenPage } from "../../domain/files/to-children-page.js";
 import { findDrive } from "../../infrastructure/drives/find-drive.js";
 import { listTrashed } from "../../infrastructure/trash/list-trashed.js";
-import type { ChildrenQuery, DriveRecord, FilesOutcome, ListedChildren } from "../../types.js";
+import type { DriveRecord, FilesOutcome, ListedChildren, TrashQuery } from "../../types.js";
 import { readAsUser } from "../read-as-user.js";
 import { readItemCounts } from "../files/read-item-counts.js";
 
@@ -14,7 +14,7 @@ export const listDriveTrash = (
   db: ModuleDatabase,
   userId: string,
   driveId: string,
-  query: ChildrenQuery,
+  query: TrashQuery,
 ): Promise<FilesOutcome<ListedChildren>> =>
   readAsUser(db, userId, async (tx) => {
     const drive = await findDrive(tx, driveId);
@@ -27,14 +27,14 @@ export const listDriveTrash = (
 const readTrashPage = async (
   tx: ModuleTransaction,
   drive: DriveRecord,
-  query: ChildrenQuery,
+  query: TrashQuery,
 ): Promise<ListedChildren> => {
   const rows = await listTrashed(tx, {
     driveId: drive.driveId,
     cursor: query.cursor,
     take: query.limit + 1,
   });
-  const page = toChildrenPage(rows, query.limit);
+  const page = toChildrenPage(rows, { limit: query.limit, sort: "name", direction: "asc" });
   return {
     page,
     itemCounts: await readItemCounts(tx, drive.driveId, page.records),

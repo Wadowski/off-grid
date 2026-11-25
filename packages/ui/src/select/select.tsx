@@ -24,7 +24,7 @@ export const Select = ({
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>
-          {option.label}
+          {option.labelTextId === undefined ? option.label : translate(option.labelTextId)}
         </option>
       ))}
     </select>

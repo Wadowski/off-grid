@@ -7,6 +7,8 @@ import type {
   fileDetailsSchema,
   fileListItemSchema,
   fileListSchema,
+  fileListDirectionSchema,
+  fileListSortSchema,
   fileSchema,
   filesErrorCodeSchema,
   familyMemberSchema,
@@ -14,6 +16,7 @@ import type {
 } from "@offgrid/contracts";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus, SessionUser } from "../types.js";
+import type { filesViewSchema } from "./files-view-preference-schema.js";
 
 export type Drive = ReturnType<typeof driveSchema.parse>;
 export type FileEntry = ReturnType<typeof fileSchema.parse>;
@@ -22,6 +25,10 @@ export type FileDetails = ReturnType<typeof fileDetailsSchema.parse>;
 export type FileListPage = ReturnType<typeof fileListSchema.parse>;
 export type FileListItem = ReturnType<typeof fileListItemSchema.parse>;
 export type FilesErrorCode = (typeof filesErrorCodeSchema.options)[number];
+export type SplitFileEntries = {
+  readonly folders: readonly FileListItem[];
+  readonly files: readonly FileListItem[];
+};
 
 export type FolderTarget =
   | { readonly kind: "drive"; readonly driveId: Drive["id"] }
@@ -92,7 +99,26 @@ export type CurrentFolderState = {
   readonly errorTextId: FilesErrorTextId | null;
 };
 
-export type FileListOptions = {
+export type FilesSortField = (typeof fileListSortSchema.options)[number];
+export type FilesSortDirection = (typeof fileListDirectionSchema.options)[number];
+
+export type FilesSortOrder = {
+  readonly sort: FilesSortField;
+  readonly direction: FilesSortDirection;
+};
+
+export type FilesView = (typeof filesViewSchema.options)[number];
+
+export type FilesViewPreference = FilesSortOrder & {
+  readonly view: FilesView;
+};
+
+export type FilesViewPreferenceState = {
+  readonly preference: FilesViewPreference;
+  readonly updatePreference: (change: Partial<FilesViewPreference>) => void;
+};
+
+export type FileListOptions = Partial<FilesSortOrder> & {
   readonly cursor?: string;
   readonly limit?: number;
 };
@@ -177,4 +203,25 @@ export type FileDetailsScreenState = {
   readonly membersStatus: ListStatus;
   readonly refreshMembers: () => Promise<void>;
   readonly viewer: SessionUser | null;
+};
+
+export type PreviewKind = "image" | "pdf";
+
+export type FileContentState =
+  | { readonly status: "loading" }
+  | { readonly status: "failed"; readonly errorTextId: FilesErrorTextId }
+  | { readonly status: "unsupported" }
+  | { readonly status: "ready"; readonly kind: PreviewKind; readonly objectUrl: string };
+
+export type FileContent = {
+  readonly state: FileContentState;
+  readonly retry: () => void;
+};
+
+export type FileDownloadStatus = "idle" | "downloading" | "failed";
+
+export type FileDownload = {
+  readonly status: FileDownloadStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly download: () => Promise<void>;
 };

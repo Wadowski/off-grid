@@ -235,10 +235,83 @@ describe("files routes", { timeout: 60_000 }, () => {
       `/drives/${driveId}/children?limit=0`,
       `/drives/${driveId}/children?limit=500`,
       `/drives/${driveId}/children?cursor=%25%25garbage`,
+      `/drives/${driveId}/children?sort=type`,
+      `/drives/${driveId}/children?direction=up`,
     ];
     for (const url of urls) {
       const response = await app.inject({ method: "GET", url, headers: annaHeaders });
       expect(response.statusCode, url).toBe(400);
     }
+  });
+
+  it("answers 400 for a cursor made for another sort order", async () => {
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
+    for (const name of ["a.txt", "b.txt"]) {
+      await seedRegularFile(db.admin, {
+        driveId,
+        owner: { userId: anna, familyId: null },
+        parentId: null,
+        name,
+        sizeBytes: 1,
+        createdByUserId: anna,
+      });
+    }
+    const firstPage = await app.inject({
+      method: "GET",
+      url: `/drives/${driveId}/children?limit=1`,
+      headers: annaHeaders,
+    });
+    const cursor = (firstPage.json() as { nextCursor: string }).nextCursor;
+
+    const response = await app.inject({
+      method: "GET",
+      url: `/drives/${driveId}/children?limit=1&sort=size&cursor=${encodeURIComponent(cursor)}`,
+      headers: annaHeaders,
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it("sorts a folder's children by size when asked", async () => {
+    const driveId = await seedDrive(db.admin, {
+      owner: { userId: anna, familyId: null },
+      name: "Personal",
+    });
+    const folder = await seedFolder(db.admin, {
+      driveId,
+      owner: { userId: anna, familyId: null },
+      parentId: null,
+      name: "Box",
+    });
+    await seedRegularFile(db.admin, {
+      driveId,
+      owner: { userId: anna, familyId: null },
+      parentId: folder,
+      name: "large.bin",
+      sizeBytes: 900,
+      createdByUserId: anna,
+    });
+    await seedRegularFile(db.admin, {
+      driveId,
+      owner: { userId: anna, familyId: null },
+      parentId: folder,
+      name: "small.bin",
+      sizeBytes: 5,
+      createdByUserId: anna,
+    });
+
+    const response = await app.inject({
+      method: "GET",
+      url: `/files/${folder}/children?sort=size&direction=desc`,
+      headers: annaHeaders,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(
+      (response.json() as { items: { name: string }[] }).items.map((item) => item.name),
+    ).toEqual(["large.bin", "small.bin"]);
   });
 });

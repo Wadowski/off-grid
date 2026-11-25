@@ -7,7 +7,11 @@ import type { ModuleDatabase } from "@offgrid/db";
 import type { EventBus } from "@offgrid/event-bus";
 import type { CurrentUserId } from "@offgrid/http";
 import type { Logger } from "@offgrid/observability";
-import type { fileContentQuerySchema } from "@offgrid/contracts";
+import type {
+  fileContentQuerySchema,
+  fileListDirectionSchema,
+  fileListSortSchema,
+} from "@offgrid/contracts";
 import type { z } from "zod";
 
 export interface StorageIntegrityReport {
@@ -99,7 +103,21 @@ export interface FileRecord {
   readonly deletedAt: Date | null;
 }
 
+export type ChildrenSort = z.infer<typeof fileListSortSchema>;
+
+export type ChildrenDirection = z.infer<typeof fileListDirectionSchema>;
+
+export type SortKeyField = "name" | "updatedAt" | "sizeBytes";
+
 export interface ChildrenCursor {
+  readonly isFolder: boolean;
+  readonly fileId: string;
+  readonly sort: ChildrenSort;
+  readonly direction: ChildrenDirection;
+  readonly sortValue: string;
+}
+
+export interface NameKeysetCursor {
   readonly isFolder: boolean;
   readonly name: string;
   readonly fileId: string;
@@ -108,6 +126,28 @@ export interface ChildrenCursor {
 export interface ChildrenQuery {
   readonly cursor: ChildrenCursor | null;
   readonly limit: number;
+  readonly sort: ChildrenSort;
+  readonly direction: ChildrenDirection;
+}
+
+export interface TrashQuery {
+  readonly cursor: ChildrenCursor | null;
+  readonly limit: number;
+}
+
+export interface ChildrenPageOptions {
+  readonly limit: number;
+  readonly sort: ChildrenSort;
+  readonly direction: ChildrenDirection;
+}
+
+export interface ChildRowsRequest {
+  readonly driveId: string;
+  readonly parentId: string | null;
+  readonly cursor: ChildrenCursor | null;
+  readonly take: number;
+  readonly sort: ChildrenSort;
+  readonly direction: ChildrenDirection;
 }
 
 export interface ChildrenPage {
