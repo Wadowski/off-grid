@@ -89,6 +89,27 @@ export type TrashEntryState = {
   readonly trash: (fileId: FileEntry["id"]) => Promise<boolean>;
 };
 
+export type DriveTrashState = {
+  readonly items: readonly FileListItem[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
+  readonly refreshQuietly: () => Promise<void>;
+  readonly removeItem: (fileId: FileListItem["id"]) => void;
+};
+
+export type DriveTrashSnapshot = {
+  readonly items: readonly FileListItem[];
+  readonly status: ListStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+};
+
+export type RestoreEntryState = {
+  readonly status: TrashEntryStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly restore: (fileId: FileEntry["id"]) => Promise<FileEntry | null>;
+};
+
 export type FolderContentsSnapshot = {
   readonly items: readonly FileListItem[];
   readonly nextCursor: string | null;
@@ -144,6 +165,8 @@ export type FileListOptions = Partial<FilesSortOrder> & {
   readonly cursor?: string;
   readonly limit?: number;
 };
+
+export type TrashListOptions = Pick<FileListOptions, "cursor" | "limit">;
 
 export type RegularFileEntry = Extract<FileEntry, { readonly isFolder: false }>;
 

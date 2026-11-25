@@ -11,6 +11,7 @@ import type {
   FileListOptions,
   FileListPage,
   FileVersion,
+  TrashListOptions,
 } from "./types.js";
 
 export const listDrives = (): Promise<readonly Drive[]> => webFilesClient.listDrives();
@@ -38,6 +39,14 @@ export const createFolder = (
 
 export const trashFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
   webFilesClient.trashFile(fileId);
+
+export const listDriveTrash = (
+  driveId: Drive["id"],
+  options: TrashListOptions = {},
+): Promise<FileListPage> => webFilesClient.listDriveTrash(driveId, options);
+
+export const restoreFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
+  webFilesClient.restoreFile(fileId);
 
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);

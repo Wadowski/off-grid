@@ -7,6 +7,7 @@ import type {
   FilesSortField,
   FilesSortOrder,
   FilesViewPreference,
+  DriveTrashSnapshot,
   FolderContentsSnapshot,
   PreviewKind,
 } from "./types.js";
@@ -44,6 +45,14 @@ export const EMPTY_FOLDER_CONTENTS: FolderContentsSnapshot = {
   errorTextId: null,
   isLoadingMore: false,
 };
+
+export const EMPTY_DRIVE_TRASH: DriveTrashSnapshot = {
+  items: [],
+  status: "loading",
+  errorTextId: null,
+};
+
+export const TRASH_PAGE_LIMIT = 200;
 
 export const PREVIEW_KIND_BY_MEDIA_TYPE: Readonly<Record<string, PreviewKind>> = {
   "image/png": "image",
