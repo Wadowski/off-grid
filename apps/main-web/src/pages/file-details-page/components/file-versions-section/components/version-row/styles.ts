@@ -15,7 +15,12 @@ const versionRowBaseStyle: CSSProperties = {
 };
 
 export const versionRowStyles: Record<VersionsSectionVariant, CSSProperties> = {
-  panel: { ...versionRowBaseStyle, padding: `${tokens.space[1]} 0` },
+  panel: {
+    display: "grid",
+    gap: tokens.space[1],
+    padding: `${tokens.space[2]} 0`,
+    minWidth: 0,
+  },
   screen: {
     ...versionRowBaseStyle,
     flexWrap: "nowrap",

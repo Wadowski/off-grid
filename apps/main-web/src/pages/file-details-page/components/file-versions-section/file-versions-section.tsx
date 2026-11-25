@@ -6,7 +6,6 @@ import { useId, useState } from "react";
 import type { FileVersionRow } from "../../../../files/types.js";
 import { DeleteVersionConfirm } from "./components/delete-version-confirm/delete-version-confirm.js";
 import { VersionRow } from "./components/version-row/version-row.js";
-import { VersionUploadButton } from "./components/version-upload-button/version-upload-button.js";
 import { VersionsStatus } from "./components/versions-status/versions-status.js";
 import { toVersionAnnouncementTextId } from "./to-version-announcement-text-id.js";
 import {
@@ -21,13 +20,11 @@ import type { FileVersionsSectionProps } from "./types.js";
 
 export const FileVersionsSection = ({
   variant,
-  fileName,
   rows,
   status,
   pendingVersionId,
   errorTextId,
   completed,
-  onUploadPicked,
   onRetry,
   onRestore,
   onDownload,
@@ -60,7 +57,6 @@ export const FileVersionsSection = ({
             />
           ) : null}
         </div>
-        <VersionUploadButton fileName={fileName} onFilePicked={onUploadPicked} />
       </div>
       <VersionsStatus status={status} errorTextId={errorTextId} onRetry={onRetry} />
       {status === "ready" ? (

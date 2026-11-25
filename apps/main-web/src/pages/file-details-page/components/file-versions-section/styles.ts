@@ -17,10 +17,9 @@ const versionsHeaderBaseStyle: CSSProperties = {
 export const versionsSectionStyles: Record<VersionsSectionVariant, CSSProperties> = {
   panel: {
     display: "grid",
-    gap: tokens.space[2],
-    padding: tokens.space[2],
+    gap: tokens.space[3],
+    padding: tokens.space[3],
     borderRadius: cssVar("radius-md"),
-    border: `1px solid ${cssVar("color-line")}`,
     background: cssVar("color-surface-low"),
     minWidth: 0,
   },
@@ -44,7 +43,7 @@ export const versionsTitleStyle: CSSProperties = {
 };
 
 export const versionsHeadingStyle: CSSProperties = {
-  color: cssVar("color-muted"),
+  color: cssVar("color-fg"),
   fontWeight: cssVar("font-weight-semibold"),
   letterSpacing: cssVar("letter-spacing-label-sm"),
   textTransform: "uppercase",

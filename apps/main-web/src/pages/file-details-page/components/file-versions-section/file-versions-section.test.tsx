@@ -27,7 +27,6 @@ const ROWS: readonly FileVersionRow[] = [
 ];
 
 const callbacks = () => ({
-  onUploadPicked: vi.fn(),
   onRetry: vi.fn(async () => undefined),
   onRestore: vi.fn(),
   onDownload: vi.fn(),
@@ -38,7 +37,6 @@ const sectionWith = (
   overrides: Partial<FileVersionsSectionProps> = {},
 ): FileVersionsSectionProps => ({
   variant: "panel",
-  fileName: "Notes.txt",
   rows: ROWS,
   status: "ready",
   pendingVersionId: null,

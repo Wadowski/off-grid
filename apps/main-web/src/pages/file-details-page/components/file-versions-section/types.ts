@@ -12,13 +12,11 @@ export type VersionsSectionVariant = "panel" | "screen";
 
 export type FileVersionsSectionProps = {
   readonly variant: VersionsSectionVariant;
-  readonly fileName: string;
   readonly rows: readonly FileVersionRow[];
   readonly status: ListStatus;
   readonly pendingVersionId: FileVersionRow["id"] | null;
   readonly errorTextId: FilesErrorTextId | null;
   readonly completed: FileVersionCompletion | null;
-  readonly onUploadPicked: (file: File) => void;
   readonly onRetry: () => Promise<void>;
   readonly onRestore: (row: FileVersionRow) => void;
   readonly onDownload: (row: FileVersionRow) => void;

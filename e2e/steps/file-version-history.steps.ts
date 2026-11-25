@@ -35,14 +35,10 @@ Given(
   },
 );
 
-When(
-  /^Anna uploads a new version of "([^"]*)" from the versions section with the content "([^"]*)"$/,
-  async ({ page }, name: string, content: string) => {
-    await versionsSection(page)
-      .locator('input[type="file"]')
-      .setInputFiles({ name, mimeType: "text/plain", buffer: Buffer.from(content) });
-  },
-);
+Then("the versions section has no upload action", async ({ page }) => {
+  await expect(versionsSection(page).getByRole("button", { name: /upload/i })).toHaveCount(0);
+  await expect(versionsSection(page).locator('input[type="file"]')).toHaveCount(0);
+});
 
 When(
   /^Anna restores version (\d+) from the (?:phone )?versions section$/,

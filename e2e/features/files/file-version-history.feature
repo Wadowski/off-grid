@@ -21,14 +21,12 @@ Feature: Version history in the file details
     And the version 2 row is marked as current
     And the version 2 row shows the author "Anna Kowalska" and a size
 
-  Scenario: Uploading a new version with the picker makes it the current version
+  Scenario: The versions section has no upload action
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Notes.txt" with the content "first draft"
     When Anna opens the files page on a desktop screen
     And Anna selects the table row "Notes.txt"
-    And Anna uploads a new version of "Notes.txt" from the versions section with the content "second draft"
-    Then the versions section lists 2 versions with version 2 first
-    And the file details panel shows the size of "Notes.txt" as 12 bytes
+    Then the versions section has no upload action
 
   Scenario: Restoring an earlier version adds a new current version
     Given I am signed in as "Anna Kowalska", a regular member
