@@ -31,8 +31,10 @@ export const getFile = (fileId: FileEntry["id"]): Promise<FileDetails> =>
 export const listFileVersions = (fileId: FileEntry["id"]): Promise<readonly FileVersion[]> =>
   webFilesClient.listFileVersions(fileId);
 
-export const createFolder = (driveId: Drive["id"], input: CreateFolderRequest): Promise<FileEntry> =>
-  webFilesClient.createFolder(driveId, input);
+export const createFolder = (
+  driveId: Drive["id"],
+  input: CreateFolderRequest,
+): Promise<FileEntry> => webFilesClient.createFolder(driveId, input);
 
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);

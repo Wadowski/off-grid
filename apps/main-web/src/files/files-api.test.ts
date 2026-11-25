@@ -31,7 +31,9 @@ afterEach(() => {
 
 describe("files API", () => {
   it("creates a folder through the files client", async () => {
-    const create = vi.spyOn(webFilesClient, "createFolder").mockResolvedValue({ id: FOLDER_ID } as FileEntry);
+    const create = vi
+      .spyOn(webFilesClient, "createFolder")
+      .mockResolvedValue({ id: FOLDER_ID } as FileEntry);
 
     await expect(createFolder(DRIVE_ID, { parentId: null, name: "Holiday" })).resolves.toEqual({
       id: FOLDER_ID,

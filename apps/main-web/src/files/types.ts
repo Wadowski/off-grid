@@ -56,6 +56,12 @@ export type CreateFolderState = {
   readonly create: (name: string) => Promise<FileEntry | null>;
 };
 
+export type NewFolderDialogState = {
+  readonly isOpen: boolean;
+  readonly open: () => void;
+  readonly close: () => void;
+};
+
 export type DrivesState = {
   readonly drives: readonly Drive[];
   readonly status: ListStatus;
