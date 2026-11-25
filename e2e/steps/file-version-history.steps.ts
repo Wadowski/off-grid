@@ -4,9 +4,8 @@
 import { readFile } from "node:fs/promises";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
-import { test, type ScenarioWorld } from "../support/fixtures.js";
-import { personalDriveIdAs, uploadFileAs, uploadVersionAs } from "../support/factories/files.js";
-import { ownSessionOf } from "../support/own-session.js";
+import { test } from "../support/fixtures.js";
+import { uploadVersionAs } from "../support/factories/files.js";
 import { familyFileIdOf, sessionOf } from "./file-versions.steps.js";
 
 const { Given, When, Then } = createBdd(test);
@@ -25,28 +24,6 @@ const versionRows = (page: Page): Locator => versionsSection(page).getByTestId("
 
 const versionRowIn = (page: Page, number: number): Locator =>
   versionRows(page).and(page.locator(`[data-version="${number}"]`));
-
-const uploadPersonalFileWithContent = async (
-  world: ScenarioWorld,
-  name: string,
-  content: string,
-) => {
-  const session = await ownSessionOf(world);
-  const driveId = await personalDriveIdAs(world.api, session);
-  const response = await uploadFileAs(world.api, session, driveId, {
-    name,
-    parentId: null,
-    body: content,
-  });
-  expect(response.status, `Anna has the file ${name}`).toBe(201);
-};
-
-Given(
-  /^Anna has a personal-drive file "([^"]*)" with the content "([^"]*)"$/,
-  async ({ world }, name: string, content: string) => {
-    await uploadPersonalFileWithContent(world, name, content);
-  },
-);
 
 Given(
   /^Anna uploads a new version of "([^"]*)" in the family drive with the content "([^"]*)"$/,
