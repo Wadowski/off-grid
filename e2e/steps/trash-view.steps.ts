@@ -32,6 +32,12 @@ const trashEntryNamed = (page: Page, name: string): Locator =>
 const restoreButtonNamed = (page: Page, name: string): Locator =>
   page.getByRole("button", { name: `Restore ${name}`, exact: true });
 
+const deletedDateOf = (page: Page, name: string): Locator =>
+  trashList(page)
+    .locator("[data-testid='file-table-row'], [data-testid='file-row']")
+    .filter({ hasText: name })
+    .getByTestId("file-modified");
+
 const trashedIdNamed = async (
   world: ScenarioWorld,
   session: Session,
@@ -190,6 +196,7 @@ Then(
   /^the trash view lists "([^"]*)" with a deleted date and a Restore button$/,
   async ({ page }, name: string) => {
     await expect(trashEntryNamed(page, name)).toBeVisible();
+    await expect(deletedDateOf(page, name)).not.toBeEmpty();
     await expect(restoreButtonNamed(page, name)).toBeVisible();
   },
 );
