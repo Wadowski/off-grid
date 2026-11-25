@@ -8,9 +8,11 @@ Any push that changes `apps/main-web/` or `packages/ui/` needs current screensho
 
 ## Capture once
 
-Run `pnpm e2e:changed --screens`. It runs the `@ui` scenarios with `E2E_SCREENSHOTS=1`, writes `e2e/artifacts/screens/manifest.json`, and builds one contact sheet per screen (`<screen>-sheet.png`: light desktop, light mobile, dark desktop, dark mobile in a 2x2 grid).
+Every screenshot comes from `pnpm e2e:changed --screens`, always. It is the only local e2e command. It runs the same scenario selection as a plain `pnpm e2e:changed` (the changed feature files, plus the `@ui` scenarios of the modules the change touches) with `E2E_SCREENSHOTS=1`, then writes `e2e/artifacts/screens/manifest.json` and builds one contact sheet per screen (`<screen>-sheet.png`: light desktop, light mobile, dark desktop, dark mobile in a 2x2 grid).
 
-It reuses the previous capture while the UI sources, the feature files and the commit are unchanged, so the implement step, the UI reviewer and the upload share one capture. Use `--force` only when a capture looks stale. Never run the `@ui` scenarios by hand for this.
+Never take screenshots any other way: no ad hoc Playwright or browser scripts, no direct `playwright test` runs, no screenshots from a dev server. If `e2e:changed --screens` fails, report the failing scenario and stop; do not substitute captures.
+
+Scope comes from the changed files, not from a hand-written `--grep`. Run `pnpm e2e:changed --dry-run` first to see the selection and its reasons. Run the capture once per tree, and never in parallel with another stack run on the same ports.
 
 ## Design comparison (implement step)
 

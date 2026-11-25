@@ -25,7 +25,7 @@ UI must match the plan's UI design 1 to 1 for the scope the plan names; leave th
 ## Before you report
 
 1. `pnpm verify`. It runs every gate CI runs, in parallel, caches by tree, and prints only failures. Fix and re-run until it passes; a passing result is cached, so the verify step that follows is free if you change nothing.
-2. `pnpm e2e:changed`: the scenarios of the feature files this branch changed. Do not run the full suite or `e2e:affected`; CI runs the affected set.
+2. `pnpm e2e:changed`: the only local e2e command. It runs the changed feature files and the scenarios the change affects. Do not run `pnpm e2e`, `pnpm e2e:affected` or `playwright test` directly; CI runs the wider set.
 3. Commit everything. `pnpm verify` fingerprints the working tree, so commit before the final run if you changed anything.
 
 ## Report

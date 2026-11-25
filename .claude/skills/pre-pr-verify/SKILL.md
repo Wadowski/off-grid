@@ -14,12 +14,12 @@ The Definition of Done is in [CLAUDE.md](../../../CLAUDE.md). Run this from the 
 2. **`pnpm verify`.** One command runs lint, typecheck, format, tests, boundaries, agent config, telemetry, licence headers, DCO, `@wip` tags, `check:rules`, and `lint:features`, `check:contracts` and `build` when they apply. It runs in parallel and prints only failures. If the implement step already passed on this exact tree the result is cached and costs nothing.
    Verify: it prints `verify: pass`. A failure names the check; fix and re-run. Only failed checks run again.
 
-3. **Changed scenarios.** `pnpm e2e:changed` runs the feature files this branch changed. The affected set across modules is CI's job (`e2e-smoke`); do not run `pnpm e2e` or `pnpm e2e:affected` here.
-   Verify: it exits 0, or says no feature file changed.
+3. **Changed scenarios.** `pnpm e2e:changed` is the only local e2e command. It runs the feature files this branch changed and the scenarios of the modules its code changes affect, and says why each was chosen. Do not run `pnpm e2e`, `pnpm e2e:smoke`, `pnpm e2e:wip`, `pnpm e2e:affected` or `playwright test` directly; the wider affected set is CI's job.
+   Verify: it exits 0, or says no scenario is affected.
 
 4. **No `@wip` on finished work.** `pnpm check:wip-tags` (part of verify) fails on a changed feature with `@wip` that the PR body does not list. List each open `@wip` scenario in the PR body with the reason.
 
-5. **UI screens, when the diff touches `apps/main-web/` or `packages/ui/`.** `pnpm e2e:changed --screens` captures once (or reuses the implement step's capture). Upload happens at PR time, per [screenshots.md](../linear-issue/phases/screenshots.md).
+5. **UI screens, when the diff touches `apps/main-web/` or `packages/ui/`.** `pnpm e2e:changed --screens` captures once, with the same scope as step 3, as [screenshots.md](../linear-issue/phases/screenshots.md) says. Never take screenshots any other way. Upload happens at PR time, per [screenshots.md](../linear-issue/phases/screenshots.md).
    Verify: `e2e/artifacts/screens/manifest.json` lists every changed screen.
 
 6. **Review, once, in parallel.** Get the inputs once:
