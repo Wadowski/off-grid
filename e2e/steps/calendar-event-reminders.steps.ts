@@ -26,6 +26,12 @@ const pathOf = (page: Page): string => new URL(page.url()).pathname;
 
 const newEventModal = (page: Page): Locator => page.getByTestId("new-event-modal");
 
+const localTodayIso = (): string => {
+  const now = new Date();
+  const pad = (value: number): string => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+};
+
 const detailsOf = (page: Page): Locator =>
   page.getByTestId("event-details-modal").or(page.getByTestId("event-details-page"));
 
@@ -107,6 +113,13 @@ const createEventWithReminder = async (
   await page.getByRole("button", { name: "New event", exact: true }).click();
   await expect(newEventModal(page)).toBeVisible();
   await page.getByLabel("Title", { exact: true }).fill(title);
+  // Pin the event to the browser's today: the form's default start is the next full hour, which
+  // falls on tomorrow late in the evening, and the agenda opened below shows only today.
+  const today = localTodayIso();
+  await page.getByLabel("Start date", { exact: true }).fill(today);
+  await page.getByLabel("Start time", { exact: true }).fill("09:00");
+  await page.getByLabel("End date", { exact: true }).fill(today);
+  await page.getByLabel("End time", { exact: true }).fill("10:00");
   await addReminder(newEventModal(page), 0, reminder);
 };
 
