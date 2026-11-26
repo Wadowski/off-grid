@@ -17,6 +17,7 @@ Feature: Empty, loading and failed states of a folder
     When Anna opens the folder "Empty" in the browser
     Then the folder shows the empty message
 
+  @screen:files-desktop-empty-folder-grid
   Scenario: An empty folder in grid view says so too
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Empty"
@@ -46,6 +47,7 @@ Feature: Empty, loading and failed states of a folder
     When Anna chooses Try again
     Then the folder lists "Insurance policy.txt" once it has loaded
 
+  @screen:files-desktop-details-error
   Scenario: A folder whose details fail to load says so and Try again loads it
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
