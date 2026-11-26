@@ -9,6 +9,7 @@ export const fileDropZoneStyle: CSSProperties = {
   overflow: "hidden",
   borderRadius: cssVar("radius-lg"),
   minWidth: 0,
+  minHeight: "24rem",
 };
 
 export const fileDropZoneContentStyle: CSSProperties = {
