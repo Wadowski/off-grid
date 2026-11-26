@@ -10,6 +10,7 @@ import type {
   fileListDirectionSchema,
   fileListSortSchema,
   fileSchema,
+  moveFileResultSchema,
   filesErrorCodeSchema,
   familyMemberSchema,
   fileVersionSchema,
@@ -22,6 +23,7 @@ export type Drive = ReturnType<typeof driveSchema.parse>;
 export type FileEntry = ReturnType<typeof fileSchema.parse>;
 export type Breadcrumb = ReturnType<typeof breadcrumbSchema.parse>;
 export type FileDetails = ReturnType<typeof fileDetailsSchema.parse>;
+export type MoveFileResult = ReturnType<typeof moveFileResultSchema.parse>;
 export type FileListPage = ReturnType<typeof fileListSchema.parse>;
 export type FileListItem = ReturnType<typeof fileListItemSchema.parse>;
 export type FilesErrorCode = (typeof filesErrorCodeSchema.options)[number];
@@ -49,6 +51,19 @@ export type FilesErrorTextId =
   | "files.errors.failed";
 
 export type CreateFolderStatus = "idle" | "submitting" | "failed";
+
+export type MoveTarget = {
+  readonly driveId: Drive["id"];
+  readonly parentId: FileEntry["id"] | null;
+};
+
+export type MoveEntryStatus = "idle" | "moving" | "failed";
+
+export type MoveEntryState = {
+  readonly status: MoveEntryStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly move: (fileId: FileEntry["id"], target: MoveTarget) => Promise<MoveFileResult | null>;
+};
 
 export type CreateFolderState = {
   readonly status: CreateFolderStatus;

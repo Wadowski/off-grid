@@ -6,7 +6,7 @@ import type {
   UploadFileInput,
   UploadFileVersionInput,
 } from "@offgrid/api-client";
-import type { CreateFolderRequest } from "@offgrid/contracts";
+import type { CreateFolderRequest, MoveFileRequest } from "@offgrid/contracts";
 import { webFilesClient } from "../api/web-api-client.js";
 import type {
   Drive,
@@ -15,6 +15,7 @@ import type {
   FileListOptions,
   FileListPage,
   FileVersion,
+  MoveFileResult,
   TrashListOptions,
 } from "./types.js";
 
@@ -40,6 +41,11 @@ export const createFolder = (
   driveId: Drive["id"],
   input: CreateFolderRequest,
 ): Promise<FileEntry> => webFilesClient.createFolder(driveId, input);
+
+export const moveFile = (
+  fileId: FileEntry["id"],
+  input: MoveFileRequest,
+): Promise<MoveFileResult> => webFilesClient.moveFile(fileId, input);
 
 export const trashFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
   webFilesClient.trashFile(fileId);
