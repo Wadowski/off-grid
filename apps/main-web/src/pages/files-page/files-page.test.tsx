@@ -129,6 +129,22 @@ describe("FilesPage", () => {
     expect(listFileChildren).not.toHaveBeenCalled();
   });
 
+  it("shows the choose-a-drive hint at the index and sends no upload when files are picked", () => {
+    const restore = withPhoneWidth(false);
+    try {
+      renderAt("/files");
+
+      expect(screen.getByText("Choose a drive to upload files.")).toBeInTheDocument();
+      fireEvent.change(screen.getByTestId("files-upload-input"), {
+        target: { files: [new File(["a"], "a.txt")] },
+      });
+
+      expect(uploadFile).not.toHaveBeenCalled();
+    } finally {
+      restore();
+    }
+  });
+
   it("shows the drive name as the heading on a wide screen once the folder is loaded", async () => {
     const restore = withPhoneWidth(false);
     try {
