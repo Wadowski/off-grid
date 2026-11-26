@@ -27,6 +27,8 @@ export { Text } from "./text/text.js";
 export { IconTile } from "./icon-tile/icon-tile.js";
 export { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 export { Dialog } from "./dialog/dialog.js";
+export { Tree } from "./tree/tree.js";
+export type { TreeNode, TreeProps } from "./tree/types.js";
 export type { DialogProps } from "./dialog/types.js";
 export { MaterialIcon } from "./material-icon/material-icon.js";
 export { FileTypeIcon } from "./file-type-icon/file-type-icon.js";
