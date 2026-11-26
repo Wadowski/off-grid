@@ -55,9 +55,11 @@ export const TreeItem = ({ node, depth, context }: TreeItemProps) => {
       data-testid={testId}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
-      style={treeRowFocusStyle(focused)}
     >
-      <div style={treeRowStyle(depth, selected, node.disabled)} onClick={select}>
+      <div
+        style={{ ...treeRowStyle(depth, selected, node.disabled), ...treeRowFocusStyle(focused) }}
+        onClick={select}
+      >
         <span style={treeChevronStyle(expanded, togglable)} onClick={toggle}>
           <MaterialIcon name="chevron_right" size="1.25rem" color="currentColor" />
         </span>
