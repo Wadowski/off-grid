@@ -19,6 +19,7 @@ import {
   FloatingPanel,
   ProgressBar,
   TextField,
+  Tree,
 } from "./index.js";
 import { VisuallyHidden } from "./visually-hidden/visually-hidden.js";
 
@@ -36,6 +37,54 @@ describe("accessibility", () => {
             <Button variant="secondary">Cancel</Button>
             <VisuallyHidden>Opens in a new tab</VisuallyHidden>
           </Card>
+        </main>,
+      );
+
+      const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
+
+      expect(results.violations).toEqual([]);
+    },
+    AXE_RUN_TIMEOUT_MS,
+  );
+
+  it(
+    "has no axe violations for an expanded folder tree with a disabled folder",
+    async () => {
+      const { container } = render(
+        <main>
+          <Tree
+            label="Folders"
+            nodes={[
+              {
+                id: "personal",
+                label: "Personal",
+                icon: "hard_drive",
+                hasChildren: true,
+                disabled: false,
+                children: [
+                  {
+                    id: "photos",
+                    label: "Photos",
+                    icon: "folder",
+                    hasChildren: false,
+                    disabled: true,
+                  },
+                  {
+                    id: "documents",
+                    label: "Documents",
+                    icon: "folder",
+                    hasChildren: true,
+                    disabled: false,
+                    caption: "Current location",
+                  },
+                ],
+              },
+            ]}
+            expandedIds={new Set(["personal"])}
+            selectedId="documents"
+            onSelect={() => undefined}
+            onToggle={() => undefined}
+          />
         </main>,
       );
 

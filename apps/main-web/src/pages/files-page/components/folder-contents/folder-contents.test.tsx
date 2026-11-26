@@ -72,12 +72,15 @@ const renderContents = (
   render(
     <MemoryRouter>
       <FolderContents
+        drives={[]}
+        folderId={null}
         driveId={DRIVE_ID}
         contents={contents}
         phone={phone}
         view={view}
         selectedId={selectedId}
         onSelect={onSelect}
+        onEntryLeft={vi.fn()}
         onEntryTrashed={vi.fn()}
         onEntryRenamed={vi.fn()}
       />
@@ -156,12 +159,15 @@ describe("FolderContents", () => {
     rerender(
       <MemoryRouter>
         <FolderContents
+          drives={[]}
+          folderId={null}
           driveId={DRIVE_ID}
           contents={contentsWith({ items: [FILE_ENTRY] })}
           phone={false}
           view="grid"
           selectedId={FILE_ENTRY.id}
           onSelect={vi.fn()}
+          onEntryLeft={vi.fn()}
           onEntryTrashed={vi.fn()}
           onEntryRenamed={vi.fn()}
         />
@@ -208,12 +214,15 @@ describe("FolderContents", () => {
     render(
       <MemoryRouter>
         <FolderContents
+          drives={[]}
+          folderId={null}
           driveId={DRIVE_ID}
           contents={contentsWith({ removeItem })}
           phone={false}
           view="list"
           selectedId={null}
           onSelect={vi.fn()}
+          onEntryLeft={vi.fn()}
           onEntryTrashed={onEntryTrashed}
           onEntryRenamed={vi.fn()}
         />
@@ -244,12 +253,15 @@ describe("FolderContents", () => {
     rerender(
       <MemoryRouter>
         <FolderContents
+          drives={[]}
+          folderId={null}
           driveId={DRIVE_ID}
           contents={contents}
           phone
           view="list"
           selectedId={null}
           onSelect={vi.fn()}
+          onEntryLeft={vi.fn()}
           onEntryTrashed={vi.fn()}
           onEntryRenamed={vi.fn()}
         />
@@ -287,11 +299,14 @@ describe("FolderContents", () => {
       <MemoryRouter>
         <FolderContents
           driveId={DRIVE_ID}
+          folderId={null}
           contents={contentsWith()}
           phone={false}
           view="list"
           selectedId={null}
           onSelect={vi.fn()}
+          drives={[]}
+          onEntryLeft={vi.fn()}
           onEntryTrashed={vi.fn()}
           onEntryRenamed={vi.fn()}
         />

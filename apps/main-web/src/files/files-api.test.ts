@@ -14,6 +14,7 @@ import {
   listDrives,
   listFileChildren,
   listFileVersions,
+  moveFile,
   restoreFile,
   restoreFileVersion,
   trashFile,
@@ -69,6 +70,14 @@ describe("files API", () => {
 
     await expect(listFileChildren(FOLDER_ID)).resolves.toBe(PAGE);
     expect(children).toHaveBeenCalledWith(FOLDER_ID, {});
+  });
+
+  it("moves the file through the files client with its target and returns the result", async () => {
+    const result = { file: { id: FOLDER_ID } as FileEntry, crossOwnerNotice: false };
+    const move = vi.spyOn(webFilesClient, "moveFile").mockResolvedValue(result);
+
+    await expect(moveFile(FOLDER_ID, { driveId: DRIVE_ID, parentId: null })).resolves.toBe(result);
+    expect(move).toHaveBeenCalledWith(FOLDER_ID, { driveId: DRIVE_ID, parentId: null });
   });
 
   it("moves the file to the trash through the files client and returns it", async () => {

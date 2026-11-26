@@ -7,7 +7,13 @@ import { useTranslation } from "react-i18next";
 import { toFileActions } from "./to-file-actions.js";
 import type { FileActionsMenuProps } from "./types.js";
 
-export const FileActionsMenu = ({ entry, onOpen, onRename, onDelete }: FileActionsMenuProps) => {
+export const FileActionsMenu = ({
+  entry,
+  onOpen,
+  onRename,
+  onDelete,
+  onMove,
+}: FileActionsMenuProps) => {
   const { t } = useTranslation();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -17,6 +23,7 @@ export const FileActionsMenu = ({ entry, onOpen, onRename, onDelete }: FileActio
       items={toFileActions(entry, {
         onOpen,
         onRename: () => onRename(entry, triggerRef.current),
+        onMove: () => onMove(entry, triggerRef.current),
         onDelete: () => onDelete(entry, triggerRef.current),
       })}
       triggerTestId="file-actions-trigger"

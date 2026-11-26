@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Drive, FileListItem } from "../../../../files/types.js";
-import type { EntryActionRequest } from "../../components/file-actions-menu/types.js";
+import type { EntryActionRequest, MoveRequest } from "../../components/file-actions-menu/types.js";
 
 export type FileGridProps = {
   readonly driveId: Drive["id"];
@@ -14,4 +14,5 @@ export type FileGridProps = {
   readonly onSelect: (id: FileListItem["id"]) => void;
   readonly onRename: EntryActionRequest;
   readonly onDelete: EntryActionRequest;
+  readonly onMove: MoveRequest;
 };

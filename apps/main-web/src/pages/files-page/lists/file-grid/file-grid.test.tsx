@@ -87,6 +87,7 @@ const renderGrid = (overrides: Partial<FileGridProps> = {}) => {
     onSelect: vi.fn(),
     onRename: vi.fn(),
     onDelete: vi.fn(),
+    onMove: vi.fn(),
     ...overrides,
   };
   render(

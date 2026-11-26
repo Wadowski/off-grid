@@ -3,7 +3,10 @@
 
 import type { ParseKeys } from "i18next";
 import type { FileListItem } from "../../../../../../files/types.js";
-import type { EntryActionRequest } from "../../../../components/file-actions-menu/types.js";
+import type {
+  EntryActionRequest,
+  MoveRequest,
+} from "../../../../components/file-actions-menu/types.js";
 
 export type FileGridGroupProps = {
   readonly labelTextId: ParseKeys;
@@ -13,4 +16,5 @@ export type FileGridGroupProps = {
   readonly onActivate: (item: FileListItem) => void;
   readonly onRename: EntryActionRequest;
   readonly onDelete: EntryActionRequest;
+  readonly onMove: MoveRequest;
 };

@@ -17,9 +17,11 @@ import type { FileDetailsPanelProps } from "./types.js";
 
 export const FileDetailsPanel = ({
   fileId,
+  drives,
   changeCount,
   onClose,
   onFileChanged,
+  onFileMoved,
 }: FileDetailsPanelProps) => {
   const { t } = useTranslation();
   const nameId = useId();
@@ -55,7 +57,7 @@ export const FileDetailsPanel = ({
               />
             }
           />
-          <FileActions file={view.file} />
+          <FileActions file={view.file} move={{ drives, onMoved: onFileMoved }} />
         </>
       ) : (
         <FileDetailsPanelStatus {...view} />

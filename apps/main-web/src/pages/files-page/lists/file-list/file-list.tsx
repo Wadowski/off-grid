@@ -20,6 +20,7 @@ export const FileList = ({
   onLoadMore,
   onRename,
   onDelete,
+  onMove,
 }: FileListProps) => {
   const navigate = useNavigate();
   const activate = (item: FileListItem) => {
@@ -46,6 +47,7 @@ export const FileList = ({
                   onOpen={() => activate(item)}
                   onRename={onRename}
                   onDelete={onDelete}
+                  onMove={onMove}
                 />
               }
             />
