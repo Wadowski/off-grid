@@ -3,16 +3,18 @@
 
 import type { FileListItem } from "../../../../files/types.js";
 
-export type DeleteRequest = (entry: FileListItem, returnFocusTo: HTMLElement | null) => void;
+export type EntryActionRequest = (entry: FileListItem, returnFocusTo: HTMLElement | null) => void;
 
 export type FileActionsMenuProps = {
   readonly entry: FileListItem;
   readonly onOpen: () => void;
-  readonly onDelete: DeleteRequest;
+  readonly onRename: EntryActionRequest;
+  readonly onDelete: EntryActionRequest;
 };
 
 export type FileActionHandlers = {
   readonly onOpen: () => void;
+  readonly onRename: () => void;
   readonly onDelete: () => void;
 };
 

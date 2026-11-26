@@ -58,6 +58,7 @@ const contentsWith = (
   refresh: vi.fn(async () => undefined),
   refreshQuietly: vi.fn(async () => undefined),
   removeItem: vi.fn(),
+  replaceItem: vi.fn(),
   ...overrides,
 });
 
@@ -78,6 +79,7 @@ const renderContents = (
         selectedId={selectedId}
         onSelect={onSelect}
         onEntryTrashed={vi.fn()}
+        onEntryRenamed={vi.fn()}
       />
     </MemoryRouter>,
   );
@@ -140,6 +142,7 @@ describe("FolderContents", () => {
           selectedId={FILE_ENTRY.id}
           onSelect={vi.fn()}
           onEntryTrashed={vi.fn()}
+          onEntryRenamed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -191,6 +194,7 @@ describe("FolderContents", () => {
           selectedId={null}
           onSelect={vi.fn()}
           onEntryTrashed={onEntryTrashed}
+          onEntryRenamed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -226,6 +230,7 @@ describe("FolderContents", () => {
           selectedId={null}
           onSelect={vi.fn()}
           onEntryTrashed={vi.fn()}
+          onEntryRenamed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -251,5 +256,31 @@ describe("FolderContents", () => {
 
     expect(trash).not.toHaveBeenCalled();
     expect(screen.queryByTestId("delete-entry-dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens the rename dialog for the entry chosen from its actions menu", () => {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    render(
+      <MemoryRouter>
+        <FolderContents
+          driveId={DRIVE_ID}
+          contents={contentsWith()}
+          phone={false}
+          view="list"
+          selectedId={null}
+          onSelect={vi.fn()}
+          onEntryTrashed={vi.fn()}
+          onEntryRenamed={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    const row = screen.getByRole("button", { name: "Actions for Trip.pdf" }).closest("tr");
+    fireEvent.click(screen.getByRole("button", { name: "Actions for Trip.pdf" }));
+    fireEvent.click(within(row as HTMLElement).getByTestId("file-action-rename"));
+
+    expect(screen.getByTestId("rename-entry-name")).toHaveValue("Trip.pdf");
   });
 });

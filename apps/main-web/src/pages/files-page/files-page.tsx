@@ -132,6 +132,7 @@ export const FilesPage = () => {
               switcher.onClearSelection();
             }
           }}
+          onEntryRenamed={switcher.onFilesChanged}
         />
       ) : null}
     </div>

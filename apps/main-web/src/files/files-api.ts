@@ -41,10 +41,8 @@ export const createFolder = (
   input: CreateFolderRequest,
 ): Promise<FileEntry> => webFilesClient.createFolder(driveId, input);
 
-export const renameFile = (
-  fileId: FileEntry["id"],
-  input: RenameFileRequest,
-): Promise<FileEntry> => webFilesClient.renameFile(fileId, input);
+export const renameFile = (fileId: FileEntry["id"], input: RenameFileRequest): Promise<FileEntry> =>
+  webFilesClient.renameFile(fileId, input);
 
 export const trashFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
   webFilesClient.trashFile(fileId);

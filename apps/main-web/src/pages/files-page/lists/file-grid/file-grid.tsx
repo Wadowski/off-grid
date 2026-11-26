@@ -18,6 +18,7 @@ export const FileGrid = ({
   onLoadMore,
   selectedId,
   onSelect,
+  onRename,
   onDelete,
 }: FileGridProps) => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export const FileGrid = ({
             items={folders}
             selectedId={selectedId}
             onActivate={activate}
+            onRename={onRename}
             onDelete={onDelete}
           />
         ) : null}
@@ -51,6 +53,7 @@ export const FileGrid = ({
             items={files}
             selectedId={selectedId}
             onActivate={activate}
+            onRename={onRename}
             onDelete={onDelete}
           />
         ) : null}

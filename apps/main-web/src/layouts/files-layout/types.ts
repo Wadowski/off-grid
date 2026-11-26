@@ -9,6 +9,7 @@ export type FilesOutletContext = DriveSwitcherProps & {
   readonly filesChangedCount: number;
   readonly onSelectFile: (fileId: FileListItem["id"]) => void;
   readonly onClearSelection: () => void;
+  readonly onFilesChanged: () => void;
 };
 
 export type FileSelection = {
