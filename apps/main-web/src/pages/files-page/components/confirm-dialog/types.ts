@@ -11,6 +11,7 @@ export type ConfirmDialogProps = {
   readonly titleTextId: ConfirmDialogTextId;
   readonly bodyTextId: ConfirmDialogTextId;
   readonly bodyValues: Readonly<Record<string, string | number>>;
+  readonly noteTextId: ConfirmDialogTextId | null;
   readonly cancelTextId: ConfirmDialogTextId;
   readonly confirmTextId: ConfirmDialogTextId;
   readonly narrow: boolean;

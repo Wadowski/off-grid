@@ -16,6 +16,7 @@ export const ConfirmDialog = ({
   titleTextId,
   bodyTextId,
   bodyValues,
+  noteTextId,
   cancelTextId,
   confirmTextId,
   narrow,
@@ -63,6 +64,7 @@ export const ConfirmDialog = ({
             <Text variant="subheading" textId={titleTextId} />
           </div>
           <Text variant="body" textId={bodyTextId} values={bodyValues} />
+          {noteTextId === null ? null : <Text variant="caption" textId={noteTextId} />}
         </div>
         {errorTextId === null ? null : (
           <div style={confirmDialogTextStyle}>

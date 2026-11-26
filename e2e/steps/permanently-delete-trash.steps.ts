@@ -20,11 +20,11 @@ When(/^Anna asks to delete "([^"]*)" permanently$/, async ({ page }, name: strin
 });
 
 When("Anna confirms deleting permanently", async ({ page }) => {
-  await page.getByTestId("purge-dialog-confirm").click();
+  await page.getByTestId("purge-confirm").click();
 });
 
 When("Anna cancels deleting permanently", async ({ page }) => {
-  await page.getByTestId("purge-dialog-cancel").click();
+  await page.getByTestId("purge-cancel").click();
 });
 
 When("Anna asks to empty the trash", async ({ page }) => {
@@ -33,11 +33,11 @@ When("Anna asks to empty the trash", async ({ page }) => {
 });
 
 When("Anna confirms emptying the trash", async ({ page }) => {
-  await page.getByTestId("empty-trash-dialog-confirm").click();
+  await page.getByTestId("empty-trash-confirm").click();
 });
 
 When("Anna cancels emptying the trash", async ({ page }) => {
-  await page.getByTestId("empty-trash-dialog-cancel").click();
+  await page.getByTestId("empty-trash-cancel").click();
 });
 
 Then(
@@ -69,7 +69,7 @@ Then(/^the purge dialog is labelled "([^"]*)"$/, async ({ page }, title: string)
 });
 
 Then(/^the purge dialog shows the error "([^"]*)"$/, async ({ page }, message: string) => {
-  await expect(page.getByTestId("purge-dialog-error")).toHaveText(message);
+  await expect(page.getByTestId("purge-error")).toHaveText(message);
 });
 
 Then(

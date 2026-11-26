@@ -18,6 +18,7 @@ export const DeleteEntryDialog = ({
     titleTextId="files.delete.title"
     bodyTextId={isFolder ? "files.delete.bodyFolder" : "files.delete.bodyFile"}
     bodyValues={{ name }}
+    noteTextId={null}
     cancelTextId="files.delete.cancel"
     confirmTextId="files.delete.confirm"
     narrow={narrow}
