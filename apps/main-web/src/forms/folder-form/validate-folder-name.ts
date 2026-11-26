@@ -2,17 +2,15 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { FILE_NAME_MAX_LENGTH, fileNameSchema } from "@offgrid/contracts";
-import type { FolderNameErrorTextId } from "./types.js";
+import type { FolderNameError } from "./types.js";
 
-export const validateFolderName = (name: string): FolderNameErrorTextId | undefined => {
+export const validateFolderName = (name: string): FolderNameError | undefined => {
   const trimmedName = name.trim();
   if (trimmedName === "") {
-    return "files.newFolder.errors.nameRequired";
+    return "nameRequired";
   }
   if (trimmedName.length > FILE_NAME_MAX_LENGTH) {
-    return "files.newFolder.errors.nameTooLong";
+    return "nameTooLong";
   }
-  return fileNameSchema.safeParse(trimmedName).success
-    ? undefined
-    : "files.newFolder.errors.nameInvalid";
+  return fileNameSchema.safeParse(trimmedName).success ? undefined : "nameInvalid";
 };

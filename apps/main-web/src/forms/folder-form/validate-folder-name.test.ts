@@ -4,18 +4,14 @@
 import { describe, expect, it } from "vitest";
 import { validateFolderName } from "./validate-folder-name.js";
 
-const REQUIRED = "files.newFolder.errors.nameRequired";
-const TOO_LONG = "files.newFolder.errors.nameTooLong";
-const INVALID = "files.newFolder.errors.nameInvalid";
-
 describe("validateFolderName", () => {
   it.each(["", "   ", "\t"])("requires a name for %j", (name) => {
-    expect(validateFolderName(name)).toBe(REQUIRED);
+    expect(validateFolderName(name)).toBe("nameRequired");
   });
 
   it("accepts a name of 255 characters and refuses 256", () => {
     expect(validateFolderName("a".repeat(255))).toBeUndefined();
-    expect(validateFolderName("a".repeat(256))).toBe(TOO_LONG);
+    expect(validateFolderName("a".repeat(256))).toBe("nameTooLong");
   });
 
   it("counts the length after trimming the surrounding spaces", () => {
@@ -25,7 +21,7 @@ describe("validateFolderName", () => {
   it.each(["Work/2026", "Work\\2026", "Bad\u0000name", ".", ".."])(
     "refuses the name %j",
     (name) => {
-      expect(validateFolderName(name)).toBe(INVALID);
+      expect(validateFolderName(name)).toBe("nameInvalid");
     },
   );
 

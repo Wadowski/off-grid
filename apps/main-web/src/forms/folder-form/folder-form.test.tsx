@@ -3,6 +3,7 @@
 
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { RENAME_ENTRY_FORM_COPY } from "./constants.js";
 import { FolderForm } from "./folder-form.js";
 import type { FolderFormProps } from "./types.js";
 
@@ -82,5 +83,36 @@ describe("FolderForm", () => {
     fireEvent.click(screen.getByTestId("new-folder-cancel"));
 
     expect(props.onCancel).toHaveBeenCalledOnce();
+  });
+
+  it("prefills the given name and selects only the base name when a selection end is given", () => {
+    renderForm({
+      initialName: "Insurance policy.txt",
+      initialSelectionEnd: 16,
+      copy: RENAME_ENTRY_FORM_COPY,
+    });
+
+    const field = screen.getByTestId("rename-entry-name") as HTMLInputElement;
+    expect(field).toHaveValue("Insurance policy.txt");
+    expect(field).toHaveFocus();
+    expect([field.selectionStart, field.selectionEnd]).toEqual([0, 16]);
+  });
+
+  it("uses the rename texts and test ids from the copy", () => {
+    renderForm({ copy: RENAME_ENTRY_FORM_COPY });
+
+    expect(screen.getByTestId("rename-entry-form")).toBeInTheDocument();
+    expect(screen.getByTestId("rename-entry-cancel")).toHaveTextContent("Cancel");
+    expect(screen.getByTestId("rename-entry-submit")).toHaveTextContent("Rename");
+    expect(screen.queryByTestId("new-folder-name")).not.toBeInTheDocument();
+  });
+
+  it("refuses an empty rename with the rename message", () => {
+    const props = renderForm({ copy: RENAME_ENTRY_FORM_COPY });
+
+    fireEvent.click(screen.getByTestId("rename-entry-submit"));
+
+    expect(screen.getByText("Enter a name.")).toBeInTheDocument();
+    expect(props.onSubmit).not.toHaveBeenCalled();
   });
 });

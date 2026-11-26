@@ -5,12 +5,21 @@ import { Button, Text } from "@offgrid/ui";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { FolderNameField } from "./components/folder-name-field/folder-name-field.js";
+import { NEW_FOLDER_FORM_COPY } from "./constants.js";
 import { folderFormActionsStyle, folderFormStyle } from "./styles.js";
 import type { FolderFormProps, FolderNameErrorTextId } from "./types.js";
 import { validateFolderName } from "./validate-folder-name.js";
 
-export const FolderForm = ({ status, errorTextId, onSubmit, onCancel }: FolderFormProps) => {
-  const [name, setName] = useState("");
+export const FolderForm = ({
+  status,
+  errorTextId,
+  onSubmit,
+  onCancel,
+  copy = NEW_FOLDER_FORM_COPY,
+  initialName = "",
+  initialSelectionEnd,
+}: FolderFormProps) => {
+  const [name, setName] = useState(initialName);
   const [nameErrorTextId, setNameErrorTextId] = useState<FolderNameErrorTextId | undefined>(
     undefined,
   );
@@ -19,7 +28,7 @@ export const FolderForm = ({ status, errorTextId, onSubmit, onCancel }: FolderFo
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nameError = validateFolderName(name);
-    setNameErrorTextId(nameError);
+    setNameErrorTextId(nameError === undefined ? undefined : copy.nameErrorTextIds[nameError]);
     if (nameError !== undefined || isSubmitting) {
       return;
     }
@@ -27,27 +36,43 @@ export const FolderForm = ({ status, errorTextId, onSubmit, onCancel }: FolderFo
   };
 
   return (
-    <form data-testid="new-folder-form" style={folderFormStyle} onSubmit={handleSubmit} noValidate>
-      <FolderNameField value={name} errorTextId={nameErrorTextId} onChange={setName} />
+    <form
+      data-testid={`${copy.testIdPrefix}-form`}
+      style={folderFormStyle}
+      onSubmit={handleSubmit}
+      noValidate
+    >
+      <FolderNameField
+        copy={copy}
+        value={name}
+        errorTextId={nameErrorTextId}
+        selectionEnd={initialSelectionEnd}
+        onChange={setName}
+      />
       {errorTextId === null ? null : (
         <div role="alert">
           <Text variant="error" textId={errorTextId} />
         </div>
       )}
       <div style={folderFormActionsStyle}>
-        <Button type="button" variant="ghost" data-testid="new-folder-cancel" onClick={onCancel}>
-          <Text variant="action" textId="files.newFolder.cancel" />
+        <Button
+          type="button"
+          variant="ghost"
+          data-testid={`${copy.testIdPrefix}-cancel`}
+          onClick={onCancel}
+        >
+          <Text variant="action" textId={copy.cancelTextId} />
         </Button>
         <Button
           type="submit"
           variant="primary"
-          data-testid="new-folder-submit"
+          data-testid={`${copy.testIdPrefix}-submit`}
           disabled={isSubmitting}
           aria-busy={isSubmitting}
         >
           <Text
             variant="action"
-            textId={isSubmitting ? "files.newFolder.creating" : "files.newFolder.create"}
+            textId={isSubmitting ? copy.submittingTextId : copy.submitTextId}
           />
         </Button>
       </div>
