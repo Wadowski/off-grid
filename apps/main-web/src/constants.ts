@@ -13,8 +13,6 @@ export const PHONE_CHROME_MEDIA_QUERY = "(max-width: 767px)";
 
 export const API_PATH = "/api";
 
-export const API_PORT = 3000;
-
 export const FAMILY_HEADER = "x-offgrid-family-id";
 
 export const SESSION_CHANNEL_NAME = "offgrid-session";

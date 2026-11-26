@@ -724,6 +724,12 @@ export const en = {
       notice: '"{{name}}" was moved to the trash.',
       noticeDismiss: "Dismiss",
     },
+    dropZone: {
+      title: "Drop files to upload",
+      hintBefore: "Release your files to upload them directly to the",
+      hintAfter: "folder.",
+      hintDrive: "Release your files to upload them directly to this drive.",
+    },
     upload: {
       heading: "Uploads",
       queueLabel: "Upload queue",
@@ -747,6 +753,10 @@ export const en = {
       expand: "Show uploads",
       close: "Close uploads",
       stoppedFamilySwitch: "Upload stopped because the family space changed.",
+      retry: "Retry",
+      dismiss: "Dismiss",
+      retryNamed: "Retry upload of {{name}}",
+      dismissNamed: "Dismiss {{name}}",
     },
     drives: {
       heading: "Storage disks",
@@ -766,7 +776,8 @@ export const en = {
     },
     folder: {
       loading: "Loading...",
-      empty: "This folder is empty.",
+      emptyHeading: "This folder is empty",
+      emptyHint: "Use Upload or New folder to add something.",
       loadMore: "Load more",
       retry: "Try again",
       back: "Back to {{name}}",

@@ -15,6 +15,7 @@ import type {
   familyMemberSchema,
   fileVersionSchema,
 } from "@offgrid/contracts";
+import type { DragEvent } from "react";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus, SessionUser } from "../types.js";
 import type { filesViewSchema } from "./files-view-preference-schema.js";
@@ -165,6 +166,7 @@ export type CurrentFolderState = {
   readonly folderId: FileEntry["id"] | null;
   readonly breadcrumbs: readonly Breadcrumb[];
   readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
 };
 
 export type FilesSortField = (typeof fileListSortSchema.options)[number];
@@ -363,4 +365,12 @@ export type MoveDialogState = {
   readonly retry: (id: string) => void;
   readonly loadMore: (id: string) => void;
   readonly submit: () => Promise<void>;
+};
+
+export type FileDragState = {
+  readonly isDragging: boolean;
+  readonly onDragEnter: (event: DragEvent<HTMLElement>) => void;
+  readonly onDragOver: (event: DragEvent<HTMLElement>) => void;
+  readonly onDragLeave: (event: DragEvent<HTMLElement>) => void;
+  readonly onDrop: (event: DragEvent<HTMLElement>) => void;
 };

@@ -12,7 +12,11 @@ const HEADING_TEXT_IDS = {
 } as const;
 
 export const ItemNotFound = ({ kind }: ItemNotFoundProps) => (
-  <div style={itemNotFoundStyle} data-testid={`${kind}-not-found`}>
+  <div
+    style={itemNotFoundStyle}
+    role={kind === "folder" ? "alert" : undefined}
+    data-testid={`${kind}-not-found`}
+  >
     <Text variant="heading" textId={HEADING_TEXT_IDS[kind]} />
     <Text variant="body" textId="files.errors.notFound" />
     <Link

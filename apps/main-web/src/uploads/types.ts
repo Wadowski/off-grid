@@ -62,6 +62,8 @@ export type UploadQueueAction =
   | { readonly type: "finished"; readonly id: string }
   | { readonly type: "failed"; readonly id: string; readonly errorTextId: UploadErrorTextId }
   | { readonly type: "familySwitched"; readonly errorTextId: UploadErrorTextId }
+  | { readonly type: "retried"; readonly id: string }
+  | { readonly type: "dismissed"; readonly id: string }
   | { readonly type: "clearedFinished" };
 
 export type RunningUpload = {
@@ -80,6 +82,9 @@ export type UploadQueue = {
   readonly announcement: UploadAnnouncement | null;
   readonly enqueue: (files: readonly File[], target: UploadTarget) => void;
   readonly enqueueVersion: (file: File, target: VersionUploadTarget) => void;
+  readonly isRetryable: (item: UploadItem) => boolean;
+  readonly retry: (id: UploadItem["id"]) => void;
+  readonly dismiss: (id: UploadItem["id"]) => void;
   readonly clearFinished: () => void;
 };
 

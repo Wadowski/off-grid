@@ -1,6 +1,6 @@
 # 0015. No reverse proxy; the server allows its web origins with CORS
 
-- **Status:** Accepted
+- **Status:** Superseded by [0043](0043-same-origin-api-through-the-web-container.md)
 
 ## Context
 

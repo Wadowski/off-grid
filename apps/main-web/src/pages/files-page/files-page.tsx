@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Text } from "@offgrid/ui";
 import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
+import { FolderLoadFailed } from "../../errors/folder-load-failed/folder-load-failed.js";
 import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
 import { useRefreshOnFilesChanged } from "../../files/use-refresh-on-files-changed.js";
@@ -22,9 +22,12 @@ import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesHeader } from "./components/files-header/files-header.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
+import { FileDropZone } from "./components/file-drop-zone/file-drop-zone.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
+import { FolderLoading } from "./components/folder-loading/folder-loading.js";
 import { ViewControls } from "./components/view-controls/view-controls.js";
 import { filesPageStyle } from "./styles.js";
+import { toFolderLoadingLayout } from "./to-folder-loading-layout.js";
 import { toTrashClearsSelection } from "./to-trash-clears-selection.js";
 
 export const FilesPage = () => {
@@ -62,12 +65,28 @@ export const FilesPage = () => {
     folder.driveId === null ? null : toParentFolderPath(folder.driveId, folder.breadcrumbs);
   const parentName = folder.breadcrumbs.at(-2)?.name;
   const driveName = folder.breadcrumbs.at(0)?.name;
-
+  const folderName = folder.folderId === null ? null : (folder.breadcrumbs.at(-1)?.name ?? null);
   const clearSelectionIfLeft = (fileId: FileListItem["id"]) => {
     if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
       switcher.onClearSelection();
     }
   };
+  const renderFolderContents = (driveId: NonNullable<typeof folder.driveId>) => (
+    <FolderContents
+      key={`${driveId}:${folder.folderId ?? ""}`}
+      drives={switcher.drives}
+      driveId={driveId}
+      folderId={folder.folderId}
+      contents={contents}
+      phone={phone}
+      view={phone ? "list" : preference.view}
+      selectedId={switcher.selectedFileId}
+      onSelect={switcher.onSelectFile}
+      onEntryLeft={clearSelectionIfLeft}
+      onEntryTrashed={clearSelectionIfLeft}
+      onEntryRenamed={switcher.onFilesChanged}
+    />
+  );
 
   return (
     <div style={filesPageStyle} data-testid="files-page">
@@ -121,25 +140,27 @@ export const FilesPage = () => {
           onClose={newFolder.close}
         />
       ) : null}
-      {folder.status === "loading" ? <Text variant="body" textId="files.folder.loading" /> : null}
+      {folder.status === "loading" ? (
+        <FolderLoading layout={toFolderLoadingLayout(phone, preference.view)} />
+      ) : null}
       {folder.status === "failed" ? (
-        <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
+        <FolderLoadFailed
+          errorTextId={folder.errorTextId ?? "files.errors.failed"}
+          onRetry={() => void folder.refresh()}
+        />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents
-          key={`${folder.driveId}:${folder.folderId ?? ""}`}
-          drives={switcher.drives}
-          driveId={folder.driveId}
-          folderId={folder.folderId}
-          contents={contents}
-          phone={phone}
-          view={phone ? "list" : preference.view}
-          selectedId={switcher.selectedFileId}
-          onSelect={switcher.onSelectFile}
-          onEntryLeft={clearSelectionIfLeft}
-          onEntryTrashed={clearSelectionIfLeft}
-          onEntryRenamed={switcher.onFilesChanged}
-        />
+        phone ? (
+          renderFolderContents(folder.driveId)
+        ) : (
+          <FileDropZone
+            enabled={!uploadDisabled}
+            folderName={folderName}
+            onFilesDropped={enqueueFiles}
+          >
+            {renderFolderContents(folder.driveId)}
+          </FileDropZone>
+        )
       ) : null}
     </div>
   );

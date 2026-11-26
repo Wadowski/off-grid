@@ -91,7 +91,7 @@ services:
       OFFGRID_DATABASE_USER: offgrid_app
       OFFGRID_DATABASE_PASSWORD_FILE: /run/secrets/app-password
       OFFGRID_MAIL_ENCRYPTION_KEY_FILE: /run/secrets/mail-encryption-key
-      OFFGRID_CORS_ORIGINS: ${OFFGRID_CORS_ORIGINS:-http://localhost:8080}
+      OFFGRID_CORS_ORIGINS: ${OFFGRID_CORS_ORIGINS:-http://localhost:${OFFGRID_WEB_PORT:-8080}}
       OFFGRID_FILES_DIRECTORY: /data/files
       OFFGRID_UPDATER_URL: http://updater:3100
       OFFGRID_UPDATER_TOKEN_FILE: /run/secrets/updater-token
@@ -99,8 +99,6 @@ services:
     volumes:
       - offgrid-secrets:/run/secrets:ro
       - offgrid-files:/data/files
-    ports:
-      - "${OFFGRID_SERVER_PORT:-3000}:3000"
     healthcheck:
       test:
         - CMD

@@ -14,11 +14,19 @@ export const toRootFolderState = (
       folderId: null,
       breadcrumbs: [],
       errorTextId: drives.errorTextId,
+      refresh: drives.refresh,
     };
   }
   const drive = drives.drives.find((listed) => listed.id === driveId);
   if (drive === undefined) {
-    return { status: "not-found", driveId, folderId: null, breadcrumbs: [], errorTextId: null };
+    return {
+      status: "not-found",
+      driveId,
+      folderId: null,
+      breadcrumbs: [],
+      errorTextId: null,
+      refresh: drives.refresh,
+    };
   }
   return {
     status: "ready",
@@ -26,5 +34,6 @@ export const toRootFolderState = (
     folderId: null,
     breadcrumbs: [{ kind: "drive", id: drive.id, name: drive.name }],
     errorTextId: null,
+    refresh: drives.refresh,
   };
 };

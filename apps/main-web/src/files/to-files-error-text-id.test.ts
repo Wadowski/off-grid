@@ -30,6 +30,12 @@ describe("toFilesErrorTextId", () => {
     expect(toFilesErrorTextId(new ApiError(404, "", "missing"))).toBe("files.errors.notFound");
   });
 
+  it("maps a hidden folder and a missing folder to the same text", () => {
+    expect(toFilesErrorTextId(new ApiError(404, "NOT_FOUND", "hidden"))).toBe(
+      toFilesErrorTextId(new ApiError(404, "", "missing")),
+    );
+  });
+
   it("maps a server error without a known code to failed", () => {
     expect(toFilesErrorTextId(new ApiError(500, "INTERNAL", "boom"))).toBe("files.errors.failed");
   });

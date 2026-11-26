@@ -17,7 +17,7 @@ Offgrid is a self-hosted app suite. It runs as one server process with one Postg
 ```mermaid
 flowchart LR
   browser["Browser"] -->|"port 8080"| web["web<br/>(nginx, static React app)"]
-  browser -->|"port 3000 /api"| server["server<br/>(one Node process)"]
+  web -->|"/api, same origin"| server["server<br/>(one Node process)"]
   server --> db[("Postgres<br/>one database")]
   subgraph dbgroup["Postgres schemas"]
     outbox["outbox schema"]
@@ -49,8 +49,8 @@ The rules are enforced by `pnpm check:boundaries`. See [boundaries.md](boundarie
 ## Request flow
 
 1. The browser loads the web app from the `web` service on `OFFGRID_WEB_PORT` (default 8080).
-2. The web app calls the API on `OFFGRID_SERVER_PORT` (default 3000), using the typed client in `packages/api-client`.
-3. The server checks the request's origin against `OFFGRID_CORS_ORIGINS`, then routes it to a module's `http/` routes.
+2. The web app calls the API at `/api` on the same origin, using the typed client in `packages/api-client`. The web container's nginx forwards `/api` to the server on the Compose network.
+3. The server routes the request to a module's `http/` routes. Cross-origin requests are checked against `OFFGRID_CORS_ORIGINS`.
 4. The module runs its use case in a database transaction. It sets the request context (user or family) so that Postgres row policies apply. Today there is no sign-in: the server builds an anonymous context for every request, so user-scoped routes return `UNAUTHENTICATED`. The identity module that will supply the user is still an empty stub.
 5. If the use case changed data that other modules care about, the same transaction writes an event to the outbox. Subscribers pick it up after the commit.
 

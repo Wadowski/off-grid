@@ -69,7 +69,7 @@ describe("uploadQueueReducer", () => {
     expect(state.announcement?.textId).toBe("files.upload.announceDone");
   });
 
-  it("marks an item failed with its error text and announces the reason", () => {
+  it("marks an item failed with its error text, keeps its file and announces the reason", () => {
     const state = uploadQueueReducer(queuedState("a.txt"), {
       type: "failed",
       id: "id-a.txt",
@@ -79,12 +79,71 @@ describe("uploadQueueReducer", () => {
     expect(state.items[0]).toMatchObject({
       status: "failed",
       errorTextId: "files.errors.payloadTooLarge",
-      file: null,
     });
+    expect(state.items[0]?.file).toBeInstanceOf(File);
     expect(state.announcement).toMatchObject({
       textId: "files.upload.announceFailed",
       reasonTextId: "files.errors.payloadTooLarge",
     });
+  });
+
+  it("adds an item that is already failed, without a file, and announces it", () => {
+    const rejected = createUploadItem(
+      "id-big.txt",
+      new File(["x"], "big.txt"),
+      TARGET,
+      "family-1",
+      null,
+    );
+    const state = uploadQueueReducer(EMPTY_UPLOAD_QUEUE_STATE, {
+      type: "enqueued",
+      items: [
+        {
+          ...rejected,
+          status: "failed",
+          errorTextId: "files.errors.payloadTooLarge",
+          file: null,
+        },
+      ],
+    });
+
+    expect(state.items[0]).toMatchObject({ status: "failed", file: null });
+    expect(state.announcement).toMatchObject({
+      textId: "files.upload.announceFailed",
+      name: "big.txt",
+      reasonTextId: "files.errors.payloadTooLarge",
+    });
+  });
+
+  it("queues a failed item again with its file, clearing the error", () => {
+    const failed = uploadQueueReducer(queuedState("a.txt"), {
+      type: "failed",
+      id: "id-a.txt",
+      errorTextId: "files.errors.failed",
+    });
+
+    const state = uploadQueueReducer(failed, { type: "retried", id: "id-a.txt" });
+
+    expect(state.items[0]).toMatchObject({ status: "queued", percent: 0, errorTextId: null });
+    expect(state.items[0]?.file).toBeInstanceOf(File);
+  });
+
+  it("ignores a retry for an item that is not failed", () => {
+    const queued = queuedState("a.txt");
+
+    expect(uploadQueueReducer(queued, { type: "retried", id: "id-a.txt" })).toBe(queued);
+  });
+
+  it("removes a dismissed item from the queue", () => {
+    const failed = uploadQueueReducer(queuedState("a.txt", "b.txt"), {
+      type: "failed",
+      id: "id-a.txt",
+      errorTextId: "files.errors.failed",
+    });
+
+    const state = uploadQueueReducer(failed, { type: "dismissed", id: "id-a.txt" });
+
+    expect(state.items.map((item) => item.name)).toEqual(["b.txt"]);
   });
 
   it("fails every queued or uploading item when the family space changes and keeps finished rows", () => {
