@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { familyCreatedV1 } from "@offgrid/contracts";
+import { requireEventFamilyId } from "@offgrid/event-bus";
 import type { ModuleDatabase } from "@offgrid/db";
 import { createFamilyDrive } from "../../application/drives/create-family-drive.js";
-import { requireEventFamilyId } from "./require-event-family-id.js";
 
 export const familyDriveSubscription = (db: ModuleDatabase) => ({
   name: "files-family-drive-from-family-created",
