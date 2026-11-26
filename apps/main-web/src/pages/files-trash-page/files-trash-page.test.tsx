@@ -274,6 +274,22 @@ describe("FilesTrashPage permanent delete", () => {
     expect(screen.getByRole("dialog", { name: "Delete permanently?" })).toBeInTheDocument();
   });
 
+  it("does not show the error of an earlier purge in the dialog for another item", async () => {
+    vi.mocked(purgeFile).mockRejectedValue(new ApiError(409, "NOT_TRASHED", "not in the trash"));
+    renderAt(TRASH_PATH);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
+    );
+    fireEvent.click(screen.getByTestId("purge-confirm"));
+    await screen.findByTestId("purge-error");
+    fireEvent.click(screen.getByTestId("purge-cancel"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete permanently: Holiday" }));
+
+    expect(screen.getByRole("dialog", { name: "Delete permanently?" })).toBeInTheDocument();
+    expect(screen.queryByTestId("purge-error")).not.toBeInTheDocument();
+  });
+
   it("offers Empty trash when the trash has items and empties it on confirm", async () => {
     vi.mocked(emptyDriveTrash).mockResolvedValue(undefined);
     renderAt(TRASH_PATH);

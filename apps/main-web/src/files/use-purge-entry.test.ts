@@ -46,6 +46,23 @@ describe("usePurgeEntry", () => {
     expect(result.current.errorTextId).toBe("files.errors.notTrashed");
   });
 
+  it("clears a previous error when reset", async () => {
+    vi.spyOn(webFilesClient, "purgeFile").mockRejectedValue(
+      new ApiError(409, "NOT_TRASHED", "not in the trash"),
+    );
+    const { result } = renderHook(() => usePurgeEntry());
+    await act(async () => {
+      await result.current.purge(FILE_ID);
+    });
+
+    act(() => {
+      result.current.reset();
+    });
+
+    expect(result.current.status).toBe("idle");
+    expect(result.current.errorTextId).toBeNull();
+  });
+
   it("ignores a second purge while the first is in flight", async () => {
     let finish: () => void = () => undefined;
     const purge = vi

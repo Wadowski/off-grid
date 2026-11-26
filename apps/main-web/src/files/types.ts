@@ -124,6 +124,7 @@ export type PurgeEntryState = {
   readonly status: TrashEntryStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly purge: (fileId: FileEntry["id"]) => Promise<boolean>;
+  readonly reset: () => void;
 };
 
 export type EmptyTrashState = {

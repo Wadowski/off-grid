@@ -110,8 +110,14 @@ export const FilesTrashPage = () => {
   const emptying = emptyTrash.status === "pending";
   const busy = restoring || purging || emptying;
 
+  const openPurgeDialog = (item: FileListItem) => {
+    purge.reset();
+    setPurgeTarget(item);
+  };
+
   const closePurgeUnlessPending = () => {
     if (!purging) {
+      purge.reset();
       setPurgeTarget(null);
     }
   };
@@ -169,14 +175,14 @@ export const FilesTrashPage = () => {
             items={trash.items}
             busy={busy}
             onRestore={(item) => void restoreItem(item)}
-            onPurge={setPurgeTarget}
+            onPurge={openPurgeDialog}
           />
         ) : (
           <TrashTable
             items={trash.items}
             busy={busy}
             onRestore={(item) => void restoreItem(item)}
-            onPurge={setPurgeTarget}
+            onPurge={openPurgeDialog}
           />
         )
       ) : null}

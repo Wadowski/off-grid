@@ -31,5 +31,10 @@ export const usePurgeEntry = (): PurgeEntryState => {
     }
   };
 
-  return { status, errorTextId, purge };
+  const reset = (): void => {
+    setStatus("idle");
+    setErrorTextId(null);
+  };
+
+  return { status, errorTextId, purge, reset };
 };
