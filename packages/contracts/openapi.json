@@ -485,6 +485,34 @@
         }
       }
     },
+    "/files/upload-limit": {
+      "get": {
+        "operationId": "getUploadLimit",
+        "summary": "Read the largest file the server accepts for one upload",
+        "responses": {
+          "200": {
+            "description": "The upload limit in bytes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadLimit"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: the request has no signed-in person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/drives": {
       "get": {
         "operationId": "listDrives",
@@ -4816,6 +4844,21 @@
         },
         "required": [
           "drives"
+        ],
+        "additionalProperties": false
+      },
+      "UploadLimit": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "maxUploadBytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "maxUploadBytes"
         ],
         "additionalProperties": false
       },

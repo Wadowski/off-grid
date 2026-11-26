@@ -82,6 +82,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/files/upload-limit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getUploadLimit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/drives": {
         parameters: {
             query?: never;
@@ -830,6 +846,9 @@ export interface components {
                 createdAt: string;
             }[];
         };
+        UploadLimit: {
+            maxUploadBytes: number;
+        };
         File: {
             id: string;
             driveId: string;
@@ -1476,6 +1495,33 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getUploadLimit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadLimit"];
+                };
+            };
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

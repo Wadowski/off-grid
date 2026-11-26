@@ -68,6 +68,9 @@ export const UploadQueuePanel = () => {
                 testIdPrefix="upload-queue-panel"
                 isIdle={queue.isIdle}
                 onClearFinished={queue.clearFinished}
+                canRetry={queue.isRetryable}
+                onRetry={queue.retry}
+                onDismiss={queue.dismiss}
               />
             </div>
           ) : null}

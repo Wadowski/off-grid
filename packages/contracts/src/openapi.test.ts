@@ -78,6 +78,7 @@ describe("buildOpenApiDocument", () => {
       "UpdateCalendarRequest",
       "UpdateProfileRequest",
       "Upload",
+      "UploadLimit",
       "UserId",
     ]);
   });
@@ -98,6 +99,7 @@ describe("buildOpenApiDocument calendar paths", () => {
       "/drives/{id}/trash",
       "/events/{id}/guests",
       "/events/{id}/guests/{guestUserId}",
+      "/files/upload-limit",
       "/files/{id}",
       "/files/{id}/children",
       "/files/{id}/content",

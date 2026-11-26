@@ -49,6 +49,7 @@ import { timestampSchema } from "./timestamp-schema.js";
 import { userIdSchema } from "./user-id-schema.js";
 import { driveSchema } from "./drive-schema.js";
 import { driveListSchema } from "./drive-list-schema.js";
+import { uploadLimitSchema } from "./upload-limit-schema.js";
 import { fileSchema } from "./file-schema.js";
 import { fileListSchema } from "./file-list-schema.js";
 import { fileListItemSchema } from "./file-list-item-schema.js";
@@ -117,6 +118,7 @@ export const openApiComponentSchemas = {
   NotificationsMarkAllRead: notificationMarkAllReadSchema,
   Drive: driveSchema,
   DriveList: driveListSchema,
+  UploadLimit: uploadLimitSchema,
   File: fileSchema,
   FileListItem: fileListItemSchema,
   FileList: fileListSchema,

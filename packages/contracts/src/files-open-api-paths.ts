@@ -212,6 +212,16 @@ const downloadResponses = {
 };
 
 export const filesOpenApiPaths = {
+  "/files/upload-limit": {
+    get: {
+      operationId: "getUploadLimit",
+      summary: "Read the largest file the server accepts for one upload",
+      responses: {
+        "200": { description: "The upload limit in bytes.", content: jsonContent("UploadLimit") },
+        "401": unauthenticated,
+      },
+    },
+  },
   "/drives": {
     get: {
       operationId: "listDrives",

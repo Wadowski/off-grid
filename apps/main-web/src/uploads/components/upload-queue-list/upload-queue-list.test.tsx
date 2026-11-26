@@ -29,6 +29,9 @@ describe("UploadQueueList", () => {
         testIdPrefix="upload-queue-panel"
         isIdle={false}
         onClearFinished={vi.fn()}
+        canRetry={() => true}
+        onRetry={vi.fn()}
+        onDismiss={vi.fn()}
       />,
     );
 
@@ -43,6 +46,9 @@ describe("UploadQueueList", () => {
         testIdPrefix="upload-queue-panel"
         isIdle={false}
         onClearFinished={vi.fn()}
+        canRetry={() => true}
+        onRetry={vi.fn()}
+        onDismiss={vi.fn()}
       />,
     );
     expect(screen.queryByTestId("upload-queue-panel-clear")).toBeNull();
@@ -53,6 +59,9 @@ describe("UploadQueueList", () => {
         testIdPrefix="upload-queue-panel"
         isIdle
         onClearFinished={vi.fn()}
+        canRetry={() => true}
+        onRetry={vi.fn()}
+        onDismiss={vi.fn()}
       />,
     );
     expect(screen.getByTestId("upload-queue-panel-clear")).toHaveTextContent("Clear finished");
@@ -66,11 +75,35 @@ describe("UploadQueueList", () => {
         testIdPrefix="upload-queue-panel"
         isIdle
         onClearFinished={onClearFinished}
+        canRetry={() => true}
+        onRetry={vi.fn()}
+        onDismiss={vi.fn()}
       />,
     );
 
     fireEvent.click(screen.getByTestId("upload-queue-panel-clear"));
 
     expect(onClearFinished).toHaveBeenCalledTimes(1);
+  });
+
+  it("passes the dismissed row id to onDismiss", () => {
+    const onDismiss = vi.fn();
+    render(
+      <UploadQueueList
+        items={[
+          { ...itemNamed("a.txt", "queued"), status: "failed", errorTextId: "files.errors.failed" },
+        ]}
+        testIdPrefix="upload-queue-panel"
+        isIdle
+        onClearFinished={vi.fn()}
+        canRetry={() => false}
+        onRetry={vi.fn()}
+        onDismiss={onDismiss}
+      />,
+    );
+
+    screen.getByRole("button", { name: "Dismiss a.txt" }).click();
+
+    expect(onDismiss).toHaveBeenCalledWith("a.txt");
   });
 });

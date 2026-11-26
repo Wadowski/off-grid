@@ -21,6 +21,7 @@ import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
 import { FilesHeader } from "./components/files-header/files-header.js";
 import { FilesTopBar } from "./components/files-top-bar/files-top-bar.js";
+import { FileDropZone } from "./components/file-drop-zone/file-drop-zone.js";
 import { FolderContents } from "./components/folder-contents/folder-contents.js";
 import { ViewControls } from "./components/view-controls/view-controls.js";
 import { filesPageStyle } from "./styles.js";
@@ -61,6 +62,24 @@ export const FilesPage = () => {
     folder.driveId === null ? null : toParentFolderPath(folder.driveId, folder.breadcrumbs);
   const parentName = folder.breadcrumbs.at(-2)?.name;
   const driveName = folder.breadcrumbs.at(0)?.name;
+  const folderName = folder.folderId === null ? null : (folder.breadcrumbs.at(-1)?.name ?? null);
+  const renderFolderContents = (driveId: NonNullable<typeof folder.driveId>) => (
+    <FolderContents
+      key={`${driveId}:${folder.folderId ?? ""}`}
+      driveId={driveId}
+      contents={contents}
+      phone={phone}
+      view={phone ? "list" : preference.view}
+      selectedId={switcher.selectedFileId}
+      onSelect={switcher.onSelectFile}
+      onEntryTrashed={(fileId) => {
+        if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
+          switcher.onClearSelection();
+        }
+      }}
+      onEntryRenamed={switcher.onFilesChanged}
+    />
+  );
 
   return (
     <div style={filesPageStyle} data-testid="files-page">
@@ -119,21 +138,17 @@ export const FilesPage = () => {
         <Text variant="error" role="alert" textId={folder.errorTextId ?? "files.errors.failed"} />
       ) : null}
       {folder.status === "ready" && folder.driveId !== null ? (
-        <FolderContents
-          key={`${folder.driveId}:${folder.folderId ?? ""}`}
-          driveId={folder.driveId}
-          contents={contents}
-          phone={phone}
-          view={phone ? "list" : preference.view}
-          selectedId={switcher.selectedFileId}
-          onSelect={switcher.onSelectFile}
-          onEntryTrashed={(fileId) => {
-            if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
-              switcher.onClearSelection();
-            }
-          }}
-          onEntryRenamed={switcher.onFilesChanged}
-        />
+        phone ? (
+          renderFolderContents(folder.driveId)
+        ) : (
+          <FileDropZone
+            enabled={!uploadDisabled}
+            folderName={folderName}
+            onFilesDropped={enqueueFiles}
+          >
+            {renderFolderContents(folder.driveId)}
+          </FileDropZone>
+        )
       ) : null}
     </div>
   );

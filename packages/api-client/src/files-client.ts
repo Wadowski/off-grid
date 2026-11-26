@@ -15,6 +15,7 @@ import {
   fileVersionListSchema,
   filesRoutes,
   moveFileResultSchema,
+  uploadLimitSchema,
   uploadSchema,
 } from "@offgrid/contracts";
 import { fillRoute } from "./fill-route.js";
@@ -33,6 +34,9 @@ import type {
 export const createFilesClient = (client: ApiClient) => ({
   uploadFile: (driveId: string, input: UploadFileInput) =>
     uploadFileRequest(client, driveId, input),
+
+  getUploadLimit: async () =>
+    uploadLimitSchema.parse(await client.request("GET", filesRoutes.uploadLimit)),
 
   listDrives: async () =>
     driveListSchema.parse(await client.request("GET", filesRoutes.drives)).drives,

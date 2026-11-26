@@ -32,6 +32,7 @@ describe("filesRoutes", () => {
       fileVersion: "/files/:id/versions/:versionId",
       fileVersionContent: "/files/:id/versions/:versionId/content",
       fileVersionRestore: "/files/:id/versions/:versionId/restore",
+      uploadLimit: "/files/upload-limit",
       uploads: "/uploads",
       upload: "/uploads/:id",
     });

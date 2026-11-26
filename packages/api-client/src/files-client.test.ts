@@ -81,6 +81,22 @@ describe("createFilesClient listing", () => {
     );
   });
 
+  it("reads the upload limit from the upload-limit route", async () => {
+    const { files, transport } = filesWith(jsonResponse({ maxUploadBytes: 1024 }));
+
+    await expect(files.getUploadLimit()).resolves.toEqual({ maxUploadBytes: 1024 });
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/upload-limit`,
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
+  it("rejects an upload limit that is not a whole number of bytes", async () => {
+    const { files } = filesWith(jsonResponse({ maxUploadBytes: 1.5 }));
+
+    await expect(files.getUploadLimit()).rejects.toThrow();
+  });
+
   it("rejects a drive list that does not match the contract", async () => {
     const { files } = filesWith(jsonResponse({ drives: [{ id: DRIVE_ID }] }));
 
