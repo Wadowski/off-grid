@@ -9,7 +9,7 @@ Feature: Deleting trashed items for good from the trash view
   nothing can be undone, and mention that items in the trash are also removed
   automatically after 30 days. Cancelling keeps everything in the trash.
 
-  @wip @screen:files-trash-purge-confirm
+  @screen:files-trash-purge-confirm
   Scenario: Anna permanently deletes a trashed file after confirming
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -20,7 +20,6 @@ Feature: Deleting trashed items for good from the trash view
     When Anna confirms deleting permanently
     Then the trash view does not list "Old receipt.pdf"
 
-  @wip
   Scenario: Anna cancels permanently deleting a trashed file
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -29,7 +28,6 @@ Feature: Deleting trashed items for good from the trash view
     And Anna cancels deleting permanently
     Then the trash view lists "Old receipt.pdf" with a deleted date and a Restore button
 
-  @wip
   Scenario: Anna permanently deletes a trashed folder and is told everything inside goes too
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive folder "Holiday" holding a file "sunset.jpg"
@@ -39,7 +37,7 @@ Feature: Deleting trashed items for good from the trash view
     When Anna confirms deleting permanently
     Then the trash view says the trash is empty
 
-  @wip @screen:files-trash-empty-confirm
+  @screen:files-trash-empty-confirm
   Scenario: Anna empties the trash of her personal drive
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -50,7 +48,6 @@ Feature: Deleting trashed items for good from the trash view
     When Anna confirms emptying the trash
     Then the trash view says the trash is empty
 
-  @wip
   Scenario: Anna cancels emptying the trash
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -59,13 +56,12 @@ Feature: Deleting trashed items for good from the trash view
     And Anna cancels emptying the trash
     Then the trash view lists "Old receipt.pdf" with a deleted date and a Restore button
 
-  @wip
   Scenario: The empty trash action is not offered when the trash is empty
     Given I am signed in as "Anna Kowalska", a regular member
     When Anna opens the trash of her personal drive on a desktop screen
     Then the trash view does not offer to empty the trash
 
-  @wip @screen:files-trash-purge-phone
+  @screen:files-trash-purge-phone
   Scenario: Anna permanently deletes a trashed file from the phone trash view
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -75,7 +71,6 @@ Feature: Deleting trashed items for good from the trash view
     And Anna confirms deleting permanently
     Then the trash view does not list "Old receipt.pdf"
 
-  @wip
   Scenario: Deleting permanently an item that was already restored elsewhere shows an error
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -87,7 +82,7 @@ Feature: Deleting trashed items for good from the trash view
     When Anna cancels deleting permanently
     Then the trash view does not list "Old receipt.pdf"
 
-  @wip @a11y
+  @a11y
   Scenario: The purge dialog is labelled and Escape closes it
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
