@@ -3,12 +3,18 @@
 
 import type {
   Drive,
+  FileEntry,
   FileListItem,
   FilesView,
   FolderContentsState,
 } from "../../../../files/types.js";
 
 export type PendingTrash = {
+  readonly entry: FileListItem;
+  readonly returnFocusTo: HTMLElement | null;
+};
+
+export type PendingRename = {
   readonly entry: FileListItem;
   readonly returnFocusTo: HTMLElement | null;
 };
@@ -21,4 +27,5 @@ export type FolderContentsProps = {
   readonly selectedId: FileListItem["id"] | null;
   readonly onSelect: (id: FileListItem["id"]) => void;
   readonly onEntryTrashed: (fileId: FileListItem["id"]) => void;
+  readonly onEntryRenamed: (entry: FileEntry) => void;
 };

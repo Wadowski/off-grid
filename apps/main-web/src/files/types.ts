@@ -79,6 +79,15 @@ export type FolderContentsState = {
   readonly refresh: () => Promise<void>;
   readonly refreshQuietly: () => Promise<void>;
   readonly removeItem: (fileId: FileListItem["id"]) => void;
+  readonly replaceItem: (entry: FileEntry) => void;
+};
+
+export type RenameEntryStatus = "idle" | "submitting" | "failed";
+
+export type RenameEntryState = {
+  readonly status: RenameEntryStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly rename: (fileId: FileEntry["id"], name: string) => Promise<FileEntry | null>;
 };
 
 export type TrashEntryStatus = "idle" | "pending" | "failed";

@@ -12,6 +12,7 @@ import type {
 
 export type FileDetailsPanelProps = {
   readonly fileId: FileEntry["id"];
+  readonly changeCount: number;
   readonly onClose: () => void;
   readonly onFileChanged: () => void;
 };

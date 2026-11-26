@@ -14,6 +14,7 @@ export const FileGridGroup = ({
   items,
   selectedId,
   onActivate,
+  onRename,
   onDelete,
 }: FileGridGroupProps) => {
   const { t } = useTranslation();
@@ -27,7 +28,12 @@ export const FileGridGroup = ({
             selected={item.id === selectedId}
             onActivate={() => onActivate(item)}
             trailing={
-              <FileActionsMenu entry={item} onOpen={() => onActivate(item)} onDelete={onDelete} />
+              <FileActionsMenu
+                entry={item}
+                onOpen={() => onActivate(item)}
+                onRename={onRename}
+                onDelete={onDelete}
+              />
             }
           />
         </div>
