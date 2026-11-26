@@ -1,20 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
 import type { FileEntry, FileListItem } from "../../../../files/types.js";
 import { FileGrid } from "../../lists/file-grid/file-grid.js";
 import { FileList } from "../../lists/file-list/file-list.js";
+import { FolderLoadFailed } from "../../../../errors/folder-load-failed/folder-load-failed.js";
 import { TrashConfirmation } from "../file-actions-menu/trash-confirmation.js";
 import { RenameEntryDialog } from "../rename-entry-dialog/rename-entry-dialog.js";
+import { FolderEmpty } from "../folder-empty/folder-empty.js";
 import { FolderList } from "../folder-list/folder-list.js";
+import { FolderLoading } from "../folder-loading/folder-loading.js";
 import { TrashNotice } from "../trash-notice/trash-notice.js";
-import {
-  folderContentsErrorStyle,
-  folderContentsListStyle,
-  folderContentsStyle,
-} from "./styles.js";
+import { toFolderLoadingLayout } from "../../to-folder-loading-layout.js";
+import { folderContentsListStyle, folderContentsStyle } from "./styles.js";
 import type { FolderContentsProps, PendingRename, PendingTrash } from "./types.js";
 
 export const FolderContents = ({
@@ -31,7 +30,7 @@ export const FolderContents = ({
   const [pendingTrash, setPendingTrash] = useState<PendingTrash | null>(null);
   const [pendingRename, setPendingRename] = useState<PendingRename | null>(null);
   if (contents.status === "loading") {
-    return <Text variant="body" textId="files.folder.loading" data-testid="files-folder-loading" />;
+    return <FolderLoading layout={toFolderLoadingLayout(phone, view)} />;
   }
   const cancelTrash = () => {
     const returnFocusTo = pendingTrash?.returnFocusTo ?? null;
@@ -91,26 +90,12 @@ export const FolderContents = ({
       {pendingTrash === null ? null : (
         <TrashConfirmation entry={pendingTrash.entry} onCancel={cancelTrash} onTrashed={trashed} />
       )}
-      {contents.items.length === 0 && contents.status === "ready" ? (
-        <Text variant="body" textId="files.folder.empty" data-testid="files-empty" />
-      ) : null}
+      {contents.items.length === 0 && contents.status === "ready" ? <FolderEmpty /> : null}
       {contents.status === "failed" ? (
-        <div style={folderContentsErrorStyle}>
-          <Text
-            variant="error"
-            role="alert"
-            textId={contents.errorTextId ?? "files.errors.failed"}
-            data-testid="files-contents-error"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => void contents.refresh()}
-            data-testid="files-retry"
-          >
-            <Text variant="action" textId="files.folder.retry" />
-          </Button>
-        </div>
+        <FolderLoadFailed
+          errorTextId={contents.errorTextId ?? "files.errors.failed"}
+          onRetry={() => void contents.refresh()}
+        />
       ) : null}
     </div>
   );

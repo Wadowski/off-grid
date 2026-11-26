@@ -756,7 +756,8 @@ export const en = {
     },
     folder: {
       loading: "Loading...",
-      empty: "This folder is empty.",
+      emptyHeading: "This folder is empty",
+      emptyHint: "Use Upload or New folder to add something.",
       loadMore: "Load more",
       retry: "Try again",
       back: "Back to {{name}}",

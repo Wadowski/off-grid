@@ -30,4 +30,14 @@ describe("ItemNotFound", () => {
       expect(screen.getByRole("link", { name: "Go to Files" })).toHaveAttribute("href", "/files");
     },
   );
+
+  it("announces a folder that is not found as an alert", () => {
+    render(
+      <MemoryRouter>
+        <ItemNotFound kind="folder" />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("alert")).toHaveAttribute("data-testid", "folder-not-found");
+  });
 });

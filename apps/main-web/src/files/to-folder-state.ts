@@ -9,11 +9,25 @@ export const toFolderState = (
   folderId: FileEntry["id"],
 ): CurrentFolderState => {
   if (details.status === "loading") {
-    return { status: "loading", driveId, folderId, breadcrumbs: [], errorTextId: null };
+    return {
+      status: "loading",
+      driveId,
+      folderId,
+      breadcrumbs: [],
+      errorTextId: null,
+      refresh: details.refresh,
+    };
   }
   if (details.status === "failed") {
     if (details.errorTextId === "files.errors.notFound") {
-      return { status: "not-found", driveId, folderId, breadcrumbs: [], errorTextId: null };
+      return {
+        status: "not-found",
+        driveId,
+        folderId,
+        breadcrumbs: [],
+        errorTextId: null,
+        refresh: details.refresh,
+      };
     }
     return {
       status: "failed",
@@ -21,10 +35,18 @@ export const toFolderState = (
       folderId,
       breadcrumbs: [],
       errorTextId: details.errorTextId,
+      refresh: details.refresh,
     };
   }
   if (details.file === null || !details.file.isFolder || details.file.driveId !== driveId) {
-    return { status: "not-found", driveId, folderId, breadcrumbs: [], errorTextId: null };
+    return {
+      status: "not-found",
+      driveId,
+      folderId,
+      breadcrumbs: [],
+      errorTextId: null,
+      refresh: details.refresh,
+    };
   }
   const current = { kind: "folder", id: details.file.id, name: details.file.name } as const;
   return {
@@ -33,5 +55,6 @@ export const toFolderState = (
     folderId,
     breadcrumbs: [...details.breadcrumbs, current],
     errorTextId: null,
+    refresh: details.refresh,
   };
 };
