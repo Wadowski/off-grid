@@ -38,4 +38,4 @@ RUN pnpm --filter @offgrid/db generate \
  && VITE_API_ORIGIN=http://127.0.0.1:3000 pnpm --filter @offgrid/main-web build
 
 ENV NODE_ENV=production
-ENTRYPOINT ["bash", "/repo/infra/e2e/smoke-entrypoint.sh"]
+ENTRYPOINT ["sh", "/repo/infra/e2e/smoke-entrypoint.sh"]

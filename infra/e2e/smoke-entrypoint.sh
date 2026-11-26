@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-set -euo pipefail
+set -eu
 
 REPO=/repo
 PG_BIN=/usr/lib/postgresql/17/bin
@@ -27,10 +27,15 @@ export OFFGRID_FILES_MAX_UPLOAD_BYTES=1048576
 mkdir -p "$LOG_DIR" /run/secrets /data
 chmod 0777 "$LOG_DIR"
 
-pids=()
+SERVICE_PIDS=""
+
+remember_service() {
+  SERVICE_PIDS="$SERVICE_PIDS $!"
+}
+
 cleanup() {
-  local status=$?
-  for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
+  status=$?
+  for pid in $SERVICE_PIDS; do kill "$pid" 2>/dev/null || true; done
   su postgres -c "$PG_BIN/pg_ctl -D $PGDATA -m fast stop" >/dev/null 2>&1 || true
   mkdir -p "$ARTIFACTS_OUT" && cp -r "$LOG_DIR"/. "$ARTIFACTS_OUT"/ 2>/dev/null || true
   exit "$status"
@@ -38,11 +43,13 @@ cleanup() {
 trap cleanup EXIT
 
 wait_for_url() {
-  local url=$1 label=$2 tries=240
-  until curl -fsS -o /dev/null "$url"; do
-    tries=$((tries - 1))
-    if [ "$tries" -le 0 ]; then
-      echo "$label did not become ready at $url" >&2
+  wait_url=$1
+  wait_label=$2
+  wait_tries=240
+  until curl -fsS -o /dev/null "$wait_url"; do
+    wait_tries=$((wait_tries - 1))
+    if [ "$wait_tries" -le 0 ]; then
+      echo "$wait_label did not become ready at $wait_url" >&2
       tail -n 40 "$LOG_DIR"/*.log >&2 || true
       exit 1
     fi
@@ -74,16 +81,16 @@ OFFGRID_DATABASE_PASSWORD_FILE=/run/secrets/migrator-password \
   node --import tsx src/migrate.ts >"$LOG_DIR/migrate.log" 2>&1
 
 node --import tsx src/main.ts >"$LOG_DIR/server.log" 2>&1 &
-pids+=($!)
+remember_service
 
 mailpit --smtp 0.0.0.0:1025 --listen 127.0.0.1:8025 >"$LOG_DIR/mail.log" 2>&1 &
-pids+=($!)
+remember_service
 
 sed -e "s/listen 8080;/listen $WEB_PORT;/" \
     -e "s#root /usr/share/nginx/html;#root $REPO/apps/main-web/dist;#" \
     "$REPO/apps/main-web/nginx.conf" > /etc/nginx/conf.d/default.conf
 nginx -g 'daemon off;' >"$LOG_DIR/web.log" 2>&1 &
-pids+=($!)
+remember_service
 
 wait_for_url "http://127.0.0.1:$SERVER_PORT/api/health/ready" "server"
 wait_for_url "http://127.0.0.1:$WEB_PORT/" "web app"
