@@ -45,6 +45,7 @@ export const FilesLayout = () => {
     filesChangedCount,
     onSelectFile: (fileId) => setSelection({ pathname: location.pathname, fileId }),
     onClearSelection: () => setSelection(null),
+    onFilesChanged: () => setFilesChangedCount((count) => count + 1),
   };
   const onFileChanged = () => setFilesChangedCount((count) => count + 1);
   const onFileMoved = (notice: MoveNotice) => {
@@ -71,6 +72,7 @@ export const FilesLayout = () => {
             <FileDetailsPanel
               fileId={selectedFileId}
               drives={drives}
+              changeCount={filesChangedCount}
               onClose={closeDetails}
               onFileChanged={onFileChanged}
               onFileMoved={onFileMoved}

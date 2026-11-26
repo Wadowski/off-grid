@@ -4,10 +4,11 @@
 import { Button, Text } from "@offgrid/ui";
 import { useState } from "react";
 import { MoveDialog } from "../../../../files/components/move-dialog/move-dialog.js";
-import type { FileListItem, MoveNotice } from "../../../../files/types.js";
+import type { FileEntry, FileListItem, MoveNotice } from "../../../../files/types.js";
 import { FileGrid } from "../../lists/file-grid/file-grid.js";
 import { FileList } from "../../lists/file-list/file-list.js";
 import { TrashConfirmation } from "../file-actions-menu/trash-confirmation.js";
+import { RenameEntryDialog } from "../rename-entry-dialog/rename-entry-dialog.js";
 import { FolderList } from "../folder-list/folder-list.js";
 import { MoveResultNotice } from "../move-result-notice/move-result-notice.js";
 import { TrashNotice } from "../trash-notice/trash-notice.js";
@@ -16,7 +17,12 @@ import {
   folderContentsListStyle,
   folderContentsStyle,
 } from "./styles.js";
-import type { FolderContentsProps, PendingEntryAction } from "./types.js";
+import type {
+  FolderContentsProps,
+  PendingEntryAction,
+  PendingRename,
+  PendingTrash,
+} from "./types.js";
 
 export const FolderContents = ({
   drives,
@@ -28,9 +34,12 @@ export const FolderContents = ({
   selectedId,
   onSelect,
   onEntryLeft,
+  onEntryTrashed,
+  onEntryRenamed,
 }: FolderContentsProps) => {
   const [trashedName, setTrashedName] = useState<string | null>(null);
-  const [pendingTrash, setPendingTrash] = useState<PendingEntryAction | null>(null);
+  const [pendingTrash, setPendingTrash] = useState<PendingTrash | null>(null);
+  const [pendingRename, setPendingRename] = useState<PendingRename | null>(null);
   const [pendingMove, setPendingMove] = useState<PendingEntryAction | null>(null);
   const [moveNotice, setMoveNotice] = useState<MoveNotice | null>(null);
   if (contents.status === "loading") {
@@ -41,11 +50,20 @@ export const FolderContents = ({
     setPendingTrash(null);
     returnFocusTo?.focus();
   };
+  const closeRename = () => {
+    const returnFocusTo = pendingRename?.returnFocusTo ?? null;
+    setPendingRename(null);
+    returnFocusTo?.focus();
+  };
+  const renamed = (entry: FileEntry) => {
+    contents.replaceItem(entry);
+    onEntryRenamed(entry);
+  };
   const trashed = (entry: FileListItem) => {
     setPendingTrash(null);
     contents.removeItem(entry.id);
     setTrashedName(entry.name);
-    onEntryLeft(entry.id);
+    onEntryTrashed(entry.id);
   };
   const closeMove = () => setPendingMove(null);
   const moved = (notice: MoveNotice) => {
@@ -67,6 +85,8 @@ export const FolderContents = ({
     onLoadMore: contents.loadMore,
     selectedId,
     onSelect,
+    onRename: (entry: FileListItem, returnFocusTo: HTMLElement | null) =>
+      setPendingRename({ entry, returnFocusTo }),
     onDelete: (entry: FileListItem, returnFocusTo: HTMLElement | null) =>
       setPendingTrash({ entry, returnFocusTo }),
     onMove: (entry: FileListItem, returnFocusTo: HTMLElement | null) =>
@@ -87,6 +107,14 @@ export const FolderContents = ({
           )}
         </div>
       ) : null}
+      {pendingRename === null ? null : (
+        <RenameEntryDialog
+          key={pendingRename.entry.id}
+          entry={pendingRename.entry}
+          onRenamed={renamed}
+          onClose={closeRename}
+        />
+      )}
       {pendingTrash === null ? null : (
         <TrashConfirmation entry={pendingTrash.entry} onCancel={cancelTrash} onTrashed={trashed} />
       )}

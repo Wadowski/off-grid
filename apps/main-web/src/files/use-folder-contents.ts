@@ -98,6 +98,17 @@ export const useFolderContents = (
     }));
   }, []);
 
+  const replaceItem = useCallback((entry: FileEntry) => {
+    setSnapshot((current) => ({
+      ...current,
+      items: current.items.map((item) =>
+        item.id === entry.id
+          ? { ...item, name: entry.name, updatedAt: entry.updatedAt, version: entry.version }
+          : item,
+      ),
+    }));
+  }, []);
+
   useEffect(() => {
     if (enabled) {
       void refresh();
@@ -115,6 +126,7 @@ export const useFolderContents = (
       refresh,
       refreshQuietly,
       removeItem,
+      replaceItem,
     };
   }
   return {
@@ -127,5 +139,6 @@ export const useFolderContents = (
     refresh,
     refreshQuietly,
     removeItem,
+    replaceItem,
   };
 };

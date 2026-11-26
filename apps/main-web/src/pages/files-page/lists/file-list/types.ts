@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import type { Drive, FileListItem } from "../../../../files/types.js";
-import type { DeleteRequest, MoveRequest } from "../../components/file-actions-menu/types.js";
+import type { EntryActionRequest, MoveRequest } from "../../components/file-actions-menu/types.js";
 
 export type FileListProps = {
   readonly driveId: Drive["id"];
@@ -12,6 +12,7 @@ export type FileListProps = {
   readonly selectedId: FileListItem["id"] | null;
   readonly onSelect: (id: FileListItem["id"]) => void;
   readonly onLoadMore: () => Promise<void>;
-  readonly onDelete: DeleteRequest;
+  readonly onRename: EntryActionRequest;
+  readonly onDelete: EntryActionRequest;
   readonly onMove: MoveRequest;
 };

@@ -60,6 +60,7 @@ const renderList = (overrides: Partial<Parameters<typeof FolderList>[0]> = {}) =
               items={[PHOTOS, TRIP]}
               hasMore={false}
               isLoadingMore={false}
+              onRename={vi.fn()}
               onDelete={vi.fn()}
               onMove={vi.fn()}
               onLoadMore={onLoadMore}

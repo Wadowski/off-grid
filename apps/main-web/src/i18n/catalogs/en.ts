@@ -677,6 +677,7 @@ export const en = {
       menuLabel: "Actions for {{name}}",
       columnHeader: "Actions",
       open: "Open",
+      rename: "Rename",
       move: "Move",
       delete: "Delete",
     },
@@ -698,6 +699,20 @@ export const en = {
       notice: '"{{name}}" was moved to "{{target}}".',
       crossOwnerNotice: '"{{name}}" was copied to "{{target}}" and removed here.',
       pickerLabel: "Folders",
+    },
+    rename: {
+      headingFile: "Rename file",
+      headingFolder: "Rename folder",
+      name: "Name",
+      required: "Required",
+      submit: "Rename",
+      submitting: "Renaming...",
+      cancel: "Cancel",
+      errors: {
+        nameRequired: "Enter a name.",
+        nameTooLong: "Use 255 characters or fewer.",
+        nameInvalid: "A name can't contain slashes or be only dots.",
+      },
     },
     delete: {
       title: "Move to trash?",

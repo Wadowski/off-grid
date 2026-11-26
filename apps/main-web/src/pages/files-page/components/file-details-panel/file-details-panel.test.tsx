@@ -77,6 +77,7 @@ const renderPanel = (onClose = vi.fn()) =>
         onFileChanged={vi.fn()}
         onFileMoved={vi.fn()}
         drives={[]}
+        changeCount={0}
         fileId={FILE_ID}
         onClose={onClose}
       />

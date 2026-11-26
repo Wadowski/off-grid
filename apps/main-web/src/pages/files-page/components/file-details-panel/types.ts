@@ -15,6 +15,7 @@ import type {
 export type FileDetailsPanelProps = {
   readonly fileId: FileEntry["id"];
   readonly drives: readonly Drive[];
+  readonly changeCount: number;
   readonly onClose: () => void;
   readonly onFileChanged: () => void;
   readonly onFileMoved: (notice: MoveNotice) => void;

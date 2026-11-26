@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { FileActions } from "../../../../files/components/file-actions/file-actions.js";
 import { toFileDetailsValues } from "../../../../files/to-file-details-values.js";
 import { useFileDetails } from "../../../../files/use-file-details.js";
+import { useRefreshOnFilesChanged } from "../../../../files/use-refresh-on-files-changed.js";
 import { FileDetailsPanelBody } from "./components/file-details-panel-body/file-details-panel-body.js";
 import { FileDetailsPanelVersions } from "./components/file-details-panel-versions/file-details-panel-versions.js";
 import { FileDetailsPanelHeader } from "./components/file-details-panel-header/file-details-panel-header.js";
@@ -17,6 +18,7 @@ import type { FileDetailsPanelProps } from "./types.js";
 export const FileDetailsPanel = ({
   fileId,
   drives,
+  changeCount,
   onClose,
   onFileChanged,
   onFileMoved,
@@ -24,6 +26,7 @@ export const FileDetailsPanel = ({
   const { t } = useTranslation();
   const nameId = useId();
   const details = useFileDetails(fileId, true);
+  useRefreshOnFilesChanged(changeCount, details.refreshQuietly);
   const view = toFileDetailsPanelView(details);
   const values = view.kind === "ready" ? toFileDetailsValues(view.file) : null;
   const summary = values === null ? null : { name: values.name, kind: values.kind };

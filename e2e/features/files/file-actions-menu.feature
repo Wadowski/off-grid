@@ -5,18 +5,18 @@
 Feature: Actions for a file or folder from its menu
 
   Each file and folder has an actions menu, opened from its own button in the
-  table, the phone list or the grid. The menu offers opening the entry, moving
-  it to another folder and moving it to the trash. Moving to the trash asks
+  table, the phone list or the grid. The menu offers opening the entry, renaming it,
+  moving it to another folder and moving it to the trash. Moving to the trash asks
   first, names the entry, and removes it from the list when confirmed.
 
   @screen:files-actions-menu
-  Scenario: The actions of a file offer Open, Move and Delete only
+  Scenario: The actions of a file offer Open, Rename, Move and Delete
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
     When Anna opens the files page on a desktop screen
     And Anna opens the actions of the file "Insurance policy.txt"
-    Then the actions menu lists "Open", "Move" and "Delete"
-    And the actions menu does not list "Rename" or "Download"
+    Then the actions menu lists "Open", "Rename", "Move" and "Delete"
+    And the actions menu does not list "Download"
 
   @screen:files-delete-confirm
   Scenario: The move-to-trash confirmation names the file before anything is moved
@@ -53,7 +53,7 @@ Feature: Actions for a file or folder from its menu
     And Anna has a personal-drive file "Insurance policy.txt"
     When Anna opens her personal drive on a phone
     And Anna opens the actions of the file "Insurance policy.txt"
-    Then the actions menu lists "Open", "Move" and "Delete"
+    Then the actions menu lists "Open", "Rename", "Move" and "Delete"
 
   @screen:files-grid-actions-menu @screen-desktop-only
   Scenario: Anna opens the actions menu of a file card in the grid
@@ -62,7 +62,7 @@ Feature: Actions for a file or folder from its menu
     When Anna opens the files page on a desktop screen
     And Anna switches the view to grid
     And Anna opens the actions of the file "Insurance policy.txt"
-    Then the actions menu lists "Open", "Move" and "Delete"
+    Then the actions menu lists "Open", "Rename", "Move" and "Delete"
 
   Scenario: Anna moves a folder to the trash and the confirmation says what is inside goes too
     Given I am signed in as "Anna Kowalska", a regular member

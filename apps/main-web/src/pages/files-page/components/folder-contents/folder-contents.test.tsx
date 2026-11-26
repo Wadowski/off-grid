@@ -58,6 +58,7 @@ const contentsWith = (
   refresh: vi.fn(async () => undefined),
   refreshQuietly: vi.fn(async () => undefined),
   removeItem: vi.fn(),
+  replaceItem: vi.fn(),
   ...overrides,
 });
 
@@ -80,6 +81,8 @@ const renderContents = (
         selectedId={selectedId}
         onSelect={onSelect}
         onEntryLeft={vi.fn()}
+        onEntryTrashed={vi.fn()}
+        onEntryRenamed={vi.fn()}
       />
     </MemoryRouter>,
   );
@@ -144,6 +147,8 @@ describe("FolderContents", () => {
           selectedId={FILE_ENTRY.id}
           onSelect={vi.fn()}
           onEntryLeft={vi.fn()}
+          onEntryTrashed={vi.fn()}
+          onEntryRenamed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -180,7 +185,7 @@ describe("FolderContents", () => {
 
   it("removes a file moved to the trash from the list and tells the person it was moved", async () => {
     const removeItem = vi.fn();
-    const onEntryLeft = vi.fn();
+    const onEntryTrashed = vi.fn();
     vi.spyOn(webFilesClient, "trashFile").mockResolvedValue({} as FileEntry);
     HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
       this.setAttribute("open", "");
@@ -196,7 +201,9 @@ describe("FolderContents", () => {
           view="list"
           selectedId={null}
           onSelect={vi.fn()}
-          onEntryLeft={onEntryLeft}
+          onEntryLeft={vi.fn()}
+          onEntryTrashed={onEntryTrashed}
+          onEntryRenamed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -210,7 +217,7 @@ describe("FolderContents", () => {
       '"Trip.pdf" was moved to the trash.',
     );
     expect(removeItem).toHaveBeenCalledWith(FILE_ENTRY.id);
-    expect(onEntryLeft).toHaveBeenCalledWith(FILE_ENTRY.id);
+    expect(onEntryTrashed).toHaveBeenCalledWith(FILE_ENTRY.id);
   });
 
   it("keeps the move-to-trash confirmation open when the layout switches to the phone list", () => {
@@ -234,6 +241,8 @@ describe("FolderContents", () => {
           selectedId={null}
           onSelect={vi.fn()}
           onEntryLeft={vi.fn()}
+          onEntryTrashed={vi.fn()}
+          onEntryRenamed={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -259,5 +268,34 @@ describe("FolderContents", () => {
 
     expect(trash).not.toHaveBeenCalled();
     expect(screen.queryByTestId("delete-entry-dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens the rename dialog for the entry chosen from its actions menu", () => {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    render(
+      <MemoryRouter>
+        <FolderContents
+          driveId={DRIVE_ID}
+          folderId={null}
+          contents={contentsWith()}
+          phone={false}
+          view="list"
+          selectedId={null}
+          onSelect={vi.fn()}
+          drives={[]}
+          onEntryLeft={vi.fn()}
+          onEntryTrashed={vi.fn()}
+          onEntryRenamed={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    const row = screen.getByRole("button", { name: "Actions for Trip.pdf" }).closest("tr");
+    fireEvent.click(screen.getByRole("button", { name: "Actions for Trip.pdf" }));
+    fireEvent.click(within(row as HTMLElement).getByTestId("file-action-rename"));
+
+    expect(screen.getByTestId("rename-entry-name")).toHaveValue("Trip.pdf");
   });
 });

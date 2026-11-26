@@ -18,6 +18,7 @@ export const FileList = ({
   selectedId,
   onSelect,
   onLoadMore,
+  onRename,
   onDelete,
   onMove,
 }: FileListProps) => {
@@ -44,6 +45,7 @@ export const FileList = ({
                 <FileActionsMenu
                   entry={item}
                   onOpen={() => activate(item)}
+                  onRename={onRename}
                   onDelete={onDelete}
                   onMove={onMove}
                 />

@@ -14,6 +14,7 @@ export const FileGridGroup = ({
   items,
   selectedId,
   onActivate,
+  onRename,
   onDelete,
   onMove,
 }: FileGridGroupProps) => {
@@ -31,6 +32,7 @@ export const FileGridGroup = ({
               <FileActionsMenu
                 entry={item}
                 onOpen={() => onActivate(item)}
+                onRename={onRename}
                 onDelete={onDelete}
                 onMove={onMove}
               />
