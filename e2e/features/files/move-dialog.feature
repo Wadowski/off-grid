@@ -11,7 +11,6 @@ Feature: Moving a file or folder with the move dialog
   copies the entry there and removes the original, so that case asks for a
   second press first. A refused move keeps the dialog open with the reason.
 
-  @screen:files-move-dialog
   Scenario: Anna moves a file into a folder from the actions menu
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -37,6 +36,7 @@ Feature: Moving a file or folder with the move dialog
     Then the table no longer lists "Photos"
     And Anna is told "Photos" was moved to "Archive"
 
+  @screen:files-move-dialog-expanded
   Scenario: The folder picker loads subfolders only when a folder is expanded
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Documents"
@@ -52,6 +52,7 @@ Feature: Moving a file or folder with the move dialog
     Then the move dialog lists the folder "Taxes"
     And the move dialog does not list "Notes.txt"
 
+  @screen:files-move-dialog
   Scenario: The moved folder and its subfolders cannot be chosen
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
@@ -75,6 +76,7 @@ Feature: Moving a file or folder with the move dialog
     Then the move dialog marks the folder "Documents" as the current location
     And the move dialog Move button is disabled
 
+  @screen:files-move-dialog-error
   Scenario: A move the server refuses shows the reason and keeps the dialog open
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -131,7 +133,6 @@ Feature: Moving a file or folder with the move dialog
     Then the move dialog does not say "This copies it to the other drive and removes the original."
     And the move dialog Move button is enabled
 
-  @screen:files-move-dialog-details
   Scenario: Anna moves the open file from the details panel
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -144,7 +145,6 @@ Feature: Moving a file or folder with the move dialog
     Then the file details panel is not shown
     And the table no longer lists "Insurance policy.txt"
 
-  @screen:files-phone-move-dialog
   Scenario: Anna moves a file from the phone list
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive file "Insurance policy.txt"
@@ -156,6 +156,16 @@ Feature: Moving a file or folder with the move dialog
     When Anna chooses the folder "Documents" in the move dialog
     And Anna confirms the move
     Then the phone list no longer reads "Insurance policy.txt"
+
+  @screen:files-phone-move-dialog
+  Scenario: Anna opens the move dialog from the phone list
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a personal-drive file "Insurance policy.txt"
+    And Anna has a personal-drive folder "Documents"
+    When Anna opens her personal drive on a phone
+    And Anna opens the actions of the file "Insurance policy.txt"
+    And Anna chooses Move
+    Then the move dialog is open on a phone
 
   @a11y
   Scenario: Anna moves a file with the keyboard and focus returns to the actions button
