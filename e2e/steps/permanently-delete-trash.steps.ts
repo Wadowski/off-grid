@@ -8,7 +8,7 @@ import { test } from "../support/fixtures.js";
 const { When, Then } = createBdd(test);
 
 const purgeButtonNamed = (page: Page, name: string): Locator =>
-  page.getByRole("button", { name: `Delete ${name} permanently`, exact: true });
+  page.getByRole("button", { name: `Delete permanently: ${name}`, exact: true });
 
 const purgeDialog = (page: Page): Locator => page.getByTestId("purge-dialog");
 

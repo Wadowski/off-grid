@@ -10,7 +10,7 @@ describe("PurgeButton", () => {
     render(<PurgeButton name="Old receipt.pdf" disabled={false} compact onPurge={vi.fn()} />);
 
     expect(
-      screen.getByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+      screen.getByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
     ).toBeInTheDocument();
   });
 

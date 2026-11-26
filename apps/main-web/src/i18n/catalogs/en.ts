@@ -774,7 +774,7 @@ export const en = {
       showInDrive: "Show in drive",
       open: "Open trash",
       purge: "Delete permanently",
-      purgeLabel: "Delete {{name}} permanently",
+      purgeLabel: "Delete permanently: {{name}}",
       emptyTrash: "Empty trash",
       retentionNote: "Items in the trash are also removed automatically after 30 days.",
       purgeDialog: {

@@ -212,7 +212,7 @@ describe("FilesTrashPage permanent delete", () => {
   it("asks for confirmation before deleting a file for good and does not call the API on cancel", async () => {
     renderAt(TRASH_PATH);
     fireEvent.click(
-      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+      await screen.findByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
     );
 
     const dialog = screen.getByRole("dialog", { name: "Delete permanently?" });
@@ -228,7 +228,7 @@ describe("FilesTrashPage permanent delete", () => {
     vi.mocked(purgeFile).mockResolvedValue(undefined);
     renderAt(TRASH_PATH);
     fireEvent.click(
-      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+      await screen.findByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
     );
 
     vi.mocked(listDriveTrash).mockResolvedValue(PAGE([HOLIDAY, INSIDE_HOLIDAY]));
@@ -247,7 +247,7 @@ describe("FilesTrashPage permanent delete", () => {
     vi.mocked(purgeFile).mockResolvedValue(undefined);
     renderAt(TRASH_PATH);
     fireEvent.click(
-      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+      await screen.findByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
     );
 
     vi.mocked(listDriveTrash).mockResolvedValue(PAGE([HOLIDAY, INSIDE_HOLIDAY]));
@@ -263,7 +263,7 @@ describe("FilesTrashPage permanent delete", () => {
     vi.mocked(purgeFile).mockRejectedValue(new ApiError(409, "NOT_TRASHED", "not in the trash"));
     renderAt(TRASH_PATH);
     fireEvent.click(
-      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+      await screen.findByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
     );
 
     fireEvent.click(screen.getByTestId("purge-confirm"));
@@ -312,7 +312,7 @@ describe("FilesTrashPage permanent delete", () => {
       renderAt(TRASH_PATH);
 
       expect(
-        await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+        await screen.findByRole("button", { name: "Delete permanently: Old receipt.pdf" }),
       ).toBeInTheDocument();
     } finally {
       restoreWidth();
