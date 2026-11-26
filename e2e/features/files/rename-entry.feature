@@ -34,7 +34,7 @@ Feature: Renaming a file or folder from its menu
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
     When Anna opens the files page on a desktop screen
-    And Anna renames the folder "Photos" to "Holiday photos"
+    And Anna renames the folder "Photos" from its actions menu to "Holiday photos"
     Then the rename dialog is closed
     And the table lists the folder "Holiday photos"
     And the table no longer lists "Photos"

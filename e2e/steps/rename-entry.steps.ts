@@ -46,12 +46,23 @@ When("Anna cancels the rename", async ({ page }) => {
   await page.getByTestId("rename-entry-cancel").click();
 });
 
+const renameFromMenu = async (page: Page, name: string, newName: string): Promise<void> => {
+  await actionsTriggerOf(page, name).click();
+  await page.getByRole("menu").getByTestId("file-action-rename").click();
+  await submitWithName(page, newName);
+};
+
 When(
-  /^Anna renames the (?:file|folder) "([^"]*)" to "([^"]*)"(?: from its actions menu)?$/,
+  /^Anna renames the file "([^"]*)" to "([^"]*)"(?: from its actions menu)?$/,
   async ({ page }, name: string, newName: string) => {
-    await actionsTriggerOf(page, name).click();
-    await page.getByRole("menu").getByTestId("file-action-rename").click();
-    await submitWithName(page, newName);
+    await renameFromMenu(page, name, newName);
+  },
+);
+
+When(
+  /^Anna renames the folder "([^"]*)" from its actions menu to "([^"]*)"$/,
+  async ({ page }, name: string, newName: string) => {
+    await renameFromMenu(page, name, newName);
   },
 );
 
