@@ -28,6 +28,8 @@
     "dco:check": "node scripts/check-dco.mjs",
     "e2e": "pnpm --filter @offgrid/e2e e2e",
     "e2e:smoke": "pnpm --filter @offgrid/e2e e2e:smoke",
+    "e2e:container": "docker build -f infra/e2e/smoke.Dockerfile -t offgrid-e2e-smoke . && docker run --rm --shm-size=1g -v \"$PWD/e2e/artifacts:/repo/e2e/artifacts\" offgrid-e2e-smoke",
+    "e2e:smoke:container": "pnpm e2e:container --grep @smoke --grep-invert @wip",
     "e2e:wip": "pnpm --filter @offgrid/e2e e2e:wip",
     "e2e:affected": "pnpm --filter @offgrid/e2e e2e:affected",
     "e2e:changed": "node scripts/e2e-changed.mjs",

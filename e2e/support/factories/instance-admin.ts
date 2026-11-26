@@ -1,9 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { execFile } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { registerAccount, STRONG_PASSWORD, uniqueEmail } from "./identity.js";
 import { compose } from "../stack.js";
+
+const execFileAsync = promisify(execFile);
+const MAIN_SERVER_DIR = fileURLToPath(new URL("../../../apps/main-server", import.meta.url));
 
 export const RUN_ADMIN_EMAIL = "run-admin@example.com";
 export const RUN_ADMIN_NAME = "Run Admin";
@@ -52,9 +58,21 @@ export function forgetRunAdminSession(): void {
   runAdminSession = undefined;
 }
 
+async function runRecoveryOnLocalServer(args: readonly string[]): Promise<string> {
+  const { stdout } = await execFileAsync(
+    "node",
+    ["--import", "tsx", "src/recover-admin.ts", ...args],
+    { cwd: MAIN_SERVER_DIR, env: process.env, maxBuffer: 1024 * 1024 },
+  );
+  return stdout;
+}
+
 export async function runRecoveryCommand(args: readonly string[]): Promise<string> {
   const project = process.env.E2E_COMPOSE_PROJECT;
   if (project === undefined) {
+    if (process.env.E2E_REUSE_STACK === "1") {
+      return runRecoveryOnLocalServer(args);
+    }
     throw new Error("The recovery command needs the compose stack that this run started.");
   }
   return compose(project, [
