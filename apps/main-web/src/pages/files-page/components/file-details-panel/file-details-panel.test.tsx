@@ -73,7 +73,13 @@ const BREADCRUMBS = [
 const renderPanel = (onClose = vi.fn()) =>
   render(
     <UploadQueueProvider>
-      <FileDetailsPanel onFileChanged={vi.fn()} fileId={FILE_ID} onClose={onClose} />
+      <FileDetailsPanel
+        onFileChanged={vi.fn()}
+        onFileMoved={vi.fn()}
+        drives={[]}
+        fileId={FILE_ID}
+        onClose={onClose}
+      />
     </UploadQueueProvider>,
   );
 

@@ -4,16 +4,20 @@
 import type { FileKind } from "@offgrid/ui";
 import type {
   Breadcrumb,
+  Drive,
   FileDetailsState,
   FileEntry,
   FilesErrorTextId,
+  MoveNotice,
   RegularFileEntry,
 } from "../../../../files/types.js";
 
 export type FileDetailsPanelProps = {
   readonly fileId: FileEntry["id"];
+  readonly drives: readonly Drive[];
   readonly onClose: () => void;
   readonly onFileChanged: () => void;
+  readonly onFileMoved: (notice: MoveNotice) => void;
 };
 
 export type FileDetailsPanelLoadingView = {
