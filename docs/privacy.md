@@ -51,7 +51,7 @@ Project rules forbid logging personal data or secrets, including in error messag
 
 ## Who can reach it
 
-The web app (port 8080 by default) and the API (port 3000 by default) listen on all network interfaces, so other devices on your local network can reach them. The updater publishes no port: its API is reachable only on the internal Compose network and needs a bearer token. CORS settings in `OFFGRID_CORS_ORIGINS` only tell browsers which origins may read responses. They are not an access control, and they do not stop other clients. Anyone on your network who can reach the API can send it requests, so keep the network trusted. See [ADR 0015](adr/0015-no-reverse-proxy-cors-on-the-server.md).
+The web app (port 8080 by default) listens on all network interfaces, so other devices on your local network can reach it. The API is served through the web app under `/api` on the same port, and the server publishes no port of its own. The updater publishes no port: its API is reachable only on the internal Compose network and needs a bearer token. CORS settings in `OFFGRID_CORS_ORIGINS` only tell browsers which origins may read responses. They are not an access control, and they do not stop other clients. Anyone on your network who can reach the API can send it requests, so keep the network trusted. See [ADR 0015](adr/0015-no-reverse-proxy-cors-on-the-server.md).
 
 Local access uses plain HTTP, so traffic on your local network is not encrypted.
 

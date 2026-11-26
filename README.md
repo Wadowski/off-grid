@@ -79,11 +79,13 @@ Do not copy over an existing `.env`. Edit it instead.
 
 ### First start
 
-1. Open `http://<host>:8080` in a browser on the host. The port is `OFFGRID_WEB_PORT`. The API listens on port 3000 of the same host (`OFFGRID_SERVER_PORT`).
+1. Open `http://<host>:<OFFGRID_WEB_PORT>` in a browser on the host (8080 by default). The web app reaches the API at `/api` on the same address, so no other port is needed.
 2. Create the admin account. The first account becomes the admin.
-3. To open the web app from another device, set `OFFGRID_CORS_ORIGINS` in `.env` to the origin that device uses, for example `http://192.168.1.20:8080`. Then run `docker compose --env-file .env -f docker-compose.production.yml up -d` in the install folder. The server accepts browser requests only from the listed origins. This is a browser rule, not an access control: it does not stop other clients.
+3. Other devices use the same address, `http://<host>:<OFFGRID_WEB_PORT>`. Set `OFFGRID_CORS_ORIGINS` only if another site needs to call the API from its own origin.
 
-The settings in `.env` are `OFFGRID_VERSION`, `OFFGRID_IMAGE_OWNER`, `OFFGRID_RELEASE_REPOSITORY`, `OFFGRID_WEB_PORT`, `OFFGRID_SERVER_PORT`, `OFFGRID_CORS_ORIGINS`, `OFFGRID_DOCKER_GID`, `OFFGRID_DOCKER_SOCKET_PATH` and `TZ`. The defaults work unchanged on a Linux host.
+The settings in `.env` are `OFFGRID_VERSION`, `OFFGRID_IMAGE_OWNER`, `OFFGRID_RELEASE_REPOSITORY`, `OFFGRID_WEB_PORT`, `OFFGRID_CORS_ORIGINS`, `OFFGRID_DOCKER_GID`, `OFFGRID_DOCKER_SOCKET_PATH` and `TZ`. The defaults work unchanged on a Linux host.
+
+`OFFGRID_WEB_PORT` is the only host port. The API is served under `/api` on that port, so a host reverse proxy only has to forward to it.
 
 ## Updating
 

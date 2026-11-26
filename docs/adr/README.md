@@ -29,7 +29,7 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0012](0012-event-delivery-and-publish-authority.md)                | Event delivery is not tenant-filtered; publishing is limited to module roles                     | Partly superseded by 0017 |
 | [0013](0013-projections-for-other-modules-only.md)                  | Projections are for another module's data only                                                   | Accepted                  |
 | [0014](0014-subscriber-handlers-on-module-logins.md)                | Subscriber handlers run on their module login, with at-least-once delivery                       | Partly superseded by 0017 |
-| [0015](0015-no-reverse-proxy-cors-on-the-server.md)                 | No reverse proxy; the server allows its web origins with CORS                                    | Accepted                  |
+| [0015](0015-no-reverse-proxy-cors-on-the-server.md)                 | No reverse proxy; the server allows its web origins with CORS                                    | Superseded by 0043        |
 | [0016](0016-local-authentication-model.md)                          | Local authentication model: passwords, sessions, registration and recovery                       | Partly superseded by 0018 |
 | [0017](0017-shared-database-roles-and-prisma-migrate.md)            | Two database roles for all modules, and Prisma Migrate                                           | Proposed, amended by 0036 |
 | [0018](0018-outgoing-mail-to-a-chosen-provider.md)                  | Outgoing mail to a provider the owner chooses                                                    | Accepted                  |
@@ -57,3 +57,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0040](0040-safe-headers-and-inline-preview-for-file-content.md)    | Safe headers and inline preview for file content                                                 | Accepted                  |
 | [0041](0041-files-trash-purge-worker.md)                            | Files trash, purge and the retention worker                                                      | Accepted                  |
 | [0042](0042-upload-progress-transport.md)                           | Upload progress uses an injected XHR transport, and the upload queue lives in memory             | Accepted                  |
+| [0043](0043-same-origin-api-through-the-web-container.md)           | The API is served under `/api` on the web origin through the web container                       | Accepted                  |
