@@ -6,7 +6,11 @@ import type { CalendarRecord } from "../../types.js";
 
 export const listCalendars = async (tx: ModuleTransaction): Promise<CalendarRecord[]> => {
   const rows = await tx.calendar.findMany({
-    orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
+    orderBy: [
+      { isDefault: "desc" },
+      { userId: { sort: "asc", nulls: "last" } },
+      { createdAt: "asc" },
+    ],
   });
   return rows.map((row) => ({
     calendarId: row.calendarId,
