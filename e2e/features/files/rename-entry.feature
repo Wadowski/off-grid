@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:files @ui @wip
+@module:files @ui
 Feature: Renaming a file or folder from its menu
 
   Each file and folder can be renamed from its actions menu. The dialog holds
