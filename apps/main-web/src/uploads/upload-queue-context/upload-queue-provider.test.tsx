@@ -206,4 +206,55 @@ describe("UploadQueueProvider", () => {
       fileId: VERSION_FILE_ID,
     });
   });
+  it("sends a failed upload again to the same target when it is retried", async () => {
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    act(() => {
+      result.current.enqueue([new File(["a"], "a.txt")], TARGET);
+    });
+    await act(async () => {
+      pending[0]?.reject(new Error("network down"));
+    });
+
+    act(() => {
+      result.current.retry(result.current.items[0]?.id ?? "");
+    });
+
+    expect(sentNames()).toEqual(["a.txt", "a.txt"]);
+    expect(uploadMock.mock.calls[1]?.[0]).toBe(TARGET.driveId);
+    expect(statusesOf(result)).toEqual(["a.txt:uploading"]);
+  });
+
+  it("does not offer a retry for a file above the limit and ignores one", async () => {
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    act(() => {
+      result.current.enqueue([new File(["a"], "big.bin")], TARGET);
+    });
+    await act(async () => {
+      pending[0]?.reject(new ApiError(413, "PAYLOAD_TOO_LARGE", "too big"));
+    });
+
+    expect(result.current.isRetryable(result.current.items[0] as never)).toBe(false);
+    act(() => {
+      result.current.retry(result.current.items[0]?.id ?? "");
+    });
+
+    expect(sentNames()).toEqual(["big.bin"]);
+    expect(statusesOf(result)).toEqual(["big.bin:failed"]);
+  });
+
+  it("removes a failed item when it is dismissed", async () => {
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    act(() => {
+      result.current.enqueue([new File(["a"], "a.txt"), new File(["b"], "b.txt")], TARGET);
+    });
+    await act(async () => {
+      pending[0]?.reject(new Error("network down"));
+    });
+
+    act(() => {
+      result.current.dismiss(result.current.items[0]?.id ?? "");
+    });
+
+    expect(statusesOf(result)).toEqual(["b.txt:uploading"]);
+  });
 });

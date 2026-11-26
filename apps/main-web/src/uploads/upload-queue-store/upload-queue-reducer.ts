@@ -80,7 +80,6 @@ export const uploadQueueReducer = (
         items: updateUploadItem(state.items, action.id, {
           status: "failed",
           errorTextId: action.errorTextId,
-          file: null,
         }),
         announcement: toUploadAnnouncement(
           state.announcement,
@@ -90,6 +89,41 @@ export const uploadQueueReducer = (
         ),
       };
     }
+    case "rejected": {
+      const lastItem = action.items.at(-1);
+      return {
+        ...state,
+        items: [...state.items, ...action.items],
+        announcement:
+          lastItem === undefined
+            ? state.announcement
+            : toUploadAnnouncement(
+                state.announcement,
+                "files.upload.announceFailed",
+                lastItem,
+                lastItem.errorTextId,
+              ),
+      };
+    }
+    case "retried": {
+      const item = findItem(state, action.id);
+      if (item === undefined || item.status !== "failed" || item.file === null) {
+        return state;
+      }
+      return {
+        ...state,
+        items: updateUploadItem(state.items, action.id, {
+          status: "queued",
+          percent: 0,
+          errorTextId: null,
+        }),
+      };
+    }
+    case "dismissed":
+      return {
+        ...state,
+        items: state.items.filter((item) => item.id !== action.id),
+      };
     case "familySwitched":
       return { ...state, items: failUnfinishedItems(state.items, action.errorTextId) };
     case "clearedFinished":

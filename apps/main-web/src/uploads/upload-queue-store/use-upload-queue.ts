@@ -4,9 +4,16 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useSession } from "../../session/use-session.js";
 import { EMPTY_UPLOAD_QUEUE_STATE } from "../constants.js";
-import type { RunningUpload, UploadQueue, UploadTarget, VersionUploadTarget } from "../types.js";
+import type {
+  RunningUpload,
+  UploadItem,
+  UploadQueue,
+  UploadTarget,
+  VersionUploadTarget,
+} from "../types.js";
 import { createUploadItem } from "./create-upload-item.js";
 import { isActiveUploadItem } from "./is-active-upload-item.js";
+import { isRetryableUploadItem } from "./is-retryable-upload-item.js";
 import { nextQueuedItem } from "./next-queued-item.js";
 import { startUpload } from "./start-upload.js";
 import { uploadQueueReducer } from "./upload-queue-reducer.js";
@@ -72,6 +79,24 @@ export const useUploadQueue = (): UploadQueue => {
     [activeFamilyId],
   );
 
+  const isRetryable = useCallback(
+    (item: UploadItem) => isRetryableUploadItem(item, activeFamilyId),
+    [activeFamilyId],
+  );
+
+  const retry = useCallback(
+    (id: string) => {
+      const item = state.items.find((candidate) => candidate.id === id);
+      if (item === undefined || !isRetryableUploadItem(item, activeFamilyId)) {
+        return;
+      }
+      dispatch({ type: "retried", id });
+    },
+    [state.items, activeFamilyId],
+  );
+
+  const dismiss = useCallback((id: string) => dispatch({ type: "dismissed", id }), []);
+
   const clearFinished = useCallback(() => dispatch({ type: "clearedFinished" }), []);
 
   return {
@@ -81,6 +106,9 @@ export const useUploadQueue = (): UploadQueue => {
     announcement: state.announcement,
     enqueue,
     enqueueVersion,
+    isRetryable,
+    retry,
+    dismiss,
     clearFinished,
   };
 };
