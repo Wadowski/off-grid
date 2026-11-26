@@ -69,5 +69,12 @@ export const useFolderTree = (): FolderTreeState => {
     [nodes, loadPage],
   );
 
-  return { nodes, expandedIds, toggle, loadMore };
+  const reload = useCallback(
+    (node: FolderTreeNodeRef) => {
+      void loadPage(node, null);
+    },
+    [loadPage],
+  );
+
+  return { nodes, expandedIds, toggle, reload, loadMore };
 };

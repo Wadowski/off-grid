@@ -307,6 +307,7 @@ export type FolderTreeState = {
   readonly nodes: Readonly<Record<string, FolderNodeState>>;
   readonly expandedIds: ReadonlySet<string>;
   readonly toggle: (node: FolderTreeNodeRef) => void;
+  readonly reload: (node: FolderTreeNodeRef) => void;
   readonly loadMore: (node: FolderTreeNodeRef) => void;
 };
 
@@ -332,4 +333,25 @@ export type MoveSource = {
   readonly entryName: string;
   readonly driveId: Drive["id"];
   readonly parentId: FileEntry["id"] | null;
+};
+
+export type MoveNotice = {
+  readonly entryName: string;
+  readonly targetName: string;
+  readonly crossOwnerNotice: boolean;
+};
+
+export type MoveDialogState = {
+  readonly nodes: readonly FolderPickerNode[];
+  readonly tree: FolderTreeState;
+  readonly selectedId: string | null;
+  readonly step: MoveDialogStep;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly canMove: boolean;
+  readonly isCrossOwner: boolean;
+  readonly select: (id: string) => void;
+  readonly expand: (id: string) => void;
+  readonly retry: (id: string) => void;
+  readonly loadMore: (id: string) => void;
+  readonly submit: () => Promise<void>;
 };
