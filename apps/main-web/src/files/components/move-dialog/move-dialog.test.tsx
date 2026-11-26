@@ -152,9 +152,7 @@ describe("MoveDialog", () => {
   it("returns focus to the element it was given when it closes", () => {
     const trigger = document.createElement("button");
     document.body.appendChild(trigger);
-    const { unmount } = render(
-      <MoveDialog {...renderProps({ returnFocusTo: trigger })} />,
-    );
+    const { unmount } = render(<MoveDialog {...renderProps({ returnFocusTo: trigger })} />);
 
     unmount();
 

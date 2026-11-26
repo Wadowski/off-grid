@@ -19,7 +19,6 @@ const MENU_ENTRY_ROWS =
 const LOADING_TEXT = "Loading folders...";
 const OTHER_OWNER_TEXT = "Other owner";
 const CURRENT_LOCATION_TEXT = "Current location";
-const COPY_CONFIRMATION_TEXT = "This copies it to the other drive and removes the original.";
 
 const openMenuOf = (page: Page): Locator => page.getByRole("menu");
 
@@ -46,8 +45,7 @@ const collapsedRows = (page: Page): Locator =>
 const focusedItemOf = (page: Page): Locator => treeOf(page).locator('[role="treeitem"]:focus');
 
 const isFocusedRowNamed = async (page: Page, name: string): Promise<boolean> =>
-  (await focusedItemOf(page).locator(":scope > div").getByText(name, { exact: true }).count()) >
-  0;
+  (await focusedItemOf(page).locator(":scope > div").getByText(name, { exact: true }).count()) > 0;
 
 const waitForChildrenLoaded = async (item: Locator): Promise<void> => {
   await expect(item).toHaveAttribute("aria-expanded", "true", { timeout: DIALOG_TIMEOUT_MS });
@@ -155,12 +153,9 @@ When("Anna chooses Move with the keyboard", async ({ page }) => {
   await page.keyboard.press("Enter");
 });
 
-When(
-  /^Anna chooses the folder "([^"]*)" in the move dialog$/,
-  async ({ page }, name: string) => {
-    await chooseInDialog(page, name);
-  },
-);
+When(/^Anna chooses the folder "([^"]*)" in the move dialog$/, async ({ page }, name: string) => {
+  await chooseInDialog(page, name);
+});
 
 When(/^Anna chooses the drive "([^"]*)" in the move dialog$/, async ({ page }, name: string) => {
   await chooseInDialog(page, name);
@@ -240,14 +235,11 @@ Then(/^the folder "([^"]*)" in the move dialog is disabled$/, async ({ page }, n
   });
 });
 
-Then(
-  /^the move dialog captions "([^"]*)" as "Other owner"$/,
-  async ({ page }, name: string) => {
-    await expect(rowLabeled(page, name).getByText(OTHER_OWNER_TEXT, { exact: true })).toBeVisible(
-      { timeout: DIALOG_TIMEOUT_MS },
-    );
-  },
-);
+Then(/^the move dialog captions "([^"]*)" as "Other owner"$/, async ({ page }, name: string) => {
+  await expect(rowLabeled(page, name).getByText(OTHER_OWNER_TEXT, { exact: true })).toBeVisible({
+    timeout: DIALOG_TIMEOUT_MS,
+  });
+});
 
 Then(
   /^the move dialog marks the folder "([^"]*)" as the current location$/,
