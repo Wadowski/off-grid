@@ -4,11 +4,22 @@
 import { Text } from "@offgrid/ui";
 import { toFolderPath } from "../../../../files/to-folder-path.js";
 import { BackLink } from "../../../files-page/components/back-link/back-link.js";
+import { EmptyTrashButton } from "../empty-trash-button/empty-trash-button.js";
+import { trashHeaderRowStyle } from "../../styles.js";
 import type { TrashHeaderProps } from "./types.js";
 
-export const TrashHeader = ({ driveId, driveName }: TrashHeaderProps) => (
+export const TrashHeader = ({
+  driveId,
+  driveName,
+  showEmptyTrash,
+  emptying,
+  onEmptyTrash,
+}: TrashHeaderProps) => (
   <header>
     {driveName === null ? null : <BackLink to={toFolderPath(driveId)} parentName={driveName} />}
-    <Text variant="heading" textId="files.trash.heading" />
+    <div style={trashHeaderRowStyle}>
+      <Text variant="heading" textId="files.trash.heading" />
+      {showEmptyTrash ? <EmptyTrashButton disabled={emptying} onEmpty={onEmptyTrash} /> : null}
+    </div>
   </header>
 );

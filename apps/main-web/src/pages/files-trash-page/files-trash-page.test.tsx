@@ -5,7 +5,13 @@ import { ApiError } from "@offgrid/api-client";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { listDriveTrash, listDrives, restoreFile } from "../../files/files-api.js";
+import {
+  emptyDriveTrash,
+  listDriveTrash,
+  listDrives,
+  purgeFile,
+  restoreFile,
+} from "../../files/files-api.js";
 import type { Drive, FileListItem, FileListPage } from "../../files/types.js";
 import { FilesLayout } from "../../layouts/files-layout/files-layout.js";
 import { FilesTrashPage } from "./files-trash-page.js";
@@ -14,6 +20,8 @@ vi.mock("../../files/files-api.js", () => ({
   listDrives: vi.fn(),
   listDriveTrash: vi.fn(),
   restoreFile: vi.fn(),
+  purgeFile: vi.fn(),
+  emptyDriveTrash: vi.fn(),
 }));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
@@ -175,5 +183,139 @@ describe("FilesTrashPage", () => {
 
     expect(screen.queryByTestId("trash-page")).not.toBeInTheDocument();
     expect(listDriveTrash).not.toHaveBeenCalled();
+  });
+});
+
+describe("FilesTrashPage permanent delete", () => {
+  const originalShowModal = HTMLDialogElement.prototype.showModal;
+  const originalClose = HTMLDialogElement.prototype.close;
+
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    };
+    vi.mocked(listDrives).mockResolvedValue([DRIVE]);
+    vi.mocked(listDriveTrash).mockResolvedValue(PAGE([HOLIDAY, RECEIPT, INSIDE_HOLIDAY]));
+  });
+
+  afterEach(() => {
+    HTMLDialogElement.prototype.showModal = originalShowModal;
+    HTMLDialogElement.prototype.close = originalClose;
+    cleanup();
+    vi.clearAllMocks();
+  });
+
+  it("asks for confirmation before deleting a file for good and does not call the API on cancel", async () => {
+    renderAt(TRASH_PATH);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+    );
+
+    const dialog = screen.getByRole("dialog", { name: "Delete permanently?" });
+    expect(within(dialog).getByText(/"Old receipt\.pdf"/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("purge-cancel"));
+
+    expect(purgeFile).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Restore Old receipt.pdf" })).toBeInTheDocument();
+  });
+
+  it("deletes the file for good on confirm and removes its row", async () => {
+    vi.mocked(purgeFile).mockResolvedValue(undefined);
+    renderAt(TRASH_PATH);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+    );
+
+    vi.mocked(listDriveTrash).mockResolvedValue(PAGE([HOLIDAY, INSIDE_HOLIDAY]));
+
+    fireEvent.click(screen.getByTestId("purge-confirm"));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Restore Old receipt.pdf" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(purgeFile).toHaveBeenCalledWith(RECEIPT.id);
+  });
+
+  it("moves focus to the next row after a file is deleted for good", async () => {
+    vi.mocked(purgeFile).mockResolvedValue(undefined);
+    renderAt(TRASH_PATH);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+    );
+
+    vi.mocked(listDriveTrash).mockResolvedValue(PAGE([HOLIDAY, INSIDE_HOLIDAY]));
+
+    fireEvent.click(screen.getByTestId("purge-confirm"));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Restore Holiday" })).toHaveFocus(),
+    );
+  });
+
+  it("keeps the dialog open with the mapped error when the file is no longer in the trash", async () => {
+    vi.mocked(purgeFile).mockRejectedValue(new ApiError(409, "NOT_TRASHED", "not in the trash"));
+    renderAt(TRASH_PATH);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+    );
+
+    fireEvent.click(screen.getByTestId("purge-confirm"));
+
+    expect(await screen.findByTestId("purge-error")).toHaveTextContent(
+      "This item isn't in the trash.",
+    );
+    expect(screen.getByRole("dialog", { name: "Delete permanently?" })).toBeInTheDocument();
+  });
+
+  it("offers Empty trash when the trash has items and empties it on confirm", async () => {
+    vi.mocked(emptyDriveTrash).mockResolvedValue(undefined);
+    renderAt(TRASH_PATH);
+    fireEvent.click(await screen.findByTestId("trash-empty-button"));
+
+    vi.mocked(listDriveTrash).mockResolvedValue(PAGE([]));
+
+    fireEvent.click(screen.getByTestId("empty-trash-confirm"));
+
+    expect(await screen.findByTestId("trash-empty")).toHaveTextContent("Trash is empty");
+    expect(emptyDriveTrash).toHaveBeenCalledWith(DRIVE_ID);
+    expect(screen.queryByTestId("trash-empty-button")).not.toBeInTheDocument();
+  });
+
+  it("keeps everything in the trash when Empty trash is cancelled", async () => {
+    renderAt(TRASH_PATH);
+    fireEvent.click(await screen.findByTestId("trash-empty-button"));
+
+    fireEvent.click(screen.getByTestId("empty-trash-cancel"));
+
+    expect(emptyDriveTrash).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Restore Old receipt.pdf" })).toBeInTheDocument();
+  });
+
+  it("does not offer Empty trash when the trash is empty", async () => {
+    vi.mocked(listDriveTrash).mockResolvedValue(PAGE([]));
+    renderAt(TRASH_PATH);
+
+    expect(await screen.findByTestId("trash-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("trash-empty-button")).not.toBeInTheDocument();
+  });
+
+  it("offers an icon-only delete button on phone rows, named after the item", async () => {
+    const restoreWidth = withPhoneWidth(true);
+    try {
+      renderAt(TRASH_PATH);
+
+      expect(
+        await screen.findByRole("button", { name: "Delete Old receipt.pdf permanently" }),
+      ).toBeInTheDocument();
+    } finally {
+      restoreWidth();
+    }
   });
 });

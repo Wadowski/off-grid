@@ -5,6 +5,7 @@ import type { FileListItem } from "../../../../files/types.js";
 
 export type TrashTableProps = {
   readonly items: readonly FileListItem[];
-  readonly restoring: boolean;
+  readonly busy: boolean;
   readonly onRestore: (item: FileListItem) => void;
+  readonly onPurge: (item: FileListItem) => void;
 };

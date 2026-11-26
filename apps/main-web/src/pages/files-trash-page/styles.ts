@@ -22,3 +22,18 @@ export const trashErrorActionStyle: CSSProperties = {
   gap: tokens.space[2],
   justifyItems: "start",
 };
+
+export const trashRowActionsStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  gap: tokens.space[2],
+};
+
+export const trashHeaderRowStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: tokens.space[2],
+};
