@@ -45,12 +45,19 @@ const ownSessionOf = async (world: ScenarioWorld): Promise<Session> => {
 const personalDriveIdOf = async (world: ScenarioWorld): Promise<string> =>
   personalDriveIdAs(world.api, await ownSessionOf(world));
 
-const familyDriveIdOf = (world: ScenarioWorld, familyName: string): string => {
-  const driveId = world.files?.familyDriveIds[familyName];
-  if (driveId === undefined) {
+const familyDriveIdOf = async (world: ScenarioWorld, familyName: string): Promise<string> => {
+  const rememberedId = world.files?.familyDriveIds[familyName];
+  if (rememberedId !== undefined) {
+    return rememberedId;
+  }
+  const family = [...world.families].reverse().find((created) => created.name === familyName);
+  if (family === undefined) {
     throw new Error(`The family drive of ${familyName} was not created.`);
   }
-  return driveId;
+  const drives = await waitForDrives(world.api, await ownSessionOf(world), (listed) =>
+    listed.some((drive) => drive.familyId === family.id),
+  );
+  return drives.find((drive) => drive.familyId === family.id)?.id ?? "";
 };
 
 const fileIdIn = async (
@@ -196,7 +203,7 @@ When(
   /^Anna opens the details of "([^"]*)" in the family drive of "([^"]*)" on a phone$/,
   async ({ page, world }, name: string, familyName: string) => {
     const session = await ownSessionOf(world);
-    const driveId = familyDriveIdOf(world, familyName);
+    const driveId = await familyDriveIdOf(world, familyName);
     const fileId = await fileIdIn(world, session, driveId, name);
     await openDetailsPage(page, `/files/${driveId}/file/${fileId}`);
     await waitForDetails(page);

@@ -20,6 +20,7 @@ export type {
   SignInInput,
   SubscribeNotificationsOptions,
   UploadFileInput,
+  UploadFileVersionInput,
   UploadProgressHandler,
   UploadTransport,
 } from "./types.js";

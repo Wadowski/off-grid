@@ -16,27 +16,36 @@ export const useFileVersions = (
   const [errorTextId, setErrorTextId] = useState<FilesErrorTextId | null>(null);
   const latestRequest = useRef(0);
 
-  const refresh = useCallback(async () => {
-    if (fileId === null) {
-      return;
-    }
-    const request = ++latestRequest.current;
-    const isLatest = () => request === latestRequest.current;
-    setStatus("loading");
-    setErrorTextId(null);
-    try {
-      const list = await listFileVersions(fileId);
-      if (isLatest()) {
-        setVersions(list);
-        setStatus("ready");
+  const load = useCallback(
+    async (showLoading: boolean) => {
+      if (fileId === null) {
+        return;
       }
-    } catch (error) {
-      if (isLatest()) {
-        setErrorTextId(toFilesErrorTextId(error));
-        setStatus("failed");
+      const request = ++latestRequest.current;
+      const isLatest = () => request === latestRequest.current;
+      if (showLoading) {
+        setStatus("loading");
+        setErrorTextId(null);
       }
-    }
-  }, [fileId]);
+      try {
+        const list = await listFileVersions(fileId);
+        if (isLatest()) {
+          setVersions(list);
+          setStatus("ready");
+          setErrorTextId(null);
+        }
+      } catch (error) {
+        if (isLatest() && showLoading) {
+          setErrorTextId(toFilesErrorTextId(error));
+          setStatus("failed");
+        }
+      }
+    },
+    [fileId],
+  );
+
+  const refresh = useCallback(() => load(true), [load]);
+  const refreshQuietly = useCallback(() => load(false), [load]);
 
   useEffect(() => {
     if (enabled) {
@@ -44,5 +53,5 @@ export const useFileVersions = (
     }
   }, [enabled, refresh]);
 
-  return { versions, status, errorTextId, refresh };
+  return { versions, status, errorTextId, refresh, refreshQuietly };
 };

@@ -18,31 +18,39 @@ export const useFileDetails = (
   const [loadedFor, setLoadedFor] = useState<FileEntry["id"] | null>(null);
   const latestRequest = useRef(0);
 
-  const refresh = useCallback(async () => {
-    if (fileId === null) {
-      return;
-    }
-    const request = ++latestRequest.current;
-    const isLatest = () => request === latestRequest.current;
-    setLoadedFor(fileId);
-    setFile(null);
-    setBreadcrumbs([]);
-    setStatus("loading");
-    setErrorTextId(null);
-    try {
-      const details = await getFile(fileId);
-      if (isLatest()) {
-        setFile(details.file);
-        setBreadcrumbs(details.breadcrumbs);
-        setStatus("ready");
+  const load = useCallback(
+    async (showLoading: boolean) => {
+      if (fileId === null) {
+        return;
       }
-    } catch (error) {
-      if (isLatest()) {
-        setErrorTextId(toFilesErrorTextId(error));
-        setStatus("failed");
+      const request = ++latestRequest.current;
+      const isLatest = () => request === latestRequest.current;
+      if (showLoading) {
+        setLoadedFor(fileId);
+        setFile(null);
+        setBreadcrumbs([]);
+        setStatus("loading");
+        setErrorTextId(null);
       }
-    }
-  }, [fileId]);
+      try {
+        const details = await getFile(fileId);
+        if (isLatest()) {
+          setFile(details.file);
+          setBreadcrumbs(details.breadcrumbs);
+          setStatus("ready");
+        }
+      } catch (error) {
+        if (isLatest() && showLoading) {
+          setErrorTextId(toFilesErrorTextId(error));
+          setStatus("failed");
+        }
+      }
+    },
+    [fileId],
+  );
+
+  const refresh = useCallback(() => load(true), [load]);
+  const refreshQuietly = useCallback(() => load(false), [load]);
 
   useEffect(() => {
     if (enabled) {
@@ -51,7 +59,14 @@ export const useFileDetails = (
   }, [enabled, refresh]);
 
   if (loadedFor !== fileId) {
-    return { file: null, breadcrumbs: [], status: "loading", errorTextId: null, refresh };
+    return {
+      file: null,
+      breadcrumbs: [],
+      status: "loading",
+      errorTextId: null,
+      refresh,
+      refreshQuietly,
+    };
   }
-  return { file, breadcrumbs, status, errorTextId, refresh };
+  return { file, breadcrumbs, status, errorTextId, refresh, refreshQuietly };
 };

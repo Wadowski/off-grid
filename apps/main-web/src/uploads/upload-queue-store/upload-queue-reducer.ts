@@ -56,7 +56,12 @@ export const uploadQueueReducer = (
           errorTextId: null,
           file: null,
         }),
-        lastDone: { itemId: item.id, driveId: item.driveId, folderId: item.folderId },
+        lastDone: {
+          itemId: item.id,
+          driveId: item.driveId,
+          folderId: item.folderId,
+          fileId: item.fileId,
+        },
         announcement: toUploadAnnouncement(
           state.announcement,
           "files.upload.announceDone",

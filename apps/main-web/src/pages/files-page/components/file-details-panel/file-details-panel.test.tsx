@@ -4,12 +4,15 @@
 import { ApiError } from "@offgrid/api-client";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFile } from "../../../../files/files-api.js";
-import type { Drive, FileEntry } from "../../../../files/types.js";
+import { getFile, listFileVersions } from "../../../../files/files-api.js";
+import type { Drive, FileEntry, FileVersion } from "../../../../files/types.js";
+import { UploadQueueProvider } from "../../../../uploads/index.js";
 import { FileDetailsPanel } from "./file-details-panel.js";
 
 vi.mock("../../../../files/files-api.js", () => ({
   getFile: vi.fn(),
+  listFileVersions: vi.fn(async () => []),
+  listDrives: vi.fn(async () => []),
 }));
 
 const DRIVE_ID = "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as Drive["id"];
@@ -45,17 +48,56 @@ const FOLDER_ENTRY = {
   itemCount: 0,
 };
 
+const CURRENT_VERSION = {
+  id: VERSION_ID,
+  fileId: FILE_ID,
+  number: 3,
+  size: 2048,
+  mimeType: "application/pdf",
+  createdByUserId: "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b",
+  createdAt: "2026-03-04T05:06:07.000Z",
+} as FileVersion;
+const OLDER_VERSION = {
+  ...CURRENT_VERSION,
+  id: "9b0c1d2e-3f4a-4b5c-9d7e-8f9a0b1c2d3e",
+  number: 1,
+  size: 1024,
+  createdAt: "2026-03-01T08:00:00.000Z",
+} as FileVersion;
+
 const BREADCRUMBS = [
   { kind: "drive", id: DRIVE_ID, name: "Personal" },
   { kind: "folder", id: FOLDER_ID, name: "Photos" },
 ];
 
 const renderPanel = (onClose = vi.fn()) =>
-  render(<FileDetailsPanel fileId={FILE_ID} onClose={onClose} />);
+  render(
+    <UploadQueueProvider>
+      <FileDetailsPanel onFileChanged={vi.fn()} fileId={FILE_ID} onClose={onClose} />
+    </UploadQueueProvider>,
+  );
+
+const originalShowModal = HTMLDialogElement.prototype.showModal;
+const originalClose = HTMLDialogElement.prototype.close;
+
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+    this.setAttribute("open", "");
+  };
+  HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+    this.removeAttribute("open");
+  };
+});
+
+afterEach(() => {
+  HTMLDialogElement.prototype.showModal = originalShowModal;
+  HTMLDialogElement.prototype.close = originalClose;
+});
 
 describe("FileDetailsPanel", () => {
   beforeEach(() => {
     vi.mocked(getFile).mockReset();
+    vi.mocked(listFileVersions).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -179,5 +221,16 @@ describe("FileDetailsPanel", () => {
     fireEvent.keyDown(screen.getByTestId("file-details-panel"), { key: "Escape" });
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+  it("does not close the panel when Escape is pressed inside the delete version dialog", async () => {
+    vi.mocked(getFile).mockResolvedValue({ file: REGULAR_FILE, breadcrumbs: BREADCRUMBS } as never);
+    vi.mocked(listFileVersions).mockResolvedValue([CURRENT_VERSION, OLDER_VERSION]);
+    const onClose = vi.fn();
+
+    renderPanel(onClose);
+    fireEvent.click(await screen.findByTestId("file-version-delete"));
+    fireEvent.keyDown(await screen.findByTestId("delete-version-cancel"), { key: "Escape" });
+
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

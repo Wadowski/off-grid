@@ -19,7 +19,10 @@ const EVENTS = "/api/events";
 const pad = (value: number): string => String(value).padStart(2, "0");
 
 const todayAtUtc = (hour: number, minutes = 60): { startsAt: string; endsAt: string } => {
-  const day = new Date().toISOString().slice(0, 10);
+  // The page's "today" is the browser's local date, so use the same day rather than the UTC date:
+  // between 22:00 and 24:00 UTC in a UTC+1 browser the two differ.
+  const now = new Date();
+  const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const startMinutes = hour * 60;
   const endMinutes = startMinutes + minutes;
   const clock = (total: number) => `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "../test-support/json-response.js";
 import type { FileEntry } from "./types.js";
@@ -81,6 +81,54 @@ describe("useFileDetails", () => {
 
     await waitFor(() => expect(result.current.file?.id).toBe(OTHER_FILE_ID));
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("refreshes quietly without showing the loading state", async () => {
+    const updated = { ...FILE, size: 4096 };
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          jsonResponse({ status: 200, body: { file: FILE, breadcrumbs: BREADCRUMBS } }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({ status: 200, body: { file: updated, breadcrumbs: BREADCRUMBS } }),
+        ),
+    );
+
+    const { result } = renderHook(() => useFileDetails(FILE_ID, true));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    await act(async () => {
+      await result.current.refreshQuietly();
+    });
+
+    expect(result.current.status).toBe("ready");
+    expect(result.current.file).toEqual(updated);
+  });
+
+  it("keeps the loaded file when a quiet refresh fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          jsonResponse({ status: 200, body: { file: FILE, breadcrumbs: BREADCRUMBS } }),
+        )
+        .mockRejectedValueOnce(new TypeError("Failed to fetch")),
+    );
+
+    const { result } = renderHook(() => useFileDetails(FILE_ID, true));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    await act(async () => {
+      await result.current.refreshQuietly();
+    });
+
+    expect(result.current.status).toBe("ready");
+    expect(result.current.errorTextId).toBeNull();
+    expect(result.current.file).toEqual(FILE);
   });
 
   it("does not load while disabled", () => {

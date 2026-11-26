@@ -269,28 +269,39 @@ describe("createFilesClient versions and downloads", () => {
     );
   });
 
-  it("uploads a new version as the raw body with its declared media type", async () => {
-    const bytes = new Uint8Array([1, 2, 3]);
+  it("uploads a new version as the file body with its declared media type", async () => {
+    const file = new File(["abc"], "notes.txt", { type: "text/plain" });
     const { files, transport } = filesWith(jsonResponse(FILE));
 
-    await expect(files.uploadFileVersion(FILE_ID, bytes, "text/plain")).resolves.toEqual(FILE);
+    await expect(files.uploadFileVersion(FILE_ID, { file })).resolves.toEqual(FILE);
     expect(transport).toHaveBeenCalledWith(
       `${BASE_URL}/files/${FILE_ID}/versions`,
       expect.objectContaining({
         method: "POST",
-        body: bytes,
+        body: file,
         headers: expect.objectContaining({ "content-type": "text/plain" }),
       }),
     );
   });
 
-  it("uploads a new version without a content type header when no media type is declared", async () => {
-    const bytes = new Uint8Array([1]);
+  it("uploads a new version without a content type header when the file has no media type", async () => {
+    const file = new File(["1"], "blob.bin");
     const { files, transport } = filesWith(jsonResponse(FILE));
 
-    await files.uploadFileVersion(FILE_ID, bytes);
+    await files.uploadFileVersion(FILE_ID, { file });
     const [, init] = transport.mock.calls[0] ?? [];
     expect(init?.headers).not.toHaveProperty("content-type");
+  });
+
+  it("downloads a version as a blob from its content path", async () => {
+    const { files, transport } = filesWith(new Response("bytes", { status: 200 }));
+
+    const blob = await files.downloadFileVersion(FILE_ID, VERSION_ID);
+    expect(await blob.text()).toBe("bytes");
+    expect(transport).toHaveBeenCalledWith(
+      `${BASE_URL}/files/${FILE_ID}/versions/${VERSION_ID}/content`,
+      expect.objectContaining({ method: "GET" }),
+    );
   });
 
   it("deletes a version by its path", async () => {

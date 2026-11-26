@@ -25,6 +25,7 @@ export const FilesLayout = () => {
   const expectedFamilyCount = shell?.families.length ?? 0;
   const { drives, status, errorTextId, refresh } = useDrives(true, expectedFamilyCount);
   const [selection, setSelection] = useState<FileSelection | null>(null);
+  const [filesChangedCount, setFilesChangedCount] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const selectedFileId = toSelectedFileId(selection, location.pathname, narrow);
   const switcher: DriveSwitcherProps = {
@@ -38,9 +39,11 @@ export const FilesLayout = () => {
   const context: FilesOutletContext = {
     ...switcher,
     selectedFileId,
+    filesChangedCount,
     onSelectFile: (fileId) => setSelection({ pathname: location.pathname, fileId }),
     onClearSelection: () => setSelection(null),
   };
+  const onFileChanged = () => setFilesChangedCount((count) => count + 1);
   const closeDetails = () => {
     focusSelectedRow(contentRef.current);
     setSelection(null);
@@ -56,7 +59,11 @@ export const FilesLayout = () => {
           {selectedFileId === null ? (
             <DriveSwitcher {...switcher} />
           ) : (
-            <FileDetailsPanel fileId={selectedFileId} onClose={closeDetails} />
+            <FileDetailsPanel
+              fileId={selectedFileId}
+              onClose={closeDetails}
+              onFileChanged={onFileChanged}
+            />
           )}
         </div>
       )}

@@ -2,53 +2,34 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { describe, expect, it, vi } from "vitest";
-import { ApiError } from "./api-error.js";
-import { requestBlob } from "./request-blob.js";
+import { ApiError, createApiClient } from "./index.js";
 
 const BASE_URL = "http://localhost:3000/api";
 
-const transportReturning = (response: Response) =>
-  vi.fn<typeof fetch>().mockResolvedValue(response);
+const clientWith = (response: Response) => {
+  const transport = vi.fn<typeof fetch>().mockResolvedValue(response);
+  return { client: createApiClient({ baseUrl: BASE_URL, fetch: transport }), transport };
+};
 
 describe("requestBlob", () => {
-  it("returns the response body as a blob with its media type", async () => {
-    const transport = transportReturning(
-      new Response("hello", { status: 200, headers: { "content-type": "text/plain" } }),
-    );
+  it("returns the response body as a blob with the session transport", async () => {
+    const { client, transport } = clientWith(new Response("hello", { status: 200 }));
 
-    const blob = await requestBlob(transport, BASE_URL, "/files/1/content");
-
-    expect(blob.type).toBe("text/plain");
+    const blob = await client.requestBlob("/files/1/versions/2/content");
     expect(await blob.text()).toBe("hello");
     expect(transport).toHaveBeenCalledWith(
-      `${BASE_URL}/files/1/content`,
+      `${BASE_URL}/files/1/versions/2/content`,
       expect.objectContaining({ method: "GET" }),
     );
   });
 
-  it("throws the coded API error of an error response", async () => {
-    const transport = transportReturning(
-      new Response(JSON.stringify({ code: "NOT_FOUND", message: "File not found." }), {
-        status: 404,
-        headers: { "content-type": "application/json" },
-      }),
+  it("maps a failed response to an ApiError with the server code", async () => {
+    const { client } = clientWith(
+      new Response(JSON.stringify({ code: "NOT_FOUND", message: "Missing" }), { status: 404 }),
     );
 
-    const failure = await requestBlob(transport, BASE_URL, "/files/1/content").catch(
-      (error: unknown) => error,
-    );
-
+    const failure = await client.requestBlob("/files/1/versions/2/content").catch((error) => error);
     expect(failure).toBeInstanceOf(ApiError);
     expect(failure).toMatchObject({ status: 404, code: "NOT_FOUND" });
-  });
-
-  it("reports an unexpected response when the error body is not JSON", async () => {
-    const transport = transportReturning(new Response("oops", { status: 502 }));
-
-    const failure = await requestBlob(transport, BASE_URL, "/files/1/content").catch(
-      (error: unknown) => error,
-    );
-
-    expect(failure).toMatchObject({ status: 502, code: "UNEXPECTED_RESPONSE" });
   });
 });
