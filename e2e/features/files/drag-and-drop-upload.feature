@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dominik Wadowski
 # SPDX-License-Identifier: FSL-1.1-ALv2
 
-@module:files @ui @wip
+@module:files @ui
 Feature: Dropping files onto the Files page to upload them
 
   Anna drops files from her computer onto the file area of the Files page.
