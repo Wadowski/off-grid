@@ -29,7 +29,11 @@ export const FolderNameField = ({
       onChange={(event) => onChange(event.target.value)}
       label={<Text variant="label" textId={copy.nameLabelTextId} />}
       labelAside={<Text variant="status" textId={copy.requiredTextId} />}
-      error={errorTextId === undefined ? undefined : <Text variant="error" textId={errorTextId} />}
+      error={
+        errorTextId === undefined ? undefined : (
+          <Text variant="error" role="alert" textId={errorTextId} />
+        )
+      }
     />
   );
 };
