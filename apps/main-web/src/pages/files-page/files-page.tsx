@@ -121,13 +121,15 @@ export const FilesPage = () => {
       {folder.status === "ready" && folder.driveId !== null ? (
         <FolderContents
           key={`${folder.driveId}:${folder.folderId ?? ""}`}
+          drives={switcher.drives}
           driveId={folder.driveId}
+          folderId={folder.folderId}
           contents={contents}
           phone={phone}
           view={phone ? "list" : preference.view}
           selectedId={switcher.selectedFileId}
           onSelect={switcher.onSelectFile}
-          onEntryTrashed={(fileId) => {
+          onEntryLeft={(fileId) => {
             if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
               switcher.onClearSelection();
             }

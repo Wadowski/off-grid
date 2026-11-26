@@ -71,13 +71,15 @@ const renderContents = (
   render(
     <MemoryRouter>
       <FolderContents
+        drives={[]}
+        folderId={null}
         driveId={DRIVE_ID}
         contents={contents}
         phone={phone}
         view={view}
         selectedId={selectedId}
         onSelect={onSelect}
-        onEntryTrashed={vi.fn()}
+        onEntryLeft={vi.fn()}
       />
     </MemoryRouter>,
   );
@@ -133,13 +135,15 @@ describe("FolderContents", () => {
     rerender(
       <MemoryRouter>
         <FolderContents
+          drives={[]}
+          folderId={null}
           driveId={DRIVE_ID}
           contents={contentsWith({ items: [FILE_ENTRY] })}
           phone={false}
           view="grid"
           selectedId={FILE_ENTRY.id}
           onSelect={vi.fn()}
-          onEntryTrashed={vi.fn()}
+          onEntryLeft={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -176,7 +180,7 @@ describe("FolderContents", () => {
 
   it("removes a file moved to the trash from the list and tells the person it was moved", async () => {
     const removeItem = vi.fn();
-    const onEntryTrashed = vi.fn();
+    const onEntryLeft = vi.fn();
     vi.spyOn(webFilesClient, "trashFile").mockResolvedValue({} as FileEntry);
     HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
       this.setAttribute("open", "");
@@ -184,13 +188,15 @@ describe("FolderContents", () => {
     render(
       <MemoryRouter>
         <FolderContents
+          drives={[]}
+          folderId={null}
           driveId={DRIVE_ID}
           contents={contentsWith({ removeItem })}
           phone={false}
           view="list"
           selectedId={null}
           onSelect={vi.fn()}
-          onEntryTrashed={onEntryTrashed}
+          onEntryLeft={onEntryLeft}
         />
       </MemoryRouter>,
     );
@@ -204,7 +210,7 @@ describe("FolderContents", () => {
       '"Trip.pdf" was moved to the trash.',
     );
     expect(removeItem).toHaveBeenCalledWith(FILE_ENTRY.id);
-    expect(onEntryTrashed).toHaveBeenCalledWith(FILE_ENTRY.id);
+    expect(onEntryLeft).toHaveBeenCalledWith(FILE_ENTRY.id);
   });
 
   it("keeps the move-to-trash confirmation open when the layout switches to the phone list", () => {
@@ -219,13 +225,15 @@ describe("FolderContents", () => {
     rerender(
       <MemoryRouter>
         <FolderContents
+          drives={[]}
+          folderId={null}
           driveId={DRIVE_ID}
           contents={contents}
           phone
           view="list"
           selectedId={null}
           onSelect={vi.fn()}
-          onEntryTrashed={vi.fn()}
+          onEntryLeft={vi.fn()}
         />
       </MemoryRouter>,
     );

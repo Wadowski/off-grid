@@ -3,7 +3,7 @@
 
 import type { MenuAction } from "@offgrid/ui";
 import type { FileListItem } from "../../../../files/types.js";
-import { DELETE_ICON, FILE_OPEN_ICON, FOLDER_OPEN_ICON } from "./constants.js";
+import { DELETE_ICON, FILE_OPEN_ICON, FOLDER_OPEN_ICON, MOVE_ICON } from "./constants.js";
 import type { FileActionHandlers } from "./types.js";
 
 export const toFileActions = (
@@ -17,6 +17,14 @@ export const toFileActions = (
     tone: "default",
     testId: "file-action-open",
     onSelect: handlers.onOpen,
+  },
+  {
+    id: "move",
+    textId: "files.entryActions.move",
+    icon: MOVE_ICON,
+    tone: "default",
+    testId: "file-action-move",
+    onSelect: handlers.onMove,
   },
   {
     id: "delete",

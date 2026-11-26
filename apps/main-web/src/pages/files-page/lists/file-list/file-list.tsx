@@ -19,6 +19,7 @@ export const FileList = ({
   onSelect,
   onLoadMore,
   onDelete,
+  onMove,
 }: FileListProps) => {
   const navigate = useNavigate();
   const activate = (item: FileListItem) => {
@@ -40,7 +41,12 @@ export const FileList = ({
               selected={item.id === selectedId}
               onActivate={() => activate(item)}
               actions={
-                <FileActionsMenu entry={item} onOpen={() => activate(item)} onDelete={onDelete} />
+                <FileActionsMenu
+                  entry={item}
+                  onOpen={() => activate(item)}
+                  onDelete={onDelete}
+                  onMove={onMove}
+                />
               }
             />
           ))}
