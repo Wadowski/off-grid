@@ -221,7 +221,7 @@ describe("FilesPage", () => {
     } as never);
     renderAt(FOLDER_PATH);
 
-    expect(await screen.findByTestId("files-empty")).toHaveTextContent("This folder is empty.");
+    expect(await screen.findByTestId("files-empty")).toHaveTextContent("This folder is empty");
   });
 
   it("shows a back control on a phone inside a folder that goes to the drive root", async () => {
@@ -277,6 +277,18 @@ describe("FilesPage", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong. Try again."),
     );
+  });
+
+  it("reloads the folder details when Try again is pressed after they failed", async () => {
+    vi.mocked(getFile)
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValue({ file: FOLDER, breadcrumbs: ANCESTOR_BREADCRUMBS } as never);
+    renderAt(FOLDER_PATH);
+
+    fireEvent.click(await screen.findByTestId("files-retry"));
+
+    expect(await screen.findByRole("navigation", { name: "Folder path" })).toBeInTheDocument();
+    expect(getFile).toHaveBeenCalledTimes(2);
   });
 
   it("marks the selected file row and clears the selection when another folder is opened", async () => {

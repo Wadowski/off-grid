@@ -112,8 +112,29 @@ describe("FolderContents", () => {
   it("shows the empty text when the folder has no entries", () => {
     renderContents(false, contentsWith({ items: [] }));
 
-    expect(screen.getByTestId("files-empty")).toHaveTextContent("This folder is empty.");
+    expect(screen.getByTestId("files-empty")).toHaveTextContent("This folder is empty");
     expect(screen.queryByTestId("files-table")).not.toBeInTheDocument();
+  });
+
+  it("shows the loading placeholder while the entries load", () => {
+    renderContents(false, contentsWith({ status: "loading", items: [] }));
+
+    expect(screen.getByTestId("files-folder-loading")).toHaveAttribute("aria-busy", "true");
+    expect(screen.queryByTestId("files-empty")).not.toBeInTheDocument();
+  });
+
+  it("offers to try again when the entries cannot load, and reloads them", () => {
+    const contents = contentsWith({
+      status: "failed",
+      errorTextId: "files.errors.failed",
+      items: [],
+    });
+    renderContents(false, contents);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong. Try again.");
+    fireEvent.click(screen.getByTestId("files-retry"));
+
+    expect(contents.refresh).toHaveBeenCalledTimes(1);
   });
 
   it("shows each entry as a card in grid view", () => {

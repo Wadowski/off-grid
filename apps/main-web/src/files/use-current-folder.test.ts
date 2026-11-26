@@ -184,6 +184,33 @@ describe("useCurrentFolder", () => {
     await waitFor(() => expect(result.current.status).toBe("not-found"));
   });
 
+  it("reports a folder hidden from the viewer exactly as a missing folder", async () => {
+    vi.mocked(getFile).mockRejectedValueOnce(new ApiError(404, "NOT_FOUND", "hidden"));
+    const hidden = renderAt(folderPath(DRIVE_ID, FOLDER_ID));
+    await waitFor(() => expect(hidden.result.current.status).toBe("not-found"));
+
+    vi.mocked(getFile).mockRejectedValueOnce(new ApiError(404, "", "missing"));
+    const missing = renderAt(folderPath(DRIVE_ID, MISSING_FOLDER_ID));
+    await waitFor(() => expect(missing.result.current.status).toBe("not-found"));
+
+    expect(missing.result.current.errorTextId).toBe(hidden.result.current.errorTextId);
+    expect(missing.result.current.breadcrumbs).toEqual(hidden.result.current.breadcrumbs);
+  });
+
+  it("retries the folder details when the state is refreshed after a failure", async () => {
+    vi.mocked(getFile)
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValue({ file: FOLDER as FileEntry, breadcrumbs: ANCESTOR_BREADCRUMBS });
+
+    const { result } = renderAt(folderPath(DRIVE_ID, FOLDER_ID));
+    await waitFor(() => expect(result.current.status).toBe("failed"));
+
+    await act(() => result.current.refresh());
+
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(getFile).toHaveBeenCalledTimes(2);
+  });
+
   it("is not found when the id belongs to a file, not a folder", async () => {
     vi.mocked(getFile).mockResolvedValue({
       file: {

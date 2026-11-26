@@ -150,6 +150,7 @@ export type CurrentFolderState = {
   readonly folderId: FileEntry["id"] | null;
   readonly breadcrumbs: readonly Breadcrumb[];
   readonly errorTextId: FilesErrorTextId | null;
+  readonly refresh: () => Promise<void>;
 };
 
 export type FilesSortField = (typeof fileListSortSchema.options)[number];

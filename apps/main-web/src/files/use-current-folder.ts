@@ -18,7 +18,14 @@ export const useCurrentFolder = (): CurrentFolderState => {
   const details = useFileDetails(folderId, !isRoot && folderId !== null && driveId !== null);
 
   if (rawDriveId === undefined) {
-    return { status: "ready", driveId: null, folderId: null, breadcrumbs: [], errorTextId: null };
+    return {
+      status: "ready",
+      driveId: null,
+      folderId: null,
+      breadcrumbs: [],
+      errorTextId: null,
+      refresh: drives.refresh,
+    };
   }
   if (driveId === null) {
     return {
@@ -27,13 +34,21 @@ export const useCurrentFolder = (): CurrentFolderState => {
       folderId: null,
       breadcrumbs: [],
       errorTextId: null,
+      refresh: drives.refresh,
     };
   }
   if (isRoot) {
     return toRootFolderState(drives, driveId);
   }
   if (folderId === null) {
-    return { status: "not-found", driveId, folderId: null, breadcrumbs: [], errorTextId: null };
+    return {
+      status: "not-found",
+      driveId,
+      folderId: null,
+      breadcrumbs: [],
+      errorTextId: null,
+      refresh: drives.refresh,
+    };
   }
   return toFolderState(details, driveId, folderId);
 };
