@@ -289,7 +289,10 @@ Then("the Back control is not shown", async ({ page }) => {
 });
 
 Then("the folder shows the empty message", async ({ page }) => {
-  await expect(page.getByTestId("files-empty")).toHaveText("This folder is empty.");
+  const empty = page.getByTestId("files-empty");
+  await expect(empty).toHaveAttribute("role", "status");
+  await expect(empty.getByRole("heading")).toHaveText("This folder is empty");
+  await expect(empty).toContainText("Use Upload or New folder to add something.");
 });
 
 Then("the phone page does not scroll sideways", async ({ page }) => {
