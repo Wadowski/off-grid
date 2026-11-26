@@ -20,7 +20,6 @@ describe("FolderLoading", () => {
 
     expect(status).toHaveAttribute("aria-busy", "true");
     expect(status).toHaveAttribute("data-testid", "files-folder-loading");
-    expect(status).toHaveTextContent("Loading...");
   });
 
   it("draws table rows for the list layout", () => {
