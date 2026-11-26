@@ -3,6 +3,7 @@
 
 export type TopBarActionsProps = {
   readonly uploadDisabled: boolean;
+  readonly trashPath: string | null;
   readonly onFilesPicked: (files: readonly File[]) => void;
   readonly newFolderDisabled: boolean;
   readonly onNewFolder: () => void;

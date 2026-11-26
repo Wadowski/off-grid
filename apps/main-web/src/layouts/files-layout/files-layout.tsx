@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { useRef, useState } from "react";
-import { Outlet, useLocation, useOutletContext, useParams } from "react-router-dom";
+import { Outlet, useLocation, useMatch, useOutletContext, useParams } from "react-router-dom";
 import { useIsNarrow } from "../../media/use-is-narrow.js";
 import { useDrives } from "../../files/use-drives.js";
 import { FileDetailsPanel } from "../../pages/files-page/components/file-details-panel/file-details-panel.js";
 import { focusSelectedRow } from "../../pages/files-page/components/folder-contents/focus-selected-row.js";
+import { TRASH_ROUTE_PATTERN } from "../../files/to-trash-path.js";
 import type { ShellContext } from "../../types.js";
 import { DriveSwitcher } from "./components/drive-switcher/drive-switcher.js";
 import type { DriveSwitcherProps } from "./components/drive-switcher/types.js";
@@ -18,6 +19,7 @@ import { filesLayoutAsideStyle, filesLayoutContentStyle, filesLayoutStyle } from
 export const FilesLayout = () => {
   const { driveId } = useParams();
   const location = useLocation();
+  const trashMatch = useMatch(TRASH_ROUTE_PATTERN);
   const narrow = useIsNarrow();
   const shell = useOutletContext<ShellContext | undefined>();
   const expectedFamilyCount = shell?.families.length ?? 0;
@@ -31,6 +33,7 @@ export const FilesLayout = () => {
     status,
     errorTextId,
     activeDriveId: toActiveDriveId(driveId, drives),
+    trashActive: trashMatch !== null,
     onRetry: () => void refresh(),
   };
   const context: FilesOutletContext = {

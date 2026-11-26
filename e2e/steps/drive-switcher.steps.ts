@@ -4,9 +4,10 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
-import { postAs, waitForDrives } from "../support/factories/files.js";
+import { postAs } from "../support/factories/files.js";
 import { signInWith, type Session } from "../support/factories/instance-admin.js";
 import { test, type ScenarioWorld } from "../support/fixtures.js";
+import { familyDriveIdNamed } from "../support/family-drive-id-named.js";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -30,21 +31,6 @@ const ownSessionOf = async (world: ScenarioWorld): Promise<Session> => {
     throw new Error(`${account.displayName} cannot sign in through the API.`);
   }
   return signedIn.session;
-};
-
-const familyDriveIdNamed = async (
-  world: ScenarioWorld,
-  session: Session,
-  name: string,
-): Promise<string> => {
-  const drives = await waitForDrives(world.api, session, (listed) =>
-    listed.some((drive) => drive.familyId !== null && drive.name === name),
-  );
-  const drive = drives.find((listed) => listed.familyId !== null && listed.name === name);
-  if (drive === undefined) {
-    throw new Error(`The family drive ${name} is not listed.`);
-  }
-  return drive.id;
 };
 
 const createTopFolderIn = async (

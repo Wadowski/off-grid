@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
+import { toTrashPath } from "../../../../files/to-trash-path.js";
 import { DriveControl } from "./components/drive-control/drive-control.js";
 import { TopBarActions } from "./components/top-bar-actions/top-bar-actions.js";
 import type { FilesTopBarProps } from "./types.js";
@@ -22,6 +23,7 @@ export const FilesTopBar = ({
       <DriveControl status={status} activeDriveName={activeDriveName} />
       <TopBarActions
         uploadDisabled={uploadDisabled}
+        trashPath={activeDriveId === null ? null : toTrashPath(activeDriveId)}
         onFilesPicked={onFilesPicked}
         newFolderDisabled={newFolderDisabled}
         onNewFolder={onNewFolder}

@@ -9,5 +9,6 @@ export type DriveSwitcherProps = {
   readonly status: ListStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly activeDriveId: Drive["id"] | null;
+  readonly trashActive?: boolean;
   readonly onRetry: () => void;
 };

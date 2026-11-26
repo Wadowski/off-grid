@@ -36,6 +36,25 @@ describe("FileTableRow", () => {
     expect(screen.getByRole("cell", { name: "PDF" })).toBeInTheDocument();
   });
 
+  it("shows a trashed file without a type cell and without an activator", () => {
+    renderRow({
+      name: "Policy.pdf",
+      kind: "pdf",
+      sizeBytes: 2_800_000,
+      modifiedAt: YESTERDAY,
+      locale: "en",
+      now: NOW,
+      timeZone: "UTC",
+      variant: "trash",
+      onActivate: vi.fn(),
+    });
+
+    expect(screen.getByTestId("file-table-name")).toHaveTextContent("Policy.pdf");
+    expect(screen.queryByTestId("file-table-activate")).not.toBeInTheDocument();
+    expect(screen.queryByRole("cell", { name: "PDF" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("cell")).toHaveLength(4);
+  });
+
   it("shows the number of items of a folder in the size column and the folder type", () => {
     renderRow({ name: "Photos", kind: "folder", itemCount: 184 });
 

@@ -3,7 +3,9 @@
 
 import type { ReactNode } from "react";
 import type { FileEntryProps } from "../files/types.js";
+import type { FileTableVariant } from "../file-table/types.js";
 
 export type FileTableRowProps = Omit<FileEntryProps, "trailing"> & {
   readonly actions?: ReactNode;
+  readonly variant?: FileTableVariant;
 };

@@ -28,6 +28,23 @@ describe("FileTable", () => {
     }
   });
 
+  it("lists a trashed table with Name, Deleted, Size and a visually hidden Actions column header", () => {
+    renderWithI18n(
+      <FileTable isBusy={false} variant="trash">
+        <tr />
+      </FileTable>,
+    );
+
+    const table = screen.getByRole("table", { name: "Trashed items" });
+    const headers = within(table).getAllByRole("columnheader");
+    expect(headers.map((header) => header.textContent)).toEqual([
+      "Name",
+      "Deleted",
+      "Size",
+      "Actions",
+    ]);
+  });
+
   it("lists the rows it is given in order", () => {
     renderWithI18n(
       <FileTable isBusy={false}>

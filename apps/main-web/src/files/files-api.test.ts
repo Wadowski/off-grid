@@ -10,9 +10,11 @@ import {
   getFileContent,
   getFileVersionContent,
   listDriveChildren,
+  listDriveTrash,
   listDrives,
   listFileChildren,
   listFileVersions,
+  restoreFile,
   restoreFileVersion,
   trashFile,
   uploadFile,
@@ -75,6 +77,21 @@ describe("files API", () => {
 
     await expect(trashFile(FOLDER_ID)).resolves.toBe(trashed);
     expect(trash).toHaveBeenCalledWith(FOLDER_ID);
+  });
+
+  it("passes the drive id and paging options to the files client for the trash list", async () => {
+    const trash = vi.spyOn(webFilesClient, "listDriveTrash").mockResolvedValue(PAGE);
+
+    await expect(listDriveTrash(DRIVE_ID, { cursor: "next", limit: 200 })).resolves.toBe(PAGE);
+    expect(trash).toHaveBeenCalledWith(DRIVE_ID, { cursor: "next", limit: 200 });
+  });
+
+  it("restores the file through the files client and returns it", async () => {
+    const restored = { id: FOLDER_ID } as FileEntry;
+    const restore = vi.spyOn(webFilesClient, "restoreFile").mockResolvedValue(restored);
+
+    await expect(restoreFile(FOLDER_ID)).resolves.toBe(restored);
+    expect(restore).toHaveBeenCalledWith(FOLDER_ID);
   });
 
   it("passes the file id to the files client and returns the details", async () => {

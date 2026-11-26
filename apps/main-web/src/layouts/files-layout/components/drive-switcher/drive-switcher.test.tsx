@@ -118,4 +118,29 @@ describe("DriveSwitcher", () => {
 
     expect(screen.queryByText(/GB|MB|%/)).not.toBeInTheDocument();
   });
+
+  it("links the active drive to its trash view", () => {
+    renderSwitcher();
+
+    expect(screen.getByTestId("drive-switcher-trash")).toHaveAttribute(
+      "href",
+      `/files/${PERSONAL.id}/trash`,
+    );
+    expect(screen.getByRole("link", { name: "Trash" })).toBeInTheDocument();
+  });
+
+  it("does not show the Trash link while no drive is active", () => {
+    renderSwitcher({ activeDriveId: null });
+
+    expect(screen.queryByTestId("drive-switcher-trash")).not.toBeInTheDocument();
+  });
+
+  it("marks the Trash link as the current page and the drive as not current on the trash view", () => {
+    renderSwitcher({ trashActive: true });
+
+    expect(screen.getByTestId("drive-switcher-trash")).toHaveAttribute("aria-current", "page");
+    for (const row of screen.getAllByTestId("drive-switcher-row")) {
+      expect(row).not.toHaveAttribute("aria-current");
+    }
+  });
 });
