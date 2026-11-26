@@ -24,7 +24,12 @@ Feature: Dropping files onto the Files page to upload them
     When Anna opens her personal drive in the browser
     And Anna drags the files "Holiday.txt" over the Files page
     Then the drop zone is shown on the Files page
-    When Anna cancels the drag over the Files page
+
+  Scenario: The drop zone is hidden again when the drag leaves the Files page
+    Given I am signed in as "Anna Kowalska", a regular member
+    When Anna opens her personal drive in the browser
+    And Anna drags the files "Holiday.txt" over the Files page
+    And Anna cancels the drag over the Files page
     Then the drop zone is hidden
 
   Scenario: A file dropped into an open folder lands in that folder
