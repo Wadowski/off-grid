@@ -4,14 +4,18 @@
 import { expect, type Page } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { test } from "../support/fixtures.js";
+import { captureScreen, screenOptionsFor } from "../support/screenshots.js";
 
 const { Given, When, Then } = createBdd(test);
 
+const FEATURE = "Empty, loading and failed states of a folder";
+const SCREEN_TAG = "@screen:";
+
 const FOLDER_LIST_ROUTE = /\/api\/(drives\/[^/]+|files\/[^/]+)\/children(\?.*)?$/;
 const FOLDER_DETAILS_ROUTE = /\/api\/files\/[^/?]+$/;
-const SLOW_LIST_DELAY_MS = 1500;
 
 const failureSwitches = new WeakMap<Page, Map<string, { failing: boolean }>>();
+const heldListRequests = new WeakMap<Page, () => void>();
 
 const failRequestsWhileOn = async (page: Page, pattern: RegExp, kind: string): Promise<void> => {
   const switches = failureSwitches.get(page) ?? new Map<string, { failing: boolean }>();
@@ -21,13 +25,38 @@ const failRequestsWhileOn = async (page: Page, pattern: RegExp, kind: string): P
   await page.route(pattern, (route) => (switchForKind.failing ? route.abort() : route.continue()));
 };
 
-const retryButtonOf = (page: Page) => page.getByTestId("files-retry");
-
-Given("the folder list of Anna loads slowly", async ({ page }) => {
+const holdFolderListUntilReleased = async (page: Page): Promise<void> => {
+  const released = new Promise<void>((resolve) => {
+    heldListRequests.set(page, resolve);
+  });
   await page.route(FOLDER_LIST_ROUTE, async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, SLOW_LIST_DELAY_MS));
+    await released;
     await route.continue();
   });
+};
+
+const releaseHeldFolderList = (page: Page): void => {
+  heldListRequests.get(page)?.();
+};
+
+const retryButtonOf = (page: Page) => page.getByTestId("files-retry");
+
+const captureTaggedScreen = async (page: Page, tags: readonly string[]): Promise<void> => {
+  const screenTag = tags.find((tag) => tag.startsWith(SCREEN_TAG));
+  if (screenTag === undefined) {
+    return;
+  }
+  await captureScreen(
+    page,
+    screenTag.slice(SCREEN_TAG.length),
+    FEATURE,
+    undefined,
+    screenOptionsFor(tags),
+  );
+};
+
+Given("the folder list of Anna loads slowly", async ({ page }) => {
+  await holdFolderListUntilReleased(page);
 });
 
 Given("the next folder list of Anna fails to load", async ({ page }) => {
@@ -45,21 +74,24 @@ When("Anna chooses Try again", async ({ page }) => {
   await retryButtonOf(page).click();
 });
 
-Then("a loading placeholder is shown for the folder", async ({ page }) => {
+Then("a loading placeholder is shown for the folder", async ({ page, $tags }) => {
   const loading = page.getByTestId("files-folder-loading");
   await expect(loading).toBeVisible();
   await expect(loading).toHaveAttribute("role", "status");
   await expect(loading).toHaveAttribute("aria-busy", "true");
   await expect(loading).toHaveAccessibleName("Loading...");
+  await captureTaggedScreen(page, $tags);
 });
 
 Then(/^the folder lists "([^"]*)" once it has loaded$/, async ({ page }, name: string) => {
+  releaseHeldFolderList(page);
   await expect(page.getByTestId("files-folder-contents").getByText(name)).toBeVisible();
 });
 
-Then("the folder says it could not be loaded and offers to try again", async ({ page }) => {
+Then("the folder says it could not be loaded and offers to try again", async ({ page, $tags }) => {
   await expect(page.getByRole("alert")).toBeVisible();
   await expect(retryButtonOf(page)).toHaveText("Try again");
+  await captureTaggedScreen(page, $tags);
 });
 
 Then(
