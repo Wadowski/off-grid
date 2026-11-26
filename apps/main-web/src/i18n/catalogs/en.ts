@@ -704,6 +704,12 @@ export const en = {
       notice: '"{{name}}" was moved to the trash.',
       noticeDismiss: "Dismiss",
     },
+    dropZone: {
+      title: "Drop files to upload",
+      hintBefore: "Release your files to upload them directly to the",
+      hintAfter: "folder.",
+      hintDrive: "Release your files to upload them directly to this drive.",
+    },
     upload: {
       heading: "Uploads",
       queueLabel: "Upload queue",
