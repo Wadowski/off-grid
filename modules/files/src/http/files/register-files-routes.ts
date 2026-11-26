@@ -7,6 +7,7 @@ import { registerCreateFolder } from "./register-create-folder.js";
 import { registerDownloadFile } from "./register-download-file.js";
 import { registerDownloadFileVersion } from "./register-download-file-version.js";
 import { registerGetFile } from "./register-get-file.js";
+import { registerGetUploadLimit } from "./register-get-upload-limit.js";
 import { registerMoveFile } from "./register-move-file.js";
 import { registerRenameFile } from "./register-rename-file.js";
 import { registerUploadFile } from "./register-upload-file.js";
@@ -22,6 +23,7 @@ import { registerTrashRoutes } from "../trash/register-trash-routes.js";
 export const registerFilesRoutes = (api: FastifyInstance, context: FilesRouteContext): void => {
   registerListDrives(api, context);
   registerListDriveChildren(api, context);
+  registerGetUploadLimit(api, context);
   registerGetFile(api, context);
   registerDownloadFile(api, context);
   registerDownloadFileVersion(api, context);
