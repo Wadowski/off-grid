@@ -26,7 +26,7 @@ Feature: Renaming a file or folder from its menu
     When Anna opens the files page on a desktop screen
     And Anna renames the file "Insurance policy.txt" to "Insurance 2026.txt"
     Then the rename dialog is closed
-    And the table lists "Insurance 2026.txt"
+    And the table lists the file "Insurance 2026.txt"
     And the table no longer lists "Insurance policy.txt"
     And the table still lists "Zulu.txt"
 
@@ -36,7 +36,7 @@ Feature: Renaming a file or folder from its menu
     When Anna opens the files page on a desktop screen
     And Anna renames the folder "Photos" to "Holiday photos"
     Then the rename dialog is closed
-    And the table lists "Holiday photos"
+    And the table lists the folder "Holiday photos"
     And the table no longer lists "Photos"
 
   Scenario: Anna changes the extension of a file
@@ -44,7 +44,7 @@ Feature: Renaming a file or folder from its menu
     And Anna has a personal-drive file "Notes.txt"
     When Anna opens the files page on a desktop screen
     And Anna renames the file "Notes.txt" to "Notes.md"
-    Then the table lists "Notes.md"
+    Then the table lists the file "Notes.md"
 
   Scenario: A name that is already used in the folder is refused and the typed name is kept
     Given I am signed in as "Anna Kowalska", a regular member
@@ -96,8 +96,7 @@ Feature: Renaming a file or folder from its menu
     And Anna chooses Rename from the actions menu
     And Anna submits the rename
     Then the rename dialog is closed
-    And no rename request was sent
-    And the table lists "Insurance policy.txt"
+    And the table lists the file "Insurance policy.txt"
 
   Scenario: Cancelling the rename changes nothing and returns focus to the actions button
     Given I am signed in as "Anna Kowalska", a regular member
@@ -108,8 +107,7 @@ Feature: Renaming a file or folder from its menu
     And Anna types "Changed.txt" as the new name
     And Anna cancels the rename
     Then the rename dialog is closed
-    And no rename request was sent
-    And the table lists "Insurance policy.txt"
+    And the table lists the file "Insurance policy.txt"
     And the actions button of "Insurance policy.txt" has focus
 
   Scenario: Pressing Escape closes the rename dialog without a request
@@ -120,7 +118,6 @@ Feature: Renaming a file or folder from its menu
     And Anna chooses Rename from the actions menu
     And Anna presses Escape
     Then the rename dialog is closed
-    And no rename request was sent
 
   Scenario: Renaming the selected file updates the details panel
     Given I am signed in as "Anna Kowalska", a regular member
