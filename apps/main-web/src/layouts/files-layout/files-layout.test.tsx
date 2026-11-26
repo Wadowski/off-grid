@@ -4,6 +4,7 @@
 import { driveSchema } from "@offgrid/contracts";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useOutletContext } from "react-router-dom";
+import { UploadQueueProvider } from "../../uploads/index.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NARROW_MEDIA_QUERY } from "../../constants.js";
 import { getFile, listDrives } from "../../files/files-api.js";
@@ -14,6 +15,7 @@ import type { FilesOutletContext } from "./types.js";
 vi.mock("../../files/files-api.js", () => ({
   listDrives: vi.fn(),
   getFile: vi.fn(),
+  listFileVersions: vi.fn(async () => []),
 }));
 
 const PERSONAL = driveSchema.parse({
@@ -43,12 +45,14 @@ const withNarrowScreen = (isNarrow: boolean) => {
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="files" element={<FilesLayout />}>
-          <Route index element={<p>Files index content</p>} />
-          <Route path=":driveId/*" element={<p>Drive content</p>} />
-        </Route>
-      </Routes>
+      <UploadQueueProvider>
+        <Routes>
+          <Route path="files" element={<FilesLayout />}>
+            <Route index element={<p>Files index content</p>} />
+            <Route path=":driveId/*" element={<p>Drive content</p>} />
+          </Route>
+        </Routes>
+      </UploadQueueProvider>
     </MemoryRouter>,
   );
 
@@ -86,11 +90,13 @@ const SelectionRow = () => {
 const renderSelectable = () =>
   render(
     <MemoryRouter initialEntries={[FOLDER_PATH]}>
-      <Routes>
-        <Route path="files" element={<FilesLayout />}>
-          <Route path=":driveId/folder/:folderId" element={<SelectionRow />} />
-        </Route>
-      </Routes>
+      <UploadQueueProvider>
+        <Routes>
+          <Route path="files" element={<FilesLayout />}>
+            <Route path=":driveId/folder/:folderId" element={<SelectionRow />} />
+          </Route>
+        </Routes>
+      </UploadQueueProvider>
     </MemoryRouter>,
   );
 

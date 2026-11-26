@@ -35,6 +35,7 @@ describe("FileDetailsPanelBody", () => {
   it("shows the type, size, modified, created and location rows without version or owner", () => {
     render(
       <FileDetailsPanelBody
+        versionsSection={null}
         file={FILE}
         breadcrumbs={[
           { kind: "drive", id: DRIVE_ID, name: "Personal" },
@@ -55,7 +56,7 @@ describe("FileDetailsPanelBody", () => {
   });
 
   it("labels the properties section with its uppercase heading and lists the label before the value", () => {
-    render(<FileDetailsPanelBody file={FILE} breadcrumbs={[]} />);
+    render(<FileDetailsPanelBody versionsSection={null} file={FILE} breadcrumbs={[]} />);
 
     const section = screen.getByRole("region", { name: "File properties" });
     const row = screen.getByTestId("file-details-property-size");

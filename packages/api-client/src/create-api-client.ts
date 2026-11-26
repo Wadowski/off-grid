@@ -12,11 +12,11 @@ export const createApiClient = ({
   fetch: transport = fetch,
   sendUpload,
 }: ApiClientOptions): ApiClient => ({
+  requestBlob: (path) => requestBlob(transport, baseUrl, path),
   request: (method, path, body, headers) =>
     requestApi(transport, baseUrl, method, path, body, headers),
   requestBytes: (method, path, body, headers, contentType) =>
     requestBytes(transport, baseUrl, method, path, body, headers, contentType),
-  requestBlob: (path) => requestBlob(transport, baseUrl, path),
   uploadBytes: (path, body, headers, options) =>
     sendUpload === undefined
       ? requestBytes(transport, baseUrl, "POST", path, body, headers, null)

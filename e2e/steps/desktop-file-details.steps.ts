@@ -131,10 +131,10 @@ Then("the table fits its width without a horizontal scroll", async ({ page }) =>
   expect(table?.width ?? 0).toBeLessThanOrEqual((list?.width ?? 0) + 1);
 });
 
-Then("the file details panel shows no version or link sections", async ({ page }) => {
+Then("the file details panel shows the versions and no link sections", async ({ page }) => {
   const panel = page.getByTestId(DETAILS_TESTID);
+  await expect(panel.getByTestId("file-versions-list")).toBeVisible();
   await expect(panel.getByRole("link")).toHaveCount(0);
-  await expect(panel.getByText(/version/i)).toHaveCount(0);
 });
 
 Then(/^the table row "([^"]*)" has the keyboard focus$/, async ({ page }, name: string) => {

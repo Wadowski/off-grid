@@ -81,7 +81,7 @@ When(/^the image "([^"]*)" is moved to the trash$/, async ({ world }, name: stri
 });
 
 When("Anna downloads the file from its details", async ({ page }) => {
-  await downloadAfter(page, page.getByRole("button", { name: "Download" }));
+  await downloadAfter(page, page.getByRole("button", { name: "Download", exact: true }));
 });
 
 When("Anna previews the file from its details", async ({ page }) => {
@@ -90,7 +90,10 @@ When("Anna previews the file from its details", async ({ page }) => {
 });
 
 When("Anna downloads the file from the preview dialog", async ({ page }) => {
-  await downloadAfter(page, previewDialogOf(page).getByRole("button", { name: "Download" }));
+  await downloadAfter(
+    page,
+    previewDialogOf(page).getByRole("button", { name: "Download", exact: true }),
+  );
 });
 
 When("Anna closes the preview with its Close control", async ({ page }) => {
@@ -115,12 +118,12 @@ Then(/^the browser saves the file "([^"]*)"$/, async ({ page }, name: string) =>
 });
 
 Then("the file details offer Download and Preview", async ({ page }) => {
-  await expect(page.getByRole("button", { name: "Download" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Preview" })).toBeVisible();
 });
 
 Then("the file details offer Download and no Preview", async ({ page }) => {
-  await expect(page.getByRole("button", { name: "Download" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Preview" })).toHaveCount(0);
 });
 

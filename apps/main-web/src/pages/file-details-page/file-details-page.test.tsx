@@ -8,6 +8,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listFamilyMembers } from "../../families/list-family-members.js";
 import { getFile, listDrives, listFileVersions } from "../../files/files-api.js";
+import { UploadQueueProvider } from "../../uploads/index.js";
 import { FileDetailsPage } from "./file-details-page.js";
 
 vi.mock("../../files/files-api.js", () => ({
@@ -126,11 +127,13 @@ const VERSIONS = [
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/files/:driveId/file/:fileId" element={<FileDetailsPage />} />
-        <Route path="/files/:driveId/folder/:folderId" element={<p>Folder page</p>} />
-        <Route path="/files" element={<p>Files home</p>} />
-      </Routes>
+      <UploadQueueProvider>
+        <Routes>
+          <Route path="/files/:driveId/file/:fileId" element={<FileDetailsPage />} />
+          <Route path="/files/:driveId/folder/:folderId" element={<p>Folder page</p>} />
+          <Route path="/files" element={<p>Files home</p>} />
+        </Routes>
+      </UploadQueueProvider>
     </MemoryRouter>,
   );
 

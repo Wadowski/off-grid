@@ -19,19 +19,23 @@ import { leaveFamily } from "../support/family-sessions.js";
 import type { JsonResponse, Session } from "../support/factories/instance-admin.js";
 import type { FileVersionEntry } from "../support/factories/types.js";
 import { signedInPerson } from "../support/factories/notifications.js";
+import { ownSessionOf } from "../support/own-session.js";
 import { expect, test, type ScenarioWorld } from "../support/fixtures.js";
 
 const { Given, When, Then } = createBdd(test);
 
-const sessionOf = (world: ScenarioWorld, name: string): Session => {
+export const sessionOf = async (world: ScenarioWorld, name: string): Promise<Session> => {
   const person = world.people?.[name];
-  if (person === undefined) {
-    throw new Error(`${name} has not signed up`);
+  if (person !== undefined) {
+    return person.session;
   }
-  return person.session;
+  if (name === "Anna" && world.ownAccount !== undefined) {
+    return ownSessionOf(world);
+  }
+  throw new Error(`${name} has not signed up`);
 };
 
-const familyIdNamed = (world: ScenarioWorld, name: string): string => {
+export const familyIdNamed = (world: ScenarioWorld, name: string): string => {
   const family = world.families.find((created) => created.name === name);
   if (family === undefined) {
     throw new Error(`The family ${name} does not exist`);
@@ -39,30 +43,33 @@ const familyIdNamed = (world: ScenarioWorld, name: string): string => {
   return family.id;
 };
 
-const personalDriveIdOf = async (world: ScenarioWorld, name: string): Promise<string> => {
-  const drives = await waitForDrives(world.api, sessionOf(world, name), (listed) =>
+export const personalDriveIdOf = async (world: ScenarioWorld, name: string): Promise<string> => {
+  const drives = await waitForDrives(world.api, await sessionOf(world, name), (listed) =>
     listed.some((drive) => drive.familyId === null),
   );
   return drives.find((drive) => drive.familyId === null)?.id ?? "";
 };
 
-const familyDriveIdOf = async (world: ScenarioWorld, familyName: string): Promise<string> => {
+export const familyDriveIdOf = async (
+  world: ScenarioWorld,
+  familyName: string,
+): Promise<string> => {
   const familyId = familyIdNamed(world, familyName);
-  const drives = await waitForDrives(world.api, sessionOf(world, "Anna"), (listed) =>
+  const drives = await waitForDrives(world.api, await sessionOf(world, "Anna"), (listed) =>
     listed.some((drive) => drive.familyId === familyId),
   );
   return drives.find((drive) => drive.familyId === familyId)?.id ?? "";
 };
 
-const familyFileIdOf = async (
+export const familyFileIdOf = async (
   world: ScenarioWorld,
   familyName: string,
   name: string,
 ): Promise<string> => {
   const familyId = familyIdNamed(world, familyName);
-  const drives = await listDrivesAs(world.api, sessionOf(world, "Anna"));
+  const drives = await listDrivesAs(world.api, await sessionOf(world, "Anna"));
   const drive = drives.find((listed) => listed.familyId === familyId);
-  const items = await listItemsAs(world.api, sessionOf(world, "Anna"), {
+  const items = await listItemsAs(world.api, await sessionOf(world, "Anna"), {
     kind: "drive",
     id: drive?.id ?? "",
   });
@@ -73,38 +80,39 @@ const familyFileIdOf = async (
   return item.id;
 };
 
-const fileIdVisibleTo = async (
+export const fileIdVisibleTo = async (
   world: ScenarioWorld,
   person: string,
   name: string,
-): Promise<string> => (await findItemAcrossDrives(world.api, sessionOf(world, person), name)).id;
+): Promise<string> =>
+  (await findItemAcrossDrives(world.api, await sessionOf(world, person), name)).id;
 
-const versionsOf = async (
+export const versionsOf = async (
   world: ScenarioWorld,
   person: string,
   fileId: string,
 ): Promise<FileVersionEntry[]> => {
-  const listed = await listVersionsAs(world.api, sessionOf(world, person), fileId);
+  const listed = await listVersionsAs(world.api, await sessionOf(world, person), fileId);
   expect(listed.status, `${person} lists the versions`).toBe(200);
   return (listed.body as { versions: FileVersionEntry[] }).versions;
 };
 
-const currentVersionIdOf = async (
+export const currentVersionIdOf = async (
   world: ScenarioWorld,
   person: string,
   fileId: string,
 ): Promise<string> => {
-  const details = await fileDetailsAs(world.api, sessionOf(world, person), fileId);
+  const details = await fileDetailsAs(world.api, await sessionOf(world, person), fileId);
   return (details.body as { file: { currentVersionId: string } }).file.currentVersionId;
 };
 
-const newestNumberOf = (versions: FileVersionEntry[]): number =>
+export const newestNumberOf = (versions: FileVersionEntry[]): number =>
   Math.max(...versions.map((version) => version.number));
 
 const numbersOf = (versions: FileVersionEntry[]): number[] =>
   versions.map((version) => version.number);
 
-const expectVersions = async (
+export const expectVersions = async (
   world: ScenarioWorld,
   person: string,
   name: string,
@@ -124,7 +132,7 @@ const expectVersions = async (
   }
 };
 
-const versionIdWithNumber = async (
+export const versionIdWithNumber = async (
   world: ScenarioWorld,
   person: string,
   name: string,
@@ -140,13 +148,17 @@ const versionIdWithNumber = async (
   return { fileId, versionId: version.id };
 };
 
-const sizeOf = async (world: ScenarioWorld, person: string, name: string): Promise<number> => {
+export const sizeOf = async (
+  world: ScenarioWorld,
+  person: string,
+  name: string,
+): Promise<number> => {
   const fileId = await fileIdVisibleTo(world, person, name);
-  const details = await fileDetailsAs(world.api, sessionOf(world, person), fileId);
+  const details = await fileDetailsAs(world.api, await sessionOf(world, person), fileId);
   return (details.body as { file: { size: number } }).file.size;
 };
 
-const responseOf = (world: ScenarioWorld): JsonResponse => {
+export const responseOf = (world: ScenarioWorld): JsonResponse => {
   if (world.response === undefined) {
     throw new Error("No response was recorded");
   }
@@ -162,7 +174,7 @@ Given(
   async ({ world }, name: string, content: string) => {
     const response = await uploadFileAs(
       world.api,
-      sessionOf(world, "Anna"),
+      await sessionOf(world, "Anna"),
       await personalDriveIdOf(world, "Anna"),
       {
         name,
@@ -175,14 +187,14 @@ Given(
 );
 
 Given(/^Ben stops being a member of "([^"]*)"$/, async ({ world }, familyName: string) => {
-  await leaveFamily(world.api, sessionOf(world, "Ben"), familyIdNamed(world, familyName));
+  await leaveFamily(world.api, await sessionOf(world, "Ben"), familyIdNamed(world, familyName));
 });
 
 Given(
   /^Ben no longer sees the family drive of "([^"]*)"$/,
   async ({ world }, familyName: string) => {
     const familyId = familyIdNamed(world, familyName);
-    await waitForDrives(world.api, sessionOf(world, "Ben"), (listed) =>
+    await waitForDrives(world.api, await sessionOf(world, "Ben"), (listed) =>
       listed.every((drive) => drive.familyId !== familyId),
     );
   },
@@ -193,7 +205,7 @@ Given(
   async ({ world }, name: string, content: string, familyName: string) => {
     const response = await uploadFileAs(
       world.api,
-      sessionOf(world, "Anna"),
+      await sessionOf(world, "Anna"),
       await familyDriveIdOf(world, familyName),
       {
         name,
@@ -209,7 +221,12 @@ When(
   /^Anna uploads a new version of "([^"]*)" with the content "([^"]*)"$/,
   async ({ world }, name: string, content: string) => {
     const fileId = await fileIdVisibleTo(world, "Anna", name);
-    world.response = await uploadVersionAs(world.api, sessionOf(world, "Anna"), fileId, content);
+    world.response = await uploadVersionAs(
+      world.api,
+      await sessionOf(world, "Anna"),
+      fileId,
+      content,
+    );
   },
 );
 
@@ -219,7 +236,7 @@ When(
     const fileId = await fileIdVisibleTo(world, "Anna", name);
     world.response = await uploadVersionAs(
       world.api,
-      sessionOf(world, "Anna"),
+      await sessionOf(world, "Anna"),
       fileId,
       oversizedUploadBody(),
     );
@@ -230,7 +247,7 @@ When(
   /^Ben looks at the versions of "([^"]*)" in the family drive of "([^"]*)"$/,
   async ({ world }, name: string, familyName: string) => {
     const fileId = await familyFileIdOf(world, familyName, name);
-    world.response = await listVersionsAs(world.api, sessionOf(world, "Ben"), fileId);
+    world.response = await listVersionsAs(world.api, await sessionOf(world, "Ben"), fileId);
   },
 );
 
@@ -238,20 +255,25 @@ When(
   /^Carol looks at the versions of "([^"]*)" in the family drive of "([^"]*)"$/,
   async ({ world }, name: string, familyName: string) => {
     const fileId = await familyFileIdOf(world, familyName, name);
-    world.response = await listVersionsAs(world.api, sessionOf(world, "Carol"), fileId);
+    world.response = await listVersionsAs(world.api, await sessionOf(world, "Carol"), fileId);
   },
 );
 
 When(/^Anna looks at the versions of "([^"]*)"$/, async ({ world }, name: string) => {
   const fileId = await fileIdVisibleTo(world, "Anna", name);
-  world.response = await listVersionsAs(world.api, sessionOf(world, "Anna"), fileId);
+  world.response = await listVersionsAs(world.api, await sessionOf(world, "Anna"), fileId);
 });
 
 When(
   /^Anna restores version (\d+) of "([^"]*)"$/,
   async ({ world }, number: string, name: string) => {
     const { fileId, versionId } = await versionIdWithNumber(world, "Anna", name, Number(number));
-    world.response = await restoreVersionAs(world.api, sessionOf(world, "Anna"), fileId, versionId);
+    world.response = await restoreVersionAs(
+      world.api,
+      await sessionOf(world, "Anna"),
+      fileId,
+      versionId,
+    );
   },
 );
 
@@ -259,14 +281,24 @@ When(
   /^Anna deletes version (\d+) of "([^"]*)"$/,
   async ({ world }, number: string, name: string) => {
     const { fileId, versionId } = await versionIdWithNumber(world, "Anna", name, Number(number));
-    world.response = await deleteVersionAs(world.api, sessionOf(world, "Anna"), fileId, versionId);
+    world.response = await deleteVersionAs(
+      world.api,
+      await sessionOf(world, "Anna"),
+      fileId,
+      versionId,
+    );
   },
 );
 
 When(/^Anna deletes the current version of "([^"]*)"$/, async ({ world }, name: string) => {
   const fileId = await fileIdVisibleTo(world, "Anna", name);
   const currentId = await currentVersionIdOf(world, "Anna", fileId);
-  world.response = await deleteVersionAs(world.api, sessionOf(world, "Anna"), fileId, currentId);
+  world.response = await deleteVersionAs(
+    world.api,
+    await sessionOf(world, "Anna"),
+    fileId,
+    currentId,
+  );
 });
 
 Then(

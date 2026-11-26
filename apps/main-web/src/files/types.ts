@@ -111,6 +111,7 @@ export type FileDetailsState = {
   readonly status: ListStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly refresh: () => Promise<void>;
+  readonly refreshQuietly: () => Promise<void>;
 };
 
 export type CurrentFolderState = {
@@ -169,6 +170,30 @@ export type FileVersionsState = {
   readonly status: ListStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly refresh: () => Promise<void>;
+  readonly refreshQuietly: () => Promise<void>;
+};
+
+export type FileVersionRow = {
+  readonly id: FileVersion["id"];
+  readonly number: number;
+  readonly sizeBytes: number;
+  readonly createdAt: Date;
+  readonly authorName: string | null;
+  readonly isCurrent: boolean;
+};
+
+export type FileVersionCompletion = {
+  readonly kind: "restored" | "deleted" | "downloaded";
+  readonly versionNumber: number;
+};
+
+export type FileVersionActionsState = {
+  readonly pendingVersionId: FileVersion["id"] | null;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly completed: FileVersionCompletion | null;
+  readonly restore: (version: FileVersionRow) => Promise<void>;
+  readonly remove: (version: FileVersionRow) => Promise<void>;
+  readonly download: (version: FileVersionRow, fileName: string) => Promise<void>;
 };
 
 export type FamilyMembersState = {

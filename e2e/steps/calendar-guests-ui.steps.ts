@@ -61,22 +61,14 @@ const openFromSidebar = async (page: Page): Promise<void> => {
   await expect(modal(page)).toBeVisible();
 };
 
-const shownTimeZone = (page: Page): Promise<string> =>
-  modal(page)
-    .getByText("Time zone", { exact: true })
-    .locator("xpath=following-sibling::*[1]")
-    .innerText();
-
-const todayIsoIn = (timeZone: string): string =>
-  new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
+const localTodayIso = (): string => {
+  const now = new Date();
+  const pad = (value: number): string => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+};
 
 const fillTodayTimes = async (page: Page): Promise<void> => {
-  const today = todayIsoIn(await shownTimeZone(page));
+  const today = localTodayIso();
   await page.getByLabel("Start date", { exact: true }).fill(today);
   await page.getByLabel("Start time", { exact: true }).fill("09:00");
   await page.getByLabel("End date", { exact: true }).fill(today);

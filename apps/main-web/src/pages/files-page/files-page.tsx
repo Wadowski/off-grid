@@ -6,6 +6,7 @@ import { useOutletContext } from "react-router-dom";
 import { PHONE_CHROME_MEDIA_QUERY } from "../../constants.js";
 import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
+import { useRefreshOnFilesChanged } from "../../files/use-refresh-on-files-changed.js";
 import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
 import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
 import { useNewFolderDialog } from "../../files/use-new-folder-dialog.js";
@@ -48,6 +49,7 @@ export const FilesPage = () => {
     }
   };
   useRefreshOnUploadDone(folder.driveId, folder.folderId, contents.refreshQuietly);
+  useRefreshOnFilesChanged(switcher.filesChangedCount, contents.refreshQuietly);
   const newFolder = useNewFolderDialog();
   const newFolderDisabled = uploadDisabled;
 
