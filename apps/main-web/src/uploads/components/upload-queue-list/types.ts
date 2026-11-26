@@ -8,4 +8,7 @@ export type UploadQueueListProps = {
   readonly testIdPrefix: string;
   readonly isIdle: boolean;
   readonly onClearFinished: () => void;
+  readonly canRetry: (item: UploadItem) => boolean;
+  readonly onRetry: (id: UploadItem["id"]) => void;
+  readonly onDismiss: (id: UploadItem["id"]) => void;
 };

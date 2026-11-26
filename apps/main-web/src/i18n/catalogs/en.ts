@@ -727,6 +727,10 @@ export const en = {
       expand: "Show uploads",
       close: "Close uploads",
       stoppedFamilySwitch: "Upload stopped because the family space changed.",
+      retry: "Retry",
+      dismiss: "Dismiss",
+      retryNamed: "Retry upload of {{name}}",
+      dismissNamed: "Dismiss {{name}}",
     },
     drives: {
       heading: "Storage disks",
