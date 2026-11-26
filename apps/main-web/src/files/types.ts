@@ -14,6 +14,7 @@ import type {
   familyMemberSchema,
   fileVersionSchema,
 } from "@offgrid/contracts";
+import type { DragEvent } from "react";
 import type { FileKind } from "@offgrid/ui";
 import type { ListStatus, SessionUser } from "../types.js";
 import type { filesViewSchema } from "./files-view-preference-schema.js";
@@ -279,4 +280,12 @@ export type FileDownload = {
   readonly status: FileDownloadStatus;
   readonly errorTextId: FilesErrorTextId | null;
   readonly download: () => Promise<void>;
+};
+
+export type FileDragState = {
+  readonly isDragging: boolean;
+  readonly onDragEnter: (event: DragEvent<HTMLElement>) => void;
+  readonly onDragOver: (event: DragEvent<HTMLElement>) => void;
+  readonly onDragLeave: (event: DragEvent<HTMLElement>) => void;
+  readonly onDrop: (event: DragEvent<HTMLElement>) => void;
 };
