@@ -11,12 +11,13 @@ import type {
   UploadTarget,
   VersionUploadTarget,
 } from "../types.js";
-import { createUploadItem } from "./create-upload-item.js";
+import { createCheckedUploadItem } from "./create-checked-upload-item.js";
 import { isActiveUploadItem } from "./is-active-upload-item.js";
 import { isRetryableUploadItem } from "./is-retryable-upload-item.js";
 import { nextQueuedItem } from "./next-queued-item.js";
 import { startUpload } from "./start-upload.js";
 import { uploadQueueReducer } from "./upload-queue-reducer.js";
+import { useUploadLimit } from "../../files/use-upload-limit.js";
 
 export const useUploadQueue = (): UploadQueue => {
   const session = useSession();
@@ -24,6 +25,7 @@ export const useUploadQueue = (): UploadQueue => {
   const [state, dispatch] = useReducer(uploadQueueReducer, EMPTY_UPLOAD_QUEUE_STATE);
   const running = useRef<RunningUpload | null>(null);
   const knownFamilyId = useRef(activeFamilyId);
+  const maxUploadBytes = useUploadLimit(session.status === "signedIn");
 
   useEffect(() => {
     if (running.current !== null) {
@@ -62,21 +64,37 @@ export const useUploadQueue = (): UploadQueue => {
       dispatch({
         type: "enqueued",
         items: files.map((file) =>
-          createUploadItem(crypto.randomUUID(), file, target, activeFamilyId, null),
+          createCheckedUploadItem(
+            crypto.randomUUID(),
+            file,
+            target,
+            activeFamilyId,
+            null,
+            maxUploadBytes,
+          ),
         ),
       });
     },
-    [activeFamilyId],
+    [activeFamilyId, maxUploadBytes],
   );
 
   const enqueueVersion = useCallback(
     (file: File, target: VersionUploadTarget) => {
       dispatch({
         type: "enqueued",
-        items: [createUploadItem(crypto.randomUUID(), file, target, activeFamilyId, target.fileId)],
+        items: [
+          createCheckedUploadItem(
+            crypto.randomUUID(),
+            file,
+            target,
+            activeFamilyId,
+            target.fileId,
+            maxUploadBytes,
+          ),
+        ],
       });
     },
-    [activeFamilyId],
+    [activeFamilyId, maxUploadBytes],
   );
 
   const isRetryable = useCallback(

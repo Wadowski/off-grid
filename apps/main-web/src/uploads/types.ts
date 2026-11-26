@@ -62,7 +62,6 @@ export type UploadQueueAction =
   | { readonly type: "finished"; readonly id: string }
   | { readonly type: "failed"; readonly id: string; readonly errorTextId: UploadErrorTextId }
   | { readonly type: "familySwitched"; readonly errorTextId: UploadErrorTextId }
-  | { readonly type: "rejected"; readonly items: readonly UploadItem[] }
   | { readonly type: "retried"; readonly id: string }
   | { readonly type: "dismissed"; readonly id: string }
   | { readonly type: "clearedFinished" };

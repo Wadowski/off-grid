@@ -15,8 +15,22 @@ export const uploadQueueReducer = (
   action: UploadQueueAction,
 ): UploadQueueState => {
   switch (action.type) {
-    case "enqueued":
-      return { ...state, items: [...state.items, ...action.items] };
+    case "enqueued": {
+      const lastItem = action.items.at(-1);
+      if (lastItem?.status !== "failed") {
+        return { ...state, items: [...state.items, ...action.items] };
+      }
+      return {
+        ...state,
+        items: [...state.items, ...action.items],
+        announcement: toUploadAnnouncement(
+          state.announcement,
+          "files.upload.announceFailed",
+          lastItem,
+          lastItem.errorTextId,
+        ),
+      };
+    }
     case "started": {
       const item = findItem(state, action.id);
       if (item === undefined) {
@@ -87,22 +101,6 @@ export const uploadQueueReducer = (
           item,
           action.errorTextId,
         ),
-      };
-    }
-    case "rejected": {
-      const lastItem = action.items.at(-1);
-      return {
-        ...state,
-        items: [...state.items, ...action.items],
-        announcement:
-          lastItem === undefined
-            ? state.announcement
-            : toUploadAnnouncement(
-                state.announcement,
-                "files.upload.announceFailed",
-                lastItem,
-                lastItem.errorTextId,
-              ),
       };
     }
     case "retried": {

@@ -6,12 +6,14 @@ import { Activity, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@offgrid/api-client";
 import { uploadFile, uploadFileVersion } from "../../files/files-api.js";
+import { getUploadLimit } from "../../files/get-upload-limit.js";
 import { setSessionState } from "../../session/set-session-state.js";
 import type { UploadQueue, UploadTarget, VersionUploadTarget } from "../types.js";
 import { useUploadQueueContext } from "./use-upload-queue-context.js";
 import { UploadQueueProvider } from "./upload-queue-provider.js";
 
 vi.mock("../../files/files-api.js", () => ({ uploadFile: vi.fn(), uploadFileVersion: vi.fn() }));
+vi.mock("../../files/get-upload-limit.js", () => ({ getUploadLimit: vi.fn() }));
 
 const TARGET: UploadTarget = {
   driveId: "3a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" as UploadTarget["driveId"],
@@ -20,6 +22,8 @@ const TARGET: UploadTarget = {
 const FAMILY_A = "a0000000-0000-4000-8000-000000000001";
 const FAMILY_B = "b0000000-0000-4000-8000-000000000002";
 const VERSION_FILE_ID = "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b" as VersionUploadTarget["fileId"];
+
+const UPLOAD_LIMIT_BYTES = 4;
 
 const pending: { resolve: () => void; reject: (error: unknown) => void; signal: AbortSignal }[] =
   [];
@@ -56,6 +60,7 @@ beforeEach(() => {
       }),
   );
   signedInAs(FAMILY_A);
+  vi.mocked(getUploadLimit).mockResolvedValue({ maxUploadBytes: UPLOAD_LIMIT_BYTES });
 });
 
 afterEach(() => {
@@ -256,5 +261,49 @@ describe("UploadQueueProvider", () => {
     });
 
     expect(statusesOf(result)).toEqual(["b.txt:uploading"]);
+  });
+  it("refuses a file above the limit without sending it and still uploads the others", async () => {
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    await act(async () => undefined);
+
+    act(() => {
+      result.current.enqueue([new File(["12345"], "big.bin"), new File(["a"], "a.txt")], TARGET);
+    });
+
+    expect(sentNames()).toEqual(["a.txt"]);
+    expect(statusesOf(result)).toEqual(["big.bin:failed", "a.txt:uploading"]);
+    expect(result.current.items[0]).toMatchObject({
+      errorTextId: "files.errors.payloadTooLarge",
+      file: null,
+    });
+    expect(result.current.isRetryable(result.current.items[0] as never)).toBe(false);
+  });
+
+  it("refuses a version upload above the limit without sending it", async () => {
+    const versionUploadMock = vi.mocked(uploadFileVersion);
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    await act(async () => undefined);
+
+    act(() => {
+      result.current.enqueueVersion(new File(["12345"], "Trip.pdf"), {
+        ...TARGET,
+        fileId: VERSION_FILE_ID,
+      });
+    });
+
+    expect(versionUploadMock).not.toHaveBeenCalled();
+    expect(statusesOf(result)).toEqual(["Trip.pdf:failed"]);
+  });
+
+  it("sends a file without a precheck while the limit cannot be read", async () => {
+    vi.mocked(getUploadLimit).mockRejectedValueOnce(new Error("offline"));
+    const { result } = renderHook(() => useUploadQueueContext(), { wrapper });
+    await act(async () => undefined);
+
+    act(() => {
+      result.current.enqueue([new File(["12345"], "big.bin")], TARGET);
+    });
+
+    expect(sentNames()).toEqual(["big.bin"]);
   });
 });

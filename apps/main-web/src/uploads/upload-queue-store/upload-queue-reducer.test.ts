@@ -87,7 +87,7 @@ describe("uploadQueueReducer", () => {
     });
   });
 
-  it("adds rejected items as failed without a file and announces the last one", () => {
+  it("adds an item that is already failed, without a file, and announces it", () => {
     const rejected = createUploadItem(
       "id-big.txt",
       new File(["x"], "big.txt"),
@@ -96,9 +96,14 @@ describe("uploadQueueReducer", () => {
       null,
     );
     const state = uploadQueueReducer(EMPTY_UPLOAD_QUEUE_STATE, {
-      type: "rejected",
+      type: "enqueued",
       items: [
-        { ...rejected, status: "failed", errorTextId: "files.errors.payloadTooLarge", file: null },
+        {
+          ...rejected,
+          status: "failed",
+          errorTextId: "files.errors.payloadTooLarge",
+          file: null,
+        },
       ],
     });
 
