@@ -286,3 +286,51 @@ export type FileDownload = {
   readonly errorTextId: FilesErrorTextId | null;
   readonly download: () => Promise<void>;
 };
+
+export type FolderNodeState = {
+  readonly driveId: Drive["id"];
+  readonly folderId: FileEntry["id"] | null;
+  readonly status: ListStatus;
+  readonly folders: readonly FileListItem[];
+  readonly nextCursor: string | null;
+  readonly isLoadingMore: boolean;
+  readonly errorTextId: FilesErrorTextId | null;
+};
+
+export type FolderTreeNodeRef = {
+  readonly id: string;
+  readonly driveId: Drive["id"];
+  readonly folderId: FileEntry["id"] | null;
+};
+
+export type FolderTreeState = {
+  readonly nodes: Readonly<Record<string, FolderNodeState>>;
+  readonly expandedIds: ReadonlySet<string>;
+  readonly toggle: (node: FolderTreeNodeRef) => void;
+  readonly loadMore: (node: FolderTreeNodeRef) => void;
+};
+
+export type FolderPickerCaption = "currentLocation" | "otherOwner";
+
+export type FolderPickerNode = {
+  readonly id: string;
+  readonly driveId: Drive["id"];
+  readonly folderId: FileEntry["id"] | null;
+  readonly label: string;
+  readonly isDrive: boolean;
+  readonly hasChildren: boolean;
+  readonly disabled: boolean;
+  readonly isCurrent: boolean;
+  readonly caption: FolderPickerCaption | null;
+  readonly children?: readonly FolderPickerNode[];
+};
+
+export type MoveDialogStep = "idle" | "confirmingCrossOwner" | "moving";
+
+
+export type MoveSource = {
+  readonly entryId: FileEntry["id"];
+  readonly entryName: string;
+  readonly driveId: Drive["id"];
+  readonly parentId: FileEntry["id"] | null;
+};
