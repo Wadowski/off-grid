@@ -22,7 +22,9 @@ export const toFolderPickerNodes = (
       hasChildren: true,
       disabled: false,
       isCurrent,
-      caption: isCurrent ? "currentLocation" : toCrossOwnerCaption(drives, source.driveId, drive.id),
+      caption: isCurrent
+        ? "currentLocation"
+        : toCrossOwnerCaption(drives, source.driveId, drive.id),
       children:
         state === undefined
           ? undefined

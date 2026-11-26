@@ -6,8 +6,22 @@ import { flattenVisibleNodes } from "./flatten-visible-nodes.js";
 import type { TreeNode } from "./types.js";
 
 const nodes: readonly TreeNode[] = [
-  { id: "a", label: "a", icon: "folder", hasChildren: true, disabled: false, children: [{ id: "a1", label: "a1", icon: "folder", hasChildren: false, disabled: false }] },
-  { id: "b", label: "b", icon: "folder", hasChildren: true, disabled: true, children: [{ id: "b1", label: "b1", icon: "folder", hasChildren: false, disabled: false }] },
+  {
+    id: "a",
+    label: "a",
+    icon: "folder",
+    hasChildren: true,
+    disabled: false,
+    children: [{ id: "a1", label: "a1", icon: "folder", hasChildren: false, disabled: false }],
+  },
+  {
+    id: "b",
+    label: "b",
+    icon: "folder",
+    hasChildren: true,
+    disabled: true,
+    children: [{ id: "b1", label: "b1", icon: "folder", hasChildren: false, disabled: false }],
+  },
   { id: "c", label: "c", icon: "folder", hasChildren: true, disabled: false },
 ];
 

@@ -327,7 +327,6 @@ export type FolderPickerNode = {
 
 export type MoveDialogStep = "idle" | "confirmingCrossOwner" | "moving";
 
-
 export type MoveSource = {
   readonly entryId: FileEntry["id"];
   readonly entryName: string;

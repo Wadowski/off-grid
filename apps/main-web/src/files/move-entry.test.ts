@@ -16,7 +16,9 @@ afterEach(() => {
 
 describe("moveEntry", () => {
   it("sends the drive and the target folder for a folder target", async () => {
-    const move = vi.spyOn(filesApi, "moveFile").mockResolvedValue({ file: {} as FileEntry, crossOwnerNotice: false });
+    const move = vi
+      .spyOn(filesApi, "moveFile")
+      .mockResolvedValue({ file: {} as FileEntry, crossOwnerNotice: false });
 
     await moveEntry(FILE_ID, { driveId: DRIVE_ID, parentId: FOLDER_ID });
 
@@ -24,7 +26,9 @@ describe("moveEntry", () => {
   });
 
   it("sends a null parent for the root of a drive", async () => {
-    const move = vi.spyOn(filesApi, "moveFile").mockResolvedValue({ file: {} as FileEntry, crossOwnerNotice: false });
+    const move = vi
+      .spyOn(filesApi, "moveFile")
+      .mockResolvedValue({ file: {} as FileEntry, crossOwnerNotice: false });
 
     await moveEntry(FILE_ID, { driveId: DRIVE_ID, parentId: null });
 

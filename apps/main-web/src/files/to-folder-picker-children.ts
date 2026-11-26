@@ -1,7 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import type { Drive, FileListItem, FolderNodeState, FolderPickerNode, MoveSource } from "./types.js";
+import type {
+  Drive,
+  FileListItem,
+  FolderNodeState,
+  FolderPickerNode,
+  MoveSource,
+} from "./types.js";
 
 export const toFolderPickerChildren = (
   folders: readonly FileListItem[],
@@ -22,7 +28,8 @@ export const toFolderPickerChildren = (
       hasChildren: true,
       disabled,
       isCurrent: driveId === source.driveId && folder.id === source.parentId,
-      caption: driveId === source.driveId && folder.id === source.parentId ? "currentLocation" : null,
+      caption:
+        driveId === source.driveId && folder.id === source.parentId ? "currentLocation" : null,
       children:
         state === undefined
           ? undefined

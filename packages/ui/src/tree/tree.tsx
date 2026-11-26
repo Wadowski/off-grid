@@ -1,7 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { useCallback, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { flattenVisibleNodes } from "./flatten-visible-nodes.js";
 import { resolveActiveId } from "./resolve-active-id.js";
 import { toTreeKeyAction } from "./to-tree-key-action.js";
@@ -9,7 +15,17 @@ import { TreeItem } from "./tree-item.js";
 import { treeListStyle } from "./styles.js";
 import type { TreeItemContext, TreeProps } from "./types.js";
 
-export const Tree = ({ label, nodes, expandedIds, selectedId, onSelect, onToggle, renderFooter, testId, nodeTestIdPrefix }: TreeProps) => {
+export const Tree = ({
+  label,
+  nodes,
+  expandedIds,
+  selectedId,
+  onSelect,
+  onToggle,
+  renderFooter,
+  testId,
+  nodeTestIdPrefix,
+}: TreeProps) => {
   const visible = useMemo(() => flattenVisibleNodes(nodes, expandedIds), [nodes, expandedIds]);
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const elements = useRef(new Map<string, HTMLElement>());

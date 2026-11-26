@@ -51,7 +51,11 @@ describe("useMoveEntry", () => {
 
   it("ignores a second submit while the first move is in flight", async () => {
     let finish: (value: typeof RESULT) => void = () => undefined;
-    vi.mocked(moveEntry).mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    vi.mocked(moveEntry).mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
     const { result } = renderHook(() => useMoveEntry());
 
     let first: Promise<unknown> = Promise.resolve();

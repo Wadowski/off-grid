@@ -16,7 +16,11 @@ export const treeGroupStyle: CSSProperties = {
   padding: 0,
 };
 
-export const treeRowStyle = (depth: number, selected: boolean, disabled: boolean): CSSProperties => ({
+export const treeRowStyle = (
+  depth: number,
+  selected: boolean,
+  disabled: boolean,
+): CSSProperties => ({
   display: "flex",
   alignItems: "center",
   gap: cssVar("space-2"),

@@ -3,14 +3,29 @@
 
 import { describe, expect, it } from "vitest";
 import { toFolderPickerNodes } from "./to-folder-picker-nodes.js";
-import type { Drive, FileListItem, FolderNodeState, MoveSource } from "./types.js";
+import type { Drive, FileEntry, FileListItem, FolderNodeState, MoveSource } from "./types.js";
 
-const PERSONAL = { id: "p", familyId: null, name: "Personal" } as Drive;
-const HOME = { id: "h", familyId: "f1", name: "Home" } as Drive;
+const driveId = (value: string) => value as Drive["id"];
+const fileId = (value: string) => value as FileEntry["id"];
+
+const PERSONAL = { id: driveId("p"), familyId: null, name: "Personal" } as Drive;
+const HOME = { id: driveId("h"), familyId: "f1", name: "Home" } as Drive;
 const folder = (id: string, name: string) => ({ id, name, isFolder: true }) as FileListItem;
-const loaded = (folders: FileListItem[]): FolderNodeState =>
-  ({ driveId: "p", folderId: null, status: "ready", folders, nextCursor: null, isLoadingMore: false, errorTextId: null }) as FolderNodeState;
-const SOURCE: MoveSource = { entryId: "moved", entryName: "Photos", driveId: "p", parentId: "docs" };
+const loaded = (folders: FileListItem[]): FolderNodeState => ({
+  driveId: driveId("p"),
+  folderId: null,
+  status: "ready",
+  folders,
+  nextCursor: null,
+  isLoadingMore: false,
+  errorTextId: null,
+});
+const SOURCE: MoveSource = {
+  entryId: fileId("moved"),
+  entryName: "Photos",
+  driveId: driveId("p"),
+  parentId: fileId("docs"),
+};
 
 describe("toFolderPickerNodes", () => {
   it("lists drives as roots and marks the current location and the other owner", () => {
@@ -23,10 +38,19 @@ describe("toFolderPickerNodes", () => {
   });
 
   it("marks the folder that holds the entry as the current location", () => {
-    const nodes = toFolderPickerNodes([PERSONAL], { p: loaded([folder("docs", "Documents")]) }, SOURCE);
+    const nodes = toFolderPickerNodes(
+      [PERSONAL],
+      { p: loaded([folder("docs", "Documents")]) },
+      SOURCE,
+    );
     const documents = nodes[0]?.children?.[0];
 
-    expect(documents).toMatchObject({ id: "docs", isCurrent: true, caption: "currentLocation", disabled: false });
+    expect(documents).toMatchObject({
+      id: "docs",
+      isCurrent: true,
+      caption: "currentLocation",
+      disabled: false,
+    });
   });
 
   it("disables the moved entry and everything inside it", () => {
@@ -34,7 +58,11 @@ describe("toFolderPickerNodes", () => {
       [PERSONAL],
       {
         p: loaded([folder("moved", "Photos")]),
-        moved: { ...loaded([folder("inner", "Summer")]), driveId: "p", folderId: "moved" },
+        moved: {
+          ...loaded([folder("inner", "Summer")]),
+          driveId: driveId("p"),
+          folderId: fileId("moved"),
+        },
       },
       SOURCE,
     );

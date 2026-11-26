@@ -25,7 +25,12 @@ export const useFolderTree = (): FolderTreeState => {
       [node.id]: toLoadingFolderNode(previous[node.id], node, cursor),
     }));
     try {
-      const page = await fetchFolderPage(node.driveId, node.folderId, cursor, DEFAULT_FILES_SORT_ORDER);
+      const page = await fetchFolderPage(
+        node.driveId,
+        node.folderId,
+        cursor,
+        DEFAULT_FILES_SORT_ORDER,
+      );
       if (isLatest()) {
         setNodes((previous) => ({
           ...previous,

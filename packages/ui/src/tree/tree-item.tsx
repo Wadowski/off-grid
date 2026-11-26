@@ -4,7 +4,13 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { MaterialIcon } from "../material-icon/material-icon.js";
 import { Text } from "../text/text.js";
-import { treeChevronStyle, treeGroupStyle, treeLabelStyle, treeRowFocusStyle, treeRowStyle } from "./styles.js";
+import {
+  treeChevronStyle,
+  treeGroupStyle,
+  treeLabelStyle,
+  treeRowFocusStyle,
+  treeRowStyle,
+} from "./styles.js";
 import type { TreeItemProps } from "./types.js";
 
 export const TreeItem = ({ node, depth, context }: TreeItemProps) => {
@@ -34,7 +40,8 @@ export const TreeItem = ({ node, depth, context }: TreeItemProps) => {
     }
   };
   const footer = context.renderFooter?.(node);
-  const testId = context.nodeTestIdPrefix === undefined ? undefined : `${context.nodeTestIdPrefix}${node.id}`;
+  const testId =
+    context.nodeTestIdPrefix === undefined ? undefined : `${context.nodeTestIdPrefix}${node.id}`;
 
   return (
     <li

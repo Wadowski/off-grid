@@ -5,12 +5,12 @@ import { ApiError } from "@offgrid/api-client";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fetchFolderPage } from "./fetch-folder-page.js";
-import type { FileListItem, FileListPage } from "./types.js";
+import type { Drive, FileListItem, FileListPage, FolderTreeNodeRef } from "./types.js";
 import { useFolderTree } from "./use-folder-tree.js";
 
 vi.mock("./fetch-folder-page.js", () => ({ fetchFolderPage: vi.fn() }));
 
-const ROOT = { id: "d1", driveId: "d1", folderId: null } as const;
+const ROOT: FolderTreeNodeRef = { id: "d1", driveId: "d1" as Drive["id"], folderId: null };
 const FOLDER_ITEM = { id: "f1", name: "Docs", isFolder: true } as FileListItem;
 const FILE_ITEM = { id: "x1", name: "Notes.txt", isFolder: false } as FileListItem;
 const page = (items: FileListItem[], nextCursor: string | null = null): FileListPage =>

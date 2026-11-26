@@ -8,7 +8,8 @@ export const resolveActiveId = (
   selectedId: string | null,
   visible: readonly VisibleTreeNode[],
 ): string | null => {
-  const isVisible = (id: string | null) => id !== null && visible.some((entry) => entry.node.id === id);
+  const isVisible = (id: string | null) =>
+    id !== null && visible.some((entry) => entry.node.id === id);
   if (isVisible(focusedId)) {
     return focusedId;
   }
