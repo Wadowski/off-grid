@@ -11,18 +11,13 @@ const FOLDER_LIST_ROUTE = /\/api\/(drives\/[^/]+|files\/[^/]+)\/children(\?.*)?$
 const FOLDER_DETAILS_ROUTE = /\/api\/files\/[^/?]+$/;
 const SLOW_LIST_DELAY_MS = 1500;
 
-type FailureSwitch = { failing: boolean };
-type FailureSwitches = { list?: FailureSwitch; details?: FailureSwitch };
+const failureSwitches = new WeakMap<Page, Map<string, { failing: boolean }>>();
 
-const failureSwitches = new WeakMap<Page, FailureSwitches>();
-
-const failRequestsWhileOn = async (
-  page: Page,
-  pattern: RegExp,
-  kind: keyof FailureSwitches,
-): Promise<void> => {
-  const switchForKind: FailureSwitch = { failing: true };
-  failureSwitches.set(page, { ...failureSwitches.get(page), [kind]: switchForKind });
+const failRequestsWhileOn = async (page: Page, pattern: RegExp, kind: string): Promise<void> => {
+  const switches = failureSwitches.get(page) ?? new Map<string, { failing: boolean }>();
+  failureSwitches.set(page, switches);
+  const switchForKind = { failing: true };
+  switches.set(kind, switchForKind);
   await page.route(pattern, (route) => (switchForKind.failing ? route.abort() : route.continue()));
 };
 
@@ -44,11 +39,8 @@ Given("the next folder details of Anna fail to load", async ({ page }) => {
 });
 
 When("Anna chooses Try again", async ({ page }) => {
-  const switches = failureSwitches.get(page);
-  for (const switchForKind of [switches?.list, switches?.details]) {
-    if (switchForKind !== undefined) {
-      switchForKind.failing = false;
-    }
+  for (const switchForKind of failureSwitches.get(page)?.values() ?? []) {
+    switchForKind.failing = false;
   }
   await retryButtonOf(page).click();
 });

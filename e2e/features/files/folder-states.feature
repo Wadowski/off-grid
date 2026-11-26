@@ -10,14 +10,13 @@ Feature: Empty, loading and failed states of a folder
   again. A folder the person may not see looks the same as a folder that does
   not exist.
 
-  @wip @screen:files-desktop-empty-folder
+  @screen:files-desktop-empty-folder
   Scenario: An empty folder says so and points to the Upload button
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Empty"
     When Anna opens the folder "Empty" in the browser
     Then the folder shows the empty message
 
-  @wip
   Scenario: An empty folder in grid view says so too
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Empty"
@@ -26,7 +25,7 @@ Feature: Empty, loading and failed states of a folder
     And Anna opens the folder "Empty" from the grid
     Then the folder shows the empty message
 
-  @wip @screen:files-desktop-loading
+  @screen:files-desktop-loading
   Scenario: A slow folder shows a loading placeholder and then its entries
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
@@ -36,7 +35,7 @@ Feature: Empty, loading and failed states of a folder
     Then a loading placeholder is shown for the folder
     And the folder lists "Insurance policy.txt" once it has loaded
 
-  @wip @screen:files-desktop-error
+  @screen:files-desktop-error
   Scenario: A folder whose entries fail to load says so and Try again loads them
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
@@ -47,7 +46,6 @@ Feature: Empty, loading and failed states of a folder
     When Anna chooses Try again
     Then the folder lists "Insurance policy.txt" once it has loaded
 
-  @wip
   Scenario: A folder whose details fail to load says so and Try again loads it
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
@@ -65,14 +63,14 @@ Feature: Empty, loading and failed states of a folder
     When Anna opens the folder "Plans" of "Garden Club" in the browser
     Then Anna sees the folder not found view with the same text as for a folder that does not exist
 
-  @a11y @wip
+  @a11y
   Scenario: The empty state of a folder has no serious accessibility violations
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Empty"
     When Anna opens the folder "Empty" in the browser
     Then the page has no serious accessibility violations
 
-  @a11y @wip
+  @a11y
   Scenario: The failed state of a folder has no serious accessibility violations
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a personal-drive folder "Photos"
