@@ -228,4 +228,25 @@ describe("useFolderContents", () => {
     expect(result.current.items).toEqual([OTHER_ITEM]);
     expect(result.current.hasMore).toBe(true);
   });
+
+  it("replaces the name of one entry in place and keeps its position and other entries", async () => {
+    const OTHER_ITEM = {
+      ...FOLDER_ITEM,
+      id: "0a0b0c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d",
+      name: "Notes",
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>(async () => pageOf([FOLDER_ITEM, OTHER_ITEM], null)),
+    );
+
+    const { result } = renderHook(() =>
+      useFolderContents(DRIVE_ID, null, true, DEFAULT_FILES_SORT_ORDER),
+    );
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    act(() => result.current.replaceItem({ ...FOLDER_ITEM, name: "Holiday photos" } as FileEntry));
+
+    expect(result.current.items).toEqual([{ ...FOLDER_ITEM, name: "Holiday photos" }, OTHER_ITEM]);
+  });
 });
