@@ -92,7 +92,11 @@ describe("NotificationsPage", () => {
 
   it("groups today's notices under a heading that counts the updates", async () => {
     mocks.list.mockResolvedValueOnce(
-      pageOf([notice("a"), notice("b"), notice("c", { createdAt: hoursAgo(10 * 24) })]),
+      pageOf([
+        notice("a", { createdAt: new Date().toISOString() }),
+        notice("b", { createdAt: new Date().toISOString() }),
+        notice("c", { createdAt: hoursAgo(10 * 24) }),
+      ]),
     );
 
     renderPage();
