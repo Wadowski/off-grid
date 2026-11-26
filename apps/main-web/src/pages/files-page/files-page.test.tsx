@@ -193,7 +193,7 @@ describe("FilesPage", () => {
   it("shows the loading text while the folder is requested", () => {
     renderAt(FOLDER_PATH);
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Loading..." })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Folder path" })).toHaveAttribute(
       "aria-busy",
       "true",
