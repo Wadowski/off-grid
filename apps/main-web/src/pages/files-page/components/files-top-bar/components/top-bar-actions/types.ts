@@ -7,4 +7,5 @@ export type TopBarActionsProps = {
   readonly onFilesPicked: (files: readonly File[]) => void;
   readonly newFolderDisabled: boolean;
   readonly onNewFolder: () => void;
+  readonly noDrive?: boolean;
 };

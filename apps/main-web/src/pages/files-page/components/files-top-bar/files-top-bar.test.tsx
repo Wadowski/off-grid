@@ -78,4 +78,25 @@ describe("FilesTopBar", () => {
       "Loading drives...",
     );
   });
+
+  it("shows the choose-a-drive hint under the row when no drive is open", () => {
+    renderTopBar({
+      drives: [PERSONAL],
+      status: "ready",
+      activeDriveId: null,
+      uploadDisabled: true,
+      onFilesPicked: () => undefined,
+      newFolderDisabled: true,
+      onNewFolder: () => undefined,
+      noDrive: true,
+    });
+
+    expect(screen.getByTestId("files-top-bar")).toContainElement(
+      screen.getByText("Choose a drive to upload files."),
+    );
+    expect(screen.getByTestId("files-top-bar-upload")).toHaveAttribute(
+      "aria-describedby",
+      "files-no-drive-hint",
+    );
+  });
 });

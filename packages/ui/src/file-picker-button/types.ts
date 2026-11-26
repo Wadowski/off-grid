@@ -10,6 +10,7 @@ export type FilePickerButtonProps = {
   readonly variant?: ButtonVariant;
   readonly size?: ButtonSize;
   readonly disabled?: boolean;
+  readonly ariaDescribedBy?: string;
   readonly onFilesPicked: (files: readonly File[]) => void;
   readonly testId?: string;
   readonly inputTestId?: string;

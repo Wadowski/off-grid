@@ -68,6 +68,47 @@ describe("FilesHeader", () => {
     expect(screen.getByTestId("files-new-folder-button")).toBeDisabled();
   });
 
+  it("shows the choose-a-drive hint and links the disabled controls to it when no drive is open", () => {
+    render(
+      <FilesHeader
+        driveName={undefined}
+        uploadDisabled
+        onFilesPicked={vi.fn()}
+        newFolderDisabled
+        onNewFolder={vi.fn()}
+        noDrive
+      />,
+    );
+
+    expect(screen.getByText("Choose a drive to upload files.")).toHaveAttribute(
+      "id",
+      "files-no-drive-hint",
+    );
+    expect(screen.getByTestId("files-upload-button")).toHaveAttribute(
+      "aria-describedby",
+      "files-no-drive-hint",
+    );
+    expect(screen.getByTestId("files-new-folder-button")).toHaveAttribute(
+      "aria-describedby",
+      "files-no-drive-hint",
+    );
+  });
+
+  it("shows no hint and links no control when a drive is open", () => {
+    render(
+      <FilesHeader
+        driveName="Personal"
+        uploadDisabled={false}
+        onFilesPicked={vi.fn()}
+        newFolderDisabled={false}
+        onNewFolder={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText("Choose a drive to upload files.")).not.toBeInTheDocument();
+    expect(screen.getByTestId("files-upload-button")).not.toHaveAttribute("aria-describedby");
+  });
+
   it("passes the picked files to onFilesPicked", () => {
     const onFilesPicked = vi.fn();
     render(

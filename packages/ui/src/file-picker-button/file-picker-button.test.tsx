@@ -64,6 +64,22 @@ describe("FilePickerButton", () => {
     expect(click).toHaveBeenCalledTimes(1);
   });
 
+  it("links the button to the element named by ariaDescribedBy", () => {
+    render(
+      <FilePickerButton
+        ariaLabel="Upload"
+        onFilesPicked={vi.fn()}
+        ariaDescribedBy="upload-hint"
+        testId="picker"
+        inputTestId="picker-input"
+      >
+        Upload
+      </FilePickerButton>,
+    );
+
+    expect(screen.getByTestId("picker")).toHaveAttribute("aria-describedby", "upload-hint");
+  });
+
   it("is disabled with the button and keeps the input out of the tab order", () => {
     renderPicker(vi.fn(), true);
 

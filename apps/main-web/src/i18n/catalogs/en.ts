@@ -711,6 +711,7 @@ export const en = {
       hintDrive: "Release your files to upload them directly to this drive.",
     },
     upload: {
+      noDrive: "Choose a drive to upload files.",
       heading: "Uploads",
       queueLabel: "Upload queue",
       waiting: "Waiting",

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { toTrashPath } from "../../../../files/to-trash-path.js";
+import { NoDriveHint } from "../no-drive-hint/no-drive-hint.js";
 import { DriveControl } from "./components/drive-control/drive-control.js";
 import { TopBarActions } from "./components/top-bar-actions/top-bar-actions.js";
 import type { FilesTopBarProps } from "./types.js";
@@ -15,6 +16,7 @@ export const FilesTopBar = ({
   onFilesPicked,
   newFolderDisabled,
   onNewFolder,
+  noDrive = false,
 }: FilesTopBarProps) => {
   const activeDriveName = drives.find((drive) => drive.id === activeDriveId)?.name ?? null;
 
@@ -27,7 +29,9 @@ export const FilesTopBar = ({
         onFilesPicked={onFilesPicked}
         newFolderDisabled={newFolderDisabled}
         onNewFolder={onNewFolder}
+        noDrive={noDrive}
       />
+      {noDrive ? <NoDriveHint /> : null}
     </div>
   );
 };

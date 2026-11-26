@@ -4,6 +4,7 @@
 import { Button, FilePickerButton, MaterialIcon } from "@offgrid/ui";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { NO_DRIVE_HINT_ID } from "../../../../../../files/constants.js";
 import { topBarActionsStyle } from "./styles.js";
 import type { TopBarActionsProps } from "./types.js";
 
@@ -13,8 +14,10 @@ export const TopBarActions = ({
   onFilesPicked,
   newFolderDisabled,
   onNewFolder,
+  noDrive = false,
 }: TopBarActionsProps) => {
   const { t } = useTranslation();
+  const hintId = noDrive ? NO_DRIVE_HINT_ID : undefined;
 
   return (
     <div
@@ -28,6 +31,7 @@ export const TopBarActions = ({
         size="icon"
         ariaLabel={t("files.actions.upload")}
         disabled={uploadDisabled}
+        ariaDescribedBy={hintId}
         onFilesPicked={onFilesPicked}
         testId="files-top-bar-upload"
         inputTestId="files-upload-input"
@@ -52,6 +56,7 @@ export const TopBarActions = ({
         disabled={newFolderDisabled}
         onClick={onNewFolder}
         aria-label={t("files.actions.newFolder")}
+        aria-describedby={hintId}
         data-testid="files-top-bar-new-folder"
       >
         <MaterialIcon name="create_new_folder" size="24px" color="currentColor" />

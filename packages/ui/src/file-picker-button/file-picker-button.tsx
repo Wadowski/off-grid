@@ -13,6 +13,7 @@ export const FilePickerButton = ({
   variant,
   size,
   disabled = false,
+  ariaDescribedBy,
   onFilesPicked,
   testId,
   inputTestId,
@@ -34,6 +35,7 @@ export const FilePickerButton = ({
         size={size}
         disabled={disabled}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
         onClick={() => inputRef.current?.click()}
         data-testid={testId}
       >
