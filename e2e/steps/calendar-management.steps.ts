@@ -186,4 +186,3 @@ Then(/^the request fails with a validation error$/, () =>
   notImplemented("the request fails with a validation error"),
 );
 
-Given(/^Ben belongs to his own family$/, () => notImplemented("Ben belongs to his own family"));
