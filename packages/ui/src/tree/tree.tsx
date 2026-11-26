@@ -1,13 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-} from "react";
+import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { flattenVisibleNodes } from "./flatten-visible-nodes.js";
 import { resolveActiveId } from "./resolve-active-id.js";
 import { toTreeKeyAction } from "./to-tree-key-action.js";
@@ -44,7 +38,7 @@ export const Tree = ({
     elements.current.get(id)?.focus();
   };
 
-  const onItemKeyDown = (event: ReactKeyboardEvent<HTMLElement>, id: string) => {
+  const onItemKeyDown = (event: KeyboardEvent<HTMLElement>, id: string) => {
     const index = visible.findIndex((entry) => entry.node.id === id);
     const action = toTreeKeyAction(event.key, { visible, index, expandedIds });
     if (action === null) {
