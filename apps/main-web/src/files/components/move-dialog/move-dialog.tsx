@@ -13,9 +13,16 @@ import {
 } from "./styles.js";
 import type { MoveDialogProps } from "./types.js";
 
-export const MoveDialog = ({ drives, source, narrow, onClose, onMoved }: MoveDialogProps) => {
+export const MoveDialog = ({
+  drives,
+  source,
+  narrow,
+  returnFocusTo,
+  onClose,
+  onMoved,
+}: MoveDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const state = useMoveDialog(drives, source, onMoved);
+  const state = useMoveDialog(drives, source, returnFocusTo, onMoved);
   const pending = state.step === "moving";
   const confirming = state.step === "confirmingCrossOwner";
 

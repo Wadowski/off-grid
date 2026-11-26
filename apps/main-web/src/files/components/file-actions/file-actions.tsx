@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, cssVar, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toPreviewKind } from "../../to-preview-kind.js";
 import { MoveDialog } from "../move-dialog/move-dialog.js";
@@ -16,6 +16,7 @@ export const FileActions = ({ file, move }: FileActionsProps) => {
   const download = useFileDownload(file);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isMoveOpen, setIsMoveOpen] = useState(false);
+  const moveButtonRef = useRef<HTMLButtonElement>(null);
   const isDownloading = download.status === "downloading";
 
   return (
@@ -35,6 +36,7 @@ export const FileActions = ({ file, move }: FileActionsProps) => {
         </Button>
         {move === undefined ? null : (
           <Button
+            ref={moveButtonRef}
             type="button"
             variant="secondary"
             size="icon"
@@ -90,6 +92,7 @@ export const FileActions = ({ file, move }: FileActionsProps) => {
             parentId: file.parentId,
           }}
           narrow={false}
+          returnFocusTo={moveButtonRef.current}
           onClose={() => setIsMoveOpen(false)}
           onMoved={move.onMoved}
         />

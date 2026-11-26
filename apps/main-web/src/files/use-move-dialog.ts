@@ -21,6 +21,7 @@ import type {
 export const useMoveDialog = (
   drives: readonly Drive[],
   source: MoveSource,
+  returnFocusTo: HTMLElement | null,
   onMoved: (notice: MoveNotice) => void,
 ): MoveDialogState => {
   const tree = useFolderTree();
@@ -38,14 +39,14 @@ export const useMoveDialog = (
   const step: MoveDialogStep =
     mover.status === "moving" ? "moving" : confirming ? "confirmingCrossOwner" : "idle";
 
-  useEffect(() => {
-    const trigger = document.activeElement;
-    return () => {
-      if (trigger instanceof HTMLElement && trigger.isConnected) {
-        trigger.focus();
+  useEffect(
+    () => () => {
+      if (returnFocusTo !== null && returnFocusTo.isConnected) {
+        returnFocusTo.focus();
       }
-    };
-  }, []);
+    },
+    [returnFocusTo],
+  );
 
   const select = (id: string) => {
     setSelectedId(id);

@@ -7,6 +7,7 @@ export type MoveDialogProps = {
   readonly drives: readonly Drive[];
   readonly source: MoveSource;
   readonly narrow: boolean;
+  readonly returnFocusTo: HTMLElement | null;
   readonly onClose: () => void;
   readonly onMoved: (notice: MoveNotice) => void;
 };

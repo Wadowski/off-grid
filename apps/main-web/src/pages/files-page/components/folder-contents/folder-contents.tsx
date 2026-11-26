@@ -100,6 +100,7 @@ export const FolderContents = ({
             parentId: folderId,
           }}
           narrow={phone}
+          returnFocusTo={pendingMove.returnFocusTo}
           onClose={closeMove}
           onMoved={moved}
         />

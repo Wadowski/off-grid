@@ -53,15 +53,18 @@ const clickRow = (testId: string) => {
   fireEvent.click(row);
 };
 
+const renderProps = (overrides: Partial<MoveDialogProps> = {}): MoveDialogProps => ({
+  drives: [PERSONAL, HOME],
+  source: SOURCE,
+  narrow: false,
+  returnFocusTo: null,
+  onClose: vi.fn(),
+  onMoved: vi.fn(),
+  ...overrides,
+});
+
 const renderDialog = (overrides: Partial<MoveDialogProps> = {}) => {
-  const props: MoveDialogProps = {
-    drives: [PERSONAL, HOME],
-    source: SOURCE,
-    narrow: false,
-    onClose: vi.fn(),
-    onMoved: vi.fn(),
-    ...overrides,
-  };
+  const props = renderProps(overrides);
   render(<MoveDialog {...props} />);
   return props;
 };
@@ -144,5 +147,18 @@ describe("MoveDialog", () => {
     );
     expect(screen.getByRole("dialog")).toHaveAttribute("open");
     expect(props.onMoved).not.toHaveBeenCalled();
+  });
+
+  it("returns focus to the element it was given when it closes", () => {
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    const { unmount } = render(
+      <MoveDialog {...renderProps({ returnFocusTo: trigger })} />,
+    );
+
+    unmount();
+
+    expect(document.activeElement).toBe(trigger);
+    trigger.remove();
   });
 });
