@@ -81,7 +81,7 @@ describe("FilesHeader", () => {
       />,
     );
 
-    expect(screen.getByText("Choose a drive to upload files.")).toHaveAttribute(
+    expect(screen.getByText("Select a drive in the panel to upload files.")).toHaveAttribute(
       "id",
       "files-no-drive-hint",
     );
@@ -106,7 +106,9 @@ describe("FilesHeader", () => {
       />,
     );
 
-    expect(screen.queryByText("Choose a drive to upload files.")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Select a drive in the panel to upload files."),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("files-upload-button")).not.toHaveAttribute("aria-describedby");
   });
 

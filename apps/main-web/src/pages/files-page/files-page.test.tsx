@@ -134,7 +134,7 @@ describe("FilesPage", () => {
     try {
       renderAt("/files");
 
-      expect(screen.getByText("Choose a drive to upload files.")).toBeInTheDocument();
+      expect(screen.getByText("Select a drive in the panel to upload files.")).toBeInTheDocument();
       fireEvent.change(screen.getByTestId("files-upload-input"), {
         target: { files: [new File(["a"], "a.txt")] },
       });

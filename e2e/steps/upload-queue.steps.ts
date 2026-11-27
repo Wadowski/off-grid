@@ -248,7 +248,9 @@ Then("the Upload button is disabled", async ({ page }) => {
 });
 
 Then("the caption describes the Upload button", async ({ page }) => {
-  await expect(uploadButton(page)).toHaveAccessibleDescription("Choose a drive to upload files.");
+  await expect(uploadButton(page)).toHaveAccessibleDescription(
+    "Select a drive in the panel to upload files.",
+  );
 });
 
 Then("no upload request is made", async ({ page }) => {

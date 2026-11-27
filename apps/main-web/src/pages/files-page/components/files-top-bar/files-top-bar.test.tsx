@@ -93,7 +93,7 @@ describe("FilesTopBar", () => {
     });
 
     expect(screen.getByTestId("files-top-bar")).toContainElement(
-      screen.getByText("Choose a drive to upload files."),
+      screen.getByText("Select a drive in the panel to upload files."),
     );
     expect(screen.getByTestId("files-top-bar-upload")).toHaveAttribute(
       "aria-describedby",
