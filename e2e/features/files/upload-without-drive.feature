@@ -11,8 +11,8 @@ Feature: Files without a drive open explains how to upload
   @screen:files-no-drive
   Scenario: Anna is told to choose a drive when she opens Files from the sidebar
     Given I am signed in as "Anna Kowalska", a regular member
-    When Anna opens Files from the sidebar
-    Then Anna sees the caption "Select a drive in the panel to upload files."
-    And the Upload button is disabled
+    When Anna opens Files from the sidebar without a drive
+    Then Anna sees the no-drive caption "Select a drive in the panel to upload files."
+    And the Files Upload button is disabled without a drive
     And the caption describes the Upload button
     And no upload request is made

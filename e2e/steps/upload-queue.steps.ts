@@ -221,7 +221,7 @@ Then("the file chooser is opened", async ({ page }) => {
   await chooser;
 });
 
-When("Anna opens Files from the sidebar", async ({ page }) => {
+When("Anna opens Files from the sidebar without a drive", async ({ page }) => {
   const requests: string[] = [];
   uploadRequests.set(page, requests);
   page.on("request", (request) => {
@@ -237,13 +237,13 @@ When("Anna opens Files from the sidebar", async ({ page }) => {
   await expect(page).toHaveURL(/\/files\/?$/);
 });
 
-Then(/^Anna sees the caption "([^"]*)"$/, async ({ page }, caption: string) => {
+Then(/^Anna sees the no-drive caption "([^"]*)"$/, async ({ page }, caption: string) => {
   await expect(page.getByText(caption, { exact: true })).toBeVisible({
     timeout: UPLOAD_TIMEOUT_MS,
   });
 });
 
-Then("the Upload button is disabled", async ({ page }) => {
+Then("the Files Upload button is disabled without a drive", async ({ page }) => {
   await expect(uploadButton(page)).toBeDisabled({ timeout: UPLOAD_TIMEOUT_MS });
 });
 
