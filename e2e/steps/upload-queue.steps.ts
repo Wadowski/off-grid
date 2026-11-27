@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { expect, type FileChooser, type Locator, type Page } from "@playwright/test";
+import { expect, type FileChooser, type Locator, type Page, type Request } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
 import { E2E_UPLOAD_LIMIT_BYTES } from "../support/factories/files.js";
@@ -18,7 +18,10 @@ const heldUploads = new WeakMap<
   { readonly promise: Promise<void>; readonly release: () => void }
 >();
 const fileChoosers = new WeakMap<Page, Promise<FileChooser>>();
-const uploadRequests = new WeakMap<Page, string[]>();
+const uploadRequests = new WeakMap<
+  Page,
+  { readonly urls: string[]; readonly listener: (request: Request) => void }
+>();
 
 const textFile = (name: string, body: string) => ({
   name,
@@ -222,13 +225,14 @@ Then("the file chooser is opened", async ({ page }) => {
 });
 
 When("Anna opens Files from the sidebar without a drive", async ({ page }) => {
-  const requests: string[] = [];
-  uploadRequests.set(page, requests);
-  page.on("request", (request) => {
+  const urls: string[] = [];
+  const listener = (request: Request): void => {
     if (request.method() === "POST" && UPLOAD_ROUTE.test(new URL(request.url()).pathname)) {
-      requests.push(request.url());
+      urls.push(request.url());
     }
-  });
+  };
+  uploadRequests.set(page, { urls, listener });
+  page.on("request", listener);
   await page.goto(`${webBaseUrl()}/`);
   await page
     .getByRole("navigation", { name: "Main navigation" })
@@ -260,5 +264,13 @@ Then("the Files Upload button explains why it is unavailable", async ({ page }) 
 });
 
 Then("no upload request is made from Files without a drive", async ({ page }) => {
-  expect(uploadRequests.get(page) ?? []).toEqual([]);
+  const watch = uploadRequests.get(page);
+  try {
+    await expect(uploadButton(page)).toBeDisabled({ timeout: UPLOAD_TIMEOUT_MS });
+    expect(watch?.urls ?? []).toEqual([]);
+  } finally {
+    if (watch !== undefined) {
+      page.off("request", watch.listener);
+    }
+  }
 });
