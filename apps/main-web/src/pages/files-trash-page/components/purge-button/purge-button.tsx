@@ -30,7 +30,12 @@ export const PurgeButton = ({ name, disabled, compact, onPurge }: PurgeButtonPro
       data-testid="trash-purge"
     >
       <MaterialIcon name="delete_forever" size="1.125rem" color={cssVar("color-danger")} />
-      <Text variant="body" element="span" textId="files.trash.purge" />
+      <Text
+        variant="body"
+        element="span"
+        textId="files.trash.purge"
+        style={{ color: cssVar("color-danger") }}
+      />
     </Button>
   );
 };
