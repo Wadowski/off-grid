@@ -247,12 +247,18 @@ Then("the Files Upload button is disabled without a drive", async ({ page }) => 
   await expect(uploadButton(page)).toBeDisabled({ timeout: UPLOAD_TIMEOUT_MS });
 });
 
-Then("the caption describes the Upload button", async ({ page }) => {
+Then("the Files New folder button is disabled without a drive", async ({ page }) => {
+  await expect(page.getByTestId("files-new-folder-button")).toBeDisabled({
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
+});
+
+Then("the Files Upload button explains why it is unavailable", async ({ page }) => {
   await expect(uploadButton(page)).toHaveAccessibleDescription(
     "Select a drive in the panel to upload files.",
   );
 });
 
-Then("no upload request is made", async ({ page }) => {
+Then("no upload request is made from Files without a drive", async ({ page }) => {
   expect(uploadRequests.get(page) ?? []).toEqual([]);
 });
