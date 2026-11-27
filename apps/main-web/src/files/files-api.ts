@@ -60,6 +60,12 @@ export const listDriveTrash = (
 export const restoreFile = (fileId: FileEntry["id"]): Promise<FileEntry> =>
   webFilesClient.restoreFile(fileId);
 
+export const purgeFile = (fileId: FileEntry["id"]): Promise<void> =>
+  webFilesClient.purgeFile(fileId);
+
+export const emptyDriveTrash = (driveId: Drive["id"]): Promise<void> =>
+  webFilesClient.emptyDriveTrash(driveId);
+
 export const uploadFile = (driveId: Drive["id"], input: UploadFileInput): Promise<FileEntry> =>
   webFilesClient.uploadFile(driveId, input);
 

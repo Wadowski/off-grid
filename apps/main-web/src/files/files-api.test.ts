@@ -6,6 +6,7 @@ import { webFilesClient } from "../api/web-api-client.js";
 import {
   deleteFileVersion,
   createFolder,
+  emptyDriveTrash,
   getFile,
   getFileContent,
   getFileVersionContent,
@@ -15,6 +16,7 @@ import {
   listFileChildren,
   listFileVersions,
   moveFile,
+  purgeFile,
   restoreFile,
   restoreFileVersion,
   trashFile,
@@ -101,6 +103,20 @@ describe("files API", () => {
 
     await expect(restoreFile(FOLDER_ID)).resolves.toBe(restored);
     expect(restore).toHaveBeenCalledWith(FOLDER_ID);
+  });
+
+  it("deletes the file for good through the files client", async () => {
+    const purge = vi.spyOn(webFilesClient, "purgeFile").mockResolvedValue(undefined);
+
+    await expect(purgeFile(FOLDER_ID)).resolves.toBeUndefined();
+    expect(purge).toHaveBeenCalledWith(FOLDER_ID);
+  });
+
+  it("empties the trash of the drive through the files client", async () => {
+    const empty = vi.spyOn(webFilesClient, "emptyDriveTrash").mockResolvedValue(undefined);
+
+    await expect(emptyDriveTrash(DRIVE_ID)).resolves.toBeUndefined();
+    expect(empty).toHaveBeenCalledWith(DRIVE_ID);
   });
 
   it("passes the file id to the files client and returns the details", async () => {

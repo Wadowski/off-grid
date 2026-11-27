@@ -6,4 +6,7 @@ import type { Drive } from "../../../../files/types.js";
 export type TrashHeaderProps = {
   readonly driveId: Drive["id"];
   readonly driveName: string | null;
+  readonly showEmptyTrash: boolean;
+  readonly emptying: boolean;
+  readonly onEmptyTrash: () => void;
 };

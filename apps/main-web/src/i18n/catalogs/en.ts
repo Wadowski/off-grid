@@ -793,6 +793,22 @@ export const en = {
       restoredNotice: '"{{name}}" was restored.',
       showInDrive: "Show in drive",
       open: "Open trash",
+      purge: "Delete permanently",
+      purgeLabel: "Delete permanently: {{name}}",
+      emptyTrash: "Empty trash",
+      retentionNote: "Items in the trash are also removed automatically after 30 days.",
+      purgeDialog: {
+        title: "Delete permanently?",
+        bodyFile: 'Delete "{{name}}" permanently? This can\'t be undone.',
+        bodyFolder:
+          'Delete the folder "{{name}}" and everything in it permanently? This can\'t be undone.',
+        confirm: "Delete permanently",
+      },
+      emptyDialog: {
+        title: "Empty the trash?",
+        body: "Everything in the trash of this drive will be deleted permanently. This can't be undone.",
+        confirm: "Empty trash",
+      },
     },
     list: {
       label: "Folder contents",

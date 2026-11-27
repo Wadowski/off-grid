@@ -135,6 +135,19 @@ export type RestoreEntryState = {
   readonly restore: (fileId: FileEntry["id"]) => Promise<FileEntry | null>;
 };
 
+export type PurgeEntryState = {
+  readonly status: TrashEntryStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly purge: (fileId: FileEntry["id"]) => Promise<boolean>;
+  readonly reset: () => void;
+};
+
+export type EmptyTrashState = {
+  readonly status: TrashEntryStatus;
+  readonly errorTextId: FilesErrorTextId | null;
+  readonly empty: (driveId: Drive["id"]) => Promise<boolean>;
+};
+
 export type FolderContentsSnapshot = {
   readonly items: readonly FileListItem[];
   readonly nextCursor: string | null;

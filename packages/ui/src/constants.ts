@@ -87,8 +87,8 @@ export const FILE_TABLE_COLUMNS: readonly FileTableColumn[] = [
 
 const FILE_TRASH_TABLE_COLUMNS: readonly FileTableColumn[] = [
   { key: "name", textId: "files.table.name", align: "start", width: "auto" },
-  { key: "modified", textId: "files.table.deleted", align: "start", width: "9rem" },
-  { key: "size", textId: "files.table.size", align: "end", width: "7rem" },
+  { key: "modified", textId: "files.table.deleted", align: "start", width: "7rem" },
+  { key: "size", textId: "files.table.size", align: "end", width: "5rem" },
 ];
 
 export const FILE_TABLE_COLUMNS_BY_VARIANT: Readonly<
@@ -105,7 +105,7 @@ export const FILE_TABLE_LABEL_TEXT_IDS: Readonly<Record<FileTableVariant, FileTa
 
 export const FILE_TABLE_ACTIONS_WIDTH_BY_VARIANT: Readonly<Record<FileTableVariant, string>> = {
   files: "3rem",
-  trash: "9rem",
+  trash: "16rem",
 };
 
 export const FLOATING_PANEL_Z_INDEX = 20;

@@ -12,7 +12,7 @@ const ownTextLayout: CSSProperties = {
   textAlign: "start",
 };
 
-export const deleteEntryDialogStyle = (narrow: boolean): CSSProperties =>
+export const confirmDialogStyle = (narrow: boolean): CSSProperties =>
   narrow
     ? {
         ...ownTextLayout,
@@ -38,21 +38,21 @@ export const deleteEntryDialogStyle = (narrow: boolean): CSSProperties =>
         overflow: "hidden",
       };
 
-export const deleteEntryShellStyle: CSSProperties = {
+export const confirmDialogShellStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   minHeight: 0,
   maxHeight: "inherit",
 };
 
-export const deleteEntryTextStyle: CSSProperties = {
+export const confirmDialogTextStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: tokens.space[2],
   padding: `${tokens.space[5]} ${tokens.space[5]} 0`,
 };
 
-export const deleteEntryFooterStyle: CSSProperties = {
+export const confirmDialogFooterStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-end",
