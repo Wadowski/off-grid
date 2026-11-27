@@ -17,6 +17,7 @@ export const FilesTopBar = ({
   newFolderDisabled,
   onNewFolder,
   noDrive = false,
+  describedBy,
 }: FilesTopBarProps) => {
   const activeDriveName = drives.find((drive) => drive.id === activeDriveId)?.name ?? null;
 
@@ -29,7 +30,7 @@ export const FilesTopBar = ({
         onFilesPicked={onFilesPicked}
         newFolderDisabled={newFolderDisabled}
         onNewFolder={onNewFolder}
-        noDrive={noDrive}
+        describedBy={describedBy}
       />
       {noDrive ? <NoDriveHint /> : null}
     </div>

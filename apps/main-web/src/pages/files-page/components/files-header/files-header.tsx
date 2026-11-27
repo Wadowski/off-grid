@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, FilePickerButton, MaterialIcon, Text, cssVar } from "@offgrid/ui";
-import { NO_DRIVE_HINT_ID } from "../../../../files/constants.js";
 import { NoDriveHint } from "../no-drive-hint/no-drive-hint.js";
 import { filesHeaderActionsStyle, filesHeaderStyle } from "./styles.js";
 import type { FilesHeaderProps } from "./types.js";
@@ -14,10 +13,9 @@ export const FilesHeader = ({
   newFolderDisabled,
   onNewFolder,
   noDrive = false,
+  describedBy,
   viewControls,
 }: FilesHeaderProps) => {
-  const hintId = noDrive ? NO_DRIVE_HINT_ID : undefined;
-
   return (
     <div style={filesHeaderStyle} data-testid="files-header">
       {driveName === undefined ? (
@@ -31,7 +29,7 @@ export const FilesHeader = ({
           size="medium"
           disabled={newFolderDisabled}
           onClick={onNewFolder}
-          aria-describedby={hintId}
+          aria-describedby={describedBy}
           data-testid="files-new-folder-button"
         >
           <MaterialIcon name="create_new_folder" size="1.125rem" color={cssVar("color-fg")} />
@@ -41,7 +39,7 @@ export const FilesHeader = ({
           variant="primary"
           size="medium"
           disabled={uploadDisabled}
-          ariaDescribedBy={hintId}
+          ariaDescribedBy={describedBy}
           onFilesPicked={onFilesPicked}
           testId="files-upload-button"
           inputTestId="files-upload-input"

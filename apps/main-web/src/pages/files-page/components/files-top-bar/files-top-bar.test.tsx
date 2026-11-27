@@ -89,6 +89,7 @@ describe("FilesTopBar", () => {
       newFolderDisabled: true,
       onNewFolder: () => undefined,
       noDrive: true,
+      describedBy: "files-no-drive-hint",
     });
 
     expect(screen.getByTestId("files-top-bar")).toContainElement(

@@ -86,8 +86,15 @@ describe("TopBarActions", () => {
     expect(screen.queryByTestId("files-top-bar-trash")).not.toBeInTheDocument();
   });
 
-  it("links Upload and New folder to the no-drive hint when no drive is open", () => {
-    render(<TopBarActions {...ACTIONS} uploadDisabled newFolderDisabled noDrive />);
+  it("links Upload and New folder to the description they are given", () => {
+    render(
+      <TopBarActions
+        {...ACTIONS}
+        uploadDisabled
+        newFolderDisabled
+        describedBy="files-no-drive-hint"
+      />,
+    );
 
     expect(screen.getByTestId("files-top-bar-upload")).toHaveAttribute(
       "aria-describedby",

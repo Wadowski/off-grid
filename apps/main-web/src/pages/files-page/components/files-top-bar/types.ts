@@ -9,4 +9,5 @@ export type FilesTopBarProps = Pick<DriveSwitcherProps, "drives" | "status" | "a
   readonly newFolderDisabled: boolean;
   readonly onNewFolder: () => void;
   readonly noDrive?: boolean;
+  readonly describedBy?: string;
 };

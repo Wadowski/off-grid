@@ -77,6 +77,7 @@ describe("FilesHeader", () => {
         newFolderDisabled
         onNewFolder={vi.fn()}
         noDrive
+        describedBy="files-no-drive-hint"
       />,
     );
 
