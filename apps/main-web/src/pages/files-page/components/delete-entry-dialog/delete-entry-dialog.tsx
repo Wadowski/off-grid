@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { ConfirmDialog } from "../confirm-dialog/confirm-dialog.js";
+import { ConfirmDialog } from "../../../../files/components/confirm-dialog/confirm-dialog.js";
 import type { DeleteEntryDialogProps } from "./types.js";
 
 export const DeleteEntryDialog = ({
