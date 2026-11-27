@@ -5,13 +5,13 @@ import { expect, type FileChooser, type Locator, type Page } from "@playwright/t
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
 import { E2E_UPLOAD_LIMIT_BYTES } from "../support/factories/files.js";
+import { UPLOAD_ROUTE } from "../support/upload-route.js";
 import { test } from "../support/fixtures.js";
 
 const { When, Then } = createBdd(test);
 
 const UPLOAD_TIMEOUT_MS = 15_000;
 const PANEL_TIMEOUT_MS = 10_000;
-const UPLOAD_ROUTE = /\/api\/drives\/[^/]+\/files$/;
 
 const heldUploads = new WeakMap<
   Page,
