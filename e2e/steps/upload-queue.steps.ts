@@ -18,6 +18,7 @@ const heldUploads = new WeakMap<
   { readonly promise: Promise<void>; readonly release: () => void }
 >();
 const fileChoosers = new WeakMap<Page, Promise<FileChooser>>();
+const uploadRequests = new WeakMap<Page, string[]>();
 
 const textFile = (name: string, body: string) => ({
   name,
@@ -218,4 +219,38 @@ Then("the file chooser is opened", async ({ page }) => {
     throw new Error("No keyboard press on the Upload button was recorded.");
   }
   await chooser;
+});
+
+When("Anna opens Files from the sidebar", async ({ page }) => {
+  const requests: string[] = [];
+  uploadRequests.set(page, requests);
+  page.on("request", (request) => {
+    if (request.method() === "POST" && UPLOAD_ROUTE.test(new URL(request.url()).pathname)) {
+      requests.push(request.url());
+    }
+  });
+  await page.goto(`${webBaseUrl()}/`);
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("link", { name: "Files", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/files\/?$/);
+});
+
+Then(/^Anna sees the caption "([^"]*)"$/, async ({ page }, caption: string) => {
+  await expect(page.getByText(caption, { exact: true })).toBeVisible({
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
+});
+
+Then("the Upload button is disabled", async ({ page }) => {
+  await expect(uploadButton(page)).toBeDisabled({ timeout: UPLOAD_TIMEOUT_MS });
+});
+
+Then("the caption describes the Upload button", async ({ page }) => {
+  await expect(uploadButton(page)).toHaveAccessibleDescription("Choose a drive to upload files.");
+});
+
+Then("no upload request is made", async ({ page }) => {
+  expect(uploadRequests.get(page) ?? []).toEqual([]);
 });
