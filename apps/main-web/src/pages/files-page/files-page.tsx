@@ -7,7 +7,7 @@ import { FolderLoadFailed } from "../../errors/folder-load-failed/folder-load-fa
 import { ItemNotFound } from "../../errors/item-not-found/item-not-found.js";
 import { useCurrentFolder } from "../../files/use-current-folder.js";
 import { useRefreshOnFilesChanged } from "../../files/use-refresh-on-files-changed.js";
-import { DEFAULT_FILES_SORT_ORDER } from "../../files/constants.js";
+import { DEFAULT_FILES_SORT_ORDER, NO_DRIVE_HINT_ID } from "../../files/constants.js";
 import { useFilesViewPreference } from "../../files/use-files-view-preference.js";
 import { useNewFolderDialog } from "../../files/use-new-folder-dialog.js";
 import { useRefreshOnUploadDone } from "../../files/use-refresh-on-upload-done.js";
@@ -46,7 +46,9 @@ export const FilesPage = () => {
   );
 
   const queue = useUploadQueueContext();
-  const uploadDisabled = folder.status !== "ready" || folder.driveId === null;
+  const noDrive = folder.driveId === null;
+  const noDriveHintId = noDrive ? NO_DRIVE_HINT_ID : undefined;
+  const uploadDisabled = folder.status !== "ready" || noDrive;
   const enqueueFiles = (files: readonly File[]) => {
     if (folder.driveId !== null) {
       queue.enqueue(files, { driveId: folder.driveId, folderId: folder.folderId });
@@ -99,6 +101,8 @@ export const FilesPage = () => {
           onFilesPicked={enqueueFiles}
           newFolderDisabled={newFolderDisabled}
           onNewFolder={newFolder.open}
+          noDrive={noDrive}
+          describedBy={noDriveHintId}
         />
       ) : (
         <FilesHeader
@@ -107,8 +111,10 @@ export const FilesPage = () => {
           onFilesPicked={enqueueFiles}
           newFolderDisabled={newFolderDisabled}
           onNewFolder={newFolder.open}
+          noDrive={noDrive}
+          describedBy={noDriveHintId}
           viewControls={
-            folder.driveId === null ? null : (
+            noDrive ? null : (
               <ViewControls
                 view={preference.view}
                 sort={preference.sort}

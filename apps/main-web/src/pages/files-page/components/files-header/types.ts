@@ -9,5 +9,7 @@ export type FilesHeaderProps = {
   readonly onFilesPicked: (files: readonly File[]) => void;
   readonly newFolderDisabled: boolean;
   readonly onNewFolder: () => void;
+  readonly noDrive?: boolean;
+  readonly describedBy?: string;
   readonly viewControls?: ReactNode;
 };

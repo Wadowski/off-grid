@@ -14,6 +14,8 @@ import type {
 
 export const FILES_VIEW_PREFERENCE_KEY = "offgrid.files.viewPreference";
 
+export const NO_DRIVE_HINT_ID = "files-no-drive-hint";
+
 export const FILES_SORT_FIELDS: readonly FilesSortField[] = ["name", "modified", "size"];
 
 export const DEFAULT_FILES_SORT_ORDER: FilesSortOrder = { sort: "name", direction: "asc" };

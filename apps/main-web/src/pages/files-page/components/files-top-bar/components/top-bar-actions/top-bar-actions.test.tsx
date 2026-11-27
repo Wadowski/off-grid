@@ -85,4 +85,24 @@ describe("TopBarActions", () => {
 
     expect(screen.queryByTestId("files-top-bar-trash")).not.toBeInTheDocument();
   });
+
+  it("links Upload and New folder to the description they are given", () => {
+    render(
+      <TopBarActions
+        {...ACTIONS}
+        uploadDisabled
+        newFolderDisabled
+        describedBy="files-no-drive-hint"
+      />,
+    );
+
+    expect(screen.getByTestId("files-top-bar-upload")).toHaveAttribute(
+      "aria-describedby",
+      "files-no-drive-hint",
+    );
+    expect(screen.getByTestId("files-top-bar-new-folder")).toHaveAttribute(
+      "aria-describedby",
+      "files-no-drive-hint",
+    );
+  });
 });

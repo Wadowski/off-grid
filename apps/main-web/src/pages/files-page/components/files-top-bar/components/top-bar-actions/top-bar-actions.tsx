@@ -13,6 +13,7 @@ export const TopBarActions = ({
   onFilesPicked,
   newFolderDisabled,
   onNewFolder,
+  describedBy,
 }: TopBarActionsProps) => {
   const { t } = useTranslation();
 
@@ -28,6 +29,7 @@ export const TopBarActions = ({
         size="icon"
         ariaLabel={t("files.actions.upload")}
         disabled={uploadDisabled}
+        ariaDescribedBy={describedBy}
         onFilesPicked={onFilesPicked}
         testId="files-top-bar-upload"
         inputTestId="files-upload-input"
@@ -52,6 +54,7 @@ export const TopBarActions = ({
         disabled={newFolderDisabled}
         onClick={onNewFolder}
         aria-label={t("files.actions.newFolder")}
+        aria-describedby={describedBy}
         data-testid="files-top-bar-new-folder"
       >
         <MaterialIcon name="create_new_folder" size="24px" color="currentColor" />

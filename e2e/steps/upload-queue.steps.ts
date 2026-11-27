@@ -1,23 +1,27 @@
 // SPDX-FileCopyrightText: 2026 Dominik Wadowski
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-import { expect, type FileChooser, type Locator, type Page } from "@playwright/test";
+import { expect, type FileChooser, type Locator, type Page, type Request } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { webBaseUrl } from "../support/stack.js";
 import { E2E_UPLOAD_LIMIT_BYTES } from "../support/factories/files.js";
+import { UPLOAD_ROUTE } from "../support/upload-route.js";
 import { test } from "../support/fixtures.js";
 
 const { When, Then } = createBdd(test);
 
 const UPLOAD_TIMEOUT_MS = 15_000;
 const PANEL_TIMEOUT_MS = 10_000;
-const UPLOAD_ROUTE = /\/api\/drives\/[^/]+\/files$/;
 
 const heldUploads = new WeakMap<
   Page,
   { readonly promise: Promise<void>; readonly release: () => void }
 >();
 const fileChoosers = new WeakMap<Page, Promise<FileChooser>>();
+const uploadRequests = new WeakMap<
+  Page,
+  { readonly urls: string[]; readonly listener: (request: Request) => void }
+>();
 
 const textFile = (name: string, body: string) => ({
   name,
@@ -218,4 +222,55 @@ Then("the file chooser is opened", async ({ page }) => {
     throw new Error("No keyboard press on the Upload button was recorded.");
   }
   await chooser;
+});
+
+When("Anna opens Files from the sidebar without a drive", async ({ page }) => {
+  const urls: string[] = [];
+  const listener = (request: Request): void => {
+    if (request.method() === "POST" && UPLOAD_ROUTE.test(new URL(request.url()).pathname)) {
+      urls.push(request.url());
+    }
+  };
+  uploadRequests.set(page, { urls, listener });
+  page.on("request", listener);
+  await page.goto(`${webBaseUrl()}/`);
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("link", { name: "Files", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/files\/?$/);
+});
+
+Then(/^Anna sees the no-drive caption "([^"]*)"$/, async ({ page }, caption: string) => {
+  await expect(page.getByText(caption, { exact: true })).toBeVisible({
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
+});
+
+Then("the Files Upload button is disabled without a drive", async ({ page }) => {
+  await expect(uploadButton(page)).toBeDisabled({ timeout: UPLOAD_TIMEOUT_MS });
+});
+
+Then("the Files New folder button is disabled without a drive", async ({ page }) => {
+  await expect(page.getByTestId("files-new-folder-button")).toBeDisabled({
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
+});
+
+Then("the Files Upload button explains why it is unavailable", async ({ page }) => {
+  await expect(uploadButton(page)).toHaveAccessibleDescription(
+    "Select a drive in the panel to upload files.",
+  );
+});
+
+Then("no upload request is made from Files without a drive", async ({ page }) => {
+  const watch = uploadRequests.get(page);
+  try {
+    await expect(uploadButton(page)).toBeDisabled({ timeout: UPLOAD_TIMEOUT_MS });
+    expect(watch?.urls ?? []).toEqual([]);
+  } finally {
+    if (watch !== undefined) {
+      page.off("request", watch.listener);
+    }
+  }
 });
