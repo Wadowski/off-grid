@@ -9,7 +9,6 @@ Feature: Deleting trashed items for good from the trash view
   nothing can be undone, and mention that items in the trash are also removed
   automatically after 30 days. Cancelling keeps everything in the trash.
 
-  @screen:files-trash-purge-confirm
   Scenario: Anna permanently deletes a trashed file after confirming
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -37,7 +36,6 @@ Feature: Deleting trashed items for good from the trash view
     When Anna confirms deleting permanently
     Then the trash view says the trash is empty
 
-  @screen:files-trash-empty-confirm
   Scenario: Anna empties the trash of her personal drive
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -61,7 +59,6 @@ Feature: Deleting trashed items for good from the trash view
     When Anna opens the trash of her personal drive on a desktop screen
     Then the trash view does not offer to empty the trash
 
-  @screen:files-trash-purge-phone
   Scenario: Anna permanently deletes a trashed file from the phone trash view
     Given I am signed in as "Anna Kowalska", a regular member
     And Anna has a trashed personal-drive file "Old receipt.pdf"
@@ -81,6 +78,45 @@ Feature: Deleting trashed items for good from the trash view
     Then the purge dialog shows the error "This item isn't in the trash."
     When Anna cancels deleting permanently
     Then the trash view does not list "Old receipt.pdf"
+
+  @screen:files-trash-purge-confirm
+  Scenario: The purge dialog for a trashed file is open before anything is deleted
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a trashed personal-drive file "Old receipt.pdf"
+    When Anna opens the trash of her personal drive on a desktop screen
+    And Anna asks to delete "Old receipt.pdf" permanently
+    Then the purge dialog is open
+    And the purge dialog names "Old receipt.pdf" and says it can't be undone
+    And the purge dialog says items in the trash are removed automatically after 30 days
+
+  @screen:files-trash-purge-phone
+  Scenario: The purge dialog for a trashed file is open on the phone trash view
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a trashed personal-drive file "Old receipt.pdf"
+    When Anna opens the Files page on a phone
+    And Anna opens the trash from the phone top row
+    And Anna asks to delete "Old receipt.pdf" permanently
+    Then the purge dialog is open
+    And the purge dialog names "Old receipt.pdf" and says it can't be undone
+
+  @screen:files-trash-purge-folder-confirm
+  Scenario: The purge dialog for a trashed folder is open before anything is deleted
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a trashed personal-drive folder "Holiday" holding a file "sunset.jpg"
+    When Anna opens the trash of her personal drive on a desktop screen
+    And Anna asks to delete "Holiday" permanently
+    Then the purge dialog is open
+    And the purge dialog says everything inside "Holiday" is deleted too
+
+  @screen:files-trash-empty-confirm
+  Scenario: The empty trash dialog is open before anything is deleted
+    Given I am signed in as "Anna Kowalska", a regular member
+    And Anna has a trashed personal-drive file "Old receipt.pdf"
+    And Anna has a trashed personal-drive folder "Holiday" holding a file "sunset.jpg"
+    When Anna opens the trash of her personal drive on a desktop screen
+    And Anna asks to empty the trash
+    Then the empty trash dialog is open
+    And the empty trash dialog says everything in the trash of this drive will be deleted permanently
 
   @a11y
   Scenario: The purge dialog is labelled and Escape closes it

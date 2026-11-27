@@ -40,6 +40,14 @@ When("Anna cancels emptying the trash", async ({ page }) => {
   await page.getByTestId("empty-trash-cancel").click();
 });
 
+Then("the purge dialog is open", async ({ page }) => {
+  await expect(purgeDialog(page)).toBeVisible();
+});
+
+Then("the empty trash dialog is open", async ({ page }) => {
+  await expect(emptyTrashDialog(page)).toBeVisible();
+});
+
 Then(
   /^the purge dialog names "([^"]*)" and says it can't be undone$/,
   async ({ page }, name: string) => {
