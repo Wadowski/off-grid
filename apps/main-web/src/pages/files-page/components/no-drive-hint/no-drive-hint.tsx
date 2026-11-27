@@ -7,7 +7,7 @@ import { noDriveHintStyle } from "./styles.js";
 
 export const NoDriveHint = () => (
   <Text
-    variant="caption"
+    variant="body"
     element="p"
     textId="files.upload.noDrive"
     id={NO_DRIVE_HINT_ID}
