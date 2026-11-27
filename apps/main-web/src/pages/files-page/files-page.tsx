@@ -46,7 +46,7 @@ export const FilesPage = () => {
 
   const queue = useUploadQueueContext();
   const noDrive = folder.driveId === null;
-  const uploadDisabled = folder.status !== "ready" || folder.driveId === null;
+  const uploadDisabled = folder.status !== "ready" || noDrive;
   const enqueueFiles = (files: readonly File[]) => {
     if (folder.driveId !== null) {
       queue.enqueue(files, { driveId: folder.driveId, folderId: folder.folderId });
@@ -106,7 +106,7 @@ export const FilesPage = () => {
           onNewFolder={newFolder.open}
           noDrive={noDrive}
           viewControls={
-            folder.driveId === null ? null : (
+            noDrive ? null : (
               <ViewControls
                 view={preference.view}
                 sort={preference.sort}
