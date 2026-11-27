@@ -36,8 +36,8 @@ export const calendarViewsPageStyle = (phone: boolean, desktopDay: boolean): CSS
 export const calendarViewsBleedStyle = (phone: boolean): CSSProperties | undefined =>
   phone ? { marginLeft: `-${PAGE_GUTTER}`, marginRight: `-${PAGE_GUTTER}` } : undefined;
 
-export const calendarViewsFilterStyle = (narrow: boolean): CSSProperties | undefined =>
-  narrow ? undefined : { display: "none" };
+export const calendarViewsFilterStyle = (narrow: boolean): CSSProperties =>
+  narrow ? { position: "relative", zIndex: 40 } : { display: "none" };
 
 export const calendarViewsWeekStripStyle = (narrow: boolean): CSSProperties =>
   narrow

@@ -7,6 +7,7 @@ import { blockingViolationDescriptions } from "../support/accessibility.js";
 import { createTimedEvent } from "../support/factories/calendar-events.js";
 import { test } from "../support/fixtures.js";
 import { memberSessionOf } from "../support/family-sessions.js";
+import { captureScreen } from "../support/screenshots.js";
 import { webBaseUrl } from "../support/stack.js";
 import { calendarIdOf } from "../support/world-calendar-id.js";
 
@@ -129,6 +130,7 @@ When(
 
 When("I untick the calendar {string} in the calendar filter", async ({ page }, name: string) => {
   await page.getByRole("button", { name: /^Calendar filter/ }).click();
+  await captureScreen(page, "calendar filter open", "calendar-mobile-views");
   await page
     .getByRole("group", { name: "Calendar filter" })
     .getByRole("checkbox", { name: name })

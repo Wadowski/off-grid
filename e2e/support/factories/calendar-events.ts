@@ -5,6 +5,7 @@ import { expect, type APIRequestContext, type APIResponse } from "@playwright/te
 import { accountSessionOf, bearer } from "../family-sessions.js";
 import type { ScenarioWorld } from "../fixtures.js";
 import type { Session } from "./instance-admin.js";
+import type { ListedCalendar } from "./types.js";
 
 export type CalendarRecord = {
   name: string;
@@ -27,6 +28,7 @@ export type CalendarEventsWorld = {
   calendars: CalendarRecord[];
   events: EventRecord[];
   lastStatus?: number;
+  listing?: ListedCalendar[];
 };
 
 export type EventBody = {

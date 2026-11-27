@@ -23,6 +23,12 @@ export interface CalendarWorkerContext {
   readonly logger: Logger;
 }
 
+export interface FamilyCalendarInsertInput {
+  readonly calendarId: string;
+  readonly familyId: string;
+  readonly name: string;
+}
+
 export interface CalendarRecord {
   readonly calendarId: string;
   readonly name: string;

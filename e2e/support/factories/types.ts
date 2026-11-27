@@ -26,3 +26,10 @@ export type DownloadResponse = { status: number; headers: Record<string, string>
 
 export type NoticeType =
   "password-changed" | "recovery-code-regenerated" | "event-invited" | "event-reminder";
+
+export type ListedCalendar = {
+  id: string;
+  name: string;
+  familyId: string | null;
+  isDefault: boolean;
+};

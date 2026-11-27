@@ -9,6 +9,7 @@ import type { CalendarTestDatabase } from "../../../test/types.js";
 import { applyFamilyMembership } from "../../events/family-membership/apply-family-membership.js";
 import { createCalendar } from "./create-calendar.js";
 import { createDefaultCalendar } from "./create-default-calendar.js";
+import { createFamilyCalendar } from "./create-family-calendar.js";
 import { listCalendarsFor } from "./list-calendars.js";
 import { removeCalendar } from "./remove-calendar.js";
 import { updateCalendar } from "./update-calendar.js";
@@ -106,6 +107,18 @@ describe("calendar management", { timeout: 60_000 }, () => {
       await leaveFamily(home, anna);
 
       expect(await listCalendarsFor(db.db, anna)).toEqual([]);
+    });
+
+    it("lists the personal default calendar before the family default calendar", async () => {
+      const anna = randomUUID();
+      const home = randomUUID();
+      await joinFamily(home, anna);
+      await db.db.$transaction((tx) => createFamilyCalendar(tx, home, "The Smiths"));
+      await db.db.$transaction((tx) => createDefaultCalendar(tx, anna));
+
+      const calendars = await listCalendarsFor(db.db, anna);
+
+      expect(calendars.map((calendar) => calendar.name)).toEqual(["Personal", "The Smiths"]);
     });
   });
 
@@ -251,6 +264,25 @@ describe("calendar management", { timeout: 60_000 }, () => {
 
       expect(outcome).toEqual({ outcome: "default-calendar" });
       expect(await calendarRow(rows[0].calendar_id)).toEqual({ name: "Personal", color: "blue" });
+    });
+
+    it("refuses to remove the family default calendar", async () => {
+      const anna = randomUUID();
+      const home = randomUUID();
+      await joinFamily(home, anna);
+      await db.db.$transaction((tx) => createFamilyCalendar(tx, home, "The Smiths"));
+      const { rows } = await db.admin.query<{ calendar_id: string }>(
+        "SELECT calendar_id FROM calendar.calendar WHERE family_id = $1",
+        [home],
+      );
+
+      const outcome = await removeCalendar(db.db, anna, rows[0].calendar_id);
+
+      expect(outcome).toEqual({ outcome: "default-calendar" });
+      expect(await calendarRow(rows[0].calendar_id)).toEqual({
+        name: "The Smiths",
+        color: "blue",
+      });
     });
 
     it("answers not-found and keeps another person's personal calendar", async () => {

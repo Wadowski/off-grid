@@ -168,13 +168,13 @@ describe("calendar changes at the data level", { timeout: 60_000 }, () => {
     ).rejects.toThrow();
   });
 
-  it("refuses a default calendar that has no user owner", async () => {
+  it("refuses a default calendar that has neither a user nor a family owner", async () => {
     await expect(
       db.admin.query(
-        "INSERT INTO calendar.calendar (calendar_id, family_id, name, color, is_default) VALUES ($1, $2, 'Home', 'blue', true)",
-        [randomUUID(), randomUUID()],
+        "INSERT INTO calendar.calendar (calendar_id, name, color, is_default) VALUES ($1, 'Home', 'blue', true)",
+        [randomUUID()],
       ),
-    ).rejects.toThrow(/calendar_default_is_personal/);
+    ).rejects.toThrow(/calendar_default_has_owner/);
   });
 
   it("refuses a second default calendar for the same user", async () => {

@@ -7,6 +7,7 @@ export { publishOwnedEvent } from "./publish-owned-event.js";
 export { replayEvents } from "./replay-events.js";
 export { classifySourceVersion } from "./classify-source-version.js";
 export { withTransaction } from "./with-transaction.js";
+export { requireEventFamilyId } from "./require-event-family-id.js";
 export type {
   EventBus,
   EventBusOptions,
