@@ -16,6 +16,7 @@ export const FileGridGroup = ({
   onActivate,
   onRename,
   onDelete,
+  onMove,
 }: FileGridGroupProps) => {
   const { t } = useTranslation();
 
@@ -33,6 +34,7 @@ export const FileGridGroup = ({
                 onOpen={() => onActivate(item)}
                 onRename={onRename}
                 onDelete={onDelete}
+                onMove={onMove}
               />
             }
           />

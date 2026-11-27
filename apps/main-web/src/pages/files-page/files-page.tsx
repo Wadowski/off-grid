@@ -16,6 +16,7 @@ import { toParentFolderPath } from "../../files/to-parent-folder-path.js";
 import { useMediaQuery } from "../../media/use-media-query.js";
 import { useUploadQueueContext } from "../../uploads/index.js";
 import type { FilesOutletContext } from "../../layouts/files-layout/types.js";
+import type { FileListItem } from "../../files/types.js";
 import { NewFolderDialog } from "../../files/components/new-folder-dialog/new-folder-dialog.js";
 import { BackLink } from "./components/back-link/back-link.js";
 import { Breadcrumbs } from "./components/breadcrumbs/breadcrumbs.js";
@@ -65,20 +66,24 @@ export const FilesPage = () => {
   const parentName = folder.breadcrumbs.at(-2)?.name;
   const driveName = folder.breadcrumbs.at(0)?.name;
   const folderName = folder.folderId === null ? null : (folder.breadcrumbs.at(-1)?.name ?? null);
+  const clearSelectionIfLeft = (fileId: FileListItem["id"]) => {
+    if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
+      switcher.onClearSelection();
+    }
+  };
   const renderFolderContents = (driveId: NonNullable<typeof folder.driveId>) => (
     <FolderContents
       key={`${driveId}:${folder.folderId ?? ""}`}
+      drives={switcher.drives}
       driveId={driveId}
+      folderId={folder.folderId}
       contents={contents}
       phone={phone}
       view={phone ? "list" : preference.view}
       selectedId={switcher.selectedFileId}
       onSelect={switcher.onSelectFile}
-      onEntryTrashed={(fileId) => {
-        if (toTrashClearsSelection(fileId, switcher.selectedFileId, folder.breadcrumbs)) {
-          switcher.onClearSelection();
-        }
-      }}
+      onEntryLeft={clearSelectionIfLeft}
+      onEntryTrashed={clearSelectionIfLeft}
       onEntryRenamed={switcher.onFilesChanged}
     />
   );

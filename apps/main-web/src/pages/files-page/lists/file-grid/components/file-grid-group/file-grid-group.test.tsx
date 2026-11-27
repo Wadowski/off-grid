@@ -46,6 +46,7 @@ const renderGroup = (overrides: Partial<FileGridGroupProps> = {}) => {
     onActivate: vi.fn(),
     onRename: vi.fn(),
     onDelete: vi.fn(),
+    onMove: vi.fn(),
     ...overrides,
   };
   render(<FileGridGroup {...props} />);

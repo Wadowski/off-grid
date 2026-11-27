@@ -19,23 +19,35 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const renderActions = (onOpen = vi.fn(), onRename = vi.fn(), onDelete = vi.fn()) => {
+const renderActions = (
+  onOpen = vi.fn(),
+  onRename = vi.fn(),
+  onDelete = vi.fn(),
+  onMove = vi.fn(),
+) => {
   render(
-    <FileActionsMenu entry={PHOTOS} onOpen={onOpen} onRename={onRename} onDelete={onDelete} />,
+    <FileActionsMenu
+      entry={PHOTOS}
+      onOpen={onOpen}
+      onRename={onRename}
+      onDelete={onDelete}
+      onMove={onMove}
+    />,
   );
-  return { onOpen, onRename, onDelete };
+  return { onOpen, onRename, onDelete, onMove };
 };
 
 const openMenu = () => fireEvent.click(screen.getByRole("button", { name: "Actions for Photos" }));
 
 describe("FileActionsMenu", () => {
-  it("lists Open, Rename and Delete for the entry", () => {
+  it("lists Open, Rename, Move and Delete for the entry", () => {
     renderActions();
 
     openMenu();
 
     expect(screen.getByRole("menuitem", { name: "Open" })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: "Rename" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Move" })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: "Delete" })).toBeInTheDocument();
   });
 
@@ -49,6 +61,14 @@ describe("FileActionsMenu", () => {
       PHOTOS,
       screen.getByRole("button", { name: "Actions for Photos" }),
     );
+  });
+
+  it("asks for the move of the entry when Move is chosen", () => {
+    const { onMove } = renderActions();
+    fireEvent.click(screen.getByRole("button", { name: /Actions for/ }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Move" }));
+
+    expect(onMove).toHaveBeenCalledOnce();
   });
 
   it("opens the entry when Open is chosen", () => {

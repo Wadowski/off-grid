@@ -82,6 +82,34 @@ describe("FileActions", () => {
     );
   });
 
+  it("offers a Move button only when the panel is given a move handler", () => {
+    const { unmount } = render(<FileActions file={NOTES} />);
+    expect(screen.queryByRole("button", { name: "Move" })).not.toBeInTheDocument();
+    unmount();
+
+    render(<FileActions file={NOTES} move={{ drives: [], onMoved: vi.fn() }} />);
+    expect(screen.getByRole("button", { name: "Move" })).toHaveAttribute("aria-haspopup", "dialog");
+  });
+
+  it("opens the move dialog named after the file when Move is pressed", () => {
+    render(<FileActions file={NOTES} move={{ drives: [], onMoved: vi.fn() }} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Move" }));
+
+    expect(screen.getByRole("dialog", { name: 'Move "Notes.txt"' })).toBeInTheDocument();
+  });
+
+  it("removes the move dialog when Cancel is pressed and leaves the file alone", () => {
+    const onMoved = vi.fn();
+    render(<FileActions file={NOTES} move={{ drives: [], onMoved }} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Move" }));
+    fireEvent.click(screen.getByTestId("move-dialog-cancel"));
+
+    expect(screen.queryByTestId("move-dialog")).not.toBeInTheDocument();
+    expect(onMoved).not.toHaveBeenCalled();
+  });
+
   it("opens the preview dialog on Preview and removes it when it closes", async () => {
     vi.mocked(getFileContent).mockResolvedValue(new Blob(["x"], { type: "image/png" }));
     render(<FileActions file={FILE} />);

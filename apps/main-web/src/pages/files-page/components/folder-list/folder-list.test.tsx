@@ -62,6 +62,7 @@ const renderList = (overrides: Partial<Parameters<typeof FolderList>[0]> = {}) =
               isLoadingMore={false}
               onRename={vi.fn()}
               onDelete={vi.fn()}
+              onMove={vi.fn()}
               onLoadMore={onLoadMore}
               {...overrides}
             />

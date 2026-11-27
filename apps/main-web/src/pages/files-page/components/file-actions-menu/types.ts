@@ -5,15 +5,19 @@ import type { FileListItem } from "../../../../files/types.js";
 
 export type EntryActionRequest = (entry: FileListItem, returnFocusTo: HTMLElement | null) => void;
 
+export type MoveRequest = (entry: FileListItem, returnFocusTo: HTMLElement | null) => void;
+
 export type FileActionsMenuProps = {
   readonly entry: FileListItem;
   readonly onOpen: () => void;
   readonly onRename: EntryActionRequest;
   readonly onDelete: EntryActionRequest;
+  readonly onMove: MoveRequest;
 };
 
 export type FileActionHandlers = {
   readonly onOpen: () => void;
+  readonly onMove: () => void;
   readonly onRename: () => void;
   readonly onDelete: () => void;
 };

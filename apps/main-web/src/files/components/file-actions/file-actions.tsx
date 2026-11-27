@@ -2,18 +2,21 @@
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
 import { Button, cssVar, MaterialIcon, Text, VisuallyHidden } from "@offgrid/ui";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toPreviewKind } from "../../to-preview-kind.js";
+import { MoveDialog } from "../move-dialog/move-dialog.js";
 import { useFileDownload } from "../../use-file-download.js";
 import { FilePreviewDialog } from "./components/file-preview-dialog/file-preview-dialog.js";
 import { fileActionsErrorStyle, fileActionsRowStyle, fileActionsStyle } from "./styles.js";
 import type { FileActionsProps } from "./types.js";
 
-export const FileActions = ({ file }: FileActionsProps) => {
+export const FileActions = ({ file, move }: FileActionsProps) => {
   const { t } = useTranslation();
   const download = useFileDownload(file);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isMoveOpen, setIsMoveOpen] = useState(false);
+  const moveButtonRef = useRef<HTMLButtonElement>(null);
   const isDownloading = download.status === "downloading";
 
   return (
@@ -31,6 +34,20 @@ export const FileActions = ({ file }: FileActionsProps) => {
         >
           <MaterialIcon name="download" size="20px" color={cssVar("color-fg")} />
         </Button>
+        {move === undefined ? null : (
+          <Button
+            ref={moveButtonRef}
+            type="button"
+            variant="secondary"
+            size="icon"
+            aria-label={t("files.details.actions.move")}
+            aria-haspopup="dialog"
+            onClick={() => setIsMoveOpen(true)}
+            data-testid="file-details-move"
+          >
+            <MaterialIcon name="drive_file_move" size="20px" color={cssVar("color-fg")} />
+          </Button>
+        )}
         {toPreviewKind(file.mimeType) === null ? null : (
           <Button
             type="button"
@@ -63,6 +80,21 @@ export const FileActions = ({ file }: FileActionsProps) => {
           textId={download.errorTextId}
           style={fileActionsErrorStyle}
           data-testid="file-details-download-error"
+        />
+      ) : null}
+      {move !== undefined && isMoveOpen ? (
+        <MoveDialog
+          drives={move.drives}
+          source={{
+            entryId: file.id,
+            entryName: file.name,
+            driveId: file.driveId,
+            parentId: file.parentId,
+          }}
+          narrow={false}
+          returnFocusTo={moveButtonRef.current}
+          onClose={() => setIsMoveOpen(false)}
+          onMoved={move.onMoved}
         />
       ) : null}
       {isPreviewOpen ? (

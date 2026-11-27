@@ -75,6 +75,8 @@ const renderPanel = (onClose = vi.fn()) =>
     <UploadQueueProvider>
       <FileDetailsPanel
         onFileChanged={vi.fn()}
+        onFileMoved={vi.fn()}
+        drives={[]}
         changeCount={0}
         fileId={FILE_ID}
         onClose={onClose}

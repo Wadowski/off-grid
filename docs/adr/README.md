@@ -58,3 +58,4 @@ Statuses: `Proposed`, `Accepted`, `Superseded`.
 | [0041](0041-files-trash-purge-worker.md)                            | Files trash, purge and the retention worker                                                      | Accepted                  |
 | [0042](0042-upload-progress-transport.md)                           | Upload progress uses an injected XHR transport, and the upload queue lives in memory             | Accepted                  |
 | [0043](0043-same-origin-api-through-the-web-container.md)           | The API is served under `/api` on the web origin through the web container                       | Accepted                  |
+| [0044](0044-confirmed-cross-owner-move-in-the-web-app.md)           | The web app allows a cross-owner move after an explicit confirmation                             | Accepted                  |
